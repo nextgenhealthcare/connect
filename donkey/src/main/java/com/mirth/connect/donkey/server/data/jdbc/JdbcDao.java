@@ -10,15 +10,14 @@
 package com.mirth.connect.donkey.server.data.jdbc;
 
 import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -424,32 +423,13 @@ public class JdbcDao implements DonkeyDao {
 
                 // @formatter:off
                 if (value == null) {
-                    switch (metaDataColumn.getType()) {
-                        case STRING: statement.setNull(n, Types.VARCHAR); break;
-                        case LONG: statement.setNull(n, Types.BIGINT); break;
-                        case DOUBLE: statement.setNull(n, Types.DOUBLE); break;
-                        case BOOLEAN: statement.setNull(n, Types.BOOLEAN); break;
-                        case DATE: statement.setNull(n, Types.DATE); break;
-                        case TIME: statement.setNull(n, Types.TIME); break;
-                        case TIMESTAMP: statement.setNull(n, Types.TIMESTAMP); break;
-                    }
-                } else {                
+                    statement.setNull(n, Types.NULL);
+                } else {
                     switch (metaDataColumn.getType()) {
                         case STRING: statement.setString(n, (String) value); break;
-                        case LONG:
-                            if (value instanceof Integer) {
-                                statement.setLong(n, ((Integer) value).longValue());
-                            } else {
-                                statement.setLong(n, (Long) value);
-                            }
-
-                            break;
-                            
-                        case DOUBLE: statement.setDouble(n, (Double) value); break;
+                        case NUMBER: statement.setBigDecimal(n, (BigDecimal) value); break;
                         case BOOLEAN: statement.setBoolean(n, (Boolean) value); break;
-                        case DATE: statement.setDate(n, new Date(((Calendar)value).getTimeInMillis())); break;
-                        case TIME: statement.setTime(n, new Time(((Calendar)value).getTimeInMillis())); break;
-                        case TIMESTAMP: statement.setTimestamp(n, new Timestamp(((Calendar)value).getTimeInMillis())); break;
+                        case TIMESTAMP: statement.setTimestamp(n, new Timestamp(((Calendar) value).getTimeInMillis())); break;
                     }
                 }
                 // @formatter:on
@@ -458,7 +438,7 @@ public class JdbcDao implements DonkeyDao {
             }
 
             statement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new DonkeyDaoException("Failed to insert connector message meta data", e);
         } finally {
             close(statement);
@@ -879,54 +859,18 @@ public class JdbcDao implements DonkeyDao {
                 String name = columns.getString("COLUMN_NAME").toUpperCase();
 
                 if (!name.equals("METADATA_ID") && !name.equals("MESSAGE_ID")) {
-                    switch (columns.getInt("DATA_TYPE")) {
-                        case Types.VARCHAR:
-                        case Types.NVARCHAR:
-                        case Types.LONGVARCHAR:
-                        case Types.LONGNVARCHAR:
-                            metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.STRING, null));
-                            break;
+                    MetaDataColumnType columnType = MetaDataColumnType.fromSqlType(columns.getInt("DATA_TYPE"));
 
-                        case Types.BIGINT:
-                        case Types.INTEGER:
-                        case Types.SMALLINT:
-                        case Types.TINYINT:
-                            metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.LONG, null));
-                            break;
-
-                        case Types.DOUBLE:
-                        case Types.FLOAT:
-                        case Types.DECIMAL:
-                        case Types.REAL:
-                        case Types.NUMERIC:
-                            metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.DOUBLE, null));
-                            break;
-
-                        case Types.BOOLEAN:
-                        case Types.BIT:
-                            metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.BOOLEAN, null));
-                            break;
-
-                        case Types.DATE:
-                            metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.DATE, null));
-                            break;
-
-                        case Types.TIME:
-                            metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.TIME, null));
-                            break;
-
-                        case Types.TIMESTAMP:
-                            metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.TIMESTAMP, null));
-                            break;
-
-                        default:
-                            throw new SQLException("Invalid custom metadata column: " + name + " (type " + columns.getInt("DATA_TYPE") + ").");
+                    if (columnType == null) {
+                        logger.error("Invalid custom metadata column: " + name + " (type: " + sqlTypeToString(columns.getInt("DATA_TYPE")) + ").");
+                    } else {
+                        metaDataColumns.add(new MetaDataColumn(name, columnType, null));
                     }
                 }
             } while (columns.next());
 
             return metaDataColumns;
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new DonkeyDaoException("Failed to retrieve meta data columns", e);
         } finally {
             close(columns);
@@ -1167,28 +1111,27 @@ public class JdbcDao implements DonkeyDao {
             return connectorMessages;
         }
 
+        PreparedStatement statement = null;
         ResultSet resultSet = null;
 
         try {
-            PreparedStatement statement;
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("localChannelId", getLocalChannelId(channelId));
+            params.put("offset", offset);
+            params.put("limit", limit);
 
             if (minMessageId == null || maxMessageId == null) {
-                statement = prepareStatement("getConnectorMessagesByMetaDataIdAndStatusWithLimit", channelId);
+                statement = connection.prepareStatement(querySource.getQuery("getConnectorMessagesByMetaDataIdAndStatusWithLimit", params));
                 statement.setInt(1, metaDataId);
                 statement.setString(2, Character.toString(status.getStatusCode()));
-                statement.setInt(3, limit);
-                statement.setInt(4, offset);
             } else {
-                statement = prepareStatement("getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange", channelId);
+                statement = connection.prepareStatement(querySource.getQuery("getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange", params));
                 statement.setInt(1, metaDataId);
                 statement.setString(2, Character.toString(status.getStatusCode()));
                 statement.setLong(3, minMessageId);
                 statement.setLong(4, maxMessageId);
-                statement.setInt(5, limit);
-                statement.setInt(6, offset);
             }
 
-            logger.debug(statement);
             resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
@@ -1200,6 +1143,7 @@ public class JdbcDao implements DonkeyDao {
             throw new DonkeyDaoException(e);
         } finally {
             close(resultSet);
+            close(statement);
         }
     }
 
@@ -1429,6 +1373,12 @@ public class JdbcDao implements DonkeyDao {
                 statement = connection.createStatement();
                 statement.executeUpdate(querySource.getQuery(query, values));
     
+                String sequenceQuery = querySource.getQuery(query + "Sequence", values);
+                
+                if (sequenceQuery != null) {
+                    statement.executeUpdate(sequenceQuery);
+                }
+                
                 String indexQuery = querySource.getQuery(query + "Index" + n, values);
     
                 while (indexQuery != null) {
@@ -1906,12 +1856,27 @@ public class JdbcDao implements DonkeyDao {
                 int columnCount = resultSetMetaData.getColumnCount();
 
                 for (int i = 1; i <= columnCount; i++) {
-                    metaDataMap.put(resultSetMetaData.getColumnName(i).toUpperCase(), resultSet.getObject(i));
+                    MetaDataColumnType metaDataColumnType = MetaDataColumnType.fromSqlType(resultSetMetaData.getColumnType(i));
+                    Object value = null;
+
+                    switch (metaDataColumnType) {//@formatter:off
+                        case STRING: value = resultSet.getString(i); break;
+                        case NUMBER: value = resultSet.getBigDecimal(i); break;
+                        case BOOLEAN: value = resultSet.getBoolean(i); break;
+                        case TIMESTAMP:
+                            value = Calendar.getInstance();
+                            ((Calendar) value).setTimeInMillis(resultSet.getTimestamp(i).getTime());
+                            break;
+
+                        default: throw new Exception("Unrecognized MetaDataColumnType");
+                    } //@formatter:on
+
+                    metaDataMap.put(resultSetMetaData.getColumnName(i).toUpperCase(), value);
                 }
             }
 
             return metaDataMap;
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new DonkeyDaoException(e);
         } finally {
             close(resultSet);
@@ -1999,6 +1964,48 @@ public class JdbcDao implements DonkeyDao {
             DbUtils.close(resultSet);
         } catch (SQLException e) {
             logger.error("Failed to close JDBC result set", e);
+        }
+    }
+    
+    private static String sqlTypeToString(int sqlType) {
+        switch (sqlType) {
+            case Types.ARRAY: return "ARRAY";
+            case Types.BIGINT: return "BIGINT";
+            case Types.BINARY: return "BINARY";
+            case Types.BIT: return "BIT";
+            case Types.BLOB: return "BLOB";
+            case Types.BOOLEAN: return "BOOLEAN";
+            case Types.CHAR: return "CHAR";
+            case Types.CLOB: return "CLOB";
+            case Types.DATALINK: return "DATALINK";
+            case Types.DATE: return "DATE";
+            case Types.DECIMAL: return "DECIMAL";
+            case Types.DISTINCT: return "DISTINCT";
+            case Types.DOUBLE: return "DOUBLE";
+            case Types.FLOAT: return "FLOAT";
+            case Types.INTEGER: return "INTEGER";
+            case Types.JAVA_OBJECT: return "JAVA_OBJECT";
+            case Types.LONGNVARCHAR: return "LONGNVARCHAR";
+            case Types.LONGVARBINARY: return "LONGVARBINARY";
+            case Types.LONGVARCHAR: return "LONGVARCHAR";
+            case Types.NCHAR: return "NCHAR";
+            case Types.NCLOB: return "NCLOB";
+            case Types.NULL: return "NULL";
+            case Types.NUMERIC: return "NUMERIC";
+            case Types.NVARCHAR: return "NVARCHAR";
+            case Types.OTHER: return "OTHER";
+            case Types.REAL: return "REAL";
+            case Types.REF: return "REF";
+            case Types.ROWID: return "ROWID";
+            case Types.SMALLINT: return "SMALLINT";
+            case Types.SQLXML: return "SQLXML";
+            case Types.STRUCT: return "STRUCT";
+            case Types.TIME: return "TIME";
+            case Types.TIMESTAMP: return "TIMESTAMP";
+            case Types.TINYINT: return "TINYINT";
+            case Types.VARBINARY: return "VARBINARY";
+            case Types.VARCHAR: return "VARCHAR";
+            default: return "UNKNOWN";
         }
     }
 

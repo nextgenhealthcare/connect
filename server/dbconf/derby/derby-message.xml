@@ -25,16 +25,36 @@
 		<result property="dataType" column="data_type" />
 		<result property="encrypted" column="is_encrypted" />
 	</resultMap>
+	
+	<resultMap id="messageSearchResult" type="MessageSearchResult">
+		<result property="messageId" column="ID" />
+		<result property="serverId" column="SERVER_ID" />
+		<result property="receivedDate" column="RECEIVED_DATE" />
+		<result property="processed" column="PROCESSED" />
+		<result property="importId" column="IMPORT_ID" />
+		<result property="importChannelId" column="IMPORT_CHANNEL_ID" />
+		<result property="metaDataIds" column="METADATA_IDS" />
+	</resultMap>
+	
+	<resultMap id="message" type="Message">
+		<result property="messageId" column="id" />
+		<result property="serverId" column="server_id" />
+		<result property="receivedDate" column="received_date" />
+		<result property="processed" column="processed" />
+		<result property="importId" column="import_id" />
+		<result property="importChannelId" column="import_channel_id" />
+	</resultMap>
 
-	<select id="searchMessages" parameterType="map" resultType="map">
+	<select id="searchMessages" parameterType="map" resultMap="messageSearchResult">
 		SELECT 
-			message.id AS "message_id",
-			message.server_id AS "server_id",
-			message.received_date AS "received_date",
-			message.processed AS "processed",
-			message.import_id AS "import_id",
-			message.import_channel_id AS "import_channel_id",
+			message.id,
+			message.server_id,
+			message.received_date,
+			message.processed,
+			message.import_id,
+			message.import_channel_id,
 			subquery."metadata_ids"
+
 		FROM (
 			SELECT
 				m.id,
@@ -69,8 +89,8 @@
 		<include refid="searchMessagesBody" />
 	</select>
 	
-	<select id="selectMessageForReprocessing" parameterType="map" resultType="map">
-		SELECT content AS "content", data_type AS "data_type", is_encrypted AS "is_encrypted"
+	<select id="selectMessageForReprocessing" parameterType="map" resultMap="messageContent">
+		SELECT message_id, metadata_id, content_type, content, data_type, is_encrypted
 		FROM d_mc${localChannelId}
 		WHERE message_id = #{messageId}
 		AND metadata_id = 0
@@ -248,14 +268,14 @@
 		</where>
 	</sql>
 	
-	<select id="selectMessageById" resultType="map">
+	<select id="selectMessageById" resultMap="message">
 		SELECT
-			id AS "id",
-			server_id AS "server_id",
-			received_date AS "received_date",
-			processed AS "processed",
-			import_id AS "import_id",
-			import_channel_id AS "import_channel_id"
+			id,
+			server_id,
+			received_date,
+			processed,
+			import_id,
+			import_channel_id
 
 		FROM d_m${localChannelId}
 		WHERE id = #{messageId}
@@ -263,12 +283,12 @@
 	
 	<select id="selectMessageContent" resultMap="messageContent">
 		SELECT
-			metadata_id AS "metadata_id",
-			message_id AS "message_id",
-			content_type AS "content_type",
-			content AS "content",
-			data_type AS data_type,
-			encrypted AS "is_encrypted"
+			metadata_id,
+			message_id,
+			content_type,
+			content,
+			data_type,
+			encrypted
 
 		FROM d_mc${localChannelId}
 		WHERE message_id = #{messageId}
@@ -276,13 +296,6 @@
 		<foreach item="metaDataId" collection="metaDataIds" open="(" separator="," close=")">
 			#{metaDataId}
 		</foreach>
-	</select>
-	
-	<select id="selectCustomMetaData" parameterType="map" resultType="map">
-		SELECT *
-		FROM d_mcm${localChannelId}
-		WHERE metadata_id = #{metaDataId}
-		AND message_id = #{messageId}
 	</select>
 	
 	<select id="selectMessageAttachmentIds" parameterType="map" resultType="Attachment">
@@ -404,13 +417,14 @@
 		</if>
 	</sql>
 	
-	<select id="prunerSelectMessagesToArchive" parameterType="map" resultType="map">
+	<select id="prunerSelectMessagesToArchive" parameterType="map" resultMap="message">
 		SELECT
-			m.id AS "id",
-			mm.received_date AS "received_date",
-			m.processed AS "processed",
-			m.server_id AS "server_id",
-			m.import_id AS "import_id"
+			m.id,
+			m.server_id,
+			m.received_date,
+			m.processed,
+			m.import_id,
+			m.import_channel_id
 			
 		FROM d_m${localChannelId} m
 		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0

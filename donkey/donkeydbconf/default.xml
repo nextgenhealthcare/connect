@@ -19,7 +19,7 @@
 	</query>
 	
 	<query id="insertMessageAttachment">
-		INSERT INTO d_ma${localChannelId} (id, message_id, type, segment_id, size, content)
+		INSERT INTO d_ma${localChannelId} (id, message_id, type, segment_id, attachment_size, content)
 		VALUES (?, ?, ?, ?, ?, ?)
 	</query>
 	
@@ -51,8 +51,8 @@
 	</query>
 	
 	<query id="insertConnectorMessage">
-		INSERT INTO d_mm${localChannelId} (id, message_id, received_date, status, connector_name, chain_id, order_id)
-		VALUES (?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO d_mm${localChannelId} (id, message_id, received_date, status, connector_name, send_attempts, send_date, response_date, error_code, chain_id, order_id)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</query>
 	
 	<query id="updateSourceResponse">
@@ -234,8 +234,8 @@
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id
 		WHERE mm.id = ? AND mm.status = ?
 		ORDER BY m.id
-		LIMIT ?
-		OFFSET ?
+		LIMIT ${limit}
+		OFFSET ${offset}
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange">
@@ -245,8 +245,8 @@
 		WHERE mm.id = ? AND mm.status = ?
 		AND m.id <![CDATA[ >= ]]> ? AND m.id <![CDATA[ <= ]]> ?
 		ORDER BY m.id
-		LIMIT ?
-		OFFSET ?
+		LIMIT ${limit}
+		OFFSET ${offset}
 	</query>
 	
 	<query id="getConnectorMessagesByMessageId">

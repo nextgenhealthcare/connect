@@ -41,20 +41,11 @@ public enum MetaDataSearchOperator {
         if (type == MetaDataColumnType.BOOLEAN) {
             return new MetaDataSearchOperator[]{EQUAL, NOT_EQUAL};
         }
-        if (type == MetaDataColumnType.DOUBLE) {
-            return new MetaDataSearchOperator[]{EQUAL, NOT_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL};
-        }
-        if (type == MetaDataColumnType.LONG) {
+        if (type == MetaDataColumnType.NUMBER) {
             return new MetaDataSearchOperator[]{EQUAL, NOT_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL};
         }
         if (type == MetaDataColumnType.STRING) {
             return new MetaDataSearchOperator[]{TEXT_EQUAL, CONTAINS, STARTS_WITH, ENDS_WITH};
-        }
-        if (type == MetaDataColumnType.DATE) {
-            return new MetaDataSearchOperator[]{EQUAL, NOT_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL};
-        }
-        if (type == MetaDataColumnType.TIME) {
-            return new MetaDataSearchOperator[]{EQUAL, NOT_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL};
         }
         if (type == MetaDataColumnType.TIMESTAMP) {
             return new MetaDataSearchOperator[]{EQUAL, NOT_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL};

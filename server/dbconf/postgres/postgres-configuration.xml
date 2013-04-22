@@ -12,8 +12,8 @@
 		UPDATE
 		SCHEMA_INFO SET VERSION = #{value}
 	</update>
-	<select id='selectPropertiesForCategory' parameterType='java.lang.String' resultType='java.util.HashMap'>
-		SELECT NAME, VALUE
+	<select id='selectPropertiesForCategory' parameterType='java.lang.String' resultType='KeyValuePair'>
+		SELECT NAME AS "key", VALUE AS "value"
 		FROM CONFIGURATION
 		WHERE CATEGORY = #{value}
 	</select>

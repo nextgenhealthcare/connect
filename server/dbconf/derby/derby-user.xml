@@ -48,7 +48,7 @@
 	<delete id="prunePasswords" parameterType="java.util.Map">
 		DELETE FROM PERSON_PASSWORD
 		WHERE PERSON_ID = #{id}
-		AND PASSWORD_DATE <![CDATA[ <= ]]> '${pruneDate}'
+		AND PASSWORD_DATE <![CDATA[ <= ]]> #{pruneDate}
 	</delete>
 	
 	<insert id="insertUser" parameterType="java.util.Map">

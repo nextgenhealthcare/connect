@@ -11,6 +11,7 @@ package com.mirth.connect.client.ui.browsers.message;
 
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Point;
@@ -22,6 +23,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -45,6 +47,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -73,6 +76,7 @@ import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.client.core.PaginatedMessageList;
 import com.mirth.connect.client.core.RequestAbortedException;
+import com.mirth.connect.client.ui.DateCellRenderer;
 import com.mirth.connect.client.ui.EditMessageDialog;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.LoadedExtensions;
@@ -122,6 +126,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     public static final int ERRORS_COLUMN = 8;
     public static final int SERVER_ID_COLUMN = 9;
     public static final int IMPORT_ID_COLUMN = 10;
+    
+    protected final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
 
     private final String SCOPE_COLUMN_NAME = "Scope";
     private final String KEY_COLUMN_NAME = "Variable";
@@ -280,8 +286,15 @@ public class MessageBrowser extends javax.swing.JPanel {
         List<String> columnList = new ArrayList<String>();
         // Add standard columns
         columnList.addAll(columnMap.values());
+        
         // Add custom columns
-        columnList.addAll(getMetaDataColumnNames());
+        List<String> metaDataColumnNames = new ArrayList<String>();
+        
+        for (MetaDataColumn column : metaDataColumns) {
+            metaDataColumnNames.add(column.getName());
+        }
+
+        columnList.addAll(metaDataColumnNames);
         tableModel.setColumnIdentifiers(columnList);
 
         // Create the column objects and add them to the message table
@@ -300,6 +313,40 @@ public class MessageBrowser extends javax.swing.JPanel {
             //TODO add option in channel setup to determine whether custom metadata columns should be visible by default.
             if (modelIndex < columnMap.size()) {
                 column.setVisible(Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserVisibleColumn" + columnName, defaultVisible));
+            } else {
+                MetaDataColumn metaDataColumn = metaDataColumns.get(modelIndex - columnMap.size());
+
+                switch (metaDataColumn.getType()) {
+                    case NUMBER:
+                        column.setCellRenderer(new DefaultTableCellRenderer() {
+                            @Override
+                            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                                Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                                
+                                if (value != null && value instanceof BigDecimal) {
+                                    setText(((BigDecimal) value).stripTrailingZeros().toString());
+                                } else {
+                                    setText("");
+                                }
+                                
+                                return component;
+                            }
+                        });
+                    
+                    case BOOLEAN:
+                        column.setMaxWidth(500);
+                        column.setMinWidth(90);
+                        column.setPreferredWidth(90);
+                        break;
+                    
+                    case TIMESTAMP:
+                        DateCellRenderer timestampRenderer = new DateCellRenderer();
+                        timestampRenderer.setDateFormat(new SimpleDateFormat(DATE_FORMAT));
+                        column.setCellRenderer(timestampRenderer);
+                        column.setMaxWidth(140);
+                        column.setMinWidth(140);
+                        break;
+                }
             }
 
             messageTreeTable.addColumn(column);
@@ -351,15 +398,6 @@ public class MessageBrowser extends javax.swing.JPanel {
 
     public String getChannelId() {
         return channelId;
-    }
-
-    private List<String> getMetaDataColumnNames() {
-        List<String> metaDataColumnNames = new ArrayList<String>();
-        for (MetaDataColumn column : metaDataColumns) {
-            metaDataColumnNames.add(column.getName());
-        }
-
-        return metaDataColumnNames;
     }
 
     public Map<Integer, String> getConnectors() {

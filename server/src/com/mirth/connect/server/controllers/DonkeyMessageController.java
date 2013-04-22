@@ -9,9 +9,7 @@
 
 package com.mirth.connect.server.controllers;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,7 +17,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
@@ -42,6 +39,7 @@ import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.model.filters.MessageFilter;
+import com.mirth.connect.server.mybatis.MessageSearchResult;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.DICOMUtil;
 import com.mirth.connect.server.util.SqlConfig;
@@ -127,21 +125,6 @@ public class DonkeyMessageController extends MessageController {
         return SqlConfig.getSqlSessionManager().selectOne("Message.searchMessagesCount", getParameters(filter, channel.getChannelId(), null, null));
     }
 
-    private Set<Integer> getMetaDataIdsFromString(String metaDataIds) {
-        if (metaDataIds == null) {
-            return null;
-        }
-
-        String[] pieces = StringUtils.split(metaDataIds, ',');
-        Set<Integer> list = new HashSet<Integer>();
-
-        for (String piece : pieces) {
-            list.add(Integer.parseInt(piece));
-        }
-
-        return list;
-    }
-
     @Override
     public List<Message> getMessages(MessageFilter filter, Channel channel, Boolean includeContent, Integer offset, Integer limit) {
         List<Message> messages = new ArrayList<Message>();
@@ -153,7 +136,7 @@ public class DonkeyMessageController extends MessageController {
         }
 
         Map<String, Object> params = getParameters(filter, channelId, offset, limit);
-        List<Map<String, Object>> rows = session.selectList("Message.searchMessages", params);
+        List<MessageSearchResult> results = session.selectList("Message.searchMessages", params);
 
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 
@@ -165,22 +148,11 @@ public class DonkeyMessageController extends MessageController {
         dao.setDecryptData(!includeContent);
 
         try {
-            for (Map<String, Object> row : rows) {
-                Calendar receivedDate = Calendar.getInstance();
-                receivedDate.setTimeInMillis(((Timestamp) row.get("received_date")).getTime());
-
-                Message message = new Message();
-                message.setMessageId((Long) row.get("message_id"));
+            for (MessageSearchResult result : results) {
+                Message message = result.getMessage();
                 message.setChannelId(channelId);
-                message.setReceivedDate(receivedDate);
-                message.setServerId((String) row.get("server_id"));
-                message.setProcessed((Boolean) row.get("processed"));
-                message.setImportId((Long) row.get("import_id"));
-                message.setImportChannelId((String) row.get("import_channel_id"));
 
-                Set<Integer> metaDataIds = getMetaDataIdsFromString((String) row.get("metadata_ids"));
-
-                List<ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, message.getMessageId(), metaDataIds, includeContent);
+                List<ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, message.getMessageId(), result.getMetaDataIdSet(), includeContent);
 
                 for (ConnectorMessage connectorMessage : connectorMessages) {
                     message.getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
@@ -204,21 +176,10 @@ public class DonkeyMessageController extends MessageController {
             params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
             params.put("messageId", messageId);
 
-            Message message = new Message();
-            message.setChannelId(channelId);
-            message.setMessageId(messageId);
+            Message message = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageById", params);
 
-            Map<String, Object> row = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageById", params);
-
-            if (row != null) {
-                Calendar receivedDate = Calendar.getInstance();
-                receivedDate.setTimeInMillis(((Timestamp) row.get("received_date")).getTime());
-
-                message.setReceivedDate(receivedDate);
-                message.setServerId((String) row.get("server_id"));
-                message.setProcessed((Boolean) row.get("processed"));
-                message.setImportId((Long) row.get("import_id"));
-                message.setImportChannelId((String) row.get("import_channel_id"));
+            if (message != null) {
+                message.setChannelId(channelId);
             }
 
             Map<Integer, ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, messageId);
@@ -271,11 +232,11 @@ public class DonkeyMessageController extends MessageController {
     public int removeMessages(String channelId, MessageFilter filter) {
         // Perform the deletes in batches rather than all in one transaction.
         //TODO Tune the limit to use for each batch in the delete.
-        Map<String, Object> params = getParameters(filter, channelId, null, 100000);
+        Map<String, Object> params = getParameters(filter, channelId, 0, 100000);
 
         Channel channel = ControllerFactory.getFactory().createEngineController().getDeployedChannel(channelId);
         if (channel != null) {
-            List<Map<String, Object>> rows = null;
+            List<MessageSearchResult> results = null;
             Long maxMessageId = filter.getMaxMessageId();
             do {
                 // Prevent the delete from occurring at the same time as the channel being started. 
@@ -283,14 +244,14 @@ public class DonkeyMessageController extends MessageController {
                     params.put("maxMessageId", maxMessageId);
 
                     // Perform a search using the message filter parameters
-                    rows = SqlConfig.getSqlSessionManager().selectList("Message.searchMessages", params);
+                    results = SqlConfig.getSqlSessionManager().selectList("Message.searchMessages", params);
                     Map<Long, Set<Integer>> messages = new HashMap<Long, Set<Integer>>();
 
                     // For each message that was retrieved
-                    for (Map<String, Object> row : rows) {
-                        Long messageId = (Long) row.get("message_id");
-                        Set<Integer> metaDataIds = getMetaDataIdsFromString((String) row.get("metadata_ids"));
-                        Boolean processed = (Boolean) row.get("processed");
+                    for (MessageSearchResult result : results) {
+                        Long messageId = result.getMessageId();
+                        Set<Integer> metaDataIds = result.getMetaDataIdSet();
+                        boolean processed = result.isProcessed();
 
                         if (maxMessageId == null || maxMessageId >= messageId) {
                             maxMessageId = messageId - 1;
@@ -310,7 +271,7 @@ public class DonkeyMessageController extends MessageController {
 
                     com.mirth.connect.donkey.server.controllers.MessageController.getInstance().deleteMessages(channelId, messages, false);
                 }
-            } while (rows != null && rows.size() > 0);
+            } while (results.size() > 0);
 
             // Invalidate the queue buffer to ensure stats are updated.
             channel.invalidateQueues();
@@ -390,7 +351,7 @@ public class DonkeyMessageController extends MessageController {
             dao.close();
         }
     }
-
+    
     @Override
     public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds) {
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
@@ -407,26 +368,26 @@ public class DonkeyMessageController extends MessageController {
 
         for (Long messageId : messageIds) {
             params.put("messageId", messageId);
-            Map<String, Object> messageResult = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageForReprocessing", params);
+            MessageContent rawContent = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageForReprocessing", params);
+            
+            if (rawContent.isEncrypted()) {
+                rawContent.setContent(encryptor.decrypt(rawContent.getContent()));
+                rawContent.setEncrypted(false);
+            }
 
-            if (messageResult != null) {
-                String rawContent = (String) messageResult.get("content");
-    
-                if ((Boolean) messageResult.get("is_encrypted")) {
-                    rawContent = encryptor.decrypt(rawContent);
-                }
-    
+            if (rawContent != null) {
                 ConnectorMessage connectorMessage = new ConnectorMessage();
                 connectorMessage.setChannelId(channelId);
                 connectorMessage.setMessageId(messageId);
                 connectorMessage.setMetaDataId(0);
-                connectorMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, rawContent, dataType.getType(), false));
+                connectorMessage.setRaw(rawContent);
     
                 RawMessage rawMessage = null;
+                
                 if (ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).isBinary()) {
                     rawMessage = new RawMessage(DICOMUtil.getDICOMRawBytes(connectorMessage));
                 } else {
-                    rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(AttachmentUtil.reAttachMessage(rawContent, connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
+                    rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(AttachmentUtil.reAttachMessage(rawContent.getContent(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
                 }
     
                 if (replace) {

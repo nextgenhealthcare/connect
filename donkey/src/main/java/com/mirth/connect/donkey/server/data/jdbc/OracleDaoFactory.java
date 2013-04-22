@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 
 public class OracleDaoFactory extends JdbcDaoFactory {
-    private final static String COMMAND = "COMMIT WRITE BATCH NOWAIT;";
+    private final static String COMMAND = "COMMIT WRITE BATCH NOWAIT";
     private final static int REQUIRED_MAJOR_VERSION = 10;
     private final static int REQUIRED_MINOR_VERSION = 2;
 
@@ -31,7 +31,6 @@ public class OracleDaoFactory extends JdbcDaoFactory {
         return dao;
     }
 
-    // TODO need to test this with Oracle
     private String getAsyncCommitCommand(JdbcDao dao) {
         if (supported == null) {
             try {

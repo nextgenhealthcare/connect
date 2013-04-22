@@ -12,6 +12,7 @@
 		<typeAlias alias="MapTypeHandler" type="com.mirth.connect.server.sqlmap.extensions.SerializableHandler" />
 		<package name="com.mirth.connect.donkey.model.message" />
 		<package name="com.mirth.connect.donkey.model.message.attachment" />
+		<package name="com.mirth.connect.server.mybatis" />
 	</typeAliases>
 
 	<typeHandlers>

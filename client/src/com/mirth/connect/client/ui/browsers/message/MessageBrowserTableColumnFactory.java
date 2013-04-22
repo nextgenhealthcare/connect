@@ -26,7 +26,6 @@ import com.mirth.connect.client.ui.NumberCellRenderer;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
 
 public class MessageBrowserTableColumnFactory extends ColumnFactory {
-
     @Override
     public TableColumnExt createAndConfigureTableColumn(TableModel model, int index) {
         TableColumnExt column = super.createAndConfigureTableColumn(model, index);
@@ -57,7 +56,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
 
             case MessageBrowser.ORIGINAL_RECEIVED_DATE_COLUMN: // Received Date
                 dateCellRenderer = new DateCellRenderer();
-                dateCellRenderer.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS"));
+                dateCellRenderer.setDateFormat(new SimpleDateFormat(MessageBrowser.DATE_FORMAT));
                 renderer = dateCellRenderer;
                 column.setMaxWidth(140);
                 column.setMinWidth(140);
@@ -66,7 +65,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
 
             case MessageBrowser.RECEIVED_DATE_COLUMN: // Received Date
                 dateCellRenderer = new DateCellRenderer();
-                dateCellRenderer.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS"));
+                dateCellRenderer.setDateFormat(new SimpleDateFormat(MessageBrowser.DATE_FORMAT));
                 renderer = dateCellRenderer;
                 column.setMaxWidth(140);
                 column.setMinWidth(140);
@@ -83,7 +82,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
 
             case MessageBrowser.SEND_DATE_COLUMN: // Send Date
                 dateCellRenderer = new DateCellRenderer();
-                dateCellRenderer.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS"));
+                dateCellRenderer.setDateFormat(new SimpleDateFormat(MessageBrowser.DATE_FORMAT));
                 renderer = dateCellRenderer;
                 column.setMaxWidth(140);
                 column.setMinWidth(140);
@@ -92,7 +91,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
 
             case MessageBrowser.RESPONSE_DATE_COLUMN: // Response Date
                 dateCellRenderer = new DateCellRenderer();
-                dateCellRenderer.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS"));
+                dateCellRenderer.setDateFormat(new SimpleDateFormat(MessageBrowser.DATE_FORMAT));
                 renderer = dateCellRenderer;
                 column.setMaxWidth(140);
                 column.setMinWidth(140);

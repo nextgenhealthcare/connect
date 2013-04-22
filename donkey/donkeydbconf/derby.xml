@@ -101,7 +101,7 @@
 	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE RESTRICT,
 	        type character varying(40),
 	        segment_id integer NOT NULL,
-	        size integer NOT NULL,
+	        attachment_size integer NOT NULL,
 	        content blob
         )
 	</query>
@@ -179,43 +179,19 @@
 		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
 	</query>
 	
+	<query id="addMetaDataColumnNumber">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} decimal(31, 15)
+	</query>
+	
+	<query id="addMetaDataColumnNumberIndex">
+		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
+	</query>
+	
 	<query id="addMetaDataColumnBoolean">
 		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} boolean
 	</query>
 	
 	<query id="addMetaDataColumnBooleanIndex">
-		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
-	</query>
-	
-	<query id="addMetaDataColumnDate">
-		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} date
-	</query>
-	
-	<query id="addMetaDataColumnDateIndex">
-		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
-	</query>
-	
-	<query id="addMetaDataColumnDouble">
-		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} double precision
-	</query>
-	
-	<query id="addMetaDataColumnDoubleIndex">
-		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
-	</query>
-	
-	<query id="addMetaDataColumnLong">
-		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} bigint
-	</query>
-	
-	<query id="addMetaDataColumnLongIndex">
-		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
-	</query>
-	
-	<query id="addMetaDataColumnTime">
-		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} time
-	</query>
-	
-	<query id="addMetaDataColumnTimeIndex">
 		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
 	</query>
 	

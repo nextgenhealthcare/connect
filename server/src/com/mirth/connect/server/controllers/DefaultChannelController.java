@@ -16,13 +16,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.ibatis.exceptions.PersistenceException;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
@@ -32,7 +29,6 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.DeployedChannelInfo;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.plugins.ChannelPlugin;
-import com.mirth.connect.server.sqlmap.extensions.MapResultHandler;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 
@@ -70,49 +66,9 @@ public class DefaultChannelController extends ChannelController {
         logger.debug("getting channel");
 
         try {
-            List<Channel> channels = SqlConfig.getSqlSessionManager().selectList("Channel.getChannel", channel);
-            
-            ChannelTagResultHandler resultHandler = new ChannelTagResultHandler();
-            SqlConfig.getSqlSessionManager().select("Channel.getChannelTags", channel, resultHandler);
-            Map<String, Set<String>> tagMap = resultHandler.getTagMap();
-            
-            for (Channel currentChannel : channels) {
-                Set<String> channelTags = tagMap.get(currentChannel.getId());
-                
-                if (channelTags != null) {
-                    currentChannel.setTags(channelTags);
-                }
-            }
-            
-            return channels;
+            return SqlConfig.getSqlSessionManager().selectList("Channel.getChannel", channel);
         } catch (PersistenceException e) {
             throw new ControllerException(e);
-        }
-    }
-    
-    private class ChannelTagResultHandler implements ResultHandler {
-        private Map<String, Set<String>> tags = new HashMap<String, Set<String>>();
-
-        public Map<String, Set<String>> getTagMap() {
-            return tags;
-        }
-
-        @Override
-        public void handleResult(ResultContext context) {
-            @SuppressWarnings("unchecked")
-            Map<Object, Object> result = (Map<Object, Object>) context.getResultObject();
-            
-            String channelId = (String) result.get("channel_id");
-            String tag = (String) result.get("tag");
-            
-            Set<String> channelTags = tags.get(channelId);
-            
-            if (channelTags == null) {
-                channelTags = new LinkedHashSet<String>();
-                tags.put(channelId, channelTags);
-            }
-            
-            channelTags.add(tag);
         }
     }
 
@@ -121,10 +77,8 @@ public class DefaultChannelController extends ChannelController {
         List<ChannelSummary> channelSummaries = new ArrayList<ChannelSummary>();
 
         try {
-            MapResultHandler<String, Integer> mapResultHandler = new MapResultHandler<String,Integer>("id", "revision");
-            SqlConfig.getSqlSessionManager().select("Channel.getChannelRevision", mapResultHandler);              
-            Map<String, Integer> serverChannels = mapResultHandler.getMap();
-
+            List<Channel> result = SqlConfig.getSqlSessionManager().selectList("Channel.getChannelRevision");
+            
             /*
              * Iterate through the cached channel list and check if a channel
              * with the id exists on the server. If it does, and the revision
@@ -136,10 +90,10 @@ public class DefaultChannelController extends ChannelController {
                 boolean channelExistsOnServer = false;
 
                 // iterate through all of the channels on the server
-                for (Entry<String, Integer> entry : serverChannels.entrySet()) {
-                    String id = entry.getKey();
-                    Integer revision = entry.getValue();
-
+                for (Channel channel : result) {
+                    String id = channel.getId();
+                    Integer revision = channel.getRevision();
+                    
                     // if the channel with the cached id exists
                     if (id.equals(cachedChannelId)) {
                         // and the revision numbers aren't equal, add it as
@@ -169,19 +123,17 @@ public class DefaultChannelController extends ChannelController {
              * in the cached channel list. If it doesn't, add it to the summary
              * list as added.
              */
-            for (Entry<String, Integer> entry : serverChannels.entrySet()) {
-                String id = entry.getKey();
-
-                if (!cachedChannels.keySet().contains(id)) {
+            for (Channel channel : result) {
+                if (channel.getId() != null && !cachedChannels.keySet().contains(channel.getId())) {
                     ChannelSummary summary = new ChannelSummary();
-                    summary.setId(id);
+                    summary.setId(channel.getId());
                     summary.setAdded(true);
                     channelSummaries.add(summary);
                 }
             }
 
             return channelSummaries;
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ControllerException(e);
         }
     }

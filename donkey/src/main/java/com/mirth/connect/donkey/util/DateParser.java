@@ -18,18 +18,29 @@ import java.util.List;
 public class DateParser {
     // @formatter:off
     final private static String[] DEFAULT_PATTERNS = new String[] { 
+        "yyyy-MM-dd HH:mm:ss:SSS",
+        "yyyy-MM-dd HH:mm:ss.SSS",
         "yyyy-MM-dd HH:mm:ss",
+        "yyyy-MM-dd HH:mm",
+        "EEE MMM dd HH:mm:ss:SSS zzz yyyy",
+        "EEE MMM dd HH:mm:ss.SSS zzz yyyy",
         "EEE MMM dd HH:mm:ss zzz yyyy",
         "EEE MMM dd zzz yyyy",
+        "dd-MMM-yyyy HH:mm:ss:SSS",
+        "dd-MMM-yyyy HH:mm:ss.SSS",
+        "dd-MMM-yyyy HH:mm:ss",
         "yyyy-MM-dd",
         "yyyy MM dd",
         "yyyy.MM.dd",
         "MM-dd-yyyy",
         "MM dd yyyy",
         "MM.dd.yyyy",
+        "HH:mm:ss:SSS",
+        "HH:mm:ss.SSS",
         "HH:mm:ss",
-        "yyyyMMddHHmm",
-        "yyyyMMddHHmmss",};
+        "yyyyMMddHHmmssSSS",
+        "yyyyMMddHHmmss",
+        "yyyyMMddHHmm"};
     // @formatter:on
 
     private List<String> patterns = Arrays.asList(DEFAULT_PATTERNS);

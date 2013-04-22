@@ -135,7 +135,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
 
                     if (StringUtils.isNotEmpty((String) value)) {
                         try {
-                            metaDataColumn.getType().castMetaDataFromString((String) value);
+                            metaDataColumn.getType().castValue(value);
                         } catch (MetaDataColumnException e) {
                             parent.alertError(parent, "Invalid value for column type " + metaDataColumn.getType().toString());
                             return;
@@ -328,7 +328,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
 
                 if (StringUtils.isNotEmpty(searchText)) {
                     MetaDataColumn column = cachedMetaDataColumns.get(metaDataName);
-                    metaDataSearch.add(new MetaDataSearchElement(metaDataName, operator, column.getType().castMetaDataFromString(searchText), ignoreCase));
+                    metaDataSearch.add(new MetaDataSearchElement(metaDataName, operator, column.getType().castValue(searchText), ignoreCase));
                 }
             }
 

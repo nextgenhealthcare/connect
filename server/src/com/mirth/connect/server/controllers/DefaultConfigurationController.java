@@ -79,7 +79,7 @@ import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.server.sqlmap.extensions.MapResultHandler;
+import com.mirth.connect.server.mybatis.KeyValuePair;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.PasswordRequirementsChecker;
@@ -515,12 +515,10 @@ public class DefaultConfigurationController extends ConfigurationController {
         Properties properties = new Properties();
 
         try {
-            MapResultHandler<String, String> mapResultHandler = new MapResultHandler<String, String>("name", "value");
-            SqlConfig.getSqlSessionManager().select("Configuration.selectPropertiesForCategory", category, mapResultHandler);
-            Map<String, String> result = mapResultHandler.getMap();
+            List<KeyValuePair> result = SqlConfig.getSqlSessionManager().selectList("Configuration.selectPropertiesForCategory", category);
 
-            if (!result.isEmpty()) {
-                properties.putAll(result);
+            for (KeyValuePair pair : result) {
+                properties.setProperty(pair.getKey(), StringUtils.defaultString(pair.getValue()));
             }
         } catch (Exception e) {
             logger.error("Could not retrieve properties: category=" + category, e);

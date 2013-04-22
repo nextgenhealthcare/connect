@@ -39,6 +39,7 @@ import java.util.Properties;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 import org.apache.log4j.Logger;
@@ -255,8 +256,15 @@ public class TestUtils {
     	responseTransformerExecutor.setResponseTransformer(new TestResponseTransformer());
         return responseTransformerExecutor;
     }
+    
+    private static String getCallingMethod() {
+        StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+        StackTraceElement element = trace[3];
+        return String.format("%s.%s:%d", element.getClassName(), element.getMethodName(), element.getLineNumber());
+    }
 
     public static Connection getConnection() {
+//        System.out.println("getConnection() called from: " + getCallingMethod());
         Properties properties = Donkey.getInstance().getConfiguration().getDatabaseProperties();
         Connection connection = null;
 
@@ -496,7 +504,7 @@ public class TestUtils {
                     MessageContent messageContent = connectorMessage.getMessageContent(contentType);
 
                     if (messageContent != null) {
-                        assertMessageContentExists(messageContent);
+                        assertMessageContentExists(connection, messageContent);
                     }
                 }
             }
@@ -580,14 +588,22 @@ public class TestUtils {
     }
 
     public static void assertMessageContentExists(MessageContent content) throws SQLException {
+        Connection connection = getConnection();
+        
+        try {
+            assertMessageContentExists(connection, content);
+        } finally {
+            close(connection);
+        }
+    }
+    
+    public static void assertMessageContentExists(Connection connection, MessageContent content) throws SQLException {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(content.getChannelId());
 
-        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
 
         try {
-            connection = getConnection();
             statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
             statement.setLong(1, content.getMessageId());
             statement.setLong(2, content.getMetaDataId());
@@ -602,7 +618,6 @@ public class TestUtils {
         } finally {
             close(result);
             close(statement);
-            close(connection);
         }
     }
     
@@ -807,21 +822,13 @@ public class TestUtils {
                 
                 if (!name.toUpperCase().equals("METADATA_ID") && !name.toUpperCase().equals("MESSAGE_ID")) {
                     int type = columns.getInt("DATA_TYPE");
-                    
-                    if (type == Types.VARCHAR || type == Types.NVARCHAR || type == Types.LONGVARCHAR || type == Types.LONGNVARCHAR) {
-                        metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.STRING, null));
-                    } else if (type == Types.BIGINT || type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT) {
-                        metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.LONG, null));
-                    } else if (type == Types.DOUBLE || type == Types.FLOAT || type == Types.DECIMAL || type == Types.REAL || type == Types.NUMERIC) {
-                        metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.DOUBLE, null));
-                    } else if (type == Types.BOOLEAN || type == Types.BIT) {
-                        metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.BOOLEAN, null));
-                    } else if (type == Types.DATE) {
-                        metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.DATE, null));
-                    } else if (type == Types.TIME) {
-                        metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.TIME, null));
-                    } else if (type == Types.TIMESTAMP) {
-                        metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.TIMESTAMP, null));
+                    MetaDataColumnType metaDataColumnType = MetaDataColumnType.fromSqlType(type);
+
+                    if (metaDataColumnType == null) {
+                        logger.error("Unsupported sql type: " + typeToString(type));
+                    } else {
+                        metaDataColumns.add(new MetaDataColumn(name, metaDataColumnType, null));
+                        logger.info(String.format("Detected column '%s' with type '%s', using MetaDataColumnType: %s", name, typeToString(type), metaDataColumnType));
                     }
                 }
             } while (columns.next());
@@ -831,6 +838,48 @@ public class TestUtils {
         }
 
         return metaDataColumns;
+    }
+    
+    private static String typeToString(int sqlType) {
+        switch (sqlType) {
+            case Types.ARRAY: return "ARRAY";
+            case Types.BIGINT: return "BIGINT";
+            case Types.BINARY: return "BINARY";
+            case Types.BIT: return "BIT";
+            case Types.BLOB: return "BLOB";
+            case Types.BOOLEAN: return "BOOLEAN";
+            case Types.CHAR: return "CHAR";
+            case Types.CLOB: return "CLOB";
+            case Types.DATALINK: return "DATALINK";
+            case Types.DATE: return "DATE";
+            case Types.DECIMAL: return "DECIMAL";
+            case Types.DISTINCT: return "DISTINCT";
+            case Types.DOUBLE: return "DOUBLE";
+            case Types.FLOAT: return "FLOAT";
+            case Types.INTEGER: return "INTEGER";
+            case Types.JAVA_OBJECT: return "JAVA_OBJECT";
+            case Types.LONGNVARCHAR: return "LONGNVARCHAR";
+            case Types.LONGVARBINARY: return "LONGVARBINARY";
+            case Types.LONGVARCHAR: return "LONGVARCHAR";
+            case Types.NCHAR: return "NCHAR";
+            case Types.NCLOB: return "NCLOB";
+            case Types.NULL: return "NULL";
+            case Types.NUMERIC: return "NUMERIC";
+            case Types.NVARCHAR: return "NVARCHAR";
+            case Types.OTHER: return "OTHER";
+            case Types.REAL: return "REAL";
+            case Types.REF: return "REF";
+            case Types.ROWID: return "ROWID";
+            case Types.SMALLINT: return "SMALLINT";
+            case Types.SQLXML: return "SQLXML";
+            case Types.STRUCT: return "STRUCT";
+            case Types.TIME: return "TIME";
+            case Types.TIMESTAMP: return "TIMESTAMP";
+            case Types.TINYINT: return "TINYINT";
+            case Types.VARBINARY: return "VARBINARY";
+            case Types.VARCHAR: return "VARCHAR";
+            default: return "UNKNOWN";
+        }
     }
 
     public static Map<String, Object> getCustomMetaData(String channelId, long messageId, int metaDataId) throws SQLException {
@@ -858,20 +907,11 @@ public class TestUtils {
                         // @formatter:off
                         switch (column.getType()) {
                             case BOOLEAN: map.put(column.getName(), result.getBoolean(column.getName())); break;
-                            case LONG: map.put(column.getName(), result.getLong(column.getName())); break;
-                            case DOUBLE: map.put(column.getName(), result.getDouble(column.getName())); break;
+                            case NUMBER: map.put(column.getName(), result.getBigDecimal(column.getName())); break;
                             case STRING: map.put(column.getName(), result.getString(column.getName())); break;
-                            case DATE: case TIME: case TIMESTAMP:
+                            case TIMESTAMP:
                                 Calendar calendar = Calendar.getInstance();
-                                long millis = 0;
-                                
-                                switch (column.getType()) {
-                                    case DATE: millis = result.getDate(column.getName()).getTime(); break;
-                                    case TIME: millis = result.getTime(column.getName()).getTime(); break;
-                                    case TIMESTAMP: millis = result.getTimestamp(column.getName()).getTime(); break;
-                                }
-                                
-                                calendar.setTimeInMillis(millis);
+                                calendar.setTimeInMillis(result.getTimestamp(column.getName()).getTime());
                                 map.put(column.getName(), calendar);
                                 break;
                         }
@@ -909,16 +949,12 @@ public class TestUtils {
             throw new AssertionError();
         }
 
-        String date1;
-        String date2;
-
         switch (type) {
             case BOOLEAN:
-            case DOUBLE:
-            case LONG:
+            case NUMBER:
             case STRING:
                 try {
-                    assertEquals(type.toString(), type.castMetaDataFromString(value1.toString()), type.castMetaDataFromString(value2.toString()));
+                    assertEquals(type.toString(), type.castValue(value1), type.castValue(value2));
                 } catch (MetaDataColumnException e) {
                     throw new AssertionError();
                 }
@@ -926,18 +962,6 @@ public class TestUtils {
 
             case TIMESTAMP:
                 assertEquals(type.toString(), ((Calendar) value1), (Calendar) value2);
-                break;
-
-            case DATE:
-                date1 = new SimpleDateFormat("yyyyMMdd").format(((Calendar) value1).getTimeInMillis());
-                date2 = new SimpleDateFormat("yyyyMMdd").format(((Calendar) value2).getTimeInMillis());
-                assertEquals(type.toString(), date1, date2);
-                break;
-
-            case TIME:
-                date1 = new SimpleDateFormat("HHmmss").format(((Calendar) value1).getTimeInMillis());
-                date2 = new SimpleDateFormat("HHmmss").format(((Calendar) value2).getTimeInMillis());
-                assertEquals(type.toString(), date1, date2);
                 break;
 
             default:
@@ -1587,4 +1611,5 @@ public class TestUtils {
 
         return storageSettings;
     }
+
 }

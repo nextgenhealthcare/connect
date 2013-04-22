@@ -22,7 +22,7 @@
 	        message_id bigint NOT NULL,
 	        received_date timestamp NOT NULL,
 	        status character(1) NOT NULL,
-	        connector_name text,
+	        connector_name longtext,
 	        send_attempts integer NOT NULL DEFAULT 0,
 	        send_date timestamp,
 	        response_date timestamp,
@@ -51,7 +51,7 @@
 	        metadata_id integer NOT NULL,
 	        message_id bigint NOT NULL,
 	        content_type integer NOT NULL,
-	        content text,
+	        content longtext,
 	        is_encrypted boolean NOT NULL,
 	        data_type character varying(255),
 	        CONSTRAINT mc${localChannelId}_pkey PRIMARY KEY(message_id, metadata_id, content_type),
@@ -94,7 +94,7 @@
 	        message_id bigint NOT NULL,
 	        type character varying(40),
 	        segment_id integer NOT NULL,
-	        size integer NOT NULL,
+	        attachment_size integer NOT NULL,
 	        content longblob,
 	        CONSTRAINT ma${localChannelId}_fkey FOREIGN KEY(message_id) REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE
         ) ENGINE=InnoDB;
@@ -220,44 +220,20 @@
 	<query id="addMetaDataColumnStringIndex">
 		CREATE INDEX `d_mcm${localChannelId}_${columnName}` ON d_mcm${localChannelId}(`${columnName}`);
 	</query>
+
+	<query id="addMetaDataColumnNumber">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` decimal(31, 15);
+	</query>
+	
+	<query id="addMetaDataColumnNumberIndex">
+		CREATE INDEX `d_mcm${localChannelId}_${columnName}` ON d_mcm${localChannelId}(`${columnName}`);
+	</query>
 	
 	<query id="addMetaDataColumnBoolean">
-		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` boolean;
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` bit;
 	</query>
 	
 	<query id="addMetaDataColumnBooleanIndex">
-		CREATE INDEX `d_mcm${localChannelId}_${columnName}` ON d_mcm${localChannelId}(`${columnName}`);
-	</query>
-	
-	<query id="addMetaDataColumnDate">
-		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` date;
-	</query>
-	
-	<query id="addMetaDataColumnDateIndex">
-		CREATE INDEX `d_mcm${localChannelId}_${columnName}` ON d_mcm${localChannelId}(`${columnName}`);
-	</query>
-	
-	<query id="addMetaDataColumnDouble">
-		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` double precision;
-	</query>
-	
-	<query id="addMetaDataColumnDoubleIndex">
-		CREATE INDEX `d_mcm${localChannelId}_${columnName}` ON d_mcm${localChannelId}(`${columnName}`);
-	</query>
-	
-	<query id="addMetaDataColumnLong">
-		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` bigint;
-	</query>
-	
-	<query id="addMetaDataColumnLongIndex">
-		CREATE INDEX `d_mcm${localChannelId}_${columnName}` ON d_mcm${localChannelId}(`${columnName}`);
-	</query>
-	
-	<query id="addMetaDataColumnTime">
-		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` time;
-	</query>
-	
-	<query id="addMetaDataColumnTimeIndex">
 		CREATE INDEX `d_mcm${localChannelId}_${columnName}` ON d_mcm${localChannelId}(`${columnName}`);
 	</query>
 	

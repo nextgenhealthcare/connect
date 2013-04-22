@@ -15,6 +15,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -378,11 +379,8 @@ public class ChannelTests {
 
         // Add all the columns
         channel.getMetaDataColumns().add(new MetaDataColumn("stringcolumn", MetaDataColumnType.STRING, null));
-        channel.getMetaDataColumns().add(new MetaDataColumn("longcolumn", MetaDataColumnType.LONG, null));
-        channel.getMetaDataColumns().add(new MetaDataColumn("doublecolumn", MetaDataColumnType.DOUBLE, null));
+        channel.getMetaDataColumns().add(new MetaDataColumn("numbercolumn", MetaDataColumnType.NUMBER, null));
         channel.getMetaDataColumns().add(new MetaDataColumn("booleancolumn", MetaDataColumnType.BOOLEAN, null));
-        channel.getMetaDataColumns().add(new MetaDataColumn("datecolumn", MetaDataColumnType.DATE, null));
-        channel.getMetaDataColumns().add(new MetaDataColumn("timecolumn", MetaDataColumnType.TIME, null));
         channel.getMetaDataColumns().add(new MetaDataColumn("timestampcolumn", MetaDataColumnType.TIMESTAMP, null));
 
         channel.undeploy();
@@ -391,11 +389,8 @@ public class ChannelTests {
         // Assert that each column exists
         List<MetaDataColumn> columns = TestUtils.getExistingMetaDataColumns(channelId);
         assertTrue(columns.contains(new MetaDataColumn("stringcolumn", MetaDataColumnType.STRING, null)));
-        assertTrue(columns.contains(new MetaDataColumn("longcolumn", MetaDataColumnType.LONG, null)));
-        assertTrue(columns.contains(new MetaDataColumn("doublecolumn", MetaDataColumnType.DOUBLE, null)));
+        assertTrue(columns.contains(new MetaDataColumn("numbercolumn", MetaDataColumnType.NUMBER, null)));
         assertTrue(columns.contains(new MetaDataColumn("booleancolumn", MetaDataColumnType.BOOLEAN, null)));
-        assertTrue(columns.contains(new MetaDataColumn("datecolumn", MetaDataColumnType.DATE, null)));
-        assertTrue(columns.contains(new MetaDataColumn("timecolumn", MetaDataColumnType.TIME, null)));
         assertTrue(columns.contains(new MetaDataColumn("timestampcolumn", MetaDataColumnType.TIMESTAMP, null)));
 
         // Remove the string column
@@ -416,8 +411,8 @@ public class ChannelTests {
 
         // Assert that the long column got dropped/added correctly
         columns = TestUtils.getExistingMetaDataColumns(channelId);
-        assertFalse(columns.contains(new MetaDataColumn("longcolumn", MetaDataColumnType.LONG, null)));
-        assertTrue(columns.contains(new MetaDataColumn("longcolumn2", MetaDataColumnType.LONG, null)));
+        assertFalse(columns.contains(new MetaDataColumn("numbercolumn", MetaDataColumnType.NUMBER, null)));
+        assertTrue(columns.contains(new MetaDataColumn("numbercolumn2", MetaDataColumnType.NUMBER, null)));
 
         // Alter the double column's type
         channel.getMetaDataColumns().get(1).setType(MetaDataColumnType.TIMESTAMP);
@@ -427,12 +422,12 @@ public class ChannelTests {
 
         // Assert that the double column got dropped/added correctly as a timestamp column
         columns = TestUtils.getExistingMetaDataColumns(channelId);
-        assertFalse(columns.contains(new MetaDataColumn("doublecolumn", MetaDataColumnType.DOUBLE, null)));
-        assertTrue(columns.contains(new MetaDataColumn("doublecolumn", MetaDataColumnType.TIMESTAMP, null)));
+        assertFalse(columns.contains(new MetaDataColumn("numbercolumn", MetaDataColumnType.NUMBER, null)));
+        assertTrue(columns.contains(new MetaDataColumn("numbercolumn", MetaDataColumnType.TIMESTAMP, null)));
 
         // Alter the boolean column's name and type
         channel.getMetaDataColumns().get(2).setName("booleancolumn2");
-        channel.getMetaDataColumns().get(2).setType(MetaDataColumnType.TIME);
+        channel.getMetaDataColumns().get(2).setType(MetaDataColumnType.TIMESTAMP);
 
         channel.undeploy();
         channel.deploy();
@@ -440,7 +435,7 @@ public class ChannelTests {
         // Assert that the boolean column got dropped/added correctly as a time column
         columns = TestUtils.getExistingMetaDataColumns(channelId);
         assertFalse(columns.contains(new MetaDataColumn("booleancolumn", MetaDataColumnType.BOOLEAN, null)));
-        assertTrue(columns.contains(new MetaDataColumn("booleancolumn2", MetaDataColumnType.TIME, null)));
+        assertTrue(columns.contains(new MetaDataColumn("booleancolumn2", MetaDataColumnType.TIMESTAMP, null)));
 
         channel.undeploy();
     }
@@ -448,33 +443,21 @@ public class ChannelTests {
     @Test
     public final void testMetaDataCasting() throws MetaDataColumnException {
         MetaDataColumnType columnType = MetaDataColumnType.BOOLEAN;
-        Boolean booleanValue = (Boolean) columnType.castMetaDataFromString("TRUE");
+        Boolean booleanValue = (Boolean) columnType.castValue("TRUE");
         assertEquals(Boolean.TRUE, booleanValue);
-        booleanValue = (Boolean) columnType.castMetaDataFromString("FALSE");
+        booleanValue = (Boolean) columnType.castValue("FALSE");
         assertEquals(Boolean.FALSE, booleanValue);
 
-        columnType = MetaDataColumnType.DOUBLE;
-        Double doubleValue = (Double) columnType.castMetaDataFromString("1.0234567890123456789");
-        assertEquals(new Double(1.0234567890123456789), doubleValue);
-
-        columnType = MetaDataColumnType.LONG;
-        Long longValue = (Long) columnType.castMetaDataFromString("1234567890123456789");
-        assertEquals(new Long(1234567890123456789l), longValue);
+        columnType = MetaDataColumnType.NUMBER;
+        BigDecimal bigDecimalValue = (BigDecimal) columnType.castValue("1.0234567890123456789");
+        assertEquals(new BigDecimal(1.0234567890123456789), bigDecimalValue);
 
         columnType = MetaDataColumnType.STRING;
-        String stringValue = (String) columnType.castMetaDataFromString(" test !@# String 123 ");
+        String stringValue = (String) columnType.castValue(" test !@# String 123 ");
         assertEquals(" test !@# String 123 ", stringValue);
 
-        columnType = MetaDataColumnType.DATE;
-        Calendar dateValue = (Calendar) columnType.castMetaDataFromString("2010-01-02");
-        assertEquals("01 02 2010", new SimpleDateFormat("MM dd yyyy").format(dateValue.getTimeInMillis()));
-
-        columnType = MetaDataColumnType.TIME;
-        dateValue = (Calendar) columnType.castMetaDataFromString("13:01:02");
-        assertEquals("13 01 02", new SimpleDateFormat("HH mm ss").format(dateValue.getTimeInMillis()));
-
         columnType = MetaDataColumnType.TIMESTAMP;
-        dateValue = (Calendar) columnType.castMetaDataFromString("2010-01-02 13:01:02");
+        Calendar dateValue = (Calendar) columnType.castValue("2010-01-02 13:01:02");
         assertEquals("13 01 02 01 02 2010", new SimpleDateFormat("HH mm ss MM dd yyyy").format(dateValue.getTimeInMillis()));
     }
 

@@ -19,27 +19,23 @@
 		<result property="postprocessingScript" column="POSTPROCESSING_SCRIPT" />
 		<result property="deployScript" column="DEPLOY_SCRIPT" />
 		<result property="shutdownScript" column="SHUTDOWN_SCRIPT" />
+		<collection property="tags" column="{id=ID}" ofType="java.util.HashSet" select="getChannelTags" />
 	</resultMap>
 	
 	<select id="getChannel" parameterType="com.mirth.connect.model.Channel" resultMap="get-channel-result">
-		SELECT *
-		FROM CHANNEL
+		SELECT C.*, CT.*
+		FROM CHANNEL C
+		LEFT JOIN CHANNEL_TAGS CT ON CT.CHANNEL_ID = C.ID
 		<where>
-			<if test='id != null'>ID=#{id}</if>
-			<if test='name != null'>AND NAME=#{name}</if>
+			<if test="id != null">C.ID = #{id}</if>
+			<if test="name != null">AND C.NAME = #{name}</if>
 		</where>
-		WITH UR
 	</select>
 	
-	<select id='getChannelTags' parameterType='com.mirth.connect.model.Channel' resultType='map'>
-		SELECT
-			CHANNEL_ID AS "channel_id",
-			TAG AS "tag"
-
+	<select id="getChannelTags" parameterType="map" resultType="String">
+		SELECT TAG
 		FROM CHANNEL_TAGS
-		<where>
-			<if test='id != null'>CHANNEL_ID=#{id}</if>
-		</where>
+		WHERE CHANNEL_ID = #{id}
 	</select>
 	
 	<select id='getAllChannelTags' resultType='String'>
@@ -54,7 +50,7 @@
 		ORDER BY tag
 	</select>
 	
-	<select id="getChannelRevision" resultType="map">
+	<select id="getChannelRevision" resultType="com.mirth.connect.model.Channel">
 		SELECT ID, REVISION FROM CHANNEL WITH UR
 	</select>
 	

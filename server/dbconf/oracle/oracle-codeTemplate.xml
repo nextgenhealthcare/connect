@@ -1,47 +1,33 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "conf/dtd/mybatis-3-mapper.dtd">
 
-<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
-
-<sqlMap namespace="CodeTemplate">
-	<parameterMap class="com.mirth.connect.model.CodeTemplate" id="insert-code-template-param">
-		<parameter property="id" />
-		<parameter property="name" />
-		<parameter property="scope" />
-		<parameter property="type" />
-		<parameter property="tooltip" />
-		<parameter property="code"/>
-	</parameterMap>
-
-	<resultMap class="com.mirth.connect.model.CodeTemplate" id="get-code-template-result">
+<mapper namespace="CodeTemplate">
+	<resultMap id="get-code-template-result" type="com.mirth.connect.model.CodeTemplate">
 		<result property="id" column="ID" />
 		<result property="name" column="NAME" />
-		<result property="scope" column="CODE_SCOPE" />		
+		<result property="scope" column="CODE_SCOPE" />
 		<result property="type" column="CODE_TYPE" />
-		<result property="tooltip" column="TOOLTIP" nullValue="" />
+		<result property="tooltip" column="TOOLTIP" />
 		<result property="code" column="CODE" />
 	</resultMap>
-	
-	<select id="getCodeTemplate" parameterClass="com.mirth.connect.model.CodeTemplate" resultMap="get-code-template-result">
+
+	<select id="getCodeTemplate" parameterType="com.mirth.connect.model.CodeTemplate" resultMap="get-code-template-result">
 		SELECT C.ID, C.NAME, C.CODE_SCOPE, C.CODE_TYPE, C.TOOLTIP, C.CODE
 		FROM CODE_TEMPLATE C
-		<dynamic prepend="WHERE">
-			<isNotNull prepend="AND" property="id">
-				C.ID = #id#
-			</isNotNull>
-		</dynamic>
+		<where>
+			<if test="id != null">AND C.ID = #{id}</if>
+		</where>
 	</select>
 
-	<insert id="insertCodeTemplate" parameterMap="insert-code-template-param">
+	<insert id="insertCodeTemplate" parameterType="com.mirth.connect.model.CodeTemplate">
 		INSERT INTO CODE_TEMPLATE (ID, NAME, CODE_SCOPE, CODE_TYPE, TOOLTIP, CODE)
-		VALUES (?, ?, ?, ?, ?, ?)
+		VALUES (#{id}, #{name}, #{scope}, #{type}, #{tooltip}, #{code})
 	</insert>
 
-	<delete id="deleteCodeTemplate" parameterClass="com.mirth.connect.model.CodeTemplate">
+	<delete id="deleteCodeTemplate" parameterType="com.mirth.connect.model.CodeTemplate">
 		DELETE FROM CODE_TEMPLATE
-		<dynamic prepend="WHERE">
-			<isNotNull prepend="AND" property="id">
-				ID=#id#
-			</isNotNull>
-		</dynamic>
+		<where>
+			<if test="id != null">ID = #{id}</if>
+		</where>
 	</delete>
-</sqlMap>
+</mapper>

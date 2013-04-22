@@ -11,15 +11,15 @@
       <result property='ipAddress' column='IP_ADDRESS'/>
    </resultMap>
    <sql id='eventFilterCriteria'>
-		    <where>
-         <if test='id != null'>AND ID = ${id}</if>
-         <if test='name != null'>AND LOWER(NAME) LIKE LOWER('%${name}%')</if>
-         <if test='level != null'>AND EVENT_LEVEL = '${level}'</if>
-         <if test='startDate != null'>AND DATE_CREATED &gt;= '${startDate}'</if>
-         <if test='endDate != null'>AND DATE_CREATED &lt;= '${endDate}'</if>
-         <if test='outcome != null'>AND OUTCOME = '${outcome}'</if>
-         <if test='userId != null'>AND USER_ID = ${userId}</if>
-         <if test='ipAddress != null'>AND IP_ADDRESS = '${ipAddress}'</if>
+	  <where>
+         <if test='id != null'>AND ID = #{id}</if>
+         <if test='name != null'>AND NAME ILIKE '%' || #{name} || '%'</if>
+         <if test='level != null'>AND EVENT_LEVEL = #{level}</if>
+         <if test='startDate != null'>AND DATE_CREATED <![CDATA[ >= ]]> #{startDate}</if>
+         <if test='endDate != null'>AND DATE_CREATED <![CDATA[ <= ]]> #{endDate}</if>
+         <if test='outcome != null'>AND OUTCOME = #{outcome}</if>
+         <if test='userId != null'>AND USER_ID = #{userId}</if>
+         <if test='ipAddress != null'>AND IP_ADDRESS = #{ipAddress}</if>
       </where>
 	  </sql>
    <select id='getEventsByPage'

@@ -113,7 +113,7 @@ public class DefaultUserController extends UserController {
             if (pruneDate != null) {
                 Map<String, Object> userDateMap = new HashMap<String, Object>();
                 userDateMap.put("id", userId);
-                userDateMap.put("pruneDate", String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", pruneDate));
+                userDateMap.put("pruneDate", pruneDate);
 
                 try {
                     SqlConfig.getSqlSessionManager().delete("User.prunePasswords", userDateMap);
