@@ -475,12 +475,30 @@ public class JdbcDao implements DonkeyDao {
             statement.setLong(2, connectorMessage.getMessageId());
             statement.setTimestamp(3, new Timestamp(connectorMessage.getReceivedDate().getTimeInMillis()));
             statement.setString(4, Character.toString(connectorMessage.getStatus().getStatusCode()));
-            statement.setString(5, connectorMessage.getConnectorName());
-            // TODO insert send attempts
-
-            statement.setInt(6, connectorMessage.getChainId());
-            statement.setInt(7, connectorMessage.getOrderId());
-
+            
+            if (connectorMessage.getConnectorName() == null) {
+                statement.setNull(5, Types.NULL);
+            } else {
+                statement.setString(5, connectorMessage.getConnectorName());
+            }
+            
+            statement.setInt(6, connectorMessage.getSendAttempts());
+            
+            if (connectorMessage.getSendDate() == null) {
+                statement.setNull(7, Types.TIMESTAMP);
+            } else {
+                statement.setTimestamp(7, new Timestamp(connectorMessage.getSendDate().getTimeInMillis()));
+            }
+            
+            if (connectorMessage.getResponseDate() == null) {
+                statement.setNull(8, Types.TIMESTAMP);
+            } else {
+                statement.setTimestamp(8, new Timestamp(connectorMessage.getResponseDate().getTimeInMillis()));
+            }
+            
+            statement.setInt(9, connectorMessage.getErrorCode());
+            statement.setInt(10, connectorMessage.getChainId());
+            statement.setInt(11, connectorMessage.getOrderId());
             statement.executeUpdate();
 
             if (storeMaps) {
