@@ -33,6 +33,7 @@ import com.mirth.connect.donkey.server.data.jdbc.JdbcDao;
 import com.mirth.connect.donkey.server.data.jdbc.JdbcDaoFactory;
 import com.mirth.connect.donkey.server.data.jdbc.XmlQuerySource;
 import com.mirth.connect.donkey.server.data.jdbc.XmlQuerySource.XmlQuerySourceException;
+import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 
@@ -61,6 +62,7 @@ public class Donkey {
     private DonkeyDaoFactory daoFactory;
     private Serializer serializer = new XStreamSerializer();
     private Encryptor encryptor;
+    private EventDispatcher eventDispatcher;
     private Logger logger = Logger.getLogger(getClass());
     private boolean running = false;
 
@@ -81,6 +83,8 @@ public class Donkey {
         ChannelController.getInstance().loadStatistics();
 
         encryptor = donkeyConfiguration.getEncryptor();
+        
+        eventDispatcher = donkeyConfiguration.getEventDispatcher();
 
         running = true;
     }
@@ -343,5 +347,9 @@ public class Donkey {
 
     public Encryptor getEncryptor() {
         return encryptor;
+    }
+
+    public EventDispatcher getEventDispatcher() {
+        return eventDispatcher;
     }
 }

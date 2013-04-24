@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.mirth.connect.connectors.file.filesystems.FileInfo;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
@@ -40,12 +41,13 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.message.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.BatchMessageProcessor;
 import com.mirth.connect.donkey.server.message.BatchMessageProcessorException;
 import com.mirth.connect.donkey.server.message.DataType;
-import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
@@ -53,7 +55,6 @@ import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
-import com.mirth.connect.util.ErrorConstants;
 
 public class FileReceiver extends PollConnector implements BatchMessageProcessor {
     protected transient Log logger = LogFactory.getLog(getClass());
@@ -66,7 +67,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
     private String filenamePattern = null;
     private boolean routingError = false;
 
-    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private ConnectorType connectorType = ConnectorType.READER;
@@ -183,7 +184,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 }
             }
         } catch (Throwable t) {
-            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_403, null, t);
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), null, t));
             logger.error("Error polling in channel: " + getChannelId(), t);
         } finally {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
@@ -344,7 +345,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 }
             }
         } catch (Exception e) {
-            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_403, "", e);
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), "", e));
             logger.error("Error processing file in channel: " + getChannelId(), e);
         }
     }

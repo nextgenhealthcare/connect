@@ -50,7 +50,6 @@ import com.mirth.connect.client.core.PaginatedMessageList;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
-import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.CodeTemplate;
@@ -663,42 +662,11 @@ public class CommandLineInterface {
     }
 
     private void commandImportAlerts(Token[] arguments) throws ClientException {
-        String path = arguments[1].getText();
-        File fXml = new File(path);
-        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-
-        try {
-            String alertsXml = FileUtils.readFileToString(fXml);
-            try {
-                alertsXml = ImportConverter.convertAlerts(alertsXml);
-            } catch (Exception e) {
-                error("error migrating alerts", e);
-            }
-
-            client.updateAlerts((List<Alert>) serializer.fromXML(alertsXml));
-        } catch (IOException e) {
-            error("cannot read " + path, e);
-            return;
-        }
-
-        out.println("Alerts Import Complete");
+        //TODO 
     }
 
     private void commandExportAlerts(Token[] arguments) throws ClientException {
-        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        String path = arguments[1].getText();
-
-        try {
-            List<Alert> alerts = client.getAlert(null);
-            File fXml = new File(path);
-            out.println("Exporting alerts");
-            String alertsXML = serializer.toXML(alerts);
-            FileUtils.writeStringToFile(fXml, alertsXML);
-        } catch (IOException e) {
-            error("unable to write file " + path + ": " + e, e);
-        }
-
-        out.println("Alerts Export Complete.");
+        //TODO
     }
 
     private void commandExportScripts(Token[] arguments) throws ClientException {

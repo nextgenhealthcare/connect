@@ -20,6 +20,7 @@ import org.apache.commons.mail.MultiPartEmail;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
@@ -28,8 +29,9 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
@@ -43,7 +45,7 @@ public class SmtpDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     private SmtpDispatcherProperties connectorProperties;
     private final MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-    private final AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
     private final ConnectorType connectorType = ConnectorType.WRITER;
 
@@ -225,7 +227,7 @@ public class SmtpDispatcher extends DestinationConnector {
             responseStatus = Status.SENT;
             responseStatusMessage = "Email sent successfully.";
         } catch (Exception e) {
-            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_402, "Error sending email message.", e);
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error sending email message", e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error sending email message", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_402, "Error sending email message", e);
 

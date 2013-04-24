@@ -66,7 +66,6 @@
 	<classpathentry kind="lib" path="lib/bcprov-jdk16-144.jar"/>
 	<classpathentry kind="lib" path="lib/hapi-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-crypto.jar"/>
-	<classpathentry kind="lib" path="lib/joda-time-1.6.2.jar"/>
 	<classpathentry kind="lib" path="lib/mybatis-3.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-lang3-3.1.jar">
 		<attributes>
@@ -125,5 +124,6 @@
 	<classpathentry kind="lib" path="lib/jetty/jetty-util-7.6.7.v20120910.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-webapp-7.6.7.v20120910.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-xml-7.6.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="lib/joda-time-2.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

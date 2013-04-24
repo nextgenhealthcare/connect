@@ -25,7 +25,7 @@ import com.mirth.connect.model.Event.Level;
 import com.mirth.connect.model.ExtensionPermission;
 
 public abstract class AuthorizationController {
-    private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private SystemEventController systemEventController = ControllerFactory.getFactory().createSystemEventController();
 
     public abstract boolean isUserAuthorized(Integer userId, String operation, Map<String, Object> parameterMap, String address) throws ControllerException;
 
@@ -74,7 +74,7 @@ public abstract class AuthorizationController {
                 }
             }
 
-            eventController.addEvent(event);
+            systemEventController.addEvent(event);
         }
     }
 

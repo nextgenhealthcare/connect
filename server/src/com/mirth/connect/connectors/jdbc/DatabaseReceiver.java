@@ -30,19 +30,20 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.model.converters.DocumentSerializer;
-import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
-import com.mirth.connect.util.ErrorConstants;
 
 public class DatabaseReceiver extends PollConnector {
     final private static ConnectorType CONNECTOR_TYPE = ConnectorType.READER;
@@ -50,7 +51,7 @@ public class DatabaseReceiver extends PollConnector {
     private DatabaseReceiverProperties connectorProperties;
     private DatabaseReceiverDelegate delegate;
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
     private Logger logger = Logger.getLogger(getClass());
 
     @Override
@@ -116,7 +117,7 @@ public class DatabaseReceiver extends PollConnector {
             throw e;
         } catch (Exception e) {
             logger.error("Failed to poll for messages from the database in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\"", e);
-            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, null, e.getCause());
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), null, e.getCause()));
             return;
         } finally {
             if (result instanceof ResultSet) {
@@ -127,7 +128,7 @@ public class DatabaseReceiver extends PollConnector {
                 delegate.afterPoll();
             } catch (DatabaseReceiverException e) {
                 logger.error("Error in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\": " + e.getMessage(), ExceptionUtils.getRootCause(e));
-                alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, null, e.getCause());
+                eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), null, e.getCause()));
             }
 
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
@@ -173,7 +174,7 @@ public class DatabaseReceiver extends PollConnector {
             } else {
                 String errorMessage = "Received invalid list entry in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\", expected Map<String, Object>: " + object.toString();
                 logger.error(errorMessage);
-                alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, errorMessage, null);
+                eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), errorMessage, null));
             }
         }
     }
@@ -192,7 +193,7 @@ public class DatabaseReceiver extends PollConnector {
         } catch (Exception e) {
             String errorMessage = "Failed to process row retrieved from the database in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\"";
             logger.error(errorMessage, e);
-            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, errorMessage, e);
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), errorMessage, e));
         } finally {
             finishDispatch(dispatchResult);
         }

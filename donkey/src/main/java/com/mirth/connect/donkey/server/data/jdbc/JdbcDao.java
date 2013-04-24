@@ -50,7 +50,6 @@ import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
-import com.mirth.connect.donkey.server.event.Event;
 import com.mirth.connect.donkey.util.Serializer;
 
 public class JdbcDao implements DonkeyDao {
@@ -1273,42 +1272,6 @@ public class JdbcDao implements DonkeyDao {
             throw new DonkeyDaoException(e);
         } finally {
             close(resultSet);
-        }
-    }
-
-    @Override
-    public void insertEvent(Event event) {
-        try {
-            PreparedStatement statement = prepareStatement("insertEvent", null);
-            Long messageId = event.getMessageId();
-            Integer metaDataId = event.getMetaDataId();
-            Status status = event.getMessageStatus();
-
-            statement.setInt(1, event.getEventType().getEventCode());
-            statement.setString(2, event.getChannelId());
-
-            if (metaDataId == null) {
-                statement.setNull(3, Types.INTEGER);
-            } else {
-                statement.setInt(3, event.getMetaDataId());
-            }
-
-            if (messageId == null) {
-                statement.setNull(4, Types.BIGINT);
-            } else {
-                statement.setLong(4, event.getMessageId());
-            }
-
-            if (status == null) {
-                statement.setNull(5, Types.CHAR);
-            } else {
-                statement.setString(5, Character.toString(status.getStatusCode()));
-            }
-
-            statement.setTimestamp(6, new Timestamp(event.getEventDate().getTimeInMillis()));
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
         }
     }
 

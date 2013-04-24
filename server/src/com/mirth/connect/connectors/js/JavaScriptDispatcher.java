@@ -23,6 +23,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
@@ -31,9 +32,10 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
-import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
@@ -52,7 +54,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     private Logger scriptLogger = Logger.getLogger("js-connector");
     private JavaScriptExecutor<Response> jsExecutor = new JavaScriptExecutor<Response>();
-    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private JavaScriptDispatcherProperties connectorProperties;
@@ -98,7 +100,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
             return jsExecutor.execute(new JavaScriptDispatcherTask(message));
         } catch (JavaScriptExecutorException e) {
             logger.error("Error executing script (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
-            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_414, "Error executing script.", e);
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error executing script", e));
             return new Response(Status.ERROR, null, ErrorMessageBuilder.buildErrorResponse("Error executing script", e), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Error executing script", e));
         } finally {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
@@ -128,7 +130,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
                 responseStatus = Status.ERROR;
 
                 logger.error("Script not found in cache (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
-                alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_414, "Script not found in cache.", null);
+                eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Script not found in cache", null));
             } else {
                 try {
                     Object result = executeScript(compiledScript, scope);
@@ -177,7 +179,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
                     responseStatus = Status.ERROR;
 
                     logger.error("Error evaluating " + getConnectorProperties().getName() + " (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", t);
-                    alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_414, "Error evaluating " + getConnectorProperties().getName(), t);
+                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error evaluating " + getConnectorProperties().getName(), t));
                 } finally {
                     Context.exit();
                 }

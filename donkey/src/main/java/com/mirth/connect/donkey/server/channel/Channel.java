@@ -46,6 +46,7 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.PauseException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.Startable;
@@ -58,6 +59,8 @@ import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
+import com.mirth.connect.donkey.server.event.EventDispatcher;
+import com.mirth.connect.donkey.server.event.ChannelEvent;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
 import com.mirth.connect.donkey.util.DonkeyCloner;
@@ -79,6 +82,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     private StorageSettings storageSettings = new StorageSettings();
     private DonkeyDaoFactory daoFactory;
     private DonkeyCloner cloner = DonkeyClonerFactory.getInstance().getCloner();
+    private EventDispatcher eventDispatcher = Donkey.getInstance().getEventDispatcher();
 
     private AttachmentHandler attachmentHandler;
     private List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
@@ -171,9 +175,14 @@ public class Channel implements Startable, Stoppable, Runnable {
     public ChannelState getCurrentState() {
         return currentState;
     }
-
+    
     public void setCurrentState(ChannelState currentState) {
         this.currentState = currentState;
+    }
+
+    public void updateCurrentState(ChannelState state) {
+        setCurrentState(state);
+        Donkey.getInstance().getEventDispatcher().dispatchEvent(new ChannelEvent(channelId, state));
     }
 
     public StorageSettings getStorageSettings() {
@@ -198,6 +207,14 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     public void setCloner(DonkeyCloner cloner) {
         this.cloner = cloner;
+    }
+
+    public EventDispatcher getEventDispatcher() {
+        return eventDispatcher;
+    }
+
+    public void setEventDispatcher(EventDispatcher eventDispatcher) {
+        this.eventDispatcher = eventDispatcher;
     }
 
     public AttachmentHandler getAttachmentHandler() {
@@ -659,7 +676,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         destinationChainExecutor.shutdown();
 
         if (firstCause != null) {
-            setCurrentState(ChannelState.STOPPED);
+            updateCurrentState(ChannelState.STOPPED);
             throw new StopException("Failed to stop channel " + name + " (" + channelId + "): One or more connectors failed to stop.", firstCause);
         }
     }
@@ -692,7 +709,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
 
         if (firstCause != null) {
-            setCurrentState(ChannelState.STOPPED);
+            updateCurrentState(ChannelState.STOPPED);
             throw new StopException("Failed to stop channel " + name + " (" + channelId + "): One or more connectors failed to stop.", firstCause);
         }
     }
@@ -1427,7 +1444,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             if (currentState != ChannelState.STARTED) {
                 // Prevent the channel for being started while messages are being deleted.
                 synchronized (Channel.this) {
-                    setCurrentState(ChannelState.STARTING);
+                    updateCurrentState(ChannelState.STARTING);
                     processLock.set(false);
                     channelTasks.clear();
                     stopSourceQueue = false;
@@ -1484,21 +1501,21 @@ public class Channel implements Startable, Stoppable, Runnable {
                             sourceConnector.start();
                         }
 
-                        setCurrentState(ChannelState.STARTED);
+                        updateCurrentState(ChannelState.STARTED);
                     } catch (Throwable t) {
                         // If an exception occurred, then attempt to rollback by stopping all the connectors that were started
                         try {
                             stop(startedMetaDataIds);
-                            setCurrentState(ChannelState.STOPPED);
+                            updateCurrentState(ChannelState.STOPPED);
                         } catch (Throwable t2) {
-                            setCurrentState(ChannelState.STOPPED);
+                            updateCurrentState(ChannelState.STOPPED);
                         }
 
                         throw new StartException(t);
                     }
                 }
             } else {
-                setCurrentState(ChannelState.STARTED);
+                updateCurrentState(ChannelState.STARTED);
                 logger.warn("Failed to start channel " + name + " (" + channelId + "): The channel is already running.");
             }
 
@@ -1511,7 +1528,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         @Override
         public Void call() throws Exception {
             if (currentState != ChannelState.STOPPED) {
-                setCurrentState(ChannelState.STOPPING);
+                updateCurrentState(ChannelState.STOPPING);
                 List<Integer> deployedMetaDataIds = new ArrayList<Integer>();
                 deployedMetaDataIds.add(0);
 
@@ -1522,9 +1539,9 @@ public class Channel implements Startable, Stoppable, Runnable {
                 }
 
                 stop(deployedMetaDataIds);
-                setCurrentState(ChannelState.STOPPED);
+                updateCurrentState(ChannelState.STOPPED);
             } else {
-                setCurrentState(ChannelState.STOPPED);
+                updateCurrentState(ChannelState.STOPPED);
                 logger.warn("Failed to stop channel " + name + " (" + channelId + "): The channel is already stopped.");
             }
 
@@ -1537,7 +1554,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         @Override
         public Void call() throws Exception {
             if (currentState != ChannelState.STOPPED) {
-                setCurrentState(ChannelState.STOPPING);
+                updateCurrentState(ChannelState.STOPPING);
                 List<Integer> deployedMetaDataIds = new ArrayList<Integer>();
                 deployedMetaDataIds.add(0);
 
@@ -1548,9 +1565,9 @@ public class Channel implements Startable, Stoppable, Runnable {
                 }
 
                 halt(deployedMetaDataIds);
-                setCurrentState(ChannelState.STOPPED);
+                updateCurrentState(ChannelState.STOPPED);
             } else {
-                setCurrentState(ChannelState.STOPPED);
+                updateCurrentState(ChannelState.STOPPED);
                 logger.warn("Failed to stop channel " + name + " (" + channelId + "): The channel is already stopped.");
             }
 

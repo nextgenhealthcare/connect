@@ -26,16 +26,17 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.server.channel.Connector;
-import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.BeanUtil;
-import com.mirth.connect.util.ErrorConstants;
 
 /**
  * Represents the client connection to a JMS broker, used by both the JMS receiver and dispatcher
@@ -50,7 +51,7 @@ public class JmsClient implements ExceptionListener {
     private Context initialContext;
     private Destination destination;
     private String destinationName;
-    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private AtomicBoolean attemptingReconnect = new AtomicBoolean(false);
@@ -233,6 +234,6 @@ public class JmsClient implements ExceptionListener {
     private void reportError(String errorMessage, Exception e) {
         String channelId = connector.getChannelId();
         logger.error(errorMessage + " (channel: " + ChannelController.getInstance().getDeployedChannelById(channelId).getName() + ")", e);
-        alertController.sendAlerts(channelId, ErrorConstants.ERROR_407, null, e.getCause());
+        eventController.dispatchEvent(new ErrorEvent(channelId, ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), null, e.getCause()));
     }
 }

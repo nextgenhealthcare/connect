@@ -47,11 +47,12 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.model.Event;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
-import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.SystemEventController;
 import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.MigrationController;
 import com.mirth.connect.server.controllers.ScriptController;
@@ -91,8 +92,9 @@ public class Mirth extends Thread {
     private UserController userController = ControllerFactory.getFactory().createUserController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private MigrationController migrationController = ControllerFactory.getFactory().createMigrationController();
-    private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private SystemEventController systemEventController = ControllerFactory.getFactory().createSystemEventController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
+    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
 
     private static List<Thread> shutdownHooks = new ArrayList<Thread>();
 
@@ -223,7 +225,7 @@ public class Mirth extends Thread {
         migrationController.migrate();
         configurationController.migrateKeystore();
         extensionController.setDefaultExtensionStatus();
-        eventController.removeAllFilterTables();
+        systemEventController.removeAllFilterTables();
         extensionController.uninstallExtensions();
         migrationController.migrateExtensions();
         extensionController.initPlugins();
@@ -235,7 +237,7 @@ public class Mirth extends Thread {
         // disable the velocity logging
         Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
 
-        eventController.addEvent(new Event("Server startup"));
+        systemEventController.addEvent(new Event("Server startup"));
 
         // Start web server before starting the engine in case there is a 
         // problem starting the engine that causes it to hang
@@ -245,6 +247,7 @@ public class Mirth extends Thread {
         extensionController.startPlugins();
         
         try {
+            alertController.initAlerts();
             engineController.redeployAllChannels();
         } catch (Exception e) {
             logger.error(e);
@@ -267,7 +270,7 @@ public class Mirth extends Thread {
             SqlConfig.getSqlSessionManager().startManagedSession();
             SqlConfig.getSqlSessionManager().getConnection();
             // add event after stopping the engine, but before stopping the plugins
-            eventController.addEvent(new Event("Server shutdown"));
+            systemEventController.addEvent(new Event("Server shutdown"));
         } catch (Exception e) {
             logger.debug("could not log shutdown even since database is unavailable", e);
         } finally {

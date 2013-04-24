@@ -35,7 +35,7 @@ import com.mirth.connect.model.Event;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.SystemEventController;
 import com.mirth.connect.server.controllers.ScriptCompileException;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
@@ -321,7 +321,7 @@ public class JavaScriptUtil {
      * @param e
      */
     private static void logScriptError(String scriptType, String channelId, Throwable t) {
-        EventController eventController = ControllerFactory.getFactory().createEventController();
+        SystemEventController systemEventController = ControllerFactory.getFactory().createSystemEventController();
 
         String error = "Error executing " + scriptType + " script from channel: ";
 
@@ -334,7 +334,7 @@ public class JavaScriptUtil {
         Event event = new Event(error);
         event.setLevel(Event.Level.ERROR);
         event.getAttributes().put(Event.ATTR_EXCEPTION, ExceptionUtils.getStackTrace(t));
-        eventController.addEvent(event);
+        systemEventController.addEvent(event);
         logger.error(error, t);
     }
 

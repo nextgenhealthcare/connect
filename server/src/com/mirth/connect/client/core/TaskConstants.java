@@ -21,6 +21,7 @@ public class TaskConstants {
     public static final String CHANNEL_EDIT_KEY = "channelEdit";
     public static final String CHANNEL_KEY = "channel";
     public static final String ALERT_KEY = "alert";
+    public static final String ALERT_EDIT_KEY = "alertEdit";
     public static final String EXTENSIONS_KEY = "extensions";
     public static final String VIEW_KEY = "view";
     public static final String SETTINGS_KEY_PREFIX = "settings_";
@@ -45,13 +46,17 @@ public class TaskConstants {
 
     // Alert Tasks
     public static final String ALERT_REFRESH = "doRefreshAlerts";
-    public static final String ALERT_SAVE = "doSaveAlerts";
     public static final String ALERT_NEW = "doNewAlert";
     public static final String ALERT_IMPORT = "doImportAlerts";
-    public static final String ALERT_EXPORT = "doExportAlerts";
+    public static final String ALERT_EXPORT_ALL = "doExportAlerts";
     public static final String ALERT_DELETE = "doDeleteAlert";
+    public static final String ALERT_EDIT = "doEditAlert";
     public static final String ALERT_ENABLE = "doEnableAlert";
     public static final String ALERT_DISABLE = "doDisableAlert";
+    
+    // Alert Edit Tasks
+    public static final String ALERT_EDIT_SAVE = "doSaveAlerts";
+    public static final String ALERT_EDIT_EXPORT = "doExportAlert";
 
     // Channel Tasks
     public static final String CHANNEL_REFRESH = "doRefreshChannels";

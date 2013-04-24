@@ -26,7 +26,6 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
-import com.mirth.connect.donkey.server.event.Event;
 
 public class BufferedDao implements DonkeyDao {
     private DonkeyDaoFactory daoFactory;
@@ -101,7 +100,6 @@ public class BufferedDao implements DonkeyDao {
                     case EXECUTE_BATCH_INSERT_MESSAGE_CONTENT: dao.executeBatchInsertMessageContent((String) p[0]); break;
                     case INSERT_MESSAGE_ATTACHMENT: dao.insertMessageAttachment((String) p[0], (Long) p[1], (Attachment) p[2]); break;
                     case INSERT_META_DATA: dao.insertMetaData((ConnectorMessage) p[0], (List<MetaDataColumn>) p[1]); break;
-                    case INSERT_EVENT: dao.insertEvent((Event) p[0]); break;
                     case STORE_MESSAGE_CONTENT: dao.storeMessageContent((MessageContent) p[0]); break;
                     case STORE_CHANNEL_STATISTICS: dao.addChannelStatistics((Statistics) p[0]); break;
                     case UPDATE_RESPONSE_ERROR: dao.updateSourceResponse((ConnectorMessage) p[0]); break;
@@ -188,11 +186,6 @@ public class BufferedDao implements DonkeyDao {
     public void insertMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns) {
         tasks.add(new DaoTask(DaoTaskType.INSERT_META_DATA, new Object[] { connectorMessage,
                 metaDataColumns }));
-    }
-
-    @Override
-    public void insertEvent(Event event) {
-        tasks.add(new DaoTask(DaoTaskType.INSERT_EVENT, new Object[] { event }));
     }
 
     @Override

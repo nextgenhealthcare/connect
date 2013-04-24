@@ -9,7 +9,6 @@
 
 package com.mirth.connect.client.ui.components;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,6 +22,8 @@ import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
+
+import com.mirth.connect.client.ui.UIConstants;
 
 public class MirthComboBoxTableCellEditor extends AbstractCellEditor implements TableCellEditor {
 
@@ -102,7 +103,7 @@ public class MirthComboBoxTableCellEditor extends AbstractCellEditor implements 
 
             if (index >= 0) {
                 if (!isSelected) {
-                    component.setBackground(Color.white);
+                    component.setBackground(UIConstants.BACKGROUND_COLOR);
                 }
             }
 

@@ -58,7 +58,7 @@ public class MessagePrunerTest {
         configurationController.initializeDatabaseSettings();
 
         Donkey donkey = Donkey.getInstance();
-        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), null));
+        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), null, null));
 
         ChannelController.getInstance().initChannelStorage(TEST_CHANNEL_ID);
 

@@ -25,9 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.sql.Types;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -39,7 +37,6 @@ import java.util.Properties;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 import org.apache.log4j.Logger;
@@ -71,19 +68,16 @@ import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.channel.StorageSettings;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
-import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
 import com.mirth.connect.donkey.server.data.passthru.DelayedStatisticsUpdater;
 import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
-import com.mirth.connect.donkey.server.event.Event;
 import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
 import com.mirth.connect.donkey.util.ResourceUtil;
-import com.mirth.connect.donkey.util.Serializer;
 
 public class TestUtils {
     final public static String TEST_HL7_MESSAGE = "MSH|^~\\&|LABNET|Acme Labs|||20090601105700||ORU^R01|HMCDOOGAL-0088|D|2.2\rPID|1|8890088|8890088^^^72777||McDoogal^Hattie^||19350118|F||2106-3|100 Beach Drive^Apt. 5^Mission Viejo^CA^92691^US^H||(949) 555-0025|||||8890088^^^72|604422825\rPV1|1|R|C3E^C315^B||||2^HIBBARD^JULIUS^|5^ZIMMERMAN^JOE^|9^ZOIDBERG^JOHN^|CAR||||4|||2301^OBRIEN, KEVIN C|I|1783332658^1^1||||||||||||||||||||DISNEY CLINIC||N|||20090514205600\rORC|RE|928272608|056696716^LA||CM||||20090601105600||||  C3E|||^RESULT PERFORMED\rOBR|1|928272608|056696716^LA|1001520^K|||20090601101300|||MLH25|||HEMOLYZED/VP REDRAW|20090601102400||2301^OBRIEN, KEVIN C||||01123085310001100100152023509915823509915800000000101|0000915200932|20090601105600||LAB|F||^^^20090601084100^^ST~^^^^^ST\rOBX|1|NM|1001520^K||5.3|MMOL/L|3.5-5.5||||F|||20090601105600|IIM|IIM\r";
@@ -722,29 +716,6 @@ public class TestUtils {
         }
     }
 
-    public static void assertEventExists(Event event) throws SQLException {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        
-        try {
-            connection = getConnection();
-            statement = connection.prepareStatement("SELECT * FROM d_events WHERE event_type = ? AND channel_id = ? AND metadata_id = ? AND message_id = ? AND message_status = ? AND event_date = ?");
-            statement.setInt(1, event.getEventType().getEventCode());
-            statement.setString(2, event.getChannelId());
-            statement.setInt(3, event.getMetaDataId());
-            statement.setLong(4, event.getMessageId());
-            statement.setString(5, String.valueOf(event.getMessageStatus().getStatusCode()));
-            statement.setTimestamp(6, new Timestamp(event.getEventDate().getTimeInMillis()));
-            result = statement.executeQuery();
-            assertTrue(result.next());
-        } finally {
-            close(result);
-            close(statement);
-            close(connection);
-        }
-    }
-
     public static void assertResponseExists(String channelId, long messageId) throws SQLException {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         Connection connection = null;
@@ -1242,7 +1213,7 @@ public class TestUtils {
             InputStream is = ResourceUtil.getResourceStream(Donkey.class, DONKEY_CONFIGURATION_FILE);
             databaseProperties.load(is);
             IOUtils.closeQuietly(is);
-            return new DonkeyConfiguration(new File(".").getAbsolutePath(), databaseProperties, null);
+            return new DonkeyConfiguration(new File(".").getAbsolutePath(), databaseProperties, null, null);
         } catch (Exception e) {
             throw new DonkeyDaoException("Failed to read configuration file", e);
         }

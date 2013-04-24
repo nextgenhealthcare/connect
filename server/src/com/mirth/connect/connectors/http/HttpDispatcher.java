@@ -40,6 +40,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
@@ -48,9 +49,10 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
@@ -65,7 +67,7 @@ public class HttpDispatcher extends DestinationConnector {
 
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private ConnectorType connectorType = ConnectorType.WRITER;
 
@@ -171,7 +173,7 @@ public class HttpDispatcher extends DestinationConnector {
                 if (statusCode < HttpStatus.SC_BAD_REQUEST) {
                     responseStatus = Status.SENT;
                 } else {
-                    alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_404, "Received error response from HTTP server.", null);
+                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Received error response from HTTP server.", null));
                     responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Received error response from HTTP server.", null);
                     responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_404, responseData, null);
                 }
@@ -183,7 +185,7 @@ public class HttpDispatcher extends DestinationConnector {
                 }
             }
         } catch (Exception e) {
-            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_404, "Error connecting to HTTP server.", e);
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error connecting to HTTP server.", e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error connecting to HTTP server", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_403, "Error connecting to HTTP server", e);
 

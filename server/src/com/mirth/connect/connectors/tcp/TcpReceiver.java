@@ -38,6 +38,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
@@ -46,6 +47,7 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.model.transmission.StreamHandler;
 import com.mirth.connect.model.transmission.StreamHandlerException;
 import com.mirth.connect.model.transmission.batch.BatchStreamReader;
@@ -54,8 +56,8 @@ import com.mirth.connect.model.transmission.batch.ER7BatchStreamReader;
 import com.mirth.connect.model.transmission.framemode.FrameModeProperties;
 import com.mirth.connect.plugins.BasicModeProvider;
 import com.mirth.connect.plugins.TransmissionModeProvider;
-import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
@@ -70,7 +72,7 @@ public class TcpReceiver extends SourceConnector {
     private static final int DEFAULT_BACKLOG = 256;
 
     private Logger logger = Logger.getLogger(this.getClass());
-    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     protected TcpReceiverProperties connectorProperties;
     private ConnectorType connectorType = ConnectorType.LISTENER;
@@ -386,7 +388,7 @@ public class TcpReceiver extends SourceConnector {
                                     done = true;
                                     // Set the return value and send an alert
                                     t = new InterruptedException("TCP worker thread was interrupted before the message was sent (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-                                    alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_411, "Error receiving message.", t);
+                                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), "Error receiving message", t));
                                     break;
                                 }
                             }
@@ -419,7 +421,7 @@ public class TcpReceiver extends SourceConnector {
                             // Set the return value and send an alert
                             t = new Exception("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                             logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_411, "Error receiving message.", e);
+                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), "Error receiving message", e));
                             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, "Error receiving message: " + e.getMessage() + " ");
                         }
                     } else {

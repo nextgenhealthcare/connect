@@ -28,6 +28,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
@@ -36,13 +37,14 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.model.transmission.StreamHandler;
 import com.mirth.connect.model.transmission.batch.BatchStreamReader;
 import com.mirth.connect.model.transmission.batch.DefaultBatchStreamReader;
 import com.mirth.connect.plugins.BasicModeProvider;
 import com.mirth.connect.plugins.TransmissionModeProvider;
-import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
@@ -56,7 +58,7 @@ public class TcpDispatcher extends DestinationConnector {
 
     private Logger logger = Logger.getLogger(this.getClass());
     protected TcpDispatcherProperties connectorProperties;
-    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private ConnectorType connectorType = ConnectorType.SENDER;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
@@ -226,7 +228,7 @@ public class TcpDispatcher extends DestinationConnector {
 
                     responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, responseStatusMessage + ": " + e.getMessage(), e);
                     logger.warn(responseStatusMessage + " (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
-                    alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_411, responseStatusMessage + ".", e);
+                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), responseStatusMessage + ".", e));
                     monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, responseStatusMessage + ". ");
 
                     closeSocketQuietly();
@@ -258,7 +260,7 @@ public class TcpDispatcher extends DestinationConnector {
                 logger.debug("Error sending message via TCP (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
             }
 
-            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_411, "Error sending message via TCP.", e);
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error sending message via TCP.", e));
         }
 
         if (responseStatus == Status.SENT) {

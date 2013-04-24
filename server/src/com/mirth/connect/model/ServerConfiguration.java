@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import com.mirth.connect.model.alert.AlertModel;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("serverConfiguration")
@@ -21,18 +22,18 @@ public class ServerConfiguration implements Serializable {
     private String date;
     private List<Channel> channels = null;
     private List<User> users = null;
-    private List<Alert> alerts = null;
+    private List<AlertModel> alerts = null;
     private List<CodeTemplate> codeTemplates = null;
     private ServerSettings serverSettings = null;
     private UpdateSettings updateSettings = null;
     private Map<String, String> globalScripts = null;
     private Map<String, Properties> pluginProperties = null;
 
-    public List<Alert> getAlerts() {
+    public List<AlertModel> getAlerts() {
         return this.alerts;
     }
 
-    public void setAlerts(List<Alert> alerts) {
+    public void setAlerts(List<AlertModel> alerts) {
         this.alerts = alerts;
     }
 

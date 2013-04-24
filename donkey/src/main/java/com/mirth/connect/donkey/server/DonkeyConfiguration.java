@@ -11,15 +11,19 @@ package com.mirth.connect.donkey.server;
 
 import java.util.Properties;
 
+import com.mirth.connect.donkey.server.event.EventDispatcher;
+
 public class DonkeyConfiguration {
     private String appData;
     private Properties databaseProperties;
     private Encryptor encryptor;
+    private EventDispatcher eventDispatcher;
 
-    public DonkeyConfiguration(String appData, Properties databaseProperties, Encryptor encryptor) {
-        this.setAppData(appData);
+    public DonkeyConfiguration(String appData, Properties databaseProperties, Encryptor encryptor, EventDispatcher eventDispatcher) {
+        this.appData = appData;
         this.databaseProperties = databaseProperties;
-        this.setEncryptor(encryptor);
+        this.encryptor = encryptor;
+        this.eventDispatcher = eventDispatcher;
     }
 
     public String getAppData() {
@@ -44,5 +48,13 @@ public class DonkeyConfiguration {
 
     public void setEncryptor(Encryptor encryptor) {
         this.encryptor = encryptor;
+    }
+
+    public EventDispatcher getEventDispatcher() {
+        return eventDispatcher;
+    }
+
+    public void setEventDispatcher(EventDispatcher eventDispatcher) {
+        this.eventDispatcher = eventDispatcher;
     }
 }

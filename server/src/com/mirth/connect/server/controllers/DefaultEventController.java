@@ -9,34 +9,32 @@
 
 package com.mirth.connect.server.controllers;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.model.Event;
-import com.mirth.connect.model.filters.EventFilter;
-import com.mirth.connect.server.util.DatabaseUtil;
-import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.donkey.server.event.ChannelEvent;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.server.event.Event;
+import com.mirth.connect.donkey.server.event.EventType;
+import com.mirth.connect.donkey.server.event.MessageEvent;
+import com.mirth.connect.server.event.EventListener;
 
 public class DefaultEventController extends EventController {
     private Logger logger = Logger.getLogger(this.getClass());
+
     private static DefaultEventController instance = null;
 
-    private DefaultEventController() {
+    private static Map<String, BlockingQueue<Event>> errorEventQueues = new ConcurrentHashMap<String, BlockingQueue<Event>>();
+    private static Map<String, BlockingQueue<Event>> messageEventQueues = new ConcurrentHashMap<String, BlockingQueue<Event>>();
+    private static Map<String, BlockingQueue<Event>> channelEventQueues = new ConcurrentHashMap<String, BlockingQueue<Event>>();
+    private static Map<String, BlockingQueue<Event>> connectorEventQueues = new ConcurrentHashMap<String, BlockingQueue<Event>>();
 
+    private DefaultEventController() {
     }
 
     public static EventController create() {
@@ -48,235 +46,67 @@ public class DefaultEventController extends EventController {
             return instance;
         }
     }
-
-    public void removeAllFilterTables() {
-        Connection conn = null;
-        ResultSet resultSet = null;
-
-        try {
-            SqlConfig.getSqlSessionManager().startManagedSession();
-            conn = SqlConfig.getSqlSessionManager().getConnection();
-            // Gets the database metadata
-            DatabaseMetaData dbmd = conn.getMetaData();
-
-            // Specify the type of object; in this case we want tables
-            String[] types = { "TABLE" };
-            String tablePattern = "EVT_TMP_%";
-            resultSet = dbmd.getTables(null, null, tablePattern, types);
-
-            boolean resultFound = resultSet.next();
-
-            // Some databases only accept lowercase table names
-            if (!resultFound) {
-                resultSet = dbmd.getTables(null, null, tablePattern.toLowerCase(), types);
-                resultFound = resultSet.next();
-            }
-
-            while (resultFound) {
-                // Get the table name
-                String tableName = resultSet.getString(3);
-                // Get the uid and remove its filter tables/indexes/sequences
-                removeFilterTable(tableName.substring(8));
-                resultFound = resultSet.next();
-            }
-        } catch (SQLException e) {
-            logger.error(e);
-        } finally {
-            DbUtils.closeQuietly(resultSet);
-            DbUtils.closeQuietly(conn);
-            if(SqlConfig.getSqlSessionManager().isManagedSessionStarted()){
-                SqlConfig.getSqlSessionManager().close();
-            }
+    
+    @Override
+    public String addListener(EventListener listener, Set<EventType> types) {
+        String key = listener.getKey();
+        BlockingQueue<Event> queue = listener.getQueue();
+        
+        if (types.contains(EventType.ERROR)) {
+            errorEventQueues.put(key, queue);
         }
+
+        if (types.contains(EventType.MESSAGE)) {
+            messageEventQueues.put(key, queue);
+        }
+
+        if (types.contains(EventType.CHANNEL)) {
+            channelEventQueues.put(key, queue);
+        }
+
+        if (types.contains(EventType.CONNECTOR)) {
+            connectorEventQueues.put(key, queue);
+        }
+        
+        return key;
     }
 
-    public void addEvent(Event event) {
-        logger.debug("adding event: " + event);
-
-        try {
-            SqlConfig.getSqlSessionManager().insert("Event.insertEvent", event);
-        } catch (Exception e) {
-            logger.error("Error adding event.", e);
-        }
+    @Override
+    public void removeListener(EventListener listener) {
+        String key = listener.getKey();
+        
+        errorEventQueues.remove(key);
+        messageEventQueues.remove(key);
+        channelEventQueues.remove(key);
+        connectorEventQueues.remove(key);
     }
 
-    public void removeAllEvents() throws ControllerException {
-        logger.debug("removing all events");
-
+    @Override
+    public void dispatchEvent(Event event) {
         try {
-            SqlConfig.getSqlSessionManager().delete("Event.deleteEvent");
-
-            if (DatabaseUtil.statementExists("Event.vacuumEventTable")) {
-                SqlConfig.getSqlSessionManager().update("Event.vacuumEventTable");
+            Map<String, BlockingQueue<Event>> queues = null;
+            /*
+             * Using instanceof is several thousand times faster than using a map to store the
+             * different queue sets.
+             */
+            if (event instanceof ErrorEvent) {
+                queues = errorEventQueues;
+            } else if (event instanceof MessageEvent) {
+                queues = messageEventQueues;
+            } else if (event instanceof ChannelEvent) {
+                queues = channelEventQueues;
+            } else if (event instanceof ConnectorEvent) {
+                queues = connectorEventQueues;
             }
-        } catch (PersistenceException e) {
-            throw new ControllerException("Error removing all events.", e);
-        }
-    }
 
-    public String exportAndRemoveAllEvents() throws ControllerException {
-        try {
-            String exportFilePath = exportAllEvents();
-            removeAllEvents();
-            return exportFilePath;
-        } catch (ControllerException e) {
-            throw e;
-        }
-    }
-
-    public String exportAllEvents() throws ControllerException {
-        logger.debug("exporting events");
-
-        long currentTimeMillis = System.currentTimeMillis();
-        String currentTimeMillisString = String.valueOf(currentTimeMillis);
-        String currentDateTime = new SimpleDateFormat("yyyy-MM-dd-HHmmss").format(currentTimeMillis);
-        String appDataDir = ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir();
-        File exportDir = new File(appDataDir, "exports");
-        exportDir.mkdir();
-        File exportFile = new File(exportDir, currentDateTime + "-events.txt");
-
-        try {
-            FileWriter writer = new FileWriter(exportFile, true);
-
-            // write the CSV headers to the file
-            writer.write(Event.getExportHeader());
-            writer.write(System.getProperty("line.separator"));
-
-            EventFilter filter = new EventFilter();
-            int size = createTempTable(filter, currentTimeMillisString, true);
-            int page = 0;
-            int interval = 10;
-
-            while ((page * interval) < size) {
-                for (Event event : getEventsByPage(page, interval, size, currentTimeMillisString)) {
-                    writer.write(event.toExportString());
+            if (queues != null) {
+                for (BlockingQueue<Event> queue : queues.values()) {
+                    queue.put(event);
                 }
-
-                page++;
             }
+        } catch (InterruptedException e) {
 
-            IOUtils.closeQuietly(writer);
-            logger.debug("events exported to file: " + exportFile.getAbsolutePath());
-            removeFilterTable(currentDateTime);
-
-            Event event = new Event("Sucessfully exported events");
-            event.addAttribute("file", exportFile.getAbsolutePath());
-            addEvent(event);
-        } catch (IOException e) {
-            throw new ControllerException("Error exporting events to file.", e);
-        }
-
-        return exportFile.getAbsolutePath();
-    }
-
-    private Map<String, Object> getEventFilterMap(EventFilter filter, String uid) {
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
-
-        if (uid != null) {
-            parameterMap.put("uid", uid);
-        }
-
-        parameterMap.put("id", filter.getId());
-        parameterMap.put("name", filter.getName());
-        parameterMap.put("level", filter.getLevel());
-
-        if (filter.getStartDate() != null) {
-            parameterMap.put("startDate", filter.getStartDate());
-        }
-
-        if (filter.getEndDate() != null) {
-            parameterMap.put("endDate", filter.getEndDate());
-        }
-
-        parameterMap.put("outcome", filter.getOutcome());
-        parameterMap.put("userId", filter.getUserId());
-        parameterMap.put("ipAddress", filter.getIpAddress());
-
-        return parameterMap;
-    }
-
-    public int createTempTable(EventFilter filter, String uid, boolean forceTemp) throws ControllerException {
-        logger.debug("creating temporary event table: filter=" + filter.toString());
-
-        if (!forceTemp && DatabaseUtil.statementExists("Event.getEventsByPageLimit")) {
-            return -1;
-        }
-
-        if (!forceTemp) {
-            removeFilterTable(uid);
-        }
-
-        try {
-            if (DatabaseUtil.statementExists("Event.createTempEventTableSequence")) {
-                SqlConfig.getSqlSessionManager().update("Event.createTempEventTableSequence", uid);
-            }
-
-            SqlConfig.getSqlSessionManager().update("Event.createTempEventTable", uid);
-            SqlConfig.getSqlSessionManager().update("Event.createTempEventTableIndex", uid);
-            return SqlConfig.getSqlSessionManager().update("Event.populateTempEventTable", getEventFilterMap(filter, uid));
-        } catch (PersistenceException e) {
-            throw new ControllerException(e);
         }
     }
 
-    public void removeFilterTable(String uid) {
-        logger.debug("removing temporary event table: uid=" + uid);
-
-        try {
-            if (DatabaseUtil.statementExists("Event.dropTempEventTableSequence")) {
-                SqlConfig.getSqlSessionManager().update("Event.dropTempEventTableSequence", uid);
-            }
-        } catch (PersistenceException e) {
-            logger.debug(e);
-        }
-
-        try {
-            if (DatabaseUtil.statementExists("Event.deleteTempEventTableIndex")) {
-                SqlConfig.getSqlSessionManager().update("Event.deleteTempEventTableIndex", uid);
-            }
-        } catch (PersistenceException e) {
-            logger.debug(e);
-        }
-
-        try {
-            SqlConfig.getSqlSessionManager().update("Event.dropTempEventTable", uid);
-        } catch (PersistenceException e) {
-            logger.debug(e);
-        }
-    }
-
-    public List<Event> getEventsByPage(int page, int pageSize, int max, String uid) throws ControllerException {
-        logger.debug("retrieving events by page: page=" + page);
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
-        parameterMap.put("uid", uid);
-
-        if ((page != -1) && (pageSize != -1)) {
-            int last = max - (page * pageSize);
-            int first = last - pageSize + 1;
-            parameterMap.put("first", first);
-            parameterMap.put("last", last);
-        }
-
-        try {
-            return SqlConfig.getSqlSessionManager().selectList("Event.getEventsByPage", parameterMap);
-        } catch (Exception e) {
-            throw new ControllerException(e);
-        }
-    }
-
-    public List<Event> getEventsByPageLimit(int page, int pageSize, int maxEvents, String uid, EventFilter filter) throws ControllerException {
-        logger.debug("retrieving events by page: page=" + page);
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
-        parameterMap.put("uid", uid);
-        int offset = page * pageSize;
-        parameterMap.put("offset", offset);
-        parameterMap.put("limit", pageSize);
-        parameterMap.putAll(getEventFilterMap(filter, uid));
-
-        try {
-            return SqlConfig.getSqlSessionManager().selectList("Event.getEventsByPageLimit", parameterMap);
-        } catch (Exception e) {
-            throw new ControllerException(e);
-        }
-    }
 }

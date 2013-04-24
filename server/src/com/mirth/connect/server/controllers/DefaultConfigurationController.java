@@ -78,6 +78,7 @@ import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
+import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.mybatis.KeyValuePair;
 import com.mirth.connect.server.tools.ClassPathResource;
@@ -385,7 +386,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         ServerConfiguration serverConfiguration = new ServerConfiguration();
         serverConfiguration.setChannels(channelController.getChannel(null));
-        serverConfiguration.setAlerts(alertController.getAlert(null));
+        serverConfiguration.setAlerts(alertController.getAlerts());
         serverConfiguration.setCodeTemplates(codeTemplateController.getCodeTemplate(null));
         serverConfiguration.setServerSettings(getServerSettings());
         serverConfiguration.setUpdateSettings(getUpdateSettings());
@@ -445,7 +446,9 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         if (serverConfiguration.getAlerts() != null) {
             alertController.removeAlert(null);
-            alertController.updateAlerts(serverConfiguration.getAlerts());
+            for (AlertModel alert : serverConfiguration.getAlerts()) {
+                alertController.updateAlert(alert);
+            }
         }
 
         if (serverConfiguration.getCodeTemplates() != null) {

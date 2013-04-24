@@ -86,6 +86,9 @@ import com.mirth.connect.client.core.RequestAbortedException;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.core.UpdateClient;
+import com.mirth.connect.client.ui.alert.AlertEditPanel;
+import com.mirth.connect.client.ui.alert.AlertPanel;
+import com.mirth.connect.client.ui.alert.DefaultAlertEditPanel;
 import com.mirth.connect.client.ui.browsers.event.EventBrowser;
 import com.mirth.connect.client.ui.browsers.message.MessageBrowser;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
@@ -93,7 +96,6 @@ import com.mirth.connect.client.ui.extensionmanager.ExtensionUpdateDialog;
 import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
-import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
@@ -109,6 +111,7 @@ import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateInfo;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
+import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.util.ImportConverter;
@@ -131,6 +134,7 @@ public class Frame extends JXFrame {
     public EventBrowser eventBrowser = null;
     public MessageBrowser messageBrowser = null;
     public AlertPanel alertPanel = null;
+    public AlertEditPanel alertEditPanel = null;
     public CodeTemplatePanel codeTemplatePanel = null;
     public GlobalScriptsPanel globalScriptsPanel = null;
     public ExtensionManagerPanel extensionsPanel = null;
@@ -139,7 +143,6 @@ public class Frame extends JXFrame {
     public List<DashboardStatus> status = null;
     public Map<String, Channel> channels = null;
     public List<User> users = null;
-    public List<Alert> alerts = null;
     public List<CodeTemplate> codeTemplates = null;
     public ActionManager manager = ActionManager.getInstance();
     public JPanel contentPanel;
@@ -170,6 +173,8 @@ public class Frame extends JXFrame {
     public JPopupMenu userPopupMenu;
     public JXTaskPane alertTasks;
     public JPopupMenu alertPopupMenu;
+    public JXTaskPane alertEditTasks;
+    public JPopupMenu alertEditPopupMenu;
     public JXTaskPane codeTemplateTasks;
     public JPopupMenu codeTemplatePopupMenu;
     public JXTaskPane globalScriptsTasks;
@@ -185,6 +190,7 @@ public class Frame extends JXFrame {
     private ArrayList<CharsetEncodingInformation> availableCharsetEncodings = null;
     private List<String> charsetEncodings = null;
     private boolean isEditingChannel = false;
+    private boolean isEditingAlert = false;
     private LinkedHashMap<String, String> workingStatuses = new LinkedHashMap<String, String>();
     public LinkedHashMap<String, String> dataTypeToDisplayName;
     public LinkedHashMap<String, String> displayNameToDataType;
@@ -200,7 +206,7 @@ public class Frame extends JXFrame {
     private RemoveMessagesDialog removeMessagesDialog;
     private MessageExportDialog messageExportDialog;
     private MessageImportDialog messageImportDialog;
-    
+
     public Frame() {
         rightContainer = new JXTitledPanel();
         channels = new HashMap<String, Channel>();
@@ -420,6 +426,10 @@ public class Frame extends JXFrame {
         doShowDashboard();
         login.setStatus("Loading channel editor...");
         channelEditPanel = new ChannelSetup();
+        login.setStatus("Loading alert editor...");
+        if (alertEditPanel == null) {
+            alertEditPanel = new DefaultAlertEditPanel();
+        }
         login.setStatus("Loading message browser...");
         messageBrowser = new MessageBrowser();
 
@@ -523,8 +533,8 @@ public class Frame extends JXFrame {
      * channel specified as the loaded one.
      */
     public void setupChannel(Channel channel) {
-        setCurrentContentPage(channelEditPanel);
         setBold(viewPane, UIConstants.ERROR_CONSTANT);
+        setCurrentContentPage(channelEditPanel);
         setFocus(channelEditTasks);
         setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 0, false);
         channelEditPanel.addChannel(channel);
@@ -540,6 +550,30 @@ public class Frame extends JXFrame {
         setFocus(channelEditTasks);
         setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 4, false);
         channelEditPanel.editChannel(channel);
+    }
+
+    /**
+     * Changes the current content page to the Alert Editor with the new
+     * alert specified as the loaded one.
+     */
+    public void setupAlert() {
+        setBold(viewPane, UIConstants.ERROR_CONSTANT);
+        setCurrentContentPage(alertEditPanel);
+        setFocus(alertEditTasks);
+        setVisibleTasks(alertEditTasks, alertEditPopupMenu, 0, 0, false);
+        alertEditPanel.addAlert();
+    }
+
+    /**
+     * Edits an alert at a specified index, setting that alert as the current
+     * alert in the editor.
+     */
+    public void editAlert(AlertModel alertModel) {
+        setBold(viewPane, UIConstants.ERROR_CONSTANT);
+        setCurrentContentPage(alertEditPanel);
+        setFocus(alertEditTasks);
+        setVisibleTasks(alertEditTasks, alertEditPopupMenu, 0, 0, false);
+        alertEditPanel.editAlert(alertModel);
     }
 
     /**
@@ -607,6 +641,7 @@ public class Frame extends JXFrame {
         createMessagePane();
         createUserPane();
         createAlertPane();
+        createAlertEditPane();
         createGlobalScriptsPane();
         createCodeTemplatePane();
         createExtensionsPane();
@@ -618,8 +653,12 @@ public class Frame extends JXFrame {
         setVisibleTasks(viewPane, null, 0, -1, true);
 
         // Alert Pane
-        setVisibleTasks(alertTasks, alertPopupMenu, 0, 7, false);
-        setVisibleTasks(alertTasks, alertPopupMenu, 2, 4, true);
+        setVisibleTasks(alertTasks, alertPopupMenu, 0, -1, true);
+        setVisibleTasks(alertTasks, alertPopupMenu, 4, -1, false);
+
+        // Alert Edit Pane
+        setVisibleTasks(alertEditTasks, alertEditPopupMenu, 0, 0, false);
+        setVisibleTasks(alertEditTasks, alertEditPopupMenu, 1, 1, true);
 
         // Channel Pane
         setVisibleTasks(channelTasks, channelPopupMenu, 0, -1, true);
@@ -699,16 +738,34 @@ public class Frame extends JXFrame {
         alertTasks.setFocusable(false);
 
         addTask(TaskConstants.ALERT_REFRESH, "Refresh", "Refresh the list of alerts.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), alertTasks, alertPopupMenu);
-        addTask(TaskConstants.ALERT_SAVE, "Save Alerts", "Save all changes made to all alerts.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/disk.png")), alertTasks, alertPopupMenu);
         addTask(TaskConstants.ALERT_NEW, "New Alert", "Create a new alert.", "N", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/error_add.png")), alertTasks, alertPopupMenu);
         addTask(TaskConstants.ALERT_IMPORT, "Import Alerts", "Import list of alerts from an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")), alertTasks, alertPopupMenu);
-        addTask(TaskConstants.ALERT_EXPORT, "Export Alerts", "Export the list of alerts to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), alertTasks, alertPopupMenu);
+        addTask(TaskConstants.ALERT_EXPORT_ALL, "Export Alerts", "Export the list of alerts to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), alertTasks, alertPopupMenu);
         addTask(TaskConstants.ALERT_DELETE, "Delete Alert", "Delete the currently selected alert.", "L", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/error_delete.png")), alertTasks, alertPopupMenu);
+        addTask(TaskConstants.ALERT_EDIT, "Edit Alert", "Edit the currently selected alert.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_edit.png")), alertTasks, alertPopupMenu);
         addTask(TaskConstants.ALERT_ENABLE, "Enable Alert", "Enable the currently selected alert.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_play_blue.png")), alertTasks, alertPopupMenu);
         addTask(TaskConstants.ALERT_DISABLE, "Disable Alert", "Disable the currently selected alert.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_stop_blue.png")), alertTasks, alertPopupMenu);
 
         setNonFocusable(alertTasks);
         taskPaneContainer.add(alertTasks);
+    }
+
+    /**
+     * Creates the template task pane.
+     */
+    private void createAlertEditPane() {
+        // Create Alert Edit Tasks Pane
+        alertEditTasks = new JXTaskPane();
+        alertEditPopupMenu = new JPopupMenu();
+        alertEditTasks.setTitle("Alert Edit Tasks");
+        alertEditTasks.setName(TaskConstants.ALERT_EDIT_KEY);
+        alertEditTasks.setFocusable(false);
+
+        addTask(TaskConstants.ALERT_EDIT_SAVE, "Save Alert", "Save all changes made to this alert.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/disk.png")), alertEditTasks, alertEditPopupMenu);
+        addTask(TaskConstants.ALERT_EDIT_EXPORT, "Export Alert", "Export the currently selected alert to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), alertEditTasks, alertEditPopupMenu);
+
+        setNonFocusable(alertEditTasks);
+        taskPaneContainer.add(alertEditTasks);
     }
 
     /**
@@ -1245,14 +1302,11 @@ public class Frame extends JXFrame {
             } else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
                 return false;
             }
-        } else if (currentContentPage == alertPanel && isSaveEnabled()) {
-            alertPanel.stopAlertEditing();
-            alertPanel.stopEmailEditing();
-
+        } else if (currentContentPage == alertEditPanel && isSaveEnabled()) {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the alerts?");
 
             if (option == JOptionPane.YES_OPTION) {
-                doSaveAlerts();
+                alertEditPanel.saveAlert();
             } else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
                 return false;
             }
@@ -1626,8 +1680,8 @@ public class Frame extends JXFrame {
             channelEditPanel.filterPane.modified = enabled;
         } else if (currentContentPage == settingsPane) {
             settingsPane.getCurrentSettingsPanel().setSaveEnabled(enabled);
-        } else if (alertPanel != null && currentContentPage == alertPanel) {
-            setVisibleTasks(alertTasks, alertPopupMenu, 1, 1, enabled);
+        } else if (alertEditPanel != null && currentContentPage == alertEditPanel) {
+            setVisibleTasks(alertEditTasks, alertEditPopupMenu, 0, 0, enabled);
         } else if (globalScriptsPanel != null && currentContentPage == globalScriptsPanel) {
             setVisibleTasks(globalScriptsTasks, globalScriptsPopupMenu, 0, 0, enabled);
         } else if (codeTemplatePanel != null && currentContentPage == codeTemplatePanel) {
@@ -1649,8 +1703,8 @@ public class Frame extends JXFrame {
             enabled = channelEditTasks.getContentPane().getComponent(0).isVisible() || channelEditPanel.filterPane.modified;
         } else if (currentContentPage == settingsPane) {
             enabled = settingsPane.getCurrentSettingsPanel().isSaveEnabled();
-        } else if (alertPanel != null && currentContentPage == alertPanel) {
-            enabled = alertTasks.getContentPane().getComponent(1).isVisible();
+        } else if (alertEditPanel != null && currentContentPage == alertEditPanel) {
+            enabled = alertEditTasks.getContentPane().getComponent(0).isVisible();
         } else if (globalScriptsPanel != null && currentContentPage == globalScriptsPanel) {
             enabled = globalScriptsTasks.getContentPane().getComponent(0).isVisible();
         } else if (codeTemplatePanel != null && currentContentPage == codeTemplatePanel) {
@@ -1802,29 +1856,12 @@ public class Frame extends JXFrame {
             return;
         }
 
-        final String workingId = startWorking("Loading alerts...");
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                retrieveChannels();
-                refreshAlerts();
-                return null;
-            }
-
-            public void done() {
-                alertPanel.updateAlertTable();
-                setBold(viewPane, 4);
-                setPanelName("Alerts");
-                setCurrentContentPage(alertPanel);
-                alertPanel.setDefaultAlert();
-                setFocus(alertTasks);
-                setSaveEnabled(false);
-                stopWorking(workingId);
-            }
-        };
-
-        worker.execute();
+        setBold(viewPane, 4);
+        setPanelName("Alerts");
+        setCurrentContentPage(alertPanel);
+        setFocus(alertTasks);
+        setSaveEnabled(false);
+        doRefreshAlerts();
     }
 
     public void doShowExtensions() {
@@ -2790,8 +2827,8 @@ public class Frame extends JXFrame {
             return channelEditPanel.filterPane.modified;
         } else if (settingsPane != null && currentContentPage == settingsPane) {
             return settingsPane.getCurrentSettingsPanel().isSaveEnabled();
-        } else if (alertPanel != null && currentContentPage == alertPanel) {
-            return alertTasks.getContentPane().getComponent(1).isVisible();
+        } else if (alertEditPanel != null && currentContentPage == alertEditPanel) {
+            return alertEditTasks.getContentPane().getComponent(0).isVisible();
         } else if (globalScriptsPanel != null && currentContentPage == globalScriptsPanel) {
             return globalScriptsTasks.getContentPane().getComponent(0).isVisible();
         } else if (codeTemplatePanel != null && currentContentPage == codeTemplatePanel) {
@@ -3734,15 +3771,24 @@ public class Frame extends JXFrame {
     public void doRefreshAlerts() {
         final String workingId = startWorking("Loading alerts...");
 
+        final List<String> selectedAlertIds = alertPanel.getSelectedAlertIds();
+
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
+            private List<AlertModel> alerts;
+
             public Void doInBackground() {
-                refreshAlerts();
+                try {
+                    alerts = mirthClient.getAlert(null);
+                } catch (ClientException e) {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                }
                 return null;
             }
 
             public void done() {
-                alertPanel.updateAlertTable();
+                alertPanel.updateAlertTable(alerts);
+                alertPanel.setSelectedAlertIds(selectedAlertIds);
                 stopWorking(workingId);
             }
         };
@@ -3750,21 +3796,27 @@ public class Frame extends JXFrame {
         worker.execute();
     }
 
-    public void refreshAlerts() {
-        try {
-            alerts = mirthClient.getAlert(null);
-        } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
-        }
-    }
-
     public void doSaveAlerts() {
+        try {
+            ServerSettings serverSettings = mirthClient.getServerSettings();
+            if (StringUtils.isBlank(serverSettings.getSmtpHost()) || StringUtils.isBlank(serverSettings.getSmtpPort())) {
+                alertWarning(PlatformUI.MIRTH_FRAME, "The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
+            } 
+        } catch (ClientException e) {
+            if (!(e.getCause() instanceof UnauthorizedException)) {
+                alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage()); 
+            }
+        }
+        
         final String workingId = startWorking("Saving alerts...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                saveAlerts();
+                if (changesHaveBeenMade() && alertEditPanel.saveAlert()) {
+                    setSaveEnabled(false);
+                }
+
                 return null;
             }
 
@@ -3776,129 +3828,142 @@ public class Frame extends JXFrame {
         worker.execute();
     }
 
-    public boolean saveAlerts() {
-        try {
-            try {
-                ServerSettings serverSettings = mirthClient.getServerSettings();
-                if (StringUtils.isBlank(serverSettings.getSmtpHost()) || StringUtils.isBlank(serverSettings.getSmtpPort())) {
-                    alertWarning(PlatformUI.MIRTH_FRAME, "The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
+    public void doDeleteAlert() {
+        if (!alertOption(this, "Are you sure you want to delete the selected alert(s)?")) {
+            return;
+        }
+
+        final String workingId = startWorking("Deleting alert...");
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+            public Void doInBackground() {
+                List<String> selectedAlertIds = alertPanel.getSelectedAlertIds();
+
+                for (String alertId : selectedAlertIds) {
+                    try {
+                        mirthClient.removeAlert(alertId);
+                    } catch (ClientException e) {
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        return null;
+                    }
                 }
-            } catch (ClientException e) {
-                if (!(e.getCause() instanceof UnauthorizedException)) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                }
+
+                return null;
             }
 
-            alertPanel.saveAlert();
-            mirthClient.updateAlerts(alerts);
-            setSaveEnabled(false);
-        } catch (ClientException e) {
-            alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-            return false;
-        }
-        return true;
-    }
+            public void done() {
+                doRefreshAlerts();
+                stopWorking(workingId);
+            }
+        };
 
-    public void doDeleteAlert() {
-        alertPanel.deleteAlert();
+        worker.execute();
     }
 
     public void doNewAlert() {
-        alertPanel.addAlert();
+        retrieveChannels();
+        setupAlert();
+    }
+
+    public void doEditAlert() {
+        if (isEditingAlert) {
+            return;
+        } else {
+            isEditingAlert = true;
+        }
+
+        List<String> selectedAlertIds = alertPanel.getSelectedAlertIds();
+        if (selectedAlertIds.size() > 1) {
+            JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single alert.");
+        } else if (selectedAlertIds.size() == 0) {
+            JOptionPane.showMessageDialog(Frame.this, "Alert no longer exists.");
+        } else {
+            try {
+                List<AlertModel> alerts = mirthClient.getAlert(selectedAlertIds.get(0));
+
+                if (alerts == null || alerts.isEmpty()) {
+                    JOptionPane.showMessageDialog(Frame.this, "Alert no longer exists.");
+                    doRefreshAlerts();
+                } else {
+                    retrieveChannels();
+                    editAlert(alerts.get(0));
+                }
+            } catch (ClientException e) {
+                alertException(this, e.getStackTrace(), e.getMessage());
+            }
+        }
+        isEditingAlert = false;
     }
 
     public void doEnableAlert() {
-        alertPanel.enableAlert();
+        final String workingId = startWorking("Enabling alert...");
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+            public Void doInBackground() {
+                List<String> selectedAlertIds = alertPanel.getSelectedAlertIds();
+
+                for (String alertId : selectedAlertIds) {
+                    try {
+                        mirthClient.enableAlert(alertId);
+                    } catch (ClientException e) {
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        return null;
+                    }
+                }
+                
+                return null;
+            }
+
+            public void done() {
+                doRefreshAlerts();
+                stopWorking(workingId);
+            }
+        };
+
+        worker.execute();
     }
 
     public void doDisableAlert() {
-        alertPanel.disableAlert();
+        final String workingId = startWorking("Enabling alert...");
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+            public Void doInBackground() {
+                List<String> selectedAlertIds = alertPanel.getSelectedAlertIds();
+
+                for (String alertId : selectedAlertIds) {
+                    try {
+                        mirthClient.disableAlert(alertId);
+                    } catch (ClientException e) {
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        return null;
+                    }
+                }
+                
+                return null;
+            }
+
+            public void done() {
+                doRefreshAlerts();
+                stopWorking(workingId);
+            }
+        };
+
+        worker.execute();
     }
+    
+    public void doExportAlert() {
+        
+  }
 
     public void doExportAlerts() {
-        if (changesHaveBeenMade()) {
-            if (alertOption(this, "Would you like to save the changes made to the alerts?")) {
-                saveAlerts();
-            } else {
-                return;
-            }
-        }
 
-        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        String alertXML = serializer.toXML(alerts);
-
-        exportFile(alertXML, null, "XML", "Alerts export");
     }
 
     public void doImportAlerts() {
-        String content = browseForFileString("XML");
 
-        if (content != null) {
-            try {
-                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-                boolean append = false;
-
-                List<Alert> newAlerts = (List<Alert>) serializer.fromXML(ImportConverter.convertAlerts(content));
-                if (alerts != null && alerts.size() > 0) {
-                    if (alertOption(this, "Would you like to append these alerts to the existing alerts?")) {
-                        append = true;
-                    }
-                }
-
-                if (append) {
-                    for (Alert newAlert : newAlerts) {
-                        newAlert.setId(UUID.randomUUID().toString());
-
-                        // make sure the name doesn't already exist
-                        for (Alert alert : alerts) {
-                            // If the name already exists, generate a new unique name
-                            if (alert.getName().equalsIgnoreCase(newAlert.getName())) {
-                                String newAlertName = "Alert ";
-
-                                boolean uniqueName = false;
-                                int i = 0;
-                                while (!uniqueName) {
-                                    i++;
-                                    uniqueName = true;
-                                    for (Alert alertLookup : alerts) {
-                                        if (alertLookup.getName().equalsIgnoreCase(newAlertName + i)) {
-                                            uniqueName = false;
-                                        }
-                                    }
-                                }
-
-                                newAlert.setName(newAlertName + i);
-                            }
-                        }
-
-                        alerts.add(newAlert);
-                    }
-                } else {
-                    alerts = newAlerts;
-                }
-
-                alertInformation(this, "All alerts imported successfully.");
-
-                setSaveEnabled(true);
-
-                // If appending, just deselect the rows, which saves 
-                // the state of the last selected row.
-                // If replacing, set isDeletingAlert so the state is 
-                // not saved while the alert is being removed.
-                if (append) {
-                    alertPanel.deselectAlertRows();
-                } else {
-                    alertPanel.isDeletingAlert = true;
-                    alertPanel.deselectAlertRows();
-                    alertPanel.isDeletingAlert = false;
-                }
-
-                alertPanel.updateAlertTable();
-
-            } catch (Exception e) {
-                alertError(this, "Invalid alert file.");
-            }
-        }
     }
 
     public void doRefreshCodeTemplates() {
@@ -4256,7 +4321,7 @@ public class Frame extends JXFrame {
             doSaveCodeTemplates();
         } else if (currentContentPage == settingsPane) {
             settingsPane.getCurrentSettingsPanel().doSave();
-        } else if (currentContentPage == alertPanel) {
+        } else if (currentContentPage == alertEditPanel) {
             doSaveAlerts();
         }
     }

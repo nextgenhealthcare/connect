@@ -30,7 +30,6 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
-import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelSummary;
@@ -46,6 +45,7 @@ import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
+import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
@@ -391,10 +391,10 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    public List<Alert> getAlert(Alert alert) throws ClientException {
-        logger.debug("getting alert: " + alert);
-        NameValuePair[] params = { new NameValuePair("op", Operations.ALERT_GET.getName()), new NameValuePair("alert", serializer.toXML(alert)) };
-        return (List<Alert>) serializer.fromXML(serverConnection.executePostMethod(ALERT_SERVLET, params));
+    public List<AlertModel> getAlert(String alertId) throws ClientException {
+        logger.debug("getting alert: " + alertId);
+        NameValuePair[] params = { new NameValuePair("op", Operations.ALERT_GET.getName()), new NameValuePair("alertId", alertId) };
+        return (List<AlertModel>) serializer.fromXML(serverConnection.executePostMethod(ALERT_SERVLET, params));
     }
 
     /**
@@ -403,9 +403,9 @@ public class Client {
      * @param alert
      * @throws ClientException
      */
-    public synchronized void updateAlerts(List<Alert> alerts) throws ClientException {
-        logger.debug("updating alerts: " + alerts);
-        NameValuePair[] params = { new NameValuePair("op", Operations.ALERT_UPDATE.getName()), new NameValuePair("alerts", serializer.toXML(alerts)) };
+    public synchronized void updateAlert(AlertModel alertModel) throws ClientException {
+        logger.debug("updating alert: " + alertModel.getId());
+        NameValuePair[] params = { new NameValuePair("op", Operations.ALERT_UPDATE.getName()), new NameValuePair("alertModel", serializer.toXML(alertModel)) };
         serverConnection.executePostMethod(ALERT_SERVLET, params);
     }
 
@@ -415,9 +415,33 @@ public class Client {
      * @param alertId
      * @throws ClientException
      */
-    public synchronized void removeAlert(Alert alert) throws ClientException {
-        logger.debug("removing alert: " + alert);
-        NameValuePair[] params = { new NameValuePair("op", Operations.ALERT_REMOVE.getName()), new NameValuePair("alert", serializer.toXML(alert)) };
+    public synchronized void removeAlert(String alertId) throws ClientException {
+        logger.debug("removing alert: " + alertId);
+        NameValuePair[] params = { new NameValuePair("op", Operations.ALERT_REMOVE.getName()), new NameValuePair("alertId", alertId) };
+        serverConnection.executePostMethod(ALERT_SERVLET, params);
+    }
+    
+    /**
+     * Enables the alert with the specified id.
+     * 
+     * @param alertId
+     * @throws ClientException
+     */
+    public synchronized void enableAlert(String alertId) throws ClientException {
+        logger.debug("removing alert: " + alertId);
+        NameValuePair[] params = { new NameValuePair("op", Operations.ALERT_ENABLE.getName()), new NameValuePair("alertId", alertId) };
+        serverConnection.executePostMethod(ALERT_SERVLET, params);
+    }
+    
+    /**
+     * Disables the alert with the specified id.
+     * 
+     * @param alertId
+     * @throws ClientException
+     */
+    public synchronized void disableAlert(String alertId) throws ClientException {
+        logger.debug("removing alert: " + alertId);
+        NameValuePair[] params = { new NameValuePair("op", Operations.ALERT_DISABLE.getName()), new NameValuePair("alertId", alertId) };
         serverConnection.executePostMethod(ALERT_SERVLET, params);
     }
 

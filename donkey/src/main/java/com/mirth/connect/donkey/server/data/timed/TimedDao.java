@@ -21,7 +21,6 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
-import com.mirth.connect.donkey.server.event.Event;
 import com.mirth.connect.donkey.util.ActionTimer;
 
 public class TimedDao implements DonkeyDao {
@@ -158,17 +157,6 @@ public class TimedDao implements DonkeyDao {
             dao.insertMetaData(connectorMessage, metaDataColumns);
         } finally {
             timer.log("insertMetaData", System.currentTimeMillis() - startTime);
-        }
-    }
-
-    @Override
-    public void insertEvent(Event event) {
-        long startTime = System.currentTimeMillis();
-
-        try {
-            dao.insertEvent(event);
-        } finally {
-            timer.log("insertEvent", System.currentTimeMillis() - startTime);
         }
     }
 

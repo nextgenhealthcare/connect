@@ -11,6 +11,7 @@ package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,13 +20,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.io.RuntimeIOException;
 
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
-import com.mirth.connect.model.Alert;
+import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -48,32 +50,68 @@ public class AlertServlet extends MirthServlet {
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
 
                 if (operation.equals(Operations.ALERT_GET)) {
-                    Alert alert = (Alert) serializer.fromXML(request.getParameter("alert"));
-                    parameterMap.put("alert", alert);
+                    String alertId = request.getParameter("alertId");
+                    parameterMap.put("alertId", alertId);
 
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         response.setContentType(APPLICATION_XML);
-                        serializer.toXML(alertController.getAlert(alert), out);
+                        
+                        List<AlertModel> alerts;
+                        
+                        if (StringUtils.isBlank(alertId)) {
+                            alerts = alertController.getAlerts();
+                        } else {
+                            alerts = new ArrayList<AlertModel>();
+                            
+                            AlertModel alert = alertController.getAlert(alertId);
+                            if (alert != null) {
+                                alerts.add(alert);
+                            }
+                        }
+                        
+                        serializer.toXML(alerts, out);
                     }
                 } else if (operation.equals(Operations.ALERT_UPDATE)) {
-                    List<Alert> alerts = (List<Alert>) serializer.fromXML(request.getParameter("alerts"));
-                    parameterMap.put("alerts", alerts);
+                    AlertModel alertModel = (AlertModel) serializer.fromXML(request.getParameter("alertModel"));
+                    parameterMap.put("alertModel", alertModel);
 
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        alertController.updateAlerts(alerts);
+                        alertController.updateAlert(alertModel);
                     }
                 } else if (operation.equals(Operations.ALERT_REMOVE)) {
-                    Alert alert = (Alert) serializer.fromXML(request.getParameter("alert"));
-                    parameterMap.put("alert", alert);
+                    String alertId = request.getParameter("alertId");
+                    parameterMap.put("alertId", alertId);
 
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        alertController.removeAlert(alert);
+                        alertController.removeAlert(alertId);
+                    }
+                } else if (operation.equals(Operations.ALERT_ENABLE)) {
+                    String alertId = request.getParameter("alertId");
+                    parameterMap.put("alertId", alertId);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        AlertModel alertModel = alertController.getAlert(alertId);
+                        alertModel.setEnabled(true);
+                        alertController.updateAlert(alertModel);
+                    }
+                } else if (operation.equals(Operations.ALERT_DISABLE)) {
+                    String alertId = request.getParameter("alertId");
+                    parameterMap.put("alertId", alertId);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        AlertModel alertModel = alertController.getAlert(alertId);
+                        alertModel.setEnabled(false);
+                        alertController.updateAlert(alertModel);
                     }
                 }
             } catch (RuntimeIOException rio) {

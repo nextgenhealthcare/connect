@@ -20,7 +20,6 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.channel.Statistics;
-import com.mirth.connect.donkey.server.event.Event;
 
 public interface DonkeyDao {
     public void setEncryptData(boolean encryptData);
@@ -44,8 +43,6 @@ public interface DonkeyDao {
     public Attachment getMessageAttachment(String channelId, String attachmentId);
 
     public void insertMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns);
-
-    public void insertEvent(Event event);
 
     public void storeMessageContent(MessageContent messageContent);
 

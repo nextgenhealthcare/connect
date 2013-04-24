@@ -32,14 +32,14 @@ import com.mirth.connect.model.Event.Outcome;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerException;
-import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.SystemEventController;
 import com.mirth.connect.util.messagewriter.MessageWriterFactory;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class MessagePrunerJob implements Job {
 
     private ChannelController channelController = ChannelController.getInstance();
-    private EventController eventController = EventController.getInstance();
+    private SystemEventController systemEventController = SystemEventController.getInstance();
     private Logger logger = Logger.getLogger(getClass());
 
     public MessagePrunerJob() {
@@ -121,7 +121,7 @@ public class MessagePrunerJob implements Job {
                 event.setOutcome(Outcome.SUCCESS);
                 event.setName(MessagePrunerService.PLUGINPOINT);
                 event.setAttributes(attributes);
-                eventController.addEvent(event);
+                systemEventController.addEvent(event);
             } catch (Exception e) {
                 Map<String, String> attributes = new HashMap<String, String>();
                 attributes.put("channel", channel.getName());
@@ -133,7 +133,7 @@ public class MessagePrunerJob implements Job {
                 event.setOutcome(Outcome.FAILURE);
                 event.setName(MessagePrunerService.PLUGINPOINT);
                 event.setAttributes(attributes);
-                eventController.addEvent(event);
+                systemEventController.addEvent(event);
 
                 logger.error("Could not prune messages for channel: " + channel.getName(), e);
             }

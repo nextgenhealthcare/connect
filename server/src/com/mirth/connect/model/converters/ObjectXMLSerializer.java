@@ -13,7 +13,6 @@ import java.io.Reader;
 import java.io.Writer;
 
 import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
-import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.ArchiveMetaData;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatistics;
@@ -40,12 +39,20 @@ import com.mirth.connect.model.UpdateInfo;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.UsageData;
 import com.mirth.connect.model.User;
+import com.mirth.connect.model.alert.AlertAction;
+import com.mirth.connect.model.alert.AlertActionGroup;
+import com.mirth.connect.model.alert.AlertActionProtocol;
+import com.mirth.connect.model.alert.AlertModel;
+import com.mirth.connect.model.alert.DefaultTrigger;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
 
 public class ObjectXMLSerializer extends XStreamSerializer {
     private static final Class<?>[] annotatedClasses = new Class<?>[] {//@formatter:off
-        Alert.class,
+        AlertAction.class,
+        AlertActionGroup.class,
+        AlertActionProtocol.class,
+        AlertModel.class,
         ArchiveMetaData.class,
         Channel.class,
         ChannelStatistics.class,
@@ -54,6 +61,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         Connector.class,
         ConnectorMetaData.class,
         DashboardStatus.class,
+        DefaultTrigger.class,
         DeployedChannelInfo.class,
         DriverInfo.class,
         Event.class,

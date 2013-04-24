@@ -33,6 +33,8 @@ public abstract class ControllerFactory {
     public abstract ConfigurationController createConfigurationController();
 
     public abstract EngineController createEngineController();
+    
+    public abstract EventController createEventController();
 
     public abstract ExtensionController createExtensionController();
 
@@ -44,7 +46,7 @@ public abstract class ControllerFactory {
 
     public abstract ScriptController createScriptController();
 
-    public abstract EventController createEventController();
+    public abstract SystemEventController createSystemEventController();
 
     public abstract UserController createUserController();
 }

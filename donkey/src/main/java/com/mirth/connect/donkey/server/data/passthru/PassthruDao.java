@@ -25,7 +25,6 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
-import com.mirth.connect.donkey.server.event.Event;
 
 public class PassthruDao implements DonkeyDao {
     private boolean closed = false;
@@ -281,9 +280,6 @@ public class PassthruDao implements DonkeyDao {
     public long getConnectorMessageMaxMessageId(String channelId, int metaDataId, Status status) {
         return 0;
     }
-
-    @Override
-    public void insertEvent(Event event) {}
 
     @Override
     public List<MetaDataColumn> getMetaDataColumns(String channelId) {

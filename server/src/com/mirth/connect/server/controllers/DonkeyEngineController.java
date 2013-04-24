@@ -24,8 +24,6 @@ import org.apache.log4j.Logger;
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.message.RawMessage;
@@ -57,6 +55,8 @@ import com.mirth.connect.donkey.server.channel.components.PreProcessor;
 import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
 import com.mirth.connect.donkey.server.data.passthru.DelayedStatisticsUpdater;
 import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
+import com.mirth.connect.donkey.server.event.Event;
+import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
@@ -102,6 +102,7 @@ public class DonkeyEngineController implements EngineController {
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private com.mirth.connect.donkey.server.controllers.ChannelController donkeyChannelController = com.mirth.connect.donkey.server.controllers.ChannelController.getInstance();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 
     private DonkeyEngineController() {}
@@ -123,8 +124,16 @@ public class DonkeyEngineController implements EngineController {
                 return encryptor.decrypt(text);
             }
         };
+        
+        EventDispatcher eventDispatcher = new EventDispatcher() {
 
-        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), donkeyEncryptor));
+            @Override
+            public void dispatchEvent(Event event) {
+                eventController.dispatchEvent(event);
+            }
+        };
+
+        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), donkeyEncryptor, eventDispatcher));
     }
 
     @Override

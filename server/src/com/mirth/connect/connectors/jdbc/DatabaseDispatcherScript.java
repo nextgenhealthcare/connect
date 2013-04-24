@@ -18,13 +18,15 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.UndeployException;
-import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
@@ -37,7 +39,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     private String scriptId;
     private DatabaseDispatcher connector;
     private JavaScriptExecutor<Object> javaScriptExecutor = new JavaScriptExecutor<Object>();
-    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
     private Logger scriptLogger = Logger.getLogger("db-connector");
     private Logger logger = Logger.getLogger(this.getClass());
 
@@ -122,7 +124,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
                 responseStatus = Status.QUEUED;
 
                 logger.error("Error evaluating " + connectorProperties.getName() + " (" + connectorProperties.getName() + " \"" + connector.getDestinationName() + "\" on channel " + connector.getChannelId() + ").", e);
-                alertController.sendAlerts(connector.getChannelId(), ErrorConstants.ERROR_414, "Error evaluating " + connectorProperties.getName(), e);
+                eventController.dispatchEvent(new ErrorEvent(connector.getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error evaluating " + connectorProperties.getName(), e));
             }
 
             return new Response(responseStatus, responseData, responseStatusMessage, responseError);
