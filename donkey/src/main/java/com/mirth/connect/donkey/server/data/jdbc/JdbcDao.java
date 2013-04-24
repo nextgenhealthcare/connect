@@ -1837,6 +1837,7 @@ public class JdbcDao implements DonkeyDao {
     }
 
     private Map<String, Object> getMetaDataMap(String channelId, long messageId, int metaDataId) {
+        PreparedStatement statement = null;
         ResultSet resultSet = null;
 
         try {
@@ -1844,7 +1845,7 @@ public class JdbcDao implements DonkeyDao {
             values.put("localChannelId", getLocalChannelId(channelId));
 
             // do not cache this statement since metadata columns may be added/removed
-            PreparedStatement statement = connection.prepareStatement(querySource.getQuery("getMetaDataMap", values));
+            statement = connection.prepareStatement(querySource.getQuery("getMetaDataMap", values));
             statement.setLong(1, messageId);
             statement.setInt(2, metaDataId);
 
@@ -1880,6 +1881,7 @@ public class JdbcDao implements DonkeyDao {
             throw new DonkeyDaoException(e);
         } finally {
             close(resultSet);
+            close(statement);
         }
     }
 
