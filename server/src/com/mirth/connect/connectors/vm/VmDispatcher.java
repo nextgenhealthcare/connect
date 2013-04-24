@@ -118,7 +118,6 @@ public class VmDispatcher extends DestinationConnector {
 
             responseStatus = Status.SENT;
             responseStatusMessage = "Message routed successfully to channel id: " + channelId;
-            throw new Exception();
         } catch (Throwable e) {
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error routing message to channel id: " + channelId, e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error routing message to channel id: " + channelId, e);
