@@ -1149,6 +1149,7 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public List<ConnectorMessage> getConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds, boolean includeContent) {
+        PreparedStatement statement = null;
         ResultSet resultSet = null;
 
         try {
@@ -1156,7 +1157,7 @@ public class JdbcDao implements DonkeyDao {
             values.put("localChannelId", getLocalChannelId(channelId));
             values.put("metaDataIds", StringUtils.join(metaDataIds, ','));
 
-            PreparedStatement statement = connection.prepareStatement(querySource.getQuery("getConnectorMessagesByMessageIdAndMetaDataIds", values));
+            statement = connection.prepareStatement(querySource.getQuery("getConnectorMessagesByMessageIdAndMetaDataIds", values));
             statement.setLong(1, messageId);
             resultSet = statement.executeQuery();
 
@@ -1171,6 +1172,7 @@ public class JdbcDao implements DonkeyDao {
             throw new DonkeyDaoException(e);
         } finally {
             close(resultSet);
+            close(statement);
         }
     }
 
@@ -1934,9 +1936,15 @@ public class JdbcDao implements DonkeyDao {
         String query = querySource.getQuery(queryId, values);
 
         if (query != null) {
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setLong(1, messageId);
-            statement.executeUpdate();
+            PreparedStatement statement = null;
+
+            try {
+                statement = connection.prepareStatement(query);
+                statement.setLong(1, messageId);
+                statement.executeUpdate();
+            } finally {
+                close(statement);
+            }
         }
     }
 
