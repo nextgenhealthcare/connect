@@ -456,7 +456,7 @@ public class JdbcDao implements DonkeyDao {
             statement.setString(4, Character.toString(connectorMessage.getStatus().getStatusCode()));
             
             if (connectorMessage.getConnectorName() == null) {
-                statement.setNull(5, Types.NULL);
+                statement.setNull(5, Types.VARCHAR);
             } else {
                 statement.setString(5, connectorMessage.getConnectorName());
             }
