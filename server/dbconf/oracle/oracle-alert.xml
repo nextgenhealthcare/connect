@@ -2,60 +2,49 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "conf/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="Alert">
-	<resultMap id="get-alert-result" type="com.mirth.connect.model.Alert">
-		<result property="id" column="ID" />
-		<result property="name" column="NAME" />
-		<result property="enabled" column="IS_ENABLED" />
-		<result property="expression" column="EXPRESSION" />
-		<result property="template" column="TEMPLATE" />
-		<result property="subject" column="SUBJECT" />
+	<resultMap id="alert" type="map">
+		<id property="id" column="ID" javaType="String" />
+		<result property="name" column="NAME" javaType="String" />
+		<result property="alert" column="ALERT" javaType="String" />
 	</resultMap>
 
-	<select id="getAlert" parameterType="com.mirth.connect.model.Alert" resultMap="get-alert-result">
-		SELECT A.ID, A.NAME, A.IS_ENABLED, A.EXPRESSION, A.TEMPLATE, A.SUBJECT
-		FROM ALERT A
+	<select id="getAlertNameExists" parameterType="map" resultType="java.lang.Boolean">
+		SELECT EXISTS (
+			SELECT 1
+			FROM ALERT
+			WHERE NAME = #{name}
+			AND ID != #{id}
+		)
+	</select>
+
+	<select id="getAlert" parameterType="java.lang.String" resultMap="alert">
+		SELECT ID, NAME, ALERT
+		FROM ALERT
 		<where>
-			<if test="id != null">AND A.ID = #{id}</if>
+			<if test="value != null">
+				ID = #{value}
+			</if>
 		</where>
 	</select>
 
-	<select id="getAlertByChannelId" parameterType="java.lang.String" resultMap="get-alert-result">
-		SELECT A.ID, A.NAME, A.IS_ENABLED, A.EXPRESSION, A.TEMPLATE, A.SUBJECT
-		FROM ALERT A, CHANNEL_ALERT CA
-		WHERE A.ID = CA.ALERT_ID AND CA.CHANNEL_ID = #{value}
-	</select>
-
-	<select id="getChannelIdsByAlertId" parameterType="java.lang.String" resultType="java.lang.String">
-		SELECT CA.CHANNEL_ID
-		FROM CHANNEL_ALERT CA
-		WHERE CA.ALERT_ID = #{value}
-	</select>
-
-	<select id="getEmailsByAlertId" parameterType="java.lang.String" resultType="java.lang.String">
-		SELECT AE.EMAIL
-		FROM ALERT_EMAIL AE
-		WHERE AE.ALERT_ID = #{value}
-	</select>
-
-	<insert id="insertAlert" parameterType="com.mirth.connect.model.Alert">
-		INSERT INTO ALERT (ID, NAME, IS_ENABLED, EXPRESSION, TEMPLATE, SUBJECT)
-		VALUES (#{id}, #{name}, #{enabled}, #{expression}, #{template}, #{subject})
+	<insert id="insertAlert" parameterType="map">
+		INSERT INTO ALERT (ID, NAME, ALERT)
+		VALUES (#{id}, #{name}, #{alert})
 	</insert>
 
-	<insert id="insertChannelAlert" parameterType="java.util.Map">
-		INSERT INTO CHANNEL_ALERT (CHANNEL_ID, ALERT_ID)
-		VALUES (#{channelId}, #{alertId})
+	<insert id="updateAlert" parameterType="map">
+		UPDATE ALERT
+		SET ALERT = #{alert},
+		NAME = #{name}
+		WHERE ID = #{id}
 	</insert>
 
-	<insert id="insertAlertEmail" parameterType="java.util.Map">
-		INSERT INTO ALERT_EMAIL (ALERT_ID, EMAIL)
-		VALUES (#{alertId}, #{email})
-	</insert>
-
-	<delete id="deleteAlert" parameterType="com.mirth.connect.model.Alert">
+	<delete id="deleteAlert" parameterType="java.lang.String">
 		DELETE FROM ALERT
 		<where>
-			<if test="id != null">ID = #{id}</if>
+			<if test="value != null">
+				ID = #{value}
+			</if>
 		</where>
 	</delete>
 </mapper>
