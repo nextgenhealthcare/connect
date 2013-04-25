@@ -308,45 +308,65 @@
 	
 	<delete id="prunerDeleteMessages" parameterType="map">
 		DELETE FROM d_m${localChannelId}
+		
+		<!-- USING/JOIN cannot be used in conjuction with LIMIT, see http://dev.mysql.com/doc/refman/5.0/en/delete.html -->
+		<if test="limit == null">
+			USING d_m${localChannelId}
 			
-		<if test="dateThreshold != null">
-			USING d_mm${localChannelId} mm
+			<if test="dateThreshold != null">
+				INNER JOIN d_mm${localChannelId} mm ON mm.message_id = d_m${localChannelId}.id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
+			</if>
 		</if>
 		
 		<where>
 			<include refid="prunerDeleteWhere" />
 			
-			<if test="dateThreshold != null">
-				AND mm.message_id = d_m${localChannelId}.id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
+			<if test="limit != null and dateThreshold != null">
+				AND id IN (
+					SELECT mm.message_id
+					FROM d_mm${localChannelId} mm
+					WHERE mm.id = 0
+					AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
+				)
 			</if>
 		</where>
-
+		
 		<if test="limit != null">
 			LIMIT #{limit}
 		</if>
 	</delete>
 	
 	<delete id="prunerDeleteMessageContent" parameterType="map">
-		DELETE FROM d_mc${localChannelId} mc
+		DELETE FROM d_mc${localChannelId}
 		
-		USING d_m${localChannelId} m
-		
-		<if test="dateThreshold != null">
-			, d_mm${localChannelId} mm
-		</if>
-		
-		<where>
-			<include refid="prunerDeleteWhere" />
-			AND d_mc${localChannelId}.message_id = m.id
-			
-			<if test="dateThreshold != null">
-				AND mm.message_id = d_mc${localChannelId}.message_id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
-			</if>
-		</where>
-		
-		<if test="limit != null">
-			LIMIT #{limit}
-		</if>
+		<choose>
+			<when test="limit == null">
+				USING d_mc${localChannelId}
+				INNER JOIN d_m${localChannelId} ON d_m${localChannelId}.id = d_mc${localChannelId}.message_id
+				
+				<if test="dateThreshold != null">
+					INNER JOIN d_mm${localChannelId} mm ON mm.message_id = d_mc${localChannelId}.message_id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
+				</if>
+				
+				<where>
+					<include refid="prunerDeleteWhere" />
+				</where>
+			</when>
+			<otherwise>
+				WHERE message_id IN (
+					SELECT message_id
+					FROM d_m${localChannelId}
+					<if test="dateThreshold != null">
+						JOIN d_mm${localChannelId} mm0 ON mm0.message_id = d_m${localChannelId}.id AND mm0.id = 0 AND mm0.received_date <![CDATA[ < ]]> #{dateThreshold}
+					</if>
+					<where>
+						<include refid="prunerDeleteWhere" />
+					</where>
+				)
+				
+				LIMIT #{limit}
+			</otherwise>
+		</choose>
 	</delete>
 	
 	<sql id="prunerDeleteWhere">
@@ -360,9 +380,9 @@
 		<if test="skipStatuses != null">
 			AND NOT EXISTS (
 				SELECT 1
-				FROM d_mm${localChannelId} mm
-				WHERE mm.message_id = d_m${localChannelId}.id
-				AND mm.status IN
+				FROM d_mm${localChannelId} mm2
+				WHERE mm2.message_id = d_m${localChannelId}.id
+				AND mm2.status IN
 				<foreach item="status" collection="skipStatuses" open="(" separator="," close=")">
 					#{status}
 				</foreach>
