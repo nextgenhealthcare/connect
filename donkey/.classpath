@@ -63,5 +63,6 @@
 	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.1.24-bin.jar"/>
 	<classpathentry kind="lib" path="lib/database/ojdbc6.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-beanutils-1.8.3.jar"/>
+	<classpathentry kind="lib" path="lib/database/jtds-1.2.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

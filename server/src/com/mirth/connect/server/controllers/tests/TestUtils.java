@@ -34,6 +34,8 @@ import com.mirth.connect.connectors.tests.TestDestinationConnector;
 import com.mirth.connect.connectors.tests.TestResponseTransformer;
 import com.mirth.connect.connectors.tests.TestSerializer;
 import com.mirth.connect.connectors.tests.TestSourceConnector;
+import com.mirth.connect.connectors.vm.VmDispatcherProperties;
+import com.mirth.connect.connectors.vm.VmReceiverProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
@@ -52,12 +54,17 @@ import com.mirth.connect.donkey.server.channel.ResponseSelector;
 import com.mirth.connect.donkey.server.channel.ResponseTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
-import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
 import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.Connector.Mode;
+import com.mirth.connect.model.Filter;
+import com.mirth.connect.model.Rule;
+import com.mirth.connect.model.Transformer;
+import com.mirth.connect.plugins.datatypes.hl7v2.HL7v2DataTypeProperties;
 import com.mirth.connect.server.util.ResourceUtil;
 
 public class TestUtils {
@@ -90,6 +97,66 @@ public class TestUtils {
         
         channel.stop();
         channel.undeploy();
+    }
+    
+    public static com.mirth.connect.model.Channel createTestChannelModel(String channelId, String channelName) {
+        Transformer transformer = new Transformer();
+        transformer.setInboundDataType("HL7V2");
+        transformer.setInboundProperties(new HL7v2DataTypeProperties());
+        transformer.setOutboundDataType("HL7V2");
+        transformer.setOutboundProperties(new HL7v2DataTypeProperties());
+        
+        Filter filter = new Filter();
+        filter.setRules(new ArrayList<Rule>());
+        
+        Connector sourceConnector = new Connector();
+        sourceConnector.setEnabled(true);
+        sourceConnector.setMetaDataId(0);
+        sourceConnector.setMode(Mode.SOURCE);
+        sourceConnector.setName("source");
+        sourceConnector.setProperties(new VmReceiverProperties());
+        sourceConnector.setTransportName(sourceConnector.getProperties().getName());
+        sourceConnector.setWaitForPrevious(true);
+        sourceConnector.setTransformer(transformer);
+        sourceConnector.setFilter(filter);
+        
+        transformer = new Transformer();
+        transformer.setInboundDataType("HL7V2");
+        transformer.setInboundProperties(new HL7v2DataTypeProperties());
+        transformer.setOutboundDataType("HL7V2");
+        transformer.setOutboundProperties(new HL7v2DataTypeProperties());
+        
+        filter = new Filter();
+        filter.setRules(new ArrayList<Rule>());
+        
+        Connector destinationConnector = new Connector();
+        destinationConnector.setEnabled(true);
+        destinationConnector.setMetaDataId(1);
+        destinationConnector.setMode(Mode.DESTINATION);
+        destinationConnector.setName("destination");
+        destinationConnector.setProperties(new VmDispatcherProperties());
+        destinationConnector.setTransportName(destinationConnector.getProperties().getName());
+        destinationConnector.setTransformer(transformer);
+        destinationConnector.setFilter(filter);
+        
+        transformer = new Transformer();
+        transformer.setInboundDataType("HL7V2");
+        transformer.setInboundProperties(new HL7v2DataTypeProperties());
+        transformer.setOutboundDataType("HL7V2");
+        transformer.setOutboundProperties(new HL7v2DataTypeProperties());
+        
+        destinationConnector.setResponseTransformer(transformer);
+        
+        com.mirth.connect.model.Channel channel = new com.mirth.connect.model.Channel();
+        channel.setId(channelId);
+        channel.setEnabled(true);
+        channel.setLastModified(Calendar.getInstance());
+        channel.setName(channelName);
+        channel.setRevision(0);
+        channel.setSourceConnector(sourceConnector);
+        channel.getDestinationConnectors().add(destinationConnector);
+        
+        return channel;
     }
 
     public static Channel createChannel(String channelId, String serverId, SourceConnector sourceConnector, DestinationConnector destinationConnector) {
@@ -242,10 +309,10 @@ public class TestUtils {
         double seconds = ((double) milliseconds) / 1000.0;
         return StringUtils.rightPad(testName, 50) + ((int) (testSize / seconds)) + " messages/second";
     }
-
-    public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDao dao) {
+    
+    public static Message createMessage(RawMessage rawMessage, String channelId, String serverId, long messageId) {
         Message message = new Message();
-        message.setMessageId(dao.getNextMessageId(channelId));
+        message.setMessageId(messageId);
         message.setChannelId(channelId);
         message.setServerId(serverId);
         message.setReceivedDate(Calendar.getInstance());
@@ -258,7 +325,14 @@ public class TestUtils {
         }
 
         message.getConnectorMessages().put(0, sourceMessage);
+        
+        return message;
+    }
 
+    public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDao dao) {
+        Message message = createMessage(rawMessage, channelId, serverId, dao.getNextMessageId(channelId));
+        ConnectorMessage sourceMessage = message.getConnectorMessages().get(0);
+        
         dao.insertMessage(message);
         dao.insertConnectorMessage(sourceMessage, true);
         dao.insertMessageContent(sourceMessage.getRaw());
@@ -368,6 +442,10 @@ public class TestUtils {
         }
     }
 
+    public static void createTestMessagesFast(String channelId, int power) throws Exception {
+        createTestMessagesFast(channelId, TestUtils.createMessage(new RawMessage(TestUtils.TEST_HL7_MESSAGE), channelId, "testserver", 1), power);
+    }
+    
     public static void createTestMessagesFast(String channelId, Message templateMessage, int power) throws Exception {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         deleteAllMessages(channelId);

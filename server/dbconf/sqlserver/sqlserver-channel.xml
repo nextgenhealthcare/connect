@@ -1,21 +1,16 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "conf/dtd/mybatis-3-mapper.dtd">
 
-<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
-
-<sqlMap namespace="Channel">
-	<resultMap class="java.util.HashMap" id="get-channel-revision-result">
-		<result property="id" column="ID" javaType="java.lang.String" />
-		<result property="revision" column="REVISION" javaType="java.lang.Integer" />
-	</resultMap>
-
-	<resultMap class="com.mirth.connect.model.Channel" id="get-channel-result">
+<mapper namespace="Channel">
+	<resultMap id="get-channel-result" type="com.mirth.connect.model.Channel">
 		<result property="id" column="ID" />
 		<result property="name" column="NAME" />
-		<result property="description" column="DESCRIPTION" nullValue="" />
+		<result property="nextMetaDataId" column="NEXT_METADATA_ID" />
+		<result property="description" column="DESCRIPTION" />
 		<result property="enabled" column="IS_ENABLED" />
 		<result property="version" column="VERSION" />
-		<result property="revision" column="REVISION" />	
-		<result property="lastModified" column="LAST_MODIFIED" />			
+		<result property="revision" column="REVISION" />
+		<result property="lastModified" column="LAST_MODIFIED" />
 		<result property="sourceConnector" column="SOURCE_CONNECTOR" />
 		<result property="destinationConnectors" column="DESTINATION_CONNECTORS" />
 		<result property="properties" column="PROPERTIES" />
@@ -23,55 +18,87 @@
 		<result property="postprocessingScript" column="POSTPROCESSING_SCRIPT" />
 		<result property="deployScript" column="DEPLOY_SCRIPT" />
 		<result property="shutdownScript" column="SHUTDOWN_SCRIPT" />
+		<collection property="tags" column="{id=ID}" ofType="java.util.HashSet" select="getChannelTags" />
 	</resultMap>
-	
-	<select id="getChannel" parameterClass="com.mirth.connect.model.Channel" resultMap="get-channel-result">
-		SELECT *
-		FROM CHANNEL
-		<dynamic prepend="WHERE">
-			<isNotNull prepend="AND" property="id">
-				ID=#id#
-			</isNotNull>
-			<isNotNull prepend="AND" property="name">
-				NAME=#name#
-			</isNotNull>
-		</dynamic>
+
+	<select id="getChannel" parameterType="com.mirth.connect.model.Channel" resultMap="get-channel-result">
+		SELECT C.*, CT.*
+		FROM CHANNEL C
+		LEFT JOIN CHANNEL_TAGS CT ON CT.CHANNEL_ID = C.ID
+		<where>
+			<if test="id != null">C.ID = #{id}</if>
+			<if test="name != null">AND C.NAME = #{name}</if>
+		</where>
 	</select>
 	
-	<select id="getChannelRevision" resultMap="get-channel-revision-result">
-		SELECT ID, REVISION FROM CHANNEL
+	<select id="getChannelTags" parameterType="map" resultType="String">
+		SELECT TAG
+		FROM CHANNEL_TAGS
+		WHERE CHANNEL_ID = #{id}
+	</select>
+
+	<select id="getAllChannelTags" resultType="String">
+		SELECT DISTINCT tag
+		FROM CHANNEL_TAGS
+		<if test="channelIds != null">
+			WHERE CHANNEL_ID IN
+			<foreach item="channelId" collection="channelIds" open="(" separator="," close=")">
+				#{channelId}
+			</foreach>
+		</if>
+		ORDER BY tag
 	</select>
 	
-	<insert id="insertChannel" parameterClass="com.mirth.connect.model.Channel">
-		INSERT INTO
-		CHANNEL (ID, NAME, DESCRIPTION, IS_ENABLED, VERSION, REVISION, LAST_MODIFIED, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT, POSTPROCESSING_SCRIPT, DEPLOY_SCRIPT, SHUTDOWN_SCRIPT)
-		VALUES (#id#, #name#, #description#, #enabled#, #version#, #revision#, #lastModified#, #sourceConnector#, #destinationConnectors#, #properties#, #preprocessingScript#, #postprocessingScript#, #deployScript#, #shutdownScript#)
+	<delete id="deleteChannelTags" parameterType="map">
+		DELETE FROM CHANNEL_TAGS
+		WHERE CHANNEL_ID = #{channelId}
+	</delete>
+
+	<insert id="insertChannelTag" parameterType="map">
+		INSERT INTO CHANNEL_TAGS (CHANNEL_ID, TAG)
+		VALUES (#{channelId}, #{tag})
 	</insert>
 	
-	<update id="updateChannel" parameterClass="com.mirth.connect.model.Channel">
+	<select id="getChannelRevision" resultType="com.mirth.connect.model.Channel">
+		SELECT ID, REVISION FROM CHANNEL
+	</select>
+
+	<insert id="insertChannel" parameterType="com.mirth.connect.model.Channel">
+		INSERT INTO CHANNEL (ID, NAME, NEXT_METADATA_ID, DESCRIPTION, IS_ENABLED, VERSION, 
+		REVISION, LAST_MODIFIED, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES,
+		PREPROCESSING_SCRIPT, POSTPROCESSING_SCRIPT, DEPLOY_SCRIPT, SHUTDOWN_SCRIPT)
+
+		VALUES (#{id}, #{name}, #{nextMetaDataId}, #{description}, #{enabled},
+		#{version}, #{revision}, #{lastModified}, #{sourceConnector},
+		#{destinationConnectors}, #{properties}, #{preprocessingScript},
+		#{postprocessingScript}, #{deployScript}, #{shutdownScript})
+	</insert>
+
+	<update id="updateChannel" parameterType="com.mirth.connect.model.Channel">
 		UPDATE CHANNEL
-		SET NAME = #name#,
-			DESCRIPTION = #description#,
-			IS_ENABLED = #enabled#,
-			VERSION = #version#,
-			REVISION = #revision#,
-			LAST_MODIFIED = #lastModified#,
-			SOURCE_CONNECTOR = #sourceConnector#,
-			DESTINATION_CONNECTORS = #destinationConnectors#,
-			PROPERTIES = #properties#,
-			PREPROCESSING_SCRIPT = #preprocessingScript#,
-			POSTPROCESSING_SCRIPT = #postprocessingScript#,
-			DEPLOY_SCRIPT = #deployScript#,
-			SHUTDOWN_SCRIPT = #shutdownScript#
-		WHERE ID = #id#
+		SET
+			NAME = #{name},
+			NEXT_METADATA_ID = #{nextMetaDataId},
+			DESCRIPTION = #{description},
+			IS_ENABLED = #{enabled},
+			VERSION = #{version},
+			REVISION = #{revision},
+			LAST_MODIFIED = #{lastModified},
+			SOURCE_CONNECTOR = #{sourceConnector},
+			DESTINATION_CONNECTORS = #{destinationConnectors},
+			PROPERTIES = #{properties},
+			PREPROCESSING_SCRIPT = #{preprocessingScript},
+			POSTPROCESSING_SCRIPT = #{postprocessingScript},
+			DEPLOY_SCRIPT = #{deployScript},
+			SHUTDOWN_SCRIPT = #{shutdownScript}
+
+		WHERE ID = #{id}
 	</update>
-	
-	<delete id="deleteChannel" parameterClass="com.mirth.connect.model.Channel">
+
+	<delete id="deleteChannel" parameterType="com.mirth.connect.model.Channel">
 		DELETE FROM CHANNEL
-		<dynamic prepend="WHERE">
-			<isNotNull prepend="AND" property="id">
-				ID=#id#
-			</isNotNull>
-		</dynamic>
+		<where>
+			<if test="id != null">ID = #{id}</if>
+		</where>
 	</delete>
-</sqlMap>
+</mapper>

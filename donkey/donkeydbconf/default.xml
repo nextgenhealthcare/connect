@@ -24,27 +24,27 @@
 	</query>
 	
 	<query id="selectMessageAttachmentSize">
-		SELECT sum(size) AS size
+		SELECT sum(attachment_size) AS attachment_size
 		FROM d_ma${localChannelId}
 		WHERE id = ?
 	</query>
 	
 	<query id="selectMessageAttachmentSizeByMessageId">
-		SELECT id, sum(size) AS size
+		SELECT id, sum(attachment_size) AS attachment_size
 		FROM d_ma${localChannelId}
 		WHERE message_id = ?
 		GROUP BY id
 	</query>
 	
 	<query id="selectMessageAttachment">
-		SELECT type, segment_id, size, content
+		SELECT type, segment_id, attachment_size, content
 		FROM d_ma${localChannelId}
 		WHERE id = ?
 		ORDER BY segment_id ASC
 	</query>
 	
 	<query id="selectMessageAttachmentByMessageId">
-		SELECT id, type, segment_id, size, content
+		SELECT id, type, segment_id, attachment_size, content
 		FROM d_ma${localChannelId}
 		WHERE message_id = ?
 		ORDER BY id, segment_id ASC

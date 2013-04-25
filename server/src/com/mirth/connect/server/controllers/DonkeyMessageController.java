@@ -42,6 +42,7 @@ import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.server.mybatis.MessageSearchResult;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.DICOMUtil;
+import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.MessageEncryptionUtil;
 import com.mirth.connect.util.MessageImportException;
@@ -136,7 +137,7 @@ public class DonkeyMessageController extends MessageController {
         }
 
         Map<String, Object> params = getParameters(filter, channelId, offset, limit);
-        List<MessageSearchResult> results = session.selectList("Message.searchMessages", params);
+        List<MessageSearchResult> results = searchMessages(session, params);
 
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 
@@ -244,7 +245,7 @@ public class DonkeyMessageController extends MessageController {
                     params.put("maxMessageId", maxMessageId);
 
                     // Perform a search using the message filter parameters
-                    results = SqlConfig.getSqlSessionManager().selectList("Message.searchMessages", params);
+                    results = searchMessages(SqlConfig.getSqlSessionManager(), params);
                     Map<Long, Set<Integer>> messages = new HashMap<Long, Set<Integer>>();
 
                     // For each message that was retrieved
@@ -458,6 +459,39 @@ public class DonkeyMessageController extends MessageController {
 
         MessageWriter messageWriter = new MessageWriterChannel(channel);
         return MessageUtils.importMessages(uri, includeSubfolders, messageWriter);
+    }
+    
+    private List<MessageSearchResult> searchMessages(SqlSession session, Map<String, Object> params) {
+        long startTime = System.currentTimeMillis();
+        
+        try {
+            if (DatabaseUtil.statementExists("Message.searchMessages")) {
+                return session.selectList("Message.searchMessages", params);
+            }
+            
+            List<MessageSearchResult> results = session.selectList("Message.searchMessagesUngrouped", params);
+            Map<Long, MessageSearchResult> groupedResults = new HashMap<Long, MessageSearchResult>();
+            List<MessageSearchResult> orderedResults = new ArrayList<MessageSearchResult>();
+            
+            for (MessageSearchResult result : results) {
+                MessageSearchResult groupedResult = groupedResults.get(result.getMessageId());
+                
+                if (groupedResult == null) {
+                    groupedResult = result;
+                    groupedResult.setMetaDataIdSet(new HashSet<Integer>());
+                    groupedResults.put(groupedResult.getMessageId(), groupedResult);
+                    
+                    orderedResults.add(groupedResult);
+                }
+                
+                groupedResult.getMetaDataIdSet().add(result.getMetaDataId());
+            }
+            
+            return orderedResults;
+        } finally {
+            long endTime = System.currentTimeMillis();
+            logger.debug("Search executed in " + (endTime - startTime) + "ms");
+        }
     }
 
     private class MessageWriterChannel implements MessageWriter {

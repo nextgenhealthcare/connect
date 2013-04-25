@@ -887,6 +887,11 @@ public class JdbcDao implements DonkeyDao {
             values.put("columnName", columnName);
 
             statement = connection.createStatement();
+            
+            if (querySource.queryExists("removeMetaDataColumnIndex")) {
+                statement.executeUpdate(querySource.getQuery("removeMetaDataColumnIndex", values));
+            }
+            
             statement.executeUpdate(querySource.getQuery("removeMetaDataColumn", values));
         } catch (SQLException e) {
             throw new DonkeyDaoException("Failed to remove meta-data column", e);
@@ -950,7 +955,7 @@ public class JdbcDao implements DonkeyDao {
             Map<String, Integer> attachmentSize = new HashMap<String, Integer>();
             while (resultSet.next()) {
                 // Store the attachment size in a map with the attachment id as the key
-                attachmentSize.put(resultSet.getString("id"), resultSet.getInt("size"));
+                attachmentSize.put(resultSet.getString("id"), resultSet.getInt("attachment_size"));
             }
 
             close(resultSet);
@@ -1029,7 +1034,7 @@ public class JdbcDao implements DonkeyDao {
             int size = 0;
             if (resultSet.next()) {
                 // Store the attachment size in a map with the attachment id as the key
-                size = resultSet.getInt("size");
+                size = resultSet.getInt("attachment_size");
             }
 
             close(resultSet);

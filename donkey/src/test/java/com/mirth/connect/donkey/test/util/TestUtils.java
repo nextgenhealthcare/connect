@@ -26,6 +26,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -74,6 +75,8 @@ import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
 import com.mirth.connect.donkey.server.data.passthru.DelayedStatisticsUpdater;
 import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
+import com.mirth.connect.donkey.server.event.Event;
+import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
@@ -447,7 +450,7 @@ public class TestUtils {
         assertEquals(message1.getChannelId(), message2.getChannelId());
         assertEquals(message1.getServerId(), message2.getServerId());
         assertEquals(message1.getMessageId(), message2.getMessageId());
-        assertEquals(message1.getReceivedDate(), message2.getReceivedDate());
+        assertDatesEqual(message1.getReceivedDate(), message2.getReceivedDate());
         assertEquals(message1.getConnectorMessages().keySet(), message2.getConnectorMessages().keySet());
         for (Integer metaDataId : message1.getConnectorMessages().keySet()) {
             assertConnectorMessagesEqual(message1.getConnectorMessages().get(metaDataId), message2.getConnectorMessages().get(metaDataId));
@@ -484,7 +487,7 @@ public class TestUtils {
             receivedDate.setTimeInMillis(result.getTimestamp("received_date").getTime());
             Status status = Status.fromChar(result.getString("status").charAt(0));
             
-            assertTrue(testEquality(receivedDate, connectorMessage.getReceivedDate()));
+            assertDatesEqual(receivedDate, connectorMessage.getReceivedDate());
             assertTrue(testEquality(status, connectorMessage.getStatus()));
         } finally {
             close(result);
@@ -563,7 +566,7 @@ public class TestUtils {
         assertEquals(connectorMessage1.getChannelId(), connectorMessage2.getChannelId());
         assertEquals(connectorMessage1.getConnectorName(), connectorMessage2.getConnectorName());
         assertEquals(connectorMessage1.getServerId(), connectorMessage2.getServerId());
-        assertEquals(connectorMessage1.getReceivedDate(), connectorMessage2.getReceivedDate());
+        assertDatesEqual(connectorMessage1.getReceivedDate(), connectorMessage2.getReceivedDate());
         assertEquals(connectorMessage1.getStatus(), connectorMessage2.getStatus());
         assertMessageContentsEqual(connectorMessage1.getRaw(), connectorMessage2.getRaw());
         assertMessageContentsEqual(connectorMessage1.getProcessedRaw(), connectorMessage2.getProcessedRaw());
@@ -579,6 +582,23 @@ public class TestUtils {
         assertEquals(connectorMessage1.getMetaDataMap(), connectorMessage2.getMetaDataMap());
         assertEquals(connectorMessage1.getProcessingError(), connectorMessage2.getProcessingError());
         assertEquals(connectorMessage1.getSendAttempts(), connectorMessage2.getSendAttempts());
+    }
+
+    /**
+     * Ensures that two dates are equal in seconds. Some databases do not support millisecond
+     * accuracy, so we don't test for it.
+     */
+    public static void assertDatesEqual(Calendar date1, Calendar date2) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String date1String = format.format(date1.getTimeInMillis());
+        String date2String = format.format(date2.getTimeInMillis());
+        
+        try {
+            assertEquals(date1String, date2String);
+        } catch (AssertionError e) {
+            logger.error("expected: " + date1String + ", was: " + date2String);
+            throw e;
+        }
     }
 
     public static void assertMessageContentExists(MessageContent content) throws SQLException {
@@ -1213,7 +1233,11 @@ public class TestUtils {
             InputStream is = ResourceUtil.getResourceStream(Donkey.class, DONKEY_CONFIGURATION_FILE);
             databaseProperties.load(is);
             IOUtils.closeQuietly(is);
-            return new DonkeyConfiguration(new File(".").getAbsolutePath(), databaseProperties, null, null);
+            
+            return new DonkeyConfiguration(new File(".").getAbsolutePath(), databaseProperties, null, new EventDispatcher() {
+                @Override
+                public void dispatchEvent(Event event) {}
+            });
         } catch (Exception e) {
             throw new DonkeyDaoException("Failed to read configuration file", e);
         }

@@ -16,6 +16,8 @@ public class MessageSearchResult {
     private Long importId;
     private String importChannelId;
     private String metaDataIds;
+    private int metaDataId;
+    private Set<Integer> metaDataIdSet;
 
     public Long getMessageId() {
         return messageId;
@@ -71,6 +73,19 @@ public class MessageSearchResult {
 
     public void setMetaDataIds(String metaDataIds) {
         this.metaDataIds = metaDataIds;
+        metaDataIdSet = new HashSet<Integer>();
+
+        for (String piece : StringUtils.split(metaDataIds, ',')) {
+            metaDataIdSet.add(Integer.parseInt(piece));
+        }
+    }
+
+    public int getMetaDataId() {
+        return metaDataId;
+    }
+
+    public void setMetaDataId(int metaDataId) {
+        this.metaDataId = metaDataId;
     }
 
     public Message getMessage() {
@@ -86,17 +101,10 @@ public class MessageSearchResult {
     }
 
     public Set<Integer> getMetaDataIdSet() {
-        if (metaDataIds == null) {
-            return null;
-        }
-
-        String[] pieces = StringUtils.split(metaDataIds, ',');
-        Set<Integer> metaDataIdSet = new HashSet<Integer>();
-
-        for (String piece : pieces) {
-            metaDataIdSet.add(Integer.parseInt(piece));
-        }
-
         return metaDataIdSet;
+    }
+
+    public void setMetaDataIdSet(Set<Integer> metaDataIdSet) {
+        this.metaDataIdSet = metaDataIdSet;
     }
 }
