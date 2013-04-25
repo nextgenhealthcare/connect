@@ -28,7 +28,6 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConfiguration;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
-import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.plugins.messagepruner.MessagePrunerWithArchiver.Strategy;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.tests.TestUtils;
@@ -36,7 +35,7 @@ import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
 
 public class MessagePrunerTest {
-    private final static int TEST_POWER = 10;
+    private final static int TEST_POWER = 9;
     private final static int PERFORMANCE_TEST_POWER = 14;
     private final static int ARCHIVER_PAGE_SIZE = 1000;
     private final static String TEST_CHANNEL_ID = "prunerTestChannel";

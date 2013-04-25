@@ -9,12 +9,14 @@
 	</resultMap>
 
 	<select id="getAlertNameExists" parameterType="map" resultType="java.lang.Boolean">
-		SELECT EXISTS (
+		SELECT CASE WHEN EXISTS (
 			SELECT 1
 			FROM ALERT
 			WHERE NAME = #{name}
 			AND ID != #{id}
-		)
+		) THEN 1 ELSE 0 END
+
+		FROM dual
 	</select>
 
 	<select id="getAlert" parameterType="java.lang.String" resultMap="alert">

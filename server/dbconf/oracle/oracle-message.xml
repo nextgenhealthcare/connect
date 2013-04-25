@@ -306,53 +306,46 @@
 	<!-- Message Pruner/Archiver -->
 	
 	<delete id="prunerDeleteMessages" parameterType="map">
-		DELETE FROM d_m${localChannelId} m
-			
-		<if test="dateThreshold != null">
-			USING d_mm${localChannelId} mm
-		</if>
-		
-		<where>
-			<include refid="prunerDeleteWhere" />
-			
-			<if test="dateThreshold != null">
-				AND mm.message_id = m.id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
-			</if>
-		</where>
-
-		<if test="limit != null">
-			LIMIT #{limit}
-		</if>
+		DELETE FROM d_m${localChannelId}
+		WHERE id IN (
+			SELECT m.id
+			FROM d_m${localChannelId} m
+			JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
+			<where>
+				<include refid="prunerDeleteWhere" />
+				
+				<if test="limit != null">
+					AND rownum <![CDATA[ <= ]]> ${limit}
+				</if>
+			</where>
+		)
 	</delete>
 	
 	<delete id="prunerDeleteMessageContent" parameterType="map">
-		DELETE FROM d_mc${localChannelId} mc
-		USING d_m${localChannelId} m
-		
-		<if test="dateThreshold != null">
-			, d_mm${localChannelId} mm
-		</if>
-		
-		<where>
-			<include refid="prunerDeleteWhere" />
-			AND mc.message_id = m.id
-			
+		DELETE FROM d_mc${localChannelId}
+		WHERE message_id IN (
+			SELECT m.id
+			FROM d_m${localChannelId} m
 			<if test="dateThreshold != null">
-				AND mm.message_id = mc.message_id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
+				JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
 			</if>
-		</where>
-		
-		<if test="limit != null">
-			LIMIT #{limit}
-		</if>
+			
+			<where>
+				<include refid="prunerDeleteWhere" />
+
+				<if test="limit != null">
+					AND rownum <![CDATA[ <= ]]> ${limit}
+				</if>
+			</where>
+		)
 	</delete>
-	
+
 	<sql id="prunerDeleteWhere">
 	
 		<!-- The following criteria are intended to be used only by the archiver, or the pruner if there is no archiver. -->
 		
 		<if test="skipIncomplete == true">
-			m.processed = 1
+			AND m.processed = 1
 		</if>
 		
 		<if test="skipStatuses != null">

@@ -26,6 +26,12 @@ import com.mirth.connect.util.MessageUtils.MessageExportException;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 
 public class MessagePrunerWithArchiver extends MessagePruner {
+    /**
+     * The maximum allowed list size for executing DELETE ... WHERE IN ([list]).
+     * Oracle does not allow the list size to exceed 1000.
+     */
+    private final static int LIST_LIMIT = 1000;
+    
     public enum Strategy {
         INCLUDE_LIST, EXCLUDE_LIST, INCLUDE_RANGES, EXCLUDE_RANGES;
     }
@@ -113,6 +119,8 @@ public class MessagePrunerWithArchiver extends MessagePruner {
         }
 
         List<Long> unarchivedMessageIds = getInvertedList(archivedMessageIds);
+        List<long[]> includeRanges = null;
+        List<long[]> excludeRanges = null;
         Strategy strategy = this.strategy;
 
         /*
@@ -121,8 +129,25 @@ public class MessagePrunerWithArchiver extends MessagePruner {
          * ([archived message ids]). Otherwise, we want to delete by excluding the unarchived
          * messages: DELETE ... WHERE NOT IN ([unarchived message ids]) AND id BETWEEN min AND max.
          */
-        if (strategy == null) {
-            strategy = (archivedMessageIds.size() < unarchivedMessageIds.size()) ? Strategy.INCLUDE_LIST : Strategy.EXCLUDE_LIST;
+        switch (strategy) {
+            case INCLUDE_RANGES:
+                includeRanges = getRanges(archivedMessageIds);
+                break;
+
+            case EXCLUDE_RANGES:
+                excludeRanges = getRanges(unarchivedMessageIds);
+                break;
+
+            default:
+                if (archivedMessageIds.size() > LIST_LIMIT && unarchivedMessageIds.size() > LIST_LIMIT) {
+                    includeRanges = getRanges(archivedMessageIds);
+                    excludeRanges = getRanges(unarchivedMessageIds);
+
+                    strategy = (includeRanges.size() < excludeRanges.size()) ? Strategy.INCLUDE_RANGES : Strategy.EXCLUDE_RANGES;
+                } else {
+                    strategy = (archivedMessageIds.size() < unarchivedMessageIds.size()) ? Strategy.INCLUDE_LIST : Strategy.EXCLUDE_LIST;
+                }
+                break;
         }
 
         switch (strategy) {
@@ -140,11 +165,11 @@ public class MessagePrunerWithArchiver extends MessagePruner {
                 break;
 
             case INCLUDE_RANGES:
-                params.put("includeMessageRanges", getRanges(archivedMessageIds));
+                params.put("includeMessageRanges", includeRanges);
                 break;
 
             case EXCLUDE_RANGES:
-                List<long[]> ranges = getRanges(unarchivedMessageIds);
+                List<long[]> ranges = excludeRanges;
 
                 params.put("minMessageId", archivedMessageIds.get(0));
                 params.put("maxMessageId", archivedMessageIds.get(archivedMessageIds.size() - 1));
