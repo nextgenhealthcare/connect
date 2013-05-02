@@ -151,7 +151,6 @@ public class RemoveMessagesDialog extends javax.swing.JDialog {
 
     private void yesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yesButtonActionPerformed
         final String workingId = parent.startWorking("Removing messages...");
-        final JDialog dialog = this;
         
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             public Void doInBackground() {
@@ -172,11 +171,11 @@ public class RemoveMessagesDialog extends javax.swing.JDialog {
                 }
                 
                 parent.stopWorking(workingId);
-                dialog.setVisible(false);
             }
         };
         
         worker.execute();
+        setVisible(false);
     }//GEN-LAST:event_yesButtonActionPerformed
 
     private void includeRunningChannelsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_includeRunningChannelsActionPerformed
