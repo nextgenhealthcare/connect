@@ -427,7 +427,6 @@
 			m.import_channel_id
 			
 		FROM d_m${localChannelId} m
-		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0
 		
 		<if test="skipStatuses != null">
 			LEFT JOIN d_mm${localChannelId} mm_skip ON mm_skip.message_id = m.id AND mm_skip.status IN
@@ -436,7 +435,7 @@
 			</foreach>
 		</if>
 	
-		WHERE mm.received_date <![CDATA[ < ]]> #{dateThreshold}
+		WHERE m.received_date <![CDATA[ < ]]> #{dateThreshold}
 		
 		<if test="skipIncomplete == true">
 			AND m.processed = TRUE
