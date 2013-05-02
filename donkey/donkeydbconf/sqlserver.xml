@@ -263,6 +263,22 @@
         DELETE FROM d_m${localChannelId}
 	</query>
 	
+	<query id="deleteAllMessagesCascadeConnectorMessage">
+		DELETE FROM d_mm${localChannelId}
+	</query>
+	
+	<query id="deleteAllMessagesCascadeContent">
+		TRUNCATE TABLE d_mc${localChannelId}
+	</query>
+	
+	<query id="deleteAllMessagesCascadeMetadata">
+		TRUNCATE TABLE d_mcm${localChannelId}
+	</query>
+	
+	<query id="deleteAllMessagesCascadeAttachments">
+		TRUNCATE TABLE d_ma${localChannelId}
+	</query>
+	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit">
 		SELECT a.* FROM (
 
