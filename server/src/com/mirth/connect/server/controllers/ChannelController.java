@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -35,16 +35,16 @@ public abstract class ChannelController extends Controller {
 
     public abstract void removeChannel(Channel channel, ServerEventContext context) throws ControllerException;
 
-    // channel cache
+    public abstract Map<String, Integer> getChannelRevisions() throws ControllerException;
 
-    public abstract void loadCache();
+    // channel cache
 
     public abstract Channel getCachedChannelById(String channelId);
 
     public abstract Channel getCachedChannelByName(String channelName);
 
     public abstract String getCachedDestinationName(String connectorId);
-    
+
     public abstract List<String> getCachedChannelIds();
 
     // deployed channel cache

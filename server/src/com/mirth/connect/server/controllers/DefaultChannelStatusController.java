@@ -12,6 +12,7 @@ package com.mirth.connect.server.controllers;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.management.ObjectName;
@@ -165,12 +166,14 @@ public class DefaultChannelStatusController extends ChannelStatusController {
         List<ChannelStatus> channelStatusList = new ArrayList<ChannelStatus>();
 
         try {
+            ChannelController channelController = ControllerFactory.getFactory().createChannelController();
+
+            Map<String, Integer> channelRevisions = channelController.getChannelRevisions();
+
             for (String channelId : getDeployedIds()) {
                 ChannelStatus channelStatus = new ChannelStatus();
                 channelStatus.setChannelId(channelId);
-                
-                ChannelController channelController = ControllerFactory.getFactory().createChannelController();
-                
+
                 Channel channel = channelController.getDeployedChannelById(channelId);
 
                 if (channel != null) {
@@ -178,12 +181,19 @@ public class DefaultChannelStatusController extends ChannelStatusController {
                 } else {
                     channelStatus.setName("Channel has been deleted.");
                 }
-                
+
                 DeployedChannelInfo deployedChannelInfo = channelController.getDeployedChannelInfoById(channelId);
 
                 channelStatus.setState(getState(channelId));
                 channelStatus.setDeployedDate(deployedChannelInfo.getDeployedDate());
-                channelStatus.setDeployedRevisionDelta(channelController.getCachedChannelById(channelId).getRevision() - deployedChannelInfo.getDeployedRevision());
+
+                int channelRevision = 0;
+                // Just in case the channel no longer exists
+                if (channelRevisions.containsKey(channelId)) {
+                    channelRevision = channelRevisions.get(channelId);
+                }
+
+                channelStatus.setDeployedRevisionDelta(channelRevision - deployedChannelInfo.getDeployedRevision());
                 channelStatusList.add(channelStatus);
             }
 

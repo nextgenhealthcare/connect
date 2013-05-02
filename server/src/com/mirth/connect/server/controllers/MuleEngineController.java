@@ -211,7 +211,9 @@ public class MuleEngineController implements EngineController {
             for (String channelId : channelIds) {
                 Channel channel = channelController.getCachedChannelById(channelId);
                 
-                if (channel.isEnabled()) {
+                if (channel == null) {
+                    logger.error("Could not deploy channel, it may have been removed: " + channelId);
+                } else if (channel.isEnabled()) {
                     try {
                         scriptController.compileChannelScript(channel);
                         // Clear global channel map (if necessary) and execute
