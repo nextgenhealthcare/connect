@@ -24,7 +24,7 @@
 	<classpathentry kind="lib" path="lib/extensions/file/jcifs-1.3.17.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/iText-2.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/mule/axis14-commons-discovery-0.2.jar"/>
-	<classpathentry kind="lib" path="lib/rhino-1.7r3pre.jar"/>
+	<classpathentry kind="lib" path="lib/rhino-1.7r4.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-beanutils-1.8.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-codec-1.6.jar"/>

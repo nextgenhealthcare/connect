@@ -1,57 +1,32 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1/GPL 2.0
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Rhino DOM-only E4X implementation.
- *
- * The Initial Developer of the Original Code is
- * David P. Caldwell.
- * Portions created by David P. Caldwell are Copyright (C)
- * 2007 David P. Caldwell. All Rights Reserved.
- *
- *
- * Contributor(s):
- *   David P. Caldwell <inonit@inonit.com>
- *
- * Alternatively, the contents of this file may be used under the terms of
- * the GNU General Public License Version 2 or later (the "GPL"), in which
- * case the provisions of the GPL are applicable instead of those above. If
- * you wish to allow use of your version of this file only under the terms of
- * the GPL and not to allow others to use your version of this file under the
- * MPL, indicate your decision by deleting the provisions above and replacing
- * them with the notice and other provisions required by the GPL. If you do
- * not delete the provisions above, a recipient may use your version of this
- * file under either the MPL or the GPL.
- *
- * ***** END LICENSE BLOCK ***** */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package org.mozilla.javascript.xmlimpl;
-
-import org.w3c.dom.*;
-
-import javax.xml.parsers.DocumentBuilder;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
 
-import org.mozilla.javascript.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
 
-//    Disambiguate from org.mozilla.javascript.Node
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ScriptRuntime;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Comment;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.ProcessingInstruction;
+import org.w3c.dom.Text;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
+//    Disambiguate from org.mozilla.javascript.Node
 
 class XmlProcessor implements Serializable {
     
@@ -65,7 +40,7 @@ class XmlProcessor implements Serializable {
 
     private transient javax.xml.parsers.DocumentBuilderFactory dom;
     private transient javax.xml.transform.TransformerFactory xform;
-    private transient DocumentBuilder documentBuilder;
+    private transient LinkedBlockingDeque<DocumentBuilder> documentBuilderPool;
     private RhinoSAXErrorHandler errorHandler = new RhinoSAXErrorHandler();
 
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
@@ -74,6 +49,8 @@ class XmlProcessor implements Serializable {
         this.dom.setNamespaceAware(true);
         this.dom.setIgnoringComments(false);
         this.xform = javax.xml.transform.TransformerFactory.newInstance();
+        int poolSize = Runtime.getRuntime().availableProcessors() * 2;
+        this.documentBuilderPool = new LinkedBlockingDeque<DocumentBuilder>(poolSize);
     }
     
     private static class RhinoSAXErrorHandler implements ErrorHandler, Serializable {
@@ -104,6 +81,8 @@ class XmlProcessor implements Serializable {
         this.dom.setNamespaceAware(true);
         this.dom.setIgnoringComments(false);
         this.xform = javax.xml.transform.TransformerFactory.newInstance();
+        int poolSize = Runtime.getRuntime().availableProcessors() * 2;
+        this.documentBuilderPool = new LinkedBlockingDeque<DocumentBuilder>(poolSize);
     }
 
     final void setDefault() {
@@ -175,30 +154,25 @@ class XmlProcessor implements Serializable {
         return dom;
     }
     
-    private synchronized DocumentBuilder getDocumentBuilderFromPool()
-        throws javax.xml.parsers.ParserConfigurationException
-    {
-        DocumentBuilder result;
-        if (documentBuilder == null) {
-            javax.xml.parsers.DocumentBuilderFactory factory = getDomFactory();
-            result = factory.newDocumentBuilder();
-        } else {
-            result = documentBuilder;
-            documentBuilder = null;
+ // Get from pool, or create one without locking, if needed.
+    private DocumentBuilder getDocumentBuilderFromPool()
+            throws ParserConfigurationException {
+        DocumentBuilder builder = documentBuilderPool.pollFirst();
+        if (builder == null){
+            builder = getDomFactory().newDocumentBuilder();
         }
-        result.setErrorHandler(errorHandler);
-        return result;
+        builder.setErrorHandler(errorHandler);
+        return builder;
     }
-        
-    private synchronized void returnDocumentBuilderToPool(DocumentBuilder db) {
-        if (documentBuilder == null) {
-            try {
-                db.reset();
-                documentBuilder = db;
-            } catch (UnsupportedOperationException e) {
-                // document builders that don't support reset() can't
-                // be pooled
-            }
+
+    // Insert into pool, if resettable. Pool capacity is limited to
+    // number of processors * 2.
+    private void returnDocumentBuilderToPool(DocumentBuilder db) {
+        try {
+            db.reset();
+            documentBuilderPool.offerFirst(db);
+        } catch (UnsupportedOperationException e) {
+            // document builders that don't support reset() can't be pooled
         }
     }
 
@@ -303,7 +277,7 @@ class XmlProcessor implements Serializable {
             
             String syntheticXml = "<parent xmlns=\"" + defaultNamespaceUri +
                 "\">" + xml + "</parent>";
-            builder = getDocumentBuilderFromPool(); 
+            builder = getDocumentBuilderFromPool();
             Document document = builder.parse( new org.xml.sax.InputSource(new java.io.StringReader(syntheticXml)) );
             if (ignoreProcessingInstructions) {
                 List<Node> list = new java.util.ArrayList<Node>();
