@@ -45,9 +45,10 @@ import com.mirth.connect.server.util.DICOMUtil;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.MessageEncryptionUtil;
-import com.mirth.connect.util.MessageImportException;
-import com.mirth.connect.util.MessageUtils;
-import com.mirth.connect.util.MessageUtils.MessageExportException;
+import com.mirth.connect.util.MessageExporter;
+import com.mirth.connect.util.MessageExporter.MessageExportException;
+import com.mirth.connect.util.MessageImporter;
+import com.mirth.connect.util.MessageImporter.MessageImportException;
 import com.mirth.connect.util.PaginatedList;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
@@ -427,7 +428,7 @@ public class DonkeyMessageController extends MessageController {
 
         try {
             MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(options, ConfigurationController.getInstance().getEncryptor(), channelId);
-            return MessageUtils.exportMessages(messageList, messageWriter).getNumExported();
+            return new MessageExporter().exportMessages(messageList, messageWriter).getNumExported();
         } catch (MessageWriterException e) {
             throw new MessageExportException(e);
         }
@@ -458,7 +459,7 @@ public class DonkeyMessageController extends MessageController {
         }
 
         MessageWriter messageWriter = new MessageWriterChannel(channel);
-        return MessageUtils.importMessages(uri, includeSubfolders, messageWriter);
+        return new MessageImporter().importMessages(uri, includeSubfolders, messageWriter);
     }
     
     private List<MessageSearchResult> searchMessages(SqlSession session, Map<String, Object> params) {

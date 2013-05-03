@@ -16,8 +16,8 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.model.filters.MessageFilter;
-import com.mirth.connect.util.MessageImportException;
-import com.mirth.connect.util.MessageUtils.MessageExportException;
+import com.mirth.connect.util.MessageExporter.MessageExportException;
+import com.mirth.connect.util.MessageImporter.MessageImportException;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public abstract class MessageController {

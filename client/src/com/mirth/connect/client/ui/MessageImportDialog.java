@@ -35,7 +35,7 @@ import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.util.DialogUtils;
 import com.mirth.connect.donkey.model.message.Message;
-import com.mirth.connect.util.MessageUtils;
+import com.mirth.connect.util.MessageImporter;
 import com.mirth.connect.util.VfsUtils;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
@@ -215,7 +215,7 @@ public class MessageImportDialog extends JDialog {
                     public void close() throws MessageWriterException {}
                 };
 
-                result = MessageUtils.importMessages(VfsUtils.pathToUri(fileTextField.getText()), subfoldersCheckbox.isSelected(), messageWriter);
+                result = new MessageImporter().importMessages(VfsUtils.pathToUri(fileTextField.getText()), subfoldersCheckbox.isSelected(), messageWriter);
             } else {
                 result = parent.mirthClient.importMessagesServer(channelId, VfsUtils.pathToUri(fileTextField.getText()), subfoldersCheckbox.isSelected());
             }

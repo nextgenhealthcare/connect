@@ -1,20 +1,9 @@
-/*
- * Copyright (c) Mirth Corporation. All rights reserved.
- * http://www.mirthcorp.com
- * 
- * The software in this package is published under the terms of the MPL
- * license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
- */
-
 package com.mirth.connect.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,62 +19,14 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
 
-public class MessageUtils {
+public class MessageImporter {
     private final static String OPEN_ELEMENT = "<message>";
     private final static String CLOSE_ELEMENT = "</message>";
     private final static String CHARSET = "UTF-8";
     private final static int XML_SCAN_BUFFER_SIZE = 20;
 
-    private static ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-    private static Logger logger = Logger.getLogger(MessageUtils.class);
-
-    /**
-     * Executes the message exporter.
-     * 
-     * @param messageList
-     *            The paginated list to read messages from
-     * @param messageWriter
-     *            The message writer to write messages to
-     * @return A list of the message ids that were exported.
-     */
-    public static MessageExportResult exportMessages(PaginatedList<Message> messageList, MessageWriter messageWriter) throws InterruptedException, MessageExportException {
-        ThreadUtils.checkInterruptedStatus();
-        List<Long> processedMessageIds = new ArrayList<Long>();
-        int numExported = 0;
-        int pageNumber = 0;
-
-        do {
-            try {
-                messageList.loadPageNumber(++pageNumber);
-            } catch (Exception e) {
-                throw new MessageExportException(e);
-            }
-
-            ThreadUtils.checkInterruptedStatus();
-
-            for (Message message : messageList) {
-                try {
-                    if (messageWriter.write(message)) {
-                        numExported++;
-                    }
-
-                    processedMessageIds.add(message.getMessageId());
-                } catch (Exception e) {
-                    throw new MessageExportException("Failed to export message", e);
-                }
-            }
-
-            ThreadUtils.checkInterruptedStatus();
-        } while (messageList.hasNextPage());
-
-        try {
-            messageWriter.close();
-        } catch (Exception e) {
-            logger.error("Failed to close message writer", e);
-        }
-
-        return new MessageExportResult(processedMessageIds, numExported);
-    }
+    private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+    private Logger logger = Logger.getLogger(getClass());
 
     /**
      * 
@@ -96,7 +37,7 @@ public class MessageUtils {
      * @throws InterruptedException
      * @throws MessageImportException
      */
-    public static int[] importMessages(String uri, Boolean recursive, MessageWriter messageWriter) throws InterruptedException, MessageImportException {
+    public int[] importMessages(String uri, Boolean recursive, MessageWriter messageWriter) throws InterruptedException, MessageImportException {
         int[] result = new int[] { 0, 0 };
 
         try {
@@ -131,7 +72,7 @@ public class MessageUtils {
         return result;
     }
 
-    private static void importVfsFileRecursive(FileObject file, MessageWriter messageWriter, int[] result) throws InterruptedException, MessageImportException {
+    private void importVfsFileRecursive(FileObject file, MessageWriter messageWriter, int[] result) throws InterruptedException, MessageImportException {
         try {
             switch (file.getType()) {
                 case FOLDER:
@@ -153,7 +94,7 @@ public class MessageUtils {
         }
     }
 
-    private static void importVfsFile(FileObject file, MessageWriter messageWriter, int[] result) throws InterruptedException, MessageImportException {
+    private void importVfsFile(FileObject file, MessageWriter messageWriter, int[] result) throws InterruptedException, MessageImportException {
         InputStream inputStream = null;
 
         try {
@@ -178,7 +119,7 @@ public class MessageUtils {
         }
     }
 
-    private static void importMessagesFromInputStream(InputStream inputStream, MessageWriter messageWriter, int[] result) throws IOException, InterruptedException {
+    private void importMessagesFromInputStream(InputStream inputStream, MessageWriter messageWriter, int[] result) throws IOException, InterruptedException {
         BufferedReader reader = null;
 
         try {
@@ -217,43 +158,18 @@ public class MessageUtils {
             IOUtils.closeQuietly(reader);
         }
     }
-
-    public static class MessageExportException extends Exception {
-        public MessageExportException(String message) {
+    
+    public static class MessageImportException extends Exception {
+        public MessageImportException(String message) {
             super(message);
         }
-
-        public MessageExportException(Throwable cause) {
+        
+        public MessageImportException(Throwable cause) {
             super(cause);
         }
-
-        public MessageExportException(String message, Throwable cause) {
+        
+        public MessageImportException(String message, Throwable cause) {
             super(message, cause);
-        }
-    }
-
-    public static class MessageExportResult {
-        private List<Long> processedIds;
-        private int numExported;
-
-        private MessageExportResult(List<Long> processedIds, int numExported) {
-            this.processedIds = processedIds;
-            this.numExported = numExported;
-        }
-
-        /**
-         * @return A list of the message ids that were processed, regardless of whether or not
-         *         exported content was produced
-         */
-        public List<Long> getProcessedIds() {
-            return processedIds;
-        }
-
-        /**
-         * @return The number of messages that actually produced exported content
-         */
-        public int getNumExported() {
-            return numExported;
         }
     }
 }

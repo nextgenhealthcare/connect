@@ -26,7 +26,7 @@ import com.mirth.connect.client.core.PaginatedMessageList;
 import com.mirth.connect.client.ui.panels.export.MessageExportPanel;
 import com.mirth.connect.client.ui.util.DialogUtils;
 import com.mirth.connect.model.filters.MessageFilter;
-import com.mirth.connect.util.MessageUtils;
+import com.mirth.connect.util.MessageExporter;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterFactory;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
@@ -137,7 +137,7 @@ public class MessageExportDialog extends JDialog {
                 messageList.setIncludeContent(true);
 
                 MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, encryptor, channelId);
-                exportCount = MessageUtils.exportMessages(messageList, messageWriter).getNumExported();
+                exportCount = new MessageExporter().exportMessages(messageList, messageWriter).getNumExported();
             } else {
                 exportCount = parent.mirthClient.exportMessagesServer(channelId, messageFilter, pageSize, false, writerOptions);
             }

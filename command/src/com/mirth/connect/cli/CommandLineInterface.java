@@ -62,8 +62,9 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.util.ImportConverter;
-import com.mirth.connect.util.MessageImportException;
-import com.mirth.connect.util.MessageUtils;
+import com.mirth.connect.util.MessageExporter;
+import com.mirth.connect.util.MessageImporter;
+import com.mirth.connect.util.MessageImporter.MessageImportException;
 import com.mirth.connect.util.VfsUtils;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
@@ -776,7 +777,7 @@ public class CommandLineInterface {
         };
 
         try {
-            int[] result = MessageUtils.importMessages(VfsUtils.pathToUri(path), true, importer);
+            int[] result = new MessageImporter().importMessages(VfsUtils.pathToUri(path), true, importer);
             out.println(result[1] + " out of " + result[0] + " messages imported successfully.");
         } catch (InterruptedException e) {
             error("Message import was interrupted.", null);
@@ -853,7 +854,7 @@ public class CommandLineInterface {
             
             MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, client.getEncryptor(), channelId);
 
-            messageCount = MessageUtils.exportMessages(messageList, messageWriter).getNumExported();
+            messageCount = new MessageExporter().exportMessages(messageList, messageWriter).getNumExported();
         } catch (Exception e) {
             Throwable cause = ExceptionUtils.getRootCause(e);
             error("unable to write file " + path + ": " + cause, cause);

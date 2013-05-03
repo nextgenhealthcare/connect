@@ -19,10 +19,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
+import sun.misc.MessageUtils;
+
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.server.util.SqlConfig;
-import com.mirth.connect.util.MessageUtils;
-import com.mirth.connect.util.MessageUtils.MessageExportException;
+import com.mirth.connect.util.MessageExporter;
+import com.mirth.connect.util.MessageExporter.MessageExportException;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 
 public class MessagePrunerWithArchiver extends MessagePruner {
@@ -97,7 +99,7 @@ public class MessagePrunerWithArchiver extends MessagePruner {
 
         try {
             logger.debug("Running archiver for channel: " + channelId);
-            return MessageUtils.exportMessages(new ArchiverMessageList(channelId, archiverPageSize, params), archiver).getProcessedIds();
+            return new MessageExporter().exportMessages(new ArchiverMessageList(channelId, archiverPageSize, params), archiver).getProcessedIds();
         } catch (MessageExportException e) {
             throw new MessagePrunerException("An error occurred when attempting to archive messages", e);
         }
