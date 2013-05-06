@@ -72,7 +72,7 @@ public class MessagePruner implements Runnable {
     private AtomicBoolean running = new AtomicBoolean(false);
     private ExecutorService executor;
     private MessageExporter messageExporter = new MessageExporter();
-    private MessagePrunerStatus status;
+    private MessagePrunerStatus status = new MessagePrunerStatus();
     private MessagePrunerStatus lastStatus;
     private Logger logger = Logger.getLogger(this.getClass());
 
@@ -172,7 +172,8 @@ public class MessagePruner implements Runnable {
             return false;
         }
         
-        status = new MessagePrunerStatus(Calendar.getInstance());
+        status = new MessagePrunerStatus();
+        status.setStartTime(Calendar.getInstance());
 
         logger.debug("Triggering message pruner task");
         executor = Executors.newSingleThreadExecutor();
@@ -336,7 +337,6 @@ public class MessagePruner implements Runnable {
         } finally {
             status.setEndTime(Calendar.getInstance());
             lastStatus = SerializationUtils.clone(status);
-            status = null;
             running.set(false);
         }
     }
@@ -377,8 +377,6 @@ public class MessagePruner implements Runnable {
     }
 
     private int[] pruneWithoutArchiver(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold) throws InterruptedException {
-        status.setPruning(true);
-        
         int numMessagesPruned = 0;
         int numContentPruned = 0;
 

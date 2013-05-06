@@ -16,10 +16,6 @@ public class MessagePrunerStatus implements Serializable {
     private Calendar taskStartTime;
     private boolean isPruning;
     private boolean isArchiving;
-
-    public MessagePrunerStatus(Calendar startTime) {
-        this.startTime = startTime;
-    }
     
     public String getCurrentChannelId() {
         return currentChannelId;
