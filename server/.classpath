@@ -39,11 +39,6 @@
 	<classpathentry kind="lib" path="lib/extensions/dicomviewer/ij.jar"/>
 	<classpathentry kind="lib" path="lib/jdom-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.8.1.jar"/>
-	<classpathentry kind="lib" path="lib/quartz-all-1.6.6.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://quartz-scheduler.org/api/1.8.5/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/mail-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/backport-util-concurrent-Java60-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3_min-1.1.4c.jar"/>
@@ -94,6 +89,11 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons/commons-compress-1.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.1.24-bin.jar"/>
+	<classpathentry kind="lib" path="lib/quartz-all-2.1.7.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://quartz-scheduler.org/api/2.1.7/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>

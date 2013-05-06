@@ -27,6 +27,7 @@ public class ArchiverMessageList extends PaginatedList<Message> {
     private Map<String, Object> params;
     private DonkeyDaoFactory daoFactory = Donkey.getInstance().getDaoFactory();
     private String channelId;
+    private boolean includeContent = true;
 
     public ArchiverMessageList(String channelId, int pageSize, Map<String, Object> params) {
         this.channelId = channelId;
@@ -38,6 +39,14 @@ public class ArchiverMessageList extends PaginatedList<Message> {
         }
 
         setPageSize(pageSize);
+    }
+
+    public boolean isIncludeContent() {
+        return includeContent;
+    }
+
+    public void setIncludeContent(boolean includeContent) {
+        this.includeContent = includeContent;
     }
 
     @Override
@@ -59,17 +68,19 @@ public class ArchiverMessageList extends PaginatedList<Message> {
             session.close();
         }
 
-        DonkeyDao dao = daoFactory.getDao();
-
-        try {
-            for (Message message : messages) {
-                message.setChannelId(channelId);
-                message.getConnectorMessages().putAll(dao.getConnectorMessages(channelId, message.getMessageId()));
+        if (includeContent) {
+            DonkeyDao dao = daoFactory.getDao();
+    
+            try {
+                for (Message message : messages) {
+                    message.setChannelId(channelId);
+                    message.getConnectorMessages().putAll(dao.getConnectorMessages(channelId, message.getMessageId()));
+                }
+            } finally {
+                dao.close();
             }
-
-            return messages;
-        } finally {
-            dao.close();
         }
+
+        return messages;
     }
 }

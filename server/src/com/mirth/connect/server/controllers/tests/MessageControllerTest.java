@@ -10,34 +10,17 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.filters.MessageFilter;
-import com.mirth.connect.server.Mirth;
-import com.mirth.connect.server.controllers.ChannelController;
-import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.server.controllers.MessageController;
 
 public class MessageControllerTest {
-    private static Mirth server = new Mirth();
-    private static ExecutorService executor = Executors.newSingleThreadExecutor();
-
     private Logger logger = Logger.getLogger(getClass());
 
     @BeforeClass
     public final static void init() throws Exception {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                server.run();
-            }
-        });
-
-        while (ConfigurationController.getInstance().isEngineStarting()) {
-            Thread.sleep(1000);
-        }
+        TestUtils.startMirthServer();
     }
 
     /**
@@ -53,19 +36,18 @@ public class MessageControllerTest {
         final int searchCount = 1000;
         final MessageController messageController = MessageController.getInstance();
         final MessageFilter filter = new MessageFilter();
+        final String channelId = "sqlserverdeadlocktest";
         ExecutorService executor = Executors.newSingleThreadExecutor();
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
 
-        // create test channel
-        final Channel channel = TestUtils.createTestChannelModel("sqlserverdeadlocktest", "test channel");
-        ChannelController.getInstance().updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
-        engineController.deployChannel(channel.getId(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+        // create and deploy test channel
+        TestUtils.deployTestChannel(TestUtils.createTestChannelModel(channelId, "test channel"));
 
         // fill the channel with test messages
         logger.info("Dispatching " + testSize + " messages into the test channel");
 
         for (int i = 0; i < testSize; i++) {
-            engineController.dispatchRawMessage(channel.getId(), new RawMessage(TestUtils.TEST_HL7_MESSAGE));
+            engineController.dispatchRawMessage(channelId, new RawMessage(TestUtils.TEST_HL7_MESSAGE));
         }
 
         // start re-processing messages
@@ -75,7 +57,7 @@ public class MessageControllerTest {
                 logger.info("Reprocessing messages");
 
                 try {
-                    messageController.reprocessMessages(channel.getId(), filter, false, null);
+                    messageController.reprocessMessages(channelId, filter, false, null);
                 } catch (Exception e) {
                     logger.error(e);
                 }
@@ -87,7 +69,7 @@ public class MessageControllerTest {
 
         // repeatedly run the message browser search
         com.mirth.connect.donkey.server.channel.Channel donkeyChannel = new com.mirth.connect.donkey.server.channel.Channel();
-        donkeyChannel.setChannelId(channel.getId());
+        donkeyChannel.setChannelId(channelId);
 
         logger.info("Running select queries");
 

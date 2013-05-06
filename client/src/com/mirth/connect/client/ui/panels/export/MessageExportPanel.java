@@ -110,30 +110,6 @@ public class MessageExportPanel extends JPanel {
         initialized = true;
     }
 
-    @Override
-    public void setEnabled(boolean enabled) {
-        if (initialized) {
-            archiveLabel.setEnabled(enabled);
-            archiveYes.setEnabled(enabled);
-            archiveNo.setEnabled(enabled);
-
-            if (enabled) {
-                archiveChanged();
-            } else {
-                resetInvalidProperties();
-                
-                for (Component component : archiveComponents) {
-                    component.setEnabled(false);
-                }
-            }
-        }
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return archiveLabel.isEnabled();
-    }
-
     public boolean isArchiveEnabled() {
         return archiveYes.isSelected();
     }

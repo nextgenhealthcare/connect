@@ -28,8 +28,9 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="archiverContainerPanel" pref="813" max="32767" attributes="0"/>
                   <Component id="pruningSchedulePanel" alignment="0" max="32767" attributes="0"/>
-                  <Component id="archiverContainerPanel" alignment="0" max="32767" attributes="0"/>
+                  <Component id="pruningSchedulePanel1" alignment="0" max="32767" attributes="0"/>
               </Group>
           </Group>
       </Group>
@@ -38,9 +39,11 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
+              <Component id="pruningSchedulePanel1" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Component id="pruningSchedulePanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="archiverContainerPanel" pref="67" max="32767" attributes="0"/>
+              <Component id="archiverContainerPanel" pref="97" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -54,7 +57,7 @@
         </Property>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-            <TitledBorder title="Pruning Schedule">
+            <TitledBorder title="Schedule">
               <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
                 <MatteColorBorder bottom="0" left="0" right="0" top="1">
                   <Color PropertyName="color" blue="cc" green="cc" red="cc" type="rgb"/>
@@ -69,10 +72,9 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="disabledRadio" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="hourlyRadio" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -88,9 +90,9 @@
                               <Component id="timeOfDay" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
                               <Component id="blockSizeTextField" max="32767" attributes="0"/>
                           </Group>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
-                                  <EmptySpace max="-2" attributes="0"/>
                                   <Component id="monthlyAtLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="timeOfDayMonthly" min="-2" pref="75" max="-2" attributes="0"/>
@@ -102,14 +104,16 @@
                               </Group>
                           </Group>
                       </Group>
+                      <Component id="disabledRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="544" max="32767" attributes="0"/>
+                  <EmptySpace pref="535" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="1" attributes="0">
+              <Group type="102" attributes="0">
+                  <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                   <Component id="disabledRadio" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
                   <Component id="hourlyRadio" min="-2" max="-2" attributes="0"/>
@@ -137,7 +141,7 @@
                       <Component id="blockSizeTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="blockSizeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="18" max="32767" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -157,6 +161,7 @@
               <ComponentRef name="scheduleButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Hourly"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Run the message pruner hourly (on the hour, for example: 12:00am, 1:00am, 2:00am, and etc.)&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -179,6 +184,7 @@
               <ComponentRef name="scheduleButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Daily"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Run the message pruner daily at the specified time.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -206,6 +212,7 @@
               <ComponentRef name="scheduleButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Weekly"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Run the message pruner weekly at the specified time.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -243,6 +250,7 @@
               <ComponentRef name="scheduleButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Monthly"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Run the message pruner monthly at the specified time.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -280,6 +288,7 @@
               <ComponentRef name="scheduleButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Disabled"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Disables message pruning and archiving.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -307,7 +316,7 @@
         </Property>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-            <TitledBorder title="Archiving">
+            <TitledBorder title="Archive Settings">
               <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
                 <MatteColorBorder bottom="0" left="0" right="0" top="1">
                   <Color PropertyName="color" blue="cc" green="cc" red="cc" type="rgb"/>
@@ -322,6 +331,108 @@
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
         <Property name="useNullLayout" type="boolean" value="true"/>
       </Layout>
+    </Container>
+    <Container class="javax.swing.JPanel" name="pruningSchedulePanel1">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+            <TitledBorder title="Status">
+              <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
+                <MatteColorBorder bottom="0" left="0" right="0" top="1">
+                  <Color PropertyName="color" blue="cc" green="cc" red="cc" type="rgb"/>
+                </MatteColorBorder>
+              </Border>
+              <Font PropertyName="font" name="Tahoma" size="11" style="1"/>
+            </TitledBorder>
+          </Border>
+        </Property>
+      </Properties>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="nextProcessLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="lastProcessLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="currentProcessLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="currentStateLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="currentStateTextLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="nextProcessTextLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="lastProcessTextLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="currentProcessTextLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="0" pref="640" max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="currentStateTextLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="currentStateLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="currentProcessLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="currentProcessTextLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="lastProcessLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="lastProcessTextLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="nextProcessLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="nextProcessTextLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Component class="javax.swing.JLabel" name="currentProcessLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Current Process:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="nextProcessLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Next Process:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="lastProcessLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Last Process:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="lastProcessTextLabel">
+        </Component>
+        <Component class="javax.swing.JLabel" name="nextProcessTextLabel">
+        </Component>
+        <Component class="javax.swing.JLabel" name="currentStateTextLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Unknown"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="currentProcessTextLabel">
+        </Component>
+        <Component class="javax.swing.JLabel" name="currentStateLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Current State:"/>
+          </Properties>
+        </Component>
+      </SubComponents>
     </Container>
   </SubComponents>
 </Form>

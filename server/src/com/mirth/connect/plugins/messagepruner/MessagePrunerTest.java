@@ -14,6 +14,10 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
@@ -24,19 +28,24 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
+import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConfiguration;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
-import com.mirth.connect.plugins.messagepruner.MessagePrunerWithArchiver.Strategy;
+import com.mirth.connect.donkey.server.event.Event;
+import com.mirth.connect.donkey.server.event.EventDispatcher;
+import com.mirth.connect.plugins.messagepruner.MessagePruner.Strategy;
 import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.server.controllers.tests.TestUtils;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
 
 public class MessagePrunerTest {
-    private final static int TEST_POWER = 9;
-    private final static int PERFORMANCE_TEST_POWER = 14;
+    private final static int TEST_POWER = 7;
+    private final static int PERFORMANCE_TEST_POWER = 10;
     private final static int ARCHIVER_PAGE_SIZE = 1000;
     private final static String TEST_CHANNEL_ID = "prunerTestChannel";
     private final static String TEST_SERVER_ID = "testServerId";
@@ -57,7 +66,10 @@ public class MessagePrunerTest {
         configurationController.initializeDatabaseSettings();
 
         Donkey donkey = Donkey.getInstance();
-        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), null, null));
+        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), null, new EventDispatcher() {
+            @Override
+            public void dispatchEvent(Event event) {}
+        }));
 
         ChannelController.getInstance().initChannelStorage(TEST_CHANNEL_ID);
 
@@ -81,36 +93,39 @@ public class MessagePrunerTest {
     }
 
     private void runPrunerTests(boolean messagesPrunable, boolean contentPrunable) throws Exception {
-        runPrunerTest(new MessagePrunerWithoutArchiver(), messagesPrunable, contentPrunable);
+        prepareTestMessages(TEST_CHANNEL_ID, messagesPrunable, contentPrunable, true, Status.SENT, TEST_POWER);
+        new MessagePruner().pruneChannel(TEST_CHANNEL_ID, null, messageDateThreshold, contentDateThreshold);
+        assertEquals(messagesPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
+        assertEquals(contentPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
+        
         TestArchiver archiver = new TestArchiver();
 
         for (Strategy strategy : Strategy.values()) {
             for (int blockSize : blockSizes) {
                 archiver.getArchivedMessageIds().clear();
-                archiver.getFailedMessageIds().clear();
 
-                MessagePruner pruner = new MessagePrunerWithArchiver(archiver, ARCHIVER_PAGE_SIZE, strategy);
+                MessagePruner pruner = new MessagePruner();
+                pruner.setPageSize(ARCHIVER_PAGE_SIZE);
+                pruner.setStrategy(strategy);
                 pruner.setRetryCount(0);
                 pruner.setBlockSize(blockSize);
 
                 logger.info("Running pruner test, archiver: " + archiver.getClass().getSimpleName() + ", strategy: " + strategy + ", block size: " + blockSize + ", prune messages: " + messagesPrunable + ", prune content: " + contentPrunable);
-                runPrunerTest(pruner, messagesPrunable, contentPrunable);
+                
+                prepareTestMessages(TEST_CHANNEL_ID, messagesPrunable, contentPrunable, true, Status.SENT, TEST_POWER);
+                pruner.pruneChannel(TEST_CHANNEL_ID, archiver, messageDateThreshold, contentDateThreshold);
+                assertEquals(messagesPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
+                assertEquals(contentPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
+                assertEquals(testSize, archiver.getArchivedMessageIds().size());
             }
         }
-    }
-
-    private void runPrunerTest(MessagePruner pruner, boolean messagesPrunable, boolean contentPrunable) throws Exception {
-        prepareTestMessages(TEST_CHANNEL_ID, messagesPrunable, contentPrunable, true, Status.SENT, TEST_POWER);
-        pruner.executePruner(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold);
-        assertEquals(messagesPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
-        assertEquals(contentPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
     }
 
     @Test
     public void testPruneNone() throws Exception {
         prepareTestMessages(TEST_CHANNEL_ID, false, false, true, Status.SENT, TEST_POWER);
-        MessagePruner pruner = new MessagePrunerWithoutArchiver();
-        pruner.executePruner(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold);
+        MessagePruner pruner = new MessagePruner();
+        pruner.pruneChannel(TEST_CHANNEL_ID, null, messageDateThreshold, contentDateThreshold);
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
     }
@@ -118,8 +133,8 @@ public class MessagePrunerTest {
     @Test
     public final void testPruneSkipIncomplete() throws Exception {
         prepareTestMessages(TEST_CHANNEL_ID, true, true, false, Status.SENT, TEST_POWER);
-        MessagePruner pruner = new MessagePrunerWithoutArchiver();
-        pruner.executePruner(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold);
+        MessagePruner pruner = new MessagePruner();
+        pruner.pruneChannel(TEST_CHANNEL_ID, null, messageDateThreshold, contentDateThreshold);
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
     }
@@ -127,9 +142,9 @@ public class MessagePrunerTest {
     @Test
     public final void testPruneIncomplete() throws Exception {
         prepareTestMessages(TEST_CHANNEL_ID, true, true, false, Status.SENT, TEST_POWER);
-        MessagePruner pruner = new MessagePrunerWithoutArchiver();
+        MessagePruner pruner = new MessagePruner();
         pruner.setSkipIncomplete(false);
-        pruner.executePruner(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold);
+        pruner.pruneChannel(TEST_CHANNEL_ID, null, messageDateThreshold, contentDateThreshold);
         assertEquals(0, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(0, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
     }
@@ -137,8 +152,8 @@ public class MessagePrunerTest {
     @Test
     public final void testPruneQueued() throws Exception {
         prepareTestMessages(TEST_CHANNEL_ID, true, true, true, Status.QUEUED, TEST_POWER);
-        MessagePruner pruner = new MessagePrunerWithoutArchiver();
-        pruner.executePruner(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold);
+        MessagePruner pruner = new MessagePruner();
+        pruner.pruneChannel(TEST_CHANNEL_ID, null, messageDateThreshold, contentDateThreshold);
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
     }
@@ -146,8 +161,8 @@ public class MessagePrunerTest {
     @Test
     public final void testPruneError() throws Exception {
         prepareTestMessages(TEST_CHANNEL_ID, true, true, true, Status.ERROR, TEST_POWER);
-        MessagePruner pruner = new MessagePrunerWithoutArchiver();
-        pruner.executePruner(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold);
+        MessagePruner pruner = new MessagePruner();
+        pruner.pruneChannel(TEST_CHANNEL_ID, null, messageDateThreshold, contentDateThreshold);
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
     }
@@ -156,18 +171,16 @@ public class MessagePrunerTest {
     @Ignore
     public final void testPerformance() throws Exception {
         prepareTestMessages(TEST_CHANNEL_ID, true, true, true, Status.SENT, PERFORMANCE_TEST_POWER);
-
-        TestArchiver archiver = new TestArchiver();
-        MessagePruner pruner = new MessagePrunerWithArchiver(archiver, 1000, Strategy.INCLUDE_LIST);
+        MessagePruner pruner = new MessagePruner();
 
         long startTime = System.currentTimeMillis();
-        pruner.executePruner(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold);
+        pruner.pruneChannel(TEST_CHANNEL_ID, null, messageDateThreshold, contentDateThreshold);
         long endTime = System.currentTimeMillis();
 
         logger.info("Archiver/Pruner executed in " + (endTime - startTime) + "ms");
 
-        assertEquals(archiver.getFailedMessageIds().size(), TestUtils.getNumMessages(TEST_CHANNEL_ID));
-        assertEquals(archiver.getFailedMessageIds().size(), TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
+        assertEquals(0, TestUtils.getNumMessages(TEST_CHANNEL_ID));
+        assertEquals(0, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
     }
 
 //    @Test
@@ -228,6 +241,8 @@ public class MessagePrunerTest {
 //            }
 //        });
 //
+//        MessagePruner pruner = new MessagePruner();
+//        
 //        logger.info("Executing pruner");
 //        pruner.executePruner(TEST_CHANNEL_ID, messageDateThreshold, null);
 //        logger.info("Pruner completed");
@@ -235,6 +250,54 @@ public class MessagePrunerTest {
 //        future.get();
 //        executor.shutdown();
 //    }
+    
+    @Test
+    @Ignore
+    public final void testConcurrency() throws Exception {
+        /*
+         * To run this concurrency test, you must setup a "reader" channel through the
+         * administrator, that routes messages to other channels that will be pruned. Then specify
+         * the ids of those channels below.
+         */
+        final String readerChannelId = "6028bc62-589a-471d-a97f-df8b72c42385";
+        String[] pruneChannelIds = new String[] { "2204dfad-11b5-405c-9900-d2f7b2621fd9", "2204dfad-11b5-405c-9900-d2f7b2621fd9" };
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        TestUtils.startMirthServer(15000);
+
+        MessagePruner pruner = new MessagePruner();
+        pruner.setBlockSize(1000);
+        
+        // send messages into the test channel on a separate thread
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                EngineController engineController = ControllerFactory.getFactory().createEngineController();
+                logger.info("Sending messages");
+
+                for (int i = 0; i < 100000; i++) {
+                    logger.info("sending message #" + i);
+                    engineController.dispatchRawMessage(readerChannelId, new RawMessage(TestUtils.TEST_HL7_MESSAGE));
+                }
+
+                logger.info("Finished sending messages");
+                return null;
+            }
+        });
+        
+        logger.info("Executing pruner");
+        
+        // run the pruner while messages are processing
+        while (!future.isDone()) {
+            for (String channelId : pruneChannelIds) {
+                logger.info("executing pruner for channel " + channelId);
+                pruner.pruneChannel(channelId, null, Calendar.getInstance(), null);
+            }
+            
+            Thread.sleep(2000);
+        }
+        
+        logger.info("Test completed");
+    }
 
     private static void prepareTestMessages(String channelId, boolean messagesPrunable, Boolean contentPrunable, boolean processed, Status destinationStatus, int power) throws Exception {
         logger.debug("Preparing " + ((int) Math.pow(2, power)) + " test messages");
@@ -288,11 +351,6 @@ public class MessagePrunerTest {
 
     private static class TestArchiver implements MessageWriter {
         private List<Long> archivedMessageIds = new ArrayList<Long>();
-        private List<Long> failedMessageIds = new ArrayList<Long>();
-
-        public List<Long> getFailedMessageIds() {
-            return failedMessageIds;
-        }
 
         public List<Long> getArchivedMessageIds() {
             return archivedMessageIds;
@@ -300,11 +358,6 @@ public class MessagePrunerTest {
 
         @Override
         public boolean write(Message message) throws MessageWriterException {
-            if ((message.getMessageId() / 2) % 3 == 0) {
-                failedMessageIds.add(message.getMessageId());
-                return false;
-            }
-
             archivedMessageIds.add(message.getMessageId().longValue());
             return true;
         }

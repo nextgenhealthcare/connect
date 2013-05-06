@@ -10,7 +10,17 @@ import com.mirth.connect.donkey.util.ThreadUtils;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 
 public class MessageExporter {
+    private int numExported;
+    private int numProcessed;
     private Logger logger = Logger.getLogger(getClass());
+
+    public int getNumExported() {
+        return numExported;
+    }
+    
+    public int getNumProcessed() {
+        return numProcessed;
+    }
 
     /**
      * Executes the message exporter.
@@ -21,10 +31,10 @@ public class MessageExporter {
      *            The message writer to write messages to
      * @return A list of the message ids that were exported.
      */
-    public MessageExportResult exportMessages(PaginatedList<Message> messageList, MessageWriter messageWriter) throws InterruptedException, MessageExportException {
+    public synchronized MessageExportResult exportMessages(PaginatedList<Message> messageList, MessageWriter messageWriter) throws InterruptedException, MessageExportException {
         List<Long> processedMessageIds = new ArrayList<Long>();
-        int numExported = 0;
         int pageNumber = 0;
+        numExported = 0;
 
         do {
             ThreadUtils.checkInterruptedStatus();
@@ -43,6 +53,7 @@ public class MessageExporter {
                         numExported++;
                     }
 
+                    numProcessed++;
                     processedMessageIds.add(message.getMessageId());
                 } catch (Exception e) {
                     throw new MessageExportException("Failed to export message", e);

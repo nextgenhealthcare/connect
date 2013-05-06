@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
@@ -63,8 +64,12 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.Rule;
+import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.plugins.datatypes.hl7v2.HL7v2DataTypeProperties;
+import com.mirth.connect.server.Mirth;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.ResourceUtil;
 
 public class TestUtils {
@@ -74,6 +79,23 @@ public class TestUtils {
     
     private static Logger logger = Logger.getLogger(TestUtils.class);
 
+    public static void startMirthServer() throws InterruptedException {
+        startMirthServer(1000);
+    }
+    
+    public static void startMirthServer(int sleepMillis) throws InterruptedException {
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                new Mirth().run();
+            }
+        });
+
+        while (ConfigurationController.getInstance().isEngineStarting()) {
+            Thread.sleep(sleepMillis);
+        }
+    }
+    
     public static void runChannelTest(Channel channel, final String testMessage, final int testSize) throws Exception {
         channel.deploy();
         channel.start();
@@ -249,6 +271,11 @@ public class TestUtils {
         }
 
         return channel;
+    }
+    
+    public static void deployTestChannel(com.mirth.connect.model.Channel channel) throws Exception {
+        com.mirth.connect.server.controllers.ChannelController.getInstance().updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
+        ControllerFactory.getFactory().createEngineController().deployChannel(channel.getId(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
     }
 
     public static Properties getSqlProperties() {

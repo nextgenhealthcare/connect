@@ -54,6 +54,13 @@ public class Event implements Serializable, Exportable {
     public Event(String name) {
         this.name = name;
     }
+    
+    public Event(String name, Level level, Outcome outcome, Map<String, String> attributes) {
+        this.name = name;
+        this.level = level;
+        this.outcome = outcome;
+        this.attributes = attributes;
+    }
 
     public int getId() {
         return this.id;
