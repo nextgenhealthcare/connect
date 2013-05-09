@@ -34,6 +34,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -2136,7 +2137,7 @@ public class Frame extends JXFrame {
                     return null;
                 }
 
-                List<String> undeployChannelIds = new ArrayList<String>();
+                Set<String> undeployChannelIds = new LinkedHashSet<String>();
 
                 for (Channel channel : selectedChannels) {
 
@@ -2236,24 +2237,19 @@ public class Frame extends JXFrame {
             if (changedChannels.size() == 0) {
                 return;
             } else {
-                for (int i = 0; i < changedChannels.size(); i++) {
-                    if (changedChannels.get(i).isAdded()) {
-                        Channel filterChannel = new Channel();
-                        filterChannel.setId(changedChannels.get(i).getId());
-                        Channel channelToAdd = mirthClient.getChannel(filterChannel).get(0);
-                        channels.put(channelToAdd.getId(), channelToAdd);
+                Set<String> addedOrUpdatedChannelIds = new LinkedHashSet<String>();
+                
+                for (ChannelSummary channelSummary : changedChannels) {
+                    if (channelSummary.isDeleted()) {
+                        channels.remove(channelSummary.getId());
                     } else {
-                        Channel matchingChannel = channels.get(changedChannels.get(i).getId());
-
-                        if (changedChannels.get(i).isDeleted()) {
-                            channels.remove(matchingChannel.getId());
-                        } else {
-                            Channel filterChannel = new Channel();
-                            filterChannel.setId(matchingChannel.getId());
-                            Channel channelToUpdate = mirthClient.getChannel(filterChannel).get(0);
-                            channels.put(matchingChannel.getId(), channelToUpdate);
-                        }
+                        addedOrUpdatedChannelIds.add(channelSummary.getId());
                     }
+                }
+                
+                List<Channel> channelsToAddOrUpdate = mirthClient.getChannels(addedOrUpdatedChannelIds);
+                for (Channel channel : channelsToAddOrUpdate) {
+                    channels.put(channel.getId(), channel);
                 }
             }
         } catch (ClientException e) {
@@ -2716,7 +2712,7 @@ public class Frame extends JXFrame {
         }
 
         // Only deploy enabled channels
-        final List<String> selectedEnabledChannelIds = new ArrayList<String>();
+        final Set<String> selectedEnabledChannelIds = new LinkedHashSet<String>();
         boolean channelDisabled = false;
         for (Channel channel : selectedChannels) {
             if (channel.isEnabled()) {
@@ -2772,7 +2768,7 @@ public class Frame extends JXFrame {
 
             public Void doInBackground() {
                 try {
-                    List<String> channelIds = new ArrayList<String>();
+                    Set<String> channelIds = new LinkedHashSet<String>();
 
                     for (DashboardStatus channelStatus : selectedChannelStatuses) {
                         channelIds.add(channelStatus.getChannelId());

@@ -229,7 +229,6 @@ public class Mirth extends Thread {
         extensionController.uninstallExtensions();
         migrationController.migrateExtensions();
         extensionController.initPlugins();
-        channelController.loadCache();
         migrationController.migrateChannels();
         userController.resetUserStatus();
         scriptController.compileGlobalScripts();

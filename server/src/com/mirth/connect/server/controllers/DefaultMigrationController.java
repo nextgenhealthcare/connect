@@ -156,7 +156,7 @@ public class DefaultMigrationController extends MigrationController {
 
     public void migrateChannels() {
         try {
-            for (Channel channel : channelController.getChannel(null)) {
+            for (Channel channel : channelController.getChannels(null)) {
                 if (!channel.getVersion().equals(configurationController.getServerVersion())) {
                     Channel updatedChannel = ImportConverter.convertChannelObject(channel);
 //                    PropertyVerifier.checkChannelProperties(updatedChannel);

@@ -68,10 +68,10 @@ public class TestPreProcessor {
         ChannelController channelController = ChannelController.getInstance();
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
         
-        if (channelController.getCachedChannelById(CHANNEL_ID) == null) {
+        if (channelController.getChannelById(CHANNEL_ID) == null) {
             channelController.updateChannel(TestUtils.getChannel(CHANNEL_ID), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
     
-            if (channelController.getCachedChannelById(CHANNEL_ID) == null) {
+            if (channelController.getChannelById(CHANNEL_ID) == null) {
                 throw new Exception("Failed to create channel");
             }
         }

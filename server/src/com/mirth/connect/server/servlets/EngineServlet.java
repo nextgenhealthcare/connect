@@ -11,8 +11,8 @@ package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -54,7 +54,7 @@ public class EngineServlet extends MirthServlet {
                         engineController.redeployAllChannels();
                     }
                 } else if (operation.equals(Operations.CHANNEL_DEPLOY)) {
-                    List<String> channelIds = (List<String>) serializer.fromXML(request.getParameter("channelIds"));
+                    Set<String> channelIds = (Set<String>) serializer.fromXML(request.getParameter("channelIds"));
                     parameterMap.put("channelIds", channelIds);
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -63,7 +63,7 @@ public class EngineServlet extends MirthServlet {
                         engineController.deployChannels(channelIds, context);
                     }
                 } else if (operation.equals(Operations.CHANNEL_UNDEPLOY)) {
-                    List<String> channelIds = (List<String>) serializer.fromXML(request.getParameter("channelIds"));
+                    Set<String> channelIds = (Set<String>) serializer.fromXML(request.getParameter("channelIds"));
                     parameterMap.put("channelIds", channelIds);
 
                     if (!isUserAuthorized(request, parameterMap)) {

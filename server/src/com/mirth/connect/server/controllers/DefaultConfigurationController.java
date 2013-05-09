@@ -385,7 +385,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
 
         ServerConfiguration serverConfiguration = new ServerConfiguration();
-        serverConfiguration.setChannels(channelController.getChannel(null));
+        serverConfiguration.setChannels(channelController.getChannels(null));
         serverConfiguration.setAlerts(alertController.getAlerts());
         serverConfiguration.setCodeTemplates(codeTemplateController.getCodeTemplate(null));
         serverConfiguration.setServerSettings(getServerSettings());
@@ -422,7 +422,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             engineController.undeployChannels(engineController.getDeployedIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
 
             // Remove channels that don't exist in the new configuration
-            for (Channel channel : channelController.getChannel(null)) {
+            for (Channel channel : channelController.getChannels(null)) {
                 boolean found = false;
 
                 for (Channel newChannel : serverConfiguration.getChannels()) {

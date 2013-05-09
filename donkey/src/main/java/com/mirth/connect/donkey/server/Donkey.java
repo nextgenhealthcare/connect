@@ -10,12 +10,12 @@
 package com.mirth.connect.donkey.server;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -304,7 +304,7 @@ public class Donkey {
         return deployedChannels;
     }
 
-    public List<String> getDeployedChannelIds() {
+    public Set<String> getDeployedChannelIds() {
         TreeMap<Calendar, String> treeMap = new TreeMap<Calendar, String>(new Comparator<Calendar>() {
 
             @Override
@@ -318,7 +318,7 @@ public class Donkey {
             treeMap.put(channel.getDeployDate(), channel.getChannelId());
         }
 
-        return new ArrayList<String>(treeMap.values());
+        return new LinkedHashSet<String>(treeMap.values());
     }
 
     public String getDonkeyDir() {

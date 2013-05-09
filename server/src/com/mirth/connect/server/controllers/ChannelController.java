@@ -29,25 +29,31 @@ public abstract class ChannelController extends Controller {
         return ControllerFactory.getFactory().createChannelController();
     }
 
-    public abstract List<Channel> getChannel(Channel channel) throws ControllerException;
+    public abstract List<Channel> getChannels(Set<String> channelIds);
+    
+    public abstract Channel getChannelById(String channelId);
+
+    public abstract Channel getChannelByName(String channelName);
+
+    public abstract String getDestinationName(String connectorId);
+    
+    public abstract Set<String> getChannelIds();
+    
+    public abstract Set<String> getChannelTags();
 
     public abstract List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException;
 
     public abstract boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException;
 
     public abstract void removeChannel(Channel channel, ServerEventContext context) throws ControllerException;
-
-    // channel cache
-
-    public abstract void loadCache();
-
-    public abstract Channel getCachedChannelById(String channelId);
-
-    public abstract Channel getCachedChannelByName(String channelName);
-
-    public abstract String getCachedDestinationName(String connectorId);
     
-    public abstract List<String> getCachedChannelIds();
+    public abstract Map<String, Integer> getChannelRevisions() throws ControllerException;
+    
+    public abstract Set<String> getChannelTags(Set<String> channelIds);
+    
+    public abstract Map<Integer, String> getConnectorNames(String channelId);
+    
+    public abstract List<MetaDataColumn> getMetaDataColumns(String channelId);
 
     // deployed channel cache
 
@@ -65,14 +71,6 @@ public abstract class ChannelController extends Controller {
 
     public abstract String getDeployedConnectorId(String channelId, String connectorName) throws Exception;
     
-    public abstract Set<String> getChannelTags();
-    
-    public abstract Set<String> getChannelTags(Set<String> channelIds);
-    
-    public abstract Map<Integer, String> getConnectorNames(String channelId);
-    
-    public abstract List<MetaDataColumn> getMetaDataColumns(String channelId);
-
     @Deprecated
     // TODO: Remove in 3.0
     public String getChannelName(String channelId) {

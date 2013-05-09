@@ -27,11 +27,11 @@ public class VMRouter {
     // TODO: investigate the side-effects of removing the useQueue parameter
 //    public Response routeMessage(String channelName, String message, boolean useQueue) {
     public Response routeMessage(String channelName, String message) {
-        com.mirth.connect.model.Channel channel = channelController.getCachedChannelByName(channelName);
+        com.mirth.connect.model.Channel channel = channelController.getDeployedChannelByName(channelName);
 
         if (channel == null) {
             logger.error("Could not find channel to route to for channel name: " + channelName);
-            return null;
+            return new Response(Status.ERROR, "Could not find channel to route to for channel name: " + channelName);
         }
 
         return routeMessageByChannelId(channel.getId(), message);
@@ -43,7 +43,7 @@ public class VMRouter {
             return engineController.dispatchRawMessage(channelId, new RawMessage(message, null, null)).getSelectedResponse();
         } catch (Throwable e) {
             logger.error(e);
-            return new Response(Status.ERROR, null);
+            return new Response(Status.ERROR, null, e.getMessage());
         }
     }
 }

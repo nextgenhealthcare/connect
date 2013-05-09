@@ -196,18 +196,7 @@ public class MessagePruner implements Runnable {
     }
     
     private Queue<PrunerTask> buildTaskQueue() throws Exception {
-        List<Channel> channels = null;
-
-        try {
-            channels = com.mirth.connect.server.controllers.ChannelController.getInstance().getChannel(null);
-        } catch (ControllerException e) {
-            Map<String, String> attributes = new HashMap<String, String>();
-            attributes.put("error", e.getMessage());
-            attributes.put("trace", ExceptionUtils.getStackTrace(e));
-            systemEventController.addEvent(new Event(MessagePrunerService.PLUGINPOINT, Level.ERROR, Outcome.FAILURE, attributes));
-            logger.error("Failed to retrieve a list of all channels for pruning");
-            throw e;
-        }
+        List<Channel> channels = com.mirth.connect.server.controllers.ChannelController.getInstance().getChannels(null);
 
         Queue<PrunerTask> queue = new LinkedList<PrunerTask>();
         

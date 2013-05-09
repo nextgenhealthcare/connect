@@ -9,8 +9,8 @@
 
 package com.mirth.connect.server.controllers.tests;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class DonkeyEngineControllerTests {
 
     @Test
     public final void testDeployChannels() throws Exception {
-        List<String> channelIds = new ArrayList<String>();
+        Set<String> channelIds = new LinkedHashSet<String>();
         ServerEventContext context = null;
 
         // Start Donkey

@@ -254,7 +254,7 @@ public class UpdateClient {
 
     private List<UsageData> getUsageData() throws Exception {
         List<UsageData> usageData = new ArrayList<UsageData>();
-        List<Channel> channels = client.getChannel(null);
+        List<Channel> channels = client.getChannels(null);
 
         for (Channel channel : channels) {
             // number of destinations

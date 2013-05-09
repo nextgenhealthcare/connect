@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -149,12 +150,38 @@ public class DonkeyEngineController implements EngineController {
 
     @Override
     public void deployChannel(String channelId, ServerEventContext context) throws StartException, StopException, DeployException, UndeployException {
-        Channel channel = channelController.getCachedChannelById(channelId);
+        Channel channel = channelController.getChannelById(channelId);
 
         if (channel == null) {
             throw new DeployException("Unable to deploy channel, channel ID " + channelId + " not found.");
         }
+        
+        deployChannel(channel, context);
+    }
 
+    @Override
+    public void deployChannels(Set<String> channelIds, ServerEventContext context) {
+        if (channelIds == null) {
+            throw new NullPointerException();
+        }
+
+        // Execute global deploy script before channel deploy script
+        scriptController.executeGlobalDeployScript();
+        
+        List<Channel> channels = channelController.getChannels(channelIds);
+        
+        for (Channel channel : channels) {
+            try {
+                deployChannel(channel, context);
+            } catch (Exception e) {
+                logger.error("Error deploying channel " + channel.getId() + ".", e);
+            }
+        }
+    }
+    
+    private void deployChannel(Channel channel, ServerEventContext context) throws StartException, StopException, DeployException, UndeployException {
+        String channelId = channel.getId();
+        
         if (!channel.isEnabled()) {
             return;
         }
@@ -200,24 +227,6 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public void deployChannels(List<String> channelIds, ServerEventContext context) {
-        if (channelIds == null) {
-            throw new NullPointerException();
-        }
-
-        // Execute global deploy script before channel deploy script
-        scriptController.executeGlobalDeployScript();
-
-        for (String channelId : channelIds) {
-            try {
-                deployChannel(channelId, context);
-            } catch (Exception e) {
-                logger.error("Error deploying channel " + channelId + ".", e);
-            }
-        }
-    }
-
-    @Override
     public void undeployChannel(String channelId, ServerEventContext context) throws StopException, UndeployException {
         // Get a reference to the deployed channel for later
         com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
@@ -252,7 +261,7 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public void undeployChannels(List<String> channelIds, ServerEventContext context) throws InterruptedException {
+    public void undeployChannels(Set<String> channelIds, ServerEventContext context) throws InterruptedException {
         for (String channelId : channelIds) {
             try {
                 undeployChannel(channelId, context);
@@ -269,7 +278,7 @@ public class DonkeyEngineController implements EngineController {
     public void redeployAllChannels() throws StartException, StopException, InterruptedException {
         undeployChannels(donkey.getDeployedChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
         clearGlobalMap();
-        deployChannels(channelController.getCachedChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+        deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
     }
 
     @Override
@@ -301,13 +310,22 @@ public class DonkeyEngineController implements EngineController {
     public List<DashboardStatus> getChannelStatusList() {
         List<DashboardStatus> statuses = new ArrayList<DashboardStatus>();
 
+        Map<String, Integer> channelRevisions = null;
+        try {
+            channelRevisions = channelController.getChannelRevisions();
+        } catch (ControllerException e) {
+            logger.error("Error retrieving channel revisions", e);
+        }
+
         for (com.mirth.connect.donkey.server.channel.Channel donkeyChannel : donkey.getDeployedChannels().values()) {
             Statistics stats = donkeyChannelController.getStatistics();
             Statistics lifetimeStats = donkeyChannelController.getTotalStatistics();
 
+            String channelId = donkeyChannel.getChannelId();
+            
             DashboardStatus status = new DashboardStatus();
             status.setStatusType(StatusType.CHANNEL);
-            status.setChannelId(donkeyChannel.getChannelId());
+            status.setChannelId(channelId);
             status.setName(donkeyChannel.getName());
 
             if (donkeyChannel.isPaused()) {
@@ -318,21 +336,28 @@ public class DonkeyEngineController implements EngineController {
 
             status.setDeployedDate(donkeyChannel.getDeployDate());
 
-            Channel channel = channelController.getCachedChannelById(donkeyChannel.getChannelId());
-            status.setDeployedRevisionDelta(channel.getRevision() - donkeyChannel.getRevision());
-            status.setStatistics(stats.getConnectorStats(donkeyChannel.getChannelId(), null));
-            status.setLifetimeStatistics(lifetimeStats.getConnectorStats(donkeyChannel.getChannelId(), null));
-            status.setTags(channel.getTags());
+            Channel deployedChannel = channelController.getDeployedChannelById(channelId);
+            
+            int channelRevision = 0;
+            // Just in case the channel no longer exists
+            if (channelRevisions != null && channelRevisions.containsKey(channelId)) {
+                channelRevision = channelRevisions.get(channelId);
+            }            
+            
+            status.setDeployedRevisionDelta(channelRevision - deployedChannel.getRevision());
+            status.setStatistics(stats.getConnectorStats(channelId, null));
+            status.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, null));
+            status.setTags(deployedChannel.getTags());
 
             DashboardStatus sourceStatus = new DashboardStatus();
             sourceStatus.setStatusType(StatusType.SOURCE_CONNECTOR);
-            sourceStatus.setChannelId(donkeyChannel.getChannelId());
+            sourceStatus.setChannelId(channelId);
             sourceStatus.setMetaDataId(0);
             sourceStatus.setName("Source");
             sourceStatus.setState(donkeyChannel.getSourceConnector().getCurrentState());
-            sourceStatus.setStatistics(stats.getConnectorStats(donkeyChannel.getChannelId(), 0));
-            sourceStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(donkeyChannel.getChannelId(), 0));
-            sourceStatus.setTags(channel.getTags());
+            sourceStatus.setStatistics(stats.getConnectorStats(channelId, 0));
+            sourceStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, 0));
+            sourceStatus.setTags(deployedChannel.getTags());
             sourceStatus.setQueued(new Long(donkeyChannel.getSourceQueue().size()));
 
             status.setQueued(sourceStatus.getQueued());
@@ -346,13 +371,13 @@ public class DonkeyEngineController implements EngineController {
 
                     DashboardStatus destinationStatus = new DashboardStatus();
                     destinationStatus.setStatusType(StatusType.DESTINATION_CONNECTOR);
-                    destinationStatus.setChannelId(donkeyChannel.getChannelId());
+                    destinationStatus.setChannelId(channelId);
                     destinationStatus.setMetaDataId(metaDataId);
                     destinationStatus.setName(connector.getDestinationName());
                     destinationStatus.setState(connector.getCurrentState());
-                    destinationStatus.setStatistics(stats.getConnectorStats(donkeyChannel.getChannelId(), metaDataId));
-                    destinationStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(donkeyChannel.getChannelId(), metaDataId));
-                    destinationStatus.setTags(channel.getTags());
+                    destinationStatus.setStatistics(stats.getConnectorStats(channelId, metaDataId));
+                    destinationStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, metaDataId));
+                    destinationStatus.setTags(deployedChannel.getTags());
                     destinationStatus.setQueued(new Long(connector.getQueue().size()));
 
                     status.setQueued(status.getQueued() + destinationStatus.getQueued());
@@ -379,7 +404,7 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public List<String> getDeployedIds() {
+    public Set<String> getDeployedIds() {
         return donkey.getDeployedChannelIds();
     }
 

@@ -183,9 +183,9 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    public List<Channel> getChannel(Channel channel) throws ClientException {
+    public List<Channel> getChannels(Set<String> channelIds) throws ClientException {
         logger.debug("getting channel");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET.getName()), new NameValuePair("channel", serializer.toXML(channel)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET.getName()), new NameValuePair("channelIds", serializer.toXML(channelIds)) };
         return (List<Channel>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_SERVLET, params));
     }
 
@@ -568,7 +568,7 @@ public class Client {
      * 
      * @throws ClientException
      */
-    public void deployChannels(List<String> channelIds) throws ClientException {
+    public void deployChannels(Set<String> channelIds) throws ClientException {
         logger.debug("deploying channels");
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_DEPLOY.getName()), new NameValuePair("channelIds", serializer.toXML(channelIds)) };
         serverConnection.executePostMethodAbortPending(ENGINE_SERVLET, params);
@@ -579,7 +579,7 @@ public class Client {
      * 
      * @throws ClientException
      */
-    public void undeployChannels(List<String> channelIds) throws ClientException {
+    public void undeployChannels(Set<String> channelIds) throws ClientException {
         logger.debug("undeploying channels");
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_UNDEPLOY.getName()), new NameValuePair("channelIds", serializer.toXML(channelIds)) };
         serverConnection.executePostMethodAbortPending(ENGINE_SERVLET, params);

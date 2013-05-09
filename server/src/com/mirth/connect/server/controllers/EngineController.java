@@ -10,6 +10,7 @@
 package com.mirth.connect.server.controllers;
 
 import java.util.List;
+import java.util.Set;
 
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
@@ -32,11 +33,11 @@ public interface EngineController {
 
     public void deployChannel(String channelId, ServerEventContext context) throws StartException, StopException, DeployException, UndeployException;
 
-    public void deployChannels(List<String> channelIds, ServerEventContext context);
+    public void deployChannels(Set<String> channelIds, ServerEventContext context);
 
     public void undeployChannel(String channelId, ServerEventContext context) throws StopException, UndeployException;
 
-    public void undeployChannels(List<String> channelIds, ServerEventContext context) throws InterruptedException;
+    public void undeployChannels(Set<String> channelIds, ServerEventContext context) throws InterruptedException;
 
     public void redeployAllChannels() throws StopException, StartException, InterruptedException;
     
@@ -90,5 +91,5 @@ public interface EngineController {
      * @return
      * @throws ControllerException
      */
-    public List<String> getDeployedIds();
+    public Set<String> getDeployedIds();
 }

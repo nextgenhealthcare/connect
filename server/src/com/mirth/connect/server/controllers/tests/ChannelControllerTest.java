@@ -13,7 +13,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -73,7 +75,11 @@ public class ChannelControllerTest extends TestCase {
     public void testUpdateChannel() throws ControllerException {
         Channel sampleChannel = sampleChannelList.get(0);
         channelController.updateChannel(sampleChannel, null, true);
-        List<Channel> testChannelList = channelController.getChannel(sampleChannel);
+        
+        Set<String> channelIds = new LinkedHashSet<String>();
+        channelIds.add(sampleChannel.getId());
+        
+        List<Channel> testChannelList = channelController.getChannels(channelIds);
         Channel testChannel = testChannelList.get(0);
 
         Assert.assertEquals(1, testChannelList.size());
@@ -83,7 +89,7 @@ public class ChannelControllerTest extends TestCase {
     public void testGetChannel() throws ControllerException {
         insertSampleChannels();
 
-        List<Channel> testChannelList = channelController.getChannel(null);
+        List<Channel> testChannelList = channelController.getChannels(null);
 
         for (Iterator<Channel> iter = sampleChannelList.iterator(); iter.hasNext();) {
             Channel sampleChannel = iter.next();
@@ -96,7 +102,7 @@ public class ChannelControllerTest extends TestCase {
 
         Channel sampleChannel = sampleChannelList.get(0);
         channelController.removeChannel(sampleChannel, null);
-        List<Channel> testChannelList = channelController.getChannel(null);
+        List<Channel> testChannelList = channelController.getChannels(null);
 
         Assert.assertFalse(testChannelList.contains(sampleChannel));
     }
@@ -105,7 +111,7 @@ public class ChannelControllerTest extends TestCase {
         insertSampleChannels();
 
         channelController.removeChannel(null, null);
-        List<Channel> testChannelList = channelController.getChannel(null);
+        List<Channel> testChannelList = channelController.getChannels(null);
 
         Assert.assertTrue(testChannelList.isEmpty());
     }

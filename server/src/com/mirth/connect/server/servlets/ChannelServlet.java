@@ -60,15 +60,15 @@ public class ChannelServlet extends MirthServlet {
                 if (operation.equals(Operations.CHANNEL_GET)) {
                     response.setContentType(APPLICATION_XML);
                     List<Channel> channels = null;
-                    Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
-                    parameterMap.put("channel", channel);
+                    Set<String> channelIds = (Set<String>) serializer.fromXML(request.getParameter("channelIds"));
+                    parameterMap.put("channelIds", channelIds);
 
                     if (!isUserAuthorized(request, parameterMap)) {
                         channels = new ArrayList<Channel>();
                     } else if (doesUserHaveChannelRestrictions(request)) {
-                        channels = redactChannels(request, channelController.getChannel(channel));
+                        channels = redactChannels(request, channelController.getChannels(channelIds));
                     } else {
-                        channels = channelController.getChannel(channel);
+                        channels = channelController.getChannels(channelIds);
                     }
 
                     serializer.toXML(channels, out);

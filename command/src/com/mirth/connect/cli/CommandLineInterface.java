@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -569,7 +570,7 @@ public class CommandLineInterface {
 
     private void commandDeploy(Token[] arguments) throws ClientException {
         out.println("Deploying Channels");
-        List<Channel> channels = client.getChannel(null);
+        List<Channel> channels = client.getChannels(null);
 
         boolean hasChannels = false;
         for (Channel channel : channels) {
@@ -882,7 +883,7 @@ public class CommandLineInterface {
         Token key = arguments[1];
         String path = arguments[2].getText();
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        List<Channel> channels = client.getChannel(null);
+        List<Channel> channels = client.getChannels(null);
         if (key == Token.WILDCARD) {
             for (Channel channel : channels) {
                 try {
@@ -928,7 +929,7 @@ public class CommandLineInterface {
     }
 
     private void commandChannelList(Token[] arguments) throws ClientException {
-        List<Channel> allChannels = client.getChannel(null);
+        List<Channel> allChannels = client.getChannels(null);
         out.println("ID\t\t\t\t\tEnabled\t\tName");
         String enable = "";
         for (Iterator<Channel> iter = allChannels.iterator(); iter.hasNext();) {
@@ -1038,7 +1039,7 @@ public class CommandLineInterface {
     }
 
     private void commandChannelDeploy(Token[] arguments) throws ClientException {
-        List<String> channelIds = new ArrayList<String>();
+        Set<String> channelIds = new LinkedHashSet<String>();
 
         for (Channel channel : getMatchingChannels(arguments[2])) {
             channelIds.add(channel.getId());
@@ -1048,7 +1049,7 @@ public class CommandLineInterface {
     }
 
     private void commandChannelUndeploy(Token[] arguments) throws ClientException {
-        List<String> channelIds = new ArrayList<String>();
+        Set<String> channelIds = new LinkedHashSet<String>();
 
         for (Channel channel : getMatchingChannels(arguments[2])) {
             channelIds.add(channel.getId());
@@ -1061,7 +1062,7 @@ public class CommandLineInterface {
      * Checks to see if the passed in channel id already exists
      */
     public boolean checkChannelId(String id) throws ClientException {
-        for (Channel channel : client.getChannel(null)) {
+        for (Channel channel : client.getChannels(null)) {
             if (channel.getId().equalsIgnoreCase(id)) {
                 return false;
             }
@@ -1090,7 +1091,7 @@ public class CommandLineInterface {
             return false;
         }
 
-        for (Channel channel : client.getChannel(null)) {
+        for (Channel channel : client.getChannels(null)) {
             if (channel.getName().equalsIgnoreCase(name) && !channel.getId().equals(id)) {
                 out.println("Channel \"" + name + "\" already exists.");
                 return false;
@@ -1102,7 +1103,7 @@ public class CommandLineInterface {
     private List<Channel> getMatchingChannels(Token key) throws ClientException {
         List<Channel> result = new ArrayList<Channel>();
 
-        for (Channel channel : client.getChannel(null)) {
+        for (Channel channel : client.getChannels(null)) {
             if (matchesChannel(key, channel.getName(), channel.getId())) {
                 result.add(channel);
             }
@@ -1148,7 +1149,7 @@ public class CommandLineInterface {
     private void commandClearAllMessages(Token[] arguments) throws ClientException {
         Set<String> channelIds = new HashSet<String>();
 
-        for (Channel channel : client.getChannel(null)) {
+        for (Channel channel : client.getChannels(null)) {
             channelIds.add(channel.getId());
         }
 
@@ -1299,7 +1300,7 @@ public class CommandLineInterface {
                 importChannel.setName(tempId);
                 importChannel.setId(tempId);
             } else {
-                for (Channel channel : client.getChannel(null)) {
+                for (Channel channel : client.getChannels(null)) {
                     if (channel.getName().equalsIgnoreCase(channelName)) {
                         // If overwriting, use the old revision number and id
                         importChannel.setRevision(channel.getRevision());
