@@ -58,10 +58,10 @@ import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
@@ -848,8 +848,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         for (Connector connector : currentChannel.getDestinationConnectors()) {
             ConnectorProperties destinationConnectorProperties = connector.getProperties();
             
-            if (destinationConnectorProperties instanceof QueueConnectorPropertiesInterface) {
-                QueueConnectorProperties queueConnectorProperties = ((QueueConnectorPropertiesInterface) destinationConnectorProperties).getQueueConnectorProperties();
+            if (destinationConnectorProperties instanceof DispatcherConnectorPropertiesInterface) {
+                QueueConnectorProperties queueConnectorProperties = ((DispatcherConnectorPropertiesInterface) destinationConnectorProperties).getQueueConnectorProperties();
                 
                 if (queueConnectorProperties.isQueueEnabled()) {
                     destinationQueueEnabled = true;

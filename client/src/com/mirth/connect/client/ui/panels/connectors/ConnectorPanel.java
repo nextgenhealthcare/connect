@@ -17,9 +17,9 @@ import javax.swing.border.TitledBorder;
 import com.mirth.connect.client.ui.ChannelSetup;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.model.MessageStorageMode;
 
@@ -50,7 +50,7 @@ public class ConnectorPanel extends JPanel {
         pollingSettingsPanel.setVisible(connectorProperties instanceof PollConnectorPropertiesInterface);
         listenerSettingsPanel.setVisible(connectorProperties instanceof ListenerConnectorPropertiesInterface);
         responseSettingsPanel.setVisible(connectorProperties instanceof ResponseConnectorPropertiesInterface);
-        queueSettingsPanel.setVisible(connectorProperties instanceof QueueConnectorPropertiesInterface);
+        queueSettingsPanel.setVisible(connectorProperties instanceof DispatcherConnectorPropertiesInterface);
     }
 
     private ConnectorSettingsPanel getConnectorSettingsPanel() {
@@ -84,8 +84,8 @@ public class ConnectorPanel extends JPanel {
             responseSettingsPanel.fillProperties(((ResponseConnectorPropertiesInterface) connectorProperties).getResponseConnectorProperties());
         }
 
-        if (connectorProperties instanceof QueueConnectorPropertiesInterface) {
-            queueSettingsPanel.fillProperties(((QueueConnectorPropertiesInterface) connectorProperties).getQueueConnectorProperties());
+        if (connectorProperties instanceof DispatcherConnectorPropertiesInterface) {
+            queueSettingsPanel.fillProperties(((DispatcherConnectorPropertiesInterface) connectorProperties).getQueueConnectorProperties());
         }
 
         return connectorProperties;
@@ -107,9 +107,9 @@ public class ConnectorPanel extends JPanel {
             responseSettingsPanel.setProperties(((ResponseConnectorPropertiesInterface) properties).getResponseConnectorProperties());
         }
 
-        if (properties instanceof QueueConnectorPropertiesInterface) {
+        if (properties instanceof DispatcherConnectorPropertiesInterface) {
             queueSettingsPanel.resetInvalidProperties();
-            queueSettingsPanel.setProperties(((QueueConnectorPropertiesInterface) properties).getQueueConnectorProperties());
+            queueSettingsPanel.setProperties(((DispatcherConnectorPropertiesInterface) properties).getQueueConnectorProperties());
         }
 
         getConnectorSettingsPanel().resetInvalidProperties();
@@ -144,9 +144,9 @@ public class ConnectorPanel extends JPanel {
 
         boolean queue = true;
 
-        if (properties instanceof QueueConnectorPropertiesInterface) {
+        if (properties instanceof DispatcherConnectorPropertiesInterface) {
             queueSettingsPanel.resetInvalidProperties();
-            queue = queueSettingsPanel.checkProperties(((QueueConnectorPropertiesInterface) properties).getQueueConnectorProperties(), highlight);
+            queue = queueSettingsPanel.checkProperties(((DispatcherConnectorPropertiesInterface) properties).getQueueConnectorProperties(), highlight);
         }
 
         connectorSettingsPanel.resetInvalidProperties();

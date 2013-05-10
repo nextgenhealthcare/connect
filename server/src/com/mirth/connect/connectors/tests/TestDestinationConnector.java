@@ -48,9 +48,7 @@ public class TestDestinationConnector extends DestinationConnector {
     }
 
     @Override
-    public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage message) {
-        return new TestConnectorProperties();
-    }
+    public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message) {}
 
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage message) {

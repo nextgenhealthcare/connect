@@ -15,10 +15,10 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 
-public class HttpDispatcherProperties extends ConnectorProperties implements QueueConnectorPropertiesInterface {
+public class HttpDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
 
     private QueueConnectorProperties queueConnectorProperties;
 
@@ -54,6 +54,25 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Que
         this.contentType = "text/plain";
         this.charset = "UTF-8";
         this.socketTimeout = "30000";
+    }
+    
+    public HttpDispatcherProperties(HttpDispatcherProperties props) {
+        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+
+        host = props.getHost();
+        method = props.getMethod();
+        headers = new LinkedHashMap<String, String>(props.getHeaders());
+        parameters = new LinkedHashMap<String, String>(props.getParameters());
+        includeHeadersInResponse = props.isIncludeHeadersInResponse();
+        multipart = props.isMultipart();
+        useAuthentication = props.isUseAuthentication();
+        authenticationType = props.getAuthenticationType();
+        username = props.getUsername();
+        password = props.getPassword();
+        content = props.getContent();
+        contentType = props.getContentType();
+        charset = props.getCharset();
+        socketTimeout = props.getSocketTimeout();
     }
 
     public String getHost() {
@@ -182,25 +201,25 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Que
     public String toFormattedString() {
         StringBuilder builder = new StringBuilder();
         String newLine = "\n";
-        
+
         builder.append("URL: ");
         builder.append(host);
         builder.append(newLine);
-        
+
         builder.append("METHOD: ");
         builder.append(method);
         builder.append(newLine);
-        
+
         if (StringUtils.isNotBlank(username)) {
             builder.append("USERNAME: ");
             builder.append(username);
             builder.append(newLine);
         }
-        
+
         builder.append("METHOD: ");
         builder.append(method);
         builder.append(newLine);
-        
+
         builder.append(newLine);
         builder.append("[HEADERS]");
         for (Map.Entry<String, String> header : headers.entrySet()) {
@@ -208,7 +227,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Que
             builder.append(header.getKey() + ": " + header.getValue());
         }
         builder.append(newLine);
-        
+
         builder.append(newLine);
         builder.append("[PARAMETERS]");
         for (Map.Entry<String, String> parameter : parameters.entrySet()) {
@@ -216,7 +235,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Que
             builder.append(parameter.getKey() + ": " + parameter.getValue());
         }
         builder.append(newLine);
-        
+
         builder.append(newLine);
         builder.append("[CONTENT]");
         builder.append(newLine);
@@ -227,5 +246,10 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Que
     @Override
     public QueueConnectorProperties getQueueConnectorProperties() {
         return queueConnectorProperties;
+    }
+
+    @Override
+    public ConnectorProperties clone() {
+        return new HttpDispatcherProperties(this);
     }
 }

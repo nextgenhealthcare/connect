@@ -12,7 +12,6 @@ package com.mirth.connect.connectors.jms;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
@@ -81,12 +80,10 @@ public class JmsDispatcher extends DestinationConnector {
     }
 
     @Override
-    public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage message) {
-        JmsDispatcherProperties jmsDispatcherProperties = (JmsDispatcherProperties) SerializationUtils.clone((JmsDispatcherProperties) getConnectorProperties());
+    public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message) {
+        JmsDispatcherProperties jmsDispatcherProperties = (JmsDispatcherProperties) connectorProperties;
         jmsDispatcherProperties.setTemplate(replacer.replaceValues(jmsDispatcherProperties.getTemplate(), message));
         jmsDispatcherProperties.setDestinationName(replacer.replaceValues(jmsDispatcherProperties.getDestinationName(), message));
-
-        return jmsDispatcherProperties;
     }
 
     @Override

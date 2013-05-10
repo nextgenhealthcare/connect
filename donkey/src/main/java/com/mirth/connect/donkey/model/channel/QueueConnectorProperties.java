@@ -27,6 +27,15 @@ public class QueueConnectorProperties implements Serializable {
         retryCount = 0;
         rotate = false;
     }
+    
+    public QueueConnectorProperties(QueueConnectorProperties props) {
+        queueEnabled = props.isQueueEnabled();
+        sendFirst = props.isSendFirst();
+        retryIntervalMillis = props.getRetryIntervalMillis();
+        regenerateTemplate = props.isRegenerateTemplate();
+        retryCount = props.getRetryCount();
+        rotate = props.isRotate();
+    }
 
     public boolean isQueueEnabled() {
         return queueEnabled;

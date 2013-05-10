@@ -18,8 +18,8 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
@@ -49,7 +49,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private DonkeyDaoFactory daoFactory;
     private Logger logger = Logger.getLogger(getClass());
 
-    public abstract ConnectorProperties getReplacedConnectorProperties(ConnectorMessage message);
+    public abstract void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message);
 
     public abstract Response send(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException;
 
@@ -94,8 +94,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
     public void setConnectorProperties(ConnectorProperties connectorProperties) {
         super.setConnectorProperties(connectorProperties);
 
-        if (connectorProperties instanceof QueueConnectorPropertiesInterface) {
-            this.queueProperties = ((QueueConnectorPropertiesInterface) connectorProperties).getQueueConnectorProperties();
+        if (connectorProperties instanceof DispatcherConnectorPropertiesInterface) {
+            this.queueProperties = ((DispatcherConnectorPropertiesInterface) connectorProperties).getQueueConnectorProperties();
         }
     }
 
@@ -209,7 +209,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
             ThreadUtils.checkInterruptedStatus();
 
             // have the connector generate the connector envelope and store it in the message
-            connectorProperties = getReplacedConnectorProperties(message);
+            connectorProperties = ((DispatcherConnectorPropertiesInterface) getConnectorProperties()).clone();
+            replaceConnectorProperties(connectorProperties, message);
 
             if (storageSettings.isStoreSent()) {
                 ThreadUtils.checkInterruptedStatus();
@@ -306,7 +307,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
                         // Generate the template if we are regenerating, or if this is the first send attempt (in which case the sent content should be null).
                         if (queueProperties.isRegenerateTemplate() || connectorMessage.getSent() == null) {
                             ThreadUtils.checkInterruptedStatus();
-                            connectorProperties = getReplacedConnectorProperties(connectorMessage);
+                            connectorProperties = ((DispatcherConnectorPropertiesInterface) getConnectorProperties()).clone();
+                            replaceConnectorProperties(connectorProperties, connectorMessage);
                             MessageContent sentContent = getSentContent(connectorMessage, connectorProperties);
                             connectorMessage.setSent(sentContent);
 

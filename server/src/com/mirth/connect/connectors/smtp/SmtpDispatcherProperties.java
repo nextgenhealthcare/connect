@@ -17,11 +17,11 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 import com.mirth.connect.util.CharsetUtils;
 
-public class SmtpDispatcherProperties extends ConnectorProperties implements QueueConnectorPropertiesInterface {
+public class SmtpDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
 
     private QueueConnectorProperties queueConnectorProperties;
 
@@ -65,6 +65,33 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Que
         this.html = false;
         this.body = "";
         this.attachments = new ArrayList<Attachment>();
+    }
+    
+    public SmtpDispatcherProperties(SmtpDispatcherProperties props) {
+        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+
+        smtpHost = props.getSmtpHost();
+        smtpPort = props.getSmtpPort();
+        timeout = props.getTimeout();
+        encryption = props.getEncryption();
+        authentication = props.isAuthentication();
+        username = props.getUsername();
+        password = props.getPassword();
+        to = props.getTo();
+        from = props.getFrom();
+        cc = props.getCc();
+        bcc = props.getBcc();
+        replyTo = props.getReplyTo();
+        headers = new LinkedHashMap<String, String>(props.getHeaders());
+        subject = props.getSubject();
+        charsetEncoding = props.getCharsetEncoding();
+        html = props.isHtml();
+        body = props.getBody();
+        
+        attachments = new ArrayList<Attachment>();
+        for (Attachment attachment : props.getAttachments()) {
+            attachments.add(new Attachment(attachment));
+        }
     }
 
     public String getSmtpHost() {
@@ -225,33 +252,33 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Que
     public String toFormattedString() {
         StringBuilder builder = new StringBuilder();
         String newLine = "\n";
-        
+
         builder.append("HOST: ");
         builder.append(smtpHost + ":" + smtpPort);
         builder.append(newLine);
-        
+
         if (StringUtils.isNotBlank(username)) {
             builder.append("USERNAME: ");
             builder.append(username);
             builder.append(newLine);
         }
-        
+
         builder.append("TO: ");
         builder.append(to);
         builder.append(newLine);
-        
+
         builder.append("FROM: ");
         builder.append(from);
         builder.append(newLine);
-        
+
         builder.append("CC: ");
         builder.append(cc);
         builder.append(newLine);
-        
+
         builder.append("SUBJECT: ");
         builder.append(subject);
         builder.append(newLine);
-        
+
         builder.append(newLine);
         builder.append("[HEADERS]");
         for (Map.Entry<String, String> header : headers.entrySet()) {
@@ -259,10 +286,10 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Que
             builder.append(header.getKey() + ": " + header.getValue());
         }
         builder.append(newLine);
-        
+
         builder.append(newLine);
         builder.append("[ATTACHMENTS]");
-        for (Attachment attachment: attachments) {
+        for (Attachment attachment : attachments) {
             builder.append(newLine);
             builder.append(attachment.getName());
             builder.append(" (");
@@ -270,7 +297,7 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Que
             builder.append(")");
         }
         builder.append(newLine);
-        
+
         builder.append(newLine);
         builder.append("[CONTENT]");
         builder.append(newLine);
@@ -281,5 +308,10 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Que
     @Override
     public QueueConnectorProperties getQueueConnectorProperties() {
         return queueConnectorProperties;
+    }
+
+    @Override
+    public ConnectorProperties clone() {
+        return new SmtpDispatcherProperties(this);
     }
 }

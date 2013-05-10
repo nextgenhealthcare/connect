@@ -43,9 +43,7 @@ public class TestChannelWriter extends DestinationConnector {
     public void onStop() throws StopException {}
 
     @Override
-    public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage message) {
-        return null;
-    }
+    public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message) {}
 
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage message) {

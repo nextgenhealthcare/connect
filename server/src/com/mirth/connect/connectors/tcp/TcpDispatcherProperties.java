@@ -10,15 +10,15 @@
 package com.mirth.connect.connectors.tcp;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.model.transmission.framemode.FrameModeProperties;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.TcpUtil;
 
 @SuppressWarnings("serial")
-public class TcpDispatcherProperties extends ConnectorProperties implements QueueConnectorPropertiesInterface {
+public class TcpDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
 
     private QueueConnectorProperties queueConnectorProperties;
 
@@ -63,6 +63,27 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
         this.dataTypeBinary = false;
         this.charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
         this.template = "${message.encodedData}";
+    }
+    
+    public TcpDispatcherProperties(TcpDispatcherProperties props) {
+        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+
+        transmissionModeProperties = props.getTransmissionModeProperties();
+        
+        remoteAddress = props.getRemoteAddress();
+        remotePort = props.getRemotePort();
+        overrideLocalBinding = props.isOverrideLocalBinding();
+        localAddress = props.getLocalAddress();
+        localPort = props.getLocalPort();
+        sendTimeout = props.getSendTimeout();
+        bufferSize = props.getBufferSize();
+        keepConnectionOpen = props.isKeepConnectionOpen();
+        responseTimeout = props.getResponseTimeout();
+        ignoreResponse = props.isIgnoreResponse();
+        processHL7ACK = props.isProcessHL7ACK();
+        dataTypeBinary = props.isDataTypeBinary();
+        charsetEncoding = props.getCharsetEncoding();
+        template = props.getTemplate();
     }
 
     public TransmissionModeProperties getTransmissionModeProperties() {
@@ -185,10 +206,6 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
         this.template = template;
     }
 
-    public void setQueueConnectorProperties(QueueConnectorProperties queueConnectorProperties) {
-        this.queueConnectorProperties = queueConnectorProperties;
-    }
-
     @Override
     public String getProtocol() {
         return PROTOCOL;
@@ -224,5 +241,10 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
     @Override
     public QueueConnectorProperties getQueueConnectorProperties() {
         return queueConnectorProperties;
+    }
+
+    @Override
+    public ConnectorProperties clone() {
+        return new TcpDispatcherProperties(this);
     }
 }

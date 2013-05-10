@@ -43,6 +43,21 @@ public class JmsConnectorProperties extends ConnectorProperties {
         reconnectIntervalMillis = "10000";
         clientId = "";
     }
+    
+    protected JmsConnectorProperties(JmsConnectorProperties props) {
+        useJndi = props.isUseJndi();
+        jndiProviderUrl = props.getJndiProviderUrl();
+        jndiInitialContextFactory = props.getJndiInitialContextFactory();
+        jndiConnectionFactoryName = props.getJndiConnectionFactoryName();
+        connectionFactoryClass = props.getConnectionFactoryClass();
+        connectionProperties = props.getConnectionProperties();
+        username = props.getUsername();
+        password = props.getPassword();
+        destinationName = props.getDestinationName();
+        topic = props.isTopic();
+        reconnectIntervalMillis = props.getReconnectIntervalMillis();
+        clientId = props.getClientId();
+    }
 
     @Override
     public String getName() {

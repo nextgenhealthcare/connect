@@ -15,10 +15,10 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 
-public class WebServiceDispatcherProperties extends ConnectorProperties implements QueueConnectorPropertiesInterface {
+public class WebServiceDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
 
     private QueueConnectorProperties queueConnectorProperties;
 
@@ -64,6 +64,29 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         this.attachmentContents = new ArrayList<String>();
         this.attachmentTypes = new ArrayList<String>();
         this.soapAction = "";
+    }
+    
+    public WebServiceDispatcherProperties(WebServiceDispatcherProperties props) {
+        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+
+        wsdlUrl = props.getWsdlUrl();
+        wsdlCacheId = props.getWsdlCacheId();
+        operation = props.getOperation();
+        
+        wsdlOperations = props.getWsdlOperations();
+        
+        service = props.getService();
+        port = props.getPort();
+        useAuthentication = props.isUseAuthentication();
+        username = props.getUsername();
+        password = props.getPassword();
+        envelope = props.getEnvelope();
+        oneWay = props.isOneWay();
+        useMtom = props.isUseMtom();
+        attachmentNames = new ArrayList<String>(props.getAttachmentNames());
+        attachmentContents = new ArrayList<String>(props.getAttachmentContents());
+        attachmentTypes = new ArrayList<String>(props.getAttachmentTypes());
+        soapAction = props.getSoapAction();
     }
 
     public String getWsdlUrl() {
@@ -208,29 +231,29 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     public String toFormattedString() {
         StringBuilder builder = new StringBuilder();
         String newLine = "\n";
-        
+
         builder.append("URL: ");
         builder.append(wsdlUrl + ":" + port);
         builder.append(newLine);
-        
+
         if (StringUtils.isNotBlank(username)) {
             builder.append("USERNAME: ");
             builder.append(username);
             builder.append(newLine);
         }
-        
+
         if (StringUtils.isNotBlank(service)) {
             builder.append("SERVICE: ");
             builder.append(service);
             builder.append(newLine);
         }
-        
+
         if (StringUtils.isNotBlank(soapAction)) {
             builder.append("SOAP ACTION: ");
             builder.append(soapAction);
             builder.append(newLine);
         }
-        
+
         builder.append(newLine);
         builder.append("[ATTACHMENTS]");
         for (int i = 0; i < attachmentNames.size(); i++) {
@@ -241,7 +264,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
             builder.append(")");
         }
         builder.append(newLine);
-        
+
         builder.append(newLine);
         builder.append("[CONTENT]");
         builder.append(newLine);
@@ -252,5 +275,10 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     @Override
     public QueueConnectorProperties getQueueConnectorProperties() {
         return queueConnectorProperties;
+    }
+
+    @Override
+    public ConnectorProperties clone() {
+        return new WebServiceDispatcherProperties(this);
     }
 }

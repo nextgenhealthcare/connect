@@ -42,7 +42,6 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -182,8 +181,8 @@ public class WebServiceDispatcher extends DestinationConnector {
     }
 
     @Override
-    public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage connectorMessage) {
-        WebServiceDispatcherProperties webServiceDispatcherProperties = (WebServiceDispatcherProperties) SerializationUtils.clone(connectorProperties);
+    public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {
+        WebServiceDispatcherProperties webServiceDispatcherProperties = (WebServiceDispatcherProperties) connectorProperties;
 
         // Replace all values in connector properties
         webServiceDispatcherProperties.setWsdlUrl(replacer.replaceValues(webServiceDispatcherProperties.getWsdlUrl(), connectorMessage));
@@ -200,8 +199,6 @@ public class WebServiceDispatcher extends DestinationConnector {
             replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentContents(), connectorMessage);
             replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentTypes(), connectorMessage);
         }
-
-        return webServiceDispatcherProperties;
     }
 
     @Override

@@ -15,6 +15,14 @@ public class Attachment implements Serializable {
     private String name;
     private String content;
     private String mimeType;
+    
+    public Attachment() {} 
+    
+    public Attachment(Attachment attachment) {
+        name = attachment.getName();
+        content = attachment.getContent();
+        mimeType = attachment.getMimeType();
+    }
 
     public String getName() {
         return name;

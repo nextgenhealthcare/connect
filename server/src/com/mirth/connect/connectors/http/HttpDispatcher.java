@@ -34,7 +34,6 @@ import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
@@ -101,8 +100,8 @@ public class HttpDispatcher extends DestinationConnector {
     public void onStop() throws StopException {}
 
     @Override
-    public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage connectorMessage) {
-        HttpDispatcherProperties httpDispatcherProperties = (HttpDispatcherProperties) SerializationUtils.clone(connectorProperties);
+    public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {
+        HttpDispatcherProperties httpDispatcherProperties = (HttpDispatcherProperties) connectorProperties;
 
         // Replace all values in connector properties
         httpDispatcherProperties.setHost(replacer.replaceValues(httpDispatcherProperties.getHost(), connectorMessage));
@@ -113,8 +112,6 @@ public class HttpDispatcher extends DestinationConnector {
         httpDispatcherProperties.setContent(replacer.replaceValues(httpDispatcherProperties.getContent(), connectorMessage));
         httpDispatcherProperties.setContentType(replacer.replaceValues(httpDispatcherProperties.getContentType(), connectorMessage));
         httpDispatcherProperties.setSocketTimeout(replacer.replaceValues(httpDispatcherProperties.getSocketTimeout(), connectorMessage));
-
-        return httpDispatcherProperties;
     }
 
     @Override

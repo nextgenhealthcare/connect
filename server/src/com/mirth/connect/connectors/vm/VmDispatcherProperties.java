@@ -10,10 +10,10 @@
 package com.mirth.connect.connectors.vm;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 
-public class VmDispatcherProperties extends ConnectorProperties implements QueueConnectorPropertiesInterface {
+public class VmDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
     private QueueConnectorProperties queueConnectorProperties;
 
     private String channelId;
@@ -24,6 +24,13 @@ public class VmDispatcherProperties extends ConnectorProperties implements Queue
 
         this.channelId = "none";
         this.channelTemplate = "${message.encodedData}";
+    }
+    
+    public VmDispatcherProperties(VmDispatcherProperties props) {
+        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+
+        channelId = props.getChannelId();
+        channelTemplate = props.getChannelTemplate();
     }
 
     public String getChannelId() {
@@ -72,4 +79,8 @@ public class VmDispatcherProperties extends ConnectorProperties implements Queue
         return queueConnectorProperties;
     }
 
+    @Override
+    public ConnectorProperties clone() {
+        return new VmDispatcherProperties(this);
+    }
 }

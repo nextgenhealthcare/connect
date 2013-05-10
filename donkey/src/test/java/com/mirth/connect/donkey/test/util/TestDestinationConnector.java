@@ -12,8 +12,6 @@ package com.mirth.connect.donkey.test.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.SerializationUtils;
-
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
@@ -74,7 +72,5 @@ public class TestDestinationConnector extends DestinationConnector {
     public void onStop() throws StopException {}
 
     @Override
-    public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage message) {
-        return (ConnectorProperties) SerializationUtils.clone(connectorProperties);
-    }
+    public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message) {}
 }

@@ -10,10 +10,10 @@
 package com.mirth.connect.connectors.doc;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 
-public class DocumentDispatcherProperties extends ConnectorProperties implements QueueConnectorPropertiesInterface {
+public class DocumentDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
 
     private QueueConnectorProperties queueConnectorProperties;
 
@@ -23,7 +23,7 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
     private boolean encrypt;
     private String password;
     private String template;
-    
+
     public static final String DOCUMENT_TYPE_PDF = "pdf";
     public static final String DOCUMENT_TYPE_RTF = "rtf";
 
@@ -36,6 +36,17 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
         this.encrypt = false;
         this.password = "";
         this.template = "";
+    }
+    
+    public DocumentDispatcherProperties(DocumentDispatcherProperties props) {
+        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+
+        host = props.getHost();
+        outputPattern = props.getOutputPattern();
+        documentType = props.getDocumentType();
+        encrypt = props.isEncrypt();
+        password = props.getPassword();
+        template = props.getTemplate();
     }
 
     public String getHost() {
@@ -103,11 +114,11 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
         builder.append("URI: ");
         builder.append(host + outputPattern);
         builder.append(newLine);
-        
+
         builder.append("DOCUMENT TYPE: ");
         builder.append(documentType);
         builder.append(newLine);
-        
+
         builder.append(newLine);
         builder.append("[CONTENT]");
         builder.append(newLine);
@@ -118,5 +129,10 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
     @Override
     public QueueConnectorProperties getQueueConnectorProperties() {
         return queueConnectorProperties;
+    }
+
+    @Override
+    public ConnectorProperties clone() {
+        return new DocumentDispatcherProperties(this);
     }
 }

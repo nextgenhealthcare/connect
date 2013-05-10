@@ -15,7 +15,6 @@ import java.io.InputStream;
 import java.net.URI;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
@@ -97,16 +96,14 @@ public class FileDispatcher extends DestinationConnector {
     }
 
     @Override
-    public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage connectorMessage) {
-        FileDispatcherProperties fileDispatcherProperties = (FileDispatcherProperties) SerializationUtils.clone(connectorProperties);
+    public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {
+        FileDispatcherProperties fileDispatcherProperties = (FileDispatcherProperties) connectorProperties;
 
         fileDispatcherProperties.setHost(replacer.replaceValues(fileDispatcherProperties.getHost(), connectorMessage));
         fileDispatcherProperties.setOutputPattern(replacer.replaceValues(fileDispatcherProperties.getOutputPattern(), connectorMessage));
         fileDispatcherProperties.setUsername(replacer.replaceValues(fileDispatcherProperties.getUsername(), connectorMessage));
         fileDispatcherProperties.setPassword(replacer.replaceValues(fileDispatcherProperties.getPassword(), connectorMessage));
         fileDispatcherProperties.setTemplate(replacer.replaceValues(fileDispatcherProperties.getTemplate(), connectorMessage));
-
-        return fileDispatcherProperties;
     }
 
     @Override

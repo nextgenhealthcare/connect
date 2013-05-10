@@ -9,10 +9,11 @@
 
 package com.mirth.connect.connectors.jms;
 
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 
-public class JmsDispatcherProperties extends JmsConnectorProperties implements QueueConnectorPropertiesInterface {
+public class JmsDispatcherProperties extends JmsConnectorProperties implements DispatcherConnectorPropertiesInterface {
     private static final String NAME = "JMS Sender";
     private static final String PROTOCOL = "JMS";
 
@@ -23,6 +24,12 @@ public class JmsDispatcherProperties extends JmsConnectorProperties implements Q
         super();
         template = "${message.encodedData}";
         queueConnectorProperties = new QueueConnectorProperties();
+    }
+    
+    public JmsDispatcherProperties(JmsDispatcherProperties props) {
+        super(props);
+        template = props.getTemplate();
+        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
     }
 
     @Override
@@ -51,5 +58,10 @@ public class JmsDispatcherProperties extends JmsConnectorProperties implements Q
     @Override
     public QueueConnectorProperties getQueueConnectorProperties() {
         return queueConnectorProperties;
+    }
+
+    @Override
+    public ConnectorProperties clone() {
+        return new JmsDispatcherProperties(this);
     }
 }

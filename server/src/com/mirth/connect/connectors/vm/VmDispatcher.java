@@ -10,7 +10,6 @@
 package com.mirth.connect.connectors.vm;
 
 import org.apache.commons.codec.binary.StringUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -67,13 +66,11 @@ public class VmDispatcher extends DestinationConnector {
     }
 
     @Override
-    public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage connectorMessage) {
-        VmDispatcherProperties vmDispatcherProperties = (VmDispatcherProperties) SerializationUtils.clone(connectorProperties);
+    public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {
+        VmDispatcherProperties vmDispatcherProperties = (VmDispatcherProperties) connectorProperties;
 
         vmDispatcherProperties.setChannelId(replacer.replaceValues(vmDispatcherProperties.getChannelId(), connectorMessage));
         vmDispatcherProperties.setChannelTemplate(replacer.replaceValues(vmDispatcherProperties.getChannelTemplate(), connectorMessage));
-
-        return vmDispatcherProperties;
     }
 
     @Override

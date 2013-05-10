@@ -10,10 +10,10 @@
 package com.mirth.connect.connectors.jdbc;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 
-public class DatabaseDispatcherProperties extends ConnectorProperties implements QueueConnectorPropertiesInterface {
+public class DatabaseDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
     public static final String NAME = "Database Writer";
 
     private QueueConnectorProperties queueConnectorProperties;
@@ -37,6 +37,17 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
         this.password = "";
         this.query = "";
         this.useScript = false;
+    }
+    
+    public DatabaseDispatcherProperties(DatabaseDispatcherProperties props) {
+        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+
+        this.driver = props.getDriver();
+        this.url = props.getUrl();
+        this.username = props.getUsername();
+        this.password = props.getPassword();
+        this.query = props.getQuery();
+        this.useScript = props.isUseScript();
     }
 
     @Override
@@ -135,5 +146,10 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
 
     public void setUseScript(boolean useScript) {
         this.useScript = useScript;
+    }
+
+    @Override
+    public ConnectorProperties clone() {
+        return new DatabaseDispatcherProperties(this);
     }
 }

@@ -12,7 +12,6 @@ package com.mirth.connect.connectors.jdbc;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
@@ -72,8 +71,8 @@ public class DatabaseDispatcher extends DestinationConnector {
     public void onStop() {}
 
     @Override
-    public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage message) {
-        DatabaseDispatcherProperties databaseDispatcherProperties = (DatabaseDispatcherProperties) SerializationUtils.clone((DatabaseDispatcherProperties) getConnectorProperties());
+    public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message) {
+        DatabaseDispatcherProperties databaseDispatcherProperties = (DatabaseDispatcherProperties) connectorProperties;
         databaseDispatcherProperties.setUrl(replacer.replaceValues(databaseDispatcherProperties.getUrl(), message));
         databaseDispatcherProperties.setUsername(replacer.replaceValues(databaseDispatcherProperties.getUsername(), message));
         databaseDispatcherProperties.setPassword(replacer.replaceValues(databaseDispatcherProperties.getPassword(), message));
@@ -88,8 +87,6 @@ public class DatabaseDispatcher extends DestinationConnector {
          */
         databaseDispatcherProperties.setQuery(JdbcUtils.extractParameters(databaseDispatcherProperties.getQuery(), paramNames));
         databaseDispatcherProperties.setParameters(JdbcUtils.getParameters(paramNames, getChannelId(), message, null));
-
-        return databaseDispatcherProperties;
     }
 
     @Override

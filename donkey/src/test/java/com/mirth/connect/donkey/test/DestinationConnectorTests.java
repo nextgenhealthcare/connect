@@ -24,8 +24,8 @@ import org.junit.Test;
 
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
@@ -549,9 +549,9 @@ public class DestinationConnectorTests {
         if (finalResponse.getStatus() != Status.ERROR && finalResponse.getStatus() != Status.SENT && finalResponse.getStatus() != Status.QUEUED) {
             // If the response is invalid for a final destination finalResponse.getStatus(), change the status to ERROR
             finalResponse.setStatus(Status.ERROR);
-        } else if (channel.getDestinationConnector(1).getConnectorProperties() instanceof QueueConnectorPropertiesInterface) {
+        } else if (channel.getDestinationConnector(1).getConnectorProperties() instanceof DispatcherConnectorPropertiesInterface) {
             // If the destination connector isn't queuing, and the response status is QUEUED, then it should have changed to ERROR
-            QueueConnectorProperties queueProperties = ((QueueConnectorPropertiesInterface) channel.getDestinationConnector(1).getConnectorProperties()).getQueueConnectorProperties();
+            QueueConnectorProperties queueProperties = ((DispatcherConnectorPropertiesInterface) channel.getDestinationConnector(1).getConnectorProperties()).getQueueConnectorProperties();
             if ((queueProperties == null || !queueProperties.isQueueEnabled()) && finalResponse.getStatus() == Status.QUEUED) {
                 finalResponse.setStatus(Status.ERROR);
             }

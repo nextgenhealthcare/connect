@@ -10,11 +10,11 @@
 package com.mirth.connect.donkey.test.util;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 
 @SuppressWarnings("serial")
-public class TestConnectorProperties extends ConnectorProperties implements QueueConnectorPropertiesInterface {
+public class TestConnectorProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
     private QueueConnectorProperties queueConnectorProperties = new QueueConnectorProperties();
 
     @Override
@@ -35,5 +35,10 @@ public class TestConnectorProperties extends ConnectorProperties implements Queu
     @Override
     public QueueConnectorProperties getQueueConnectorProperties() {
         return queueConnectorProperties;
+    }
+    
+    @Override
+    public ConnectorProperties clone() {
+        return this;
     }
 }

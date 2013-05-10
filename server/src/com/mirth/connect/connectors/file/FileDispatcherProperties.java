@@ -10,11 +10,11 @@
 package com.mirth.connect.connectors.file;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 import com.mirth.connect.util.CharsetUtils;
 
-public class FileDispatcherProperties extends ConnectorProperties implements QueueConnectorPropertiesInterface {
+public class FileDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
     public static final String NAME = "File Writer";
 
     private QueueConnectorProperties queueConnectorProperties;
@@ -55,6 +55,27 @@ public class FileDispatcherProperties extends ConnectorProperties implements Que
         binary = false;
         charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
         template = "";
+    }
+    
+    public FileDispatcherProperties(FileDispatcherProperties props) {
+        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+        
+        scheme = props.getScheme();
+        host = props.getHost();
+        outputPattern = props.getOutputPattern();
+        anonymous = props.isAnonymous();
+        username = props.getUsername();
+        password = props.getPassword();
+        timeout = props.getTimeout();
+        secure = props.isSecure();
+        passive = props.isPassive();
+        validateConnection = props.isValidateConnection();
+        outputAppend = props.isOutputAppend();
+        errorOnExists = props.isErrorOnExists();
+        temporary = props.isTemporary();
+        binary = props.isBinary();
+        charsetEncoding = props.getCharsetEncoding();
+        template = props.getTemplate();
     }
 
     public FileScheme getScheme() {
@@ -242,11 +263,16 @@ public class FileDispatcherProperties extends ConnectorProperties implements Que
                 builder.append("http://");
             }
         }
-        
+
         builder.append(host);
         if (host.charAt(host.length() - 1) != '/') {
             builder.append("/");
         }
         builder.append(outputPattern);
+    }
+
+    @Override
+    public ConnectorProperties clone() {
+        return new FileDispatcherProperties(this);
     }
 }

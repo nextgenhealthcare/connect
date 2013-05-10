@@ -10,10 +10,10 @@
 package com.mirth.connect.connectors.dimse;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 
-public class DICOMDispatcherProperties extends ConnectorProperties implements QueueConnectorPropertiesInterface {
+public class DICOMDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
     
     private QueueConnectorProperties queueConnectorProperties;
     
@@ -96,6 +96,49 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Qu
         localHost = "";
         localPort = "";
         localApplicationEntity = "";
+    }
+    
+    public DICOMDispatcherProperties(DICOMDispatcherProperties props) {
+        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+        
+        host = props.getHost();
+        port = props.getPort();
+        template = props.getTemplate();
+        acceptTo = props.getAcceptTo();
+        async = props.getAsync();
+        bufSize = props.getBufSize();
+        connectTo = props.getConnectTo();
+        priority = props.getPriority();
+        passcode = props.getPasscode();
+        pdv1 = props.isPdv1();
+        rcvpdulen = props.getRcvpdulen();
+        reaper = props.getReaper();
+        releaseTo = props.getReleaseTo();
+        rspTo = props.getRspTo();
+        shutdownDelay = props.getShutdownDelay();
+        sndpdulen = props.getSndpdulen();
+        soCloseDelay = props.getSoCloseDelay();
+        sorcvbuf = props.getSorcvbuf();
+        sosndbuf = props.getSosndbuf();
+        stgcmt = props.isStgcmt();
+        tcpDelay = props.isTcpDelay();
+        ts1 = props.isTs1();
+        uidnegrsp = props.isUidnegrsp();
+        username = props.getUsername();
+        applicationEntity = props.getApplicationEntity();
+        
+        keyPW = props.getKeyPW();
+        keyStore = props.getKeyStore();
+        keyStorePW = props.getKeyStorePW();
+        noClientAuth = props.isNoClientAuth();
+        nossl2 = props.isNossl2();
+        tls = props.getTls();
+        trustStore = props.getTrustStore();
+        trustStorePW = props.getTrustStorePW();
+        
+        localHost = props.getLocalHost();
+        localPort = props.getLocalPort();
+        localApplicationEntity = props.getLocalApplicationEntity();
     }
 
     public String getHost() {
@@ -386,10 +429,6 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Qu
         this.trustStorePW = trustStorePW;
     }
 
-    public void setQueueConnectorProperties(QueueConnectorProperties queueConnectorProperties) {
-        this.queueConnectorProperties = queueConnectorProperties;
-    }
-
     @Override
     public QueueConnectorProperties getQueueConnectorProperties() {
         return queueConnectorProperties;
@@ -418,6 +457,11 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Qu
         builder.append(newLine);
         builder.append(template);
         return builder.toString();
+    }
+
+    @Override
+    public ConnectorProperties clone() {
+        return new DICOMDispatcherProperties(this);
     }
 
 }

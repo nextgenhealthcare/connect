@@ -19,7 +19,6 @@ import java.io.StringReader;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.log4j.Logger;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 import org.xml.sax.InputSource;
@@ -81,15 +80,13 @@ public class DocumentDispatcher extends DestinationConnector {
     }
 
     @Override
-    public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage connectorMessage) {
-        DocumentDispatcherProperties documentDispatcherProperties = (DocumentDispatcherProperties) SerializationUtils.clone(connectorProperties);
+    public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {
+        DocumentDispatcherProperties documentDispatcherProperties = (DocumentDispatcherProperties) connectorProperties;
 
         documentDispatcherProperties.setHost(replacer.replaceValues(documentDispatcherProperties.getHost(), connectorMessage));
         documentDispatcherProperties.setOutputPattern(replacer.replaceValues(documentDispatcherProperties.getOutputPattern(), connectorMessage));
         documentDispatcherProperties.setPassword(replacer.replaceValues(documentDispatcherProperties.getPassword(), connectorMessage));
         documentDispatcherProperties.setTemplate(replacer.replaceValues(documentDispatcherProperties.getTemplate(), connectorMessage));
-
-        return documentDispatcherProperties;
     }
 
     @Override

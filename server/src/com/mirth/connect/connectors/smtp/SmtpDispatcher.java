@@ -11,7 +11,6 @@ package com.mirth.connect.connectors.smtp;
 
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.ByteArrayDataSource;
 import org.apache.commons.mail.Email;
@@ -69,8 +68,8 @@ public class SmtpDispatcher extends DestinationConnector {
     public void onStop() throws StopException {}
 
     @Override
-    public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage connectorMessage) {
-        SmtpDispatcherProperties smtpDispatcherProperties = (SmtpDispatcherProperties) SerializationUtils.clone(connectorProperties);
+    public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {
+        SmtpDispatcherProperties smtpDispatcherProperties = (SmtpDispatcherProperties) connectorProperties;
 
         // Replace all values in connector properties
         smtpDispatcherProperties.setSmtpHost(replacer.replaceValues(smtpDispatcherProperties.getSmtpHost(), connectorMessage));
@@ -99,8 +98,6 @@ public class SmtpDispatcher extends DestinationConnector {
             attachment.setMimeType(replacer.replaceValues(attachment.getMimeType(), connectorMessage));
             attachment.setContent(replacer.replaceValues(attachment.getContent(), connectorMessage));
         }
-
-        return smtpDispatcherProperties;
     }
 
     @Override

@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
@@ -89,9 +88,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
     public void onStop() throws StopException {}
 
     @Override
-    public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage message) {
-        return (ConnectorProperties) SerializationUtils.clone(connectorProperties);
-    }
+    public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message) {}
 
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException {

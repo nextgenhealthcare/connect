@@ -10,10 +10,10 @@
 package com.mirth.connect.connectors.js;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 
-public class JavaScriptDispatcherProperties extends ConnectorProperties implements QueueConnectorPropertiesInterface {
+public class JavaScriptDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
     public static final String NAME = "JavaScript Writer";
 
     private QueueConnectorProperties queueConnectorProperties;
@@ -23,6 +23,12 @@ public class JavaScriptDispatcherProperties extends ConnectorProperties implemen
         queueConnectorProperties = new QueueConnectorProperties();
 
         script = "";
+    }
+    
+    public JavaScriptDispatcherProperties(JavaScriptDispatcherProperties props) {
+        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+
+        script = props.getScript();
     }
 
     @Override
@@ -51,5 +57,10 @@ public class JavaScriptDispatcherProperties extends ConnectorProperties implemen
     @Override
     public QueueConnectorProperties getQueueConnectorProperties() {
         return queueConnectorProperties;
+    }
+
+    @Override
+    public ConnectorProperties clone() {
+        return new JavaScriptDispatcherProperties(this);
     }
 }
