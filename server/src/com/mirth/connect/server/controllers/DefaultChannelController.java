@@ -169,15 +169,16 @@ public class DefaultChannelController extends ChannelController {
     }
 
     @Override
-    public Set<String> getChannelTags() {
-        return getChannelTags(null);
-    }
-
-    @Override
     public Set<String> getChannelTags(Set<String> channelIds) {
-        logger.debug("getting channel tags");
-        List<String> tags = SqlConfig.getSqlSessionManager().selectList("Channel.getAllChannelTags", channelIds);
-        return new LinkedHashSet<String>(tags);
+        
+        Set<String> channelTags = new LinkedHashSet<String>();
+        List<Channel> channels = getChannels(channelIds);
+        
+        for (Channel channel : channels) {
+            channelTags.addAll(channel.getProperties().getTags());
+        }
+        
+        return channelTags;
     }
 
     @Override
@@ -260,17 +261,8 @@ public class DefaultChannelController extends ChannelController {
                 SqlConfig.getSqlSessionManager().update("Channel.updateChannel", channel);
             }
 
-            // update channel tags
-            logger.debug("updating channel tags");
-            SqlConfig.getSqlSessionManager().update("Channel.deleteChannelTags", channel.getId());
-
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("channelId", channel.getId());
-
-            for (String tag : channel.getTags()) {
-                params.put("tag", tag);
-                SqlConfig.getSqlSessionManager().update("Channel.insertChannelTag", params);
-            }
 
             // invoke the channel plugins
             for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {

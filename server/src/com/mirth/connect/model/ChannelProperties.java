@@ -11,7 +11,9 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
@@ -26,6 +28,7 @@ public class ChannelProperties implements Serializable {
     private boolean removeAttachmentsOnCompletion;
     private boolean initialStateStarted;
     private boolean storeAttachments;
+    private Set<String> tags;
     private List<MetaDataColumn> metaDataColumns;
     private AttachmentHandlerProperties attachmentProperties;
     private Integer pruneMetaDataDays;
@@ -37,6 +40,7 @@ public class ChannelProperties implements Serializable {
         messageStorageMode = MessageStorageMode.DEVELOPMENT;
         encryptData = false;
         initialStateStarted = true;
+        tags = new LinkedHashSet<String>();
         metaDataColumns = new ArrayList<MetaDataColumn>();
         attachmentProperties = AttachmentHandlerFactory.getDefaults(AttachmentHandlerType.NONE);
         archiveEnabled = true;
@@ -96,6 +100,14 @@ public class ChannelProperties implements Serializable {
 
     public void setStoreAttachments(boolean storeAttachments) {
         this.storeAttachments = storeAttachments;
+    }
+
+    public Set<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<String> tags) {
+        this.tags = tags;
     }
 
     public List<MetaDataColumn> getMetaDataColumns() {

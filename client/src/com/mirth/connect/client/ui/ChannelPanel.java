@@ -335,7 +335,7 @@ public class ChannelPanel extends javax.swing.JPanel {
             int enabled = 0;
 
             for (Channel channel : channels) {
-                if (!tagFilterEnabled || CollectionUtils.containsAny(visibleTags, channel.getTags())) {
+                if (!tagFilterEnabled || CollectionUtils.containsAny(visibleTags, channel.getProperties().getTags())) {
                     filteredChannels.add(channel);
 
                     if (channel.isEnabled()) {

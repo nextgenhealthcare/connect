@@ -144,19 +144,19 @@ public class ChannelSetup extends javax.swing.JPanel {
         DefaultTableModel model = (DefaultTableModel) tagTable.getModel();
         model.setRowCount(0);
 
-        for (String tag : currentChannel.getTags()) {
+        for (String tag : currentChannel.getProperties().getTags()) {
             model.addRow(new Object[] { tag });
         }
     }
 
     private void saveChannelTags() {
-        currentChannel.getTags().clear();
+        currentChannel.getProperties().getTags().clear();
 
         DefaultTableModel model = (DefaultTableModel) tagTable.getModel();
         int rowCount = model.getRowCount();
 
         for (int i = 0; i < rowCount; i++) {
-            currentChannel.getTags().add((String) model.getValueAt(i, 0));
+            currentChannel.getProperties().getTags().add((String) model.getValueAt(i, 0));
         }
     }
 

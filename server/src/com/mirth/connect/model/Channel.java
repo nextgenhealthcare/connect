@@ -39,7 +39,6 @@ public class Channel implements Serializable, Auditable {
     private int revision;
     private Connector sourceConnector;
     private List<Connector> destinationConnectors;
-    private Set<String> tags;
     private String preprocessingScript;
     private String postprocessingScript;
     private String deployScript;
@@ -49,7 +48,6 @@ public class Channel implements Serializable, Auditable {
     public Channel() {
         enabled = true;
         destinationConnectors = new ArrayList<Connector>();
-        tags = new HashSet<String>();
         properties = new ChannelProperties();
         nextMetaDataId = 1;
     }
@@ -136,14 +134,6 @@ public class Channel implements Serializable, Auditable {
             }
         }
         return enabledConnectors;
-    }
-
-    public Set<String> getTags() {
-        return tags;
-    }
-    
-    public void setTags(Set<String> tags) {
-        this.tags = tags;
     }
 
     public String getPostprocessingScript() {

@@ -1,4 +1,7 @@
-<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
+
 <mapper namespace='Channel'>
 	<resultMap id='get-channel-result' type='com.mirth.connect.model.Channel'>
 		<result property='id' column='ID' />
@@ -16,40 +19,22 @@
 		<result property='postprocessingScript' column='POSTPROCESSING_SCRIPT' />
 		<result property='deployScript' column='DEPLOY_SCRIPT' />
 		<result property='shutdownScript' column='SHUTDOWN_SCRIPT' />
-		<collection property="tags" column="{id=id}" ofType="java.util.HashSet" select="getChannelTags" />
 	</resultMap>
 	
 	<select id="getChannel" parameterType="com.mirth.connect.model.Channel" resultMap="get-channel-result">
-		SELECT C.*, CT.*
+		SELECT C.*
 		FROM CHANNEL C
-		LEFT JOIN CHANNEL_TAGS CT ON CT.CHANNEL_ID = C.ID
 		<where>
 			<if test="id != null">C.ID = #{id}</if>
 			<if test="name != null">AND C.NAME = #{name}</if>
 		</where>
 	</select>
 	
-	<select id="getChannelTags" parameterType="map" resultType="String">
-		SELECT TAG
-		FROM CHANNEL_TAGS
-		WHERE CHANNEL_ID = #{id}
-	</select>
-	
 	<select id='getChannelRevision' resultType='com.mirth.connect.model.Channel'>
 		SELECT ID, REVISION
 		FROM CHANNEL
 	</select>
-	<select id='getAllChannelTags' resultType='String'>
-		SELECT DISTINCT tag
-		FROM CHANNEL_TAGS
-		<if test="channelIds != null">
-			WHERE CHANNEL_ID IN
-			<foreach item="channelId" collection="channelIds" open="(" separator="," close=")">
-				#{channelId}
-			</foreach>
-		</if>
-		ORDER BY tag
-	</select>
+
 	<insert id='insertChannel' parameterType='com.mirth.connect.model.Channel'>
 		INSERT INTO
 		CHANNEL (ID,
@@ -62,6 +47,7 @@
 		#{destinationConnectors}, #{properties}, #{preprocessingScript},
 		#{postprocessingScript}, #{deployScript}, #{shutdownScript})
 	</insert>
+
 	<update id='updateChannel' parameterType='com.mirth.connect.model.Channel'>
 		UPDATE CHANNEL
 		SET NAME = #{name},
@@ -80,14 +66,7 @@
 		SHUTDOWN_SCRIPT = #{shutdownScript}
 		WHERE ID = #{id}
 	</update>
-	<delete id='deleteChannelTags' parameterType='map'>
-		DELETE FROM CHANNEL_TAGS
-		WHERE CHANNEL_ID = #{channelId}
-	</delete>
-	<insert id='insertChannelTag' parameterType='map'>
-		INSERT INTO CHANNEL_TAGS (CHANNEL_ID, TAG)
-		VALUES (#{channelId}, #{tag})
-	</insert>
+
 	<delete id='deleteChannel' parameterType='com.mirth.connect.model.Channel'>
 		DELETE FROM CHANNEL
 		<where>

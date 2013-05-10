@@ -119,7 +119,7 @@ public class ChannelServlet extends MirthServlet {
                     } else if (doesUserHaveChannelRestrictions(request)) {
                         tags = channelController.getChannelTags(new HashSet<String>(getAuthorizedChannelIds(request)));
                     } else {
-                        tags = channelController.getChannelTags();
+                        tags = channelController.getChannelTags(null);
                     }
 
                     serializer.toXML(tags, out);

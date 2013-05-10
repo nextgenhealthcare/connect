@@ -347,7 +347,7 @@ public class DonkeyEngineController implements EngineController {
             status.setDeployedRevisionDelta(channelRevision - deployedChannel.getRevision());
             status.setStatistics(stats.getConnectorStats(channelId, null));
             status.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, null));
-            status.setTags(deployedChannel.getTags());
+            status.setTags(deployedChannel.getProperties().getTags());
 
             DashboardStatus sourceStatus = new DashboardStatus();
             sourceStatus.setStatusType(StatusType.SOURCE_CONNECTOR);
@@ -357,7 +357,7 @@ public class DonkeyEngineController implements EngineController {
             sourceStatus.setState(donkeyChannel.getSourceConnector().getCurrentState());
             sourceStatus.setStatistics(stats.getConnectorStats(channelId, 0));
             sourceStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, 0));
-            sourceStatus.setTags(deployedChannel.getTags());
+            sourceStatus.setTags(deployedChannel.getProperties().getTags());
             sourceStatus.setQueued(new Long(donkeyChannel.getSourceQueue().size()));
 
             status.setQueued(sourceStatus.getQueued());
@@ -377,7 +377,7 @@ public class DonkeyEngineController implements EngineController {
                     destinationStatus.setState(connector.getCurrentState());
                     destinationStatus.setStatistics(stats.getConnectorStats(channelId, metaDataId));
                     destinationStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, metaDataId));
-                    destinationStatus.setTags(deployedChannel.getTags());
+                    destinationStatus.setTags(deployedChannel.getProperties().getTags());
                     destinationStatus.setQueued(new Long(connector.getQueue().size()));
 
                     status.setQueued(status.getQueued() + destinationStatus.getQueued());

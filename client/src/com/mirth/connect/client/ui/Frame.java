@@ -3148,7 +3148,7 @@ public class Frame extends JXFrame {
                 exportDirectory = exportFileChooser.getSelectedFile();
 
                 for (Channel channel : channels.values()) {
-                    if (!tagFilteredEnabled || CollectionUtils.containsAny(visibleTags, channel.getTags())) {
+                    if (!tagFilteredEnabled || CollectionUtils.containsAny(visibleTags, channel.getProperties().getTags())) {
                         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                         String channelXML = serializer.toXML(channel);
 
