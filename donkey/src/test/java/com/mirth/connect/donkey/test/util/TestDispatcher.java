@@ -12,6 +12,8 @@ package com.mirth.connect.donkey.test.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.SerializationUtils;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
@@ -21,15 +23,12 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.donkey.util.DonkeyCloner;
-import com.mirth.connect.donkey.util.DonkeyClonerFactory;
 
 public class TestDispatcher extends DestinationConnector {
     protected TestDispatcherProperties connectorProperties;
     final public static String TEST_RESPONSE_PREFIX = "response";
     private volatile boolean queueThreadRunning = false;
     private volatile Status returnStatus = Status.QUEUED;
-    private DonkeyCloner cloner = DonkeyClonerFactory.getInstance().getCloner();
     private List<Long> messageIds = new ArrayList<Long>();
     private boolean isDeployed = false;
 
@@ -89,7 +88,7 @@ public class TestDispatcher extends DestinationConnector {
 
     @Override
     public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage connectorMessage) {
-        TestDispatcherProperties testDispatcherProperties = (TestDispatcherProperties) cloner.clone(connectorProperties);
+        TestDispatcherProperties testDispatcherProperties = (TestDispatcherProperties) SerializationUtils.clone(connectorProperties);
         testDispatcherProperties.setTemplate(TestUtils.TEST_HL7_MESSAGE);
         return testDispatcherProperties;
     }

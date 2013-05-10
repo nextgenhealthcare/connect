@@ -11,6 +11,7 @@ package com.mirth.connect.donkey.model.message;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -98,7 +99,7 @@ public class Message implements Serializable {
         connectorMessage.setRaw(sourceConnectorMessage.getRaw());
         connectorMessage.setProcessedRaw(sourceConnectorMessage.getProcessedRaw());
 
-        Map<String, Object> responseMap = sourceConnectorMessage.getResponseMap();
+        Map<String, Object> responseMap = new HashMap<String, Object>(sourceConnectorMessage.getResponseMap());
 
         for (ConnectorMessage destinationMessage : connectorMessages.values()) {
             responseMap.putAll(destinationMessage.getResponseMap());
@@ -106,7 +107,7 @@ public class Message implements Serializable {
 
         connectorMessage.setResponseMap(responseMap);
 
-        Map<String, Object> channelMap = sourceConnectorMessage.getChannelMap();
+        Map<String, Object> channelMap = new HashMap<String, Object>(sourceConnectorMessage.getChannelMap());
 
         for (ConnectorMessage destinationMessage : connectorMessages.values()) {
             channelMap.putAll(destinationMessage.getChannelMap());

@@ -28,8 +28,6 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
-import com.mirth.connect.donkey.util.DonkeyCloner;
-import com.mirth.connect.donkey.util.DonkeyClonerFactory;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
 public class DestinationChain implements Callable<List<ConnectorMessage>> {
@@ -42,7 +40,6 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
     private Map<Integer, DestinationConnector> destinationConnectors = new LinkedHashMap<Integer, DestinationConnector>();
     private MetaDataReplacer metaDataReplacer;
     private List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
-    private DonkeyCloner cloner = DonkeyClonerFactory.getInstance().getCloner();
     private DonkeyDaoFactory daoFactory;
     private StorageSettings storageSettings;
     private Logger logger = Logger.getLogger(getClass());
@@ -257,8 +254,8 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                     nextMessage.setChainId(chainId);
                     nextMessage.setOrderId(nextDestinationConnector.getOrderId());
 
-                    nextMessage.setChannelMap((Map<String, Object>) cloner.clone(message.getChannelMap()));
-                    nextMessage.setResponseMap((Map<String, Object>) cloner.clone(message.getResponseMap()));
+                    nextMessage.setChannelMap(new HashMap<String, Object>(message.getChannelMap()));
+                    nextMessage.setResponseMap(new HashMap<String, Object>(message.getResponseMap()));
                     nextMessage.setRaw(new MessageContent(message.getChannelId(), message.getMessageId(), nextMetaDataId, ContentType.RAW, message.getRaw().getContent(), nextDestinationConnector.getInboundDataType().getType(), message.getRaw().isEncrypted()));
 
                     ThreadUtils.checkInterruptedStatus();

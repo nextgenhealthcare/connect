@@ -48,8 +48,6 @@
 			<attribute name="javadoc_location" value="http://commons.apache.org/math/apidocs/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/cloning/cloning-1.8.1.jar"/>
-	<classpathentry kind="lib" path="lib/cloning/objenesis-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-dbcp-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-pool-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/database/derby-1414718.jar"/>

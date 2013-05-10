@@ -59,12 +59,10 @@ import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
-import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.event.ChannelEvent;
+import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
-import com.mirth.connect.donkey.util.DonkeyCloner;
-import com.mirth.connect.donkey.util.DonkeyClonerFactory;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
 public class Channel implements Startable, Stoppable, Runnable {
@@ -81,7 +79,6 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     private StorageSettings storageSettings = new StorageSettings();
     private DonkeyDaoFactory daoFactory;
-    private DonkeyCloner cloner = DonkeyClonerFactory.getInstance().getCloner();
     private EventDispatcher eventDispatcher = Donkey.getInstance().getEventDispatcher();
 
     private AttachmentHandler attachmentHandler;
@@ -175,7 +172,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     public ChannelState getCurrentState() {
         return currentState;
     }
-    
+
     public void setCurrentState(ChannelState currentState) {
         this.currentState = currentState;
     }
@@ -199,14 +196,6 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     public void setDaoFactory(DonkeyDaoFactory daoFactory) {
         this.daoFactory = daoFactory;
-    }
-
-    public DonkeyCloner getCloner() {
-        return cloner;
-    }
-
-    public void setCloner(DonkeyCloner cloner) {
-        this.cloner = cloner;
     }
 
     public EventDispatcher getEventDispatcher() {
@@ -1014,8 +1003,8 @@ public class Channel implements Startable, Stoppable, Runnable {
                     message.setChainId(chain.getChainId());
                     message.setOrderId(destinationConnector.getOrderId());
 
-                    message.setChannelMap((Map<String, Object>) cloner.clone(sourceMessage.getChannelMap()));
-                    message.setResponseMap((Map<String, Object>) cloner.clone(sourceMessage.getResponseMap()));
+                    message.setChannelMap(new HashMap<String, Object>(sourceMessage.getChannelMap()));
+                    message.setResponseMap(new HashMap<String, Object>(sourceMessage.getResponseMap()));
                     message.setRaw(raw);
 
                     // store the new message, but we don't need to store the content because we will reference the source's encoded content
@@ -1159,7 +1148,7 @@ public class Channel implements Startable, Stoppable, Runnable {
          */
         ThreadUtils.checkInterruptedStatus();
         DonkeyDao dao = daoFactory.getDao();
-        
+
         if (storePostProcessorError) {
             dao.updateErrors(finalMessage.getConnectorMessages().get(0));
         }
