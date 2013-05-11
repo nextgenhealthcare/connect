@@ -28,6 +28,7 @@ import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.JTextComponent.KeyBinding;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 import org.jdesktop.swingx.plaf.windows.WindowsLookAndFeelAddons;
 
@@ -61,7 +62,7 @@ public class Mirth {
         int width;
         int height;
 
-        if (isMac()) {
+        if (SystemUtils.IS_OS_MAC) {
             /*
              * Only maximize the window when there is no width or height preference saved. Just set
              * the width and height on mac. Don't bother with the maximized state because the user
@@ -98,10 +99,6 @@ public class Mirth {
         }
 
         PlatformUI.MIRTH_FRAME.setVisible(true);
-    }
-
-    private static boolean isMac() {
-        return (System.getProperty("os.name").toLowerCase().lastIndexOf("mac") != -1);
     }
 
     /**
@@ -178,7 +175,7 @@ public class Mirth {
                 createAlternateKeyBindings();
             }
             
-            if (isMac()) {
+            if (SystemUtils.IS_OS_MAC) {
                 OSXAdapter.setAboutHandler(Mirth.class, Mirth.class.getDeclaredMethod("aboutMac", (Class[]) null));
                 OSXAdapter.setQuitHandler(Mirth.class, Mirth.class.getDeclaredMethod("quitMac", (Class[]) null));
             }
