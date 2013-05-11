@@ -14,6 +14,8 @@ import java.awt.Font;
 
 import javax.swing.JPopupMenu;
 
+import com.mirth.connect.client.ui.UIConstants;
+
 /**
  * Encapsulates default settings for a text area. This can be passed to the
  * constructor once the necessary fields have been filled out. The advantage of
@@ -107,7 +109,7 @@ public class TextAreaDefaults
             this.eolMarkerColor = new Color(0x009999);
             this.eolMarkers = false; // true;
             this.paintInvalid = false; // true;
-            this.font = new Font("Monospaced", Font.PLAIN, 14);
+            this.font = new Font(UIConstants.MONOSPACED_FONT_NAME, Font.PLAIN, 14);
         }
         else
         {
@@ -123,7 +125,7 @@ public class TextAreaDefaults
             this.eolMarkerColor = Color.lightGray;// Color(0x009999);
             this.eolMarkers = true; // true;
             this.paintInvalid = false; // true;
-            this.font = new Font("Monospaced", Font.PLAIN, 12);
+            this.font = new Font(UIConstants.MONOSPACED_FONT_NAME, Font.PLAIN, 12);
         }
 
     }
