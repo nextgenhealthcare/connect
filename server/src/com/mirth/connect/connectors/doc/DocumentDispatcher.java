@@ -21,6 +21,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
 import org.xhtmlrenderer.pdf.ITextRenderer;
+import org.xhtmlrenderer.resource.FSEntityResolver;
 import org.xml.sax.InputSource;
 
 import com.lowagie.text.html.HtmlParser;
@@ -142,7 +143,7 @@ public class DocumentDispatcher extends DestinationConnector {
         } else {
             contents.append(template);
         }
-        
+
         String stringContents = AttachmentUtil.reAttachMessage(contents.toString(), connectorMessage);
 
         if (documentDispatcherProperties.getDocumentType().toLowerCase().equals("pdf")) {
@@ -150,6 +151,7 @@ public class DocumentDispatcher extends DestinationConnector {
 
             try {
                 DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                builder.setEntityResolver(FSEntityResolver.instance());
                 org.w3c.dom.Document document = builder.parse(new InputSource(new StringReader(stringContents)));
 
                 ITextRenderer renderer = new ITextRenderer();
