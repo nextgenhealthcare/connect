@@ -34,15 +34,4 @@ public class PluginControllerTest extends TestCase {
         super.tearDown();
     }
 
-    public void testGetConnectorMetaData() throws ControllerException {
-        ConnectorMetaData sampleConnector = new ConnectorMetaData();
-        sampleConnector.setName("FTP Reader");
-        sampleConnector.setServerClassName("com.mirth.connect.server.mule.providers.ftp.FtpConnector");
-        sampleConnector.setProtocol("ftp");
-        sampleConnector.setTransformers("ByteArrayToString");
-        sampleConnector.setType(ConnectorMetaData.Type.SOURCE);
-        Map<String, ConnectorMetaData> testTransportList = pluginController.getConnectorMetaData();
-
-        Assert.assertTrue(testTransportList.containsValue(sampleConnector));
-    }
 }

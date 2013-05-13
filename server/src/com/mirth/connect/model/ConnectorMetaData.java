@@ -31,9 +31,6 @@ public class ConnectorMetaData extends MetaData implements Serializable {
     private String protocol;
     private Type type;
 
-    @XStreamAlias("mule-properties")
-    private Properties properties;
-
     public String getServerClassName() {
         return this.serverClassName;
     }
@@ -88,14 +85,6 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 
     public void setType(Type type) {
         this.type = type;
-    }
-
-    public Properties getProperties() {
-        return properties;
-    }
-
-    public void setProperties(Properties properties) {
-        this.properties = properties;
     }
 
     public boolean equals(Object obj) {

@@ -58,25 +58,6 @@ public class FileDispatcher extends DestinationConnector {
 
         this.charsetEncoding = CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding(), System.getProperty("ca.uhn.hl7v2.llp.charset"));
 
-        // TODO: Is this needed?
-//        String writeToDirectoryName = connectorProperties.getDirectory();
-//
-//        if (writeToDirectoryName != null) {
-//            // Mule's Utility.openDirectory:
-//            File writeToDirectory = new File(writeToDirectoryName);
-//            if (!writeToDirectory.exists()) {
-//                writeToDirectory.mkdirs();
-//            }
-//            if (!writeToDirectory.isDirectory() || !writeToDirectory.canRead()) {
-//                throw new DeployException("Directory: " + writeToDirectoryName + " exists but isn't a directory");
-//            }
-//            // End Utility.openDirectory
-//
-//            if (!writeToDirectory.canRead() || !writeToDirectory.canWrite()) {
-//                throw new DeployException("Error on initialization, Write To directory does not exist or is not read/write");
-//            }
-//        }
-
         monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);
     }
 

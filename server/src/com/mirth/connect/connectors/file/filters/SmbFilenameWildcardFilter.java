@@ -55,7 +55,7 @@ public class SmbFilenameWildcardFilter implements SmbFilenameFilter {
         }
     }
 
-    // Old Mule WildcardFilter accept
+    // WildcardFilter accept to match the old Mule logic
     private boolean accept(String name) {
         if (name == null) {
             return false;
