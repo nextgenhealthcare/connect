@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -28,6 +28,7 @@ import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.util.Utility;
 import org.xhtmlrenderer.pdf.ITextRenderer;
+import org.xhtmlrenderer.resource.FSEntityResolver;
 import org.xml.sax.InputSource;
 
 import com.lowagie.text.html.HtmlParser;
@@ -51,7 +52,7 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private ConnectorType connectorType = ConnectorType.WRITER;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
-    
+
     public DocumentMessageDispatcher(DocumentConnector connector) {
         super(connector);
         this.connector = connector;
@@ -122,6 +123,7 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 
             try {
                 DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                builder.setEntityResolver(FSEntityResolver.instance());
                 org.w3c.dom.Document document = builder.parse(new InputSource(new StringReader(contents.toString())));
 
                 ITextRenderer renderer = new ITextRenderer();
