@@ -69,6 +69,7 @@ public class HttpDispatcher extends DestinationConnector {
 
     private HttpClient client = new HttpClient();
     private HttpConfiguration configuration = null;
+    private File tempFile;
 
     @Override
     public void onDeploy() throws DeployException {
@@ -123,60 +124,52 @@ public class HttpDispatcher extends DestinationConnector {
         String responseStatusMessage = null;
         Status responseStatus = Status.QUEUED;
 
+        HttpMethod httpMethod = null;
+
         try {
-            HttpMethod httpMethod = null;
+            httpMethod = buildHttpRequest(httpDispatcherProperties, connectorMessage);
 
-            try {
-                httpMethod = buildHttpRequest(httpDispatcherProperties, connectorMessage);
+            // authentication
+            if (httpDispatcherProperties.isUseAuthentication()) {
+                List<String> authenticationPreferences = new ArrayList<String>();
 
-                // authentication
-                if (httpDispatcherProperties.isUseAuthentication()) {
-                    List<String> authenticationPreferences = new ArrayList<String>();
-
-                    if ("Digest".equalsIgnoreCase(httpDispatcherProperties.getAuthenticationType())) {
-                        authenticationPreferences.add(AuthPolicy.DIGEST);
-                        logger.debug("using Digest authentication");
-                    } else {
-                        authenticationPreferences.add(AuthPolicy.BASIC);
-                        logger.debug("using Basic authentication");
-                    }
-
-                    client.getParams().setAuthenticationPreemptive(true);
-                    client.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authenticationPreferences);
-                    Credentials credentials = new UsernamePasswordCredentials(httpDispatcherProperties.getUsername(), httpDispatcherProperties.getPassword());
-                    client.getState().setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM), credentials);
-                    logger.debug("using authentication with credentials: " + credentials);
-                }
-
-                client.getParams().setSoTimeout(NumberUtils.toInt(replacer.replaceValues(httpDispatcherProperties.getSocketTimeout()), 30000));
-
-                // execute the method
-                logger.debug("executing method: type=" + httpMethod.getName() + ", uri=" + httpMethod.getURI().toString());
-                int statusCode = client.executeMethod(httpMethod);
-                logger.debug("received status code: " + statusCode);
-
-                String responseBody = new String(httpMethod.getResponseBody(), httpDispatcherProperties.getCharset());
-
-                if (httpDispatcherProperties.isIncludeHeadersInResponse()) {
-                    HttpMessageConverter converter = new HttpMessageConverter();
-                    responseData = converter.httpResponseToXml(httpMethod.getStatusLine().toString(), httpMethod.getResponseHeaders(), responseBody);
+                if ("Digest".equalsIgnoreCase(httpDispatcherProperties.getAuthenticationType())) {
+                    authenticationPreferences.add(AuthPolicy.DIGEST);
+                    logger.debug("using Digest authentication");
                 } else {
-                    responseData = responseBody;
+                    authenticationPreferences.add(AuthPolicy.BASIC);
+                    logger.debug("using Basic authentication");
                 }
 
-                if (statusCode < HttpStatus.SC_BAD_REQUEST) {
-                    responseStatus = Status.SENT;
-                } else {
-                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Received error response from HTTP server.", null));
-                    responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Received error response from HTTP server.", null);
-                    responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_404, responseData, null);
-                }
-            } catch (Exception e) {
-                throw e;
-            } finally {
-                if (httpMethod != null) {
-                    httpMethod.releaseConnection();
-                }
+                client.getParams().setAuthenticationPreemptive(true);
+                client.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authenticationPreferences);
+                Credentials credentials = new UsernamePasswordCredentials(httpDispatcherProperties.getUsername(), httpDispatcherProperties.getPassword());
+                client.getState().setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM), credentials);
+                logger.debug("using authentication with credentials: " + credentials);
+            }
+
+            client.getParams().setSoTimeout(NumberUtils.toInt(replacer.replaceValues(httpDispatcherProperties.getSocketTimeout()), 30000));
+
+            // execute the method
+            logger.debug("executing method: type=" + httpMethod.getName() + ", uri=" + httpMethod.getURI().toString());
+            int statusCode = client.executeMethod(httpMethod);
+            logger.debug("received status code: " + statusCode);
+
+            String responseBody = new String(httpMethod.getResponseBody(), httpDispatcherProperties.getCharset());
+
+            if (httpDispatcherProperties.isIncludeHeadersInResponse()) {
+                HttpMessageConverter converter = new HttpMessageConverter();
+                responseData = converter.httpResponseToXml(httpMethod.getStatusLine().toString(), httpMethod.getResponseHeaders(), responseBody);
+            } else {
+                responseData = responseBody;
+            }
+
+            if (statusCode < HttpStatus.SC_BAD_REQUEST) {
+                responseStatus = Status.SENT;
+            } else {
+                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Received error response from HTTP server.", null));
+                responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Received error response from HTTP server.", null);
+                responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_404, responseData, null);
             }
         } catch (Exception e) {
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error connecting to HTTP server.", e));
@@ -184,9 +177,21 @@ public class HttpDispatcher extends DestinationConnector {
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_403, "Error connecting to HTTP server", e);
 
             // TODO: Handle Exception
-//            connector.handleException(e);
+            // connector.handleException(e);
         } finally {
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+            try {
+                if (httpMethod != null) {
+                    httpMethod.releaseConnection();
+                }
+
+                // Delete temp files if we created them
+                if (tempFile != null) {
+                    tempFile.delete();
+                    tempFile = null;
+                }
+            } finally {
+                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+            }
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);
@@ -223,7 +228,7 @@ public class HttpDispatcher extends DestinationConnector {
 
             if (isMultipart) {
                 logger.debug("setting multipart file content");
-                File tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tmp");
+                tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tmp");
                 FileUtils.writeStringToFile(tempFile, content, charset);
                 Part[] parts = new Part[] { new FilePart(tempFile.getName(), tempFile, contentType, charset) };
                 postMethod.setQueryString(queryParameters);
