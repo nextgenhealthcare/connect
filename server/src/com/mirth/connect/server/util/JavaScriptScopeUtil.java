@@ -103,7 +103,7 @@ public class JavaScriptScopeUtil {
     private static void addMessage(Scriptable scope, Message message) {
         ImmutableMessage immutableMessage = new ImmutableMessage(message);
         scope.put("message", scope, immutableMessage);
-        
+
         ImmutableConnectorMessage immutableConnectorMessage = immutableMessage.getMergedConnectorMessage();
         scope.put("channelMap", scope, immutableConnectorMessage.getChannelMap());
         scope.put("responseMap", scope, immutableConnectorMessage.getResponseMap());
@@ -111,11 +111,7 @@ public class JavaScriptScopeUtil {
 
     // ConnectorMessage Builder
     private static void addConnectorMessage(Scriptable scope, ConnectorMessage message) {
-        scope.put("messageObject", scope, new ImmutableConnectorMessage(message));
-        if (message.getTransformed() != null) {
-            scope.put("message", scope, message.getTransformed().getContent());
-        }
-
+        scope.put("connectorMessage", scope, new ImmutableConnectorMessage(message));
         scope.put("connectorMap", scope, message.getConnectorMap());
         scope.put("channelMap", scope, message.getChannelMap());
         scope.put("responseMap", scope, message.getResponseMap());
@@ -223,16 +219,12 @@ public class JavaScriptScopeUtil {
 
     public static Scriptable getResponseTransformerScope(Object logger, Response response, ConnectorMessage message, String template) {
         Scriptable scope = getBasicScope(getContext(), logger);
-        scope.put("messageObject", scope, new ImmutableConnectorMessage(message));
+        scope.put("connectorMessage", scope, new ImmutableConnectorMessage(message));
         scope.put("response", scope, new ImmutableResponse(response));
-        if (message.getResponseTransformed() != null) {
-            scope.put("message", scope, message.getResponseTransformed().getContent());
-        }
-
         scope.put("connectorMap", scope, message.getConnectorMap());
         scope.put("channelMap", scope, message.getChannelMap());
         scope.put("responseMap", scope, message.getResponseMap());
-        scope.put("connector", scope, message.getConnectorName());        
+        scope.put("connector", scope, message.getConnectorName());
         addStatusValues(scope);
         scope.put("template", scope, template);
         // Convert java to JS so we can use the == comparator in javascript
@@ -266,7 +258,7 @@ public class JavaScriptScopeUtil {
     public static Scriptable getMessageReceiverScope(Object logger, String channelId) {
         return getBasicScope(getContext(), logger, channelId);
     }
-    
+
     public static Scriptable getMessageReceiverScope(Object logger, String channelId, ConnectorMessage message) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addConnectorMessage(scope, message);
@@ -313,7 +305,7 @@ public class JavaScriptScopeUtil {
 
         return result;
     }
-    
+
     public static void getResponseDataFromScope(Scriptable scope, Response response) {
         Object status = scope.get("responseStatus", scope);
         Object statusMessage = scope.get("responseStatusMessage", scope);

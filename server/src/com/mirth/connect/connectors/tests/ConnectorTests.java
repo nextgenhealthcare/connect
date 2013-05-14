@@ -53,7 +53,7 @@ public class ConnectorTests {
 
     @Test
     public final void testJavaScriptWriter() throws Exception {
-        final String script = "globalMap.put('message' + messageObject.getMessageId(), messageObject.getEncoded().getContent() + '123');";
+        final String script = "globalMap.put('message' + connectorMessage.getMessageId(), connectorMessage.getEncoded().getContent() + '123');";
 
         JavaScriptDispatcherProperties connectorProperties = new JavaScriptDispatcherProperties();
         connectorProperties.setScript(script);
@@ -67,7 +67,7 @@ public class ConnectorTests {
         channel.start();
 
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-        
+
         for (int i = 0; i < TEST_SIZE; i++) {
             ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(TestUtils.TEST_HL7_MESSAGE), channel.getChannelId(), channel.getServerId(), dao).getConnectorMessages().get(0);
             dao.commit();

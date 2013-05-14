@@ -1,7 +1,7 @@
 /*
  * JavaScriptTokenMarker.java - JavaScript token marker
  * Copyright (C) 1999 Slava Pestov
- *
+ * 
  * You may use and modify this package for any purpose. Redistribution is
  * permitted, in both source and binary form, provided that this notice
  * remains intact in all source distributions of this package.
@@ -17,17 +17,13 @@ import org.syntax.jedit.KeywordMap;
  * @author Slava Pestov
  * @version $Id: JavaScriptTokenMarker.java,v 1.3 1999/12/13 03:40:29 sp Exp $
  */
-public class JavaScriptTokenMarker extends CTokenMarker
-{
-    public JavaScriptTokenMarker()
-    {
+public class JavaScriptTokenMarker extends CTokenMarker {
+    public JavaScriptTokenMarker() {
         super(false, getKeywords());
     }
 
-    public static KeywordMap getKeywords()
-    {
-        if (javaScriptKeywords == null)
-        {
+    public static KeywordMap getKeywords() {
+        if (javaScriptKeywords == null) {
             javaScriptKeywords = new KeywordMap(false);
             javaScriptKeywords.add("function", Token.KEYWORD3);
             javaScriptKeywords.add("get", Token.KEYWORD3);
@@ -77,14 +73,14 @@ public class JavaScriptTokenMarker extends CTokenMarker
             javaScriptKeywords.add("createSMTPConnection", Token.KEYWORD1);
             javaScriptKeywords.add("executeUpdate", Token.KEYWORD1);
             javaScriptKeywords.add("SerializerFactory", Token.KEYWORD3);
-            javaScriptKeywords.add("messageObject", Token.KEYWORD1);
+            javaScriptKeywords.add("connectorMessage", Token.KEYWORD1);
             javaScriptKeywords.add("alerts", Token.KEYWORD3);
             javaScriptKeywords.add("router", Token.KEYWORD3);
             javaScriptKeywords.add("channelId", Token.KEYWORD1);
             javaScriptKeywords.add("replacer", Token.KEYWORD3);
             javaScriptKeywords.add("FileUtil", Token.KEYWORD3);
             javaScriptKeywords.add("DateUtil", Token.KEYWORD3);
-            
+
             javaScriptKeywords.add("createSegment", Token.KEYWORD3);
             javaScriptKeywords.add("createSegmentAfter", Token.KEYWORD3);
             javaScriptKeywords.add("addAttachment", Token.KEYWORD3);

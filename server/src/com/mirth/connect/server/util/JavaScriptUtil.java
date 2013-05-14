@@ -35,9 +35,9 @@ import com.mirth.connect.model.Event;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.SystemEventController;
 import com.mirth.connect.server.controllers.ScriptCompileException;
 import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.controllers.SystemEventController;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
@@ -99,7 +99,7 @@ public class JavaScriptUtil {
                 String globalResult = message.getRaw().getContent();
                 Logger scriptLogger = Logger.getLogger(ScriptController.PREPROCESSOR_SCRIPT_KEY.toLowerCase());
                 Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, channelId, message.getRaw().getContent(), message);
-                
+
                 try {
                     // Execute the global preprocessor and check the result
                     Object result = JavaScriptUtil.executeScript(this, ScriptController.PREPROCESSOR_SCRIPT_KEY, scope, null, null);
@@ -197,7 +197,7 @@ public class JavaScriptUtil {
     /**
      * Executes the channel postprocessor, followed by the global postprocessor.
      * 
-     * @param messageObject
+     * @param message
      * @throws InterruptedException
      * @throws JavaScriptExecutorException
      */

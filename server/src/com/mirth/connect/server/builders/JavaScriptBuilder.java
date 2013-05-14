@@ -125,14 +125,14 @@ public class JavaScriptBuilder {
         switch (inboundServerPlugin.getSerializationType()) {
             case XML:
                 // Turn the inbound message into an E4X XML object
-                builder.append("msg = new XML(messageObject.getTransformedData());\n");
+                builder.append("msg = new XML(connectorMessage.getTransformedData());\n");
 
                 // Set the default namespace if there is one left on the root node, otherwise set it to ''.
                 builder.append("if (msg.namespace('') != undefined) { default xml namespace = msg.namespace(''); } else { default xml namespace = ''; }\n");
                 break;
 
             case RAW:
-                builder.append("if (messageObject.getProcessedRawData() != null) { msg = new String(messageObject.getProcessedRawData()); } else { msg = new String(messageObject.getRawData()); } \n");
+                builder.append("if (connectorMessage.getProcessedRawData() != null) { msg = new String(connectorMessage.getProcessedRawData()); } else { msg = new String(connectorMessage.getRawData()); } \n");
                 break;
         }
 
@@ -165,18 +165,18 @@ public class JavaScriptBuilder {
         logger.debug("Generating response transformer script...");
 
         StringBuilder builder = new StringBuilder();
-        
+
         DataTypeServerPlugin inboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getInboundDataType());
 
         switch (inboundServerPlugin.getSerializationType()) {
             case XML:
                 // Turn the inbound message into an E4X XML object
-                builder.append("msg = new XML(messageObject.getResponseTransformedData());\n");
-                
+                builder.append("msg = new XML(connectorMessage.getResponseTransformedData());\n");
+
                 // Set the default namespace if there is one left on the root node, otherwise set it to ''.
                 builder.append("if (msg.namespace('') != undefined) { default xml namespace = msg.namespace(''); } else { default xml namespace = ''; }\n");
                 break;
-            
+
             case RAW:
                 builder.append("msg = new String(response.getMessage()) \n");
                 break;
@@ -190,7 +190,7 @@ public class JavaScriptBuilder {
                 case XML:
                     builder.append("tmp = new XML(template);\n");
                     break;
-                    
+
                 case RAW:
                     builder.append("tmp = template;\n");
                     break;
@@ -353,7 +353,7 @@ public class JavaScriptBuilder {
     private static void appendAttachmentFunctions(StringBuilder builder, Set<String> scriptOptions) {
         // Helper function to access attachments (returns List<Attachment>)
         builder.append("function getAttachments() {");
-        builder.append("return Packages.com.mirth.connect.donkey.server.controllers.MessageController.getInstance().getAttachmentsByMessage(messageObject);");
+        builder.append("return Packages.com.mirth.connect.donkey.server.controllers.MessageController.getInstance().getAttachmentsByMessage(connectorMessage);");
         builder.append("}\n");
 
         // Helper function to set attachment
@@ -366,7 +366,7 @@ public class JavaScriptBuilder {
         } else {
             builder.append("function addAttachment(data, type) {");
             builder.append("var attachment = Packages.com.mirth.connect.donkey.server.controllers.MessageController.getInstance().createAttachment(data, type);");
-            builder.append("Packages.com.mirth.connect.donkey.server.controllers.MessageController.getInstance().insertAttachment(attachment, channelId, messageObject.getMessageId())\n");
+            builder.append("Packages.com.mirth.connect.donkey.server.controllers.MessageController.getInstance().insertAttachment(attachment, channelId, connectorMessage.getMessageId())\n");
             builder.append("return attachment; }\n");
         }
     }
