@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -71,6 +71,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
     private ConnectorType connectorType = ConnectorType.WRITER;
 
     private HttpClient client = new HttpClient();
+    private File tempFile;
 
     public HttpMessageDispatcher(HttpConnector connector) {
         super(connector);
@@ -173,6 +174,12 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
             if (httpMethod != null) {
                 httpMethod.releaseConnection();
             }
+
+            // Delete temp files if we created them
+            if (tempFile != null) {
+                tempFile.delete();
+                tempFile = null;
+            }
         }
     }
 
@@ -226,7 +233,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
 
         return true;
     }
-    
+
     private HttpMethod buildHttpRequest(String address, MessageObject mo) throws Exception {
         String method = connector.getDispatcherMethod();
         String content = replacer.replaceValues(connector.getDispatcherContent(), mo);
@@ -241,7 +248,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
         // populate the query parameters
         NameValuePair[] queryParameters = new NameValuePair[parameters.size()];
         int index = 0;
-        
+
         for (Entry<String, String> parameterEntry : parameters.entrySet()) {
             queryParameters[index] = new NameValuePair(parameterEntry.getKey(), parameterEntry.getValue());
             index++;
@@ -257,7 +264,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
 
             if (isMultipart) {
                 logger.debug("setting multipart file content");
-                File tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tmp");
+                tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tmp");
                 FileUtils.writeStringToFile(tempFile, content, charset);
                 Part[] parts = new Part[] { new FilePart(tempFile.getName(), tempFile, contentType, charset) };
                 postMethod.setQueryString(queryParameters);
@@ -268,7 +275,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
                 postMethod.setQueryString(queryParameters);
                 postMethod.setRequestEntity(new StringRequestEntity(content, contentType, charset));
             }
-                
+
             httpMethod = postMethod;
         } else if ("PUT".equalsIgnoreCase(method)) {
             PutMethod putMethod = new PutMethod(address);
@@ -279,7 +286,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
             httpMethod = new DeleteMethod(address);
             httpMethod.setQueryString(queryParameters);
         }
-        
+
         // set the headers
         for (Entry<String, String> headerEntry : headers.entrySet()) {
             httpMethod.setRequestHeader(new Header(headerEntry.getKey(), headerEntry.getValue()));
