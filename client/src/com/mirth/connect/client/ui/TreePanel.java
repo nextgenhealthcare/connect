@@ -211,8 +211,8 @@ public class TreePanel extends javax.swing.JPanel {
             });
             popupMenu.add(popupMenuMapToVariable);
             
-            popupMenuMapSegment = new JMenuItem("Map Segment");
-            popupMenuMapSegment.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
+            popupMenuMapSegment = new JMenuItem("Map to Message");
+            popupMenuMapSegment.setIcon(new ImageIcon(this.getClass().getResource("images/book_next.png")));
             popupMenuMapSegment.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -231,8 +231,8 @@ public class TreePanel extends javax.swing.JPanel {
             popupMenu.add(popupMenuMapSegment);
             
         } else if (_dropPrefix.equals(MessageTreePanel.MESSAGE_BUILDER_PREFIX)) {
-            popupMenuMapSegmentFilter = new JMenuItem("Map Segment");
-            popupMenuMapSegmentFilter.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
+            popupMenuMapSegmentFilter = new JMenuItem("Map to Message");
+            popupMenuMapSegmentFilter.setIcon(new ImageIcon(this.getClass().getResource("images/book_next.png")));
             popupMenuMapSegmentFilter.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -251,7 +251,7 @@ public class TreePanel extends javax.swing.JPanel {
             popupMenu.add(popupMenuMapSegmentFilter);
         }
 
-        popupMenuFilterSegment = new JMenuItem("Filter Segment");
+        popupMenuFilterSegment = new JMenuItem("Filter by Value");
         popupMenuFilterSegment.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
         popupMenuFilterSegment.addActionListener(new ActionListener() {
 
