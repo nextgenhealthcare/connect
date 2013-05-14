@@ -40,20 +40,20 @@ public class HL7ModelGenerator {
 
     public void generateModel(String baseDirectory, String baseOutputPath, String templatePath) {
         try {
-            String compositeTemplate = FileUtils.readFileToString(new File(templatePath + "\\" + COMPOSITE_TEMPLATE));
-            String segmentTemplate = FileUtils.readFileToString(new File(templatePath + "\\" + SEGMENT_TEMPLATE));
-            String messageTemplate = FileUtils.readFileToString(new File(templatePath + "\\" + MESSAGE_TEMPLATE));
+            String compositeTemplate = FileUtils.readFileToString(new File(templatePath + File.separator + COMPOSITE_TEMPLATE));
+            String segmentTemplate = FileUtils.readFileToString(new File(templatePath + File.separator + SEGMENT_TEMPLATE));
+            String messageTemplate = FileUtils.readFileToString(new File(templatePath + File.separator + MESSAGE_TEMPLATE));
 
             for (int x = 0; x < VERSIONS.length; x++) {
                 version = VERSIONS[x];
-                outputPath = baseOutputPath + "\\v" + version + "\\";
+                outputPath = baseOutputPath + File.separator + "v" + version + File.separator;
 
                 new File(outputPath).mkdir();
                 new File(outputPath + "composite").mkdir();
                 new File(outputPath + "segment").mkdir();
                 new File(outputPath + "message").mkdir();
 
-                File[] files = new File(baseDirectory + "\\" + version).listFiles();
+                File[] files = new File(baseDirectory + File.separator + version).listFiles();
 
                 for (int i = 0; i < files.length; i++) {
                     if (!files[i].isDirectory()) {
@@ -98,20 +98,20 @@ public class HL7ModelGenerator {
                 fields += "_" + fieldDatatype + ".class, ";
                 fieldDescriptions += "\"" + fieldDescription + "\", ";
                 NamedNodeMap nodeMap = node.getAttributes();
-                
+
                 if (nodeMap.getNamedItem("minOccurs") != null) {
                     required += "false, ";
                 } else {
                     required += "true, ";
                 }
-                
+
                 if (nodeMap.getNamedItem("maxOccurs") != null) {
                     String repeatsVal = nodeMap.getNamedItem("maxOccurs").getNodeValue();
-                    
+
                     if (repeatsVal.equals("unbounded")) {
                         repeatsVal = "-1";
                     }
-                    
+
                     repeats += repeatsVal + ", ";
                 } else {
                     repeats += "0, ";
@@ -183,7 +183,7 @@ public class HL7ModelGenerator {
                 } else {
                     required.append("true, ");
                 }
-                
+
                 if (nodeMap.getNamedItem("maxOccurs") != null) {
                     String repeatsVal = nodeMap.getNamedItem("maxOccurs").getNodeValue();
                     if (repeatsVal.equals("unbounded")) {
@@ -218,7 +218,7 @@ public class HL7ModelGenerator {
         Element groupRoot = (Element) node;
         NodeList groupSegmentList = groupRoot.getChildNodes();
         int startSegment = knownSegments + 1;
-        
+
         for (int i = 0; i < groupSegmentList.getLength(); i++) {
             Node groupSegmentNode = groupSegmentList.item(i);
             if (groupSegmentNode.getNodeName().equals("group")) {
