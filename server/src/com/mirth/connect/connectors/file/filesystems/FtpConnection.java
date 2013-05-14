@@ -233,6 +233,12 @@ public class FtpConnection implements FileSystemConnection {
 		
 		// have to close it since append or store don't close the stream
 		is.close();
+		
+	    // check the reply code to verify success
+        if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
+            logger.error("writeFile: " + client.getReplyString());
+            throw new IOException(client.getReplyString());
+        }
 	}
 
 	@Override
