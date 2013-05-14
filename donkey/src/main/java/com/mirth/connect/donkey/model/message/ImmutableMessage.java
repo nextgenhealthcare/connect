@@ -41,7 +41,17 @@ public class ImmutableMessage {
     }
 
     public Map<Integer, ImmutableConnectorMessage> getConnectorMessages() {
-        Map<Integer, ImmutableConnectorMessage> map = new LinkedHashMap<Integer, ImmutableConnectorMessage>();
+        // MIRTH-2523: Overriding the get method to allow doubles to be passed in
+        Map<Integer, ImmutableConnectorMessage> map = new LinkedHashMap<Integer, ImmutableConnectorMessage>() {
+            @Override
+            public ImmutableConnectorMessage get(Object key) {
+                if (key instanceof Double) {
+                    key = ((Double) key).intValue();
+                }
+                return super.get(key);
+            }
+        };
+
         for (Integer key : message.getConnectorMessages().keySet()) {
             map.put(key, new ImmutableConnectorMessage(message.getConnectorMessages().get(key)));
         }
