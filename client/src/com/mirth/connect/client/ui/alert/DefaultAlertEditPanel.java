@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -19,6 +20,8 @@ import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertModel;
+import com.mirth.connect.model.alert.AlertTrigger;
+import com.mirth.connect.model.alert.ChannelTrigger;
 import com.mirth.connect.model.alert.DefaultTrigger;
 
 public class DefaultAlertEditPanel extends AlertEditPanel {
@@ -34,40 +37,48 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
     private void initComponents() {
         setBackground(UIConstants.BACKGROUND_COLOR);
         setLayout(new MigLayout("insets 10", "grow", "[][grow][grow]"));
-        
+
         nameLabel = new JLabel("Alert Name: ");
         nameTextField = new MirthTextField();
-        
+
         enabledCheckBox = new MirthCheckBox("Enabled");
         enabledCheckBox.setBackground(UIConstants.BACKGROUND_COLOR);
 
+        JPanel headerPanel = new JPanel();
+        headerPanel.setBackground(UIConstants.BACKGROUND_COLOR);
+        headerPanel.setLayout(new MigLayout("insets 0"));
+        headerPanel.add(nameLabel, "");
+        headerPanel.add(nameTextField, "width 500");
+        headerPanel.add(enabledCheckBox, "wrap");
+
         alertTriggerPane = new DefaultAlertTriggerPane();
+
+        alertChannelPane = new AlertChannelPane();
 
         alertActionPane = new AlertActionPane();
 
-        add(nameLabel, "split");
-        add(nameTextField, "width 500:500");
-        add(enabledCheckBox, "gapbottom 12, wrap");
-        add(alertTriggerPane, "grow, height 200:200:, wrap");
-        add(alertActionPane, "grow, height 200:200:");
+        add(headerPanel, "grow, span");
+        add(alertTriggerPane, "grow, sg 1, height 100");
+        add(alertChannelPane, "grow, sg 1, height 100, wrap");
+        add(alertActionPane, "grow, sg 1, height 100, span");
     }
-    
+
     private void updateTasks() {
         parent.setVisibleTasks(parent.alertEditTasks, parent.alertEditPopupMenu, 1, 1, true);
     }
-    
+
     @Override
     public void updateVariableList() {
         List<String> variables = new ArrayList<String>();
-        
+
         variables.add("alertId");
         variables.add("alertName");
         variables.add("systemTime");
         variables.add("serverId");
         variables.add("globalMapVariable");
-        
+
         variables.addAll(alertTriggerPane.getVariables());
-        
+
         alertActionPane.setVariableList(variables);
     }
 
@@ -82,22 +93,23 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
         alertModel.setEnabled(true);
         alertModel.setTrigger(new DefaultTrigger(new HashSet<ErrorEventType>(), ""));
         alertModel.getActionGroups().add(new AlertActionGroup());
-        
+
         editAlert(alertModel);
-        
+
         parent.setSaveEnabled(true);
     }
 
     @Override
     public void editAlert(AlertModel alertModel) {
         nameTextField.setText(alertModel.getName());
-        
+
         enabledCheckBox.setSelected(alertModel.isEnabled());
-        
+
         alertActionPane.setActionGroup(alertModel.getActionGroups().get(0));
-        
+
         alertTriggerPane.setTrigger(alertModel.getTrigger());
-        
+        alertChannelPane.setChannels(((ChannelTrigger) alertModel.getTrigger()).getChannels(), true);
+
         updateVariableList();
 
         this.alertModel = alertModel;
@@ -107,32 +119,35 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
     @Override
     public boolean saveAlert() {
         boolean updated = false;
-        
+
         alertModel.setName(nameTextField.getText());
-        
+
         alertModel.setEnabled(enabledCheckBox.isSelected());
-        
-        alertModel.setTrigger(alertTriggerPane.getTrigger());
-        
+
+        AlertTrigger trigger = alertTriggerPane.getTrigger();
+        ((ChannelTrigger) trigger).setChannels(alertChannelPane.getChannels());
+
+        alertModel.setTrigger(trigger);
+
         // ActionGroups are modified directly so they do not need to be set back to the alert model.
-        
+
         if (StringUtils.isBlank(nameTextField.getText())) {
             parent.alertWarning(parent, "Alert name cannot be empty");
             return false;
         }
-        
+
         if (alertModel.getActionGroups().get(0).getActions().isEmpty()) {
             parent.alertWarning(parent, "Alert requires at least one action.");
             return false;
         }
-        
+
         try {
             parent.mirthClient.updateAlert(alertModel);
             updated = true;
         } catch (ClientException e) {
             parent.alertException(this.parent, e.getStackTrace(), e.getMessage());
         }
-        
+
         return updated;
     }
 
@@ -140,5 +155,6 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
     private MirthTextField nameTextField;
     private MirthCheckBox enabledCheckBox;
     private AlertTriggerPane alertTriggerPane;
+    private AlertChannelPane alertChannelPane;
     private AlertActionPane alertActionPane;
 }

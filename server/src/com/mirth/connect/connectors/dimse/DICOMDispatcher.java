@@ -18,6 +18,7 @@ import org.dcm4che2.net.UserIdentity;
 import org.dcm4che2.tool.dcmsnd.DcmSnd;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
@@ -27,12 +28,10 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorConstants;
@@ -42,10 +41,8 @@ public class DICOMDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     private DICOMDispatcherProperties connectorProperties;
     
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
-    private ConnectorType connectorType = ConnectorType.WRITER;
 
     @Override
     public void onDeploy() throws DeployException {
@@ -82,7 +79,7 @@ public class DICOMDispatcher extends DestinationConnector {
         DICOMDispatcherProperties dicomDispatcherProperties = (DICOMDispatcherProperties) connectorProperties;
         
         String info = "Host: " + dicomDispatcherProperties.getHost();
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, info);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.WRITING, info));
         
         String responseData = null;
         String responseError = null;
@@ -228,9 +225,9 @@ public class DICOMDispatcher extends DestinationConnector {
         } catch (Exception e) {
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse(e.getMessage(), e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_415, e.getMessage(), null);
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), e.getMessage(), null));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), e.getMessage(), null));
         } finally {
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
         }
         
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);

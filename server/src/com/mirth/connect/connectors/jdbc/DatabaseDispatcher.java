@@ -16,6 +16,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
@@ -23,25 +24,21 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DatabaseDispatcher extends DestinationConnector {
-    final private static ConnectorType CONNECTOR_TYPE = ConnectorType.READER;
 
     private DatabaseDispatcherDelegate delegate;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private Logger logger = Logger.getLogger(getClass());
     private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
 
     @Override
     public void onDeploy() throws DeployException {
@@ -56,7 +53,7 @@ public class DatabaseDispatcher extends DestinationConnector {
         }
 
         delegate.deploy();
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.INITIALIZED);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -93,7 +90,7 @@ public class DatabaseDispatcher extends DestinationConnector {
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException {
         DatabaseDispatcherProperties databaseDispatcherProperties = (DatabaseDispatcherProperties) connectorProperties;
         String info = "URL: " + databaseDispatcherProperties.getUrl();
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.BUSY, info);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.READING, info));
 
         try {
             return delegate.send(databaseDispatcherProperties, message);
@@ -101,10 +98,10 @@ public class DatabaseDispatcher extends DestinationConnector {
             throw e;
         } catch (DatabaseDispatcherException e) {
             logger.error("An error occurred in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\": " + e.getMessage(), ExceptionUtils.getRootCause(e));
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), e.getMessage(), e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), e.getMessage(), e));
             return new Response(Status.QUEUED, null, ErrorMessageBuilder.buildErrorResponse("Error writing to database.", e), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_406, e.getMessage(), e));
         } finally {
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
         }
     }
 }

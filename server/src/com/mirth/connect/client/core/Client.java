@@ -46,6 +46,7 @@ import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.alert.AlertModel;
+import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
@@ -383,6 +384,18 @@ public class Client {
         logger.debug("checking if user logged in: " + user);
         NameValuePair[] params = { new NameValuePair("op", Operations.USER_IS_USER_LOGGED_IN.getName()), new NameValuePair("user", serializer.toXML(user)) };
         return Boolean.valueOf(serverConnection.executePostMethod(USER_SERVLET, params));
+    }
+    
+    /**
+     * Returns a List of all alert statuses.
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public List<AlertStatus> getAlertStatusList() throws ClientException {
+        logger.debug("retrieving alert statuses");
+        NameValuePair[] params = { new NameValuePair("op", Operations.ALERT_GET_STATUS.getName()) };
+        return (List<AlertStatus>) serializer.fromXML(serverConnection.executePostMethod(ALERT_SERVLET, params));
     }
 
     /**

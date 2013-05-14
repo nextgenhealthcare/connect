@@ -16,22 +16,21 @@ import org.dcm4che2.data.UID;
 import org.dcm4che2.tool.dcmrcv.DcmRcv;
 import org.dcm4che2.tool.dcmrcv.MirthDcmRcv;
 
+import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.controllers.EventController;
 
 public class DICOMReceiver extends SourceConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     private DICOMReceiverProperties connectorProperties;
-    private ConnectorType connectorType = ConnectorType.LISTENER;
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
     private DcmRcv dcmrcv;
 
     @Override
@@ -188,7 +187,7 @@ public class DICOMReceiver extends SourceConnector {
             // start the DICOM port
             dcmrcv.start();
 
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
         } catch (Exception e) {
             throw new StartException("Failed to start DICOM Listener", e);
         }
@@ -201,7 +200,7 @@ public class DICOMReceiver extends SourceConnector {
         } catch (Exception e) {
             logger.error("Unable to close DICOM port.", e);
         } finally {
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DISCONNECTED);
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.DISCONNECTED));
         }
 
         logger.debug("closed DICOM port");

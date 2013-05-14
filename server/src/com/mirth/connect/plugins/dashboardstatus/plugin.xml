@@ -6,7 +6,6 @@
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides a real-time connection status column on the Mirth Connect client</description>
 	<serverClasses>
-		<string>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusMonitorLogger</string>
 		<string>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusMonitor</string>
 	</serverClasses>
 	<clientClasses>

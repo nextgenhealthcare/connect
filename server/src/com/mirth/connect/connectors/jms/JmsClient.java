@@ -26,15 +26,14 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.server.channel.Connector;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.BeanUtil;
 
@@ -44,7 +43,6 @@ import com.mirth.connect.util.BeanUtil;
  */
 public class JmsClient implements ExceptionListener {
     private Connector connector;
-    private ConnectorType connectorType;
     private JmsConnectorProperties connectorProperties;
     private Connection connection;
     private Session session;
@@ -53,13 +51,11 @@ public class JmsClient implements ExceptionListener {
     private String destinationName;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private AtomicBoolean attemptingReconnect = new AtomicBoolean(false);
     private Logger logger = Logger.getLogger(getClass());
 
-    public JmsClient(final Connector connector, final ConnectorType connectorType, JmsConnectorProperties connectorProperties) {
+    public JmsClient(final Connector connector, JmsConnectorProperties connectorProperties) {
         this.connector = connector;
-        this.connectorType = connectorType;
         this.connectorProperties = connectorProperties;
     }
 
@@ -197,7 +193,7 @@ public class JmsClient implements ExceptionListener {
                         connector.onStop();
                     } catch (Exception e1) {
                         logger.error("Failed to close connection", e1);
-                        monitoringController.updateStatus(connector.getChannelId(), connector.getMetaDataId(), connectorType, Event.DISCONNECTED);
+                        eventController.dispatchEvent(new ConnectorEvent(connector.getChannelId(), connector.getMetaDataId(), ConnectorEventType.DISCONNECTED));
                     }
 
                     do {
@@ -234,6 +230,6 @@ public class JmsClient implements ExceptionListener {
     private void reportError(String errorMessage, Exception e) {
         String channelId = connector.getChannelId();
         logger.error(errorMessage + " (channel: " + ChannelController.getInstance().getDeployedChannelById(channelId).getName() + ")", e);
-        eventController.dispatchEvent(new ErrorEvent(channelId, ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), null, e.getCause()));
+        eventController.dispatchEvent(new ErrorEvent(channelId, connector.getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), null, e.getCause()));
     }
 }

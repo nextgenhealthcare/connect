@@ -124,7 +124,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
                 responseStatus = Status.QUEUED;
 
                 logger.error("Error evaluating " + connectorProperties.getName() + " (" + connectorProperties.getName() + " \"" + connector.getDestinationName() + "\" on channel " + connector.getChannelId() + ").", e);
-                eventController.dispatchEvent(new ErrorEvent(connector.getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error evaluating " + connectorProperties.getName(), e));
+                eventController.dispatchEvent(new ErrorEvent(connector.getChannelId(), connector.getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error evaluating " + connectorProperties.getName(), e));
             }
 
             return new Response(responseStatus, responseData, responseStatusMessage, responseError);

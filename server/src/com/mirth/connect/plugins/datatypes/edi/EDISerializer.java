@@ -70,7 +70,7 @@ public class EDISerializer implements IXMLSerializer {
 		try {
 			xr = XMLReaderFactory.createXMLReader();
 		} catch (SAXException e) {
-			throw new SerializerException(e.getMessage(), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
+			throw new SerializerException(e.getMessage(), e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
 		}
 		EDIXMLHandler handler = new EDIXMLHandler();
 		xr.setContentHandler(handler);
@@ -79,7 +79,7 @@ public class EDISerializer implements IXMLSerializer {
             //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
             xr.parse(new InputSource(new StringReader(prettyPattern.matcher(source).replaceAll("</$1><"))));
 		} catch (Exception e) {
-			throw new SerializerException(e.getMessage(), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
+			throw new SerializerException(e.getMessage(), e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
 		}
 		return handler.getOutput().toString();
 	}

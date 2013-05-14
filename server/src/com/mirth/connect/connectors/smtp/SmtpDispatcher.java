@@ -19,6 +19,7 @@ import org.apache.commons.mail.MultiPartEmail;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
@@ -28,12 +29,10 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
@@ -43,10 +42,8 @@ import com.mirth.connect.util.ErrorMessageBuilder;
 public class SmtpDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     private SmtpDispatcherProperties connectorProperties;
-    private final MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
-    private final ConnectorType connectorType = ConnectorType.WRITER;
 
     private String charsetEncoding;
 
@@ -109,7 +106,7 @@ public class SmtpDispatcher extends DestinationConnector {
         Status responseStatus = Status.QUEUED;
 
         String info = "From: " + smtpDispatcherProperties.getFrom() + " To: " + smtpDispatcherProperties.getTo() + " SMTP Info: " + smtpDispatcherProperties.getSmtpHost() + ":" + smtpDispatcherProperties.getSmtpPort();
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, info);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.WRITING, info));
 
         try {
             Email email = null;
@@ -224,14 +221,14 @@ public class SmtpDispatcher extends DestinationConnector {
             responseStatus = Status.SENT;
             responseStatusMessage = "Email sent successfully.";
         } catch (Exception e) {
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error sending email message", e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error sending email message", e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error sending email message", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_402, "Error sending email message", e);
 
             // TODO: Exception handling
 //            connector.handleException(new Exception(e));
         } finally {
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);

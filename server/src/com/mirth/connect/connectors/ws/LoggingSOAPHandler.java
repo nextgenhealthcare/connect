@@ -18,10 +18,10 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.model.event.ConnectorEventType;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.controllers.EventController;
 
 /*
  * Log the whole SOAP message
@@ -29,8 +29,7 @@ import com.mirth.connect.server.controllers.MonitoringController.Event;
 public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
 
     private Logger logger = Logger.getLogger(this.getClass());
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-    private ConnectorType connectorType = ConnectorType.LISTENER;
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
 
     private WebServiceReceiver webServiceReceiver;
 
@@ -44,7 +43,7 @@ public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
 
     public void close(MessageContext mc) {
         logger.debug("Web Service connection closed.");
-        monitoringController.updateStatus(webServiceReceiver.getChannelId(), webServiceReceiver.getMetaDataId(), connectorType, Event.DONE);
+        eventController.dispatchEvent(new ConnectorEvent(webServiceReceiver.getChannelId(), webServiceReceiver.getMetaDataId(), ConnectorEventType.IDLE));
     }
 
     public boolean handleFault(SOAPMessageContext smc) {
@@ -56,7 +55,7 @@ public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
             Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
             if (!outbound) {
                 logger.debug("Web Service message received.");
-                monitoringController.updateStatus(webServiceReceiver.getChannelId(), webServiceReceiver.getMetaDataId(), connectorType, Event.CONNECTED);
+                eventController.dispatchEvent(new ConnectorEvent(webServiceReceiver.getChannelId(), webServiceReceiver.getMetaDataId(), ConnectorEventType.CONNECTED));
             } else {
                 logger.debug("Web Service returning response.");
             }

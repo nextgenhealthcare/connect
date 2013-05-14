@@ -18,23 +18,11 @@ public class SerializerException extends DonkeyException {
         super(cause);
     }
 
-    public SerializerException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
     public SerializerException(String message) {
         super(message);
     }
 
-    public SerializerException(Throwable cause, String formattedError) {
-        super(cause, formattedError);
-    }
-
     public SerializerException(String message, Throwable cause, String formattedError) {
         super(message, cause, formattedError);
-    }
-
-    public SerializerException(String message, String formattedError) {
-        super(message, formattedError);
     }
 }

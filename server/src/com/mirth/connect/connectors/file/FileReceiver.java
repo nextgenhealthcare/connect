@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.mirth.connect.connectors.file.filesystems.FileInfo;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
+import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
@@ -41,6 +42,7 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.message.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.BatchMessageProcessor;
@@ -49,9 +51,6 @@ import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ExtensionController;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
@@ -68,9 +67,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
     private boolean routingError = false;
 
     private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
-    private ConnectorType connectorType = ConnectorType.READER;
     private FileConnector fileConnector = null;
 
     private String originalFilename = null;
@@ -123,8 +120,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             }
         }
 
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);
-
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -154,12 +150,12 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             throw new StopException("Failed to stop File Connector", e);
         }
 
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DISCONNECTED);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
     }
 
     @Override
     protected void poll() {
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.CONNECTED);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.POLLING));
         try {
 
             FileInfo[] files = listFiles();
@@ -178,16 +174,16 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 }
 
                 if (!routingError && !files[i].isDirectory()) {
-                    monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY);
+                    eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.READING));
                     processFile(files[i]);
-                    monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
+                    eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
                 }
             }
         } catch (Throwable t) {
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), null, t));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), null, t));
             logger.error("Error polling in channel: " + getChannelId(), t);
         } finally {
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
         }
     }
 
@@ -345,7 +341,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 }
             }
         } catch (Exception e) {
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), "", e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), "", e));
             logger.error("Error processing file in channel: " + getChannelId(), e);
         }
     }

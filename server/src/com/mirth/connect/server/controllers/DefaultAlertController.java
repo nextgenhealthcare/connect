@@ -17,7 +17,9 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.alert.AlertModel;
+import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.alert.Alert;
 import com.mirth.connect.server.alert.AlertWorker;
 import com.mirth.connect.server.alert.DefaultAlertWorker;
 import com.mirth.connect.server.util.DatabaseUtil;
@@ -43,12 +45,12 @@ public class DefaultAlertController extends AlertController {
             return instance;
         }
     }
-    
+
     @Override
     public void initAlerts() {
         try {
             List<AlertModel> alertModels = getAlerts();
-            
+
             for (AlertModel alertModel : alertModels) {
                 if (alertModel.isEnabled()) {
                     enableAlert(alertModel);
@@ -62,19 +64,53 @@ public class DefaultAlertController extends AlertController {
     @Override
     public void addWorker(AlertWorker alertWorker) {
         alertWorkers.put(alertWorker.getTriggerClass(), alertWorker);
-        
-        eventController.addListener(alertWorker, alertWorker.getEventTypes());
+
+        eventController.addListener(alertWorker);
     }
-    
+
     @Override
     public void removeAllWorkers() {
         for (AlertWorker worker : alertWorkers.values()) {
             eventController.removeListener(worker);
         }
-        
+
         alertWorkers.clear();
     }
-    
+
+    @Override
+    public List<AlertStatus> getAlertStatusList() throws ControllerException {
+        List<AlertStatus> alertStatuses = new ArrayList<AlertStatus>();
+        List<AlertModel> alertModels = getAlerts();
+
+        for (AlertModel alertModel : alertModels) {
+            AlertStatus alertStatus = getEnabledAlertStatus(alertModel.getId());
+
+            if (alertStatus == null) {
+                alertStatus = new AlertStatus();
+            }
+
+            alertStatus.setId(alertModel.getId());
+            alertStatus.setName(alertModel.getName());
+            alertStatus.setEnabled(alertModel.isEnabled());
+
+            alertStatuses.add(alertStatus);
+        }
+
+        return alertStatuses;
+    }
+
+    private AlertStatus getEnabledAlertStatus(String alertId) {
+        for (AlertWorker alertWorker : alertWorkers.values()) {
+            AlertStatus alertStatus = alertWorker.getAlertStatus(alertId);
+
+            if (alertStatus != null) {
+                return alertStatus;
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public AlertModel getAlert(String alertId) throws ControllerException {
         logger.debug("getting alert");
@@ -82,9 +118,9 @@ public class DefaultAlertController extends AlertController {
         try {
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
             List<Map<String, Object>> rows = SqlConfig.getSqlSessionManager().selectList("Alert.getAlert", alertId);
-            
+
             AlertModel alertModel = null;
-            
+
             if (!rows.isEmpty()) {
                 alertModel = (AlertModel) serializer.deserialize((String) rows.get(0).get("alert"));
             }
@@ -103,7 +139,7 @@ public class DefaultAlertController extends AlertController {
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
             List<Map<String, Object>> rows = SqlConfig.getSqlSessionManager().selectList("Alert.getAlert", null);
             List<AlertModel> alerts = new ArrayList<AlertModel>();
-            
+
             for (Map<String, Object> row : rows) {
                 alerts.add((AlertModel) serializer.deserialize((String) row.get("alert")));
             }
@@ -119,28 +155,28 @@ public class DefaultAlertController extends AlertController {
         if (alert == null) {
             return;
         }
-        
+
         if (alert.getName() != null) {
             Map<String, Object> params = new HashMap<String, Object>();
-            
+
             params.put("id", alert.getId());
             params.put("name", alert.getName());
-            
+
             if ((Boolean) SqlConfig.getSqlSessionManager().selectOne("Alert.getAlertNameExists", params)) {
                 throw new ControllerException("An alert with that name aleady exists.");
             }
         }
-        
+
         AlertModel matchingAlert = getAlert(alert.getId());
 
         try {
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
             Map<String, Object> params = new HashMap<String, Object>();
-            
+
             params.put("id", alert.getId());
             params.put("name", alert.getName());
             params.put("alert", serializer.serialize(alert));
-            
+
             if (matchingAlert != null) {
                 disableAlert(matchingAlert);
 
@@ -190,8 +226,8 @@ public class DefaultAlertController extends AlertController {
         if (alertWorkers.containsKey(clazz)) {
             alertWorkers.get(clazz).enableAlert(alert);
         } else {
-            logger.error("Failed to enable alert " + alert.getId() + ". Worker class " + clazz.getName() + " not found.");
-            
+            logger.error("Failed to enable alert " + alert.getId() + ". Worker class for trigger " + clazz.getName() + " not found.");
+
             alert.setEnabled(false);
             updateAlert(alert);
         }
@@ -206,6 +242,19 @@ public class DefaultAlertController extends AlertController {
         for (AlertWorker worker : alertWorkers.values()) {
             worker.disableAlert(alert);
         }
+    }
+
+    @Override
+    public Alert getEnabledAlert(String alertId) {
+        for (AlertWorker worker : alertWorkers.values()) {
+            Alert alert = worker.getEnabledAlert(alertId);
+
+            if (alert != null) {
+                return alert;
+            }
+        }
+
+        return null;
     }
 
 }

@@ -42,7 +42,9 @@ import com.mirth.connect.model.User;
 import com.mirth.connect.model.alert.AlertAction;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertActionProtocol;
+import com.mirth.connect.model.alert.AlertChannels;
 import com.mirth.connect.model.alert.AlertModel;
+import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.alert.DefaultTrigger;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
@@ -52,7 +54,9 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         AlertAction.class,
         AlertActionGroup.class,
         AlertActionProtocol.class,
+        AlertChannels.class,
         AlertModel.class,
+        AlertStatus.class,
         ArchiveMetaData.class,
         Channel.class,
         ChannelStatistics.class,

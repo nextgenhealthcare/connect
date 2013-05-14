@@ -21,6 +21,7 @@ import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
+import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
@@ -29,10 +30,9 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
@@ -40,12 +40,10 @@ import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 
 public class JavaScriptReceiver extends PollConnector {
-    private final static ConnectorType CONNECTOR_TYPE = ConnectorType.READER;
-
     private String scriptId;
     private JavaScriptReceiverProperties connectorProperties;
     private JavaScriptExecutor<Object> jsExecutor = new JavaScriptExecutor<Object>();
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
     private Logger logger = Logger.getLogger(getClass());
 
     @Override
@@ -84,7 +82,7 @@ public class JavaScriptReceiver extends PollConnector {
     @Override
     public void poll() throws InterruptedException {
         Object result = null;
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.BUSY);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.READING));
 
         try {
             result = jsExecutor.execute(new JavaScriptReceiverTask());
@@ -104,7 +102,7 @@ public class JavaScriptReceiver extends PollConnector {
             }
         }
 
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
     }
 
     private class JavaScriptReceiverTask extends JavaScriptTask<Object> {

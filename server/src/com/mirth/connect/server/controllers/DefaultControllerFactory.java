@@ -11,7 +11,6 @@ package com.mirth.connect.server.controllers;
 
 import org.apache.log4j.Logger;
 
-
 public class DefaultControllerFactory extends ControllerFactory {
     private Logger logger = Logger.getLogger(this.getClass());
     private AuthorizationController authorizationController = null;
@@ -37,7 +36,7 @@ public class DefaultControllerFactory extends ControllerFactory {
 
         return authorizationController;
     }
-    
+
     public AlertController createAlertController() {
         return DefaultAlertController.create();
     }
@@ -57,7 +56,7 @@ public class DefaultControllerFactory extends ControllerFactory {
     public EngineController createEngineController() {
         return DonkeyEngineController.getInstance();
     }
-    
+
     public EventController createEventController() {
         return DefaultEventController.create();
     }
@@ -72,10 +71,6 @@ public class DefaultControllerFactory extends ControllerFactory {
 
     public MigrationController createMigrationController() {
         return DefaultMigrationController.create();
-    }
-
-    public MonitoringController createMonitoringController() {
-        return DefaultMonitoringController.create();
     }
 
     public ScriptController createScriptController() {

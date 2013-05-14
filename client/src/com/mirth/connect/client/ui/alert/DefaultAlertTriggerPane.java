@@ -15,7 +15,6 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
-import javax.swing.table.DefaultTableModel;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -45,13 +44,16 @@ public class DefaultAlertTriggerPane extends AlertTriggerPane {
     }
 
     private void makeErrorTable() {
-        Object[][] tableData = new Object[ErrorEventType.values().length][2];
+        Object[][] tableData = new Object[ErrorEventType.values().length + 1][2];
+
+        tableData[0][0] = false;
+        tableData[0][1] = "Any Error";
 
         for (int i = 0; i < ErrorEventType.values().length; i++) {
             ErrorEventType type = ErrorEventType.values()[i];
 
-            tableData[i][0] = false;
-            tableData[i][1] = type;
+            tableData[i + 1][0] = false;
+            tableData[i + 1][1] = type;
         }
 
         errorTable.setModel(new RefreshTableModel(tableData, new String[] { "", "Error" }) {
@@ -61,6 +63,26 @@ public class DefaultAlertTriggerPane extends AlertTriggerPane {
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit[columnIndex];
+            }
+
+            @Override
+            public void setValueAt(Object aValue, int row, int column) {
+                super.setValueAt(aValue, row, column);
+
+                if (aValue instanceof Boolean) {
+                    boolean enabled = (Boolean) aValue;
+                    if (row == 0) {
+                        if (enabled) {
+                            for (int i = 1; i < errorTable.getRowCount(); i++) {
+                                setValueAt(aValue, i, 0);
+                            }
+                        }
+                    } else {
+                        if (!enabled) {
+                            setValueAt(false, 0, 0);
+                        }
+                    }
+                }
             }
         });
 
@@ -109,71 +131,87 @@ public class DefaultAlertTriggerPane extends AlertTriggerPane {
             errorTable.setHighlighters(highlighter);
         }
     }
-    
+
     @Override
     public List<String> getVariables() {
         List<String> variables = new ArrayList<String>();
-        
+
         variables.add("error");
         variables.add("errorMessage");
         variables.add("channelId");
         variables.add("channelName");
-        
+
         return variables;
     }
 
-    public void updateErrorTable(Set<ErrorEventType> errorAlertTypes) {
-        DefaultTableModel tableModel = ((DefaultTableModel) errorTable.getModel());
+    public void updateErrorTable(Set<ErrorEventType> errorEventTypes) {
+        RefreshTableModel tableModel = ((RefreshTableModel) errorTable.getModel());
 
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            boolean enabled = (Boolean) tableModel.getValueAt(i, 0);
+        boolean allEventTypes = (errorEventTypes == null);
+        tableModel.setValueAt(allEventTypes, 0, 0);
+
+        for (int i = 1; i < tableModel.getRowCount(); i++) {
             ErrorEventType type = (ErrorEventType) tableModel.getValueAt(i, 1);
 
-            tableModel.setValueAt(errorAlertTypes.contains(type), i, 0);
+            if (allEventTypes) {
+                tableModel.setValueAt(true, i, 0);
+            } else {
+                tableModel.setValueAt(errorEventTypes.contains(type), i, 0);
+            }
         }
     }
 
     @Override
     public AlertTrigger getTrigger() {
-        Set<ErrorEventType> errorAlertTypes = new HashSet<ErrorEventType>();
+        Set<ErrorEventType> errorEventTypes = null;
 
-        DefaultTableModel tableModel = ((DefaultTableModel) errorTable.getModel());
+        RefreshTableModel tableModel = ((RefreshTableModel) errorTable.getModel());
 
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            boolean enabled = (Boolean) tableModel.getValueAt(i, 0);
+        boolean enabled = (Boolean) tableModel.getValueAt(0, 0);
+        if (!enabled) {
+            errorEventTypes = new HashSet<ErrorEventType>();
 
-            if (enabled) {
-                errorAlertTypes.add((ErrorEventType) tableModel.getValueAt(i, 1));
+            for (int i = 1; i < tableModel.getRowCount(); i++) {
+                enabled = (Boolean) tableModel.getValueAt(i, 0);
+
+                if (enabled) {
+                    errorEventTypes.add((ErrorEventType) tableModel.getValueAt(i, 1));
+                }
             }
         }
 
-        return new DefaultTrigger(errorAlertTypes, regexTextArea.getText());
+        return new DefaultTrigger(errorEventTypes, regexTextArea.getText());
     }
 
     @Override
     public void setTrigger(AlertTrigger trigger) {
         if (trigger instanceof DefaultTrigger) {
-            DefaultTrigger defaultTrigger= (DefaultTrigger) trigger;
+            DefaultTrigger defaultTrigger = (DefaultTrigger) trigger;
 
-            updateErrorTable(defaultTrigger.getErrorAlertTypes());
+            updateErrorTable(defaultTrigger.getErrorEventTypes());
 
             regexTextArea.setText(defaultTrigger.getRegex());
-            
-            channelPane.updateChannelTree(defaultTrigger.getChannels());
         }
     }
-    
+
+    @Override
+    public void reset() {
+        updateErrorTable(new HashSet<ErrorEventType>());
+
+        regexTextArea.setText("");
+    }
+
     protected MirthTextArea getRegexTextArea() {
         return regexTextArea;
     }
-    
+
     protected MirthTable getErrorTable() {
         return errorTable;
     }
 
     private void initComponents() {
         setBackground(UIConstants.BACKGROUND_COLOR);
-        setLayout(new MigLayout("insets 0, flowy", "[][grow][]", "[grow]"));
+        setLayout(new MigLayout("insets 0, flowy", "[][grow]", "[grow]"));
 
         errorTable = new MirthTable();
         errorScrollPane = new JScrollPane(errorTable);
@@ -192,13 +230,9 @@ public class DefaultAlertTriggerPane extends AlertTriggerPane {
         regexPane.setLayout(new BorderLayout());
         regexPane.add(regexScrollPane);
 
-        channelPane = new AlertChannelPane();
+        add(errorPane, "width 220, height 100, growy, wrap");
 
-        add(errorPane, "width 220, growy, wrap");
-
-        add(regexPane, "grow, wrap");
-
-        add(channelPane, "width 300, growy");
+        add(regexPane, "width 200, grow");
     }
 
     private JPanel errorPane;
@@ -207,6 +241,5 @@ public class DefaultAlertTriggerPane extends AlertTriggerPane {
     private JPanel regexPane;
     private JScrollPane regexScrollPane;
     private MirthTextArea regexTextArea;
-    private AlertChannelPane channelPane;
 
 }

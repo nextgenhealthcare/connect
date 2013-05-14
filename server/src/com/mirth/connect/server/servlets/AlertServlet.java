@@ -38,7 +38,7 @@ public class AlertServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // MIRTH-1745
         response.setCharacterEncoding("UTF-8");
-        
+
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {
@@ -57,20 +57,20 @@ public class AlertServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         response.setContentType(APPLICATION_XML);
-                        
+
                         List<AlertModel> alerts;
-                        
+
                         if (StringUtils.isBlank(alertId)) {
                             alerts = alertController.getAlerts();
                         } else {
                             alerts = new ArrayList<AlertModel>();
-                            
+
                             AlertModel alert = alertController.getAlert(alertId);
                             if (alert != null) {
                                 alerts.add(alert);
                             }
                         }
-                        
+
                         serializer.toXML(alerts, out);
                     }
                 } else if (operation.equals(Operations.ALERT_UPDATE)) {
@@ -112,6 +112,14 @@ public class AlertServlet extends MirthServlet {
                         AlertModel alertModel = alertController.getAlert(alertId);
                         alertModel.setEnabled(false);
                         alertController.updateAlert(alertModel);
+                    }
+                } else if (operation.equals(Operations.ALERT_GET_STATUS)) {
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        response.setContentType(APPLICATION_XML);
+
+                        serializer.toXML(alertController.getAlertStatusList(), out);
                     }
                 }
             } catch (RuntimeIOException rio) {

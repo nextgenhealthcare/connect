@@ -5,11 +5,17 @@ import com.mirth.connect.donkey.model.event.MessageEventType;
 public class MessageEvent extends Event {
 
     private String channelId;
+    private Integer metaDataId;
     private MessageEventType type;
+    private Long count;
+    private boolean statUpdate;
 
-    public MessageEvent(String channelId, MessageEventType type) {
+    public MessageEvent(String channelId, Integer metaDataId, MessageEventType type, Long count, boolean statUpdate) {
         this.channelId = channelId;
+        this.metaDataId = metaDataId;
         this.type = type;
+        this.count = count;
+        this.statUpdate = statUpdate;
     }
 
     public String getChannelId() {
@@ -20,11 +26,35 @@ public class MessageEvent extends Event {
         this.channelId = channelId;
     }
 
+    public Integer getMetaDataId() {
+        return metaDataId;
+    }
+
+    public void setMetaDataId(Integer metaDataId) {
+        this.metaDataId = metaDataId;
+    }
+
     public MessageEventType getType() {
         return type;
     }
 
     public void setType(MessageEventType type) {
         this.type = type;
+    }
+
+    public Long getCount() {
+        return count;
+    }
+
+    public void setCount(Long count) {
+        this.count = count;
+    }
+
+    public boolean isStatUpdate() {
+        return statUpdate;
+    }
+
+    public void setStatUpdate(boolean statUpdate) {
+        this.statUpdate = statUpdate;
     }
 }

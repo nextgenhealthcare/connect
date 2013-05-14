@@ -134,10 +134,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
         setCurrentState(ChannelState.STARTING);
 
         if (isQueueEnabled()) {
-            // Remove any items in the queue's buffer because they may be outdated.
-            queue.invalidate();
-            // refresh the queue size from it's data source
-            queue.updateSize();
+            // Remove any items in the queue's buffer because they may be outdated and refresh the queue size
+            queue.invalidate(true);
 
             thread = new Thread(this);
             thread.start();
@@ -388,7 +386,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                         logger.error("Error processing queued " + (connectorMessage != null ? connectorMessage.toString() : "message (null)") + " for channel " + getChannelId() + " (" + destinationName + "). This error is expected if the message was manually removed from the queue.", e);
                         // Invalidate the queue's buffer if any errors occurred. If the message being processed by the queue was deleted,
                         // This will prevent the queue from trying to process that message repeatedly.
-                        queue.invalidate();
+                        queue.invalidate(true);
                     } finally {
                         if (dao != null) {
                             dao.close();
@@ -410,7 +408,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
         } finally {
             // Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
             // unsynchronized with the data store.
-            queue.invalidate();
+            queue.invalidate(false);
             setCurrentState(ChannelState.STOPPED);
 
             if (dao != null) {

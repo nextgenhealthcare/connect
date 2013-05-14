@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
@@ -26,13 +27,11 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ExtensionController;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.server.util.VMRouter;
@@ -43,8 +42,6 @@ public class VmDispatcher extends DestinationConnector {
     private VmDispatcherProperties connectorProperties;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-    private ConnectorType connectorType = ConnectorType.SENDER;
     private static transient Log logger = LogFactory.getLog(VMRouter.class);
 
     @Override
@@ -57,12 +54,12 @@ public class VmDispatcher extends DestinationConnector {
 
     @Override
     public void onStart() throws StartException {
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
     }
 
     @Override
     public void onStop() throws StopException {
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DISCONNECTED);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.DISCONNECTED));
     }
 
     @Override
@@ -79,7 +76,7 @@ public class VmDispatcher extends DestinationConnector {
 
         String channelId = vmDispatcherProperties.getChannelId();
 
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, "Target Channel: " + channelId);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.SENDING, "Target Channel: " + channelId));
 
         String responseData = null;
         String responseError = null;
@@ -116,11 +113,11 @@ public class VmDispatcher extends DestinationConnector {
             responseStatus = Status.SENT;
             responseStatusMessage = "Message routed successfully to channel id: " + channelId;
         } catch (Throwable e) {
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error routing message to channel id: " + channelId, e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error routing message to channel id: " + channelId, e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error routing message to channel id: " + channelId, e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_412, "Error routing message to channel id: " + channelId, e);
         } finally {
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);

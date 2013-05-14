@@ -29,13 +29,12 @@ public class DefaultEventController extends EventController {
 
     private static DefaultEventController instance = null;
 
-    private static Map<String, BlockingQueue<Event>> errorEventQueues = new ConcurrentHashMap<String, BlockingQueue<Event>>();
-    private static Map<String, BlockingQueue<Event>> messageEventQueues = new ConcurrentHashMap<String, BlockingQueue<Event>>();
-    private static Map<String, BlockingQueue<Event>> channelEventQueues = new ConcurrentHashMap<String, BlockingQueue<Event>>();
-    private static Map<String, BlockingQueue<Event>> connectorEventQueues = new ConcurrentHashMap<String, BlockingQueue<Event>>();
+    private static Map<Object, BlockingQueue<Event>> errorEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
+    private static Map<Object, BlockingQueue<Event>> messageEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
+    private static Map<Object, BlockingQueue<Event>> channelEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
+    private static Map<Object, BlockingQueue<Event>> connectorEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
 
-    private DefaultEventController() {
-    }
+    private DefaultEventController() {}
 
     public static EventController create() {
         synchronized (DefaultEventController.class) {
@@ -46,45 +45,43 @@ public class DefaultEventController extends EventController {
             return instance;
         }
     }
-    
+
     @Override
-    public String addListener(EventListener listener, Set<EventType> types) {
-        String key = listener.getKey();
+    public void addListener(EventListener listener) {
+        Set<EventType> types = listener.getEventTypes();
         BlockingQueue<Event> queue = listener.getQueue();
-        
+
         if (types.contains(EventType.ERROR)) {
-            errorEventQueues.put(key, queue);
+            errorEventQueues.put(listener, queue);
         }
 
         if (types.contains(EventType.MESSAGE)) {
-            messageEventQueues.put(key, queue);
+            messageEventQueues.put(listener, queue);
         }
 
         if (types.contains(EventType.CHANNEL)) {
-            channelEventQueues.put(key, queue);
+            channelEventQueues.put(listener, queue);
         }
 
         if (types.contains(EventType.CONNECTOR)) {
-            connectorEventQueues.put(key, queue);
+            connectorEventQueues.put(listener, queue);
         }
-        
-        return key;
     }
 
     @Override
     public void removeListener(EventListener listener) {
-        String key = listener.getKey();
-        
-        errorEventQueues.remove(key);
-        messageEventQueues.remove(key);
-        channelEventQueues.remove(key);
-        connectorEventQueues.remove(key);
+        errorEventQueues.remove(listener);
+        messageEventQueues.remove(listener);
+        channelEventQueues.remove(listener);
+        connectorEventQueues.remove(listener);
+
+        listener.shutdown();
     }
 
     @Override
     public void dispatchEvent(Event event) {
         try {
-            Map<String, BlockingQueue<Event>> queues = null;
+            Map<Object, BlockingQueue<Event>> queues = null;
             /*
              * Using instanceof is several thousand times faster than using a map to store the
              * different queue sets.

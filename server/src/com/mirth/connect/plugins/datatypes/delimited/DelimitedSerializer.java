@@ -80,7 +80,7 @@ public class DelimitedSerializer implements IXMLSerializer {
         } catch (Exception e) {
             String exceptionMessage = e.getClass().getName() + ":" + e.getMessage();
             logger.error(exceptionMessage);
-            throw new SerializerException(e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to delimited text", e));
+            throw new SerializerException("Error converting XML to delimited text", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to delimited text", e));
         }
         return builder.toString();
     }

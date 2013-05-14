@@ -1,17 +1,47 @@
 package com.mirth.connect.server.event;
 
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import com.mirth.connect.donkey.server.event.Event;
-import com.mirth.connect.server.util.UUIDGenerator;
+import com.mirth.connect.donkey.server.event.EventType;
 
-public abstract class EventListener {
-    
-    private String key = UUIDGenerator.getUUID();
+public abstract class EventListener implements Runnable {
 
-    public String getKey() {
-        return key;
+    private Thread workerThread = new Thread(this);
+    protected BlockingQueue<Event> queue = new LinkedBlockingQueue<Event>();
+
+    public EventListener() {
+        workerThread.start();
     }
-    
-    public abstract BlockingQueue<Event> getQueue();
+
+    public BlockingQueue<Event> getQueue() {
+        return queue;
+    }
+
+    public void shutdown() {
+        workerThread.interrupt();
+
+        onShutdown();
+    }
+
+    protected abstract void onShutdown();
+
+    public abstract Set<EventType> getEventTypes();
+
+    protected abstract void processEvent(Event event);
+
+    @Override
+    public void run() {
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+                Event event = queue.take();
+
+                processEvent(event);
+            } catch (Throwable t) {
+
+            }
+        }
+    }
 }

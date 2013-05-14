@@ -54,7 +54,7 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
         size = dataSource.getSize();
     }
 
-    public synchronized void invalidate() {
+    protected synchronized void invalidate() {
         buffer.clear();
         size = null;
     }
@@ -171,39 +171,18 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
 
     @Override
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
+        waitTimeout(timeout, unit);
+
+        return poll();
+    }
+
+    protected void waitTimeout(long timeout, TimeUnit unit) throws InterruptedException {
         if ((size == null || size == 0) && timeout > 0) {
             synchronized (timeoutLock) {
                 timeoutLock.set(true);
                 timeoutLock.wait(TimeUnit.MILLISECONDS.convert(timeout, unit));
             }
         }
-
-        return poll();
-    }
-
-    @Override
-    public synchronized void put(E e) {
-        add(e);
-    }
-
-    @Override
-    public synchronized boolean remove(Object o) {
-        if (size == null) {
-            updateSize();
-        }
-
-        size--;
-        return buffer.remove(o);
-    }
-
-    @Override
-    public synchronized boolean removeAll(Collection<?> c) {
-        if (size == null) {
-            updateSize();
-        }
-
-        size -= c.size();
-        return buffer.removeAll(c);
     }
 
     @Override
@@ -246,6 +225,21 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
                 timeoutLock.set(false);
             }
         }
+    }
+
+    @Override
+    public synchronized void put(E e) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public synchronized boolean remove(Object o) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public synchronized boolean removeAll(Collection<?> c) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

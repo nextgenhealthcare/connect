@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.vm;
 
+import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
@@ -17,15 +18,13 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.controllers.EventController;
 
 public class VmReceiver extends SourceConnector {
 
-    private ConnectorType connectorType = ConnectorType.LISTENER;
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
 
     @Override
     public void onDeploy() throws DeployException {}
@@ -35,12 +34,12 @@ public class VmReceiver extends SourceConnector {
 
     @Override
     public void onStart() throws StartException {
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
     }
 
     @Override
     public void onStop() throws StopException {
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DISCONNECTED);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.DISCONNECTED));
     }
 
     @Override
@@ -50,13 +49,13 @@ public class VmReceiver extends SourceConnector {
 
     @Override
     public DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.RECEIVING));
         return super.dispatchRawMessage(rawMessage);
     }
 
     @Override
     public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String errorMessage) {
         super.finishDispatch(dispatchResult, attemptedResponse, errorMessage);
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
     }
 }

@@ -273,7 +273,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                         dao.commit(storageSettings.isDurable());
 
                         if (message.getStatus() == Status.QUEUED) {
-                            destinationConnector.getQueue().put(message);
+                            destinationConnector.getQueue().add(message);
                         }
                     }
                 }

@@ -1,18 +1,15 @@
 package com.mirth.connect.model.alert;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public abstract class ChannelTrigger {
     
-    private Map<String, List<Integer>> channels = new HashMap<String, List<Integer>>();
+    private AlertChannels channels = new AlertChannels();
 
-    public Map<String, List<Integer>> getChannels() {
+    public AlertChannels getChannels() {
         return channels;
     }
 
-    public void setChannels(Map<String, List<Integer>> channels) {
+    public void setChannels(AlertChannels channels) {
         this.channels = channels;
     }
     

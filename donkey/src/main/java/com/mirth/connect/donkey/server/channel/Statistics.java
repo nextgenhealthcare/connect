@@ -12,14 +12,42 @@ package com.mirth.connect.donkey.server.channel;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
+import com.mirth.connect.donkey.model.event.MessageEventType;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.event.EventDispatcher;
+import com.mirth.connect.donkey.server.event.MessageEvent;
 
 public class Statistics {
     private Map<String, Map<Integer, Map<Status, Long>>> stats = new LinkedHashMap<String, Map<Integer, Map<Status, Long>>>();
+    private EventDispatcher eventDispatcher;
+    private boolean sendEvents;
+    
+    public Statistics(boolean sendEvents) {
+        this.sendEvents = sendEvents;
+    }
 
     public Map<String, Map<Integer, Map<Status, Long>>> getStats() {
         return stats;
+    }
+    
+    public void resetStats(String channelId, Integer metaDataId, Set<Status> statuses) {
+        for (Status status : statuses) {
+            getChannelStats(channelId).get(metaDataId).put(status, 0L);
+            
+            if (sendEvents && metaDataId != null) {
+                MessageEventType type = MessageEventType.fromStatus(status);
+                if (type != null && status != Status.QUEUED) {
+                    // Dispatch a message event if the the status is in MessageEventType and the connector stat was updated
+                    if (eventDispatcher == null) {
+                        eventDispatcher = Donkey.getInstance().getEventDispatcher();
+                    }
+                    eventDispatcher.dispatchEvent(new MessageEvent(channelId, metaDataId, type, 0L, true));
+                }
+            }
+        }
     }
 
     public Map<Integer, Map<Status, Long>> getChannelStats(String channelId) {
@@ -73,39 +101,56 @@ public class Statistics {
 
         for (Entry<Status, Long> statsEntry : statsDiff.entrySet()) {
             Status status = statsEntry.getKey();
-            Long count = statsEntry.getValue();
+            Long diff = statsEntry.getValue();
 
-            // update the channel statistics
-            switch (status) {
-            // update the following statuses based on the source connector
-                case RECEIVED:
-                    connectorStats.put(status, connectorStats.get(status) + count);
-                    if (metaDataId == 0) {
-                        channelStats.put(status, channelStats.get(status) + count);
+            if (diff != 0) {
+                Long connectorCount = null;
+                // update the connector statistics
+                if (status != Status.QUEUED) {
+                    connectorCount = connectorStats.get(status) + diff;
+                    connectorStats.put(status, connectorCount);
+                }
+    
+                // update the channel statistics
+                switch (status) {
+                // update the following statuses based on the source connector
+                    case RECEIVED:
+                        if (metaDataId == 0) {
+                            channelStats.put(status, channelStats.get(status) + diff);
+                        }
+                        break;
+    
+                    // update the following statuses based on the source and destination connectors
+                    case FILTERED:
+                    case TRANSFORMED:
+                    case ERROR:
+                        channelStats.put(status, channelStats.get(status) + diff);
+                        break;
+    
+                    // update the following statuses based on the destination connectors
+                    case PENDING:
+                    case SENT:
+                        if (metaDataId > 0) {
+                            channelStats.put(status, channelStats.get(status) + diff);
+                        }
+                        break;
+    
+                    // Queued statistics are managed by the queue itself. Neither the channel nor connector should store them.
+                    // This case is added here for readability.
+                    case QUEUED:
+                        break;
+                }
+                
+                if (sendEvents && connectorCount != null) {
+                    MessageEventType type = MessageEventType.fromStatus(status);
+                    if (type != null) {
+                        // Dispatch a message event if the the status is in MessageEventType and the connector stat was updated
+                        if (eventDispatcher == null) {
+                            eventDispatcher = Donkey.getInstance().getEventDispatcher();
+                        }
+                        eventDispatcher.dispatchEvent(new MessageEvent(channelId, metaDataId, type, connectorCount, diff <= 0));
                     }
-                    break;
-
-                // update the following statuses based on the source and destination connectors
-                case FILTERED:
-                case TRANSFORMED:
-                case ERROR:
-                    connectorStats.put(status, connectorStats.get(status) + count);
-                    channelStats.put(status, channelStats.get(status) + count);
-                    break;
-
-                // update the following statuses based on the destination connectors
-                case PENDING:
-                case SENT:
-                    connectorStats.put(status, connectorStats.get(status) + count);
-                    if (metaDataId > 0) {
-                        channelStats.put(status, channelStats.get(status) + count);
-                    }
-                    break;
-
-                // Queued statistics are managed by the queue itself. Neither the channel nor connector should store them.
-                // This case is added here for readability.
-                case QUEUED:
-                    break;
+                }
             }
         }
     }

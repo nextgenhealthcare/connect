@@ -36,6 +36,7 @@ import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
+import com.mirth.connect.donkey.model.event.ChannelEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
@@ -60,6 +61,7 @@ import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.event.ChannelEvent;
+import com.mirth.connect.donkey.server.event.DeployEvent;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
@@ -179,7 +181,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     public void updateCurrentState(ChannelState state) {
         setCurrentState(state);
-        Donkey.getInstance().getEventDispatcher().dispatchEvent(new ChannelEvent(channelId, state));
+        Donkey.getInstance().getEventDispatcher().dispatchEvent(new ChannelEvent(channelId, ChannelEventType.getTypeFromChannelState(state)));
     }
 
     public StorageSettings getStorageSettings() {
@@ -369,11 +371,11 @@ public class Channel implements Startable, Stoppable, Runnable {
     }
 
     public void invalidateQueues() {
-        sourceQueue.invalidate();
+        sourceQueue.invalidate(true);
 
         for (DestinationChain chain : destinationChains) {
             for (Integer metaDataId : chain.getMetaDataIds()) {
-                chain.getDestinationConnectors().get(metaDataId).getQueue().invalidate();
+                chain.getDestinationConnectors().get(metaDataId).getQueue().invalidate(true);
             }
         }
     }
@@ -395,6 +397,23 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             if (task != null) {
                 task.get();
+
+                Statistics channelStatistics = ChannelController.getInstance().getStatistics();
+                Map<Integer, Map<Status, Long>> connectorStatistics = new HashMap<Integer, Map<Status, Long>>();
+                Map<Status, Long> statisticMap = new HashMap<Status, Long>(channelStatistics.getConnectorStats(channelId, 0));
+                statisticMap.put(Status.QUEUED, (long) sourceQueue.size());
+
+                connectorStatistics.put(0, statisticMap);
+                for (DestinationChain chain : destinationChains) {
+                    for (Integer metaDataId : chain.getMetaDataIds()) {
+                        statisticMap = new HashMap<Status, Long>(channelStatistics.getConnectorStats(channelId, metaDataId));
+                        statisticMap.put(Status.QUEUED, (long) chain.getDestinationConnectors().get(metaDataId).getQueue().size());
+
+                        connectorStatistics.put(metaDataId, statisticMap);
+                    }
+                }
+
+                eventDispatcher.dispatchEvent(new DeployEvent(channelId, connectorStatistics, ChannelEventType.DEPLOY));
             }
         } catch (Throwable t) {
             Throwable cause = t.getCause();
@@ -425,6 +444,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             if (task != null) {
                 task.get();
+                eventDispatcher.dispatchEvent(new ChannelEvent(channelId, ChannelEventType.UNDEPLOY));
             }
         } catch (Throwable t) {
             Throwable cause = t.getCause();
@@ -1438,10 +1458,8 @@ public class Channel implements Startable, Stoppable, Runnable {
                     channelTasks.clear();
                     stopSourceQueue = false;
 
-                    // Remove any items in the queue's buffer because they may be outdated.
-                    sourceQueue.invalidate();
-                    // manually refresh the source queue size from it's data source
-                    sourceQueue.updateSize();
+                    // Remove any items in the queue's buffer because they may be outdated and refresh the queue size.
+                    sourceQueue.invalidate(true);
 
                     // enable all destination connectors in each chain
                     for (DestinationChain chain : destinationChains) {

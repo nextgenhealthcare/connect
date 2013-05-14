@@ -30,6 +30,7 @@ import com.lowagie.text.pdf.PdfReader;
 import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.rtf.RtfWriter2;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
@@ -39,12 +40,10 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorConstants;
@@ -54,15 +53,13 @@ public class DocumentDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     private DocumentDispatcherProperties connectorProperties;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-    private ConnectorType connectorType = ConnectorType.WRITER;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     @Override
     public void onDeploy() throws DeployException {
         this.connectorProperties = (DocumentDispatcherProperties) getConnectorProperties();
 
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -104,7 +101,7 @@ public class DocumentDispatcher extends DestinationConnector {
         }
         info += documentDispatcherProperties.getDocumentType() + " Document Type Result Written To: " + documentDispatcherProperties.getHost() + "/" + documentDispatcherProperties.getOutputPattern();
 
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, info);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.WRITING, info));
 
         try {
             File file = createFile(documentDispatcherProperties.getHost() + "/" + documentDispatcherProperties.getOutputPattern());
@@ -114,14 +111,14 @@ public class DocumentDispatcher extends DestinationConnector {
             responseStatusMessage = "Document successfully written: " + documentDispatcherProperties.getOutputPattern();
             responseStatus = Status.SENT;
         } catch (Exception e) {
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error writing document", e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error writing document", e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error writing document", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_401, "Error writing document", e);
 
             // TODO: Handle exception
 //            connector.handleException(e);
         } finally {
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);

@@ -90,6 +90,7 @@ import com.mirth.connect.client.core.UpdateClient;
 import com.mirth.connect.client.ui.alert.AlertEditPanel;
 import com.mirth.connect.client.ui.alert.AlertPanel;
 import com.mirth.connect.client.ui.alert.DefaultAlertEditPanel;
+import com.mirth.connect.client.ui.alert.DefaultAlertPanel;
 import com.mirth.connect.client.ui.browsers.event.EventBrowser;
 import com.mirth.connect.client.ui.browsers.message.MessageBrowser;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
@@ -113,6 +114,7 @@ import com.mirth.connect.model.UpdateInfo;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.alert.AlertModel;
+import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.util.ImportConverter;
@@ -1850,7 +1852,7 @@ public class Frame extends JXFrame {
 
     public void doShowAlerts() {
         if (alertPanel == null) {
-            alertPanel = new AlertPanel();
+            alertPanel = new DefaultAlertPanel();
         }
 
         if (!confirmLeave()) {
@@ -2238,7 +2240,7 @@ public class Frame extends JXFrame {
                 return;
             } else {
                 Set<String> addedOrUpdatedChannelIds = new LinkedHashSet<String>();
-                
+
                 for (ChannelSummary channelSummary : changedChannels) {
                     if (channelSummary.isDeleted()) {
                         channels.remove(channelSummary.getId());
@@ -2246,7 +2248,7 @@ public class Frame extends JXFrame {
                         addedOrUpdatedChannelIds.add(channelSummary.getId());
                     }
                 }
-                
+
                 List<Channel> channelsToAddOrUpdate = mirthClient.getChannels(addedOrUpdatedChannelIds);
                 for (Channel channel : channelsToAddOrUpdate) {
                     channels.put(channel.getId(), channel);
@@ -3771,11 +3773,11 @@ public class Frame extends JXFrame {
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
-            private List<AlertModel> alerts;
+            private List<AlertStatus> alertStatusList;
 
             public Void doInBackground() {
                 try {
-                    alerts = mirthClient.getAlert(null);
+                    alertStatusList = mirthClient.getAlertStatusList();
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
@@ -3783,7 +3785,7 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                alertPanel.updateAlertTable(alerts);
+                alertPanel.updateAlertTable(alertStatusList);
                 alertPanel.setSelectedAlertIds(selectedAlertIds);
                 stopWorking(workingId);
             }
@@ -3797,13 +3799,13 @@ public class Frame extends JXFrame {
             ServerSettings serverSettings = mirthClient.getServerSettings();
             if (StringUtils.isBlank(serverSettings.getSmtpHost()) || StringUtils.isBlank(serverSettings.getSmtpPort())) {
                 alertWarning(PlatformUI.MIRTH_FRAME, "The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
-            } 
+            }
         } catch (ClientException e) {
             if (!(e.getCause() instanceof UnauthorizedException)) {
-                alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage()); 
+                alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
             }
         }
-        
+
         final String workingId = startWorking("Saving alerts...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -3908,7 +3910,7 @@ public class Frame extends JXFrame {
                         return null;
                     }
                 }
-                
+
                 return null;
             }
 
@@ -3937,7 +3939,7 @@ public class Frame extends JXFrame {
                         return null;
                     }
                 }
-                
+
                 return null;
             }
 
@@ -3949,10 +3951,10 @@ public class Frame extends JXFrame {
 
         worker.execute();
     }
-    
+
     public void doExportAlert() {
-        
-  }
+
+    }
 
     public void doExportAlerts() {
 

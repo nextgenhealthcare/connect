@@ -62,7 +62,7 @@ public class JdbcDao implements DonkeyDao {
     private Encryptor encryptor;
     private Statistics currentStats;
     private Statistics totalStats;
-    private Statistics transactionStats = new Statistics();
+    private Statistics transactionStats = new Statistics(false);
     private Map<String, Map<Integer, Set<Status>>> resetStats = new HashMap<String, Map<Integer, Set<Status>>>();
     private List<String> removedChannelIds = new ArrayList<String>();
     private String asyncCommitCommand;
@@ -1433,7 +1433,7 @@ public class JdbcDao implements DonkeyDao {
     private Statistics getChannelStatistics(boolean total) {
         Map<String, Long> channelIds = getLocalChannelIds();
         String queryId = (total) ? "getChannelTotalStatistics" : "getChannelStatistics";
-        Statistics statistics = new Statistics();
+        Statistics statistics = new Statistics(!total);
         ResultSet resultSet = null;
 
         for (String channelId : channelIds.keySet()) {
@@ -1512,12 +1512,13 @@ public class JdbcDao implements DonkeyDao {
                 for (Entry<Integer, Set<Status>> metaDataEntry : metaDataIds.entrySet()) {
                     Integer metaDataId = metaDataEntry.getKey();
                     Set<Status> statuses = metaDataEntry.getValue();
-
-                    for (Status status : statuses) {
-                        currentStats.getChannelStats(channelId).get(metaDataId).put(status, 0L);
-                    }
+                    
+                    currentStats.resetStats(channelId, metaDataId, statuses);
                 }
             }
+            
+            // Clear the reset stats map because we've just reset the stats
+            resetStats.clear();
 
             // update the in-memory stats with the stats we just saved in storage
             currentStats.update(transactionStats);

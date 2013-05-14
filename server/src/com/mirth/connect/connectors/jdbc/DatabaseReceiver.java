@@ -30,27 +30,24 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
 
 public class DatabaseReceiver extends PollConnector {
-    final private static ConnectorType CONNECTOR_TYPE = ConnectorType.READER;
 
     private DatabaseReceiverProperties connectorProperties;
     private DatabaseReceiverDelegate delegate;
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private Logger logger = Logger.getLogger(getClass());
 
@@ -70,7 +67,7 @@ public class DatabaseReceiver extends PollConnector {
 
         delegate.deploy();
 
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.INITIALIZED);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -92,7 +89,7 @@ public class DatabaseReceiver extends PollConnector {
     @SuppressWarnings("unchecked")
     @Override
     protected void poll() throws InterruptedException {
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.CONNECTED);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.POLLING));
         Object result = null;
 
         try {
@@ -102,7 +99,7 @@ public class DatabaseReceiver extends PollConnector {
                 return;
             }
 
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.BUSY);
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.READING));
 
             // the result object will be a ResultSet or if JavaScript is used, we also allow the user to return a List<Map<String, Object>>
             if (result instanceof ResultSet) {
@@ -117,7 +114,7 @@ public class DatabaseReceiver extends PollConnector {
             throw e;
         } catch (Exception e) {
             logger.error("Failed to poll for messages from the database in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\"", e);
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), null, e.getCause()));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), null, e.getCause()));
             return;
         } finally {
             if (result instanceof ResultSet) {
@@ -128,10 +125,10 @@ public class DatabaseReceiver extends PollConnector {
                 delegate.afterPoll();
             } catch (DatabaseReceiverException e) {
                 logger.error("Error in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\": " + e.getMessage(), ExceptionUtils.getRootCause(e));
-                eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), null, e.getCause()));
+                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), null, e.getCause()));
             }
 
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
         }
     }
 
@@ -174,7 +171,7 @@ public class DatabaseReceiver extends PollConnector {
             } else {
                 String errorMessage = "Received invalid list entry in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\", expected Map<String, Object>: " + object.toString();
                 logger.error(errorMessage);
-                eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), errorMessage, null));
+                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), errorMessage, null));
             }
         }
     }
@@ -193,7 +190,7 @@ public class DatabaseReceiver extends PollConnector {
         } catch (Exception e) {
             String errorMessage = "Failed to process row retrieved from the database in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\"";
             logger.error(errorMessage, e);
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), errorMessage, e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), errorMessage, e));
         } finally {
             finishDispatch(dispatchResult);
         }

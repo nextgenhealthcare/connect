@@ -21,7 +21,7 @@ import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 
 public class DelayedStatisticsUpdater implements StatisticsUpdater, Runnable {
     private DonkeyDaoFactory daoFactory;
-    private Statistics statistics = new Statistics();
+    private Statistics statistics = new Statistics(false);
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private int delayMillis = 5000;
     private boolean running = false;

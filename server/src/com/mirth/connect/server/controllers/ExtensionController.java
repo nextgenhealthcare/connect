@@ -19,7 +19,6 @@ import org.apache.commons.fileupload.FileItem;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.plugins.ChannelPlugin;
-import com.mirth.connect.plugins.ConnectorStatusPlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.server.tools.ClassPathResource;
@@ -63,7 +62,7 @@ public abstract class ExtensionController extends Controller {
      * metadata file for an extension, it will skip it and continue.
      */
     public abstract void loadExtensions();
-    
+
     public abstract void setDefaultExtensionStatus();
 
     /**
@@ -100,7 +99,7 @@ public abstract class ExtensionController extends Controller {
     // ************************************************************
     // Plugins
     // ************************************************************
-    
+
     /**
      * Returns the metadata for all plugins.
      */
@@ -154,7 +153,7 @@ public abstract class ExtensionController extends Controller {
     // ************************************************************
     // Connectors
     // ************************************************************
-    
+
     public abstract Map<String, ConnectorMetaData> getConnectorMetaData();
 
     public abstract ConnectorMetaData getConnectorMetaDataByProtocol(String protocol);
@@ -181,7 +180,7 @@ public abstract class ExtensionController extends Controller {
     // ************************************************************
     // Extension installation and unistallation
     // ************************************************************
-    
+
     /**
      * Extracts the contents of the uploaded zip file into the installation temp
      * directory to be picked up by MirthLauncher on next restart.
@@ -208,16 +207,14 @@ public abstract class ExtensionController extends Controller {
      * marked for uninstalltion.
      */
     public abstract void removePropertiesForUninstalledExtensions();
-    
+
     // ************************************************************
     // Maps for different plugins
     // ************************************************************
-    
+
     public abstract Map<String, ServicePlugin> getServicePlugins();
-    
-    public abstract Map<String, ConnectorStatusPlugin> getConnectorStatusPlugins();
-    
+
     public abstract Map<String, ChannelPlugin> getChannelPlugins();
-    
+
     public abstract Map<String, DataTypeServerPlugin> getDataTypePlugins();
 }

@@ -92,4 +92,25 @@ public class SocketUtil {
             socket.close();
         }
     }
+    
+    public static String getInetAddress(StateAwareSocket socket) {
+        String inetAddress = socket == null ? "" : socket.getInetAddress().toString() + ":" + socket.getPort();
+
+        if (inetAddress.startsWith("/")) {
+            inetAddress = inetAddress.substring(1);
+        }
+        
+        return inetAddress;
+    }
+    
+    public static String getLocalAddress(StateAwareSocket socket) {
+        String localAddress = socket == null ? "" : socket.getLocalAddress().toString() + ":" + socket.getLocalPort();
+
+        // If addresses begin with a slash "/", remove it.
+        if (localAddress.startsWith("/")) {
+            localAddress = localAddress.substring(1);
+        }
+        
+        return localAddress;
+    }
 }

@@ -24,6 +24,7 @@ import javax.jms.Topic;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
@@ -32,29 +33,24 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class JmsReceiver extends SourceConnector {
-    final private static ConnectorType CONNECTOR_TYPE = ConnectorType.LISTENER;
-
     private JmsClient jmsClient;
     private JmsReceiverProperties connectorProperties;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private Logger logger = Logger.getLogger(getClass());
 
     @Override
     public void onDeploy() throws DeployException {
         connectorProperties = (JmsReceiverProperties) getConnectorProperties();
-        jmsClient = new JmsClient(this, CONNECTOR_TYPE, connectorProperties);
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.INITIALIZED);
+        jmsClient = new JmsClient(this, connectorProperties);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -95,7 +91,7 @@ public class JmsReceiver extends SourceConnector {
             throw new StartException("Failed to initialize JMS message consumer for destination \"" + destinationName + "\"", e);
         }
 
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.CONNECTED);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.CONNECTED));
     }
 
     @Override
@@ -106,7 +102,7 @@ public class JmsReceiver extends SourceConnector {
             throw new StopException("Failed to close JMS connection", e);
         }
 
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DISCONNECTED);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.DISCONNECTED));
     }
 
     @Override
@@ -126,7 +122,7 @@ public class JmsReceiver extends SourceConnector {
             boolean attemptedResponse = false;
             String responseError = null;
 
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.BUSY);
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.RECEIVING));
 
             try {
                 rawMessage = jmsMessageToRawMessage(message);
@@ -149,7 +145,7 @@ public class JmsReceiver extends SourceConnector {
                 reportError("Failed to process message", e);
             } finally {
                 finishDispatch(dispatchResult, attemptedResponse, responseError);
-                monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
+                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
             }
         }
 
@@ -199,6 +195,6 @@ public class JmsReceiver extends SourceConnector {
 
     private void reportError(String errorMessage, Exception e) {
         logger.error(errorMessage + " (channel: " + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + ")", e);
-        eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), null, e.getCause()));
+        eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), null, e.getCause()));
     }
 }

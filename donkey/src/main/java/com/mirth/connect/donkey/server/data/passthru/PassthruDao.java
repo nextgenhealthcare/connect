@@ -28,7 +28,7 @@ import com.mirth.connect.donkey.server.data.DonkeyDao;
 
 public class PassthruDao implements DonkeyDao {
     private boolean closed = false;
-    private Statistics transactionStats = new Statistics();
+    private Statistics transactionStats = new Statistics(false);
     private Statistics currentStats;
     private Statistics totalStats;
     private Map<String, Map<Integer, Set<Status>>> resetStats = new HashMap<String, Map<Integer, Set<Status>>>();
@@ -42,11 +42,11 @@ public class PassthruDao implements DonkeyDao {
 
         // make sure these aren't null, otherwise commit() will break
         if (currentStats == null) {
-            currentStats = new Statistics();
+            currentStats = new Statistics(true);
         }
 
         if (totalStats == null) {
-            totalStats = new Statistics();
+            totalStats = new Statistics(false);
         }
     }
 
@@ -81,9 +81,7 @@ public class PassthruDao implements DonkeyDao {
                     Integer metaDataId = metaDataEntry.getKey();
                     Set<Status> statuses = metaDataEntry.getValue();
 
-                    for (Status status : statuses) {
-                        currentStats.getChannelStats(channelId).get(metaDataId).put(status, 0L);
-                    }
+                    currentStats.resetStats(channelId, metaDataId, statuses);
                 }
             }
 
@@ -300,12 +298,12 @@ public class PassthruDao implements DonkeyDao {
 
     @Override
     public Statistics getChannelStatistics() {
-        return new Statistics();
+        return new Statistics(false);
     }
 
     @Override
     public Statistics getChannelTotalStatistics() {
-        return new Statistics();
+        return new Statistics(false);
     }
 
     @Override

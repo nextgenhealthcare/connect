@@ -24,6 +24,7 @@ import javax.xml.ws.handler.Handler;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
@@ -31,10 +32,9 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.sun.net.httpserver.BasicAuthenticator;
 import com.sun.net.httpserver.HttpContext;
@@ -43,8 +43,7 @@ import com.sun.net.httpserver.HttpServer;
 public class WebServiceReceiver extends SourceConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     protected WebServiceReceiverProperties connectorProperties;
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-    private ConnectorType connectorType = ConnectorType.LISTENER;
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
     private HttpServer server;
     private ExecutorService executor;
     private Endpoint webServiceEndpoint;
@@ -132,7 +131,7 @@ public class WebServiceReceiver extends SourceConnector {
 
         webServiceEndpoint.publish(context);
 
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -153,7 +152,7 @@ public class WebServiceReceiver extends SourceConnector {
     }
 
     public String processData(String message) {
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.RECEIVING));
 
         RawMessage rawMessage = new RawMessage(message);
         DispatchResult dispatchResult = null;
@@ -174,7 +173,7 @@ public class WebServiceReceiver extends SourceConnector {
         }
 
         // TODO find a way to call this after the response was sent
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
         return response;
     }
 }

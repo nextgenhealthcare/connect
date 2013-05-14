@@ -16,10 +16,14 @@ import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.FilterTransformerResult;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.JavaScriptScopeUtil;
@@ -35,6 +39,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
     private Logger logger = Logger.getLogger(this.getClass());
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private JavaScriptExecutor<FilterTransformerResult> jsExecutor = new JavaScriptExecutor<FilterTransformerResult>();
+    private EventDispatcher eventDispatcher = Donkey.getInstance().getEventDispatcher();
 
     private String channelId;
     private String connectorName;
@@ -130,8 +135,13 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
                     }
                 }
 
-                //TODO change Error code to something that's both filter and transformer
-                throw new FilterTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_300, "Error evaluating filter/transformer", t));
+                if (phase.equals("filter")) {
+                    eventDispatcher.dispatchEvent(new ErrorEvent(message.getChannelId(), message.getMetaDataId(), ErrorEventType.FILTER, "", "Error evaluating filter", t));
+                    throw new FilterTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_200, "Error evaluating filter", t));
+                } else {
+                    eventDispatcher.dispatchEvent(new ErrorEvent(message.getChannelId(), message.getMetaDataId(), ErrorEventType.TRANSFORMER, "", "Error evaluating transformer", t));
+                    throw new FilterTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_300, "Error evaluating transformer", t));
+                }
             } finally {
                 Context.exit();
             }

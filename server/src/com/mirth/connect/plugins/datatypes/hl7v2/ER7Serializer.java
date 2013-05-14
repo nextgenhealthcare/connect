@@ -172,7 +172,7 @@ public class ER7Serializer implements IXMLSerializer {
                 return stringWriter.toString();
             }
         } catch (Exception e) {
-            throw new SerializerException(e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting ER7 to XML", e));
+            throw new SerializerException("Error converting ER7 to XML", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting ER7 to XML", e));
         }
     }
 
@@ -249,7 +249,7 @@ public class ER7Serializer implements IXMLSerializer {
                 return handler.getOutput().toString();
             }
         } catch (Exception e) {
-            throw new SerializerException(e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to ER7", e));
+            throw new SerializerException("Error converting XML to ER7", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to ER7", e));
         }
     }
 

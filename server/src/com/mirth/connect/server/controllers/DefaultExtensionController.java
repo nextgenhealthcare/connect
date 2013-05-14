@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -61,7 +60,6 @@ import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.ChannelPlugin;
-import com.mirth.connect.plugins.ConnectorStatusPlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.plugins.ServicePlugin;
@@ -82,10 +80,9 @@ public class DefaultExtensionController extends ExtensionController {
     // (not path)
     private List<ServerPlugin> serverPlugins = new ArrayList<ServerPlugin>();
     private Map<String, ServicePlugin> servicePlugins = new HashMap<String, ServicePlugin>();
-    private Map<String, ConnectorStatusPlugin> connectorStatusPlugins = new HashMap<String, ConnectorStatusPlugin>();
     private Map<String, ChannelPlugin> channelPlugins = new HashMap<String, ChannelPlugin>();
     private Map<String, DataTypeServerPlugin> dataTypePlugins = new HashMap<String, DataTypeServerPlugin>();
-    
+
     private static PropertiesConfiguration extensionProperties = null;
 
     // singleton pattern
@@ -105,12 +102,12 @@ public class DefaultExtensionController extends ExtensionController {
     private DefaultExtensionController() {
 
     }
-    
+
     private void initialize() {
         try {
             extensionProperties = new PropertiesConfiguration(new File(configurationController.getApplicationDataDir(), "extension.properties"));
             extensionProperties.setDelimiterParsingDisabled(true);
-            
+
             // Auto reload changes
             FileChangedReloadingStrategy fileChangedReloadingStrategy = new FileChangedReloadingStrategy();
             fileChangedReloadingStrategy.setRefreshDelay(1000);
@@ -119,7 +116,7 @@ public class DefaultExtensionController extends ExtensionController {
             logger.error("There was an error loading extension.properties", e);
         }
     }
-    
+
     @Override
     public void removePropertiesForUninstalledExtensions() {
         try {
@@ -144,7 +141,8 @@ public class DefaultExtensionController extends ExtensionController {
     public void loadExtensions() {
         try {
             // match all of the file names for the extension
-            IOFileFilter nameFileFilter = new NameFileFilter(new String[] { "plugin.xml", "source.xml", "destination.xml" });
+            IOFileFilter nameFileFilter = new NameFileFilter(new String[] { "plugin.xml",
+                    "source.xml", "destination.xml" });
             // this is probably not needed, but we dont want to pick up directories,
             // so we AND the two filters
             IOFileFilter andFileFilter = new AndFileFilter(nameFileFilter, FileFilterUtils.fileFileFilter());
@@ -156,7 +154,7 @@ public class DefaultExtensionController extends ExtensionController {
             for (File extensionFile : extensionFiles) {
                 try {
                     MetaData metaData = (MetaData) serializer.fromXML(FileUtils.readFileToString(extensionFile));
-                    
+
                     if (metaData instanceof ConnectorMetaData) {
                         ConnectorMetaData connectorMetaData = (ConnectorMetaData) metaData;
                         connectorMetaDataMap.put(connectorMetaData.getName(), connectorMetaData);
@@ -203,7 +201,7 @@ public class DefaultExtensionController extends ExtensionController {
                 }
             }
         }
-        
+
         /*
          * Remove extensions from the extensionProperties if they are not in the
          * pluginMetaDataMap or connectorMetaDataMap
@@ -265,37 +263,13 @@ public class DefaultExtensionController extends ExtensionController {
                                 logger.debug("sucessfully loaded server plugin: " + serverPlugin.getPluginPointName());
                             }
 
-                            if (serverPlugin instanceof ConnectorStatusPlugin) {
-                                /*
-                                 * This is needed in case you add a second
-                                 * constructor to your plugin. Java is not able to
-                                 * find the default one for the plugin.
-                                 */
-                                Constructor<?>[] constructors = Class.forName(clazzName).getDeclaredConstructors();
-
-                                for (int i = 0; i < constructors.length; i++) {
-                                    Class<?> parameters[] = constructors[i].getParameterTypes();
-
-                                    // load plugin if the number of
-                                    // parameters is 0
-                                    if (parameters.length == 0) {
-                                        ConnectorStatusPlugin connectorStatusPlugin = (ConnectorStatusPlugin) constructors[i].newInstance(new Object[] {});
-                                        connectorStatusPlugins.put(connectorStatusPlugin.getPluginPointName(), connectorStatusPlugin);
-                                        serverPlugins.add(connectorStatusPlugin);
-                                        i = constructors.length;
-                                    }
-                                }
-
-                                logger.debug("sucessfully loaded connector status plugin: " + serverPlugin.getPluginPointName());
-                            }
-
                             if (serverPlugin instanceof ChannelPlugin) {
                                 ChannelPlugin channelPlugin = (ChannelPlugin) serverPlugin;
                                 channelPlugins.put(channelPlugin.getPluginPointName(), channelPlugin);
                                 serverPlugins.add(channelPlugin);
                                 logger.debug("sucessfully loaded server channel plugin: " + serverPlugin.getPluginPointName());
                             }
-                            
+
                             if (serverPlugin instanceof DataTypeServerPlugin) {
                                 DataTypeServerPlugin dataTypePlugin = (DataTypeServerPlugin) serverPlugin;
                                 dataTypePlugins.put(dataTypePlugin.getPluginPointName(), dataTypePlugin);
@@ -315,29 +289,24 @@ public class DefaultExtensionController extends ExtensionController {
 
     /* These are the maps for the different types of plugins */
     /* ********************************************************************** */
-    
+
     @Override
     public Map<String, ServicePlugin> getServicePlugins() {
         return servicePlugins;
     }
 
     @Override
-    public Map<String, ConnectorStatusPlugin> getConnectorStatusPlugins() {
-        return connectorStatusPlugins;
-    }
-
-    @Override
     public Map<String, ChannelPlugin> getChannelPlugins() {
         return channelPlugins;
     }
-    
+
     @Override
     public Map<String, DataTypeServerPlugin> getDataTypePlugins() {
         return dataTypePlugins;
     }
 
     /* ********************************************************************** */
-    
+
     @Override
     public void setExtensionEnabled(String extensionName, boolean enabled) throws ControllerException {
         extensionProperties.setProperty(extensionName, enabled);
@@ -347,7 +316,7 @@ public class DefaultExtensionController extends ExtensionController {
             logger.error("Could not save enabled status " + enabled + " for extension: " + extensionName, e);
         }
     }
-    
+
     @Override
     public boolean isExtensionEnabled(String extensionName) {
         return extensionProperties.getBoolean(extensionName, true);
@@ -382,9 +351,9 @@ public class DefaultExtensionController extends ExtensionController {
     @Override
     public void updatePluginProperties(String name, Properties properties) {
         ServicePlugin servicePlugin = servicePlugins.get(name);
-        
+
         if (servicePlugin != null) {
-            servicePlugin.update(properties);    
+            servicePlugin.update(properties);
         } else {
             logger.error("Error setting properties for service plugin that has not been loaded: name=" + name);
         }
@@ -393,9 +362,9 @@ public class DefaultExtensionController extends ExtensionController {
     @Override
     public Object invokePluginService(String name, String method, Object object, String sessionId) throws Exception {
         ServicePlugin servicePlugin = servicePlugins.get(name);
-        
+
         if (servicePlugin != null) {
-            return servicePlugins.get(name).invoke(method, object, sessionId);    
+            return servicePlugins.get(name).invoke(method, object, sessionId);
         } else {
             logger.error("Error invoking service plugin that has not been loaded: name=" + name + ", method=" + method);
             return null;
@@ -580,7 +549,7 @@ public class DefaultExtensionController extends ExtensionController {
             IOUtils.closeQuietly(writer);
         }
     }
-    
+
     private void addExtensionToUninstallPropertiesFile(String pluginName) {
         File uninstallFile = new File(getExtensionsPath(), EXTENSIONS_UNINSTALL_PROPERTIES_FILE);
         FileWriter writer = null;
@@ -709,7 +678,7 @@ public class DefaultExtensionController extends ExtensionController {
 
         return false;
     }
-    
+
     public List<String> getClientLibraries() {
         List<String> clientLibFilenames = new ArrayList<String>();
         File clientLibDir = new File("client-lib");
@@ -717,7 +686,7 @@ public class DefaultExtensionController extends ExtensionController {
         if (!clientLibDir.exists() || !clientLibDir.isDirectory()) {
             clientLibDir = new File("build/client-lib");
         }
-        
+
         if (clientLibDir.exists() && clientLibDir.isDirectory()) {
             Collection<File> clientLibs = FileUtils.listFiles(clientLibDir, new SuffixFileFilter(".jar"), FileFilterUtils.falseFileFilter());
 

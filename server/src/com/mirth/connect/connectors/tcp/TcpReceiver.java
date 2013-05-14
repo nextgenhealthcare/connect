@@ -38,6 +38,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
@@ -47,6 +48,8 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
+import com.mirth.connect.donkey.server.event.ConnectorCountEvent;
+import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.model.transmission.StreamHandler;
 import com.mirth.connect.model.transmission.StreamHandlerException;
@@ -58,9 +61,6 @@ import com.mirth.connect.plugins.BasicModeProvider;
 import com.mirth.connect.plugins.TransmissionModeProvider;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorConstants;
@@ -73,9 +73,7 @@ public class TcpReceiver extends SourceConnector {
 
     private Logger logger = Logger.getLogger(this.getClass());
     private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     protected TcpReceiverProperties connectorProperties;
-    private ConnectorType connectorType = ConnectorType.LISTENER;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     private StateAwareServerSocket serverSocket;
@@ -110,7 +108,7 @@ public class TcpReceiver extends SourceConnector {
             executor = Executors.newSingleThreadExecutor();
         }
 
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -191,7 +189,8 @@ public class TcpReceiver extends SourceConnector {
                         // Wait until the TcpReader is done
                         cleanup(true, false, false);
 
-                        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INFO, "Client socket finished, waiting " + connectorProperties.getReconnectInterval() + " ms...");
+                        String info = "Client socket finished, waiting " + connectorProperties.getReconnectInterval() + " ms...";
+                        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.INFO, info));
 
                         // Use the reconnect interval to determine how long to wait until creating another socket
                         try {
@@ -252,7 +251,7 @@ public class TcpReceiver extends SourceConnector {
                     try {
                         attemptedResponse = true;
                         responseSocket = createResponseSocket();
-                        sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler);
+                        sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, true);
                     } catch (IOException e) {
                         errorMessage = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, "Error sending response.", e);
                     } finally {
@@ -281,7 +280,7 @@ public class TcpReceiver extends SourceConnector {
             Throwable t = null;
             boolean done = false;
 
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.CONNECTED, socket);
+            eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), ConnectorEventType.CONNECTED, null, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), true));
 
             while (!done) {
                 StreamHandler streamHandler = null;
@@ -317,7 +316,7 @@ public class TcpReceiver extends SourceConnector {
 
                         if (bytes != null) {
                             logger.debug("Bytes returned from socket, length: " + bytes.length + " (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")");
-                            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, socket, "Message received, processing... ");
+                            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.RECEIVING, "Message received from " + SocketUtil.getLocalAddress(socket) + ", processing... "));
 
                             RawMessage rawMessage = null;
 
@@ -367,7 +366,7 @@ public class TcpReceiver extends SourceConnector {
                                                 }
                                             }
 
-                                            sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler);
+                                            sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION);
                                         } catch (IOException e) {
                                             errorMessage = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, "Error sending response.", e);
                                         } finally {
@@ -388,12 +387,12 @@ public class TcpReceiver extends SourceConnector {
                                     done = true;
                                     // Set the return value and send an alert
                                     t = new InterruptedException("TCP worker thread was interrupted before the message was sent (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-                                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), "Error receiving message", t));
+                                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), "Error receiving message", t));
                                     break;
                                 }
                             }
 
-                            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE, socket);
+                            eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE, ConnectorEventType.CONNECTED, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), null));
                         } else {
                             // If no bytes were returned, then assume we have finished processing all possible messages from the input stream.
                             logger.debug("Stream reader returned null (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
@@ -416,17 +415,17 @@ public class TcpReceiver extends SourceConnector {
                         done = true;
 
                         if (timeout) {
-                            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, "Timeout waiting for message. ");
+                            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.FAILURE, "Timeout waiting for message from " + SocketUtil.getLocalAddress(socket) + ". "));
                         } else {
                             // Set the return value and send an alert
                             t = new Exception("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                             logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), "Error receiving message", e));
-                            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, "Error receiving message: " + e.getMessage() + " ");
+                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), "Error receiving message", e));
+                            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.FAILURE, "Error receiving message from " + SocketUtil.getLocalAddress(socket) + ": " + e.getMessage()));
                         }
                     } else {
                         logger.debug("Timeout reading from socket input stream (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-                        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INFO, socket, "Timeout waiting for message. ");
+                        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.INFO, "Timeout waiting for message from " + SocketUtil.getLocalAddress(socket) + ". "));
                     }
                 }
 
@@ -444,7 +443,7 @@ public class TcpReceiver extends SourceConnector {
                 closeSocketQuietly(responseSocket);
             }
 
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DISCONNECTED, socket);
+            eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), ConnectorEventType.DISCONNECTED, ConnectorEventType.CONNECTED, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), false));
 
             return t;
         }
@@ -491,7 +490,7 @@ public class TcpReceiver extends SourceConnector {
         return responseSocket;
     }
 
-    private void sendResponse(String response, StateAwareSocket responseSocket, StreamHandler streamHandler) throws IOException {
+    private void sendResponse(String response, StateAwareSocket responseSocket, StreamHandler streamHandler, boolean newConnection) throws IOException {
         try {
             if (responseSocket != null && streamHandler != null) {
                 // Throw an exception if the client has already closed the socket
@@ -500,7 +499,7 @@ public class TcpReceiver extends SourceConnector {
                 }
 
                 // Send the response
-                monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INFO, responseSocket, "Sending response... ");
+                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.INFO, "Sending response to " + (newConnection ? SocketUtil.getInetAddress(responseSocket) : SocketUtil.getLocalAddress(responseSocket)) + "... "));
                 BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), parseInt(connectorProperties.getBufferSize()));
                 streamHandler.setOutputStream(bos);
                 streamHandler.write(getBytes(response));
@@ -510,7 +509,7 @@ public class TcpReceiver extends SourceConnector {
             }
         } catch (IOException e) {
             logger.error("Error sending response (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, "Error sending response: " + e.getMessage() + " ");
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.FAILURE, "Error sending response to " + (newConnection ? SocketUtil.getInetAddress(responseSocket) : SocketUtil.getLocalAddress(responseSocket)) + ": " + e.getMessage() + " "));
             throw e;
         }
     }

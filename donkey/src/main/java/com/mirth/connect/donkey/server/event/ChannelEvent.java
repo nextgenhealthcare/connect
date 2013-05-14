@@ -1,13 +1,13 @@
 package com.mirth.connect.donkey.server.event;
 
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.event.ChannelEventType;
 
 public class ChannelEvent extends Event {
 
     private String channelId;
-    private ChannelState state;
+    private ChannelEventType state;
 
-    public ChannelEvent(String channelId, ChannelState state) {
+    public ChannelEvent(String channelId, ChannelEventType state) {
         this.channelId = channelId;
         this.state = state;
     }
@@ -20,11 +20,11 @@ public class ChannelEvent extends Event {
         this.channelId = channelId;
     }
 
-    public ChannelState getState() {
+    public ChannelEventType getState() {
         return state;
     }
 
-    public void setState(ChannelState state) {
+    public void setState(ChannelEventType state) {
         this.state = state;
     }
 }

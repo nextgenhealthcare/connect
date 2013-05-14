@@ -16,10 +16,14 @@ import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformerException;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.JavaScriptScopeUtil;
@@ -35,6 +39,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
     private Logger logger = Logger.getLogger(this.getClass());
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private JavaScriptExecutor<String> jsExecutor = new JavaScriptExecutor<String>();
+    private EventDispatcher eventDispatcher = Donkey.getInstance().getEventDispatcher();
 
     private String channelId;
     private String connectorName;
@@ -141,6 +146,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                     }
                 }
 
+                eventDispatcher.dispatchEvent(new ErrorEvent(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), ErrorEventType.RESPONSE_TRANSFORMER, "", "Error evaluating response transformer", t));
                 throw new ResponseTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_600, "Error evaluating response transformer", t));
             } finally {
                 Context.exit();
