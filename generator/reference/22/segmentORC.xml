@@ -20,7 +20,7 @@
         </field>
         <field minOccurs="0" maxOccurs="0">
             <name>ORC.4</name>
-            <description>Placer Order #</description>
+            <description>Placer Group #</description>
             <datatype>CM</datatype>
         </field>
         <field minOccurs="0" maxOccurs="0">
