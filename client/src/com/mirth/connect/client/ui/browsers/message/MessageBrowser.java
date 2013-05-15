@@ -13,6 +13,7 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -43,6 +44,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -66,6 +68,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.syntax.jedit.SyntaxDocument;
@@ -1136,70 +1139,102 @@ public class MessageBrowser extends javax.swing.JPanel {
                      * }
                      */
                 } else if (SwingUtilities.isRightMouseButton(e)) {
-                    // Use this model in order to get the total number of columns.
-                    // If the column model is used, it getColumnCount only returns the number of visible columns
-                    SortableTreeTableModel model = (SortableTreeTableModel) messageTreeTable.getTreeTableModel();
-                    JPopupMenu columnMenu = new JPopupMenu();
-
-                    for (int i = 0; i < model.getColumnCount(); i++) {
-                        String columnName = model.getColumnName(i);
-                        // Get the column object by name. Using an index may not return the column object if the column is hidden
-                        TableColumnExt column = messageTreeTable.getColumnExt(columnName);
-
-                        // Create the menu item
-                        final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(columnName);
-                        // Show or hide the checkbox
-                        menuItem.setSelected(column.isVisible());
-
-                        menuItem.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent arg0) {
-                                TableColumnExt column = messageTreeTable.getColumnExt(menuItem.getText());
-                                // Determine whether to show or hide the selected column
-                                boolean enable = !column.isVisible();
-                                // Do not hide a column if it is the last remaining visible column              
-                                if (enable) {
-                                    column.setVisible(true);
-                                } else {
-                                    if (messageTreeTable.getColumnCount() > 1) {
-                                        column.setVisible(false);
-                                    }
-                                }
-                            }
-                        });
-
-                        columnMenu.add(menuItem);
-                    }
-
-                    columnMenu.addSeparator();
-
-                    JMenuItem menuItem = new JMenuItem("Collapse All");
-                    menuItem.addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(ActionEvent arg0) {
-                            messageTreeTable.collapseAll();
-                        }
-
-                    });
-                    columnMenu.add(menuItem);
-
-                    menuItem = new JMenuItem("Expand All");
-                    menuItem.addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(ActionEvent arg0) {
-                            messageTreeTable.expandAll();
-                        }
-
-                    });
-                    columnMenu.add(menuItem);
-
                     // Show the popup menu at the mouse clicked location
-                    columnMenu.show(e.getComponent(), e.getX(), e.getY());
+                    getColumnMenu().show(e.getComponent(), e.getX(), e.getY());
                 }
             }
         });
+
+        final JButton columnControlButton = new JButton(new ColumnControlButton(messageTreeTable).getIcon());
+
+        columnControlButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JPopupMenu columnMenu = getColumnMenu();
+
+                Dimension buttonSize = columnControlButton.getSize();
+                int xPos = columnControlButton.getComponentOrientation().isLeftToRight() ? buttonSize.width - columnMenu.getPreferredSize().width : 0;
+                columnMenu.show(columnControlButton, xPos, columnControlButton.getHeight());
+            }
+
+        });
+
+        messageTreeTable.setColumnControl(columnControlButton);
+    }
+
+    private JPopupMenu getColumnMenu() {
+        // Use this model in order to get the total number of columns.
+        // If the column model is used, it getColumnCount only returns the number of visible columns
+        SortableTreeTableModel model = (SortableTreeTableModel) messageTreeTable.getTreeTableModel();
+        JPopupMenu columnMenu = new JPopupMenu();
+
+        for (int i = 0; i < model.getColumnCount(); i++) {
+            final String columnName = model.getColumnName(i);
+            // Get the column object by name. Using an index may not return the column object if the column is hidden
+            TableColumnExt column = messageTreeTable.getColumnExt(columnName);
+
+            // Create the menu item
+            final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(columnName);
+            // Show or hide the checkbox
+            menuItem.setSelected(column.isVisible());
+
+            menuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
+                    TableColumnExt column = messageTreeTable.getColumnExt(menuItem.getText());
+                    // Determine whether to show or hide the selected column
+                    boolean enable = !column.isVisible();
+                    // Do not hide a column if it is the last remaining visible column              
+                    if (enable || messageTreeTable.getColumnCount() > 1) {
+                        column.setVisible(enable);
+                        Preferences.userNodeForPackage(Mirth.class).putBoolean("messageBrowserVisibleColumn" + columnName, enable);
+                    }
+                }
+            });
+
+            columnMenu.add(menuItem);
+        }
+
+        columnMenu.addSeparator();
+
+        JCheckBoxMenuItem checkBoxMenuItem = new JCheckBoxMenuItem("Horizontal Scroll");
+        checkBoxMenuItem.setSelected(messageTreeTable.isHorizontalScrollEnabled());
+        checkBoxMenuItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                messageTreeTable.setHorizontalScrollEnabled(!messageTreeTable.isHorizontalScrollEnabled());
+            }
+
+        });
+        columnMenu.add(checkBoxMenuItem);
+
+        columnMenu.addSeparator();
+
+        JMenuItem menuItem = new JMenuItem("Collapse All");
+        menuItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                messageTreeTable.collapseAll();
+            }
+
+        });
+        columnMenu.add(menuItem);
+
+        menuItem = new JMenuItem("Expand All");
+        menuItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                messageTreeTable.expandAll();
+            }
+
+        });
+        columnMenu.add(menuItem);
+
+        return columnMenu;
     }
 
     /**

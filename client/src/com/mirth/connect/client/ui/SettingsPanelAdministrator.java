@@ -44,17 +44,6 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             } else {
                 formatXmlNoRadio.setSelected(true);
             }
-
-            messageBrowserConnectorCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnConnector", true));
-            messageBrowserStatusCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnStatus", true));
-            messageBrowserReceivedDateCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnReceived Date", true));
-            messageBrowserOrigReceivedDateCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnOrig. Received Date", false));
-            messageBrowserServerIdCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnServer Id", false));
-            messageBrowserSendAttemptsCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnSend Attempts", false));
-            messageBrowserSendDateCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnSend Date", false));
-            messageBrowserResponseDateCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnResponse Date", true));
-            messageBrowserImportIdCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnImport Id", false));
-            messageBrowserErrorsCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnErrors", true));
         }
     }
 
@@ -88,17 +77,6 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             userPreferences.putInt("eventBrowserPageSize", eventBrowserPageSize);
             userPreferences.putBoolean("messageBrowserFormatXml", formatXmlYesRadio.isSelected());
 
-            userPreferences.putBoolean("messageBrowserVisibleColumnConnector", messageBrowserConnectorCheckBox.isSelected());
-            userPreferences.putBoolean("messageBrowserVisibleColumnStatus", messageBrowserStatusCheckBox.isSelected());
-            userPreferences.putBoolean("messageBrowserVisibleColumnReceived Date", messageBrowserReceivedDateCheckBox.isSelected());
-            userPreferences.putBoolean("messageBrowserVisibleColumnOrig. Received Date", messageBrowserOrigReceivedDateCheckBox.isSelected());
-            userPreferences.putBoolean("messageBrowserVisibleColumnServer Id", messageBrowserServerIdCheckBox.isSelected());
-            userPreferences.putBoolean("messageBrowserVisibleColumnSend Attempts", messageBrowserSendAttemptsCheckBox.isSelected());
-            userPreferences.putBoolean("messageBrowserVisibleColumnSend Date", messageBrowserSendDateCheckBox.isSelected());
-            userPreferences.putBoolean("messageBrowserVisibleColumnResponse Date", messageBrowserResponseDateCheckBox.isSelected());
-            userPreferences.putBoolean("messageBrowserVisibleColumnImport Id", messageBrowserImportIdCheckBox.isSelected());
-            userPreferences.putBoolean("messageBrowserVisibleColumnErrors", messageBrowserErrorsCheckBox.isSelected());
-
             getFrame().setSaveEnabled(false);
         }
     }
@@ -123,17 +101,6 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         formatXmlNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         eventBrowserPageSizeLabel = new javax.swing.JLabel();
         eventBrowserPageSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
-        messageBrowserdefaultColumnsLabel = new javax.swing.JLabel();
-        messageBrowserConnectorCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        messageBrowserStatusCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        messageBrowserReceivedDateCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        messageBrowserSendAttemptsCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        messageBrowserImportIdCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        messageBrowserServerIdCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        messageBrowserErrorsCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        messageBrowserSendDateCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        messageBrowserResponseDateCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        messageBrowserOrigReceivedDateCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -170,38 +137,6 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
         eventBrowserPageSizeField.setToolTipText("Sets the default page size for browsers (message, event, etc.)");
 
-        messageBrowserdefaultColumnsLabel.setText("Message browser default columns:");
-
-        messageBrowserConnectorCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        messageBrowserConnectorCheckBox.setText("Connector");
-
-        messageBrowserStatusCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        messageBrowserStatusCheckBox.setText("Status");
-
-        messageBrowserReceivedDateCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        messageBrowserReceivedDateCheckBox.setText("Received Date");
-
-        messageBrowserSendAttemptsCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        messageBrowserSendAttemptsCheckBox.setText("Send Attempts");
-
-        messageBrowserImportIdCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        messageBrowserImportIdCheckBox.setText("Import Id");
-
-        messageBrowserServerIdCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        messageBrowserServerIdCheckBox.setText("Server Id");
-
-        messageBrowserErrorsCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        messageBrowserErrorsCheckBox.setText("Errors");
-
-        messageBrowserSendDateCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        messageBrowserSendDateCheckBox.setText("Send Date");
-
-        messageBrowserResponseDateCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        messageBrowserResponseDateCheckBox.setText("Response Date");
-
-        messageBrowserOrigReceivedDateCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        messageBrowserOrigReceivedDateCheckBox.setText("Orig. Received Date");
-
         javax.swing.GroupLayout clientSettingsLayout = new javax.swing.GroupLayout(clientSettings);
         clientSettings.setLayout(clientSettingsLayout);
         clientSettingsLayout.setHorizontalGroup(
@@ -209,31 +144,20 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             .addGroup(clientSettingsLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(messageBrowserdefaultColumnsLabel)
                     .addComponent(eventBrowserPageSizeLabel)
                     .addComponent(formatXmlLabel)
                     .addComponent(messageBrowserPageSizeLabel)
                     .addComponent(dashboardRefreshIntervalLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(messageBrowserOrigReceivedDateCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(messageBrowserServerIdCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(messageBrowserResponseDateCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(messageBrowserSendDateCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(messageBrowserErrorsCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(messageBrowserImportIdCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(messageBrowserReceivedDateCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(messageBrowserStatusCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(messageBrowserConnectorCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dashboardRefreshIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(messageBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(clientSettingsLayout.createSequentialGroup()
                         .addComponent(formatXmlYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(formatXmlNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(eventBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(messageBrowserSendAttemptsCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(181, Short.MAX_VALUE))
+                    .addComponent(eventBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(228, Short.MAX_VALUE))
         );
         clientSettingsLayout.setVerticalGroup(
             clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -254,29 +178,6 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                     .addComponent(formatXmlLabel)
                     .addComponent(formatXmlYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(formatXmlNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(clientSettingsLayout.createSequentialGroup()
-                        .addComponent(messageBrowserConnectorCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(messageBrowserStatusCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(messageBrowserReceivedDateCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(messageBrowserdefaultColumnsLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(messageBrowserOrigReceivedDateCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(messageBrowserSendAttemptsCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(messageBrowserSendDateCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(messageBrowserResponseDateCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(messageBrowserErrorsCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(messageBrowserServerIdCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(messageBrowserImportIdCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -306,18 +207,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
     private javax.swing.JLabel formatXmlLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton formatXmlNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton formatXmlYesRadio;
-    private com.mirth.connect.client.ui.components.MirthCheckBox messageBrowserConnectorCheckBox;
-    private com.mirth.connect.client.ui.components.MirthCheckBox messageBrowserErrorsCheckBox;
-    private com.mirth.connect.client.ui.components.MirthCheckBox messageBrowserImportIdCheckBox;
-    private com.mirth.connect.client.ui.components.MirthCheckBox messageBrowserOrigReceivedDateCheckBox;
     private com.mirth.connect.client.ui.components.MirthTextField messageBrowserPageSizeField;
     private javax.swing.JLabel messageBrowserPageSizeLabel;
-    private com.mirth.connect.client.ui.components.MirthCheckBox messageBrowserReceivedDateCheckBox;
-    private com.mirth.connect.client.ui.components.MirthCheckBox messageBrowserResponseDateCheckBox;
-    private com.mirth.connect.client.ui.components.MirthCheckBox messageBrowserSendAttemptsCheckBox;
-    private com.mirth.connect.client.ui.components.MirthCheckBox messageBrowserSendDateCheckBox;
-    private com.mirth.connect.client.ui.components.MirthCheckBox messageBrowserServerIdCheckBox;
-    private com.mirth.connect.client.ui.components.MirthCheckBox messageBrowserStatusCheckBox;
-    private javax.swing.JLabel messageBrowserdefaultColumnsLabel;
     // End of variables declaration//GEN-END:variables
 }
