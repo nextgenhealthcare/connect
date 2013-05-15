@@ -230,9 +230,6 @@
 						<when test="element.operator == 'EQUAL'">
 							<![CDATA[ = ]]> 
 						</when>
-						<when test="element.operator == 'TEXT_EQUAL'">
-							<![CDATA[ = ]]> 
-						</when>
 						<when test="element.operator == 'NOT_EQUAL'">
 							<![CDATA[ != ]]> 
 						</when>

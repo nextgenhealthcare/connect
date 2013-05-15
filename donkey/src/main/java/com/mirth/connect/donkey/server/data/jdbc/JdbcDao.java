@@ -1836,8 +1836,12 @@ public class JdbcDao implements DonkeyDao {
                         case NUMBER: value = resultSet.getBigDecimal(i); break;
                         case BOOLEAN: value = resultSet.getBoolean(i); break;
                         case TIMESTAMP:
-                            value = Calendar.getInstance();
-                            ((Calendar) value).setTimeInMillis(resultSet.getTimestamp(i).getTime());
+                            
+                            Timestamp timestamp = resultSet.getTimestamp(i);
+                            if (timestamp != null) {
+                                value = Calendar.getInstance();
+                                ((Calendar) value).setTimeInMillis(timestamp.getTime());
+                            }
                             break;
 
                         default: throw new Exception("Unrecognized MetaDataColumnType");

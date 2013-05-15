@@ -49,7 +49,6 @@ import com.mirth.connect.model.filters.elements.MetaDataSearchOperator;
 
 public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     private Frame parent;
-    private static final String SOURCE_CONNECTOR_NAME = "Source";
     private static final int CONTENT_TYPE_COLUMN_WIDTH = 120;
     private static final int METADATA_NAME_COLUMN_WIDTH = 140;
     private static final int METADATA_OPERATOR_COLUMN_WIDTH = 90;
@@ -143,8 +142,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                     }
                 } else if (column == metaDataColumnIndex) {
                     if (!value.equals(getValueAt(row, metaDataColumnIndex))) {
-                        MetaDataColumn metaDataColumn = cachedMetaDataColumns.get(value);
-                        MetaDataSearchOperator operator = MetaDataSearchOperator.getDefaultForColumnType(metaDataColumn.getType());
+                        MetaDataSearchOperator operator = MetaDataSearchOperator.EQUAL;
 
                         super.setValueAt(operator, row, operatorColumnIndex);
                     }
@@ -883,7 +881,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         List<MetaDataColumn> metaDataColumns = messageBrowser.getMetaDataColumns();
         if (metaDataColumns.size() > 0) {
             MetaDataColumn metaDataColumn = metaDataColumns.get(0);
-            MetaDataSearchOperator operator = MetaDataSearchOperator.getDefaultForColumnType(metaDataColumn.getType());
+            MetaDataSearchOperator operator = MetaDataSearchOperator.EQUAL;
             
             model.addRow(new Object[]{metaDataColumn.getName(), operator, "", false});
             
