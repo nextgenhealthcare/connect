@@ -258,6 +258,8 @@ public class DonkeyEngineController implements EngineController {
 
         // Remove channel scripts
         scriptController.removeChannelScriptsFromCache(channelId);
+        
+        channelController.removeDeployedChannelFromCache(channelId);
     }
 
     @Override
