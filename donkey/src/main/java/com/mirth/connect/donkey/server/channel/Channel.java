@@ -672,6 +672,13 @@ public class Channel implements Startable, Stoppable, Runnable {
         while (!queueExecutor.awaitTermination(timeout, TimeUnit.SECONDS))
             ;
 
+        /*
+         * Once the channel executor finishes, we want to obtain the process lock to ensure that any
+         * calls to finishDispatch have already completed.
+         */
+        obtainProcessLock();
+        releaseProcessLock();
+
         destinationChainExecutor.shutdown();
 
         if (firstCause != null) {
