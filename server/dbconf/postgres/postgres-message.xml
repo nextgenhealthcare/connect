@@ -56,7 +56,7 @@
 			metadata_ids
 
 		FROM (
-			SELECT m.id, string_agg(mm.id::character varying, ',') AS metadata_ids
+			SELECT m.id, array_to_string(array_agg(mm.id::character varying), ',') AS metadata_ids
 			<include refid="searchMessagesBody" />
 			GROUP BY m.id
 	
