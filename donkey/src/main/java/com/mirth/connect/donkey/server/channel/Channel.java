@@ -1219,7 +1219,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             message.setImportChannelId(message.getChannelId());
         }
 
-        long messageId = dao.getNextMessageId(message.getChannelId());
+        long messageId = dao.getNextMessageId(channelId);
         message.setMessageId(messageId);
         message.setChannelId(channelId);
         message.setServerId(serverId);
