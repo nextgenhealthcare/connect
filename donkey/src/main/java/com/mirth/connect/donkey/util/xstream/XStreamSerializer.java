@@ -10,10 +10,13 @@
 package com.mirth.connect.donkey.util.xstream;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.WeakHashMap;
+
+import org.xmlpull.mxp1.MXParser;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
@@ -22,7 +25,9 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.Serializer;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.basic.StringConverter;
+import com.thoughtworks.xstream.core.util.HierarchicalStreams;
 import com.thoughtworks.xstream.io.xml.Xpp3Driver;
+import com.thoughtworks.xstream.io.xml.XppReader;
 
 public class XStreamSerializer implements Serializer {
     // http://jira.codehaus.org/browse/XSTR-395
@@ -64,6 +69,16 @@ public class XStreamSerializer implements Serializer {
     @Override
     public Object deserialize(Reader reader) {
         return xstream.fromXML(reader);
+    }
+    
+    @Override
+    public Class<?> getClass(String serializedObject) {
+        return getClass(new StringReader(serializedObject));
+    }
+
+    @Override
+    public Class<?> getClass(Reader reader) {
+        return HierarchicalStreams.readClassType(new XppReader(reader, new MXParser()), getXStream().getMapper());
     }
     
     protected XStream getXStream() {

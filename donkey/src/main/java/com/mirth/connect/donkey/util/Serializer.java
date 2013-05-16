@@ -20,4 +20,16 @@ public interface Serializer {
     public Object deserialize(String serializedObject);
     
     public Object deserialize(Reader reader);
+    
+    /**
+     * Reads the class of a serialized object without deserializing it.
+     * @return The class of the serialized object or null if the class could not be determined.
+     */
+    public Class<?> getClass(String serializedObject);
+
+    /**
+     * Reads the class of a serialized object without deserializing it.
+     * @return The class of the serialized object or null if the class could not be determined.
+     */
+    public Class<?> getClass(Reader reader);
 }

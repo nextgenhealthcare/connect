@@ -299,6 +299,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
                     try {
                         dao = daoFactory.getDao();
                         Status previousStatus = connectorMessage.getStatus();
+                        
+                        Class<?> connectorPropertiesClass = getConnectorProperties().getClass();
+                        Class<?> serializedPropertiesClass = null;
 
                         ConnectorProperties connectorProperties = null;
 
@@ -306,51 +309,79 @@ public abstract class DestinationConnector extends Connector implements Runnable
                         if (queueProperties.isRegenerateTemplate() || connectorMessage.getSent() == null) {
                             ThreadUtils.checkInterruptedStatus();
                             connectorProperties = ((DispatcherConnectorPropertiesInterface) getConnectorProperties()).clone();
-                            replaceConnectorProperties(connectorProperties, connectorMessage);
-                            MessageContent sentContent = getSentContent(connectorMessage, connectorProperties);
-                            connectorMessage.setSent(sentContent);
 
-                            if (sentContent != null && storageSettings.isStoreSent()) {
-                                ThreadUtils.checkInterruptedStatus();
-                                dao.storeMessageContent(sentContent);
+                            boolean updateProperties = true;
+                            if (connectorMessage.getSent() == null) {
+                                serializedPropertiesClass = connectorProperties.getClass();
+                            } else {
+                                serializedPropertiesClass = serializer.getClass(connectorMessage.getSent().getContent());
+                                
+                                // If the serialized properties do not match, don't update the properties.
+                                updateProperties = (serializedPropertiesClass == connectorPropertiesClass);
+                            }
+
+                            if (updateProperties) {
+                                replaceConnectorProperties(connectorProperties, connectorMessage);
+                                MessageContent sentContent = getSentContent(connectorMessage, connectorProperties);
+                                connectorMessage.setSent(sentContent);
+
+                                if (sentContent != null && storageSettings.isStoreSent()) {
+                                    ThreadUtils.checkInterruptedStatus();
+                                    dao.storeMessageContent(sentContent);
+                                }
                             }
                         } else {
                             connectorProperties = (ConnectorProperties) serializer.deserialize(connectorMessage.getSent().getContent());
+
+                            serializedPropertiesClass = connectorProperties.getClass();
                         }
-
-                        ThreadUtils.checkInterruptedStatus();
-                        Response response = handleSend(connectorProperties, connectorMessage);
-                        connectorMessage.setSendAttempts(connectorMessage.getSendAttempts() + 1);
-
-                        if (response == null) {
-                            throw new RuntimeException("Received null response from destination " + destinationName + ".");
-                        }
-                        response.fixStatus(isQueueEnabled());
-
-                        afterSend(dao, connectorMessage, response, previousStatus);
 
                         /*
-                         * if the "remove content on completion" setting is
-                         * enabled, we will need to
-                         * retrieve a list of the other connector messages for
-                         * this message id and
-                         * check if the message is "completed"
+                         * Verify that the connector properties stored in the connector message
+                         * match the properties from the current connector. Otherwise the connector
+                         * type has changed and the message will be set to errored.
                          */
-                        if (storageSettings.isRemoveContentOnCompletion() || storageSettings.isRemoveAttachmentsOnCompletion()) {
-                            Map<Integer, ConnectorMessage> connectorMessages = dao.getConnectorMessages(getChannelId(), connectorMessage.getMessageId());
+                        if (serializedPropertiesClass == connectorPropertiesClass) {
+                            ThreadUtils.checkInterruptedStatus();
+                            Response response = handleSend(connectorProperties, connectorMessage);
+                            connectorMessage.setSendAttempts(connectorMessage.getSendAttempts() + 1);
+    
+                            if (response == null) {
+                                throw new RuntimeException("Received null response from destination " + destinationName + ".");
+                            }
+                            response.fixStatus(isQueueEnabled());
+    
+                            afterSend(dao, connectorMessage, response, previousStatus);
 
-                            // update the map with the message that was just sent
-                            connectorMessages.put(getMetaDataId(), connectorMessage);
+                            /*
+                             * if the "remove content on completion" setting is
+                             * enabled, we will need to
+                             * retrieve a list of the other connector messages for
+                             * this message id and
+                             * check if the message is "completed"
+                             */
+                            if (storageSettings.isRemoveContentOnCompletion() || storageSettings.isRemoveAttachmentsOnCompletion()) {
+                                Map<Integer, ConnectorMessage> connectorMessages = dao.getConnectorMessages(getChannelId(), connectorMessage.getMessageId());
+    
+                                // update the map with the message that was just sent
+                                connectorMessages.put(getMetaDataId(), connectorMessage);
+    
+                                if (MessageController.getInstance().isMessageCompleted(connectorMessages)) {
+                                    if (storageSettings.isRemoveContentOnCompletion()) {
+                                        dao.deleteMessageContent(getChannelId(), connectorMessage.getMessageId());
+                                    }
 
-                            if (MessageController.getInstance().isMessageCompleted(connectorMessages)) {
-                                if (storageSettings.isRemoveContentOnCompletion()) {
-                                    dao.deleteMessageContent(getChannelId(), connectorMessage.getMessageId());
-                                }
-
-                                if (storageSettings.isRemoveAttachmentsOnCompletion()) {
-                                    dao.deleteMessageAttachments(getChannelId(), connectorMessage.getMessageId());
+                                    if (storageSettings.isRemoveAttachmentsOnCompletion()) {
+                                        dao.deleteMessageAttachments(getChannelId(), connectorMessage.getMessageId());
+                                    }
                                 }
                             }
+                        } else {
+                            connectorMessage.setStatus(Status.ERROR);
+                            connectorMessage.setProcessingError("Mismatched connector properties detected in queued message. The connector type may have changed since the message was queued.\nFOUND: " + serializedPropertiesClass.getSimpleName() + "\nEXPECTED: " + connectorPropertiesClass.getSimpleName());
+
+                            dao.updateStatus(connectorMessage, previousStatus);
+                            dao.updateErrors(connectorMessage);
                         }
 
                         ThreadUtils.checkInterruptedStatus();
