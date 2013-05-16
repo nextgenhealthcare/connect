@@ -147,14 +147,9 @@ public class MessagePrunerService implements ServicePlugin {
     private Map<String, String> getStatusMap() {
         Map<String, String> statusMap = new HashMap<String, String>();
         StringBuilder stringBuilder = new StringBuilder();
-        
         MessagePrunerStatus status = pruner.getPrunerStatus();
         
-        if (status == null) {
-            statusMap.put("isRunning", "false");
-            statusMap.put("currentState", "Not running");
-            statusMap.put("currentProcess", "-");
-        } else {
+        if (pruner.isRunning()) {
             statusMap.put("isRunning", "true");
             
             if (status.isArchiving()) {
@@ -193,6 +188,10 @@ public class MessagePrunerService implements ServicePlugin {
             stringBuilder.append(", " + getElapsedTimeText(status.getStartTime(), Calendar.getInstance()) + " elapsed");
     
             statusMap.put("currentProcess", stringBuilder.toString());
+        } else {
+            statusMap.put("isRunning", "false");
+            statusMap.put("currentState", "Not running");
+            statusMap.put("currentProcess", "-");
         }
         
         MessagePrunerStatus lastStatus = pruner.getLastPrunerStatus();
