@@ -222,7 +222,7 @@ public class HttpDispatcher extends DestinationConnector {
         // create the method
         if ("GET".equalsIgnoreCase(method)) {
             httpMethod = new GetMethod(address);
-            httpMethod.setQueryString(queryParameters);
+            setQueryString(httpMethod, queryParameters);
         } else if ("POST".equalsIgnoreCase(method)) {
             PostMethod postMethod = new PostMethod(address);
 
@@ -231,12 +231,12 @@ public class HttpDispatcher extends DestinationConnector {
                 tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tmp");
                 FileUtils.writeStringToFile(tempFile, content, charset);
                 Part[] parts = new Part[] { new FilePart(tempFile.getName(), tempFile, contentType, charset) };
-                postMethod.setQueryString(queryParameters);
+                setQueryString(postMethod, queryParameters);
                 postMethod.setRequestEntity(new MultipartRequestEntity(parts, postMethod.getParams()));
             } else if (StringUtils.equals(contentType, "application/x-www-form-urlencoded")) {
                 postMethod.setRequestBody(queryParameters);
             } else {
-                postMethod.setQueryString(queryParameters);
+                setQueryString(postMethod, queryParameters);
                 postMethod.setRequestEntity(new StringRequestEntity(content, contentType, charset));
             }
 
@@ -244,11 +244,12 @@ public class HttpDispatcher extends DestinationConnector {
         } else if ("PUT".equalsIgnoreCase(method)) {
             PutMethod putMethod = new PutMethod(address);
             putMethod.setRequestEntity(new StringRequestEntity(content, contentType, charset));
-            putMethod.setQueryString(queryParameters);
+            setQueryString(putMethod, queryParameters);
+
             httpMethod = putMethod;
         } else if ("DELETE".equalsIgnoreCase(method)) {
             httpMethod = new DeleteMethod(address);
-            httpMethod.setQueryString(queryParameters);
+            setQueryString(httpMethod, queryParameters);
         }
 
         // set the headers
@@ -258,5 +259,11 @@ public class HttpDispatcher extends DestinationConnector {
         }
 
         return httpMethod;
+    }
+
+    private void setQueryString(HttpMethod method, NameValuePair[] queryParameters) {
+        if (queryParameters.length > 0) {
+            method.setQueryString(queryParameters);
+        }
     }
 }
