@@ -292,22 +292,8 @@ public class Channel implements Startable, Stoppable, Runnable {
         this.lock = ChannelLock.UNLOCKED;
     }
 
-    @Deprecated
-    public boolean isRunning() {
-        return currentState == ChannelState.STARTED;
-    }
-
-    public boolean isStartable() {
-        return currentState != ChannelState.STARTED && currentState != ChannelState.STARTING;
-    }
-
-    public boolean isStoppable() {
+    public boolean isActive() {
         return currentState != ChannelState.STOPPED && currentState != ChannelState.STOPPING;
-    }
-
-    @Deprecated
-    public boolean isPaused() {
-        return (isRunning() && !sourceConnector.isRunning());
     }
 
     /**
@@ -485,17 +471,21 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
     }
 
+    @Override
+    public void start() throws StartException {
+        start(true);
+    }
+
     /**
      * Start the channel and all of the channel's connectors.
      */
-    @Override
-    public void start() throws StartException {
+    public void start(boolean startSourceConnector) throws StartException {
         Future<?> task = null;
 
         try {
             synchronized (controlExecutor) {
                 if (lock == ChannelLock.UNLOCKED || lock == ChannelLock.DEPLOY || lock == ChannelLock.DEBUG) {
-                    task = controlExecutor.submit(new StartTask());
+                    task = controlExecutor.submit(new StartTask(startSourceConnector));
                     controlTasks.add(task);
                 }
             }
@@ -1127,7 +1117,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         try {
             do {
                 processSourceQueue(Constants.SOURCE_QUEUE_POLL_TIMEOUT_MILLIS);
-            } while (currentState == ChannelState.STARTED || currentState == ChannelState.STARTING);
+            } while (isActive());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -1448,6 +1438,12 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     private class StartTask implements Callable<Void> {
 
+        private boolean startSourceConnector;
+
+        public StartTask(boolean startSourceConnector) {
+            this.startSourceConnector = startSourceConnector;
+        }
+
         @Override
         public Void call() throws Exception {
             if (currentState != ChannelState.STARTED) {
@@ -1501,14 +1497,18 @@ public class Channel implements Startable, Stoppable, Runnable {
                             queueExecutor.execute(Channel.this);
                         }
 
-                        ThreadUtils.checkInterruptedStatus();
-                        // start up the source connector
-                        if (!sourceConnector.isRunning()) {
-                            startedMetaDataIds.add(0);
-                            sourceConnector.start();
-                        }
+                        if (startSourceConnector) {
+                            ThreadUtils.checkInterruptedStatus();
+                            // start up the source connector
+                            if (sourceConnector.getCurrentState() == ChannelState.STOPPED) {
+                                startedMetaDataIds.add(0);
+                                sourceConnector.start();
+                            }
 
-                        updateCurrentState(ChannelState.STARTED);
+                            updateCurrentState(ChannelState.STARTED);
+                        } else {
+                            updateCurrentState(ChannelState.PAUSED);
+                        }
                     } catch (Throwable t) {
                         // If an exception occurred, then attempt to rollback by stopping all the connectors that were started
                         try {
@@ -1522,7 +1522,6 @@ public class Channel implements Startable, Stoppable, Runnable {
                     }
                 }
             } else {
-                updateCurrentState(ChannelState.STARTED);
                 logger.warn("Failed to start channel " + name + " (" + channelId + "): The channel is already running.");
             }
 
@@ -1548,7 +1547,6 @@ public class Channel implements Startable, Stoppable, Runnable {
                 stop(deployedMetaDataIds);
                 updateCurrentState(ChannelState.STOPPED);
             } else {
-                updateCurrentState(ChannelState.STOPPED);
                 logger.warn("Failed to stop channel " + name + " (" + channelId + "): The channel is already stopped.");
             }
 
@@ -1574,7 +1572,6 @@ public class Channel implements Startable, Stoppable, Runnable {
                 halt(deployedMetaDataIds);
                 updateCurrentState(ChannelState.STOPPED);
             } else {
-                updateCurrentState(ChannelState.STOPPED);
                 logger.warn("Failed to stop channel " + name + " (" + channelId + "): The channel is already stopped.");
             }
 
@@ -1586,18 +1583,20 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         @Override
         public Void call() throws Exception {
-            if (currentState == ChannelState.STARTED && sourceConnector.isRunning()) {
+            if (currentState == ChannelState.STARTED) {
                 try {
+                    updateCurrentState(ChannelState.PAUSING);
                     sourceConnector.stop();
+                    updateCurrentState(ChannelState.PAUSED);
                 } catch (Throwable t) {
                     throw new PauseException("Failed to pause channel " + name + " (" + channelId + ").", t);
                 }
             } else {
                 //TODO what to do here?
-                if (currentState == ChannelState.STARTED) {
+                if (currentState == ChannelState.PAUSED) {
                     logger.warn("Failed to pause channel " + name + " (" + channelId + "): The channel is already paused.");
                 } else {
-                    logger.warn("Failed to pause channel " + name + " (" + channelId + "): The channel is already stopped.");
+                    logger.warn("Failed to pause channel " + name + " (" + channelId + "): The channel is currently " + currentState.toString().toLowerCase() + " and cannot be paused.");
                 }
 
             }
@@ -1611,19 +1610,22 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         @Override
         public Void call() throws Exception {
-            if (!sourceConnector.isRunning()) {
+            if (currentState == ChannelState.PAUSED) {
                 try {
+                    updateCurrentState(ChannelState.STARTING);
                     sourceConnector.start();
+                    updateCurrentState(ChannelState.STARTED);
                 } catch (Throwable t) {
                     try {
                         sourceConnector.stop();
+                        updateCurrentState(ChannelState.PAUSED);
                     } catch (Throwable e2) {
                     }
 
                     throw new StartException("Failed to resume channel " + name + " (" + channelId + ").", t);
                 }
             } else {
-                logger.warn("Failed to resume channel " + name + " (" + channelId + "): The source connector is already running.");
+                logger.warn("Failed to resume channel " + name + " (" + channelId + "): The source connector is not currently paused.");
             }
 
             return null;

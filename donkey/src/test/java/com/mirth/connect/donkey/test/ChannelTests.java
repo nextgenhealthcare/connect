@@ -24,6 +24,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnException;
@@ -90,9 +91,9 @@ public class ChannelTests {
         channel.deploy();
 
         assertTrue(channel.isDeployed());
-        assertFalse(channel.isRunning());
+        assertFalse(channel.getCurrentState() == ChannelState.STARTED);
         assertTrue(sourceConnector.isDeployed());
-        assertFalse(sourceConnector.isRunning());
+        assertFalse(sourceConnector.getCurrentState() != ChannelState.STOPPED);
 
         for (DestinationChain chain : channel.getDestinationChains()) {
             for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
@@ -126,9 +127,9 @@ public class ChannelTests {
         channel.undeploy();
 
         assertFalse(channel.isDeployed());
-        assertFalse(channel.isRunning());
+        assertFalse(channel.getCurrentState() == ChannelState.STARTED);
         assertFalse(sourceConnector.isDeployed());
-        assertFalse(sourceConnector.isRunning());
+        assertFalse(sourceConnector.getCurrentState() != ChannelState.STOPPED);
 
         for (DestinationChain chain : channel.getDestinationChains()) {
             for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
@@ -157,9 +158,9 @@ public class ChannelTests {
         channel.deploy();
         channel.start();
 
-        assertTrue(channel.isRunning());
+        assertTrue(channel.getCurrentState() == ChannelState.STARTED);
         assertNotNull(channel.getSourceQueue());
-        assertTrue(sourceConnector.isRunning());
+        assertTrue(sourceConnector.getCurrentState() != ChannelState.STOPPED);
 
         for (DestinationChain chain : channel.getDestinationChains()) {
             for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
@@ -202,7 +203,7 @@ public class ChannelTests {
         channel.start();
         channel.pause();
 
-        assertFalse(sourceConnector.isRunning());
+        assertFalse(sourceConnector.getCurrentState() != ChannelState.STOPPED);
 
         ChannelException exception = null;
 
@@ -250,8 +251,8 @@ public class ChannelTests {
         }
 
         channel.stop();
-        assertFalse(channel.isRunning());
-        assertFalse(sourceConnector.isRunning());
+        assertFalse(channel.getCurrentState() == ChannelState.STARTED);
+        assertFalse(sourceConnector.getCurrentState() != ChannelState.STOPPED);
 
         for (DestinationChain chain : channel.getDestinationChains()) {
             for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
@@ -297,8 +298,8 @@ public class ChannelTests {
         }
 
         channel.halt();
-        assertFalse(channel.isRunning());
-        assertFalse(sourceConnector.isRunning());
+        assertFalse(channel.getCurrentState() == ChannelState.STARTED);
+        assertFalse(sourceConnector.getCurrentState() != ChannelState.STOPPED);
 
         for (DestinationChain chain : channel.getDestinationChains()) {
             for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
@@ -525,7 +526,7 @@ public class ChannelTests {
         channel.stop();
         channel.undeploy();
     }
-    
+
     @Test
     public final void testEncryption() throws Exception {
         //TODO UPDATE THIS TEST!
@@ -737,7 +738,7 @@ public class ChannelTests {
         } else {
             TestUtils.assertMessageContentDoesNotExist(destinationMessage.getResponse());
         }
-        
+
         if (storageSettings.isStoreResponseTransformed()) {
             TestUtils.assertMessageContentExists(destinationMessage.getResponseTransformed());
         } else {

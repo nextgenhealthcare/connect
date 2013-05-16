@@ -83,7 +83,7 @@ public class Donkey {
         ChannelController.getInstance().loadStatistics();
 
         encryptor = donkeyConfiguration.getEncryptor();
-        
+
         eventDispatcher = donkeyConfiguration.getEventDispatcher();
 
         running = true;
@@ -159,7 +159,7 @@ public class Donkey {
 
             channel.setDeployDate(Calendar.getInstance());
             deployedChannels.put(channel.getChannelId(), channel);
-            
+
             try {
                 channel.deploy();
             } catch (DeployException e) {
@@ -188,7 +188,7 @@ public class Donkey {
             // which would start the channel again before the undeploy task runs.
             channel.lock(ChannelLock.UNDEPLOY);
 
-            if (channel.isStoppable()) {
+            if (channel.isActive()) {
                 try {
                     channel.stop();
                 } catch (StopException e) {

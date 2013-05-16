@@ -304,13 +304,17 @@ public class DonkeyMessageController extends MessageController {
                 Channel channel = engineController.getDeployedChannel(channelId);
 
                 if (channel != null) {
-                    boolean stoppedChannel = false;
+                    ChannelState priorState = channel.getCurrentState();
+                    boolean startChannelAfter = false;
 
-                    if (channel.getCurrentState() != ChannelState.STOPPED && restartRunningChannels) {
+                    if (priorState != ChannelState.STOPPED && restartRunningChannels) {
                         try {
                             logger.debug("Stopping channel \"" + channel.getName() + "\" prior to removing messages");
                             channel.stop();
-                            stoppedChannel = true;
+
+                            if (priorState != ChannelState.STOPPING) {
+                                startChannelAfter = true;
+                            }
                         } catch (StopException e) {
                             logger.error("Failed to stop channel id " + channelId, e);
                         }
@@ -339,10 +343,11 @@ public class DonkeyMessageController extends MessageController {
                         }
                     }
 
-                    if (stoppedChannel) {
+                    if (startChannelAfter) {
                         try {
                             logger.debug("Restarting channel \"" + channel.getName() + "\"");
-                            channel.start();
+                            // Only start the source connector if the channel wasn't paused or pausing before
+                            channel.start(priorState != ChannelState.PAUSED && priorState != ChannelState.PAUSING);
                         } catch (StartException e) {
                             logger.error("Failed to start channel id " + channelId, e);
                         }
@@ -353,7 +358,7 @@ public class DonkeyMessageController extends MessageController {
             dao.close();
         }
     }
-    
+
     @Override
     public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds) {
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
@@ -371,7 +376,7 @@ public class DonkeyMessageController extends MessageController {
         for (Long messageId : messageIds) {
             params.put("messageId", messageId);
             MessageContent rawContent = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageForReprocessing", params);
-            
+
             if (rawContent.isEncrypted()) {
                 rawContent.setContent(encryptor.decrypt(rawContent.getContent()));
                 rawContent.setEncrypted(false);
@@ -383,21 +388,21 @@ public class DonkeyMessageController extends MessageController {
                 connectorMessage.setMessageId(messageId);
                 connectorMessage.setMetaDataId(0);
                 connectorMessage.setRaw(rawContent);
-    
+
                 RawMessage rawMessage = null;
-                
+
                 if (ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).isBinary()) {
                     rawMessage = new RawMessage(DICOMUtil.getDICOMRawBytes(connectorMessage));
                 } else {
                     rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(AttachmentUtil.reAttachMessage(rawContent.getContent(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
                 }
-    
+
                 if (replace) {
                     rawMessage.setMessageIdToOverwrite(messageId);
                 }
-    
+
                 rawMessage.setDestinationMetaDataIds(reprocessMetaDataIds);
-    
+
                 try {
                     engineController.dispatchRawMessage(channelId, rawMessage);
                 } catch (Throwable e) {
@@ -461,33 +466,33 @@ public class DonkeyMessageController extends MessageController {
         MessageWriter messageWriter = new MessageWriterChannel(channel);
         return new MessageImporter().importMessages(uri, includeSubfolders, messageWriter);
     }
-    
+
     private List<MessageSearchResult> searchMessages(SqlSession session, Map<String, Object> params) {
         long startTime = System.currentTimeMillis();
-        
+
         try {
             if (DatabaseUtil.statementExists("Message.searchMessages")) {
                 return session.selectList("Message.searchMessages", params);
             }
-            
+
             List<MessageSearchResult> results = session.selectList("Message.searchMessagesUngrouped", params);
             Map<Long, MessageSearchResult> groupedResults = new HashMap<Long, MessageSearchResult>();
             List<MessageSearchResult> orderedResults = new ArrayList<MessageSearchResult>();
-            
+
             for (MessageSearchResult result : results) {
                 MessageSearchResult groupedResult = groupedResults.get(result.getMessageId());
-                
+
                 if (groupedResult == null) {
                     groupedResult = result;
                     groupedResult.setMetaDataIdSet(new HashSet<Integer>());
                     groupedResults.put(groupedResult.getMessageId(), groupedResult);
-                    
+
                     orderedResults.add(groupedResult);
                 }
-                
+
                 groupedResult.getMetaDataIdSet().add(result.getMetaDataId());
             }
-            
+
             return orderedResults;
         } finally {
             long endTime = System.currentTimeMillis();

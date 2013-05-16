@@ -125,7 +125,7 @@ public class DonkeyEngineController implements EngineController {
                 return encryptor.decrypt(text);
             }
         };
-        
+
         EventDispatcher eventDispatcher = new EventDispatcher() {
 
             @Override
@@ -155,7 +155,7 @@ public class DonkeyEngineController implements EngineController {
         if (channel == null) {
             throw new DeployException("Unable to deploy channel, channel ID " + channelId + " not found.");
         }
-        
+
         deployChannel(channel, context);
     }
 
@@ -167,9 +167,9 @@ public class DonkeyEngineController implements EngineController {
 
         // Execute global deploy script before channel deploy script
         scriptController.executeGlobalDeployScript();
-        
+
         List<Channel> channels = channelController.getChannels(channelIds);
-        
+
         for (Channel channel : channels) {
             try {
                 deployChannel(channel, context);
@@ -178,10 +178,10 @@ public class DonkeyEngineController implements EngineController {
             }
         }
     }
-    
+
     private void deployChannel(Channel channel, ServerEventContext context) throws StartException, StopException, DeployException, UndeployException {
         String channelId = channel.getId();
-        
+
         if (!channel.isEnabled()) {
             return;
         }
@@ -258,7 +258,7 @@ public class DonkeyEngineController implements EngineController {
 
         // Remove channel scripts
         scriptController.removeChannelScriptsFromCache(channelId);
-        
+
         channelController.removeDeployedChannelFromCache(channelId);
     }
 
@@ -324,28 +324,22 @@ public class DonkeyEngineController implements EngineController {
             Statistics lifetimeStats = donkeyChannelController.getTotalStatistics();
 
             String channelId = donkeyChannel.getChannelId();
-            
+
             DashboardStatus status = new DashboardStatus();
             status.setStatusType(StatusType.CHANNEL);
             status.setChannelId(channelId);
             status.setName(donkeyChannel.getName());
-
-            if (donkeyChannel.isPaused()) {
-                status.setState(ChannelState.PAUSED);
-            } else {
-                status.setState(donkeyChannel.getCurrentState());
-            }
-
+            status.setState(donkeyChannel.getCurrentState());
             status.setDeployedDate(donkeyChannel.getDeployDate());
 
             Channel deployedChannel = channelController.getDeployedChannelById(channelId);
-            
+
             int channelRevision = 0;
             // Just in case the channel no longer exists
             if (channelRevisions != null && channelRevisions.containsKey(channelId)) {
                 channelRevision = channelRevisions.get(channelId);
-            }            
-            
+            }
+
             status.setDeployedRevisionDelta(channelRevision - deployedChannel.getRevision());
             status.setStatistics(stats.getConnectorStats(channelId, null));
             status.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, null));

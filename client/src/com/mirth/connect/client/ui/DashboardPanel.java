@@ -62,7 +62,10 @@ public class DashboardPanel extends javax.swing.JPanel {
     private static final String ALERTED_COLUMN_NAME = "Alerted";
     private static final String LAST_DEPLOYED_COLUMN_NAME = "Last Deployed";
     private static final String DEPLOYED_REVISION_DELTA_COLUMN_NAME = "Rev \u0394";
-    private static final String[] defaultColumns = new String[] { STATUS_COLUMN_NAME, NAME_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME, RECEIVED_COLUMN_NAME, FILTERED_COLUMN_NAME, QUEUED_COLUMN_NAME, SENT_COLUMN_NAME, ERROR_COLUMN_NAME, ALERTED_COLUMN_NAME };
+    private static final String[] defaultColumns = new String[] { STATUS_COLUMN_NAME,
+            NAME_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME,
+            RECEIVED_COLUMN_NAME, FILTERED_COLUMN_NAME, QUEUED_COLUMN_NAME, SENT_COLUMN_NAME,
+            ERROR_COLUMN_NAME, ALERTED_COLUMN_NAME };
 
     private Frame parent;
     private boolean showLifetimeStats = false;
@@ -87,7 +90,6 @@ public class DashboardPanel extends javax.swing.JPanel {
         tabs.addChangeListener(changeListener);
 
         makeStatusTable();
-        
 
         this.setDoubleBuffered(true);
     }
@@ -162,7 +164,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.putClientProperty("JTree.lineStyle", "Horizontal");
         statusTable.setAutoCreateColumnsFromModel(false);
         statusTable.setShowGrid(true, true);
-        
+
         // TODO: try using a custom tree cell renderer to set custom icons on connectors, so that we can display a chain icon to indicate that a destination waits for the previous one
         // http://www.java.net/forum/topic/javadesktop/java-desktop-technologies/swinglabs/jxtreetable-custom-icons-node
 //        statusTable.setTreeCellRenderer(new DefaultTreeRenderer(new IconValue() {
@@ -221,12 +223,12 @@ public class DashboardPanel extends javax.swing.JPanel {
 
                 int viewColumn = h.columnAtPoint(e.getPoint());
                 int column = columnModel.getColumn(viewColumn).getModelIndex();
-                                                
+
                 if (column != -1 && statusTable.getColumnExt(column).isSortable()) {
                     // Toggle sort order (ascending <-> descending)
                     SortableTreeTableModel model = (SortableTreeTableModel) statusTable.getTreeTableModel();
                     model.setColumnAndToggleSortOrder(column);
-                    
+
                     // Set sorting icon and current column index
                     ((SortableHeaderCellRenderer) statusTable.getTableHeader().getDefaultRenderer()).setSortingIcon(model.getSortOrder());
                     ((SortableHeaderCellRenderer) statusTable.getTableHeader().getDefaultRenderer()).setColumnIndex(column);
@@ -236,7 +238,8 @@ public class DashboardPanel extends javax.swing.JPanel {
     }
 
     /**
-     * Shows the popup menu when the trigger button (right-click) has been pushed. Deselects the rows if no row was selected.
+     * Shows the popup menu when the trigger button (right-click) has been pushed. Deselects the
+     * rows if no row was selected.
      */
     private void checkSelectionAndPopupMenu(MouseEvent event) {
         TreePath path = statusTable.getPathForLocation(event.getX(), event.getY());
@@ -260,19 +263,20 @@ public class DashboardPanel extends javax.swing.JPanel {
     }
 
     /*
-     * Action when something on the status list has been selected. Sets all appropriate tasks visible.
+     * Action when something on the status list has been selected. Sets all appropriate tasks
+     * visible.
      */
     private void updatePopupMenu() {
         /*
          * 0 - Refresh
-         * 1 - Send Message 
-         * 2 - View Messages 
-         * 3 - Remove All Messages 
-         * 4 - Clear Statistics 
-         * 5 - Start 
-         * 6 - Pause 
-         * 7 - Stop 
-         * 8 - Halt 
+         * 1 - Send Message
+         * 2 - View Messages
+         * 3 - Remove All Messages
+         * 4 - Clear Statistics
+         * 5 - Start
+         * 6 - Pause
+         * 7 - Stop
+         * 8 - Halt
          * 9 - Undeploy Channel
          */
 
@@ -282,7 +286,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 9, false); // hide start, pause, stop, halt and undeploy
 
         boolean removeChannelOptions = false;
-        
+
         for (DashboardTableNode node : statusTable.getSelectedNodes()) {
             DashboardStatus status = node.getStatus();
             StatusType statusType = status.getStatusType();
@@ -310,23 +314,30 @@ public class DashboardPanel extends javax.swing.JPanel {
                         parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 5, true);
                         parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 7, 7, true);
                         break;
+                    case PAUSING:
+                        if (statusTable.getSelectedRowCount() == 1) {
+                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 8, 8, true);
+                        } else {
+                            removeChannelOptions = true;
+                        }
+                        break;
                     default:
                         parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 5, true);
                         break;
                 }
-    
+
                 parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, 1, true);
                 parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 3, 3, true);
                 parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 9, 9, true);
             }
-            
+
             // If a selected channel is starting/stopping, do not show any options unless it is the only selected channel.
             if (removeChannelOptions) {
                 parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 9, false); // hide start, pause, stop, halt and undeploy
                 break;
             }
         }
-        
+
         if (showLifetimeStats) {
             parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 4, 4, false);
         }
@@ -337,27 +348,27 @@ public class DashboardPanel extends javax.swing.JPanel {
     public synchronized void updateTable(List<DashboardStatus> statuses) {
         boolean tagFilterEnabled = parent.channelFilter.isTagFilterEnabled();
         Set<String> visibleTags = parent.channelFilter.getVisibleTags();
-        
+
         if (tagFilterEnabled) {
             int totalChannelCount = statuses.size();
             List<DashboardStatus> filteredStatuses = new ArrayList<DashboardStatus>();
-            
+
             for (DashboardStatus currentStatus : statuses) {
                 if (tagFilterEnabled && CollectionUtils.containsAny(visibleTags, currentStatus.getTags())) {
                     filteredStatuses.add(currentStatus);
                 }
             }
-            
+
             statuses = filteredStatuses;
             tagsLabel.setText(statuses.size() + " of " + totalChannelCount + " Deployed Channels (" + StringUtils.join(visibleTags, ", ") + ")");
         } else {
             tagsLabel.setText(statuses.size() + " Deployed Channels");
         }
-        
+
         DashboardTreeTableModel model = (DashboardTreeTableModel) statusTable.getTreeTableModel();
         model.setStatuses(statuses);
         model.setShowLifetimeStats(showLifetimeStatsButton.isSelected());
-        
+
         // The ListSelectionListener is not notified that the tree table model has changed so we must update the menu items manually.
         // If we switch everything to use a TreeSelectionListener then we should remove this.
         if (statusTable.getSelectedRowCount() == 0) {
@@ -367,12 +378,12 @@ public class DashboardPanel extends javax.swing.JPanel {
         }
         updateTableHighlighting();
     }
-    
+
     public synchronized void updateTableHighlighting() {
         // MIRTH-2301
         // Since we are using addHighlighter here instead of using setHighlighters, we need to remove the old ones first.
         statusTable.setHighlighters();
-        
+
         // Add the highlighters. Always add the error highlighter.
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
@@ -443,11 +454,11 @@ public class DashboardPanel extends javax.swing.JPanel {
 
         return selectedStatuses;
     }
-    
+
     public synchronized Set<DashboardStatus> getSelectedChannelStatuses() {
         Set<DashboardStatus> selectedStatuses = new HashSet<DashboardStatus>();
         List<DashboardTableNode> selectedNodes = statusTable.getSelectedNodes();
-        
+
         for (TreeTableNode treeNode : selectedNodes) {
             while (treeNode != null && treeNode instanceof DashboardTableNode) {
                 DashboardTableNode node = (DashboardTableNode) treeNode;
@@ -455,17 +466,17 @@ public class DashboardPanel extends javax.swing.JPanel {
                     if (!selectedStatuses.contains(node.getStatus())) {
                         selectedStatuses.add(node.getStatus());
                     }
-                    
+
                     break;
                 }
-                
+
                 treeNode = treeNode.getParent();
             }
         }
-        
+
         return selectedStatuses;
     }
-    
+
     public synchronized List<DashboardStatus> getSelectedStatusesRecursive() {
         List<DashboardStatus> selectedStatuses = new ArrayList<DashboardStatus>();
         List<DashboardTableNode> selectedNodes = statusTable.getSelectedNodes();
@@ -477,18 +488,18 @@ public class DashboardPanel extends javax.swing.JPanel {
 
         return selectedStatuses;
     }
-    
+
     public Set<DashboardStatus> getAllChildStatuses(DashboardStatus status) {
         Set<DashboardStatus> statuses = new HashSet<DashboardStatus>();
-        
+
         for (DashboardStatus childStatus : status.getChildStatuses()) {
             if (!statuses.contains(childStatus)) {
                 statuses.add(childStatus);
             }
-            
+
             statuses.addAll(getAllChildStatuses(childStatus));
         }
-        
+
         return statuses;
     }
 
@@ -524,7 +535,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, -1, false);
         updateCurrentPluginPanel();
     }
-    
+
     public static int getNumberOfDefaultColumns() {
         return defaultColumns.length;
     }
@@ -657,7 +668,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         } else {
             updatePopupMenu();
         }
-        
+
         // TODO: updateTableHighlighting() is called to force the table to refresh, there is probably a more direct way to do this
         updateTableHighlighting();
     }//GEN-LAST:event_showCurrentStatsButtonActionPerformed
@@ -671,7 +682,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         } else {
             updatePopupMenu();
         }
-        
+
         // TODO: updateTableHighlighting() is called to force the table to refresh, there is probably a more direct way to do this
         updateTableHighlighting();
     }//GEN-LAST:event_showLifetimeStatsButtonActionPerformed

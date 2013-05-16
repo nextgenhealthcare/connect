@@ -68,11 +68,6 @@ public abstract class SourceConnector extends Connector {
         this.sourceName = sourceName;
     }
 
-    @Deprecated
-    public boolean isRunning() {
-        return getCurrentState() != ChannelState.STOPPED;
-    }
-
     /**
      * Start the connector
      */
