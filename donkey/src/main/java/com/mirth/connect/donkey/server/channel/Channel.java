@@ -9,6 +9,7 @@
 
 package com.mirth.connect.donkey.server.channel;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -25,8 +26,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -44,6 +45,7 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.DeployException;
@@ -65,6 +67,7 @@ import com.mirth.connect.donkey.server.event.DeployEvent;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
+import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
 public class Channel implements Startable, Stoppable, Runnable {
@@ -94,16 +97,18 @@ public class Channel implements Startable, Stoppable, Runnable {
     private ResponseSelector responseSelector;
 
     private ExecutorService controlExecutor = Executors.newSingleThreadExecutor();
-    private ExecutorService channelExecutor;
     private ExecutorService queueExecutor;
     private ExecutorService destinationChainExecutor;
     private ExecutorService recoveryExecutor;
-    private Set<Future<DispatchResult>> channelTasks = new HashSet<Future<DispatchResult>>();
+    private Set<Thread> dispatchThreads = new HashSet<Thread>();
+    private boolean shuttingDown = false;
     private Set<Future<?>> controlTasks = new LinkedHashSet<Future<?>>();
 
     private boolean stopSourceQueue = false;
-    private final AtomicBoolean processLock = new AtomicBoolean(true);
+    private Semaphore processLock;
     private ChannelLock lock = ChannelLock.UNLOCKED;
+
+    private MessageController messageController = MessageController.getInstance();
 
     private Logger logger = Logger.getLogger(getClass());
 
@@ -559,8 +564,15 @@ public class Channel implements Startable, Stoppable, Runnable {
                 // These executors must be shutdown here in order to terminate a stop task.
                 // They are also shutdown in the halt task itself in case a start task started them after this point.
                 destinationChainExecutor.shutdownNow();
-                channelExecutor.shutdownNow();
                 queueExecutor.shutdownNow();
+
+                // Interrupt any dispatch threads that are currently processing
+                synchronized (dispatchThreads) {
+                    shuttingDown = true;
+                    for (Thread thread : dispatchThreads) {
+                        thread.interrupt();
+                    }
+                }
 
                 task = controlExecutor.submit(new HaltTask());
                 controlTasks.add(task);
@@ -662,22 +674,29 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         ThreadUtils.checkInterruptedStatus();
 
-        channelExecutor.shutdown();
         queueExecutor.shutdown();
 
         final int timeout = 10;
 
-        while (!channelExecutor.awaitTermination(timeout, TimeUnit.SECONDS))
-            ;
+        while (true) {
+            synchronized (dispatchThreads) {
+                if (dispatchThreads.size() == 0) {
+                    shuttingDown = true;
+                    /*
+                     * Once the thread count reaches zero, we want to make sure that any calls to
+                     * finishDispatch complete (which should release the channel's process lock and
+                     * allow us to acquire it here).
+                     */
+                    obtainProcessLock();
+                    releaseProcessLock();
+                    break;
+                }
+            }
+            Thread.sleep(timeout);
+        }
+
         while (!queueExecutor.awaitTermination(timeout, TimeUnit.SECONDS))
             ;
-
-        /*
-         * Once the channel executor finishes, we want to obtain the process lock to ensure that any
-         * calls to finishDispatch have already completed.
-         */
-        obtainProcessLock();
-        releaseProcessLock();
 
         destinationChainExecutor.shutdown();
 
@@ -691,13 +710,13 @@ public class Channel implements Startable, Stoppable, Runnable {
         stopSourceQueue = true;
 
         destinationChainExecutor.shutdownNow();
-        channelExecutor.shutdownNow();
         queueExecutor.shutdownNow();
 
-        // Cancel any tasks that were submitting and not yet finished
-        synchronized (channelTasks) {
-            for (Future<DispatchResult> channelTask : channelTasks) {
-                channelTask.cancel(true);
+        // Interrupt any dispatch threads that are currently processing
+        synchronized (dispatchThreads) {
+            shuttingDown = true;
+            for (Thread thread : dispatchThreads) {
+                thread.interrupt();
             }
         }
 
@@ -759,20 +778,87 @@ public class Channel implements Startable, Stoppable, Runnable {
             throw new ChannelException(true);
         }
 
-        MessageTask task = new MessageTask(rawMessage, this);
+        Thread currentThread = Thread.currentThread();
+        boolean lockAcquired = false;
+        Long persistedMessageId = null;
 
-        Future<DispatchResult> future = null;
         try {
-
-            synchronized (channelTasks) {
-                future = channelExecutor.submit(task);
-                channelTasks.add(future);
+            synchronized (dispatchThreads) {
+                if (!shuttingDown) {
+                    dispatchThreads.add(currentThread);
+                } else {
+                    throw new ChannelException(true);
+                }
             }
-            DispatchResult messageResponse = future.get();
 
-            return messageResponse;
-        } catch (RejectedExecutionException e) {
-            throw new ChannelException(true, e);
+            DonkeyDao dao = null;
+            Message processedMessage = null;
+            Response response = null;
+            boolean removeContent = false;
+            boolean removeAttachments = false;
+            DispatchResult dispatchResult = null;
+
+            try {
+                obtainProcessLock();
+                lockAcquired = true;
+
+                /*
+                 * TRANSACTION: Create Raw Message
+                 * - create a source connector message from the raw message and set
+                 * the
+                 * status as RECEIVED
+                 * - store attachments
+                 */
+                dao = daoFactory.getDao();
+                ConnectorMessage sourceMessage = createAndStoreSourceMessage(dao, rawMessage);
+                ThreadUtils.checkInterruptedStatus();
+
+                if (sourceConnector.isRespondAfterProcessing()) {
+                    dao.commit(storageSettings.isRawDurable());
+                    persistedMessageId = sourceMessage.getMessageId();
+                    dao.close();
+
+                    processedMessage = process(sourceMessage, false);
+
+                    boolean messageCompleted = messageController.isMessageCompleted(processedMessage);
+                    if (messageCompleted) {
+                        removeContent = (storageSettings.isRemoveContentOnCompletion());
+                        removeAttachments = (storageSettings.isRemoveAttachmentsOnCompletion());
+                    }
+                } else {
+                    // Block other threads from adding to the source queue until both the current commit and queue addition finishes
+                    synchronized (sourceQueue) {
+                        dao.commit(storageSettings.isRawDurable());
+                        persistedMessageId = sourceMessage.getMessageId();
+                        dao.close();
+                        queue(sourceMessage);
+                    }
+                }
+
+                if (responseSelector.canRespond()) {
+                    response = responseSelector.getResponse(sourceMessage, processedMessage);
+                }
+            } catch (RuntimeException e) {
+                // TODO enable channel restart after it has been updated. Currently does not work
+                // Donkey.getInstance().restartChannel(channel.getChannelId(), true);
+                throw new ChannelException(true, e);
+            } finally {
+                if (lockAcquired && (!sourceConnector.isRespondAfterProcessing() || persistedMessageId == null || Thread.currentThread().isInterrupted())) {
+                    // Release the process lock if an exception was thrown before a message was persisted
+                    // or if the thread was interrupted because no additional processing will be done.
+                    releaseProcessLock();
+                    lockAcquired = false;
+                }
+
+                if (dao != null && !dao.isClosed()) {
+                    dao.close();
+                }
+
+                // Create the DispatchResult at the very end because lockAcquired might have changed
+                dispatchResult = new DispatchResult(persistedMessageId, processedMessage, response, sourceConnector.isRespondAfterProcessing(), removeContent, removeAttachments, lockAcquired);
+            }
+
+            return dispatchResult;
         } catch (InterruptedException e) {
             // This exception should only ever be thrown during a halt.
             // It is impossible to know whether or not the message was persisted because the task will continue to run
@@ -782,11 +868,10 @@ public class Channel implements Startable, Stoppable, Runnable {
             // If the message was not queued on the source connector, recovery should take care of it.
             // If the message was queued, the source of the message will be notified that the message was not persisted to be safe.
             // This could lead to a potential duplicate message being received/sent, but it is one of the consequences of using halt.
-            future.cancel(true);
 
             throw new ChannelException(true, e);
-        } catch (Throwable e) {
-            Throwable cause = e.getCause();
+        } catch (Throwable t) {
+            Throwable cause = t.getCause();
             ChannelException channelException = null;
 
             if (cause instanceof InterruptedException) {
@@ -795,39 +880,122 @@ public class Channel implements Startable, Stoppable, Runnable {
                 logger.error("Runtime error in channel.", cause);
                 channelException = (ChannelException) cause;
             } else {
-                logger.error("Error processing message.", e);
-                channelException = new ChannelException(false, e);
+                logger.error("Error processing message.", t);
+                channelException = new ChannelException(false, t);
             }
 
-            if (task.getPersistedMessageId() == null) {
+            if (persistedMessageId == null) {
                 throw channelException;
             }
 
-            return new DispatchResult(task.getPersistedMessageId(), null, null, false, false, false, task.isLockAcquired(), channelException);
+            return new DispatchResult(persistedMessageId, null, null, false, false, false, lockAcquired, channelException);
         } finally {
-            if (future != null) {
-                synchronized (channelTasks) {
-                    channelTasks.remove(future);
-                }
+            synchronized (dispatchThreads) {
+                dispatchThreads.remove(currentThread);
             }
         }
+    }
+
+    private ConnectorMessage createAndStoreSourceMessage(DonkeyDao dao, RawMessage rawMessage) throws InterruptedException {
+        ThreadUtils.checkInterruptedStatus();
+        Long messageId;
+        Calendar receivedDate;
+
+        if (rawMessage.getMessageIdToOverwrite() == null) {
+            messageId = dao.getNextMessageId(channelId);
+            receivedDate = Calendar.getInstance();
+
+            Message message = new Message();
+            message.setMessageId(messageId);
+            message.setChannelId(channelId);
+            message.setServerId(serverId);
+            message.setReceivedDate(receivedDate);
+
+            dao.insertMessage(message);
+        } else {
+            messageId = rawMessage.getMessageIdToOverwrite();
+            List<Integer> metaDataIds = new ArrayList<Integer>();
+            metaDataIds.addAll(rawMessage.getDestinationMetaDataIds());
+            metaDataIds.add(0);
+            dao.deleteConnectorMessages(channelId, messageId, metaDataIds, true);
+            dao.resetMessage(channelId, messageId);
+            receivedDate = Calendar.getInstance();
+        }
+
+        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, messageId, 0, serverId, receivedDate, Status.RECEIVED);
+        sourceMessage.setConnectorName(sourceConnector.getSourceName());
+        sourceMessage.setChainId(0);
+        sourceMessage.setOrderId(0);
+
+        sourceMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, null, sourceConnector.getInboundDataType().getType(), false));
+
+        if (rawMessage.getChannelMap() != null) {
+            sourceMessage.setChannelMap(rawMessage.getChannelMap());
+        }
+
+        if (attachmentHandler != null) {
+            ThreadUtils.checkInterruptedStatus();
+
+            try {
+                if (rawMessage.isBinary()) {
+                    attachmentHandler.initialize(rawMessage.getRawBytes(), this);
+                } else {
+                    attachmentHandler.initialize(rawMessage.getRawData(), this);
+                }
+
+                // Free up the memory of the raw message since it is no longer being used
+                rawMessage.clearMessage();
+
+                Attachment attachment;
+                while ((attachment = attachmentHandler.nextAttachment()) != null) {
+                    ThreadUtils.checkInterruptedStatus();
+
+                    if (storageSettings.isStoreAttachments()) {
+                        dao.insertMessageAttachment(channelId, messageId, attachment);
+                    }
+                }
+
+                String replacedMessage = attachmentHandler.shutdown();
+
+                sourceMessage.getRaw().setContent(replacedMessage);
+            } catch (Exception e) {
+                logger.error("Error processing attachments for channel " + channelId + ". " + e.getMessage());
+            }
+        } else {
+            if (rawMessage.isBinary()) {
+                ThreadUtils.checkInterruptedStatus();
+
+                try {
+                    byte[] rawBytes = Base64Util.encodeBase64(rawMessage.getRawBytes());
+                    rawMessage.clearMessage();
+                    sourceMessage.getRaw().setContent(org.apache.commons.codec.binary.StringUtils.newStringUsAscii(rawBytes));
+                } catch (IOException e) {
+                    logger.error("Error processing binary data for channel " + channelId + ". " + e.getMessage());
+                }
+
+            } else {
+                sourceMessage.getRaw().setContent(rawMessage.getRawData());
+                rawMessage.clearMessage();
+            }
+        }
+
+        ThreadUtils.checkInterruptedStatus();
+        dao.insertConnectorMessage(sourceMessage, storageSettings.isStoreMaps());
+
+        if (storageSettings.isStoreRaw()) {
+            ThreadUtils.checkInterruptedStatus();
+            dao.insertMessageContent(sourceMessage.getRaw());
+        }
+
+        return sourceMessage;
     }
 
     public void obtainProcessLock() throws InterruptedException {
-        synchronized (processLock) {
-            while (processLock.get()) {
-                processLock.wait();
-            }
-
-            processLock.set(true);
-        }
+        processLock.acquire();
     }
 
     public void releaseProcessLock() {
-        synchronized (processLock) {
-            processLock.set(false);
-            processLock.notifyAll();
-        }
+        processLock.release();
     }
 
     /**
@@ -1214,7 +1382,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             dao.markAsProcessed(channelId, finalMessage.getMessageId());
             finalMessage.setProcessed(true);
 
-            boolean messageCompleted = MessageController.getInstance().isMessageCompleted(finalMessage);
+            boolean messageCompleted = messageController.isMessageCompleted(finalMessage);
             if (messageCompleted) {
                 if (storageSettings.isRemoveContentOnCompletion()) {
                     dao.deleteMessageContent(channelId, finalMessage.getMessageId());
@@ -1492,8 +1660,14 @@ public class Channel implements Startable, Stoppable, Runnable {
                 // Prevent the channel for being started while messages are being deleted.
                 synchronized (Channel.this) {
                     updateCurrentState(ChannelState.STARTING);
-                    processLock.set(false);
-                    channelTasks.clear();
+
+                    /*
+                     * We can't guarantee the state of the semaphore when the channel was stopped /
+                     * halted, so we just create a new one instead.
+                     */
+                    processLock = new Semaphore(1, true);
+                    dispatchThreads.clear();
+                    shuttingDown = false;
                     stopSourceQueue = false;
 
                     // Remove any items in the queue's buffer because they may be outdated and refresh the queue size.
@@ -1509,7 +1683,6 @@ public class Channel implements Startable, Stoppable, Runnable {
                     try {
                         destinationChainExecutor = Executors.newCachedThreadPool();
                         queueExecutor = Executors.newSingleThreadExecutor();
-                        channelExecutor = Executors.newSingleThreadExecutor();
 
                         // start the destination connectors
                         for (DestinationChain chain : destinationChains) {

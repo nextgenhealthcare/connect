@@ -65,6 +65,10 @@ public class DispatchResult {
         return lockAcquired;
     }
 
+    protected void setLockAcquired(boolean lockAcquired) {
+        this.lockAcquired = lockAcquired;
+    }
+
     public Response getSelectedResponse() {
         return selectedResponse;
     }
@@ -72,7 +76,7 @@ public class DispatchResult {
     public ChannelException getChannelException() {
         return channelException;
     }
-    
+
     public Calendar getResponseDate() {
         return responseDate;
     }

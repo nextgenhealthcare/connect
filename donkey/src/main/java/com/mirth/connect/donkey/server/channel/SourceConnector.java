@@ -253,6 +253,7 @@ public abstract class SourceConnector extends Connector {
         } finally {
             if (dispatchResult != null && dispatchResult.isLockAcquired()) {
                 channel.releaseProcessLock();
+                dispatchResult.setLockAcquired(false);
             }
         }
     }
