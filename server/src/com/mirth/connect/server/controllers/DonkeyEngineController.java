@@ -596,9 +596,7 @@ public class DonkeyEngineController implements EngineController {
             logger.error("Error compiling preprocessor script " + scriptId + ".", e);
         }
 
-        JavaScriptPreprocessor preProcessor = new JavaScriptPreprocessor();
-        preProcessor.setChannelId(channelId);
-        return preProcessor;
+        return new JavaScriptPreprocessor();
     }
 
     private PostProcessor createPostProcessor(String channelId, String postProcessingScript) {

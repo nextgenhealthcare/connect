@@ -13,10 +13,29 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.server.channel.components.PostProcessor;
 import com.mirth.connect.server.util.JavaScriptUtil;
+import com.mirth.connect.server.util.javascript.JavaScriptTask;
 
 public class JavaScriptPostprocessor implements PostProcessor {
+
+    private JavaScriptPostProcessorTask task = new JavaScriptPostProcessorTask();
+
     @Override
     public Response doPostProcess(Message message) throws Exception {
-        return JavaScriptUtil.executePostprocessorScripts(message);
+        task.setMessage(message);
+        return JavaScriptUtil.executeJavaScriptPostProcessorTask(task, message.getChannelId());
+    }
+
+    private class JavaScriptPostProcessorTask extends JavaScriptTask<Object> {
+
+        private Message message;
+
+        public void setMessage(Message message) {
+            this.message = message;
+        }
+
+        @Override
+        public Object call() throws Exception {
+            return JavaScriptUtil.executePostprocessorScripts(this, message);
+        }
     }
 }

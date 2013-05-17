@@ -78,6 +78,27 @@ public class JavaScriptUtil {
     }
 
     /**
+     * Executes the JavaScriptTask associated with the postprocessor, if
+     * necessary.
+     * 
+     * @param task
+     * @param channelId
+     * @return
+     * @throws InterruptedException
+     * @throws JavaScriptExecutorException
+     */
+    public static String executeJavaScriptPreProcessorTask(JavaScriptTask<Object> task, String channelId) throws InterruptedException, JavaScriptExecutorException {
+        String channelScriptId = ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId);
+
+        // Only execute the task if the channel or global scripts exist
+        if (compiledScriptCache.getCompiledScript(channelScriptId) != null || compiledScriptCache.getCompiledScript(ScriptController.PREPROCESSOR_SCRIPT_KEY) != null) {
+            return (String) jsExecutor.execute(task);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Executes the global and channel preprocessor scripts in order, building
      * up the necessary scope for the global preprocessor and adding the result
      * back to it for the channel preprocessor.
@@ -86,90 +107,120 @@ public class JavaScriptUtil {
      * @throws JavaScriptExecutorException
      * 
      */
-    public static String executePreprocessorScripts(final ConnectorMessage message, final String channelId) throws InterruptedException, JavaScriptExecutorException {
-        if (channelId == null) {
-            System.err.println("channelId is null");
-        }
+    public static String executePreprocessorScripts(JavaScriptTask<Object> task, ConnectorMessage message) throws Exception {
+        String processedMessage = null;
+        String globalResult = message.getRaw().getContent();
+        Logger scriptLogger = Logger.getLogger(ScriptController.PREPROCESSOR_SCRIPT_KEY.toLowerCase());
 
-        // TODO compare performance of this code compared to having a separate PreProcessorTask class that is only instantiated once
-        return (String) jsExecutor.execute(new JavaScriptTask<Object>() {
-            @Override
-            public Object call() throws Exception {
-                String processedMessage = null;
-                String globalResult = message.getRaw().getContent();
-                Logger scriptLogger = Logger.getLogger(ScriptController.PREPROCESSOR_SCRIPT_KEY.toLowerCase());
-                Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, channelId, message.getRaw().getContent(), message);
-
-                try {
-                    // Execute the global preprocessor and check the result
-                    Object result = JavaScriptUtil.executeScript(this, ScriptController.PREPROCESSOR_SCRIPT_KEY, scope, null, null);
-
-                    if (result != null) {
-                        String resultString = (String) Context.jsToJava(result, java.lang.String.class);
-
-                        // Set the processed message in case something goes wrong in the channel processor. Also update the global result so the channel processor uses the updated message
-                        if (resultString != null) {
-                            processedMessage = resultString;
-                            globalResult = processedMessage;
-                        }
-                    }
-                } catch (Exception e) {
-                    logScriptError(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId, e);
-                    throw e;
-                }
-
-                // Update the scope with the result from the global processor
-                scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, channelId, globalResult, message);
-
-                try {
-                    // Execute the channel preprocessor and check the result
-                    Object result = JavaScriptUtil.executeScript(this, ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId), scope, null, null);
-
-                    if (result != null) {
-                        String resultString = (String) Context.jsToJava(result, java.lang.String.class);
-
-                        // Set the processed message if there was a result.
-                        if (resultString != null) {
-                            processedMessage = resultString;
-                        }
-                    }
-                } catch (Exception e) {
-                    logScriptError(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId, e);
-                    throw e;
-                }
-
-                return processedMessage;
-            }
-        });
-    }
-
-    private static Response executePostprocessorScript(JavaScriptTask<Object> task, Message message, String channelId, boolean isGlobal, Response initialResponse) throws Exception {
-        Response response = null;
-
-        Logger scriptLogger = Logger.getLogger(ScriptController.POSTPROCESSOR_SCRIPT_KEY.toLowerCase());
-        Scriptable scope = null;
-        if (!isGlobal) {
-            scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, channelId, message);
-        } else {
-            scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, channelId, message, initialResponse);
-        }
-
-        Object result = null;
         try {
-            if (!isGlobal) {
-                result = executeScript(task, ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channelId), scope, null, null);
-            } else {
-                if (compiledScriptCache.getCompiledScript(ScriptController.POSTPROCESSOR_SCRIPT_KEY) == null) {
-                    // The script doesn't exist, so assume the global script is the default and use the channel result
-                    result = initialResponse;
-                } else {
-                    result = executeScript(task, ScriptController.POSTPROCESSOR_SCRIPT_KEY, scope, null, null);
+            // Execute the global preprocessor and check the result
+            Object result = null;
+
+            if (compiledScriptCache.getCompiledScript(ScriptController.PREPROCESSOR_SCRIPT_KEY) != null) {
+                Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), message.getRaw().getContent(), message);
+                result = JavaScriptUtil.executeScript(task, ScriptController.PREPROCESSOR_SCRIPT_KEY, scope, null, null);
+            }
+
+            if (result != null) {
+                String resultString = (String) Context.jsToJava(result, java.lang.String.class);
+
+                // Set the processed message in case something goes wrong in the channel processor. Also update the global result so the channel processor uses the updated message
+                if (resultString != null) {
+                    processedMessage = resultString;
+                    globalResult = processedMessage;
                 }
             }
         } catch (Exception e) {
-            logScriptError(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channelId, e);
+            logScriptError(ScriptController.PREPROCESSOR_SCRIPT_KEY, message.getChannelId(), e);
             throw e;
         }
+
+        try {
+            // Execute the channel preprocessor and check the result
+            Object result = null;
+            String scriptId = ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, message.getChannelId());
+
+            if (compiledScriptCache.getCompiledScript(scriptId) != null) {
+                // Update the scope with the result from the global processor
+                Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), globalResult, message);
+                result = JavaScriptUtil.executeScript(task, scriptId, scope, null, null);
+            }
+
+            if (result != null) {
+                String resultString = (String) Context.jsToJava(result, java.lang.String.class);
+
+                // Set the processed message if there was a result.
+                if (resultString != null) {
+                    processedMessage = resultString;
+                }
+            }
+        } catch (Exception e) {
+            logScriptError(ScriptController.PREPROCESSOR_SCRIPT_KEY, message.getChannelId(), e);
+            throw e;
+        }
+
+        return processedMessage;
+    }
+
+    /**
+     * Executes the JavaScriptTask associated with the postprocessor, if
+     * necessary.
+     * 
+     * @param task
+     * @param channelId
+     * @return
+     * @throws InterruptedException
+     * @throws JavaScriptExecutorException
+     */
+    public static Response executeJavaScriptPostProcessorTask(JavaScriptTask<Object> task, String channelId) throws InterruptedException, JavaScriptExecutorException {
+        String channelScriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channelId);
+
+        // Only execute the task if the channel or global scripts exist
+        if (compiledScriptCache.getCompiledScript(channelScriptId) != null || compiledScriptCache.getCompiledScript(ScriptController.POSTPROCESSOR_SCRIPT_KEY) != null) {
+            return (Response) jsExecutor.execute(task);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Executes the channel postprocessor, followed by the global postprocessor.
+     * 
+     * @param task
+     * @param message
+     * @return
+     * @throws Exception
+     */
+    public static Response executePostprocessorScripts(JavaScriptTask<Object> task, Message message) throws Exception {
+        Object result = null;
+        Logger scriptLogger = Logger.getLogger(ScriptController.POSTPROCESSOR_SCRIPT_KEY.toLowerCase());
+
+        try {
+            String scriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, message.getChannelId());
+            if (compiledScriptCache.getCompiledScript(scriptId) != null) {
+                Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message);
+                result = JavaScriptUtil.executeScript(task, scriptId, scope, null, null);
+            }
+        } catch (Exception e) {
+            logScriptError(ScriptController.POSTPROCESSOR_SCRIPT_KEY, message.getChannelId(), e);
+            throw e;
+        }
+
+        try {
+            if (compiledScriptCache.getCompiledScript(ScriptController.POSTPROCESSOR_SCRIPT_KEY) != null) {
+                Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message, getPostprocessorResponse(result));
+                result = JavaScriptUtil.executeScript(task, ScriptController.POSTPROCESSOR_SCRIPT_KEY, scope, null, null);
+            }
+        } catch (Exception e) {
+            logScriptError(ScriptController.POSTPROCESSOR_SCRIPT_KEY, message.getChannelId(), e);
+            throw e;
+        }
+
+        return getPostprocessorResponse(result);
+    }
+
+    private static Response getPostprocessorResponse(Object result) {
+        Response response = null;
 
         // Convert result of JavaScript execution to Response object
         if (result instanceof Response) {
@@ -192,24 +243,6 @@ public class JavaScriptUtil {
         }
 
         return response;
-    }
-
-    /**
-     * Executes the channel postprocessor, followed by the global postprocessor.
-     * 
-     * @param message
-     * @throws InterruptedException
-     * @throws JavaScriptExecutorException
-     */
-    public static Response executePostprocessorScripts(final Message message) throws JavaScriptExecutorException, InterruptedException {
-        // TODO compare performance of this code compared to having a separate PostProcessorTask class that is only instantiated once
-        return (Response) jsExecutor.execute(new JavaScriptTask<Object>() {
-            @Override
-            public Object call() throws Exception {
-                Response channelResult = executePostprocessorScript(this, message, message.getChannelId(), false, null);
-                return executePostprocessorScript(this, message, message.getChannelId(), true, channelResult);
-            }
-        });
     }
 
     /**

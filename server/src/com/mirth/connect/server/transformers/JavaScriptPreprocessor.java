@@ -9,33 +9,41 @@
 
 package com.mirth.connect.server.transformers;
 
-
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.channel.components.PreProcessor;
 import com.mirth.connect.server.util.JavaScriptUtil;
+import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptPreprocessor implements PreProcessor {
-    private String channelId;
 
-    public String getChannelId() {
-        return channelId;
-    }
-
-    public void setChannelId(String channelId) {
-        this.channelId = channelId;
-    }
+    private JavaScriptPreProcessorTask task = new JavaScriptPreProcessorTask();
 
     @Override
     public String doPreProcess(ConnectorMessage message) throws DonkeyException, InterruptedException {
         try {
-            return JavaScriptUtil.executePreprocessorScripts(message, getChannelId());
+            task.setMessage(message);
+            return JavaScriptUtil.executeJavaScriptPreProcessorTask(task, message.getChannelId());
         } catch (InterruptedException e) {
             throw e;
         } catch (Exception e) {
             throw new DonkeyException(e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_000, "Error running preprocessor scripts", e));
+        }
+    }
+
+    private class JavaScriptPreProcessorTask extends JavaScriptTask<Object> {
+
+        private ConnectorMessage message;
+
+        public void setMessage(ConnectorMessage message) {
+            this.message = message;
+        }
+
+        @Override
+        public Object call() throws Exception {
+            return JavaScriptUtil.executePreprocessorScripts(this, message);
         }
     }
 }
