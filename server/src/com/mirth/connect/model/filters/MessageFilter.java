@@ -49,6 +49,7 @@ public class MessageFilter implements Serializable {
     private String serverId;
     private Map<ContentType, String> contentSearch = new HashMap<ContentType, String>();
     private List<MetaDataSearchElement> metaDataSearch;
+    private List<String> quickSearchMetaDataColumns;
     private Integer sendAttemptsLower;
     private Integer sendAttemptsUpper;
     private String type;
@@ -157,6 +158,14 @@ public class MessageFilter implements Serializable {
 
     public void setMetaDataSearch(List<MetaDataSearchElement> metaDataSearch) {
         this.metaDataSearch = metaDataSearch;
+    }
+
+    public List<String> getQuickSearchMetaDataColumns() {
+        return quickSearchMetaDataColumns;
+    }
+
+    public void setQuickSearchMetaDataColumns(List<String> quickSearchMetaDataColumns) {
+        this.quickSearchMetaDataColumns = quickSearchMetaDataColumns;
     }
 
     public Integer getSendAttemptsLower() {

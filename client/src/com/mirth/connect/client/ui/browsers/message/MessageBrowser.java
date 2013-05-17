@@ -99,6 +99,7 @@ import com.mirth.connect.client.ui.components.MirthTimePicker;
 import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
@@ -484,6 +485,15 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         if (quickSearch.length() > 0) {
             messageFilter.setQuickSearch(quickSearch);
+            List<String> quickSearchMetaDataColumns = new ArrayList<String>();
+
+            for (MetaDataColumn metaDataColumn : getMetaDataColumns()) {
+                if (metaDataColumn.getType() == MetaDataColumnType.STRING) {
+                    quickSearchMetaDataColumns.add(metaDataColumn.getName());
+                }
+            }
+
+            messageFilter.setQuickSearchMetaDataColumns(quickSearchMetaDataColumns);
         }
 
         // set status

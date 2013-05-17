@@ -98,7 +98,7 @@
 		FROM d_m${localChannelId} m
 		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id
 		
-		<if test="metaDataSearch != null">
+		<if test="quickSearch != null || metaDataSearch != null">
 			LEFT JOIN d_mcm${localChannelId} mcm ON mcm.message_id = mm.message_id AND mcm.metadata_id = mm.id
 		</if>
 		
@@ -160,14 +160,22 @@
 				AND m.import_id <![CDATA[ <= ]]> #{importIdUpper}
 			</if>
 			<if test="quickSearch != null">
-				AND (mc_raw.content ILIKE '%' || #{quickSearch} || '%'
+				AND (
+				m.id::varchar ILIKE '%' || #{quickSearch} || '%'
+				OR mm.connector_name ILIKE '%' || #{quickSearch} || '%'
+				OR mc_raw.content ILIKE '%' || #{quickSearch} || '%'
 				OR mc_processed_raw.content ILIKE '%' || #{quickSearch} || '%'
 				OR mc_transformed.content ILIKE '%' || #{quickSearch} || '%'
 				OR mc_encoded.content ILIKE '%' || #{quickSearch} || '%'
 				OR mc_sent.content ILIKE '%' || #{quickSearch} || '%'
 				OR mc_response.content ILIKE '%' || #{quickSearch} || '%'
 				OR mc_response_transformed.content ILIKE '%' || #{quickSearch} || '%'
-				OR mc_processed_response.content ILIKE '%' || #{quickSearch} || '%')
+				OR mc_processed_response.content ILIKE '%' || #{quickSearch} || '%'
+				
+				<foreach item="column" collection="quickSearchMetaDataColumns">
+					OR mcm."${column}" ILIKE '%' || #{quickSearch} || '%'
+				</foreach>
+				)
 			</if>
 			<if test="statuses != null">
 				AND mm.status IN

@@ -101,7 +101,7 @@
 		FROM d_m${localChannelId} m
 		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id
 		
-		<if test="metaDataSearch != null">
+		<if test="quickSearch != null || metaDataSearch != null">
 			LEFT JOIN d_mcm${localChannelId} mcm ON mcm.message_id = mm.message_id AND mcm.metadata_id = mm.id
 		</if>
 		
@@ -163,14 +163,22 @@
 				AND m.import_id <![CDATA[ <= ]]> #{importIdUpper}
 			</if>
 			<if test="quickSearch != null">
-				AND (UPPER(mc_raw.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
+				AND (
+				TRIM(CAST(CAST(m.id AS CHAR(254)) AS VARCHAR(254))) LIKE '%' || #{quickSearch} || '%'
+				OR UPPER(mm.connector_name) LIKE '%' || UPPER(#{quickSearch}) || '%'
+				OR UPPER(mc_raw.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
 				OR UPPER(mc_processed_raw.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
 				OR UPPER(mc_transformed.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
 				OR UPPER(mc_encoded.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
 				OR UPPER(mc_sent.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
 				OR UPPER(mc_response.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
 				OR UPPER(mc_response_transformed.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
-				OR UPPER(mc_processed_response.content) LIKE '%' || UPPER(#{quickSearch}) || '%')
+				OR UPPER(mc_processed_response.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
+				
+				<foreach item="column" collection="quickSearchMetaDataColumns">
+					OR UPPER(mcm.${column}) LIKE '%' || UPPER(#{quickSearch}) || '%'
+				</foreach>
+				)
 			</if>
 			<if test="statuses != null">
 				AND mm.status IN

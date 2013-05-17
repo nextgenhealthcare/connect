@@ -102,6 +102,7 @@ public class DonkeyMessageController extends MessageController {
         params.put("serverId", filter.getServerId());
         params.put("maxMessageId", filter.getMaxMessageId());
         params.put("metaDataSearch", filter.getMetaDataSearch());
+        params.put("quickSearchMetaDataColumns", filter.getQuickSearchMetaDataColumns());
         params.put("attachment", filter.getAttachment());
 
         return params;
