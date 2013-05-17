@@ -49,6 +49,7 @@ public class ER7Serializer implements IXMLSerializer {
 
     private Pattern serializationSegmentDelimiterPattern = null;
     private String serializationSegmentDelimiter = null;
+    private String[] serializationSegmentDelimiters = null;
     private String deserializationSegmentDelimiter = null;
     private HL7v2SerializationProperties serializationProperties;
     private HL7v2DeserializationProperties deserializationProperties;
@@ -63,6 +64,7 @@ public class ER7Serializer implements IXMLSerializer {
 
         if (serializationProperties != null) {
             serializationSegmentDelimiter = StringUtil.unescape(serializationProperties.getSegmentDelimiter());
+            serializationSegmentDelimiters = serializationSegmentDelimiter.split("\\|");
             serializationSegmentDelimiterPattern = Pattern.compile(serializationSegmentDelimiter);
         }
         if (deserializationProperties != null) {
@@ -99,19 +101,19 @@ public class ER7Serializer implements IXMLSerializer {
     @Override
     public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
         ER7Serializer serializer = (ER7Serializer) outboundSerializer;
-
-        String inputSegmentDelimiter = serializationSegmentDelimiter;
         String outputSegmentDelimiter = serializer.getDeserializationSegmentDelimiter();
 
-        if (!inputSegmentDelimiter.equals(outputSegmentDelimiter)) {
-            return serializationSegmentDelimiterPattern.matcher(message).replaceAll(outputSegmentDelimiter);
+        for (String delimiter : serializationSegmentDelimiters) {
+            if (!delimiter.equals(outputSegmentDelimiter) && message.contains(delimiter)) {
+                return serializationSegmentDelimiterPattern.matcher(message).replaceAll(outputSegmentDelimiter);
+            }
         }
 
         return null;
     }
 
     /**
-     * Returns an XML-encoded HL7 message given an ER7-enconded HL7 message.
+     * Returns an XML-encoded HL7 message given an ER7-encoded HL7 message.
      * 
      * @param source
      *            an ER7-encoded HL7 message.

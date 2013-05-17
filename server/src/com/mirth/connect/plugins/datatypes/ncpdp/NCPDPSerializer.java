@@ -34,48 +34,41 @@ import com.mirth.connect.util.StringUtil;
 public class NCPDPSerializer implements IXMLSerializer {
     private NCPDPSerializationProperties serializationProperties;
     private NCPDPDeserializationProperties deserializationProperties;
-    
-    private Pattern serializationSegmentDelimiterPattern = null;
-    private Pattern serializationGroupDelimiterPattern = null;
-    private Pattern serializationFieldDelimiterPattern = null;
+
     private String serializationSegmentDelimiter = null;
     private String serializationGroupDelimiter = null;
     private String serializationFieldDelimiter = null;
     private String deserializationSegmentDelimiter = null;
     private String deserializationGroupDelimiter = null;
     private String deserializationFieldDelimiter = null;
-    
+
     private static Pattern prettyPattern = Pattern.compile(">\\s+<");
-    
+
     public NCPDPSerializer(SerializerProperties properties) {
         serializationProperties = (NCPDPSerializationProperties) properties.getSerializationProperties();
         deserializationProperties = (NCPDPDeserializationProperties) properties.getDeserializationProperties();
-        
+
         if (serializationProperties != null) {
             serializationSegmentDelimiter = StringUtil.unescape(serializationProperties.getSegmentDelimiter());
             serializationGroupDelimiter = StringUtil.unescape(serializationProperties.getGroupDelimiter());
             serializationFieldDelimiter = StringUtil.unescape(serializationProperties.getFieldDelimiter());
-            
-            serializationSegmentDelimiterPattern = Pattern.compile(serializationSegmentDelimiter);
-            serializationGroupDelimiterPattern = Pattern.compile(serializationGroupDelimiter);
-            serializationFieldDelimiterPattern = Pattern.compile(serializationFieldDelimiter);
         }
-        
+
         if (deserializationProperties != null) {
             deserializationSegmentDelimiter = StringUtil.unescape(deserializationProperties.getSegmentDelimiter());
             deserializationGroupDelimiter = StringUtil.unescape(deserializationProperties.getGroupDelimiter());
             deserializationFieldDelimiter = StringUtil.unescape(deserializationProperties.getFieldDelimiter());
         }
     }
-    
+
     public String getDeserializationSegmentDelimiter() {
         return deserializationSegmentDelimiter;
     }
-    
+
     public String getDeserializationGroupDelimiter() {
         return deserializationGroupDelimiter;
     }
-    
+
     public String getDeserializationFieldDelimiter() {
         return deserializationFieldDelimiter;
     }
@@ -83,7 +76,7 @@ public class NCPDPSerializer implements IXMLSerializer {
     @Override
     public boolean isSerializationRequired(boolean toXml) {
         boolean serializationRequired = false;
-        
+
         if (toXml) {
             // No serialization properties require serializing
         } else {
@@ -94,40 +87,39 @@ public class NCPDPSerializer implements IXMLSerializer {
 
         return serializationRequired;
     }
-    
+
     @Override
     public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
         boolean transformed = false;
-        
+
         NCPDPSerializer serializer = (NCPDPSerializer) outboundSerializer;
-        
+
         String inputSegmentDelimiter = serializationSegmentDelimiter;
         String outputSegmentDelimiter = serializer.getDeserializationSegmentDelimiter();
         String inputGroupDelimiter = serializationGroupDelimiter;
         String outputGroupDelimiter = serializer.getDeserializationGroupDelimiter();
         String inputFieldDelimiter = serializationFieldDelimiter;
         String outputFieldDelimiter = serializer.getDeserializationFieldDelimiter();
-        
-        
+
         if (!inputSegmentDelimiter.equals(outputSegmentDelimiter)) {
-            message = serializationSegmentDelimiterPattern.matcher(message).replaceAll(outputSegmentDelimiter);
+            message = message.replace(inputSegmentDelimiter, outputSegmentDelimiter);
             transformed = true;
         }
-        
+
         if (!inputGroupDelimiter.equals(outputGroupDelimiter)) {
-            message = serializationGroupDelimiterPattern.matcher(message).replaceAll(outputGroupDelimiter);
+            message = message.replace(inputGroupDelimiter, outputGroupDelimiter);
             transformed = true;
         }
-        
+
         if (!inputFieldDelimiter.equals(outputFieldDelimiter)) {
-            message = serializationFieldDelimiterPattern.matcher(message).replaceAll(outputFieldDelimiter);
+            message = message.replace(inputFieldDelimiter, outputFieldDelimiter);
             transformed = true;
         }
-    
-        if (transformed){
+
+        if (transformed) {
             return message;
         }
-        
+
         return null;
     }
 
