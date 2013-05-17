@@ -250,7 +250,7 @@ public class TcpReceiver extends SourceConnector {
 
                     try {
                         attemptedResponse = true;
-                        responseSocket = createResponseSocket();
+                        responseSocket = createResponseSocket(streamHandler);
                         sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, true);
                     } catch (IOException e) {
                         errorMessage = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, "Error sending response.", e);
@@ -299,6 +299,13 @@ public class TcpReceiver extends SourceConnector {
                         batchStreamReader = new DefaultBatchStreamReader(socket.getInputStream());
                     }
                     streamHandler = transmissionModeProvider.getStreamHandler(socket.getInputStream(), socket.getOutputStream(), batchStreamReader, connectorProperties.getTransmissionModeProperties());
+
+                    if (connectorProperties.getRespondOnNewConnection() != TcpReceiverProperties.NEW_CONNECTION) {
+                        // If we're not responding on a new connection, then write to the output stream of the same socket
+                        responseSocket = socket;
+                        BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), parseInt(connectorProperties.getBufferSize()));
+                        streamHandler.setOutputStream(bos);
+                    }
 
                     while (!streamDone && !done) {
                         /*
@@ -357,13 +364,8 @@ public class TcpReceiver extends SourceConnector {
 
                                         try {
                                             // If the response socket hasn't been initialized, do that now
-                                            if (responseSocket == null) {
-                                                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
-                                                    responseSocket = createResponseSocket();
-                                                } else {
-                                                    // If we're not responding on a new connection, then write to the output stream of the same socket
-                                                    responseSocket = socket;
-                                                }
+                                            if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
+                                                responseSocket = createResponseSocket(streamHandler);
                                             }
 
                                             sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION);
@@ -483,31 +485,29 @@ public class TcpReceiver extends SourceConnector {
         }
     }
 
-    private StateAwareSocket createResponseSocket() throws IOException {
+    private StateAwareSocket createResponseSocket(StreamHandler streamHandler) throws IOException {
         logger.debug("Creating response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
         StateAwareSocket responseSocket = SocketUtil.createSocket(replacer.replaceValues(connectorProperties.getResponseAddress(), getChannelId()), replacer.replaceValues(connectorProperties.getResponsePort(), getChannelId()), getHost());
         initSocket(responseSocket);
+        BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), parseInt(connectorProperties.getBufferSize()));
+        streamHandler.setOutputStream(bos);
         return responseSocket;
     }
 
     private void sendResponse(String response, StateAwareSocket responseSocket, StreamHandler streamHandler, boolean newConnection) throws IOException {
         try {
             if (responseSocket != null && streamHandler != null) {
-                // Throw an exception if the client has already closed the socket
-                if (responseSocket.remoteSideHasClosed()) {
-                    throw new IOException("Remote socket has closed.");
-                }
-
                 // Send the response
                 eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.INFO, "Sending response to " + (newConnection ? SocketUtil.getInetAddress(responseSocket) : SocketUtil.getLocalAddress(responseSocket)) + "... "));
-                BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), parseInt(connectorProperties.getBufferSize()));
-                streamHandler.setOutputStream(bos);
                 streamHandler.write(getBytes(response));
-                bos.flush();
             } else {
                 throw new IOException((responseSocket == null ? "Response socket" : "Stream handler") + " is null.");
             }
         } catch (IOException e) {
+            if (responseSocket != null && responseSocket.remoteSideHasClosed()) {
+                e = new IOException("Remote socket has closed.");
+            }
+
             logger.error("Error sending response (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
             eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.FAILURE, "Error sending response to " + (newConnection ? SocketUtil.getInetAddress(responseSocket) : SocketUtil.getLocalAddress(responseSocket)) + ": " + e.getMessage() + " "));
             throw e;
