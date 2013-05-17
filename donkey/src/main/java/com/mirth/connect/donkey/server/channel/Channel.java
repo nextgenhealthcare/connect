@@ -1035,58 +1035,52 @@ public class Channel implements Startable, Stoppable, Runnable {
             dao.commit();
             dao.close();
 
-            // execute each destination chain and store the tasks in a list
-            List<Future<List<ConnectorMessage>>> destinationChainTasks = new ArrayList<Future<List<ConnectorMessage>>>();
-
+            /*
+             * Construct a list of only the enabled destination chains. This is done because we
+             * don't know beforehand which destination chain will be the "last" one.
+             */
+            List<DestinationChain> enabledChains = new ArrayList<DestinationChain>();
             for (DestinationChain chain : destinationChains) {
                 if (!chain.getEnabledMetaDataIds().isEmpty()) {
                     chain.setMessage(destinationMessages.get(chain.getEnabledMetaDataIds().get(0)));
-                    try {
-                        destinationChainTasks.add(destinationChainExecutor.submit(chain));
-                    } catch (RejectedExecutionException e) {
-                        Thread.currentThread().interrupt();
-                        throw new InterruptedException();
-                    }
+                    enabledChains.add(chain);
                 }
             }
 
-            // Get the result message from each destination chain's task and merge the map data into the final merged message. If an exception occurs, return immediately without sending the message to the post-processor.
-            for (Future<List<ConnectorMessage>> task : destinationChainTasks) {
-                List<ConnectorMessage> connectorMessages = null;
+            // Execute each destination chain (but the last one) and store the tasks in a list
+            List<Future<List<ConnectorMessage>>> destinationChainTasks = new ArrayList<Future<List<ConnectorMessage>>>();
 
+            for (int i = 0; i <= enabledChains.size() - 2; i++) {
                 try {
-                    connectorMessages = task.get();
-                } catch (ExecutionException e) {
-                    // TODO: make sure we are catching out of memory errors correctly here
-                    if (e.getCause().getMessage().contains("Java heap space")) {
-                        logger.error(e.getCause().getMessage(), e.getCause());
-                        throw new OutOfMemoryError();
-                    }
-
-                    if (e.getCause() instanceof InterruptedException) {
-                        Thread.currentThread().interrupt();
-                        throw new InterruptedException();
-                    }
-
-                    throw new RuntimeException(e.getCause());
-                } catch (CancellationException e) {
+                    destinationChainTasks.add(destinationChainExecutor.submit(enabledChains.get(i)));
+                } catch (RejectedExecutionException e) {
                     Thread.currentThread().interrupt();
                     throw new InterruptedException();
                 }
+            }
 
-                /*
-                 * Check for null here in case DestinationChain.call() returned null, which
-                 * indicates that the chain did not process and should be skipped. This would only
-                 * happen in very rare circumstances, possibly if a message is sent to the chain and
-                 * the destination connector that the message belongs to has been removed or
-                 * disabled.
-                 */
-                if (connectorMessages != null) {
-                    for (ConnectorMessage connectorMessage : connectorMessages) {
-                        finalMessage.getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
-                        sourceMessage.getResponseMap().putAll(connectorMessage.getResponseMap());
-                    }
+            List<ConnectorMessage> connectorMessages = null;
+
+            // Always call the last chain directly rather than submitting it as a Future
+            try {
+                connectorMessages = enabledChains.get(enabledChains.size() - 1).call();
+            } catch (Throwable t) {
+                handleDestinationChainThrowable(t);
+            }
+
+            addConnectorMessages(finalMessage, sourceMessage, connectorMessages);
+
+            // Get the result message from each destination chain's task and merge the map data into the final merged message. If an exception occurs, return immediately without sending the message to the post-processor.
+            for (Future<List<ConnectorMessage>> task : destinationChainTasks) {
+                connectorMessages = null;
+
+                try {
+                    connectorMessages = task.get();
+                } catch (Exception e) {
+                    handleDestinationChainThrowable(e);
                 }
+
+                addConnectorMessages(finalMessage, sourceMessage, connectorMessages);
             }
 
             // re-enable all destination connectors in each chain
@@ -1104,6 +1098,47 @@ public class Channel implements Startable, Stoppable, Runnable {
                 dao.close();
             }
         }
+    }
+
+    private void addConnectorMessages(Message finalMessage, ConnectorMessage sourceMessage, List<ConnectorMessage> connectorMessages) {
+        /*
+         * Check for null here in case DestinationChain.call() returned null, which
+         * indicates that the chain did not process and should be skipped. This would only
+         * happen in very rare circumstances, possibly if a message is sent to the chain and
+         * the destination connector that the message belongs to has been removed or
+         * disabled.
+         */
+        if (connectorMessages != null) {
+            for (ConnectorMessage connectorMessage : connectorMessages) {
+                finalMessage.getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
+                sourceMessage.getResponseMap().putAll(connectorMessage.getResponseMap());
+            }
+        }
+    }
+
+    private void handleDestinationChainThrowable(Throwable t) throws OutOfMemoryError, InterruptedException {
+        Throwable cause;
+        if (t instanceof ExecutionException) {
+            cause = t.getCause();
+        } else {
+            cause = t;
+        }
+
+        // TODO: make sure we are catching out of memory errors correctly here
+        if (cause.getMessage().contains("Java heap space")) {
+            logger.error(cause.getMessage(), cause);
+            throw new OutOfMemoryError();
+        }
+
+        if (cause instanceof CancellationException) {
+            Thread.currentThread().interrupt();
+            throw new InterruptedException();
+        } else if (cause instanceof InterruptedException) {
+            Thread.currentThread().interrupt();
+            throw (InterruptedException) cause;
+        }
+
+        throw new RuntimeException(cause);
     }
 
     /**
