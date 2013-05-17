@@ -228,11 +228,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
             Status responseStatus = null;
 
             do {
+                // Check to see if the connector has been interrupted before each send attempt
+                ThreadUtils.checkInterruptedStatus();
+
                 // pause for the given retry interval if this is not the first send attempt
                 if (sendAttempts > 0) {
                     Thread.sleep(queueProperties.getRetryIntervalMillis());
-                } else {
-                    ThreadUtils.checkInterruptedStatus();
                 }
 
                 // have the connector send the message and return a response
@@ -299,7 +300,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                     try {
                         dao = daoFactory.getDao();
                         Status previousStatus = connectorMessage.getStatus();
-                        
+
                         Class<?> connectorPropertiesClass = getConnectorProperties().getClass();
                         Class<?> serializedPropertiesClass = null;
 
@@ -315,7 +316,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                                 serializedPropertiesClass = connectorProperties.getClass();
                             } else {
                                 serializedPropertiesClass = serializer.getClass(connectorMessage.getSent().getContent());
-                                
+
                                 // If the serialized properties do not match, don't update the properties.
                                 updateProperties = (serializedPropertiesClass == connectorPropertiesClass);
                             }
@@ -345,12 +346,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
                             ThreadUtils.checkInterruptedStatus();
                             Response response = handleSend(connectorProperties, connectorMessage);
                             connectorMessage.setSendAttempts(connectorMessage.getSendAttempts() + 1);
-    
+
                             if (response == null) {
                                 throw new RuntimeException("Received null response from destination " + destinationName + ".");
                             }
                             response.fixStatus(isQueueEnabled());
-    
+
                             afterSend(dao, connectorMessage, response, previousStatus);
 
                             /*
@@ -362,10 +363,10 @@ public abstract class DestinationConnector extends Connector implements Runnable
                              */
                             if (storageSettings.isRemoveContentOnCompletion() || storageSettings.isRemoveAttachmentsOnCompletion()) {
                                 Map<Integer, ConnectorMessage> connectorMessages = dao.getConnectorMessages(getChannelId(), connectorMessage.getMessageId());
-    
+
                                 // update the map with the message that was just sent
                                 connectorMessages.put(getMetaDataId(), connectorMessage);
-    
+
                                 if (MessageController.getInstance().isMessageCompleted(connectorMessages)) {
                                     if (storageSettings.isRemoveContentOnCompletion()) {
                                         dao.deleteMessageContent(getChannelId(), connectorMessage.getMessageId());
@@ -458,10 +459,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     private void afterSend(DonkeyDao dao, ConnectorMessage message, Response response, Status previousStatus) throws InterruptedException {
         Serializer serializer = Donkey.getInstance().getSerializer();
-        String responseString = serializer.serialize(response);
-        MessageContent responseContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RESPONSE, responseString, responseTransformerExecutor.getInbound().getType(), false);
 
         if (storageSettings.isStoreResponse()) {
+            String responseString = serializer.serialize(response);
+            MessageContent responseContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RESPONSE, responseString, responseTransformerExecutor.getInbound().getType(), false);
+
             ThreadUtils.checkInterruptedStatus();
 
             if (message.getResponse() != null) {
@@ -469,9 +471,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
             } else {
                 dao.insertMessageContent(responseContent);
             }
-        }
 
-        message.setResponse(responseContent);
+            message.setResponse(responseContent);
+        }
 
         ThreadUtils.checkInterruptedStatus();
 
