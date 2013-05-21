@@ -36,6 +36,7 @@ import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.test.util.TestAutoResponder;
 import com.mirth.connect.donkey.test.util.TestDataType;
 import com.mirth.connect.donkey.test.util.TestFilterTransformer;
+import com.mirth.connect.donkey.test.util.TestResponseValidator;
 import com.mirth.connect.donkey.test.util.TestSerializer;
 import com.mirth.connect.donkey.test.util.TestUtils;
 
@@ -100,12 +101,12 @@ public class FilterTransformerTests {
             public boolean isSerializationRequired(boolean isXml) {
                 return false;
             }
-            
+
             @Override
             public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
                 return message;
             }
-        	
+
             @Override
             public String toXML(String message) throws SerializerException {
                 throw new SerializerException("Inbound serialization failed.");
@@ -119,7 +120,7 @@ public class FilterTransformerTests {
 
         class FailingTestDataType extends DataType {
             public FailingTestDataType() {
-                super("HL7V2", new FailingTestSerializer(), null, new TestAutoResponder());
+                super("HL7V2", new FailingTestSerializer(), null, new TestAutoResponder(), new TestResponseValidator());
             }
         }
 

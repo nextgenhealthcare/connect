@@ -11,8 +11,10 @@ package com.mirth.connect.plugins.datatypes.hl7v2;
 
 import com.mirth.connect.donkey.server.message.AutoResponder;
 import com.mirth.connect.donkey.server.message.BatchAdaptor;
+import com.mirth.connect.donkey.server.message.ResponseValidator;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
 import com.mirth.connect.model.datatype.ResponseGenerationProperties;
+import com.mirth.connect.model.datatype.ResponseValidationProperties;
 import com.mirth.connect.model.datatype.SerializationProperties;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
@@ -26,21 +28,24 @@ public class HL7v2DataTypeServerPlugin extends DataTypeServerPlugin {
     }
 
     @Override
-    public void start() {
-    }
+    public void start() {}
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 
     @Override
     public AutoResponder getAutoResponder(SerializationProperties serializationProperties, ResponseGenerationProperties generationProperties) {
         return new HL7v2AutoResponder(serializationProperties, generationProperties);
     }
-    
+
+    @Override
+    public ResponseValidator getResponseValidator(SerializationProperties serializationProperties, ResponseValidationProperties responseValidationProperties) {
+        return new HL7v2ResponseValidator(serializationProperties, responseValidationProperties);
+    }
+
     @Override
     public BatchAdaptor getBatchAdaptor(SerializerProperties properties) {
-    	return new ER7BatchAdaptor(properties);
+        return new ER7BatchAdaptor(properties);
     }
 
     @Override

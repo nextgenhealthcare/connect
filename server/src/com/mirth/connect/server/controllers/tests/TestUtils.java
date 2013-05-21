@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.connectors.tests.TestAutoResponder;
 import com.mirth.connect.connectors.tests.TestDestinationConnector;
 import com.mirth.connect.connectors.tests.TestResponseTransformer;
+import com.mirth.connect.connectors.tests.TestResponseValidator;
 import com.mirth.connect.connectors.tests.TestSerializer;
 import com.mirth.connect.connectors.tests.TestSourceConnector;
 import com.mirth.connect.connectors.vm.VmDispatcherProperties;
@@ -76,13 +77,13 @@ public class TestUtils {
     final public static String TEST_HL7_MESSAGE = "MSH|^~\\&|LABNET|Acme Labs|||20090601105700||ORU^R01|HMCDOOGAL-0088|D|2.2\nPID|1|8890088|8890088^^^72777||McDoogal^Hattie^||19350118|F||2106-3|100 Beach Drive^Apt. 5^Mission Viejo^CA^92691^US^H||(949) 555-0025|||||8890088^^^72|604422825\nPV1|1|R|C3E^C315^B||||2^HIBBARD^JULIUS^|5^ZIMMERMAN^JOE^|9^ZOIDBERG^JOHN^|CAR||||4|||2301^OBRIEN, KEVIN C|I|1783332658^1^1||||||||||||||||||||DISNEY CLINIC||N|||20090514205600\nORC|RE|928272608|056696716^LA||CM||||20090601105600||||  C3E|||^RESULT PERFORMED\nOBR|1|928272608|056696716^LA|1001520^K|||20090601101300|||MLH25|||HEMOLYZED/VP REDRAW|20090601102400||2301^OBRIEN, KEVIN C||||01123085310001100100152023509915823509915800000000101|0000915200932|20090601105600||LAB|F||^^^20090601084100^^ST~^^^^^ST\nOBX|1|NM|1001520^K||5.3|MMOL/L|3.5-5.5||||F|||20090601105600|IIM|IIM";
     final public static String CHANNEL_ID = "newtestchannel";
     final public static String SERVER_ID = "testserver";
-    
+
     private static Logger logger = Logger.getLogger(TestUtils.class);
 
     public static void startMirthServer() throws InterruptedException {
         startMirthServer(1000);
     }
-    
+
     public static void startMirthServer(int sleepMillis) throws InterruptedException {
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
@@ -95,20 +96,20 @@ public class TestUtils {
             Thread.sleep(sleepMillis);
         }
     }
-    
+
     public static void runChannelTest(Channel channel, final String testMessage, final int testSize) throws Exception {
         channel.deploy();
         channel.start();
-        
+
         SourceConnector sourceConnector = channel.getSourceConnector();
         RawMessage rawMessage = new RawMessage(testMessage);
-        
+
         for (int i = 0; i < testSize; i++) {
             DispatchResult dispatchResult = null;
-            
+
             try {
                 dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
-                
+
                 if (dispatchResult.getChannelException() != null) {
                     throw dispatchResult.getChannelException();
                 }
@@ -116,21 +117,21 @@ public class TestUtils {
                 sourceConnector.finishDispatch(dispatchResult);
             }
         }
-        
+
         channel.stop();
         channel.undeploy();
     }
-    
+
     public static com.mirth.connect.model.Channel createTestChannelModel(String channelId, String channelName) {
         Transformer transformer = new Transformer();
         transformer.setInboundDataType("HL7V2");
         transformer.setInboundProperties(new HL7v2DataTypeProperties());
         transformer.setOutboundDataType("HL7V2");
         transformer.setOutboundProperties(new HL7v2DataTypeProperties());
-        
+
         Filter filter = new Filter();
         filter.setRules(new ArrayList<Rule>());
-        
+
         Connector sourceConnector = new Connector();
         sourceConnector.setEnabled(true);
         sourceConnector.setMetaDataId(0);
@@ -141,16 +142,16 @@ public class TestUtils {
         sourceConnector.setWaitForPrevious(true);
         sourceConnector.setTransformer(transformer);
         sourceConnector.setFilter(filter);
-        
+
         transformer = new Transformer();
         transformer.setInboundDataType("HL7V2");
         transformer.setInboundProperties(new HL7v2DataTypeProperties());
         transformer.setOutboundDataType("HL7V2");
         transformer.setOutboundProperties(new HL7v2DataTypeProperties());
-        
+
         filter = new Filter();
         filter.setRules(new ArrayList<Rule>());
-        
+
         Connector destinationConnector = new Connector();
         destinationConnector.setEnabled(true);
         destinationConnector.setMetaDataId(1);
@@ -160,15 +161,15 @@ public class TestUtils {
         destinationConnector.setTransportName(destinationConnector.getProperties().getName());
         destinationConnector.setTransformer(transformer);
         destinationConnector.setFilter(filter);
-        
+
         transformer = new Transformer();
         transformer.setInboundDataType("HL7V2");
         transformer.setInboundProperties(new HL7v2DataTypeProperties());
         transformer.setOutboundDataType("HL7V2");
         transformer.setOutboundProperties(new HL7v2DataTypeProperties());
-        
+
         destinationConnector.setResponseTransformer(transformer);
-        
+
         com.mirth.connect.model.Channel channel = new com.mirth.connect.model.Channel();
         channel.setId(channelId);
         channel.setEnabled(true);
@@ -177,7 +178,7 @@ public class TestUtils {
         channel.setRevision(0);
         channel.setSourceConnector(sourceConnector);
         channel.getDestinationConnectors().add(destinationConnector);
-        
+
         return channel;
     }
 
@@ -191,20 +192,20 @@ public class TestUtils {
         channel.setPreProcessor(new TestPreProcessor());
         channel.setPostProcessor(new TestPostProcessor());
 
-        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder()));
+        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()));
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
         channel.setSourceFilterTransformer(filterTransformer);
 
         sourceConnector.setChannel(channel);
 
         DestinationChain chain = new DestinationChain();
-        filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder()));
+        filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()));
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
         chain.addDestination(1, filterTransformer, destinationConnector);
         channel.getDestinationChains().add(chain);
         destinationConnector.setChannelId(channelId);
-        
-        ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder()));
+
+        ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()));
         responseTransformerExecutor.setResponseTransformer(new TestResponseTransformer());
         destinationConnector.setResponseTransformerExecutor(responseTransformerExecutor);
 
@@ -226,7 +227,7 @@ public class TestUtils {
         channel.setPreProcessor(new TestPreProcessor());
         channel.setPostProcessor(new TestPostProcessor());
 
-        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder()));
+        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()));
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
         channel.setSourceFilterTransformer(filterTransformer);
 
@@ -235,11 +236,11 @@ public class TestUtils {
         sourceConnector.setChannel(channel);
         sourceConnector.setRespondAfterProcessing(respondAfterProcessing);
         sourceConnector.setMetaDataReplacer(new MetaDataReplacer());
-        
+
         channel.setSourceConnector(sourceConnector);
         channel.setResponseSelector(new ResponseSelector(sourceConnector.getInboundDataType()));
         channel.getResponseSelector().setRespondFromName("destination1");
-        
+
         int metaDataId = 1;
 
         // create destination chains
@@ -247,7 +248,7 @@ public class TestUtils {
             DestinationChain chain = new DestinationChain();
             chain.setChannelId(channelId);
             chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
-            
+
             channel.getDestinationChains().add(chain);
 
             for (int j = 0; j < destinationsPerChain; j++) {
@@ -259,12 +260,12 @@ public class TestUtils {
                 testDestinationConnector.setDestinationName("destination" + metaDataId);
                 testDestinationConnector.setEnabled(true);
                 testDestinationConnector.setQueue(queue);
-                
-                ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder()));
+
+                ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()));
                 responseTransformerExecutor.setResponseTransformer(new TestResponseTransformer());
                 testDestinationConnector.setResponseTransformerExecutor(responseTransformerExecutor);
 
-                filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder()));
+                filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()));
                 filterTransformer.setFilterTransformer(new TestFilterTransformer());
                 chain.addDestination(metaDataId++, filterTransformer, testDestinationConnector);
             }
@@ -272,7 +273,7 @@ public class TestUtils {
 
         return channel;
     }
-    
+
     public static void deployTestChannel(com.mirth.connect.model.Channel channel) throws Exception {
         com.mirth.connect.server.controllers.ChannelController.getInstance().updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
         ControllerFactory.getFactory().createEngineController().deployChannel(channel.getId(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
@@ -336,14 +337,14 @@ public class TestUtils {
         double seconds = ((double) milliseconds) / 1000.0;
         return StringUtils.rightPad(testName, 50) + ((int) (testSize / seconds)) + " messages/second";
     }
-    
+
     public static Message createMessage(RawMessage rawMessage, String channelId, String serverId, long messageId) {
         Message message = new Message();
         message.setMessageId(messageId);
         message.setChannelId(channelId);
         message.setServerId(serverId);
         message.setReceivedDate(Calendar.getInstance());
-        
+
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
         sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null, false));
 
@@ -352,20 +353,20 @@ public class TestUtils {
         }
 
         message.getConnectorMessages().put(0, sourceMessage);
-        
+
         return message;
     }
 
     public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDao dao) {
         Message message = createMessage(rawMessage, channelId, serverId, dao.getNextMessageId(channelId));
         ConnectorMessage sourceMessage = message.getConnectorMessages().get(0);
-        
+
         dao.insertMessage(message);
         dao.insertConnectorMessage(sourceMessage, true);
         dao.insertMessageContent(sourceMessage.getRaw());
         return message;
     }
-    
+
     @SuppressWarnings("unchecked")
     public static List<Long> getMessageIds(String channelId) throws Exception {
         return (List<Long>) selectColumn("SELECT id FROM d_m" + ChannelController.getInstance().getLocalChannelId(channelId));
@@ -400,7 +401,7 @@ public class TestUtils {
             close(connection);
         }
     }
-    
+
     public static void close(Connection connection) {
         try {
             if (connection != null && !connection.isClosed()) {
@@ -411,7 +412,7 @@ public class TestUtils {
             e.printStackTrace();
         }
     }
-    
+
     public static void close(Statement statement) {
         try {
             DbUtils.close(statement);
@@ -419,7 +420,7 @@ public class TestUtils {
             e.printStackTrace();
         }
     }
-    
+
     public static void close(PreparedStatement preparedStatement) {
         try {
             DbUtils.close(preparedStatement);
@@ -427,7 +428,7 @@ public class TestUtils {
             e.printStackTrace();
         }
     }
-    
+
     public static void close(ResultSet resultSet) {
         try {
             DbUtils.close(resultSet);
@@ -435,7 +436,7 @@ public class TestUtils {
             e.printStackTrace();
         }
     }
-    
+
     public static void close(DonkeyDao dao) {
         if (dao != null && !dao.isClosed()) {
             dao.close();
@@ -451,7 +452,7 @@ public class TestUtils {
         } finally {
             dao.close();
         }
-        
+
         fixMessageIdSequence(channelId);
     }
 
@@ -472,7 +473,7 @@ public class TestUtils {
     public static void createTestMessagesFast(String channelId, int power) throws Exception {
         createTestMessagesFast(channelId, TestUtils.createMessage(new RawMessage(TestUtils.TEST_HL7_MESSAGE), channelId, "testserver", 1), power);
     }
-    
+
     public static void createTestMessagesFast(String channelId, Message templateMessage, int power) throws Exception {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         deleteAllMessages(channelId);
@@ -483,7 +484,7 @@ public class TestUtils {
         PreparedStatement metaDataStatement = null;
         PreparedStatement contentStatement = null;
         long idOffset = templateMessage.getMessageId();
-        
+
         logger.debug("Replicating messages in channel \"" + channelId + "\"");
 
         try {
@@ -512,7 +513,7 @@ public class TestUtils {
             close(contentStatement);
             close(connection);
         }
-        
+
         fixMessageIdSequence(channelId);
         logger.debug("Finished replicating messages in channel \"" + channelId + "\"");
     }
@@ -522,11 +523,11 @@ public class TestUtils {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         String database = (String) Donkey.getInstance().getConfiguration().getDatabaseProperties().get("database");
         Long maxId = null;
-        
+
         if (database.equals("derby")) {
             Statement statement = null;
             ResultSet result = null;
-            
+
             try {
                 connection = getConnection();
                 statement = connection.createStatement();
@@ -545,7 +546,7 @@ public class TestUtils {
         } else {
             // TODO
         }
-        
+
         logger.debug("Message ID sequence updated to: " + maxId);
     }
 
@@ -578,7 +579,7 @@ public class TestUtils {
 
         return rate;
     }
-    
+
     public static List<?> selectColumn(String query) {
         Connection connection = null;
         Statement statement = null;

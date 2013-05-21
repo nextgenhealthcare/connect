@@ -12,19 +12,12 @@ package com.mirth.connect.connectors.tcp;
 import static com.mirth.connect.util.TcpUtil.parseInt;
 
 import java.io.BufferedOutputStream;
-import java.io.CharArrayReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPathFactory;
-
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.event.ConnectorEventType;
@@ -179,41 +172,8 @@ public class TcpDispatcher extends DestinationConnector {
                     if (responseBytes != null) {
                         streamHandler.commit(true);
                         responseData = new String(responseBytes, CharsetUtils.getEncoding(tcpSenderProperties.getCharsetEncoding()));
-
-                        // TODO: Handle this differently; maybe add a default validator to the data type itself
-                        if (tcpSenderProperties.isProcessHL7ACK()) {
-                            if (StringUtils.isNotBlank(responseData)) {
-                                if (responseData.trim().startsWith("<")) {
-                                    // XML response received
-                                    Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new CharArrayReader(responseData.toCharArray())));
-                                    String ackCode = XPathFactory.newInstance().newXPath().compile("//MSA.1/text()").evaluate(doc).trim();
-                                    if (ackCode.matches("[AC][RE]")) {
-                                        responseStatus = Status.ERROR;
-                                    } else if (ackCode.matches("[AC]A")) {
-                                        responseStatus = Status.SENT;
-                                    }
-                                } else {
-                                    // ER7 response received
-                                    if (responseData.matches("[\\s\\S]*MSA.[AC][RE][\\s\\S]*")) {
-                                        responseStatus = Status.ERROR;
-                                    } else if (responseData.matches("[\\s\\S]*MSA.[AC]A[\\s\\S]*")) {
-                                        responseStatus = Status.SENT;
-                                    }
-                                }
-
-                                if (responseStatus == Status.ERROR) {
-                                    responseError = "NACK sent from receiver: " + responseData;
-                                    responseStatusMessage = "NACK sent from receiver.";
-                                }
-                            } else {
-                                responseStatus = Status.ERROR;
-                                responseStatusMessage = "Empty or blank response received.";
-                                responseError = responseStatusMessage;
-                            }
-                        } else {
-                            responseStatus = Status.SENT;
-                            responseStatusMessage = "Message successfully sent.";
-                        }
+                        responseStatus = Status.SENT;
+                        responseStatusMessage = "Message successfully sent.";
                     } else {
                         responseStatusMessage = "Response was not received.";
                         responseError = "Response was not received.";
@@ -261,13 +221,16 @@ public class TcpDispatcher extends DestinationConnector {
         } finally {
             eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket)));
         }
-        
+
         if (responseStatus == Status.SENT) {
             responseStatusMessage = "Message successfully sent.";
         }
 
-
-        return new Response(responseStatus, responseData, responseStatusMessage, responseError);
+        Response response = new Response(responseStatus, responseData, responseStatusMessage, responseError);
+        if (tcpSenderProperties.isProcessHL7ACK()) {
+            return getResponseTransformerExecutor().getInbound().getResponseValidator().validate(response, message);
+        }
+        return response;
     }
 
     private void closeSocketQuietly() {

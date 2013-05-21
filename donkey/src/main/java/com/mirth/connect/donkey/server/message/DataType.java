@@ -18,17 +18,19 @@ public class DataType {
     private XmlSerializer serializer;
     private BatchAdaptor batchAdaptor;
     private AutoResponder autoResponder;
+    private ResponseValidator responseValidator;
     private SerializationType serializationType;
-    
-    public DataType(String type, XmlSerializer serializer, BatchAdaptor batchAdaptor, AutoResponder autoResponder) {
-        this(type, serializer, batchAdaptor, autoResponder, SerializationType.XML);
+
+    public DataType(String type, XmlSerializer serializer, BatchAdaptor batchAdaptor, AutoResponder autoResponder, ResponseValidator responseValidator) {
+        this(type, serializer, batchAdaptor, autoResponder, responseValidator, SerializationType.XML);
     }
 
-    public DataType(String type, XmlSerializer serializer, BatchAdaptor batchAdaptor, AutoResponder autoResponder, SerializationType serializationType) {
+    public DataType(String type, XmlSerializer serializer, BatchAdaptor batchAdaptor, AutoResponder autoResponder, ResponseValidator responseValidator, SerializationType serializationType) {
         this.type = type;
         this.serializer = serializer;
         this.batchAdaptor = batchAdaptor;
         this.autoResponder = autoResponder;
+        this.responseValidator = responseValidator;
         this.serializationType = serializationType;
     }
 
@@ -39,15 +41,19 @@ public class DataType {
     public XmlSerializer getSerializer() {
         return serializer;
     }
-    
+
     public BatchAdaptor getBatchAdaptor() {
-    	return batchAdaptor;
+        return batchAdaptor;
     }
 
     public AutoResponder getAutoResponder() {
         return autoResponder;
     }
-    
+
+    public ResponseValidator getResponseValidator() {
+        return responseValidator;
+    }
+
     public SerializationType getSerializationType() {
         return serializationType;
     }

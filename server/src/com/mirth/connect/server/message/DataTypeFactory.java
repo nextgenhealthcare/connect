@@ -14,33 +14,40 @@ import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.server.message.AutoResponder;
 import com.mirth.connect.donkey.server.message.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.DataType;
+import com.mirth.connect.donkey.server.message.ResponseValidator;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.controllers.ExtensionController;
 
 public class DataTypeFactory {
-    
+
     public static DataType getDataType(String dataType, DataTypeProperties dataTypeProperties) {
         // Get the data type plugin
         DataTypeServerPlugin dataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(dataType);
-        
+
         // Create the serializer
         SerializerProperties serializerProperties = dataTypeProperties.getSerializerProperties();
         XmlSerializer serializer = dataTypePlugin.getSerializer(serializerProperties);
-        
+
         BatchAdaptor batchAdaptor = dataTypePlugin.getBatchAdaptor(serializerProperties);
-        
+
         // Create the autoresponder
         AutoResponder autoResponder = dataTypePlugin.getAutoResponder(serializerProperties.getSerializationProperties(), dataTypeProperties.getResponseGenerationProperties());
         if (autoResponder == null) {
             autoResponder = new DefaultAutoResponder();
         }
-        
+
+        // Create the response validator
+        ResponseValidator responseValidator = dataTypePlugin.getResponseValidator(serializerProperties.getSerializationProperties(), dataTypeProperties.getResponseValidationProperties());
+        if (responseValidator == null) {
+            responseValidator = new DefaultResponseValidator();
+        }
+
         // Get the serialization type
         SerializationType serializationType = dataTypePlugin.getSerializationType();
-        
+
         // Return the data type
-        return new DataType(dataType, serializer, batchAdaptor, autoResponder, serializationType);
+        return new DataType(dataType, serializer, batchAdaptor, autoResponder, responseValidator, serializationType);
     }
 }

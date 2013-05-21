@@ -50,12 +50,12 @@ public class DummyChannel extends Channel {
 
         if (destinationConnector != null) {
             destinationConnector.setChannelId(channelId);
-            
-            ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder()));
+
+            ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()));
             responseTransformerExecutor.setResponseTransformer(new TestResponseTransformer());
             destinationConnector.setResponseTransformerExecutor(responseTransformerExecutor);
             DestinationChain chain = new DestinationChain();
-            chain.addDestination(1, new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder())), destinationConnector);
+            chain.addDestination(1, new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator())), destinationConnector);
             getDestinationChains().add(chain);
         }
     }
@@ -120,7 +120,7 @@ public class DummyChannel extends Channel {
         destinationMessage.setMetaDataId(1);
         destinationMessage.setRaw(sourceMessage.getRaw());
         destinationMessage.setTransformed(new MessageContent(destinationMessage.getChannelId(), destinationMessage.getMessageId(), destinationMessage.getMetaDataId(), ContentType.TRANSFORMED, destinationMessage.getRaw().getContent(), "XML", destinationMessage.getRaw().isEncrypted()));
-        destinationMessage.setEncoded(new MessageContent(destinationMessage.getChannelId(), destinationMessage.getMessageId(), destinationMessage.getMetaDataId(), ContentType.ENCODED, destinationMessage.getRaw().getContent(), "XML",  destinationMessage.getRaw().isEncrypted()));
+        destinationMessage.setEncoded(new MessageContent(destinationMessage.getChannelId(), destinationMessage.getMessageId(), destinationMessage.getMetaDataId(), ContentType.ENCODED, destinationMessage.getRaw().getContent(), "XML", destinationMessage.getRaw().isEncrypted()));
 
         Message message = new Message();
         message.setMessageId(sourceMessage.getMessageId());
