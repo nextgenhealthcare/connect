@@ -1351,7 +1351,6 @@ public class Channel implements Startable, Stoppable, Runnable {
         try {
             response = postProcessor.doPostProcess(finalMessage);
         } catch (Exception e) {
-            logger.error("Error executing postprocessor for channel " + finalMessage.getChannelId() + ".", e);
             finalMessage.getConnectorMessages().get(0).setPostProcessorError(e.getMessage());
             storePostProcessorError = true;
         }
