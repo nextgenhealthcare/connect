@@ -10,6 +10,7 @@
 package com.mirth.connect.connectors.http;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,9 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.DeleteMethod;
+import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -155,7 +158,23 @@ public class HttpDispatcher extends DestinationConnector {
             int statusCode = client.executeMethod(httpMethod);
             logger.debug("received status code: " + statusCode);
 
-            String responseBody = new String(httpMethod.getResponseBody(), httpDispatcherProperties.getCharset());
+            String responseBody = null;
+
+            // If the response is GZIP encoded, uncompress the content
+            boolean gzipEncoded = false;
+
+            for (int i = 0; i < httpMethod.getResponseHeaders().length && !gzipEncoded; i++) {
+                Header header = httpMethod.getResponseHeaders()[i];
+
+                if (header.getName().equals("Content-Encoding") && header.getValue().equals("gzip")) {
+                    responseBody = HttpUtil.uncompressGzip(httpMethod.getResponseBody(), httpDispatcherProperties.getCharset());
+                    gzipEncoded = true;
+                }
+            }
+
+            if (!gzipEncoded) {
+                responseBody = new String(httpMethod.getResponseBody(), httpDispatcherProperties.getCharset());
+            }
 
             if (httpDispatcherProperties.isIncludeHeadersInResponse()) {
                 HttpMessageConverter converter = new HttpMessageConverter();
@@ -200,7 +219,7 @@ public class HttpDispatcher extends DestinationConnector {
     private HttpMethod buildHttpRequest(HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage) throws Exception {
         String address = httpDispatcherProperties.getHost();
         String method = httpDispatcherProperties.getMethod();
-        String content = AttachmentUtil.reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage);
+        Object content = AttachmentUtil.reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage);
         String contentType = httpDispatcherProperties.getContentType();
         String charset = httpDispatcherProperties.getCharset();
         boolean isMultipart = httpDispatcherProperties.isMultipart();
@@ -219,6 +238,11 @@ public class HttpDispatcher extends DestinationConnector {
             logger.debug("setting query parameter: [" + parameterEntry.getKey() + ", " + parameterEntry.getValue() + "]");
         }
 
+        // If GZIP compression is enabled, compress the content
+        if ("gzip".equals(headers.get("Content-Encoding"))) {
+            content = HttpUtil.compressGzip((String) content, charset);
+        }
+
         // create the method
         if ("GET".equalsIgnoreCase(method)) {
             httpMethod = new GetMethod(address);
@@ -229,7 +253,13 @@ public class HttpDispatcher extends DestinationConnector {
             if (isMultipart) {
                 logger.debug("setting multipart file content");
                 tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tmp");
-                FileUtils.writeStringToFile(tempFile, content, charset);
+
+                if (content instanceof String) {
+                    FileUtils.writeStringToFile(tempFile, (String) content, charset);
+                } else {
+                    FileUtils.writeByteArrayToFile(tempFile, (byte[]) content);
+                }
+
                 Part[] parts = new Part[] { new FilePart(tempFile.getName(), tempFile, contentType, charset) };
                 setQueryString(postMethod, queryParameters);
                 postMethod.setRequestEntity(new MultipartRequestEntity(parts, postMethod.getParams()));
@@ -237,13 +267,13 @@ public class HttpDispatcher extends DestinationConnector {
                 postMethod.setRequestBody(queryParameters);
             } else {
                 setQueryString(postMethod, queryParameters);
-                postMethod.setRequestEntity(new StringRequestEntity(content, contentType, charset));
+                setRequestEntity(postMethod, content, contentType, charset);
             }
 
             httpMethod = postMethod;
         } else if ("PUT".equalsIgnoreCase(method)) {
             PutMethod putMethod = new PutMethod(address);
-            putMethod.setRequestEntity(new StringRequestEntity(content, contentType, charset));
+            setRequestEntity(putMethod, content, contentType, charset);
             setQueryString(putMethod, queryParameters);
 
             httpMethod = putMethod;
@@ -259,6 +289,14 @@ public class HttpDispatcher extends DestinationConnector {
         }
 
         return httpMethod;
+    }
+
+    private void setRequestEntity(EntityEnclosingMethod method, Object content, String contentType, String charset) throws UnsupportedEncodingException {
+        if (content instanceof String) {
+            method.setRequestEntity(new StringRequestEntity((String) content, contentType, charset));
+        } else {
+            method.setRequestEntity(new ByteArrayRequestEntity((byte[]) content, contentType));
+        }
     }
 
     private void setQueryString(HttpMethod method, NameValuePair[] queryParameters) {

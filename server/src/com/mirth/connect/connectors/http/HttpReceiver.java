@@ -125,10 +125,10 @@ public class HttpReceiver extends SourceConnector {
             String sentResponse = null;
             boolean attemptedResponse = false;
             String responseError = null;
-            
+
             try {
                 dispatchResult = processData(baseRequest);
-                
+
                 servletResponse.setContentType(replacer.replaceValues(connectorProperties.getResponseContentType()));
 
                 // set the response headers
@@ -140,7 +140,7 @@ public class HttpReceiver extends SourceConnector {
                 int statusCode = NumberUtils.toInt(replaceValues(connectorProperties.getResponseStatusCode(), dispatchResult), -1);
 
                 Response selectedResponse = dispatchResult.getSelectedResponse();
-                
+
                 /*
                  * set the response body and status code (if we choose a
                  * response from the drop-down)
@@ -148,16 +148,23 @@ public class HttpReceiver extends SourceConnector {
                 if (selectedResponse != null) {
                     attemptedResponse = true;
                     String message = selectedResponse.getMessage();
-                    
+
                     if (message != null) {
-                        servletResponse.getOutputStream().write(message.getBytes(connectorProperties.getCharset()));
+                        // If the client accepts GZIP compression, compress the content
+                        String acceptEncoding = baseRequest.getHeader("Accept-Encoding");
+                        if (acceptEncoding != null && acceptEncoding.contains("gzip")) {
+                            servletResponse.setHeader("Content-Encoding", "gzip");
+                            servletResponse.getOutputStream().write(HttpUtil.compressGzip(message, connectorProperties.getCharset()));
+                        } else {
+                            servletResponse.getOutputStream().write(message.getBytes(connectorProperties.getCharset()));
+                        }
 
                         // TODO include full HTTP payload in sentResponse
                         sentResponse = message;
                     }
-                    
+
                     Status newMessageStatus = selectedResponse.getStatus();
-                    
+
                     /*
                      * If the status code is custom, use the
                      * entered/replaced string
@@ -186,13 +193,13 @@ public class HttpReceiver extends SourceConnector {
                 }
             } catch (Exception e) {
                 responseError = ExceptionUtils.getStackTrace(e);
-                
+
                 // TODO decide if we still want to send back the exception content or something else?
                 attemptedResponse = true;
                 servletResponse.setContentType("text/plain");
                 servletResponse.getOutputStream().write(responseError.getBytes());
                 servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-                
+
                 // TODO get full HTTP payload with error message
                 dispatchResult.getSelectedResponse().setMessage(responseError);
             } finally {
@@ -233,11 +240,16 @@ public class HttpReceiver extends SourceConnector {
         if (requestMessage.isIncludeHeaders()) {
             rawMessageContent = new HttpMessageConverter().httpRequestToXml(requestMessage);
         } else {
-            rawMessageContent = requestMessage.getContent();
+            // If the request is GZIP encoded, uncompress the content
+            if ("gzip".equals(requestMessage.getHeaders().get("Content-Encoding"))) {
+                rawMessageContent = HttpUtil.uncompressGzip(requestMessage.getContent(), HttpUtil.getCharset(request.getContentType()));
+            } else {
+                rawMessageContent = requestMessage.getContent();
+            }
         }
 
         eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.RECEIVING));
-        
+
         return dispatchRawMessage(new RawMessage(rawMessageContent));
     }
 
@@ -251,8 +263,8 @@ public class HttpReceiver extends SourceConnector {
         return (mergedConnectorMessage == null ? replacer.replaceValues(template, getChannelId()) : replacer.replaceValues(template, mergedConnectorMessage));
     }
 
-	@Override
-	public void handleRecoveredResponse(DispatchResult dispatchResult) {
-		finishDispatch(dispatchResult);
-	}
+    @Override
+    public void handleRecoveredResponse(DispatchResult dispatchResult) {
+        finishDispatch(dispatchResult);
+    }
 }

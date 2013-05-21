@@ -67,16 +67,23 @@ public class HttpMessageConverter {
 
             requestElement.appendChild(headerElement);
 
-
             Element contentElement = new Element("Content");
 
+            String content = null;
+            // If the request is GZIP encoded, uncompress the content
+            if ("gzip".equals(request.getHeaders().get("Content-Encoding"))) {
+                content = HttpUtil.uncompressGzip(request.getContent(), HttpUtil.getCharset(request.getContentType()));
+            } else {
+                content = request.getContent();
+            }
+
             if (isBinaryContentType(request.getContentType())) {
-                contentElement.appendChild(new String(Base64.encodeBase64Chunked(request.getContent().getBytes())));
+                contentElement.appendChild(new String(Base64.encodeBase64Chunked(content.getBytes())));
                 contentElement.addAttribute(new Attribute("encoding", "Base64"));
             } else {
-                contentElement.appendChild(request.getContent());
+                contentElement.appendChild(content);
             }
-            
+
             requestElement.appendChild(contentElement);
 
             return document.toXML();
@@ -147,8 +154,9 @@ public class HttpMessageConverter {
         parent.appendChild(child);
         return child;
     }
-    
+
     private boolean isBinaryContentType(String contentType) {
-        return StringUtils.startsWithAny(contentType, new String[] { "application/", "image/", "video/", "audio/" });
+        return StringUtils.startsWithAny(contentType, new String[] { "application/", "image/",
+                "video/", "audio/" });
     }
 }
