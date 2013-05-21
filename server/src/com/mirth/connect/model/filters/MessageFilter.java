@@ -11,16 +11,14 @@ package com.mirth.connect.model.filters;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.CalendarToStringStyle;
+import com.mirth.connect.model.filters.elements.ContentSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -47,7 +45,7 @@ public class MessageFilter implements Serializable {
     private List<Integer> includedMetaDataIds;
     private List<Integer> excludedMetaDataIds;
     private String serverId;
-    private Map<ContentType, String> contentSearch = new HashMap<ContentType, String>();
+    private List<ContentSearchElement> contentSearch;
     private List<MetaDataSearchElement> metaDataSearch;
     private List<String> quickSearchMetaDataColumns;
     private Integer sendAttemptsLower;
@@ -144,11 +142,11 @@ public class MessageFilter implements Serializable {
         this.serverId = serverId;
     }
 
-	public Map<ContentType, String> getContentSearch() {
+	public List<ContentSearchElement> getContentSearch() {
         return contentSearch;
     }
 
-    public void setContentSearch(Map<ContentType, String> contentSearch) {
+    public void setContentSearch(List<ContentSearchElement> contentSearch) {
         this.contentSearch = contentSearch;
     }
 

@@ -44,6 +44,7 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumnException;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.model.filters.MessageFilter;
+import com.mirth.connect.model.filters.elements.ContentSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchOperator;
 
@@ -270,7 +271,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         messageFilter.setAttachment(attachmentCheckBox.isSelected());
         messageFilter.setSendAttemptsLower(sendAttemptsLower);
         messageFilter.setSendAttemptsUpper(sendAttemptsUpper);
-        messageFilter.setContentSearch(getContentSearch());
+        messageFilter.setContentSearch(getContentSearch(messageFilter.getQuickSearch()));
 
         try {
             messageFilter.setMetaDataSearch(getMetaDataSearch());
@@ -292,8 +293,9 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         return (serverId.length() == 0) ? null : serverId;
     }
 
-    private Map<ContentType, String> getContentSearch() {
-        Map<ContentType, String> contentSearch = new HashMap<ContentType, String>();
+    private List<ContentSearchElement> getContentSearch(String quickSearch) {
+        List<ContentSearchElement> contentSearch = new ArrayList<ContentSearchElement>();
+        Map<ContentType, List<String>> contentSearchMap = new HashMap<ContentType, List<String>>();
         DefaultTableModel model = ((DefaultTableModel) contentSearchTable.getModel());
         int rowCount = model.getRowCount();
 
@@ -302,7 +304,25 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
             String searchText = (String) model.getValueAt(i, 1);
 
             if (searchText.length() > 0) {
-                contentSearch.put(contentType, searchText);
+                List<String> searchList = contentSearchMap.get(contentType);
+                
+                if (searchList == null) {
+                    searchList = new ArrayList<String>();
+                    contentSearchMap.put(contentType, searchList);
+                }
+                searchList.add(searchText);
+            }
+        }
+        
+        for (ContentType contentType : ContentType.getMessageTypes()) {
+            if (contentSearchMap.containsKey(contentType)) {
+                contentSearch.add(new ContentSearchElement(contentType.getContentTypeCode(), contentSearchMap.get(contentType)));
+            } else if (quickSearch != null) {
+                /*
+                 * If quick search is active, always add the content type to the content search so
+                 * the content is joined for quick search.
+                 */
+                contentSearch.add(new ContentSearchElement(contentType.getContentTypeCode(), new ArrayList<String>()));
             }
         }
 

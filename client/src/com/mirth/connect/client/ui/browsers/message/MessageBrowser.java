@@ -110,6 +110,7 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
+import com.mirth.connect.model.filters.elements.ContentSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchOperator;
 import com.mirth.connect.plugins.AttachmentViewer;
@@ -689,10 +690,12 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
 
         if (messageFilter.getContentSearch() != null) {
-            Map<ContentType, String> contentSearch = messageFilter.getContentSearch();
+            List<ContentSearchElement> contentSearch = messageFilter.getContentSearch();
 
-            for (Entry<ContentType, String> entry : contentSearch.entrySet()) {
-                text.append(padding + entry.getKey() + " contains \"" + entry.getValue() + "\"");
+            for (ContentSearchElement element : contentSearch) {
+                for (String value : element.getSearches()) {
+                    text.append(padding + ContentType.fromCode(element.getContentCode()) + " contains \"" + value + "\"");
+                }
             }
         }
 

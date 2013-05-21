@@ -103,36 +103,20 @@
 			LEFT JOIN d_mcm${localChannelId} mcm ON mcm.message_id = mm.message_id AND mcm.metadata_id = mm.id
 		</if>
 		
-		<if test="quickSearch != null || rawSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_raw ON mc_raw.message_id = m.id AND mc_raw.metadata_id = 0 AND mc_raw.content_type = 1 AND mc_raw.is_encrypted = FALSE
-		</if>
-		
-		<if test="quickSearch != null || processedRawSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_processed_raw ON mc_processed_raw.message_id = m.id AND mc_processed_raw.metadata_id = mm.id AND mc_processed_raw.content_type = 2 AND mc_processed_raw.is_encrypted = FALSE
-		</if>
-		
-		<if test="quickSearch != null || transformedSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_transformed ON mc_transformed.message_id = m.id AND mc_transformed.metadata_id = mm.id AND mc_transformed.content_type = 3 AND mc_transformed.is_encrypted = FALSE
-		</if>
-		
-		<if test="quickSearch != null || encodedSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_encoded ON mc_encoded.message_id = m.id AND mc_encoded.metadata_id = mm.id AND mc_encoded.content_type = 4 AND mc_encoded.is_encrypted = FALSE
-		</if>
-		
-		<if test="quickSearch != null || sentSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_sent ON mc_sent.message_id = m.id AND mc_sent.metadata_id = mm.id AND mc_sent.content_type = 5 AND mc_sent.is_encrypted = FALSE
-		</if>
-		
-		<if test="quickSearch != null || responseSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_response ON mc_response.message_id = m.id AND mc_response.metadata_id = mm.id AND mc_response.content_type = 6 AND mc_response.is_encrypted = FALSE
-		</if>
-		
-		<if test="quickSearch != null || responseTransformedSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_response_transformed ON mc_response_transformed.message_id = m.id AND mc_response_transformed.metadata_id = mm.id AND mc_response_transformed.content_type = 7 AND mc_response_transformed.is_encrypted = FALSE
-		</if>
-		
-		<if test="quickSearch != null || processedResponseSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_processed_response ON mc_processed_response.message_id = m.id AND mc_processed_response.metadata_id = mm.id AND mc_processed_response.content_type = 8 AND mc_processed_response.is_encrypted = FALSE
+		<if test="contentSearch != null">
+			<foreach item="element" collection="contentSearch">
+				LEFT JOIN d_mc${localChannelId} mc_${element.contentCode} ON mc_${element.contentCode}.message_id = m.id AND mc_${element.contentCode}.is_encrypted = FALSE
+				
+				<choose>
+					<!-- If the content code is RAW, use the source ENCODED for destination RAW -->
+					<when test="element.contentCode == 1">
+						AND mc_${element.contentCode}.metadata_id = 0 AND ((mm.id = 0 AND mc_${element.contentCode}.content_type = 1) OR (mm.id > 0 AND mc_${element.contentCode}.content_type = 4))
+					</when>
+					<otherwise>
+						AND mc_${element.contentCode}.metadata_id = mm.id AND mc_${element.contentCode}.content_type = #{element.contentCode}
+					</otherwise>
+				</choose>
+			</foreach>
 		</if>
 		
 		<where>
@@ -164,14 +148,12 @@
 				AND (
 				CAST(m.id AS CHAR) LIKE CONCAT('%', #{quickSearch}, '%')
 				OR mm.connector_name LIKE CONCAT('%', #{quickSearch}, '%')
-				OR mc_raw.content LIKE CONCAT('%', #{quickSearch}, '%')
-				OR mc_processed_raw.content LIKE CONCAT('%', #{quickSearch}, '%')
-				OR mc_transformed.content LIKE CONCAT('%', #{quickSearch}, '%')
-				OR mc_encoded.content LIKE CONCAT('%', #{quickSearch}, '%')
-				OR mc_sent.content LIKE CONCAT('%', #{quickSearch}, '%')
-				OR mc_response.content LIKE CONCAT('%', #{quickSearch}, '%')
-				OR mc_response_transformed.content LIKE CONCAT('%', #{quickSearch}, '%')
-				OR mc_processed_response.content LIKE CONCAT('%', #{quickSearch}, '%')
+				
+				<if test="contentSearch != null">
+					<foreach item="element" collection="contentSearch">
+						OR mc_${element.contentCode}.content LIKE CONCAT('%', #{quickSearch}, '%')
+					</foreach>
+				</if>
 				
 				<foreach item="column" collection="quickSearchMetaDataColumns">
 					OR mcm.${column} LIKE CONCAT('%', #{quickSearch}, '%')
@@ -196,30 +178,15 @@
 					#{metaDataId}
 				</foreach>
 			</if>
-			<if test="rawSearch != null">
-				AND mc_raw.content LIKE CONCAT('%', #{rawSearch}, '%')
+			
+			<if test="contentSearch != null">
+				<foreach item="element" collection="contentSearch">
+					<foreach item="searchString" collection="element.searches">
+						AND mc_${element.contentCode}.content LIKE CONCAT('%', #{searchString}, '%')
+					</foreach>
+				</foreach>
 			</if>
-			<if test="processedRawSearch != null">
-				AND mc_processed_raw.content LIKE CONCAT('%', #{processedRawSearch}, '%')
-			</if>
-			<if test="transformedSearch != null">
-				AND mc_transformed.content LIKE CONCAT('%', #{transformedSearch}, '%')
-			</if>
-			<if test="encodedSearch != null">
-				AND mc_encoded.content LIKE CONCAT('%', #{encodedSearch}, '%')
-			</if>
-			<if test="sentSearch != null">
-				AND mc_sent.content LIKE CONCAT('%', #{sentSearch}, '%')
-			</if>
-			<if test="responseSearch != null">
-				AND mc_response.content LIKE CONCAT('%', #{responseSearch}, '%')
-			</if>
-			<if test="responseTransformedSearch != null">
-				AND mc_response_transformed.content LIKE CONCAT('%', #{responseTransformedSearch}, '%')
-			</if>
-			<if test="processedResponseSearch != null">
-				AND mc_processed_response.content LIKE CONCAT('%', #{processedResponseSearch}, '%')
-			</if>
+			
 			<if test="sendAttemptsLower != null">
 				AND mm.send_attempts <![CDATA[ >= ]]> #{sendAttemptsLower}
 			</if>
