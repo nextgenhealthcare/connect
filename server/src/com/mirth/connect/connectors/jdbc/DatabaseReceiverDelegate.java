@@ -13,12 +13,18 @@ import java.util.Map;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.StartException;
+import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 
 public interface DatabaseReceiverDelegate {
     public void deploy() throws DeployException;
 
     public void undeploy() throws UndeployException;
+
+    public void start() throws StartException;
+
+    public void stop() throws StopException;
 
     /**
      * Execute the poll query and return an object representing the results

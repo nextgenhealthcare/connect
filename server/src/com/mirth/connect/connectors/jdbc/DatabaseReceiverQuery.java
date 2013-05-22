@@ -26,6 +26,8 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.StartException;
+import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.sun.rowset.CachedRowSetImpl;
 
@@ -58,14 +60,17 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
         } catch (ClassNotFoundException e) {
             throw new DeployException(e);
         }
+    }
 
+    @Override
+    public void start() throws StartException {
         // if the keepConnectionOpen option is enabled, we open the database connection(s) here and they remain open until undeploy()
         if (connectorProperties.isKeepConnectionOpen()) {
             initConnection();
         }
     }
 
-    private void initConnection() throws DeployException {
+    private void initConnection() throws StartException {
         int attempts = 0;
         int maxRetryCount = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId()), 0);
         int retryInterval = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryInterval(), connector.getChannelId()), 0);
@@ -93,17 +98,17 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
                         Thread.sleep(retryInterval);
                     } catch (InterruptedException e1) {
                         Thread.currentThread().interrupt();
-                        throw new DeployException("Thread interrupted while trying to initialize database connection", e);
+                        throw new StartException("Thread interrupted while trying to initialize database connection", e);
                     }
                 } else {
-                    throw new DeployException("Failed to initialize database connection", e);
+                    throw new StartException("Failed to initialize database connection", e);
                 }
             }
         }
     }
 
     @Override
-    public void undeploy() {
+    public void stop() throws StopException {
         if (connectorProperties.isKeepConnectionOpen()) {
             closeSelectConnection();
 
@@ -112,6 +117,9 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
             }
         }
     }
+
+    @Override
+    public void undeploy() {}
 
     @Override
     public Object poll() throws DatabaseReceiverException, InterruptedException {

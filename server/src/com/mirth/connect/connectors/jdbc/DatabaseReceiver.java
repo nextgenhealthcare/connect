@@ -34,6 +34,8 @@ import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.StartException;
+import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
@@ -76,10 +78,14 @@ public class DatabaseReceiver extends PollConnector {
     }
 
     @Override
-    public void onStart() {}
+    public void onStart() throws StartException {
+        delegate.start();
+    }
 
     @Override
-    public void onStop() {}
+    public void onStop() throws StopException {
+        delegate.stop();
+    }
 
     @Override
     public void handleRecoveredResponse(DispatchResult dispatchResult) {

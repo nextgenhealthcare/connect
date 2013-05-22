@@ -21,6 +21,8 @@ import org.mozilla.javascript.Scriptable;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.StartException;
+import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.util.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.JavaScriptUtil;
@@ -64,6 +66,12 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
             }
         }
     }
+
+    @Override
+    public void start() throws StartException {}
+
+    @Override
+    public void stop() throws StopException {}
 
     @Override
     public void undeploy() {
