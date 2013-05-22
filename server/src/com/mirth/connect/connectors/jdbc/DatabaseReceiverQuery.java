@@ -61,28 +61,43 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
 
         // if the keepConnectionOpen option is enabled, we open the database connection(s) here and they remain open until undeploy()
         if (connectorProperties.isKeepConnectionOpen()) {
-            initConnection(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId()), 0));
+            initConnection();
         }
     }
 
-    private void initConnection(int retryCount) throws DeployException {
-        try {
-            initSelectConnection();
+    private void initConnection() throws DeployException {
+        int attempts = 0;
+        int maxRetryCount = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId()), 0);
+        int retryInterval = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryInterval(), connector.getChannelId()), 0);
+        boolean done = false;
 
-            if (connectorProperties.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER) {
-                initUpdateConnection();
-            }
-        } catch (SQLException e) {
-            logger.error("An error occurred while initializing the connection, retrying", e);
+        while (!done) {
+            try {
+                initSelectConnection();
 
-            // close all of the connections/statements in case some of them did initialize successfully
-            closeSelectConnection();
-            closeUpdateConnection();
+                if (connectorProperties.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER) {
+                    initUpdateConnection();
+                }
 
-            if (retryCount > 0) {
-                initConnection(retryCount - 1);
-            } else {
-                throw new DeployException("Failed to initialize database connection", e);
+                done = true;
+            } catch (SQLException e) {
+                // close all of the connections/statements in case some of them did initialize successfully
+                closeSelectConnection();
+                closeUpdateConnection();
+
+                if (attempts++ < maxRetryCount) {
+                    logger.error("An error occurred while initializing the connection, retrying after " + retryInterval + " ms...", e);
+
+                    // Wait the specified amount of time before retrying
+                    try {
+                        Thread.sleep(retryInterval);
+                    } catch (InterruptedException e1) {
+                        Thread.currentThread().interrupt();
+                        throw new DeployException("Thread interrupted while trying to initialize database connection", e);
+                    }
+                } else {
+                    throw new DeployException("Failed to initialize database connection", e);
+                }
             }
         }
     }
@@ -100,73 +115,79 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
 
     @Override
     public Object poll() throws DatabaseReceiverException, InterruptedException {
-        return poll(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId()), 0));
-    }
-
-    /*
-     * If an error occurs, this method will be called recursively until it succeeds or the
-     * retryCount is reached
-     */
-    public ResultSet poll(int retryCount) throws DatabaseReceiverException, InterruptedException {
         ResultSet resultSet = null;
-        CachedRowSet cachedRowSet = null;
+        int attempts = 0;
+        int maxRetryCount = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId()), 0);
+        int retryInterval = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryInterval(), connector.getChannelId()), 0);
+        boolean done = false;
 
-        try {
-            /*
-             * If the keepConnectionOpen option is not enabled, we open the database connection(s)
-             * here. They will be closed in afterPoll().
-             */
-            if (!connectorProperties.isKeepConnectionOpen()) {
-                initSelectConnection();
+        while (!done) {
+            CachedRowSet cachedRowSet = null;
 
-                if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_EACH) {
-                    initUpdateConnection();
-                }
-            }
+            try {
+                /*
+                 * If the keepConnectionOpen option is not enabled, we open the database
+                 * connection(s)
+                 * here. They will be closed in afterPoll().
+                 */
+                if (!connectorProperties.isKeepConnectionOpen()) {
+                    initSelectConnection();
 
-            int i = 1;
-
-            /*
-             * Using the list of placeholder keys found in the select statement (selectParams), get
-             * the corresponding values from JdbcUtils.getParameters() which uses a
-             * TemplateValueReplacer to to look up values from a default context based on the given
-             * channel id
-             */
-            for (Object param : JdbcUtils.getParameters(selectParams, connector.getChannelId(), null, null)) {
-                selectStatement.setObject(i++, param);
-            }
-
-            // TODO consider supporting multiple ResultSets returned by the selectStatement
-            resultSet = selectStatement.executeQuery();
-
-            // if we are not caching the ResultSet, return it immediately
-            if (!connectorProperties.isCacheResults()) {
-                return resultSet;
-            }
-
-            // if we are caching the ResultSet, convert it into a CachedRowSet and return it
-            cachedRowSet = new CachedRowSetImpl();
-            cachedRowSet.populate(resultSet);
-            DbUtils.closeQuietly(resultSet);
-            return cachedRowSet;
-        } catch (SQLException e) {
-            DbUtils.closeQuietly(resultSet);
-            DbUtils.closeQuietly(cachedRowSet);
-
-            if (retryCount > 0) {
-                if (connectorProperties.isKeepConnectionOpen() && !JdbcUtils.isValidConnection(selectConnection)) {
-                    try {
-                        initSelectConnection();
-                    } catch (SQLException e1) {
+                    if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_EACH) {
+                        initUpdateConnection();
                     }
                 }
 
-                logger.error("An error occurred while polling for messages, retrying", e);
-                return poll(retryCount - 1);
-            }
+                int objectIndex = 1;
 
-            throw new DatabaseReceiverException(e);
+                /*
+                 * Using the list of placeholder keys found in the select statement (selectParams),
+                 * get
+                 * the corresponding values from JdbcUtils.getParameters() which uses a
+                 * TemplateValueReplacer to to look up values from a default context based on the
+                 * given
+                 * channel id
+                 */
+                for (Object param : JdbcUtils.getParameters(selectParams, connector.getChannelId(), null, null)) {
+                    selectStatement.setObject(objectIndex++, param);
+                }
+
+                // TODO consider supporting multiple ResultSets returned by the selectStatement
+                resultSet = selectStatement.executeQuery();
+
+                // if we are not caching the ResultSet, return it immediately
+                if (connectorProperties.isCacheResults()) {
+                    // if we are caching the ResultSet, convert it into a CachedRowSet and return it
+                    cachedRowSet = new CachedRowSetImpl();
+                    cachedRowSet.populate(resultSet);
+                    DbUtils.closeQuietly(resultSet);
+                    resultSet = cachedRowSet;
+                }
+
+                done = true;
+            } catch (SQLException e) {
+                DbUtils.closeQuietly(resultSet);
+                DbUtils.closeQuietly(cachedRowSet);
+
+                if (attempts++ < maxRetryCount) {
+                    logger.error("An error occurred while polling for messages, retrying after " + retryInterval + " ms...", e);
+
+                    // Wait the specified amount of time before retrying
+                    Thread.sleep(retryInterval);
+
+                    if (connectorProperties.isKeepConnectionOpen() && !JdbcUtils.isValidConnection(selectConnection)) {
+                        try {
+                            initSelectConnection();
+                        } catch (SQLException e1) {
+                        }
+                    }
+                } else {
+                    throw new DatabaseReceiverException(e);
+                }
+            }
         }
+
+        return resultSet;
     }
 
     @Override

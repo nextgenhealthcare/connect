@@ -35,6 +35,7 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
     private boolean keepConnectionOpen;
     private int updateMode;
     private String retryCount;
+    private String retryInterval;
     private String fetchSize;
 
     public DatabaseReceiverProperties() {
@@ -51,6 +52,7 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
         keepConnectionOpen = true;
         updateMode = UPDATE_NEVER;
         retryCount = "3";
+        retryInterval = "10000";
         fetchSize = "1000";
     }
 
@@ -161,6 +163,14 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
 
     public void setRetryCount(String retryCount) {
         this.retryCount = retryCount;
+    }
+
+    public String getRetryInterval() {
+        return retryInterval;
+    }
+
+    public void setRetryInterval(String retryInterval) {
+        this.retryInterval = retryInterval;
     }
 
     public String getFetchSize() {

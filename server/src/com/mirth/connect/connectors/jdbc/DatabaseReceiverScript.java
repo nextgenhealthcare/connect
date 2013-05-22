@@ -77,42 +77,44 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     @SuppressWarnings("unchecked")
     @Override
     public Object poll() throws DatabaseReceiverException, InterruptedException {
-        return poll(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId())));
-    }
+        Object finalResult = null;
+        int attempts = 0;
+        int maxRetryCount = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId()), 0);
+        int retryInterval = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryInterval(), connector.getChannelId()), 0);
+        boolean done = false;
 
-    /*
-     * If an error occurs, this method will be called recursively until it succeeds or the
-     * retryCount is reached
-     */
-    private Object poll(int retryCount) throws DatabaseReceiverException, InterruptedException {
-        Object result = null;
+        while (!done) {
+            try {
+                Object result = javaScriptExecutor.execute(new SelectTask());
 
-        try {
-            result = javaScriptExecutor.execute(new SelectTask());
-        } catch (JavaScriptExecutorException e) {
-            if (retryCount > 0) {
-                logger.error("An error occurred while polling for messages, retrying", e);
-                return poll(retryCount - 1);
+                if (result instanceof NativeJavaObject) {
+                    Object unwrappedResult = ((NativeJavaObject) result).unwrap();
+
+                    if (unwrappedResult instanceof ResultSet) {
+                        finalResult = (ResultSet) unwrappedResult;
+                    } else if (unwrappedResult instanceof List) {
+                        finalResult = (List<Map<String, Object>>) unwrappedResult;
+                    } else {
+                        throw new DatabaseReceiverException("Unrecognized value returned from script in channel \"" + ChannelController.getInstance().getDeployedChannelById(connector.getChannelId()).getName() + "\", expected ResultSet or List<Map<String, Object>>: " + unwrappedResult.toString());
+                    }
+
+                    done = true;
+                } else {
+                    throw new DatabaseReceiverException("Unrecognized value returned from script in channel \"" + ChannelController.getInstance().getDeployedChannelById(connector.getChannelId()).getName() + "\", expected ResultSet or List<Map<String, Object>>: " + result.toString());
+                }
+            } catch (JavaScriptExecutorException e) {
+                if (attempts++ < maxRetryCount) {
+                    logger.error("An error occurred while polling for messages, retrying after " + retryInterval + " ms...", e);
+
+                    // Wait the specified amount of time before retrying
+                    Thread.sleep(retryInterval);
+                } else {
+                    throw new DatabaseReceiverException("Error executing script " + selectScriptId + ".", e.getCause());
+                }
             }
-
-            throw new DatabaseReceiverException("Error executing script " + selectScriptId + ".", e.getCause());
         }
 
-        if (result instanceof NativeJavaObject) {
-            Object unwrappedResult = ((NativeJavaObject) result).unwrap();
-
-            if (unwrappedResult instanceof ResultSet) {
-                return (ResultSet) unwrappedResult;
-            }
-
-            if (unwrappedResult instanceof List) {
-                return (List<Map<String, Object>>) unwrappedResult;
-            }
-
-            throw new DatabaseReceiverException("Unrecognized value returned from script in channel \"" + ChannelController.getInstance().getDeployedChannelById(connector.getChannelId()).getName() + "\", expected ResultSet or List<Map<String, Object>>: " + unwrappedResult.toString());
-        }
-
-        throw new DatabaseReceiverException("Unrecognized value returned from script in channel \"" + ChannelController.getInstance().getDeployedChannelById(connector.getChannelId()).getName() + "\", expected ResultSet or List<Map<String, Object>>: " + result.toString());
+        return finalResult;
     }
 
     @Override
