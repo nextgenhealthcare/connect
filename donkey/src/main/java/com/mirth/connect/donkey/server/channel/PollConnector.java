@@ -92,6 +92,7 @@ public abstract class PollConnector extends SourceConnector {
     private class PollConnectorTask extends TimerTask {
         private PollConnector pollConnector;
         private boolean reschedule;
+        private Thread thread;
 
         public PollConnectorTask(PollConnector pollConnector, boolean reschedule) {
             this.pollConnector = pollConnector;
@@ -102,6 +103,8 @@ public abstract class PollConnector extends SourceConnector {
         public void run() {
             synchronized (this) {
                 if (!terminated) {
+                    thread = Thread.currentThread();
+
                     try {
                         pollConnector.poll();
                     } catch (InterruptedException e) {
@@ -116,6 +119,10 @@ public abstract class PollConnector extends SourceConnector {
         }
 
         public void terminate() {
+            if (thread != null && thread.isAlive()) {
+                thread.interrupt();
+            }
+
             synchronized (this) {
                 timer.cancel();
                 timer.purge();
