@@ -66,7 +66,10 @@ public class DefaultChannelStatusController extends ChannelStatusController {
         } catch (Exception e) {
             throw new ControllerException(e);
         } finally {
-            jmxConnection.close();
+            // MIRTH-2244
+            if (jmxConnection != null) {
+                jmxConnection.close();
+            }
         }
     }
 
@@ -98,7 +101,10 @@ public class DefaultChannelStatusController extends ChannelStatusController {
         } catch (Exception e) {
             throw new ControllerException(e);
         } finally {
-            jmxConnection.close();
+            // MIRTH-2244
+            if (jmxConnection != null) {
+                jmxConnection.close();
+            }
         }
     }
 
@@ -124,7 +130,10 @@ public class DefaultChannelStatusController extends ChannelStatusController {
         } catch (Exception e) {
             throw new ControllerException(e);
         } finally {
-            jmxConnection.close();
+            // MIRTH-2244
+            if (jmxConnection != null) {
+                jmxConnection.close();
+            }
         }
     }
 
@@ -150,7 +159,10 @@ public class DefaultChannelStatusController extends ChannelStatusController {
         } catch (Exception e) {
             throw new ControllerException(e);
         } finally {
-            jmxConnection.close();
+            // MIRTH-2244
+            if (jmxConnection != null) {
+                jmxConnection.close();
+            }
         }
     }
 
@@ -295,7 +307,10 @@ public class DefaultChannelStatusController extends ChannelStatusController {
         } catch (Exception e) {
             throw new ControllerException(e);
         } finally {
-            jmxConnection.close();
+            // MIRTH-2244
+            if (jmxConnection != null) {
+                jmxConnection.close();
+            }
         }
     }
 }
