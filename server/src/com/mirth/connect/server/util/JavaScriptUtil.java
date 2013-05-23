@@ -233,7 +233,7 @@ public class JavaScriptUtil {
             } else {
                 // Assume it's a string, and return a successful response
                 // TODO: is it okay that we use Status.SENT here?
-                response = new Response(Status.SENT, result.toString());
+                response = new Response(Status.SENT, object.toString());
             }
         } else if ((result != null) && !(result instanceof Undefined)) {
             // This branch will catch all objects that aren't Response, NativeJavaObject, Undefined, or null
