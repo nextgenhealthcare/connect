@@ -33,11 +33,12 @@ public class JavaScriptAttachmentDialog extends javax.swing.JDialog {
         super(PlatformUI.MIRTH_FRAME, true);
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
-        
+
         attachmentHandlerProperties = properties;
-        
+
         SyntaxDocument doc = new SyntaxDocument();
         doc.setTokenMarker(new JavaScriptTokenMarker());
+        scriptContent.setSaveEnabled(false);
         scriptContent.setDocument(doc);
         scriptContent.setCaretPosition(0);
         scriptContent.setText(attachmentHandlerProperties.getProperties().get("javascript.script"));
@@ -170,29 +171,29 @@ public class JavaScriptAttachmentDialog extends javax.swing.JDialog {
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_cancelButtonActionPerformed
     {//GEN-HEADEREND:event_cancelButtonActionPerformed
         this.dispose();
-}//GEN-LAST:event_cancelButtonActionPerformed
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
-private void validateScriptButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_validateScriptButtonActionPerformed
-    StringBuilder sb = new StringBuilder();
-    Context context = Context.enter();
-    try {
-        context.compileString("function rhinoWrapper() {" + scriptContent.getText() + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
-        sb.append("JavaScript was successfully validated.");
-    } catch (EvaluatorException e) {
-        sb.append("Error on line " + e.lineNumber() + ": " + e.getMessage() + " of the current script.");
-    } catch (Exception e) {
-        sb.append("Unknown error occurred during validation.");
-    }
+    private void validateScriptButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_validateScriptButtonActionPerformed
+        StringBuilder sb = new StringBuilder();
+        Context context = Context.enter();
+        try {
+            context.compileString("function rhinoWrapper() {" + scriptContent.getText() + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
+            sb.append("JavaScript was successfully validated.");
+        } catch (EvaluatorException e) {
+            sb.append("Error on line " + e.lineNumber() + ": " + e.getMessage() + " of the current script.");
+        } catch (Exception e) {
+            sb.append("Unknown error occurred during validation.");
+        }
 
-    Context.exit();
+        Context.exit();
 
-    parent.alertInformation(this, sb.toString());
-}//GEN-LAST:event_validateScriptButtonActionPerformed
+        parent.alertInformation(this, sb.toString());
+    }//GEN-LAST:event_validateScriptButtonActionPerformed
 
-private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-    attachmentHandlerProperties.getProperties().put("javascript.script", scriptContent.getText());
-    this.dispose();
-}//GEN-LAST:event_okButtonActionPerformed
+    private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
+        attachmentHandlerProperties.getProperties().put("javascript.script", scriptContent.getText());
+        this.dispose();
+    }//GEN-LAST:event_okButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private com.mirth.connect.client.ui.FunctionList functionList1;
