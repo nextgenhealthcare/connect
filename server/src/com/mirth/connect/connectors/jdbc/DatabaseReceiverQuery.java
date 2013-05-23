@@ -129,7 +129,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
         int retryInterval = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryInterval(), connector.getChannelId()), 0);
         boolean done = false;
 
-        while (!done) {
+        while (!done && !connector.isTerminated()) {
             CachedRowSet cachedRowSet = null;
 
             try {
@@ -177,7 +177,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
                 DbUtils.closeQuietly(resultSet);
                 DbUtils.closeQuietly(cachedRowSet);
 
-                if (attempts++ < maxRetryCount) {
+                if (attempts++ < maxRetryCount && !connector.isTerminated()) {
                     logger.error("An error occurred while polling for messages, retrying after " + retryInterval + " ms...", e);
 
                     // Wait the specified amount of time before retrying

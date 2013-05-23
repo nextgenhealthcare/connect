@@ -91,7 +91,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
         int retryInterval = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryInterval(), connector.getChannelId()), 0);
         boolean done = false;
 
-        while (!done) {
+        while (!done && !connector.isTerminated()) {
             try {
                 Object result = javaScriptExecutor.execute(new SelectTask());
 
@@ -111,7 +111,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
                     throw new DatabaseReceiverException("Unrecognized value returned from script in channel \"" + ChannelController.getInstance().getDeployedChannelById(connector.getChannelId()).getName() + "\", expected ResultSet or List<Map<String, Object>>: " + result.toString());
                 }
             } catch (JavaScriptExecutorException e) {
-                if (attempts++ < maxRetryCount) {
+                if (attempts++ < maxRetryCount && !connector.isTerminated()) {
                     logger.error("An error occurred while polling for messages, retrying after " + retryInterval + " ms...", e);
 
                     // Wait the specified amount of time before retrying

@@ -12,6 +12,7 @@ package com.mirth.connect.donkey.server.channel;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
@@ -21,13 +22,13 @@ import com.mirth.connect.donkey.server.StopException;
 public abstract class PollConnector extends SourceConnector {
     private Timer timer;
     private PollConnectorTask task;
-    private boolean terminated;
+    private AtomicBoolean terminated;
 
     @Override
     public void start() throws StartException {
         super.start();
 
-        terminated = false;
+        terminated = new AtomicBoolean(false);
 
         PollConnectorProperties connectorProperties = ((PollConnectorPropertiesInterface) getConnectorProperties()).getPollConnectorProperties();
 
@@ -46,26 +47,26 @@ public abstract class PollConnector extends SourceConnector {
 
     @Override
     public void stop() throws StopException {
-        terminated = true;
+        terminated.set(true);
         //TODO Possible nullpointerexception if channel start fails
         if (task != null) {
-            task.terminate();
+            task.terminate(false);
         }
         super.stop();
     }
 
     @Override
     public void halt() throws StopException {
-        terminated = true;
+        terminated.set(true);
         //TODO Possible nullpointerexception if halted before the first start task was ever completed.
         if (task != null) {
-            task.terminate();
+            task.terminate(true);
         }
         super.halt();
     }
 
-    protected boolean isTerminated() {
-        return terminated;
+    public boolean isTerminated() {
+        return terminated.get();
     }
 
     protected abstract void poll() throws InterruptedException;
@@ -102,7 +103,7 @@ public abstract class PollConnector extends SourceConnector {
         @Override
         public void run() {
             synchronized (this) {
-                if (!terminated) {
+                if (!isTerminated()) {
                     thread = Thread.currentThread();
 
                     try {
@@ -111,15 +112,15 @@ public abstract class PollConnector extends SourceConnector {
                         Thread.currentThread().interrupt();
                     }
 
-                    if (reschedule && !terminated) {
+                    if (reschedule && !isTerminated()) {
                         pollConnector.scheduleTimeBasedTask();
                     }
                 }
             }
         }
 
-        public void terminate() {
-            if (thread != null && thread.isAlive()) {
+        public void terminate(boolean interrupt) {
+            if (interrupt && thread != null && thread.isAlive()) {
                 thread.interrupt();
             }
 

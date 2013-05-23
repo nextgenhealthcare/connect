@@ -547,6 +547,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     public void halt() throws StopException {
         Future<?> task = null;
+        Throwable firstCause = null;
 
         try {
             synchronized (controlExecutor) {
@@ -573,12 +574,35 @@ public class Channel implements Startable, Stoppable, Runnable {
                         thread.interrupt();
                     }
                 }
+                
+                List<Integer> deployedMetaDataIds = new ArrayList<Integer>();
+                deployedMetaDataIds.add(0);
+
+                for (DestinationChain chain : destinationChains) {
+                    for (Integer metaDataId : chain.getMetaDataIds()) {
+                        deployedMetaDataIds.add(metaDataId);
+                    }
+                }
+                
+                for (Integer metaDataId : deployedMetaDataIds) {
+                    try {
+                        haltConnector(metaDataId);
+                    } catch (Throwable t) {
+                        if (firstCause == null) {
+                            firstCause = t;
+                        }
+                    }
+                }
 
                 task = controlExecutor.submit(new HaltTask());
                 controlTasks.add(task);
             }
 
             task.get();
+            
+            if (firstCause != null) {
+                throw firstCause;
+            }
         } catch (Throwable t) {
             Throwable cause = t.getCause();
             if (cause instanceof StopException) {
