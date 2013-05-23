@@ -56,10 +56,10 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
 
         this.serverMode = true;
         this.reconnectInterval = "5000";
-        this.receiveTimeout = "5000";
+        this.receiveTimeout = "0";
         this.bufferSize = "65536";
         this.maxConnections = "10";
-        this.keepConnectionOpen = false;
+        this.keepConnectionOpen = true;
         this.processBatch = false;
         this.dataTypeBinary = false;
         this.charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
