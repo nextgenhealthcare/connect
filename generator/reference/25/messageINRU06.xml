@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>INRU06</name>
+    <description>Automated Equipment Inventory Request</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>EQU</segment>
+        <segment maxOccurs="unbounded">INV</segment>
+        <segment minOccurs="0">ROL</segment>
+    </segments>
+</message>

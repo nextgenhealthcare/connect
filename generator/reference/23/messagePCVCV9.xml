@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>PCVCV9</name>
+    <description>Entity Definition Transfer</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCT</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCB</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCL</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCM</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCC</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCA</segment>
+    </segments>
+</message>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>DSRQ01</name>
+    <description>Display Response Message - Response to Qry Q01</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0">ERR</segment>
+        <segment minOccurs="0">QAK</segment>
+        <segment>QRD</segment>
+        <segment minOccurs="0">QRF</segment>
+        <segment maxOccurs="unbounded">DSP</segment>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>QAK</name>
+    <description>Query Acknowledgment</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QAK.1</name>
+            <description>Query Tag</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QAK.2</name>
+            <description>Query Response Status</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QAK.3</name>
+            <description>Message Query Name</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QAK.4</name>
+            <description>Hit Count Total</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QAK.5</name>
+            <description>This payload</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QAK.6</name>
+            <description>Hits remaining</description>
+            <datatype>NM</datatype>
+        </field>
+    </elements>
+</segment>

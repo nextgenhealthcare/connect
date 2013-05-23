@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>NST</name>
+    <description>Statistics</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>NST.1</name>
+            <description>Statistics Available</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NST.2</name>
+            <description>Source Identifier</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NST.3</name>
+            <description>Source Type</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NST.4</name>
+            <description>Statistics Start</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NST.5</name>
+            <description>Statistics End</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NST.6</name>
+            <description>Receive Character Count</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NST.7</name>
+            <description>Send Character Count</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NST.8</name>
+            <description>Messages Received</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NST.9</name>
+            <description>Messages Sent</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NST.10</name>
+            <description>Checksum Errors Received</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NST.11</name>
+            <description>Length Errors Received</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NST.12</name>
+            <description>Other Errors Received</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NST.13</name>
+            <description>Connect Timeouts</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NST.14</name>
+            <description>Receive Timeouts</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NST.15</name>
+            <description>Network Errors</description>
+            <datatype>NM</datatype>
+        </field>
+    </elements>
+</segment>
