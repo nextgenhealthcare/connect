@@ -722,7 +722,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             contentPruningDaysTextField.setText(pruneContentDays.toString());
             contentPruningDaysRadioActionPerformed(null);
         }
-        
+
         archiveCheckBox.setSelected(properties.isArchiveEnabled());
 
         sourceSourceDropdown.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
@@ -834,29 +834,29 @@ public class ChannelSetup extends javax.swing.JPanel {
 
     private String getQueueErrorString(MessageStorageMode messageStorageMode) {
         StringBuilder stringBuilder = new StringBuilder();
-        
+
         boolean sourceQueueEnabled = false;
         ConnectorProperties sourceConnectorProperties = sourceConnectorPanel.getProperties();
-        
+
         if (sourceConnectorProperties != null && sourceConnectorProperties instanceof ResponseConnectorPropertiesInterface) {
             ResponseConnectorProperties responseConnectorProperties = ((ResponseConnectorPropertiesInterface) sourceConnectorProperties).getResponseConnectorProperties();
             sourceQueueEnabled = !responseConnectorProperties.isRespondAfterProcessing();
         }
-        
+
         boolean destinationQueueEnabled = false;
 
         for (Connector connector : currentChannel.getDestinationConnectors()) {
             ConnectorProperties destinationConnectorProperties = connector.getProperties();
-            
+
             if (destinationConnectorProperties instanceof DispatcherConnectorPropertiesInterface) {
                 QueueConnectorProperties queueConnectorProperties = ((DispatcherConnectorPropertiesInterface) destinationConnectorProperties).getQueueConnectorProperties();
-                
+
                 if (queueConnectorProperties.isQueueEnabled()) {
                     destinationQueueEnabled = true;
                     break;
                 }
             }
-         }
+        }
 
         switch (messageStorageMode) {
             case METADATA:
@@ -1188,9 +1188,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
     public void cloneDestination() {
         if (parent.changesHaveBeenMade()) {
-            if (parent.alertOption(this.parent, "You must save your channel before cloning.  Would you like to save your channel now?")) {
-                saveChanges();
-            } else {
+            if (!parent.alertOption(this.parent, "You must save your channel before cloning.  Would you like to save your channel now?") || !saveChanges()) {
                 return;
             }
         }
@@ -2352,7 +2350,8 @@ public class ChannelSetup extends javax.swing.JPanel {
 
     private void initMetaDataTable() {
         metaDataTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-        DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] { METADATA_NAME_COLUMN_NAME, METADATA_TYPE_COLUMN_NAME, METADATA_MAPPING_COLUMN_NAME }) {
+        DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] {
+                METADATA_NAME_COLUMN_NAME, METADATA_TYPE_COLUMN_NAME, METADATA_MAPPING_COLUMN_NAME }) {
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return true;
             }
@@ -2422,7 +2421,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         deleteMetaDataButton.setEnabled(false);
     }
-    
+
     private void scriptsComponentShown(java.awt.event.ComponentEvent evt)//GEN-FIRST:event_scriptsComponentShown
     {//GEN-HEADEREND:event_scriptsComponentShown
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 13, false);
@@ -2585,7 +2584,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             model.setValueAt(chain, i, colNum);
         }
     }//GEN-LAST:event_waitForPreviousCheckboxActionPerformed
-    
+
     private void summaryComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_summaryComponentShown
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 13, false);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 15, 15, false);
@@ -2594,7 +2593,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     private void metadataPruningOffRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_metadataPruningOffRadioActionPerformed
         parent.setSaveEnabled(true);
         metadataPruningDaysTextField.setEnabled(false);
-        
+
         if (contentPruningMetadataRadio.isSelected()) {
             archiveCheckBox.setEnabled(false);
         }
@@ -2769,7 +2768,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     private void contentPruningMetadataRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contentPruningMetadataRadioActionPerformed
         parent.setSaveEnabled(true);
         contentPruningDaysTextField.setEnabled(false);
-        
+
         if (metadataPruningOffRadio.isSelected()) {
             archiveCheckBox.setEnabled(false);
         }
@@ -2783,7 +2782,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
     private void revertMetaDataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_revertMetaDataButtonActionPerformed
         if (parent.alertOption(parent, "Are you sure you want to revert custom metadata settings to the last save?")) {
-        	updateMetaDataTable();
+            updateMetaDataTable();
         }
     }//GEN-LAST:event_revertMetaDataButtonActionPerformed
 
