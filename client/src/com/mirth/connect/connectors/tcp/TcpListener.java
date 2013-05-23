@@ -33,6 +33,7 @@ import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.plugins.BasicModePlugin;
 import com.mirth.connect.plugins.ClientPlugin;
 import com.mirth.connect.plugins.TransmissionModePlugin;
+import com.mirth.connect.util.TcpUtil;
 
 public class TcpListener extends ConnectorSettingsPanel implements ActionListener {
 
@@ -228,7 +229,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
                 bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (props.getMaxConnections().length() == 0) {
+        if (props.getMaxConnections().length() == 0 || TcpUtil.parseInt(props.getMaxConnections()) <= 0) {
             valid = false;
             if (highlight) {
                 maxConnectionsField.setBackground(UIConstants.INVALID_COLOR);
