@@ -564,6 +564,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         loadChannelInfo();
         makeDestinationTable(false);
+        saveDestinationPanel();
         updateMetaDataTable();
         updateTagTable();
         setDestinationVariableList();
