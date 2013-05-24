@@ -2842,24 +2842,28 @@ public class Frame extends JXFrame {
         }
 
         List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
+        Set<DashboardStatus> selectedChannelStatuses = dashboardPanel.getSelectedChannelStatuses();
 
         if (selectedStatuses.size() == 0) {
             return;
         }
 
+        if (selectedChannelStatuses.size() > 1) {
+            JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
+            return;
+        }
+
         final String channelId = selectedStatuses.get(0).getChannelId();
+        final List<Integer> metaDataIds = new ArrayList<Integer>();
 
         for (DashboardStatus status : selectedStatuses) {
-            if (status.getChannelId() != channelId) {
-                JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
-                return;
-            }
+            metaDataIds.add(status.getMetaDataId());
         }
 
         retrieveChannels();
 
         setBold(viewPane, -1);
-        setPanelName("Channel Messages - " + selectedStatuses.get(0).getName());
+        setPanelName("Channel Messages - " + selectedChannelStatuses.iterator().next().getName());
         setCurrentContentPage(messageBrowser);
         setFocus(messageTasks);
 
@@ -2884,7 +2888,7 @@ public class Frame extends JXFrame {
                 if (connectors == null || metaDataColumns == null) {
                     alertError(PlatformUI.MIRTH_FRAME, "Could not retrieve metadata for channel.");
                 } else {
-                    messageBrowser.loadChannel(channelId, connectors, metaDataColumns);
+                    messageBrowser.loadChannel(channelId, connectors, metaDataColumns, metaDataIds);
                 }
             }
         };

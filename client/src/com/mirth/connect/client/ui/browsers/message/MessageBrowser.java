@@ -131,7 +131,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     public static final int ERRORS_COLUMN = 8;
     public static final int SERVER_ID_COLUMN = 9;
     public static final int IMPORT_ID_COLUMN = 10;
-    
+
     protected final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
 
     private final String SCOPE_COLUMN_NAME = "Scope";
@@ -269,7 +269,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         });
     }
 
-    public void loadChannel(String channelId, Map<Integer, String> connectors, List<MetaDataColumn> metaDataColumns) {
+    public void loadChannel(String channelId, Map<Integer, String> connectors, List<MetaDataColumn> metaDataColumns, List<Integer> selectedMetaDataIds) {
         //Set the FormatXmlCheckboxes to their default setting
         formatXmlMessageCheckBox.setSelected(Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserFormatXml", true));
 
@@ -278,8 +278,12 @@ public class MessageBrowser extends javax.swing.JPanel {
         this.connectors.put(null, "Deleted Connectors");
         this.metaDataColumns = metaDataColumns;
         tableModel.clear();
+
         advancedSearchPopup.loadChannel();
         resetSearchCriteria();
+        advancedSearchPopup.setSelectedMetaDataIds(selectedMetaDataIds);
+        updateAdvancedSearchButtonFont();
+
         lastUserSelectedMessageType = "Raw";
         updateMessageRadioGroup();
 
@@ -291,10 +295,10 @@ public class MessageBrowser extends javax.swing.JPanel {
         List<String> columnList = new ArrayList<String>();
         // Add standard columns
         columnList.addAll(columnMap.values());
-        
+
         // Add custom columns
         List<String> metaDataColumnNames = new ArrayList<String>();
-        
+
         for (MetaDataColumn column : metaDataColumns) {
             metaDataColumnNames.add(column.getName());
         }
@@ -327,23 +331,23 @@ public class MessageBrowser extends javax.swing.JPanel {
                             @Override
                             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                                 Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                                
+
                                 if (value != null && value instanceof BigDecimal) {
                                     setText(((BigDecimal) value).stripTrailingZeros().toString());
                                 } else {
                                     setText("");
                                 }
-                                
+
                                 return component;
                             }
                         });
-                    
+
                     case BOOLEAN:
                         column.setMaxWidth(500);
                         column.setMinWidth(90);
                         column.setPreferredWidth(90);
                         break;
-                    
+
                     case TIMESTAMP:
                         DateCellRenderer timestampRenderer = new DateCellRenderer();
                         timestampRenderer.setDateFormat(new SimpleDateFormat(DATE_FORMAT));
@@ -1930,7 +1934,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
         }
         setCorrectDocument(ProcessingErrorTextPane, processingError, null);
-        
+
         if (postProcessorError != null) {
             ErrorsRadioPane.add(PostprocessorErrorRadioButton);
             paneSelected = lastUserSelectedErrorType.equals(PostprocessorErrorRadioButton.getText());
@@ -1939,7 +1943,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
         }
         setCorrectDocument(PostprocessorErrorTextPane, postProcessorError, null);
-        
+
         if (responseError != null) {
             ErrorsRadioPane.add(ResponseErrorRadioButton);
             paneSelected = lastUserSelectedErrorType.equals(ResponseErrorRadioButton.getText());
@@ -2976,11 +2980,11 @@ public class MessageBrowser extends javax.swing.JPanel {
     }//GEN-LAST:event_pageGoButtonActionPerformed
 
     private void ProcessingErrorRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ProcessingErrorRadioButtonActionPerformed
-    	errorsRadioButtonActionPerformed(evt);
+        errorsRadioButtonActionPerformed(evt);
     }//GEN-LAST:event_ProcessingErrorRadioButtonActionPerformed
 
     private void ResponseErrorRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResponseErrorRadioButtonActionPerformed
-    	errorsRadioButtonActionPerformed(evt);
+        errorsRadioButtonActionPerformed(evt);
     }//GEN-LAST:event_ResponseErrorRadioButtonActionPerformed
 
     private void ResponseTransformedRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResponseTransformedRadioButtonActionPerformed

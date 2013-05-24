@@ -196,10 +196,10 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                 MetaDataColumn metaDataColumn = cachedMetaDataColumns.get(table.getValueAt(row, 0));
 
                 comboBox.setModel(new DefaultComboBoxModel(MetaDataSearchOperator.valuesForColumnType(metaDataColumn.getType())));
-                
+
                 return super.getTableCellEditorComponent(table, value, isSelected, row, column);
             }
-            
+
         };
 
         TableColumn operatorColumn = metaDataSearchTable.getColumnModel().getColumn(1);
@@ -219,6 +219,16 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         connectorTable.setModel(new ItemSelectionTableModel<Integer, String>(messageBrowser.getConnectors(), null, "Current Connector Name", "Included", "Id"));
 
         initMetaDataSearchTable();
+    }
+
+    public void setSelectedMetaDataIds(List<Integer> selectedMetaDataIds) {
+        if (selectedMetaDataIds.get(0) != null) {
+            ItemSelectionTableModel<Integer, String> connectorModel = (ItemSelectionTableModel<Integer, String>) connectorTable.getModel();
+            connectorModel.unselectAllKeys();
+            for (Integer metaDataId : selectedMetaDataIds) {
+                connectorModel.selectKey(metaDataId);
+            }
+        }
     }
 
     protected void applySelectionsToFilter(MessageFilter messageFilter) {
@@ -305,7 +315,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
 
             if (searchText.length() > 0) {
                 List<String> searchList = contentSearchMap.get(contentType);
-                
+
                 if (searchList == null) {
                     searchList = new ArrayList<String>();
                     contentSearchMap.put(contentType, searchList);
@@ -313,7 +323,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                 searchList.add(searchText);
             }
         }
-        
+
         for (ContentType contentType : ContentType.getMessageTypes()) {
             if (contentSearchMap.containsKey(contentType)) {
                 contentSearch.add(new ContentSearchElement(contentType.getContentTypeCode(), contentSearchMap.get(contentType)));
@@ -828,15 +838,15 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-    	stopEditing();
+        stopEditing();
         loadSelections();
-        
+
         setVisible(false);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-    	stopEditing();
-        
+        stopEditing();
+
         setVisible(false);
     }//GEN-LAST:event_okButtonActionPerformed
 
@@ -844,19 +854,19 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         Object[] values = source.getSelectedValues();
         DefaultListModel sourceModel = (DefaultListModel) source.getModel();
         DefaultListModel destinationModel = (DefaultListModel) destination.getModel();
-        
+
         for (Object value : values) {
             sourceModel.removeElement(value);
             destinationModel.addElement(value);
         }
     }
-    
+
     private void addContentSearchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addContentSearchButtonActionPerformed
         DefaultTableModel model = ((DefaultTableModel) contentSearchTable.getModel());
         int row = model.getRowCount();
-        
-        model.addRow(new Object[]{ContentType.RAW, ""});
-        
+
+        model.addRow(new Object[] { ContentType.RAW, "" });
+
         contentSearchTable.setRowSelectionInterval(row, row);
     }//GEN-LAST:event_addContentSearchButtonActionPerformed
 
@@ -867,21 +877,21 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
             return table.getSelectedRow();
         }
     }
-    
+
     private void deleteContentSearchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteContentSearchButtonActionPerformed
         int selectedRow = getSelectedRow(contentSearchTable);
 
         if (selectedRow != -1 && !contentSearchTable.isEditing()) {
             ((DefaultTableModel) contentSearchTable.getModel()).removeRow(selectedRow);
         }
-        
+
         int rowCount = contentSearchTable.getRowCount();
-        
+
         if (rowCount > 0) {
             if (selectedRow >= rowCount) {
                 selectedRow--;
             }
-            
+
             contentSearchTable.setRowSelectionInterval(selectedRow, selectedRow);
         }
     }//GEN-LAST:event_deleteContentSearchButtonActionPerformed
@@ -897,14 +907,14 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     private void addMetaDataSearchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addMetaDataSearchButtonActionPerformed
         DefaultTableModel model = ((DefaultTableModel) metaDataSearchTable.getModel());
         int row = model.getRowCount();
-        
+
         List<MetaDataColumn> metaDataColumns = messageBrowser.getMetaDataColumns();
         if (metaDataColumns.size() > 0) {
             MetaDataColumn metaDataColumn = metaDataColumns.get(0);
             MetaDataSearchOperator operator = MetaDataSearchOperator.EQUAL;
-            
-            model.addRow(new Object[]{metaDataColumn.getName(), operator, "", false});
-            
+
+            model.addRow(new Object[] { metaDataColumn.getName(), operator, "", false });
+
             metaDataSearchTable.setRowSelectionInterval(row, row);
         }
     }//GEN-LAST:event_addMetaDataSearchButtonActionPerformed
@@ -915,14 +925,14 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         if (selectedRow != -1 && !metaDataSearchTable.isEditing()) {
             ((DefaultTableModel) metaDataSearchTable.getModel()).removeRow(selectedRow);
         }
-        
+
         int rowCount = metaDataSearchTable.getRowCount();
-        
+
         if (rowCount > 0) {
             if (selectedRow >= rowCount) {
                 selectedRow--;
             }
-            
+
             metaDataSearchTable.setRowSelectionInterval(selectedRow, selectedRow);
         }
     }//GEN-LAST:event_deleteMetaDataSearchButtonActionPerformed

@@ -27,10 +27,13 @@ public class ItemSelectionTableModel<K, V> extends AbstractTableModel {
     private boolean[] canEdit = new boolean[] { false, false, true };
 
     /**
-     * Table model that represents a list of key/value pairs, with values shown in the first column and checkboxes in the second
+     * Table model that represents a list of key/value pairs, with values shown in the first column
+     * and checkboxes in the second
      * 
-     * @param items A list of key/value pairs
-     * @param selectedKeys A list of the keys that should be initially selected
+     * @param items
+     *            A list of key/value pairs
+     * @param selectedKeys
+     *            A list of the keys that should be initially selected
      */
     public ItemSelectionTableModel(Map<K, V> items, List<K> selectedKeys, String valueColumnName, String checkboxColumnName, String keyColumnName) {
         tableData = new Object[items.size()][NUM_COLUMNS];
@@ -42,17 +45,16 @@ public class ItemSelectionTableModel<K, V> extends AbstractTableModel {
             tableData[i][KEY_COLUMN] = entry.getKey();
             i++;
         }
-        
+
         columnNames[KEY_COLUMN] = keyColumnName;
         columnNames[VALUE_COLUMN] = valueColumnName;
         columnNames[CHECKBOX_COLUMN] = checkboxColumnName;
     }
-    
+
     public ItemSelectionTableModel(Map<K, V> items, List<K> selectedKeys, String valueColumnName, String checkboxColumnName) {
-    	this(items, selectedKeys, valueColumnName, checkboxColumnName, null);
+        this(items, selectedKeys, valueColumnName, checkboxColumnName, null);
     }
 
-    
     public List<K> getKeys(boolean selected) {
         List<K> selectedKeys = new ArrayList<K>();
         int rowCount = getRowCount();
@@ -65,7 +67,7 @@ public class ItemSelectionTableModel<K, V> extends AbstractTableModel {
 
         return selectedKeys;
     }
-    
+
     public void unselectAllKeys() {
         for (int i = 0; i < tableData.length; i++) {
             tableData[i][CHECKBOX_COLUMN] = Boolean.FALSE;
@@ -73,7 +75,19 @@ public class ItemSelectionTableModel<K, V> extends AbstractTableModel {
 
         fireTableDataChanged();
     }
-    
+
+    public void selectKey(K key) {
+        int rowCount = getRowCount();
+
+        for (int i = 0; i < rowCount; i++) {
+            if (key.equals((K) getValueAt(i, KEY_COLUMN))) {
+                tableData[i][CHECKBOX_COLUMN] = Boolean.TRUE;
+            }
+        }
+
+        fireTableDataChanged();
+    }
+
     public void selectAllKeys() {
         for (int i = 0; i < tableData.length; i++) {
             tableData[i][CHECKBOX_COLUMN] = Boolean.TRUE;
@@ -81,12 +95,12 @@ public class ItemSelectionTableModel<K, V> extends AbstractTableModel {
 
         fireTableDataChanged();
     }
-    
+
     public void invertSelection() {
         for (int i = 0; i < tableData.length; i++) {
             tableData[i][CHECKBOX_COLUMN] = ((Boolean) tableData[i][CHECKBOX_COLUMN]) ? Boolean.FALSE : Boolean.TRUE;
         }
-        
+
         fireTableDataChanged();
     }
 
