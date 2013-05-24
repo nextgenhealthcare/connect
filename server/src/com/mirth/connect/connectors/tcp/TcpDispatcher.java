@@ -121,57 +121,58 @@ public class TcpDispatcher extends DestinationConnector {
 
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage message) {
-        TcpDispatcherProperties tcpSenderProperties = (TcpDispatcherProperties) connectorProperties;
+        TcpDispatcherProperties tcpDispatcherProperties = (TcpDispatcherProperties) connectorProperties;
         Status responseStatus = Status.QUEUED;
         String responseData = null;
         String responseStatusMessage = null;
         String responseError = null;
+        boolean validateResponse = false;
 
         // If keep connection open is true, then interrupt the thread so it won't close the socket
-        if (tcpSenderProperties.isKeepConnectionOpen() && thread != null) {
+        if (tcpDispatcherProperties.isKeepConnectionOpen() && thread != null) {
             thread.interrupt();
         }
 
         try {
             // Initialize a new socket if our current one is invalid, the remote side has closed, or keep connection open is false
-            if (socket == null || socket.isClosed() || socket.remoteSideHasClosed() || !tcpSenderProperties.isKeepConnectionOpen()) {
+            if (socket == null || socket.isClosed() || socket.remoteSideHasClosed() || !tcpDispatcherProperties.isKeepConnectionOpen()) {
                 closeSocketQuietly();
 
                 logger.debug("Creating new socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
-                String info = "Trying to connect on " + tcpSenderProperties.getRemoteAddress() + ":" + tcpSenderProperties.getRemotePort() + "...";
+                String info = "Trying to connect on " + tcpDispatcherProperties.getRemoteAddress() + ":" + tcpDispatcherProperties.getRemotePort() + "...";
                 eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.CONNECTING, info));
 
-                if (tcpSenderProperties.isOverrideLocalBinding()) {
-                    socket = SocketUtil.createSocket(tcpSenderProperties.getRemoteAddress(), tcpSenderProperties.getRemotePort(), tcpSenderProperties.getLocalAddress(), tcpSenderProperties.getLocalPort());
+                if (tcpDispatcherProperties.isOverrideLocalBinding()) {
+                    socket = SocketUtil.createSocket(tcpDispatcherProperties.getRemoteAddress(), tcpDispatcherProperties.getRemotePort(), tcpDispatcherProperties.getLocalAddress(), tcpDispatcherProperties.getLocalPort());
                 } else {
-                    socket = SocketUtil.createSocket(tcpSenderProperties.getRemoteAddress(), tcpSenderProperties.getRemotePort());
+                    socket = SocketUtil.createSocket(tcpDispatcherProperties.getRemoteAddress(), tcpDispatcherProperties.getRemotePort());
                 }
 
                 socket.setReuseAddress(true);
-                socket.setReceiveBufferSize(parseInt(tcpSenderProperties.getBufferSize()));
-                socket.setSendBufferSize(parseInt(tcpSenderProperties.getBufferSize()));
-                socket.setSoTimeout(parseInt(tcpSenderProperties.getResponseTimeout()));
-                socket.setKeepAlive(tcpSenderProperties.isKeepConnectionOpen());
+                socket.setReceiveBufferSize(parseInt(tcpDispatcherProperties.getBufferSize()));
+                socket.setSendBufferSize(parseInt(tcpDispatcherProperties.getBufferSize()));
+                socket.setSoTimeout(parseInt(tcpDispatcherProperties.getResponseTimeout()));
+                socket.setKeepAlive(tcpDispatcherProperties.isKeepConnectionOpen());
                 eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), ConnectorEventType.CONNECTED, null, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), true));
             }
 
             // Send the message
             eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.SENDING, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket)));
-            BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream(), parseInt(tcpSenderProperties.getBufferSize()));
+            BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream(), parseInt(tcpDispatcherProperties.getBufferSize()));
             BatchStreamReader batchStreamReader = new DefaultBatchStreamReader(socket.getInputStream());
-            StreamHandler streamHandler = transmissionModeProvider.getStreamHandler(socket.getInputStream(), bos, batchStreamReader, tcpSenderProperties.getTransmissionModeProperties());
-            streamHandler.write(getTemplateBytes(tcpSenderProperties, message));
+            StreamHandler streamHandler = transmissionModeProvider.getStreamHandler(socket.getInputStream(), bos, batchStreamReader, tcpDispatcherProperties.getTransmissionModeProperties());
+            streamHandler.write(getTemplateBytes(tcpDispatcherProperties, message));
             bos.flush();
 
-            if (!tcpSenderProperties.isIgnoreResponse()) {
+            if (!tcpDispatcherProperties.isIgnoreResponse()) {
                 // Attempt to get the response from the remote endpoint
                 try {
-                    String info = "Waiting for response from " + SocketUtil.getInetAddress(socket) + " (Timeout: " + tcpSenderProperties.getResponseTimeout() + " ms)... ";
+                    String info = "Waiting for response from " + SocketUtil.getInetAddress(socket) + " (Timeout: " + tcpDispatcherProperties.getResponseTimeout() + " ms)... ";
                     eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.WAITING_FOR_RESPONSE, info));
                     byte[] responseBytes = streamHandler.read();
                     if (responseBytes != null) {
                         streamHandler.commit(true);
-                        responseData = new String(responseBytes, CharsetUtils.getEncoding(tcpSenderProperties.getCharsetEncoding()));
+                        responseData = new String(responseBytes, CharsetUtils.getEncoding(tcpDispatcherProperties.getCharsetEncoding()));
                         responseStatus = Status.SENT;
                         responseStatusMessage = "Message successfully sent.";
                     } else {
@@ -179,9 +180,20 @@ public class TcpDispatcher extends DestinationConnector {
                         responseError = "Response was not received.";
                         logger.debug("Response was not received (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
                     }
+
+                    // We only want to validate the response if we were able to retrieve it successfully
+                    validateResponse = tcpDispatcherProperties.isProcessHL7ACK();
                 } catch (IOException e) {
                     // An exception occurred while retrieving the response
-                    responseStatusMessage = (e instanceof SocketTimeoutException || e.getCause() != null && e.getCause() instanceof SocketTimeoutException) ? "Timeout waiting for response" : "Error receiving response";
+                    if (e instanceof SocketTimeoutException || e.getCause() != null && e.getCause() instanceof SocketTimeoutException) {
+                        responseStatusMessage = "Timeout waiting for response";
+
+                        if (!tcpDispatcherProperties.isQueueOnResponseTimeout()) {
+                            responseStatus = Status.ERROR;
+                        }
+                    } else {
+                        responseStatusMessage = "Error receiving response";
+                    }
 
                     responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, responseStatusMessage + ": " + e.getMessage(), e);
                     logger.warn(responseStatusMessage + " (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
@@ -195,7 +207,7 @@ public class TcpDispatcher extends DestinationConnector {
                 responseStatus = Status.SENT;
             }
 
-            if (tcpSenderProperties.isKeepConnectionOpen()) {
+            if (tcpDispatcherProperties.isKeepConnectionOpen()) {
                 // Close the connection after the send timeout has been reached
                 startThread();
             } else {
@@ -227,7 +239,7 @@ public class TcpDispatcher extends DestinationConnector {
         }
 
         Response response = new Response(responseStatus, responseData, responseStatusMessage, responseError);
-        if (tcpSenderProperties.isProcessHL7ACK()) {
+        if (validateResponse) {
             return getResponseTransformerExecutor().getInbound().getResponseValidator().validate(response, message);
         }
         return response;

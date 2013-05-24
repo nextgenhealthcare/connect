@@ -10,6 +10,8 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="overrideLocalBindingButtonGroup">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="queueOnResponseTimeoutButtonGroup">
+    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -49,6 +51,7 @@
                   <Component id="sendTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel15" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="responseTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="queueOnResponseTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="processHL7ACKLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="dataTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -57,6 +60,11 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="sampleValue" alignment="0" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="transmissionModeComboBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="settingsPlaceHolderLabel" max="32767" attributes="0"/>
+                  </Group>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
@@ -78,11 +86,18 @@
                               <Component id="keepConnectionOpenNoRadio" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Component id="sendTimeoutField" min="-2" pref="85" max="-2" attributes="0"/>
-                          <Component id="bufferSizeField" min="-2" pref="85" max="-2" attributes="0"/>
-                          <Group type="102" attributes="0">
-                              <Component id="responseTimeoutField" min="-2" pref="75" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                  <Component id="responseTimeoutField" max="32767" attributes="0"/>
+                                  <Component id="bufferSizeField" pref="85" max="32767" attributes="0"/>
+                              </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="ignoreResponseCheckBox" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="queueOnResponseTimeoutYesRadio" min="-2" max="-2" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="queueOnResponseTimeoutNoRadio" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
                               <Component id="processHL7ACKYesRadio" min="-2" max="-2" attributes="1"/>
@@ -96,14 +111,9 @@
                           </Group>
                           <Component id="charsetEncodingCombobox" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="0" pref="9" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
                   <Component id="templateTextArea" max="32767" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="transmissionModeComboBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="settingsPlaceHolderLabel" max="32767" attributes="0"/>
-                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -173,6 +183,12 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="queueOnResponseTimeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="queueOnResponseTimeoutYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="queueOnResponseTimeoutNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="processHL7ACKLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="processHL7ACKYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="processHL7ACKNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -194,7 +210,7 @@
                       <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="templateTextArea" pref="117" max="32767" attributes="0"/>
+                  <Component id="templateTextArea" pref="81" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -469,9 +485,8 @@
     <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="transmissionModeComboBox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="2">
-            <StringItem index="0" value="MLLP Frame Encoded"/>
-            <StringItem index="1" value="Custom Frame Encoded"/>
+          <StringArray count="1">
+            <StringItem index="0" value="MLLP"/>
           </StringArray>
         </Property>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select the transmission mode to use for sending and receiving data.&lt;br/&gt;&lt;/html&gt;"/>
@@ -575,6 +590,57 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="     "/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="queueOnResponseTimeoutLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Queue on Response Timeout:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="queueOnResponseTimeoutYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="queueOnResponseTimeoutButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If enabled, the message is queued when a timeout occurs while waiting for a response.&lt;br/&gt;Otherwise, the message is set to errored when a timeout occurs while waiting for a response.&lt;br/&gt;This setting has no effect unless queuing is enabled for the connector.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="queueOnResponseTimeoutYesRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="queueOnResponseTimeoutNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="queueOnResponseTimeoutButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If enabled, the message is queued when a timeout occurs while waiting for a response.&lt;br/&gt;Otherwise, the message is set to errored when a timeout occurs while waiting for a response.&lt;br/&gt;This setting has no effect unless queuing is enabled for the connector.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="queueOnResponseTimeoutNoRadioActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

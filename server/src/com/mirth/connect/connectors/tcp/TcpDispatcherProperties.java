@@ -36,6 +36,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
     private boolean keepConnectionOpen;
     private String responseTimeout;
     private boolean ignoreResponse;
+    private boolean queueOnResponseTimeout;
     private boolean processHL7ACK;
     private boolean dataTypeBinary;
     private String charsetEncoding;
@@ -59,17 +60,18 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
         this.keepConnectionOpen = false;
         this.responseTimeout = "5000";
         this.ignoreResponse = false;
+        this.queueOnResponseTimeout = true;
         this.processHL7ACK = true;
         this.dataTypeBinary = false;
         this.charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
         this.template = "${message.encodedData}";
     }
-    
+
     public TcpDispatcherProperties(TcpDispatcherProperties props) {
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
 
         transmissionModeProperties = props.getTransmissionModeProperties();
-        
+
         remoteAddress = props.getRemoteAddress();
         remotePort = props.getRemotePort();
         overrideLocalBinding = props.isOverrideLocalBinding();
@@ -80,6 +82,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
         keepConnectionOpen = props.isKeepConnectionOpen();
         responseTimeout = props.getResponseTimeout();
         ignoreResponse = props.isIgnoreResponse();
+        queueOnResponseTimeout = props.isQueueOnResponseTimeout();
         processHL7ACK = props.isProcessHL7ACK();
         dataTypeBinary = props.isDataTypeBinary();
         charsetEncoding = props.getCharsetEncoding();
@@ -172,6 +175,14 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
 
     public void setIgnoreResponse(boolean ignoreResponse) {
         this.ignoreResponse = ignoreResponse;
+    }
+
+    public boolean isQueueOnResponseTimeout() {
+        return queueOnResponseTimeout;
+    }
+
+    public void setQueueOnResponseTimeout(boolean queueOnResponseTimeout) {
+        this.queueOnResponseTimeout = queueOnResponseTimeout;
     }
 
     public boolean isProcessHL7ACK() {

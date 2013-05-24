@@ -103,6 +103,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         properties.setKeepConnectionOpen(keepConnectionOpenYesRadio.isSelected());
         properties.setResponseTimeout(responseTimeoutField.getText());
         properties.setIgnoreResponse(ignoreResponseCheckBox.isSelected());
+        properties.setQueueOnResponseTimeout(queueOnResponseTimeoutYesRadio.isSelected());
         properties.setProcessHL7ACK(processHL7ACKYesRadio.isSelected());
         properties.setDataTypeBinary(dataTypeBinaryRadio.isSelected());
         properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
@@ -161,6 +162,12 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
         ignoreResponseCheckBox.setSelected(props.isIgnoreResponse());
         ignoreResponseCheckBoxActionPerformed(null);
+
+        if (props.isQueueOnResponseTimeout()) {
+            queueOnResponseTimeoutYesRadio.setSelected(true);
+        } else {
+            queueOnResponseTimeoutNoRadio.setSelected(true);
+        }
 
         if (props.isProcessHL7ACK()) {
             processHL7ACKYesRadio.setSelected(true);
@@ -299,6 +306,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         dataTypeButtonGroup = new javax.swing.ButtonGroup();
         processHL7ACKButtonGroup = new javax.swing.ButtonGroup();
         overrideLocalBindingButtonGroup = new javax.swing.ButtonGroup();
+        queueOnResponseTimeoutButtonGroup = new javax.swing.ButtonGroup();
         keepConnectionOpenLabel = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         sendTimeoutLabel = new javax.swing.JLabel();
@@ -336,6 +344,9 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         overrideLocalBindingYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         overrideLocalBindingNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         settingsPlaceHolderLabel = new javax.swing.JLabel();
+        queueOnResponseTimeoutLabel = new javax.swing.JLabel();
+        queueOnResponseTimeoutYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        queueOnResponseTimeoutNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -461,7 +472,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         processHL7ACKNoRadio.setToolTipText("<html>If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as successful.<br/>If disabled, the response will not be parsed and the message will always be marked as successful.</html>");
         processHL7ACKNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        transmissionModeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP Frame Encoded", "Custom Frame Encoded" }));
+        transmissionModeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP" }));
         transmissionModeComboBox.setToolTipText("<html>Select the transmission mode to use for sending and receiving data.<br/></html>");
         transmissionModeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -514,6 +525,32 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
         settingsPlaceHolderLabel.setText("     ");
 
+        queueOnResponseTimeoutLabel.setText("Queue on Response Timeout:");
+
+        queueOnResponseTimeoutYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        queueOnResponseTimeoutYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        queueOnResponseTimeoutButtonGroup.add(queueOnResponseTimeoutYesRadio);
+        queueOnResponseTimeoutYesRadio.setText("Yes");
+        queueOnResponseTimeoutYesRadio.setToolTipText("<html>If enabled, the message is queued when a timeout occurs while waiting for a response.<br/>Otherwise, the message is set to errored when a timeout occurs while waiting for a response.<br/>This setting has no effect unless queuing is enabled for the connector.</html>");
+        queueOnResponseTimeoutYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        queueOnResponseTimeoutYesRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                queueOnResponseTimeoutYesRadioActionPerformed(evt);
+            }
+        });
+
+        queueOnResponseTimeoutNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        queueOnResponseTimeoutNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        queueOnResponseTimeoutButtonGroup.add(queueOnResponseTimeoutNoRadio);
+        queueOnResponseTimeoutNoRadio.setText("No");
+        queueOnResponseTimeoutNoRadio.setToolTipText("<html>If enabled, the message is queued when a timeout occurs while waiting for a response.<br/>Otherwise, the message is set to errored when a timeout occurs while waiting for a response.<br/>This setting has no effect unless queuing is enabled for the connector.</html>");
+        queueOnResponseTimeoutNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        queueOnResponseTimeoutNoRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                queueOnResponseTimeoutNoRadioActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -532,6 +569,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                     .addComponent(sendTimeoutLabel)
                     .addComponent(jLabel15)
                     .addComponent(responseTimeoutLabel)
+                    .addComponent(queueOnResponseTimeoutLabel)
                     .addComponent(processHL7ACKLabel)
                     .addComponent(dataTypeLabel)
                     .addComponent(encodingLabel)
@@ -539,6 +577,10 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(sampleValue)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(transmissionModeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(settingsPlaceHolderLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -557,11 +599,16 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(responseTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(responseTimeoutField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(bufferSizeField, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(ignoreResponseCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(queueOnResponseTimeoutYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(queueOnResponseTimeoutNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(processHL7ACKYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -571,12 +618,8 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(dataTypeASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 9, Short.MAX_VALUE))
-                    .addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(transmissionModeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(settingsPlaceHolderLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -632,6 +675,11 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                     .addComponent(ignoreResponseCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(queueOnResponseTimeoutLabel)
+                    .addComponent(queueOnResponseTimeoutYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(queueOnResponseTimeoutNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(processHL7ACKLabel)
                     .addComponent(processHL7ACKYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(processHL7ACKNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -649,7 +697,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel7)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
+                    .addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -681,6 +729,9 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         if (selected) {
             processHL7ACKNoRadio.setSelected(true);
         }
+        queueOnResponseTimeoutLabel.setEnabled(!selected);
+        queueOnResponseTimeoutYesRadio.setEnabled(!selected);
+        queueOnResponseTimeoutNoRadio.setEnabled(!selected);
     }//GEN-LAST:event_ignoreResponseCheckBoxActionPerformed
 
     private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
@@ -728,7 +779,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
     private void transmissionModeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transmissionModeComboBoxActionPerformed
         String name = (String) transmissionModeComboBox.getSelectedItem();
-        
+
         if (!modeLock && transmissionModePlugin != null) {
             if (!transmissionModePlugin.getDefaultProperties().equals(transmissionModePlugin.getProperties())) {
                 if (JOptionPane.showConfirmDialog(parent, "Are you sure you would like to change the transmission mode and lose all of the current transmission properties?", "Select an Option", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
@@ -739,7 +790,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                 }
             }
         }
-        
+
         selectedMode = name;
         if (name.equals("Basic TCP")) {
             transmissionModePlugin = new BasicModePlugin();
@@ -750,7 +801,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                 }
             }
         }
-        
+
         if (transmissionModePlugin != null) {
             transmissionModePlugin.initialize(this);
             ((GroupLayout) getLayout()).replace(settingsPlaceHolder, transmissionModePlugin.getSettingsComponent());
@@ -771,6 +822,14 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         localPortField.setEnabled(false);
         localPortLabel.setEnabled(false);
     }//GEN-LAST:event_overrideLocalBindingNoRadioActionPerformed
+
+    private void queueOnResponseTimeoutYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queueOnResponseTimeoutYesRadioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_queueOnResponseTimeoutYesRadioActionPerformed
+
+    private void queueOnResponseTimeoutNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queueOnResponseTimeoutNoRadioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_queueOnResponseTimeoutNoRadioActionPerformed
 
     private void charsetEncodingComboboxActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_charsetEncodingComboboxActionPerformed
     }// GEN-LAST:event_charsetEncodingComboboxActionPerformed
@@ -803,6 +862,10 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
     private javax.swing.JLabel processHL7ACKLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton processHL7ACKNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton processHL7ACKYesRadio;
+    private javax.swing.ButtonGroup queueOnResponseTimeoutButtonGroup;
+    private javax.swing.JLabel queueOnResponseTimeoutLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton queueOnResponseTimeoutNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton queueOnResponseTimeoutYesRadio;
     private com.mirth.connect.client.ui.components.MirthTextField remoteAddressField;
     private com.mirth.connect.client.ui.components.MirthTextField remotePortField;
     private com.mirth.connect.client.ui.components.MirthTextField responseTimeoutField;
