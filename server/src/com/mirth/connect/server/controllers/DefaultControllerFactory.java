@@ -77,10 +77,6 @@ public class DefaultControllerFactory extends ControllerFactory {
         return DefaultScriptController.create();
     }
 
-    public SystemEventController createSystemEventController() {
-        return DefaultSystemEventController.create();
-    }
-
     public UserController createUserController() {
         return DefaultUserController.create();
     }

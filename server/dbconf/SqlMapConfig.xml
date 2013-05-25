@@ -23,8 +23,8 @@
 		<typeHandler javaType="Status" handler="com.mirth.connect.server.sqlmap.extensions.StatusTypeHandler" />
 		<typeHandler javaType="ContentType" handler="com.mirth.connect.server.sqlmap.extensions.ContentTypeHandler" />
 		<typeHandler javaType="com.mirth.connect.model.CodeTemplate$CodeSnippetType" handler="com.mirth.connect.server.sqlmap.extensions.CodeSnippetTypeHandler" />
-		<typeHandler javaType="com.mirth.connect.model.Event$Level" handler="com.mirth.connect.server.sqlmap.extensions.EventLevelTypeHandler" />
-		<typeHandler javaType="com.mirth.connect.model.Event$Outcome" handler="com.mirth.connect.server.sqlmap.extensions.EventOutcomeTypeHandler" />
+		<typeHandler javaType="com.mirth.connect.model.ServerEvent$Level" handler="com.mirth.connect.server.sqlmap.extensions.EventLevelTypeHandler" />
+		<typeHandler javaType="com.mirth.connect.model.ServerEvent$Outcome" handler="com.mirth.connect.server.sqlmap.extensions.EventOutcomeTypeHandler" />
 		<typeHandler javaType="com.mirth.connect.model.Connector" handler="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
 		<typeHandler javaType="com.mirth.connect.model.ChannelProperties" handler="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
 		<typeHandler javaType="java.util.List" handler="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />

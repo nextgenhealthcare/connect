@@ -31,13 +31,14 @@ import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.Event;
+import com.mirth.connect.model.ServerEvent;
+import com.mirth.connect.model.ServerEvent.Level;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ScriptCompileException;
 import com.mirth.connect.server.controllers.ScriptController;
-import com.mirth.connect.server.controllers.SystemEventController;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
@@ -354,7 +355,7 @@ public class JavaScriptUtil {
      * @param e
      */
     private static void logScriptError(String scriptType, String channelId, Throwable t) {
-        SystemEventController systemEventController = ControllerFactory.getFactory().createSystemEventController();
+        EventController eventController = ControllerFactory.getFactory().createEventController();
 
         String error = "Error executing " + scriptType + " script from channel: ";
 
@@ -364,10 +365,10 @@ public class JavaScriptUtil {
             error += "Global";
         }
 
-        Event event = new Event(error);
-        event.setLevel(Event.Level.ERROR);
-        event.getAttributes().put(Event.ATTR_EXCEPTION, ExceptionUtils.getStackTrace(t));
-        systemEventController.addEvent(event);
+        ServerEvent event = new ServerEvent(error);
+        event.setLevel(Level.ERROR);
+        event.getAttributes().put(ServerEvent.ATTR_EXCEPTION, ExceptionUtils.getStackTrace(t));
+        eventController.dispatchEvent(event);
         logger.error(error, t);
     }
 

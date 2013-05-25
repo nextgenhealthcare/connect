@@ -1,6 +1,7 @@
 package com.mirth.connect.donkey.server.event;
 
 import com.mirth.connect.donkey.model.event.ChannelEventType;
+import com.mirth.connect.donkey.model.event.Event;
 
 public class ChannelEvent extends Event {
 

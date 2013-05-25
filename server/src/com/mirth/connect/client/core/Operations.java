@@ -85,7 +85,6 @@ public class Operations {
     public static final Operation EXTENSION_SET_ENABLED = new Operation("setExtensionEnabled", "Enable or disable an extension", true);
 
     // Messages
-    public static final Operation MESSAGE_GET_BY_PAGE = new Operation("getMessagesByPage", "Get messages by page", false);
     public static final Operation GET_MAX_MESSAGE_ID = new Operation("getMaxMessageId", "Get max messageId", false);
     public static final Operation GET_MESSAGES = new Operation("searchMessages", "Get messages by page limit", true);
     public static final Operation GET_SEARCH_COUNT = new Operation("getSearchCount", "Get search results count", true);
@@ -106,10 +105,9 @@ public class Operations {
     public static final Operation CONNECTOR_MESSAGE_REMOVE = new Operation("removeConnectorMessage", "Remove connector message", true);
 
     // Events
-    public static final Operation EVENT_CREATE_TEMP_TABLE = new Operation("createEventTempTable", "Create event temp tables", false);
-    public static final Operation EVENT_REMOVE_FILTER_TABLES = new Operation("removeEventFilterTables", "Remove event filter tables", false);
-    public static final Operation EVENT_GET_BY_PAGE = new Operation("getEventsByPage", "Get events by page", false);
-    public static final Operation EVENT_GET_BY_PAGE_LIMIT = new Operation("getEventsByPageLimit", "Get events by page limit", false);
+    public static final Operation GET_MAX_EVENT_ID = new Operation("getMaxEventId", "Get max eventId", false);
+    public static final Operation GET_EVENTS = new Operation("getEvents", "Get events by page limit", false);
+    public static final Operation GET_EVENT_COUNT = new Operation("getEventCount", "Get events results count", false);
     public static final Operation EVENT_EXPORT_ALL = new Operation("exportAllEvents", "Export all events", true);
     public static final Operation EVENT_REMOVE_ALL = new Operation("removeAllEvents", "Remove all events", true);
     public static final Operation EVENT_EXPORT_AND_REMOVE_ALL = new Operation("exportAndRemoveAllEvents", "Export and remove all events", true);
@@ -184,7 +182,6 @@ public class Operations {
         operationMap.put(EXTENSION_UNINSTALL.getName(), EXTENSION_UNINSTALL);
         operationMap.put(EXTENSION_IS_ENABLED.getName(), EXTENSION_IS_ENABLED);
         operationMap.put(EXTENSION_SET_ENABLED.getName(), EXTENSION_SET_ENABLED);
-        operationMap.put(MESSAGE_GET_BY_PAGE.getName(), MESSAGE_GET_BY_PAGE);
         operationMap.put(GET_MAX_MESSAGE_ID.getName(), GET_MAX_MESSAGE_ID);
         operationMap.put(GET_MESSAGES.getName(), GET_MESSAGES);
         operationMap.put(GET_SEARCH_COUNT.getName(), GET_SEARCH_COUNT);
@@ -203,10 +200,9 @@ public class Operations {
         operationMap.put(MESSAGE_CREATE_TEMP_TABLE.getName(), MESSAGE_CREATE_TEMP_TABLE);
         operationMap.put(MESSAGE_FILTER_TABLES_REMOVE.getName(), MESSAGE_FILTER_TABLES_REMOVE);
         operationMap.put(CONNECTOR_MESSAGE_REMOVE.getName(), CONNECTOR_MESSAGE_REMOVE);
-        operationMap.put(EVENT_CREATE_TEMP_TABLE.getName(), EVENT_CREATE_TEMP_TABLE);
-        operationMap.put(EVENT_REMOVE_FILTER_TABLES.getName(), EVENT_REMOVE_FILTER_TABLES);
-        operationMap.put(EVENT_GET_BY_PAGE.getName(), EVENT_GET_BY_PAGE);
-        operationMap.put(EVENT_GET_BY_PAGE_LIMIT.getName(), EVENT_GET_BY_PAGE_LIMIT);
+        operationMap.put(GET_MAX_EVENT_ID.getName(), GET_MAX_EVENT_ID);
+        operationMap.put(GET_EVENTS.getName(), GET_EVENTS);
+        operationMap.put(GET_EVENT_COUNT.getName(), GET_EVENT_COUNT);
         operationMap.put(EVENT_EXPORT_ALL.getName(), EVENT_EXPORT_ALL);
         operationMap.put(EVENT_REMOVE_ALL.getName(), EVENT_REMOVE_ALL);
         operationMap.put(EVENT_EXPORT_AND_REMOVE_ALL.getName(), EVENT_EXPORT_AND_REMOVE_ALL);

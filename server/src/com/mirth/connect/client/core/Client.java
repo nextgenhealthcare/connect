@@ -42,6 +42,7 @@ import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
@@ -684,6 +685,42 @@ public class Client {
         serverConnection.executePostMethod(CHANNEL_STATISTICS_SERVLET, params);
     }
 
+    public Integer getMaxEventId() throws ClientException {
+        NameValuePair[] params = { new NameValuePair("op", Operations.GET_MAX_EVENT_ID.getName()) };
+        Integer maxEventId = null;
+
+        try {
+            maxEventId = Integer.parseInt(serverConnection.executePostMethod(Client.EVENT_SERVLET, params));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
+        return maxEventId;
+    }
+
+    public List<ServerEvent> getEvents(EventFilter filter, Integer offset, Integer limit) throws ClientException {
+        NameValuePair[] params = { new NameValuePair("op", Operations.GET_EVENTS.getName()),
+                new NameValuePair("filter", serializer.toXML(filter)),
+                new NameValuePair("offset", (offset == null) ? "" : offset.toString()),
+                new NameValuePair("limit", (limit == null) ? "" : limit.toString()) };
+
+        return (List<ServerEvent>) serializer.fromXML(serverConnection.executePostMethod(Client.EVENT_SERVLET, params));
+    }
+
+    public Long getEventCount(EventFilter filter) throws ClientException {
+        NameValuePair[] params = { new NameValuePair("op", Operations.GET_EVENT_COUNT.getName()),
+                new NameValuePair("filter", serializer.toXML(filter)) };
+        Long count = null;
+
+        try {
+            count = Long.parseLong(serverConnection.executePostMethod(Client.EVENT_SERVLET, params));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
+        return count;
+    }
+
     public void removeAllEvents() throws ClientException {
         logger.debug("removing all events");
         NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_REMOVE_ALL.getName()) };
@@ -839,16 +876,6 @@ public class Client {
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
 
-    // TODO: replace with calls to getMessages()
-    @Deprecated
-    public MessageListHandler getMessageListHandler(String channelId, MessageFilter filter, int pageSize, boolean newInstance) throws ClientException {
-        return new MessageListHandler(channelId, filter, pageSize, (newInstance ? (System.currentTimeMillis() + "") : null), serverConnection);
-    }
-
-    public EventListHandler getEventListHandler(EventFilter filter, int pageSize, boolean newInstance) throws ClientException {
-        return new EventListHandler(filter, pageSize, (newInstance ? (System.currentTimeMillis() + "") : null), serverConnection);
-    }
-    
     public Long getMaxMessageId(String channelId) throws ClientException {
         NameValuePair[] params = { new NameValuePair("op", Operations.GET_MAX_MESSAGE_ID.getName()), new NameValuePair("channelId", channelId)};
         Long maxMessageId = null;

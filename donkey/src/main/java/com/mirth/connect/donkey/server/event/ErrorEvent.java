@@ -1,6 +1,7 @@
 package com.mirth.connect.donkey.server.event;
 
 import com.mirth.connect.donkey.model.event.ErrorEventType;
+import com.mirth.connect.donkey.model.event.Event;
 
 public class ErrorEvent extends Event {
 

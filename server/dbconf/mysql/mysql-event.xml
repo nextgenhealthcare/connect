@@ -1,92 +1,70 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
-
+<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
 <mapper namespace='Event'>
-	<resultMap id='get-event-result' type='com.mirth.connect.model.Event'>
-		<result property='id' column='ID' />
-		<result property='dateTime' column='DATE_CREATED' />
-		<result property='level' column='EVENT_LEVEL' />
-		<result property='outcome' column='OUTCOME' />
-		<result property='name' column='NAME' />
-		<result property='attributes' column='ATTRIBUTES' typeHandler='MapTypeHandler' />
-		<result property='userId' column='USER_ID' />
-		<result property='ipAddress' column='IP_ADDRESS' />
-	</resultMap>
-	
-	<sql id='eventFilterCriteria'>
-		<where>
-			<if test='id != null'>AND ID = ${id}</if>
-			<if test='name != null'>AND LOWER(NAME) LIKE LOWER('%${name}%')</if>
-			<if test='level != null'>AND EVENT_LEVEL = '${level}'</if>
-			<if test='startDate != null'>AND DATE_CREATED <![CDATA[ >= ]]> '${startDate}'</if>
-			<if test='endDate != null'>AND DATE_CREATED <![CDATA[ <= ]]> '${endDate}'</if>
-			<if test='outcome != null'>AND OUTCOME = '${outcome}'</if>
-			<if test='userId != null'>AND USER_ID = ${userId}</if>
-			<if test='ipAddress != null'>AND IP_ADDRESS = '${ipAddress}'</if>
-		</where>
+   <resultMap id='event' type='com.mirth.connect.model.ServerEvent'>
+      <result property='id' column='ID'/>
+      <result property='eventTime' column='DATE_CREATED'/>
+      <result property='level' column='EVENT_LEVEL'/>
+      <result property='outcome' column='OUTCOME'/>
+      <result property='name' column='NAME'/>
+      <result property='attributes' column='ATTRIBUTES' typeHandler='MapTypeHandler'/>
+      <result property='userId' column='USER_ID'/>
+      <result property='ipAddress' column='IP_ADDRESS'/>
+   </resultMap>
+   
+   <sql id='searchEventsBody'>
+	  <where>
+	  	 <if test='maxEventId != null'>AND ID <![CDATA[ <= ]]> #{maxEventId}</if>
+         <if test='id != null'>AND ID = #{id}</if>
+         <if test='name != null'>AND LOWER(NAME) LIKE LOWER('%${name}%')</if>
+         <if test="levels != null">
+				AND EVENT_LEVEL IN
+				<foreach item="level" collection="levels" open="(" separator="," close=")">
+					#{level}
+				</foreach>
+		 </if>
+         <if test='startDate != null'>AND DATE_CREATED <![CDATA[ >= ]]> #{startDate}</if>
+         <if test='endDate != null'>AND DATE_CREATED <![CDATA[ <= ]]> #{endDate}</if>
+         <if test='outcome != null'>AND OUTCOME = #{outcome}</if>
+         <if test='userId != null'>AND USER_ID = #{userId}</if>
+         <if test='ipAddress != null'>AND IP_ADDRESS = #{ipAddress}</if>
+      </where>
 	</sql>
 	
-	<select id='getEventsByPage' parameterType='java.util.Map' resultMap='get-event-result'>
-		SELECT EVENT.*
-		FROM EVT_TMP_${uid} AS TEMP_TABLE, EVENT
-		WHERE TEMP_TABLE.ID = EVENT.ID
+	<select id="getMaxEventId" resultType="Integer">
+		SELECT COALESCE(MAX(id), 0)
+		FROM Event
+	</select>
+	
+	<select id="searchEvents" parameterType="map" resultMap="event">
+		SELECT *
+		FROM Event
+		
+		<include refid="searchEventsBody" />
+		
+		ORDER BY id desc
 
-		<if test='first != null'>
-			<if test='last != null'>
-				AND TEMP_TABLE.SEQUENCE_ORDER BETWEEN #{first} AND #{last}
-			</if>
+		<if test="limit != null">
+			LIMIT ${limit}
 		</if>
-
-		ORDER BY TEMP_TABLE.DATE_CREATED DESC
+		<if test="offset != null">
+			OFFSET ${offset}
+		</if>
 	</select>
 	
-	<select id='getEventsByPageLimit' parameterType='java.util.Map' resultMap='get-event-result'>
-		SELECT EVENT.*
-		FROM EVENT
-		<include refid='eventFilterCriteria' />
-		ORDER BY DATE_CREATED DESC
-		LIMIT ${limit}
-		OFFSET ${offset}
+	<select id="searchEventsCount" parameterType="map" resultType="long">
+		SELECT COUNT(id)
+		FROM Event
+		
+		<include refid="searchEventsBody" />
 	</select>
 	
-	<update id='dropTempEventTable' parameterType='java.lang.String'>
-		DROP TABLE EVT_TMP_${value}
-	</update>
-	
-	<update id='createTempEventTable' parameterType='java.lang.String'>
-		CREATE TABLE EVT_TMP_${value} (
-			SEQUENCE_ORDER INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			ID INTEGER,
-			DATE_CREATED TIMESTAMP
-		) ENGINE=InnoDB
-	</update>
-	
-	<update id='createTempEventTableIndex' parameterType='java.lang.String'>
-		CREATE INDEX IDX_EVT_TMP_${value} ON EVT_TMP_${value} (SEQUENCE_ORDER, ID)
-	</update>
-	
-	<!-- NOTE: The nested SELECT needs an ORDER BY DATE_CREATED, which Derby does not support -->
-	<insert id='populateTempEventTable' parameterType='java.util.Map'>
-		INSERT INTO EVT_TMP_${uid} (ID, DATE_CREATED)
-		(SELECT ID, DATE_CREATED
-		FROM EVENT
-		<include refid='eventFilterCriteria' />)
-	</insert>
-	
-	<delete id='deleteTempEventTable' parameterType='java.lang.String'>
-		DROP TABLE EVT_TMP_${value}
-	</delete>
-	
-	<delete id='deleteTempEventTableIndex' parameterType='java.lang.String'>
-		DROP INDEX IDX_EVT_TMP_${value}
-	</delete>
-	
-	<insert id='insertEvent' parameterType='com.mirth.connect.model.Event'>
-		INSERT INTO EVENT (NAME, EVENT_LEVEL, OUTCOME, ATTRIBUTES, USER_ID, IP_ADDRESS)
+	<insert id='insertEvent' parameterType='com.mirth.connect.model.ServerEvent'>
+		INSERT INTO
+		EVENT (NAME, EVENT_LEVEL, OUTCOME, ATTRIBUTES, USER_ID, IP_ADDRESS)
 		VALUES (#{name}, #{level}, #{outcome}, #{attributes,typeHandler=MapTypeHandler}, #{userId}, #{ipAddress})
 	</insert>
 	
-	<delete id='deleteEvent'>
+	<delete id='deleteAllEvents'>
 		TRUNCATE TABLE EVENT
 	</delete>
 </mapper>

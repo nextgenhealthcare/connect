@@ -23,7 +23,6 @@ import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DeployedChannelInfo;
 import com.mirth.connect.model.DriverInfo;
-import com.mirth.connect.model.Event;
 import com.mirth.connect.model.ExtensionLibrary;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.MetaData;
@@ -31,6 +30,7 @@ import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerInfo;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.Step;
@@ -68,7 +68,6 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         DefaultTrigger.class,
         DeployedChannelInfo.class,
         DriverInfo.class,
-        Event.class,
         EventFilter.class,
         ExtensionLibrary.class,
         Filter.class,
@@ -78,6 +77,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         PluginMetaData.class,
         Rule.class,
         ServerConfiguration.class,
+        ServerEvent.class,
         ServerInfo.class,
         ServerSettings.class,
         Step.class,

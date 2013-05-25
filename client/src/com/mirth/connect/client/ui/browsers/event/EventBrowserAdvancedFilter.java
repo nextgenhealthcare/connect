@@ -11,20 +11,21 @@ package com.mirth.connect.client.ui.browsers.event;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.model.Event;
+import com.mirth.connect.model.ServerEvent.Outcome;
 
 public class EventBrowserAdvancedFilter extends javax.swing.JDialog {
 
-    private Integer user = -1;
-    private String outcome = UIConstants.ALL_OPTION;
-    private String ipAddress = "";
     private Map<Integer, String> userMapById;
     private Map<String, Integer> userMapByName;
+    private static Map<String, Object> cachedSettings;
 
     public EventBrowserAdvancedFilter(com.mirth.connect.client.ui.Frame parent, String title, boolean modal, Map<Integer, String> userMap) {
         super(parent, title, modal);
@@ -45,6 +46,8 @@ public class EventBrowserAdvancedFilter extends javax.swing.JDialog {
 
         setResizable(false);
 
+        cachedSettings = new HashMap<String, Object>();
+
         // Cache the user map by both names and ids for easy lookup
         // The first items in the map are [-1, ALL] and [0, System]
         userMapById = userMap;
@@ -56,10 +59,10 @@ public class EventBrowserAdvancedFilter extends javax.swing.JDialog {
 
         userComboBox.setModel(new javax.swing.DefaultComboBoxModel(userMapById.values().toArray()));
 
-        String[] outcomeValues = new String[Event.Outcome.values().length + 1];
+        String[] outcomeValues = new String[Outcome.values().length + 1];
         outcomeValues[0] = UIConstants.ALL_OPTION;
         for (int i = 1; i < outcomeValues.length; i++) {
-            outcomeValues[i] = Event.Outcome.values()[i - 1].toString();
+            outcomeValues[i] = Outcome.values()[i - 1].toString();
         }
 
         outcomeComboBox.setModel(new javax.swing.DefaultComboBoxModel(outcomeValues));
@@ -68,35 +71,58 @@ public class EventBrowserAdvancedFilter extends javax.swing.JDialog {
     }
 
     public void reset() {
-        user = -1;
-        outcome = UIConstants.ALL_OPTION;
-        ipAddress = "";
-
         userComboBox.setSelectedIndex(0);
         outcomeComboBox.setSelectedIndex(0);
-        ipAddressField.setText(ipAddress);
+        ipAddressField.setText("");
     }
 
-    public void setFieldValues(Integer user, String outcome, String ipAddress) {
-        this.user = user;
-        this.outcome = outcome;
-        this.ipAddress = ipAddress;
+    @Override
+    public void setVisible(boolean visible) {
+        if (visible) {
+            saveSelections();
+        }
 
-        userComboBox.setSelectedItem(userMapById.get(user));
-        outcomeComboBox.setSelectedItem(outcome);
-        ipAddressField.setText(this.ipAddress);
+        super.setVisible(visible);
+    }
+
+    public void saveSelections() {
+        cachedSettings.clear();
+
+        cachedSettings.put("user", userComboBox.getSelectedItem());
+        cachedSettings.put("outcome", outcomeComboBox.getSelectedItem());
+        cachedSettings.put("ipAddress", ipAddressField.getText());
+    }
+
+    public void loadSelections() {
+        userComboBox.setSelectedItem((String) cachedSettings.get("user"));
+        outcomeComboBox.setSelectedItem((String) cachedSettings.get("outcome"));
+        ipAddressField.setText((String) cachedSettings.get("ipAddress"));
+
+        cachedSettings.clear();
+    }
+
+    public Boolean hasAdvancedCriteria() {
+        Boolean hasAdvancedCriteria = false;
+
+        if (userComboBox.getSelectedIndex() != 0 || outcomeComboBox.getSelectedIndex() != 0 || StringUtils.isNotEmpty(ipAddressField.getText())) {
+            hasAdvancedCriteria = true;
+        }
+
+        return hasAdvancedCriteria;
     }
 
     public Integer getUser() {
+        Integer user = userMapByName.get((String) userComboBox.getSelectedItem());
+
         return user;
     }
 
     public String getOutcome() {
-        return outcome;
+        return (String) outcomeComboBox.getSelectedItem();
     }
 
     public String getIpAddress() {
-        return ipAddress;
+        return ipAddressField.getText();
     }
 
     /** This method is called from within the constructor to
@@ -109,37 +135,70 @@ public class EventBrowserAdvancedFilter extends javax.swing.JDialog {
 
         userLabel = new javax.swing.JLabel();
         userComboBox = new javax.swing.JComboBox();
-        advancedSearchOKButton = new javax.swing.JButton();
-        advancedSearchCancelButton = new javax.swing.JButton();
         ipAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
         ipAddressLabel = new javax.swing.JLabel();
         outcomeLabel = new javax.swing.JLabel();
         outcomeComboBox = new javax.swing.JComboBox();
+        jPanel1 = new javax.swing.JPanel();
+        jSeparator1 = new javax.swing.JSeparator();
+        cancelButton = new javax.swing.JButton();
+        okButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         userLabel.setText("User:");
-
-        advancedSearchOKButton.setText("OK");
-        advancedSearchOKButton.setMaximumSize(new java.awt.Dimension(65, 23));
-        advancedSearchOKButton.setMinimumSize(new java.awt.Dimension(65, 23));
-        advancedSearchOKButton.setPreferredSize(new java.awt.Dimension(65, 23));
-        advancedSearchOKButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                advancedSearchOKButtonActionPerformed(evt);
-            }
-        });
-
-        advancedSearchCancelButton.setText("Cancel");
-        advancedSearchCancelButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                advancedSearchCancelButtonActionPerformed(evt);
-            }
-        });
 
         ipAddressLabel.setText("IP Address:");
 
         outcomeLabel.setText("Outcome:");
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+
+        cancelButton.setText("Cancel");
+        cancelButton.setMargin(new java.awt.Insets(0, 2, 0, 2));
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
+            }
+        });
+
+        okButton1.setText("OK");
+        okButton1.setMargin(new java.awt.Insets(0, 2, 0, 2));
+        okButton1.setMaximumSize(new java.awt.Dimension(48, 21));
+        okButton1.setMinimumSize(new java.awt.Dimension(48, 21));
+        okButton1.setPreferredSize(new java.awt.Dimension(48, 21));
+        okButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                okButton1ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 336, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(okButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cancelButton))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(0, 6, Short.MAX_VALUE)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(8, 8, 8)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(cancelButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(okButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -158,15 +217,10 @@ public class EventBrowserAdvancedFilter extends javax.swing.JDialog {
                     .addComponent(ipAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(146, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(210, Short.MAX_VALUE)
-                .addComponent(advancedSearchOKButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(advancedSearchCancelButton)
+                .addContainerGap()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
-
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {advancedSearchCancelButton, advancedSearchOKButton});
-
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
@@ -182,36 +236,36 @@ public class EventBrowserAdvancedFilter extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ipAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ipAddressLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(advancedSearchCancelButton)
-                    .addComponent(advancedSearchOKButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
-
-        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {advancedSearchCancelButton, advancedSearchOKButton});
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void advancedSearchOKButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advancedSearchOKButtonActionPerformed
-        // "OK" button clicked.  save settings, and exit.
-        user = userMapByName.get((String) userComboBox.getSelectedItem());
-        outcome = (String) outcomeComboBox.getSelectedItem();
-        ipAddress = ipAddressField.getText();
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        loadSelections();
+    }//GEN-LAST:event_formWindowClosing
+
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        loadSelections();
 
         setVisible(false);
-    }//GEN-LAST:event_advancedSearchOKButtonActionPerformed
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
-    private void advancedSearchCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advancedSearchCancelButtonActionPerformed
-        // "Cancel" button clicked.  Just exit.
+    private void okButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButton1ActionPerformed
+
         setVisible(false);
-    }//GEN-LAST:event_advancedSearchCancelButtonActionPerformed
+    }//GEN-LAST:event_okButton1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton advancedSearchCancelButton;
-    private javax.swing.JButton advancedSearchOKButton;
+    private javax.swing.JButton cancelButton;
     private com.mirth.connect.client.ui.components.MirthTextField ipAddressField;
     private javax.swing.JLabel ipAddressLabel;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JButton okButton1;
     private javax.swing.JComboBox outcomeComboBox;
     private javax.swing.JLabel outcomeLabel;
     private javax.swing.JComboBox userComboBox;

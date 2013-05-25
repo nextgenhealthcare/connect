@@ -45,8 +45,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.client.core.EventListHandler;
 import com.mirth.connect.client.core.ListHandlerException;
+import com.mirth.connect.client.core.PaginatedEventList;
 import com.mirth.connect.client.core.PaginatedMessageList;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.message.ContentType;
@@ -55,9 +55,9 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.DashboardStatus;
-import com.mirth.connect.model.Event;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
@@ -1197,20 +1197,28 @@ public class CommandLineInterface {
 
         StringBuilder builder = new StringBuilder();
         builder.append("Mirth Connect Event Log Dump: " + (new Date()).toString() + "\n");
-        builder.append(Event.getExportHeader() + "\n");
+        builder.append(ServerEvent.getExportHeader() + "\n");
 
         File dumpFile = new File(dumpFilename);
-        EventListHandler eventListHandler = client.getEventListHandler(new EventFilter(), 20, false);
 
         try {
-            List<Event> events = eventListHandler.getFirstPage();
+            int maxEventId = client.getMaxEventId();
+            EventFilter filter = new EventFilter();
+            filter.setMaxEventId(maxEventId);
 
-            while (!events.isEmpty()) {
-                for (Event event : events) {
+            PaginatedEventList eventList = new PaginatedEventList();
+            eventList.setClient(client);
+            eventList.setPageSize(20);
+            eventList.setEventFilter(filter);
+
+            int pageNumber = 1;
+
+            while (eventList.loadPageNumber(pageNumber)) {
+                for (ServerEvent event : eventList) {
                     builder.append(event.toExportString() + "\n");
                 }
 
-                events = eventListHandler.getNextPage();
+                pageNumber++;
             }
 
             FileUtils.writeStringToFile(dumpFile, builder.toString());
@@ -1218,6 +1226,9 @@ public class CommandLineInterface {
             lhe.printStackTrace();
         } catch (IOException ioe) {
             error("Could not write file: " + dumpFile.getAbsolutePath(), ioe);
+        } catch (Exception e) {
+            error("Could not retrieve events", e);
+            e.printStackTrace();
         }
 
         out.println("Events written to " + dumpFilename);

@@ -10,12 +10,13 @@
 package com.mirth.connect.model.filters;
 
 import java.util.Calendar;
+import java.util.Set;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.mirth.connect.model.CalendarToStringStyle;
-import com.mirth.connect.model.Event.Level;
-import com.mirth.connect.model.Event.Outcome;
+import com.mirth.connect.model.ServerEvent.Level;
+import com.mirth.connect.model.ServerEvent.Outcome;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -28,14 +29,23 @@ public class EventFilter {
      * Integer otherwise it will default to 0 and not pass the isNotNull check
      * in the SQL mapping.
      */
+    private Integer maxEventId;
     private Integer id;
-    private Level level;
+    private Set<Level> levels;
     private Calendar startDate;
     private Calendar endDate;
     private String name;
     private Outcome outcome;
     private Integer userId;
     private String ipAddress;
+
+    public Integer getMaxEventId() {
+        return maxEventId;
+    }
+
+    public void setMaxEventId(Integer maxEventId) {
+        this.maxEventId = maxEventId;
+    }
 
     public Integer getId() {
         return this.id;
@@ -53,12 +63,12 @@ public class EventFilter {
         this.name = name;
     }
 
-    public Level getLevel() {
-        return this.level;
+    public Set<Level> getLevels() {
+        return this.levels;
     }
 
-    public void setLevel(Level level) {
-        this.level = level;
+    public void setLevels(Set<Level> levels) {
+        this.levels = levels;
     }
 
     public Calendar getEndDate() {

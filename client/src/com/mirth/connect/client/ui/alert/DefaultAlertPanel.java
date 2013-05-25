@@ -1,22 +1,32 @@
 package com.mirth.connect.client.ui.alert;
 
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
+import javax.swing.DropMode;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -37,6 +47,8 @@ public class DefaultAlertPanel extends AlertPanel {
     private static final String NAME_COLUMN_NAME = "Name";
     private static final String ID_COLUMN_NAME = "Id";
     private static final String ENABLED_STATUS = "Enabled";
+    private static final int NAME_COLUMN_NUMBER = 1;
+    private static final int ID_COLUMN_NUMBER = 2;
 
     public DefaultAlertPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -63,14 +75,14 @@ public class DefaultAlertPanel extends AlertPanel {
         alertTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
         alertTable.getColumnExt(STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         alertTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
-        alertTable.getColumnExt(STATUS_COLUMN_NAME).setToolTipText("<html><body>The status of this channel. Possible values are enabled and disabled.<br>Only enabled channels can be deployed.</body></html>");
+        alertTable.getColumnExt(STATUS_COLUMN_NAME).setToolTipText("<html><body>The status of this alert. Possible values are enabled and disabled.</body></html>");
 
         alertTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(150);
-        alertTable.getColumnExt(NAME_COLUMN_NAME).setToolTipText("<html><body>The name of this channel.</body></html>");
+        alertTable.getColumnExt(NAME_COLUMN_NAME).setToolTipText("<html><body>The name of this alert.</body></html>");
 
         alertTable.getColumnExt(ID_COLUMN_NAME).setMinWidth(215);
         alertTable.getColumnExt(ID_COLUMN_NAME).setMaxWidth(215);
-        alertTable.getColumnExt(ID_COLUMN_NAME).setToolTipText("<html><body>The unique id of this channel.</body></html>");
+        alertTable.getColumnExt(ID_COLUMN_NAME).setToolTipText("<html><body>The unique id of this alert.</body></html>");
 
         alertTable.packTable(UIConstants.COL_MARGIN);
 
@@ -79,9 +91,91 @@ public class DefaultAlertPanel extends AlertPanel {
         alertTable.setRowSelectionAllowed(true);
 
         alertTable.setSortable(true);
-
-        // Sort by Channel Name column
+        // Sort by Alert Name column
         alertTable.getRowSorter().toggleSortOrder(alertTable.getColumnModelIndex(NAME_COLUMN_NAME));
+
+        class CustomTransferHandler extends TransferHandler {
+
+            @Override
+            protected Transferable createTransferable(JComponent c) {
+                MirthTable table = (MirthTable) c;
+                int[] rows = table.getSelectedModelRows();
+
+                // Don't put anything on the clipboard if no rows are selected
+                if (rows.length == 0) {
+                    return null;
+                }
+
+                StringBuilder builder = new StringBuilder();
+
+                for (int i = 0; i < rows.length; i++) {
+                    builder.append(table.getModel().getValueAt(rows[i], NAME_COLUMN_NUMBER));
+                    builder.append(" (");
+                    builder.append(table.getModel().getValueAt(rows[i], ID_COLUMN_NUMBER));
+                    builder.append(")");
+
+                    if (i != rows.length - 1) {
+                        builder.append("\n");
+                    }
+                }
+
+                return new StringSelection(builder.toString());
+            }
+
+            @Override
+            public int getSourceActions(JComponent c) {
+                return COPY_OR_MOVE;
+            }
+
+            @Override
+            public boolean importData(TransferSupport support) {
+                if (canImport(support)) {
+                    try {
+                        List<File> fileList = (List<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                        boolean showAlerts = (fileList.size() == 1);
+
+                        for (File file : fileList) {
+                            if (FilenameUtils.isExtension(file.getName(), "xml")) {
+                                parent.importAlert(parent.readFileToString(file), showAlerts);
+                            }
+                        }
+
+                        return true;
+                    } catch (Exception e) {
+                        // Let it return false
+                    }
+                }
+
+                return false;
+            }
+
+            @Override
+            public boolean canImport(TransferSupport support) {
+                if (support.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                    try {
+                        List<File> fileList = (List<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+
+                        for (File file : fileList) {
+                            if (!FilenameUtils.isExtension(file.getName(), "xml")) {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    } catch (Exception e) {
+                        // Return true anyway until this bug is fixed:
+                        // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6759788
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        alertTable.setDragEnabled(true);
+        alertTable.setDropMode(DropMode.ON);
+        alertTable.setTransferHandler(new CustomTransferHandler());
 
         alertTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
@@ -90,7 +184,7 @@ public class DefaultAlertPanel extends AlertPanel {
             }
         });
 
-        // listen for trigger button and double click to edit channel.
+        // listen for trigger button and double click to edit alert.
         alertTable.addMouseListener(new java.awt.event.MouseAdapter() {
 
             public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -168,16 +262,17 @@ public class DefaultAlertPanel extends AlertPanel {
             parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 3, -1, true);
 
             if (rows.length > 1) {
-                parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 5, 7, false); // hide edit, enable, and disable
+                parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 4, 4, false); // Hide export
+                parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 6, 8, false); // hide edit, enable, and disable
             } else {
-                parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 6, 7, false); // hide enable and disable
+                parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 7, 8, false); // hide enable and disable
             }
 
             for (int i = 0; i < rows.length; i++) {
                 if (((CellData) alertTable.getModel().getValueAt(rows[i], column)).getText().equals(ENABLED_STATUS)) {
-                    parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 7, 7, true); // show disable if any selected are enabled
+                    parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 8, 8, true); // show disable if any selected are enabled
                 } else {
-                    parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 6, 6, true); // show enable if any selected are disabled
+                    parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 7, 7, true); // show enable if any selected are disabled
                 }
             }
         }
@@ -207,6 +302,18 @@ public class DefaultAlertPanel extends AlertPanel {
         alertTable.clearSelection();
         parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 0, -1, true);
         parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 4, -1, false);
+    }
+
+    @Override
+    public Map<String, String> getAlertNames() {
+        Map<String, String> alertNames = new HashMap<String, String>();
+        for (int i = 0; i < alertTable.getRowCount(); i++) {
+            String alertId = (String) alertTable.getModel().getValueAt(i, alertTable.getColumnModelIndex(ID_COLUMN_NAME));
+            String alertName = (String) alertTable.getModel().getValueAt(i, alertTable.getColumnModelIndex(NAME_COLUMN_NAME));
+            alertNames.put(alertId, alertName);
+        }
+
+        return alertNames;
     }
 
     @Override

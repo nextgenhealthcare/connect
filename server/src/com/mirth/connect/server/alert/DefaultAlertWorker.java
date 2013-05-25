@@ -9,8 +9,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.model.event.ErrorEventType;
+import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
-import com.mirth.connect.donkey.server.event.Event;
 import com.mirth.connect.donkey.server.event.EventType;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.alert.AlertActionGroup;
@@ -20,7 +20,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DefaultAlertWorker extends AlertWorker {
-    
+
     private static final int PATTERN_KEY = 0;
 
     @Override
@@ -31,22 +31,22 @@ public class DefaultAlertWorker extends AlertWorker {
 
         return eventTypes;
     }
-    
+
     @Override
     protected void onShutdown() {
-        
+
     }
-    
+
     @Override
     protected void alertEnabled(Alert alert) {
-        
+
     }
-    
+
     @Override
     protected void alertDisabled(Alert alert) {
-        
+
     }
-    
+
     @Override
     public Class<?> getTriggerClass() {
         return DefaultTrigger.class;
@@ -60,7 +60,7 @@ public class DefaultAlertWorker extends AlertWorker {
             }
         }
     }
-    
+
     @Override
     protected void processEvent(Event event) {
         if (event instanceof ErrorEvent) {
@@ -72,44 +72,44 @@ public class DefaultAlertWorker extends AlertWorker {
                 DefaultTrigger errorTrigger = (DefaultTrigger) alert.getModel().getTrigger();
 
                 Set<ErrorEventType> errorEventTypes = errorTrigger.getErrorEventTypes();
-                
+
                 AlertChannels alertChannels = errorTrigger.getChannels();
 
                 if ((errorEventTypes == null || errorEventTypes.contains(errorEvent.getType())) && alertChannels.isConnectorEnabled(channelId, metaDataId)) {
                     boolean trigger = true;
                     String fullErrorMessage = ErrorMessageBuilder.buildErrorMessage(errorEvent.getType().toString(), errorEvent.getCustomMessage(), errorEvent.getThrowable());
-                    
+
                     if (StringUtils.isNotBlank(errorTrigger.getRegex())) {
                         Pattern pattern = (Pattern) alert.getProperties().get(PATTERN_KEY);
-                        
+
                         if (pattern == null) {
                             pattern = Pattern.compile(errorTrigger.getRegex());
                             alert.getProperties().put(PATTERN_KEY, pattern);
                         }
-                        
+
                         trigger = pattern.matcher(fullErrorMessage).find();
                     }
-                    
+
                     if (trigger) {
-                        
+
                         String channelName = "";
-                        
+
                         if (channelId != null) {
                             Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(channelId);
-                            
+
                             if (channel != null) {
                                 channelName = channel.getName();
                             }
                         }
-                        
+
                         Map<String, Object> context = alert.createContext();
-                        
+
                         context.put("systemTime", String.valueOf(errorEvent.getNanoTime()));
                         context.put("channelId", channelId);
                         context.put("channelName", channelName);
                         context.put("error", fullErrorMessage);
                         context.put("errorMessage", (errorEvent.getThrowable() == null) ? "No exception message." : errorEvent.getThrowable().getMessage());
-                        
+
                         triggerAction(alert, context);
                     }
                 }

@@ -15,4 +15,6 @@ public abstract class AlertTriggerPane extends JPanel {
     public abstract void setTrigger(AlertTrigger trigger);
 
     public abstract void reset();
+
+    public abstract List<String> doValidate();
 }

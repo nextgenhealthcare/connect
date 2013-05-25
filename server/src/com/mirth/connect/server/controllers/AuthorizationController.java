@@ -20,12 +20,12 @@ import org.apache.commons.lang3.StringUtils;
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.Auditable;
-import com.mirth.connect.model.Event;
-import com.mirth.connect.model.Event.Level;
 import com.mirth.connect.model.ExtensionPermission;
+import com.mirth.connect.model.ServerEvent;
+import com.mirth.connect.model.ServerEvent.Level;
 
 public abstract class AuthorizationController {
-    private SystemEventController systemEventController = ControllerFactory.getFactory().createSystemEventController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
 
     public abstract boolean isUserAuthorized(Integer userId, String operation, Map<String, Object> parameterMap, String address) throws ControllerException;
 
@@ -37,7 +37,7 @@ public abstract class AuthorizationController {
     
     public abstract List<String> getAuthorizedChannelIds(Integer userId) throws ControllerException;
 
-    public void auditAuthorizationRequest(Integer userId, String operationName, Map<String, Object> parameterMap, Event.Outcome outcome, String address) {
+    public void auditAuthorizationRequest(Integer userId, String operationName, Map<String, Object> parameterMap, ServerEvent.Outcome outcome, String address) {
         Operation operation = null;
         String extensionName = null;
 
@@ -53,28 +53,27 @@ public abstract class AuthorizationController {
         }
 
         if ((operation != null) && operation.isAuditable()) {
-            Event event = new Event();
-            event.setLevel(Level.INFORMATION);
-            event.setUserId(userId);
+            ServerEvent serverEvent = new ServerEvent();
+            serverEvent.setLevel(Level.INFORMATION);
+            serverEvent.setUserId(userId);
 
             if (extensionName != null) {
-                event.setName(operation.getDisplayName() + " invoked through " + extensionName);
+                serverEvent.setName(operation.getDisplayName() + " invoked through " + extensionName);
             } else {
-                event.setName(operation.getDisplayName());
+                serverEvent.setName(operation.getDisplayName());
             }
 
-            event.setOutcome(outcome);
-            event.setIpAddress(address);
+            serverEvent.setOutcome(outcome);
+            serverEvent.setIpAddress(address);
 
             if (MapUtils.isNotEmpty(parameterMap)) {
                 for (Entry<String, Object> entry : parameterMap.entrySet()) {
                     StringBuilder builder = new StringBuilder();
                     getAuditDescription(entry.getValue(), builder);
-                    event.getAttributes().put(entry.getKey(), builder.toString());
+                    serverEvent.getAttributes().put(entry.getKey(), builder.toString());
                 }
             }
-
-            systemEventController.addEvent(event);
+            eventController.dispatchEvent(serverEvent);
         }
     }
 

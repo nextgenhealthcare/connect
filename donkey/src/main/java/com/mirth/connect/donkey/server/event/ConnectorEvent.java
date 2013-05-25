@@ -1,6 +1,7 @@
 package com.mirth.connect.donkey.server.event;
 
 import com.mirth.connect.donkey.model.event.ConnectorEventType;
+import com.mirth.connect.donkey.model.event.Event;
 
 public class ConnectorEvent extends Event {
 

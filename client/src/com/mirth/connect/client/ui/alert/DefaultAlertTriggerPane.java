@@ -201,6 +201,11 @@ public class DefaultAlertTriggerPane extends AlertTriggerPane {
         regexTextArea.setText("");
     }
 
+    @Override
+    public List<String> doValidate() {
+        return null;
+    }
+
     protected MirthTextArea getRegexTextArea() {
         return regexTextArea;
     }

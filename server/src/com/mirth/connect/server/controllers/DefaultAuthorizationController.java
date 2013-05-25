@@ -12,8 +12,8 @@ package com.mirth.connect.server.controllers;
 import java.util.List;
 import java.util.Map;
 
-import com.mirth.connect.model.Event;
 import com.mirth.connect.model.ExtensionPermission;
+import com.mirth.connect.model.ServerEvent;
 
 public class DefaultAuthorizationController extends AuthorizationController {
 
@@ -35,13 +35,13 @@ public class DefaultAuthorizationController extends AuthorizationController {
 
     @Override
     public boolean isUserAuthorized(Integer userId, String operation, Map<String, Object> parameterMap, String address) throws ControllerException {
-        auditAuthorizationRequest(userId, operation, parameterMap, Event.Outcome.SUCCESS, address);
+        auditAuthorizationRequest(userId, operation, parameterMap, ServerEvent.Outcome.SUCCESS, address);
         return true;
     }
 
     @Override
     public boolean isUserAuthorizedForExtension(Integer userId, String extensionName, String operationName, Map<String, Object> parameterMap, String address) throws ControllerException {
-        auditAuthorizationRequest(userId, extensionName + "#" + operationName, parameterMap, Event.Outcome.SUCCESS, address);
+        auditAuthorizationRequest(userId, extensionName + "#" + operationName, parameterMap, ServerEvent.Outcome.SUCCESS, address);
         return true;
     }
 

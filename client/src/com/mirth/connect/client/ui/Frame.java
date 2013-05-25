@@ -742,8 +742,9 @@ public class Frame extends JXFrame {
 
         addTask(TaskConstants.ALERT_REFRESH, "Refresh", "Refresh the list of alerts.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), alertTasks, alertPopupMenu);
         addTask(TaskConstants.ALERT_NEW, "New Alert", "Create a new alert.", "N", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/error_add.png")), alertTasks, alertPopupMenu);
-        addTask(TaskConstants.ALERT_IMPORT, "Import Alerts", "Import list of alerts from an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")), alertTasks, alertPopupMenu);
-        addTask(TaskConstants.ALERT_EXPORT_ALL, "Export Alerts", "Export the list of alerts to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), alertTasks, alertPopupMenu);
+        addTask(TaskConstants.ALERT_IMPORT, "Import Alert", "Import an alert from an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")), alertTasks, alertPopupMenu);
+        addTask(TaskConstants.ALERT_EXPORT_ALL, "Export All Alerts", "Export all of the alerts to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), alertTasks, alertPopupMenu);
+        addTask(TaskConstants.ALERT_EXPORT, "Export Alert", "Export the currently selected alert to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), alertTasks, alertPopupMenu);
         addTask(TaskConstants.ALERT_DELETE, "Delete Alert", "Delete the currently selected alert.", "L", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/error_delete.png")), alertTasks, alertPopupMenu);
         addTask(TaskConstants.ALERT_EDIT, "Edit Alert", "Edit the currently selected alert.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_edit.png")), alertTasks, alertPopupMenu);
         addTask(TaskConstants.ALERT_ENABLE, "Enable Alert", "Enable the currently selected alert.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_play_blue.png")), alertTasks, alertPopupMenu);
@@ -3388,21 +3389,7 @@ public class Frame extends JXFrame {
     }
 
     public void doRefreshMessages() {
-        final String workingId = startWorking("Loading messages...");
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                messageBrowser.refresh(null);
-                return null;
-            }
-
-            public void done() {
-                stopWorking(workingId);
-            }
-        };
-
-        worker.execute();
+        messageBrowser.refresh(null);
     }
 
     public void doSendMessage() {
@@ -3696,7 +3683,7 @@ public class Frame extends JXFrame {
     }
 
     public void doRefreshEvents() {
-        eventBrowser.refresh();
+        eventBrowser.refresh(null);
     }
 
     public void doRemoveAllEvents() {
@@ -3727,7 +3714,7 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                eventBrowser.refresh();
+                eventBrowser.runSearch();
 
                 if (exportPath != null) {
                     alertInformation(PlatformUI.MIRTH_FRAME, "Events have been exported to the following server path:\n" + exportPath);
@@ -3957,15 +3944,200 @@ public class Frame extends JXFrame {
     }
 
     public void doExportAlert() {
+        if (changesHaveBeenMade()) {
+            if (alertOption(this, "This alert has been modified. You must save the alert changes before you can export. Would you like to save them now?")) {
+                if (!alertEditPanel.saveAlert()) {
+                    return;
+                }
+            } else {
+                return;
+            }
 
+            setSaveEnabled(false);
+        }
+
+        List<String> selectedAlertIds;
+
+        if (currentContentPage == alertEditPanel) {
+            selectedAlertIds = new ArrayList<String>();
+
+            String alertId = alertEditPanel.getAlertId();
+            if (alertId != null) {
+                selectedAlertIds.add(alertId);
+            }
+        } else {
+            selectedAlertIds = alertPanel.getSelectedAlertIds();
+        }
+
+        if (CollectionUtils.isEmpty(selectedAlertIds)) {
+            return;
+        }
+
+        List<AlertModel> alerts;
+        try {
+            alerts = mirthClient.getAlert(selectedAlertIds.get(0));
+        } catch (ClientException e) {
+            alertException(this, e.getStackTrace(), e.getMessage());
+            return;
+        }
+
+        AlertModel alert;
+        if (CollectionUtils.isEmpty(alerts)) {
+            JOptionPane.showMessageDialog(Frame.this, "Alert no longer exists.");
+            doRefreshAlerts();
+        } else {
+            alert = alerts.get(0);
+            ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+            String alertXML = serializer.toXML(alert);
+
+            exportFile(alertXML, alert.getName(), "XML", "Alert");
+        }
     }
 
     public void doExportAlerts() {
+        JFileChooser exportFileChooser = new JFileChooser();
+        exportFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
+        File currentDir = new File(userPreferences.get("currentDirectory", ""));
+        if (currentDir.exists()) {
+            exportFileChooser.setCurrentDirectory(currentDir);
+        }
+
+        int returnVal = exportFileChooser.showSaveDialog(this);
+        File exportFile = null;
+        File exportDirectory = null;
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            userPreferences.put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
+            try {
+                exportDirectory = exportFileChooser.getSelectedFile();
+
+                List<AlertModel> alerts;
+                try {
+                    alerts = mirthClient.getAlert(null);
+                } catch (ClientException e) {
+                    alertException(this, e.getStackTrace(), e.getMessage());
+                    return;
+                }
+
+                for (AlertModel alert : alerts) {
+                    ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+                    String channelXML = serializer.toXML(alert);
+
+                    exportFile = new File(exportDirectory.getAbsolutePath() + "/" + alert.getName() + ".xml");
+
+                    if (exportFile.exists()) {
+                        if (!alertOption(this, "The file " + alert.getName() + ".xml already exists.  Would you like to overwrite it?")) {
+                            continue;
+                        }
+                    }
+
+                    FileUtils.writeStringToFile(exportFile, channelXML, UIConstants.CHARSET);
+                }
+                alertInformation(this, "All files were written successfully to " + exportDirectory.getPath() + ".");
+            } catch (IOException ex) {
+                alertError(this, "File could not be written.");
+            }
+        }
     }
 
-    public void doImportAlerts() {
+    public void doImportAlert() {
+        String content = browseForFileString("XML");
 
+        if (content != null) {
+            importAlert(content, true);
+        }
+    }
+
+    public void importAlert(String content, boolean showAlerts) {
+        String alertXML = "";
+
+        try {
+            //TODO Convert older versions
+            alertXML = content;
+        } catch (Exception e) {
+            if (showAlerts) {
+                alertException(this, e.getStackTrace(), "Invalid alert file:\n" + e.getMessage());
+            }
+            return;
+        }
+
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+        AlertModel importAlert;
+
+        try {
+            importAlert = (AlertModel) serializer.fromXML(alertXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"));
+        } catch (Exception e) {
+            if (showAlerts) {
+                alertException(this, e.getStackTrace(), "Invalid alert file:\n" + e.getMessage());
+            }
+            return;
+        }
+
+        try {
+            String alertName = importAlert.getName();
+            String tempId = mirthClient.getGuid();
+
+            // Check to see that the alert name doesn't already exist.
+            if (!checkAlertName(alertName)) {
+                if (!alertOption(this, "Would you like to overwrite the existing alert?  Choose 'No' to create a new alert.")) {
+                    do {
+                        alertName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.", alertName);
+                        if (alertName == null) {
+                            return;
+                        }
+                    } while (!checkAlertName(alertName));
+
+                    importAlert.setName(alertName);
+                    importAlert.setId(tempId);
+                } else {
+                    for (Entry<String, String> entry : alertPanel.getAlertNames().entrySet()) {
+                        String id = entry.getKey();
+                        String name = entry.getValue();
+                        if (name.equalsIgnoreCase(alertName)) {
+                            // If overwriting, use the old id
+                            importAlert.setId(id);
+                        }
+                    }
+                }
+            }
+        } catch (ClientException e) {
+            alertException(this, e.getStackTrace(), e.getMessage());
+        }
+
+        try {
+            mirthClient.updateAlert(importAlert);
+        } catch (Exception e) {
+            alertException(this, e.getStackTrace(), e.getMessage());
+        }
+
+        doRefreshAlerts();
+    }
+
+    /**
+     * Checks to see if the passed in channel name already exists
+     */
+    public boolean checkAlertName(String name) {
+        if (name.equals("")) {
+            alertWarning(this, "Channel name cannot be empty.");
+            return false;
+        }
+
+        Pattern alphaNumericPattern = Pattern.compile("^[a-zA-Z_0-9\\-\\s]*$");
+        Matcher matcher = alphaNumericPattern.matcher(name);
+
+        if (!matcher.find()) {
+            alertWarning(this, "Channel name cannot have special characters besides hyphen, underscore, and space.");
+            return false;
+        }
+
+        for (String alertName : alertPanel.getAlertNames().values()) {
+            if (alertName.equalsIgnoreCase(name)) {
+                alertWarning(this, "Alert \"" + name + "\" already exists.");
+                return false;
+            }
+        }
+        return true;
     }
 
     public void doRefreshCodeTemplates() {

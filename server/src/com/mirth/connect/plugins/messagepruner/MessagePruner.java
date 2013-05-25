@@ -34,12 +34,12 @@ import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.util.ThreadUtils;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
-import com.mirth.connect.model.Event;
-import com.mirth.connect.model.Event.Level;
-import com.mirth.connect.model.Event.Outcome;
+import com.mirth.connect.model.ServerEvent;
+import com.mirth.connect.model.ServerEvent.Level;
+import com.mirth.connect.model.ServerEvent.Outcome;
 import com.mirth.connect.server.controllers.ConfigurationController;
-import com.mirth.connect.server.controllers.ControllerException;
-import com.mirth.connect.server.controllers.SystemEventController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.MessageExporter;
@@ -68,7 +68,7 @@ public class MessagePruner implements Runnable {
     private Strategy strategy;
     private boolean archiveEnabled;
     private MessageWriterOptions archiverOptions;
-    private SystemEventController systemEventController = SystemEventController.getInstance();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
     private AtomicBoolean running = new AtomicBoolean(false);
     private ExecutorService executor;
     private MessageExporter messageExporter = new MessageExporter();
@@ -239,7 +239,7 @@ public class MessagePruner implements Runnable {
                     attributes.put("Channel", channel.getName());
                     attributes.put("Error", errorMessage);
                     
-                    systemEventController.addEvent(new Event(MessagePrunerService.PLUGINPOINT, Level.ERROR, Outcome.FAILURE, attributes));
+                    eventController.dispatchEvent(new ServerEvent(MessagePrunerService.PLUGINPOINT, Level.ERROR, Outcome.FAILURE, attributes));
                     break;
             }
         }
@@ -299,7 +299,8 @@ public class MessagePruner implements Runnable {
                     long secs = (ms % 60000) / 1000;
 
                     attributes.put("Time Elapsed", mins + " minute" + (mins == 1 ? "" : "s") + ", " + secs + " second" + (secs == 1 ? "" : "s"));
-                    systemEventController.addEvent(new Event(MessagePrunerService.PLUGINPOINT, Level.INFORMATION, Outcome.SUCCESS, attributes));
+                    eventController.dispatchEvent(new ServerEvent(MessagePrunerService.PLUGINPOINT, Level.INFORMATION, Outcome.SUCCESS, attributes));
+                    
                 } catch (InterruptedException e) {
                     throw e;
                 } catch (Exception e) {
@@ -309,7 +310,7 @@ public class MessagePruner implements Runnable {
                     attributes.put("channel", task.getChannelName());
                     attributes.put("error", e.getMessage());
                     attributes.put("trace", ExceptionUtils.getStackTrace(e));
-                    systemEventController.addEvent(new Event(MessagePrunerService.PLUGINPOINT, Level.ERROR, Outcome.FAILURE, attributes));
+                    eventController.dispatchEvent(new ServerEvent(MessagePrunerService.PLUGINPOINT, Level.ERROR, Outcome.FAILURE, attributes));
                     logger.error("Could not prune messages for channel: " + task.getChannelName(), e);
                 } finally {
                     status.getPendingChannelIds().remove(task.getChannelId());
@@ -321,7 +322,7 @@ public class MessagePruner implements Runnable {
             logger.debug("Pruner job finished executing");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            systemEventController.addEvent(new Event(MessagePrunerService.PLUGINPOINT + " Halted", Level.INFORMATION, Outcome.SUCCESS, null));
+            eventController.dispatchEvent(new ServerEvent(MessagePrunerService.PLUGINPOINT + " Halted", Level.INFORMATION, Outcome.SUCCESS, null));
             logger.debug("Message pruner halted");
         } finally {
             status.setEndTime(Calendar.getInstance());

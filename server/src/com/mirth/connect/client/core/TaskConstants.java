@@ -47,8 +47,9 @@ public class TaskConstants {
     // Alert Tasks
     public static final String ALERT_REFRESH = "doRefreshAlerts";
     public static final String ALERT_NEW = "doNewAlert";
-    public static final String ALERT_IMPORT = "doImportAlerts";
+    public static final String ALERT_IMPORT = "doImportAlert";
     public static final String ALERT_EXPORT_ALL = "doExportAlerts";
+    public static final String ALERT_EXPORT = "doExportAlert";
     public static final String ALERT_DELETE = "doDeleteAlert";
     public static final String ALERT_EDIT = "doEditAlert";
     public static final String ALERT_ENABLE = "doEnableAlert";

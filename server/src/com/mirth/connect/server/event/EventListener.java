@@ -4,7 +4,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.mirth.connect.donkey.server.event.Event;
+import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.server.event.EventType;
 
 public abstract class EventListener implements Runnable {

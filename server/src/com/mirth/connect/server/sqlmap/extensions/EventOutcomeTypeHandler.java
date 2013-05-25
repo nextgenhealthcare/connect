@@ -9,7 +9,7 @@
 
 package com.mirth.connect.server.sqlmap.extensions;
 
-import com.mirth.connect.model.Event.Outcome;
+import com.mirth.connect.model.ServerEvent.Outcome;
 
 public class EventOutcomeTypeHandler extends EnumTypeHandler<Outcome> {
     public EventOutcomeTypeHandler() {

@@ -1,5 +1,6 @@
 package com.mirth.connect.donkey.server.event;
 
+import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.model.event.MessageEventType;
 
 public class MessageEvent extends Event {

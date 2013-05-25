@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.mirth.connect.client.core.ClientException;
@@ -68,6 +69,15 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
     }
 
     @Override
+    public String getAlertId() {
+        if (alertModel != null) {
+            return alertModel.getId();
+        }
+
+        return null;
+    }
+
+    @Override
     public void updateVariableList() {
         List<String> variables = new ArrayList<String>();
 
@@ -120,6 +130,31 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
     public boolean saveAlert() {
         boolean updated = false;
 
+        if (StringUtils.isBlank(nameTextField.getText())) {
+            parent.alertWarning(parent, "Alert name cannot be empty.");
+            return false;
+        }
+
+        if (alertModel.getActionGroups().get(0).getActions().isEmpty()) {
+            parent.alertWarning(parent, "Alert requires at least one action.");
+            return false;
+        }
+
+        List<String> triggerValidationErrors = alertTriggerPane.doValidate();
+        if (CollectionUtils.isNotEmpty(triggerValidationErrors)) {
+            String errorString = "";
+            for (String error : triggerValidationErrors) {
+                if (errorString.isEmpty()) {
+                    error += "\n";
+                }
+
+                errorString += error;
+            }
+
+            parent.alertWarning(parent, errorString);
+            return false;
+        }
+
         alertModel.setName(nameTextField.getText());
 
         alertModel.setEnabled(enabledCheckBox.isSelected());
@@ -130,16 +165,6 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
         alertModel.setTrigger(trigger);
 
         // ActionGroups are modified directly so they do not need to be set back to the alert model.
-
-        if (StringUtils.isBlank(nameTextField.getText())) {
-            parent.alertWarning(parent, "Alert name cannot be empty");
-            return false;
-        }
-
-        if (alertModel.getActionGroups().get(0).getActions().isEmpty()) {
-            parent.alertWarning(parent, "Alert requires at least one action.");
-            return false;
-        }
 
         try {
             parent.mirthClient.updateAlert(alertModel);

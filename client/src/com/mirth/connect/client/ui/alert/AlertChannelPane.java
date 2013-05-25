@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -145,14 +146,22 @@ public class AlertChannelPane extends JPanel {
 
     public void setChannels(AlertChannels alertChannels, boolean includeConnectors) {
         if (PlatformUI.MIRTH_FRAME.channels != null) {
+            TreeMap<String, Channel> channelMap = new TreeMap<String, Channel>();
+
+            // Sort the channels by channel name
+            for (Channel channel : PlatformUI.MIRTH_FRAME.channels.values()) {
+                channelMap.put(channel.getName(), channel);
+            }
+
             ChannelTreeTableModel model = (ChannelTreeTableModel) channelTreeTable.getTreeTableModel();
-            model.addChannels(PlatformUI.MIRTH_FRAME.channels.values(), alertChannels, includeConnectors);
+            model.addChannels(channelMap.values(), alertChannels, includeConnectors);
         }
     }
 
     private void updateFilter(String filterString) {
         ChannelTreeTableModel model = (ChannelTreeTableModel) channelTreeTable.getTreeTableModel();
         model.setFilter(filterString);
+        channelTreeTable.expandAll();
     }
 
     private class ChannelTreeTableModel extends SortableTreeTableModel {

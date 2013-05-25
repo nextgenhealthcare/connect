@@ -25,16 +25,16 @@ import org.eclipse.jetty.io.RuntimeIOException;
 
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
-import com.mirth.connect.model.Event;
-import com.mirth.connect.model.Event.Level;
-import com.mirth.connect.model.Event.Outcome;
 import com.mirth.connect.model.LoginStatus;
+import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.User;
+import com.mirth.connect.model.ServerEvent.Level;
+import com.mirth.connect.model.ServerEvent.Outcome;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.SystemEventController;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.UserController;
 import com.mirth.connect.server.util.UserSessionCache;
 
@@ -49,7 +49,7 @@ public class UserServlet extends MirthServlet {
         response.setCharacterEncoding("UTF-8");
         
         UserController userController = ControllerFactory.getFactory().createUserController();
-        SystemEventController systemEventController = ControllerFactory.getFactory().createSystemEventController();
+        EventController eventController = ControllerFactory.getFactory().createEventController();
         PrintWriter out = response.getWriter();
         Operation operation = Operations.getOperation(request.getParameter("op"));
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
@@ -59,7 +59,7 @@ public class UserServlet extends MirthServlet {
             String password = request.getParameter("password");
             String version = request.getParameter("version");
             response.setContentType(TEXT_PLAIN);
-            serializer.toXML(login(request, response, userController, systemEventController, username, password, version), out);
+            serializer.toXML(login(request, response, userController, eventController, username, password, version), out);
         } else if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {
@@ -70,7 +70,7 @@ public class UserServlet extends MirthServlet {
                     // Audit the logout request but don't block it
                     isUserAuthorized(request, null);
 
-                    logout(request, userController, systemEventController);
+                    logout(request, userController);
                 } else if (operation.equals(Operations.USER_GET)) {
                     /*
                      * If the requesting user does not have permission, only
@@ -162,7 +162,7 @@ public class UserServlet extends MirthServlet {
         }
     }
 
-    private LoginStatus login(HttpServletRequest request, HttpServletResponse response, UserController userController, SystemEventController systemEventController, String username, String password, String version) throws ServletException {
+    private LoginStatus login(HttpServletRequest request, HttpServletResponse response, UserController userController, EventController eventController, String username, String password, String version) throws ServletException {
         try {
             LoginStatus loginStatus = null;
 
@@ -200,7 +200,7 @@ public class UserServlet extends MirthServlet {
 
             // Manually audit the Login event with the username since the user
             // id has not been stored to the session yet
-            Event event = new Event();
+            ServerEvent event = new ServerEvent();
             event.setIpAddress(getRequestIpAddress(request));
             event.setLevel(Level.INFORMATION);
             event.setName(Operations.USER_LOGIN.getDisplayName());
@@ -212,7 +212,7 @@ public class UserServlet extends MirthServlet {
             attributes.put("username", username);
             event.setAttributes(attributes);
 
-            systemEventController.addEvent(event);
+            eventController.dispatchEvent(event);
 
             return loginStatus;
         } catch (Exception e) {
@@ -220,7 +220,7 @@ public class UserServlet extends MirthServlet {
         }
     }
 
-    private void logout(HttpServletRequest request, UserController userController, SystemEventController systemEventController) throws ServletException {
+    private void logout(HttpServletRequest request, UserController userController) throws ServletException {
         HttpSession session = request.getSession();
 
         // save the session id before removing them from the session
@@ -243,10 +243,6 @@ public class UserServlet extends MirthServlet {
         } catch (ControllerException ce) {
             throw new ServletException(ce);
         }
-
-        // delete any temp tables created for this session
-        //ControllerFactory.getFactory().createMessageObjectController().removeFilterTable(sessionId);
-        systemEventController.removeFilterTable(sessionId);
     }
 
     private boolean isCurrentUser(HttpServletRequest request, User user) {

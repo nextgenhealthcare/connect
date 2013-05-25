@@ -1,4 +1,4 @@
-package com.mirth.connect.donkey.server.event;
+package com.mirth.connect.donkey.model.event;
 
 public abstract class Event {
     private long dateTime;

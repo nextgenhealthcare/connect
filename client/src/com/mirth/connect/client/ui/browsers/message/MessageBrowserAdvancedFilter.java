@@ -364,6 +364,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         }
     }
 
+    @Override
     public void setVisible(boolean visible) {
         if (visible) {
             saveSelections();
@@ -505,9 +506,9 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         serverIdLabel = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
-        cancelButton = new com.mirth.connect.client.ui.components.MirthButton();
-        okButton = new com.mirth.connect.client.ui.components.MirthButton();
         jSeparator1 = new javax.swing.JSeparator();
+        cancelButton = new javax.swing.JButton();
+        okButton1 = new javax.swing.JButton();
         jScrollPane4 = new javax.swing.JScrollPane();
         contentSearchTable = new com.mirth.connect.client.ui.components.MirthTable();
         addContentSearchButton = new com.mirth.connect.client.ui.components.MirthButton();
@@ -595,16 +596,21 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
         cancelButton.setText("Cancel");
+        cancelButton.setMargin(new java.awt.Insets(0, 2, 0, 2));
         cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelButtonActionPerformed(evt);
             }
         });
 
-        okButton.setText("OK");
-        okButton.addActionListener(new java.awt.event.ActionListener() {
+        okButton1.setText("OK");
+        okButton1.setMargin(new java.awt.Insets(0, 2, 0, 2));
+        okButton1.setMaximumSize(new java.awt.Dimension(48, 21));
+        okButton1.setMinimumSize(new java.awt.Dimension(48, 21));
+        okButton1.setPreferredSize(new java.awt.Dimension(48, 21));
+        okButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                okButtonActionPerformed(evt);
+                okButton1ActionPerformed(evt);
             }
         });
 
@@ -612,23 +618,28 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(341, Short.MAX_VALUE)
-                .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(okButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addComponent(jSeparator1)
+                .addComponent(cancelButton))
         );
+
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cancelButton, okButton1});
+
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
+                .addGap(0, 6, Short.MAX_VALUE)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(8, 8, 8)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(cancelButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(okButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
+
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {cancelButton, okButton1});
 
         contentSearchTable.setToolTipText("<html> \nSearch specific message content. This process could take a long time<br/>\ndepending on the amount of message content currently stored. Any message<br/>\ncontent that was encrypted by this channel will not be searchable. </html>");
         jScrollPane4.setViewportView(contentSearchTable);
@@ -761,7 +772,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                                 .addComponent(jLabel6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(importIdUpperField, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 197, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         containerPanelLayout.setVerticalGroup(
@@ -805,7 +816,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                     .addComponent(attachmentCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
                     .addGroup(containerPanelLayout.createSequentialGroup()
                         .addComponent(addContentSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -813,7 +824,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(containerPanelLayout.createSequentialGroup()
-                        .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
+                        .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(containerPanelLayout.createSequentialGroup()
@@ -836,19 +847,6 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        stopEditing();
-        loadSelections();
-
-        setVisible(false);
-    }//GEN-LAST:event_cancelButtonActionPerformed
-
-    private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-        stopEditing();
-
-        setVisible(false);
-    }//GEN-LAST:event_okButtonActionPerformed
 
     private void shiftValues(JList source, JList destination) {
         Object[] values = source.getSelectedValues();
@@ -942,30 +940,24 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         loadSelections();
     }//GEN-LAST:event_formWindowClosing
 
-    private class ListItem {
-        private Object key;
-        private String label;
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        stopEditing();
+        loadSelections();
 
-        public ListItem(Object key, String label) {
-            this.key = key;
-            this.label = label;
-        }
+        setVisible(false);
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
-        public Object getKey() {
-            return key;
-        }
+    private void okButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButton1ActionPerformed
+        stopEditing();
 
-        @Override
-        public String toString() {
-            return label;
-        }
-    }
+        setVisible(false);
+    }//GEN-LAST:event_okButton1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthButton addContentSearchButton;
     private com.mirth.connect.client.ui.components.MirthButton addMetaDataSearchButton;
     private com.mirth.connect.client.ui.components.MirthCheckBox attachmentCheckBox;
-    private com.mirth.connect.client.ui.components.MirthButton cancelButton;
+    private javax.swing.JButton cancelButton;
     private javax.swing.JLabel connectorDeselectAll;
     private javax.swing.JLabel connectorSelectAll;
     private com.mirth.connect.client.ui.components.MirthTable connectorTable;
@@ -997,7 +989,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     private com.mirth.connect.client.ui.components.MirthTable mirthTable1;
     private com.mirth.connect.client.ui.components.MirthTable mirthTable2;
     private com.mirth.connect.client.ui.components.MirthTable mirthTable3;
-    private com.mirth.connect.client.ui.components.MirthButton okButton;
+    private javax.swing.JButton okButton1;
     private javax.swing.JSpinner sendAttemptsLower;
     private com.mirth.connect.client.ui.components.MirthBlankableSpinner sendAttemptsUpper;
     private com.mirth.connect.client.ui.components.MirthTextField serverIdField;

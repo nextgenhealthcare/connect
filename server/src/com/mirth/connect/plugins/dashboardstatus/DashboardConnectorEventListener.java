@@ -17,9 +17,9 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.event.ConnectorEventType;
+import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.server.event.ConnectorCountEvent;
 import com.mirth.connect.donkey.server.event.ConnectorEvent;
-import com.mirth.connect.donkey.server.event.Event;
 import com.mirth.connect.donkey.server.event.EventType;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;

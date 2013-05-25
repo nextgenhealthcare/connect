@@ -1,17 +1,7 @@
-/*
- * Copyright (c) Mirth Corporation. All rights reserved.
- * http://www.mirthcorp.com
- * 
- * The software in this package is published under the terms of the MPL
- * license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
- */
-
 package com.mirth.connect.model;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -24,10 +14,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import com.mirth.connect.donkey.model.event.Event;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("event")
-public class Event implements Serializable, Exportable {
+public class ServerEvent extends Event {
     public static final String ATTR_EXCEPTION = "Exception";
 
     public enum Level {
@@ -39,7 +30,7 @@ public class Event implements Serializable, Exportable {
     }
 
     private int id;
-    private Calendar dateTime;
+    private Calendar eventTime;
     private Level level = Level.INFORMATION;
     private String name;
     private Map<String, String> attributes = new LinkedHashMap<String, String>();
@@ -47,15 +38,15 @@ public class Event implements Serializable, Exportable {
     private int userId = 0;
     private String ipAddress;
 
-    public Event() {
+    public ServerEvent() {
 
     }
 
-    public Event(String name) {
+    public ServerEvent(String name) {
         this.name = name;
     }
-    
-    public Event(String name, Level level, Outcome outcome, Map<String, String> attributes) {
+
+    public ServerEvent(String name, Level level, Outcome outcome, Map<String, String> attributes) {
         this.name = name;
         this.level = level;
         this.outcome = outcome;
@@ -68,6 +59,14 @@ public class Event implements Serializable, Exportable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Calendar getEventTime() {
+        return eventTime;
+    }
+
+    public void setEventTime(Calendar eventTime) {
+        this.eventTime = eventTime;
     }
 
     public Level getLevel() {
@@ -100,14 +99,6 @@ public class Event implements Serializable, Exportable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Calendar getDateTime() {
-        return dateTime;
-    }
-
-    public void setDateTime(Calendar dateTime) {
-        this.dateTime = dateTime;
     }
 
     public Outcome getOutcome() {
@@ -149,7 +140,7 @@ public class Event implements Serializable, Exportable {
     public String toExportString() {
         StringBuilder builder = new StringBuilder();
         builder.append(id + ", ");
-        builder.append(new SimpleDateFormat(Exportable.DATE_TIME_FORMAT).format(dateTime.getTime()) + ", ");
+        builder.append(new SimpleDateFormat(Exportable.DATE_TIME_FORMAT).format(eventTime.getTime()) + ", ");
         builder.append(level + ", ");
         builder.append(outcome + ", ");
         builder.append(name + ", ");

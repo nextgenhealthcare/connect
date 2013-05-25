@@ -24,6 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
@@ -33,7 +34,6 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConfiguration;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
-import com.mirth.connect.donkey.server.event.Event;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.plugins.messagepruner.MessagePruner.Strategy;
 import com.mirth.connect.server.controllers.ConfigurationController;
