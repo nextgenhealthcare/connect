@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -33,6 +34,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
@@ -52,6 +54,7 @@ import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.event.ConnectorCountEvent;
 import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.util.ThreadUtils;
 import com.mirth.connect.model.transmission.StreamHandler;
 import com.mirth.connect.model.transmission.StreamHandlerException;
 import com.mirth.connect.model.transmission.batch.BatchStreamReader;
@@ -81,6 +84,8 @@ public class TcpReceiver extends SourceConnector {
     private Thread thread;
     private ExecutorService executor;
     private Set<Future<Throwable>> results = new HashSet<Future<Throwable>>();
+    private Set<TcpReader> clientReaders = new HashSet<TcpReader>();
+    private AtomicBoolean disposing;
 
     private int maxConnections;
     TransmissionModeProvider transmissionModeProvider;
@@ -101,6 +106,20 @@ public class TcpReceiver extends SourceConnector {
             throw new DeployException("Unable to find transmission mode plugin: " + pluginPointName);
         }
 
+        disposing = new AtomicBoolean(false);
+
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+    }
+
+    @Override
+    public void onUndeploy() throws UndeployException {}
+
+    @Override
+    public void onStart() throws StartException {
+        disposing.set(false);
+        results.clear();
+        clientReaders.clear();
+
         if (connectorProperties.isServerMode()) {
             // If we're in server mode, use the max connections property to initialize the thread pool
             executor = new ThreadPoolExecutor(0, maxConnections, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
@@ -109,32 +128,6 @@ public class TcpReceiver extends SourceConnector {
             executor = Executors.newSingleThreadExecutor();
         }
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
-    }
-
-    @Override
-    public void onUndeploy() throws UndeployException {
-        UndeployException firstCause = null;
-
-        // Interrupt and join the connector thread
-        try {
-            disposeThread(true);
-        } catch (InterruptedException e) {
-            firstCause = new UndeployException("Interruption while disposing client socket threads (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-        }
-
-        // Forcefully cancel any remaining tasks
-        cleanup(true, true, true);
-
-        executor.shutdownNow();
-
-        if (firstCause != null) {
-            throw firstCause;
-        }
-    }
-
-    @Override
-    public void onStart() throws StartException {
         if (connectorProperties.isServerMode()) {
             try {
                 createServerSocket();
@@ -171,34 +164,44 @@ public class TcpReceiver extends SourceConnector {
                         }
                     }
 
-                    if (socket != null) {
-                        try {
-                            results.add(executor.submit(new TcpReader(socket)));
-                        } catch (RejectedExecutionException e) {
-                            logger.debug("Executor rejected new task (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                            closeSocketQuietly(socket);
-                        } catch (SocketException e) {
-                            logger.debug("Error initializing socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                            closeSocketQuietly(socket);
+                    try {
+                        ThreadUtils.checkInterruptedStatus();
+
+                        if (socket != null) {
+                            try {
+                                synchronized (clientReaders) {
+                                    // Only allow worker threads to be submitted if we're not currently trying to stop the connector
+                                    if (disposing.get()) {
+                                        return;
+                                    }
+                                    TcpReader reader = new TcpReader(socket);
+                                    clientReaders.add(reader);
+                                    results.add(executor.submit(reader));
+                                }
+                            } catch (RejectedExecutionException e) {
+                                logger.debug("Executor rejected new task (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                                closeSocketQuietly(socket);
+                            } catch (SocketException e) {
+                                logger.debug("Error initializing socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                                closeSocketQuietly(socket);
+                            }
                         }
-                    }
 
-                    if (connectorProperties.isServerMode()) {
-                        // Remove any completed tasks from the list
-                        cleanup(false, false, false);
-                    } else {
-                        // Wait until the TcpReader is done
-                        cleanup(true, false, false);
+                        if (connectorProperties.isServerMode()) {
+                            // Remove any completed tasks from the list, but don't try to retrieve currently running tasks
+                            cleanup(false, false, true);
+                        } else {
+                            // Wait until the TcpReader is done
+                            cleanup(true, false, true);
 
-                        String info = "Client socket finished, waiting " + connectorProperties.getReconnectInterval() + " ms...";
-                        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.INFO, info));
+                            String info = "Client socket finished, waiting " + connectorProperties.getReconnectInterval() + " ms...";
+                            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.INFO, info));
 
-                        // Use the reconnect interval to determine how long to wait until creating another socket
-                        try {
-                            Thread.sleep(parseInt(connectorProperties.getReconnectInterval()));
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
+                            // Use the reconnect interval to determine how long to wait until creating another socket
+                            sleep(parseInt(connectorProperties.getReconnectInterval()));
                         }
+                    } catch (InterruptedException e) {
+                        return;
                     }
                 }
             }
@@ -209,6 +212,12 @@ public class TcpReceiver extends SourceConnector {
     @Override
     public void onStop() throws StopException {
         StopException firstCause = null;
+
+        synchronized (clientReaders) {
+            disposing.set(true);
+            // Prevent any new client threads from being submitted to the executor
+            executor.shutdown();
+        }
 
         if (serverSocket != null) {
             // Close the server socket
@@ -224,21 +233,128 @@ public class TcpReceiver extends SourceConnector {
         try {
             disposeThread(false);
         } catch (InterruptedException e) {
-            if (firstCause == null) {
-                firstCause = new StopException("Thread join operation interrupted (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-            }
+            Thread.currentThread().interrupt();
+            throw new StopException("Thread join operation interrupted (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
         }
 
-        // Attempt to cancel any remaining tasks
-        cleanup(true, true, false);
+        synchronized (clientReaders) {
+            for (TcpReader reader : clientReaders) {
+                try {
+                    synchronized (reader) {
+                        reader.setCanRead(false);
+
+                        /*
+                         * We only want to close the worker's socket if it's currently in the read()
+                         * method. If keep connection open is true and the receive timeout is zero,
+                         * that read() would have blocked forever, so we need to close the socket
+                         * here so it will throw an exception. However even if the worker was in the
+                         * middle of reading bytes from the input stream, we still want to close the
+                         * socket. That message would never have been dispatched to the channel
+                         * anyway because the connectors current state would not be equal to
+                         * STARTED.
+                         */
+                        if (reader.isReading()) {
+                            reader.getSocket().close();
+                        }
+                    }
+                } catch (IOException e) {
+                    if (firstCause == null) {
+                        firstCause = new StopException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                    }
+                }
+            }
+            clientReaders.clear();
+        }
+
+        // Wait for any remaining tasks to complete
+        try {
+            cleanup(true, false, false);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new StopException("Client thread disposal interrupted (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+        }
+
+        // Close all client sockets after canceling tasks in case a task failed to complete
+        synchronized (clientReaders) {
+            for (TcpReader reader : clientReaders) {
+                try {
+                    reader.getSocket().close();
+                } catch (IOException e) {
+                    if (firstCause == null) {
+                        firstCause = new StopException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                    }
+                }
+            }
+            clientReaders.clear();
+        }
 
         if (firstCause != null) {
             throw firstCause;
         }
     }
-    
+
     @Override
-    public void onHalt() throws HaltException {}
+    public void onHalt() throws HaltException {
+        HaltException firstCause = null;
+
+        synchronized (clientReaders) {
+            disposing.set(true);
+            // Prevent any new client threads from being submitted to the executor
+            executor.shutdownNow();
+        }
+
+        if (serverSocket != null) {
+            // Close the server socket
+            try {
+                logger.debug("Closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
+                serverSocket.close();
+            } catch (IOException e) {
+                firstCause = new HaltException("Error closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+            }
+        }
+
+        // Join the connector thread
+        try {
+            disposeThread(true);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            if (firstCause == null) {
+                firstCause = new HaltException("Thread join operation interrupted (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+            }
+        }
+
+        // Close all client sockets before interrupting tasks
+        synchronized (clientReaders) {
+            for (TcpReader reader : clientReaders) {
+                try {
+                    reader.getSocket().close();
+                } catch (IOException e) {
+                    if (firstCause == null) {
+                        logger.debug("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                        firstCause = new HaltException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                    }
+                }
+            }
+        }
+
+        // Attempt to cancel any remaining tasks
+        try {
+            cleanup(false, true, false);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            if (firstCause == null) {
+                firstCause = new HaltException("Client thread disposal interrupted (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+            }
+        }
+
+        synchronized (clientReaders) {
+            clientReaders.clear();
+        }
+
+        if (firstCause != null) {
+            throw firstCause;
+        }
+    }
 
     @Override
     public void handleRecoveredResponse(DispatchResult dispatchResult) {
@@ -273,10 +389,26 @@ public class TcpReceiver extends SourceConnector {
     protected class TcpReader implements Callable<Throwable> {
         private StateAwareSocket socket = null;
         private StateAwareSocket responseSocket = null;
+        private AtomicBoolean reading = null;
+        private AtomicBoolean canRead = null;
 
         public TcpReader(StateAwareSocket socket) throws SocketException {
             this.socket = socket;
             initSocket(socket);
+            reading = new AtomicBoolean(false);
+            canRead = new AtomicBoolean(true);
+        }
+
+        public StateAwareSocket getSocket() {
+            return socket;
+        }
+
+        public boolean isReading() {
+            return reading.get();
+        }
+
+        public void setCanRead(boolean canRead) {
+            this.canRead.set(canRead);
         }
 
         @Override
@@ -286,170 +418,194 @@ public class TcpReceiver extends SourceConnector {
 
             eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), ConnectorEventType.CONNECTED, null, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), true));
 
-            while (!done) {
-                StreamHandler streamHandler = null;
+            try {
+                while (!done && getCurrentState() == ChannelState.STARTED) {
+                    ThreadUtils.checkInterruptedStatus();
+                    StreamHandler streamHandler = null;
 
-                try {
-                    boolean streamDone = false;
-                    // TODO: Put this on the DataType object; let it decide based on the properties which stream handler to use
-                    BatchStreamReader batchStreamReader = null;
-                    if (connectorProperties.isProcessBatch() && getInboundDataType().getType().equals("HL7V2")) {
-                        if (connectorProperties.getTransmissionModeProperties() instanceof FrameModeProperties) {
-                            batchStreamReader = new ER7BatchStreamReader(socket.getInputStream(), TcpUtil.stringToByteArray(((FrameModeProperties) connectorProperties.getTransmissionModeProperties()).getEndOfMessageBytes()));
-                        } else {
-                            batchStreamReader = new ER7BatchStreamReader(socket.getInputStream());
-                        }
-                    } else {
-                        batchStreamReader = new DefaultBatchStreamReader(socket.getInputStream());
-                    }
-                    streamHandler = transmissionModeProvider.getStreamHandler(socket.getInputStream(), socket.getOutputStream(), batchStreamReader, connectorProperties.getTransmissionModeProperties());
-
-                    if (connectorProperties.getRespondOnNewConnection() != TcpReceiverProperties.NEW_CONNECTION) {
-                        // If we're not responding on a new connection, then write to the output stream of the same socket
-                        responseSocket = socket;
-                        BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), parseInt(connectorProperties.getBufferSize()));
-                        streamHandler.setOutputStream(bos);
-                    }
-
-                    while (!streamDone && !done) {
-                        /*
-                         * Read from the socket's input stream. If we're keeping
-                         * the connection open, then bytes will be read until
-                         * the socket timeout is reached, or until an EOF marker
-                         * or the ending bytes are encountered. If we're not
-                         * keeping the connection open, then a socket timeout
-                         * will not be silently caught, and instead will be
-                         * thrown from here and cause the worker thread to
-                         * abort.
-                         */
-                        logger.debug("Reading from socket input stream (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")...");
-                        byte[] bytes = streamHandler.read();
-
-                        if (bytes != null) {
-                            logger.debug("Bytes returned from socket, length: " + bytes.length + " (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")");
-                            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.RECEIVING, "Message received from " + SocketUtil.getLocalAddress(socket) + ", processing... "));
-
-                            RawMessage rawMessage = null;
-
-                            if (connectorProperties.isDataTypeBinary()) {
-                                // Store the raw bytes in the RawMessage object
-                                rawMessage = new RawMessage(bytes);
+                    try {
+                        boolean streamDone = false;
+                        // TODO: Put this on the DataType object; let it decide based on the properties which stream handler to use
+                        BatchStreamReader batchStreamReader = null;
+                        if (connectorProperties.isProcessBatch() && getInboundDataType().getType().equals("HL7V2")) {
+                            if (connectorProperties.getTransmissionModeProperties() instanceof FrameModeProperties) {
+                                batchStreamReader = new ER7BatchStreamReader(socket.getInputStream(), TcpUtil.stringToByteArray(((FrameModeProperties) connectorProperties.getTransmissionModeProperties()).getEndOfMessageBytes()));
                             } else {
-                                // Encode the bytes using the charset encoding property and store the string in the RawMessage object
-                                rawMessage = new RawMessage(new String(bytes, CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding())));
+                                batchStreamReader = new ER7BatchStreamReader(socket.getInputStream());
+                            }
+                        } else {
+                            batchStreamReader = new DefaultBatchStreamReader(socket.getInputStream());
+                        }
+                        streamHandler = transmissionModeProvider.getStreamHandler(socket.getInputStream(), socket.getOutputStream(), batchStreamReader, connectorProperties.getTransmissionModeProperties());
+
+                        if (connectorProperties.getRespondOnNewConnection() != TcpReceiverProperties.NEW_CONNECTION) {
+                            // If we're not responding on a new connection, then write to the output stream of the same socket
+                            responseSocket = socket;
+                            BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), parseInt(connectorProperties.getBufferSize()));
+                            streamHandler.setOutputStream(bos);
+                        }
+
+                        while (!streamDone && !done) {
+                            ThreadUtils.checkInterruptedStatus();
+
+                            /*
+                             * We need to keep track of whether the worker thread is currently
+                             * trying to read from the input stream because the read() method is not
+                             * interruptable. To do this we store two booleans, canRead and reading.
+                             * The canRead boolean is checked internally here and set externally
+                             * (e.g. by the onStop() or onHalt() methods). The reading boolean is
+                             * set in here when the thread is about to attempt to read from the
+                             * stream. After the read() method returns (or throws an exception),
+                             * reading is set to false.
+                             */
+                            synchronized (this) {
+                                if (canRead.get()) {
+                                    reading.set(true);
+                                }
                             }
 
-                            // Add the socket information to the channelMap
-                            Map<String, Object> channelMap = new HashMap<String, Object>();
-                            channelMap.put("clientAddress", socket.getLocalAddress().getHostAddress());
-                            channelMap.put("clientPort", socket.getLocalPort());
-                            if (socket.getRemoteSocketAddress() instanceof InetSocketAddress) {
-                                channelMap.put("localAddress", ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress());
-                                channelMap.put("localPort", ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort());
-                            }
-                            rawMessage.setChannelMap(channelMap);
+                            byte[] bytes = null;
 
-                            DispatchResult dispatchResult = null;
-
-                            // Keep attempting while the channel is still started
-                            while (dispatchResult == null && getCurrentState() == ChannelState.STARTED) {
-                                boolean attemptedResponse = false;
-                                String errorMessage = null;
-
-                                // Send the message to the source connector
+                            if (reading.get()) {
+                                logger.debug("Reading from socket input stream (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")...");
                                 try {
-                                    dispatchResult = dispatchRawMessage(rawMessage);
-                                    streamHandler.commit(true);
+                                    /*
+                                     * Read from the socket's input stream. If we're keeping the
+                                     * connection open, then bytes will be read until the socket
+                                     * timeout is reached, or until an EOF marker or the ending
+                                     * bytes are encountered. If we're not keeping the connection
+                                     * open, then a socket timeout will not be silently caught, and
+                                     * instead will be thrown from here and cause the worker thread
+                                     * to abort.
+                                     */
+                                    bytes = streamHandler.read();
+                                } finally {
+                                    reading.set(false);
+                                }
+                            }
 
-                                    // Check to see if we have a response to send
-                                    if (dispatchResult.getSelectedResponse() != null) {
-                                        // Send the response
-                                        attemptedResponse = true;
+                            if (bytes != null) {
+                                logger.debug("Bytes returned from socket, length: " + bytes.length + " (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")");
+                                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.RECEIVING, "Message received from " + SocketUtil.getLocalAddress(socket) + ", processing... "));
 
-                                        try {
-                                            // If the response socket hasn't been initialized, do that now
-                                            if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
-                                                responseSocket = createResponseSocket(streamHandler);
-                                            }
+                                RawMessage rawMessage = null;
 
-                                            sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION);
-                                        } catch (IOException e) {
-                                            errorMessage = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, "Error sending response.", e);
-                                        } finally {
-                                            if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
-                                                closeSocketQuietly(responseSocket);
+                                if (connectorProperties.isDataTypeBinary()) {
+                                    // Store the raw bytes in the RawMessage object
+                                    rawMessage = new RawMessage(bytes);
+                                } else {
+                                    // Encode the bytes using the charset encoding property and store the string in the RawMessage object
+                                    rawMessage = new RawMessage(new String(bytes, CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding())));
+                                }
+
+                                // Add the socket information to the channelMap
+                                Map<String, Object> channelMap = new HashMap<String, Object>();
+                                channelMap.put("clientAddress", socket.getLocalAddress().getHostAddress());
+                                channelMap.put("clientPort", socket.getLocalPort());
+                                if (socket.getRemoteSocketAddress() instanceof InetSocketAddress) {
+                                    channelMap.put("localAddress", ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress());
+                                    channelMap.put("localPort", ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort());
+                                }
+                                rawMessage.setChannelMap(channelMap);
+
+                                DispatchResult dispatchResult = null;
+
+                                // Keep attempting while the channel is still started
+                                while (dispatchResult == null && getCurrentState() == ChannelState.STARTED) {
+                                    ThreadUtils.checkInterruptedStatus();
+
+                                    boolean attemptedResponse = false;
+                                    String errorMessage = null;
+
+                                    // Send the message to the source connector
+                                    try {
+                                        dispatchResult = dispatchRawMessage(rawMessage);
+                                        streamHandler.commit(true);
+
+                                        // Check to see if we have a response to send
+                                        if (dispatchResult.getSelectedResponse() != null) {
+                                            // Send the response
+                                            attemptedResponse = true;
+
+                                            try {
+                                                // If the response socket hasn't been initialized, do that now
+                                                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
+                                                    responseSocket = createResponseSocket(streamHandler);
+                                                }
+
+                                                sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION);
+                                            } catch (IOException e) {
+                                                errorMessage = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, "Error sending response.", e);
+                                            } finally {
+                                                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
+                                                    closeSocketQuietly(responseSocket);
+                                                }
                                             }
                                         }
+                                    } catch (ChannelException e) {
+                                        streamHandler.commit(false);
+                                    } finally {
+                                        finishDispatch(dispatchResult, attemptedResponse, errorMessage);
                                     }
-                                } catch (ChannelException e) {
-                                    streamHandler.commit(false);
-                                } finally {
-                                    finishDispatch(dispatchResult, attemptedResponse, errorMessage);
                                 }
 
-                                // Check to see if the thread has been interrupted before the message was sent
-                                if (Thread.currentThread().isInterrupted() && dispatchResult == null) {
-                                    // Stop trying to receive data
-                                    done = true;
-                                    // Set the return value and send an alert
-                                    t = new InterruptedException("TCP worker thread was interrupted before the message was sent (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-                                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), "Error receiving message", t));
-                                    break;
-                                }
+                                eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE, ConnectorEventType.CONNECTED, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), null));
+                            } else {
+                                // If no bytes were returned, then assume we have finished processing all possible messages from the input stream.
+                                logger.debug("Stream reader returned null (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
+                                streamDone = true;
                             }
+                        }
 
-                            eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE, ConnectorEventType.CONNECTED, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), null));
+                        logger.debug("Done with socket input stream (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
+
+                        // If we're not keeping the connection open or if the remote side has already closed the connection, then we're done with the socket
+                        if (checkSocket(socket)) {
+                            done = true;
+                        }
+                    } catch (IOException e) {
+                        boolean timeout = e instanceof SocketTimeoutException || !(e instanceof StreamHandlerException) && e.getCause() != null && e.getCause() instanceof SocketTimeoutException;
+
+                        // If we're keeping the connection open and a timeout occurred, then continue processing. Otherwise, abort.
+                        if (!connectorProperties.isKeepConnectionOpen() || !timeout) {
+                            // If an exception occurred then abort, even if keep connection open is true
+                            done = true;
+
+                            if (timeout) {
+                                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.FAILURE, "Timeout waiting for message from " + SocketUtil.getLocalAddress(socket) + ". "));
+                            } else {
+                                // Set the return value and send an alert
+                                t = new Exception("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                                logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), "Error receiving message", e));
+                                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.FAILURE, "Error receiving message from " + SocketUtil.getLocalAddress(socket) + ": " + e.getMessage()));
+                            }
                         } else {
-                            // If no bytes were returned, then assume we have finished processing all possible messages from the input stream.
-                            logger.debug("Stream reader returned null (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-                            streamDone = true;
+                            logger.debug("Timeout reading from socket input stream (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
+                            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.INFO, "Timeout waiting for message from " + SocketUtil.getLocalAddress(socket) + ". "));
                         }
                     }
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), "Error receiving message", e));
+                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.FAILURE, "Error receiving message from " + SocketUtil.getLocalAddress(socket) + ": " + e.getMessage()));
+            } finally {
+                logger.debug("Done with socket, closing (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")...");
 
-                    logger.debug("Done with socket input stream (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-
-                    // If we're not keeping the connection open or if the remote side has already closed the connection, then we're done with the socket
-                    if (checkSocket(socket)) {
-                        done = true;
-                    }
-                } catch (IOException e) {
-                    boolean timeout = e instanceof SocketTimeoutException || !(e instanceof StreamHandlerException) && e.getCause() != null && e.getCause() instanceof SocketTimeoutException;
-
-                    // If we're keeping the connection open and a timeout occurred, then continue processing. Otherwise, abort.
-                    if (!connectorProperties.isKeepConnectionOpen() || !timeout) {
-                        // If an exception occurred then abort, even if keep connection open is true
-                        done = true;
-
-                        if (timeout) {
-                            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.FAILURE, "Timeout waiting for message from " + SocketUtil.getLocalAddress(socket) + ". "));
-                        } else {
-                            // Set the return value and send an alert
-                            t = new Exception("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                            logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), "Error receiving message", e));
-                            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.FAILURE, "Error receiving message from " + SocketUtil.getLocalAddress(socket) + ": " + e.getMessage()));
-                        }
-                    } else {
-                        logger.debug("Timeout reading from socket input stream (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-                        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.INFO, "Timeout waiting for message from " + SocketUtil.getLocalAddress(socket) + ". "));
-                    }
+                // We're done reading, so close everything up
+                closeSocketQuietly(socket);
+                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
+                    closeSocketQuietly(responseSocket);
                 }
 
-                // Stop trying to receive data if the thread has been interrupted or the source connector has been stopped
-                if (Thread.currentThread().isInterrupted() || getCurrentState() != ChannelState.STARTED) {
-                    done = true;
+                eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), ConnectorEventType.DISCONNECTED, ConnectorEventType.CONNECTED, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), false));
+
+                synchronized (clientReaders) {
+                    clientReaders.remove(this);
                 }
             }
-
-            logger.debug("Done with socket, closing (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")...");
-
-            // We're done reading, so close everything up
-            closeSocketQuietly(socket);
-            if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
-                closeSocketQuietly(responseSocket);
-            }
-
-            eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), ConnectorEventType.DISCONNECTED, ConnectorEventType.CONNECTED, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), false));
 
             return t;
         }
@@ -519,7 +675,7 @@ public class TcpReceiver extends SourceConnector {
     }
 
     private boolean checkSocket(StateAwareSocket socket) throws IOException {
-        return !connectorProperties.isKeepConnectionOpen() || socket.remoteSideHasClosed();
+        return !connectorProperties.isKeepConnectionOpen() || socket.isClosed() || socket.remoteSideHasClosed();
     }
 
     private void closeSocketQuietly(StateAwareSocket socket) {
@@ -551,34 +707,31 @@ public class TcpReceiver extends SourceConnector {
     }
 
     /**
-     * Attempts to get the result of any Future tasks which may still be
-     * running. Any completed tasks are removed from the Future list.
+     * Attempts to get the result of any Future tasks which may still be running. Any completed
+     * tasks are removed from the Future list.
      * 
-     * This can ensure that all client socket threads are disposed, so that a
-     * remote client wouldn't be able to still send a message after a channel
-     * has been stopped or undeployed (even though it wouldn't be processed
-     * through the channel anyway).
+     * This can ensure that all client socket threads are disposed, so that a remote client wouldn't
+     * be able to still send a message after a channel has been stopped or undeployed (even though
+     * it wouldn't be processed through the channel anyway).
      * 
      * @param block
-     *            - If true, then each Future task will be joined to this one,
-     *            blocking until the task thread dies.
-     * @param cancel
-     *            - If true, then each Future task will be canceled. If the
-     *            executor has not started the task, then it should never run.
-     *            If the task is already running, then the interrupt parameter
-     *            determines whether to try to interrupt the task thread. The
-     *            result will also be removed from the Future list.
+     *            - If true, then each Future task will be joined to this one, blocking until the
+     *            task thread dies.
      * @param interrupt
-     *            - If true and cancel is true, then each currently running task
-     *            thread will be interrupted in an attempt to stop the task.
+     *            - If true, each currently running task thread will be interrupted in an attempt to
+     *            stop the task. Any interrupted exceptions will be caught and not thrown, in a best
+     *            effort to ensure that all results are taken care of.
+     * @param remove
+     *            - If true, each completed result will be removed from the Future set during
+     *            iteration.
      */
-    private void cleanup(boolean block, boolean cancel, boolean interrupt) {
+    private void cleanup(boolean block, boolean interrupt, boolean remove) throws InterruptedException {
         for (Iterator<Future<Throwable>> it = results.iterator(); it.hasNext();) {
             Future<Throwable> result = it.next();
 
-            if (cancel) {
+            if (interrupt) {
                 // Cancel the task, with the option of whether or not to forcefully interrupt it
-                result.cancel(interrupt);
+                result.cancel(true);
             }
 
             if (block) {
@@ -590,16 +743,29 @@ public class TcpReceiver extends SourceConnector {
                         logger.debug("Client socket thread returned unsuccessfully (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
                     }
                 } catch (Exception e) {
-                    if (e instanceof InterruptedException) {
-                        Thread.currentThread().interrupt();
-                    }
                     logger.debug("Error retrieving client socket thread result for " + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ".", e);
+
+                    Throwable cause;
+                    if (t instanceof ExecutionException) {
+                        cause = t.getCause();
+                    } else {
+                        cause = t;
+                    }
+
+                    if (cause instanceof InterruptedException) {
+                        Thread.currentThread().interrupt();
+                        if (!interrupt) {
+                            throw (InterruptedException) cause;
+                        }
+                    }
                 }
             }
 
-            // Remove the task from the list if it's done, or if it's been cancelled
-            if (result.isDone()) {
-                it.remove();
+            if (remove) {
+                // Remove the task from the list if it's done, or if it's been cancelled
+                if (result.isDone()) {
+                    it.remove();
+                }
             }
         }
     }
@@ -626,8 +792,8 @@ public class TcpReceiver extends SourceConnector {
     }
 
     /*
-     * Converts a string to a byte array using the connector properties to
-     * determine whether or not to encode in Base64, and what charset to use.
+     * Converts a string to a byte array using the connector properties to determine whether or not
+     * to encode in Base64, and what charset to use.
      */
     private byte[] getBytes(String str) throws UnsupportedEncodingException {
         byte[] bytes = new byte[0];
