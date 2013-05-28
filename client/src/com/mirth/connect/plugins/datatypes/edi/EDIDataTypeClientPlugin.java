@@ -14,13 +14,12 @@ import org.syntax.jedit.tokenmarker.X12TokenMarker;
 
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
-import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.util.MessageVocabulary;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 
 public class EDIDataTypeClientPlugin extends DataTypeClientPlugin {
     private DataTypeDelegate dataTypeDelegate = new EDIDataTypeDelegate();
-    
+
     public EDIDataTypeClientPlugin(String name) {
         super(name);
     }
@@ -62,23 +61,17 @@ public class EDIDataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public void start() {
+        addConversionTemplates("default xml namespace = new Namespace('urn:mirthproject-org:edi:xml');", false);
     }
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 
     @Override
-    public void reset() {
-    }
+    public void reset() {}
 
     @Override
     protected DataTypeDelegate getDataTypeDelegate() {
         return dataTypeDelegate;
-    }
-
-    @Override
-    public DataTypeProperties getDefaultProperties() {
-        return new EDIDataTypeProperties();
     }
 }

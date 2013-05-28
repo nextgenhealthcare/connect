@@ -14,7 +14,6 @@ import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
-import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.util.MessageVocabulary;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 
@@ -62,23 +61,17 @@ public class HL7V3DataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public void start() {
+        addConversionTemplates(null, false);
     }
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 
     @Override
-    public void reset() {
-    }
+    public void reset() {}
 
     @Override
     protected DataTypeDelegate getDataTypeDelegate() {
         return dataTypeDelegate;
-    }
-
-    @Override
-    public DataTypeProperties getDefaultProperties() {
-        return new HL7V3DataTypeProperties();
     }
 }

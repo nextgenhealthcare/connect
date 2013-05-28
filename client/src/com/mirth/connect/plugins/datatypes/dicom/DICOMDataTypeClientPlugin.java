@@ -15,7 +15,6 @@ import org.w3c.dom.Element;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
-import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.util.MessageVocabulary;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 
@@ -48,15 +47,14 @@ public class DICOMDataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public void start() {
+        addConversionTemplates(null, true);
     }
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 
     @Override
-    public void reset() {
-    }
+    public void reset() {}
 
     @Override
     public Class<? extends MessageVocabulary> getVocabulary() {
@@ -95,10 +93,4 @@ public class DICOMDataTypeClientPlugin extends DataTypeClientPlugin {
     protected DataTypeDelegate getDataTypeDelegate() {
         return dataTypeDelegate;
     }
-
-    @Override
-    public DataTypeProperties getDefaultProperties() {
-        return new DICOMDataTypeProperties();
-    }
-
 }

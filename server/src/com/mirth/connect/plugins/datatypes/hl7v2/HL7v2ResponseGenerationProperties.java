@@ -25,11 +25,11 @@ public class HL7v2ResponseGenerationProperties extends ResponseGenerationPropert
     private String rejectedACKCode = "AR";
     private String rejectedACKMessage = "Message Rejected.";
     private boolean msh15ACKAccept = false;
-    
+
     public HL7v2ResponseGenerationProperties() {
-        
+
     }
-    
+
     public HL7v2ResponseGenerationProperties(HL7v2ResponseGenerationProperties properties) {
         this.segmentDelimiter = properties.getSegmentDelimiter();
         this.successfulACKCode = properties.getSuccessfulACKCode();
@@ -40,11 +40,11 @@ public class HL7v2ResponseGenerationProperties extends ResponseGenerationPropert
         this.rejectedACKMessage = properties.getRejectedACKMessage();
         this.msh15ACKAccept = properties.isMsh15ACKAccept();
     }
-    
+
     @Override
-    public Map<String, DataTypePropertyDescriptor> getProperties() {
+    public Map<String, DataTypePropertyDescriptor> getPropertyDescriptors() {
         Map<String, DataTypePropertyDescriptor> properties = new LinkedHashMap<String, DataTypePropertyDescriptor>();
-        
+
         properties.put("segmentDelimiter", new DataTypePropertyDescriptor(segmentDelimiter, "Segment Delimiter", "This is the delimiter character(s) that will be used after each segment", PropertyEditorType.STRING));
         properties.put("successfulACKCode", new DataTypePropertyDescriptor(successfulACKCode, "Successful ACK Code", "The ACK code to respond with when the message processes successfully. This option has no effect unless an \"Auto Respond\" item has been selected in the response settings.", PropertyEditorType.STRING));
         properties.put("successfulACKMessage", new DataTypePropertyDescriptor(successfulACKMessage, "Successful ACK Message", "The ACK message to respond with when the message processes successfully. This option has no effect unless an \"Auto Respond\" item has been selected in the response settings.", PropertyEditorType.STRING));
@@ -53,10 +53,10 @@ public class HL7v2ResponseGenerationProperties extends ResponseGenerationPropert
         properties.put("rejectedACKCode", new DataTypePropertyDescriptor(rejectedACKCode, "Rejected ACK Code", "The ACK code to respond with when the message is filtered. This option has no effect unless an \"Auto Respond\" item has been selected in the response settings.", PropertyEditorType.STRING));
         properties.put("rejectedACKMessage", new DataTypePropertyDescriptor(rejectedACKMessage, "Rejected ACK Message", "The ACK message to respond with when the message is filtered. This option has no effect unless an \"Auto Respond\" item has been selected in the response settings.", PropertyEditorType.STRING));
         properties.put("msh15ACKAccept", new DataTypePropertyDescriptor(msh15ACKAccept, "MSH-15 ACK Accept", "This setting determines if Mirth should check the MSH-15 field of an incoming message to control the acknowledgment conditions. The MSH-15 field specifies if a message should be always acknowledged, never acknowledged, or only acknowledged on error. This option has no effect unless an \"Auto Respond\" item has been selected in the response settings.", PropertyEditorType.BOOLEAN));
-        
+
         return properties;
     }
-    
+
     @Override
     public void setProperties(Map<String, Object> properties) {
         if (properties != null) {
@@ -86,52 +86,67 @@ public class HL7v2ResponseGenerationProperties extends ResponseGenerationPropert
             }
         }
     }
-    
+
     public String getSegmentDelimiter() {
         return segmentDelimiter;
     }
+
     public void setOutputSegmentDelimiter(String segmentDelimiter) {
         this.segmentDelimiter = segmentDelimiter;
     }
+
     public String getSuccessfulACKCode() {
         return successfulACKCode;
     }
+
     public void setSuccessfulACKCode(String successfulACKCode) {
         this.successfulACKCode = successfulACKCode;
     }
+
     public String getSuccessfulACKMessage() {
         return successfulACKMessage;
     }
+
     public void setSuccessfulACKMessage(String successfulACKMessage) {
         this.successfulACKMessage = successfulACKMessage;
     }
+
     public String getErrorACKCode() {
         return errorACKCode;
     }
+
     public void setErrorACKCode(String errorACKCode) {
         this.errorACKCode = errorACKCode;
     }
+
     public String getErrorACKMessage() {
         return errorACKMessage;
     }
+
     public void setErrorACKMessage(String errorACKMessage) {
         this.errorACKMessage = errorACKMessage;
     }
+
     public String getRejectedACKCode() {
         return rejectedACKCode;
     }
+
     public void setRejectedACKCode(String rejectedACKCode) {
         this.rejectedACKCode = rejectedACKCode;
     }
+
     public String getRejectedACKMessage() {
         return rejectedACKMessage;
     }
+
     public void setRejectedACKMessage(String rejectedACKMessage) {
         this.rejectedACKMessage = rejectedACKMessage;
     }
+
     public boolean isMsh15ACKAccept() {
         return msh15ACKAccept;
     }
+
     public void setMsh15ACKAccept(boolean msh15ackAccept) {
         msh15ACKAccept = msh15ackAccept;
     }

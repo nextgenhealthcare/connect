@@ -30,7 +30,7 @@ public class HL7v2ResponseValidationProperties extends ResponseValidationPropert
     }
 
     @Override
-    public Map<String, DataTypePropertyDescriptor> getProperties() {
+    public Map<String, DataTypePropertyDescriptor> getPropertyDescriptors() {
         Map<String, DataTypePropertyDescriptor> properties = new LinkedHashMap<String, DataTypePropertyDescriptor>();
 
         properties.put("successfulACKCode", new DataTypePropertyDescriptor(successfulACKCode, "Successful ACK Code", "The ACK code to respond with when the message processes successfully. This option has no effect unless an \"Auto Respond\" item has been selected in the response settings.", PropertyEditorType.STRING));

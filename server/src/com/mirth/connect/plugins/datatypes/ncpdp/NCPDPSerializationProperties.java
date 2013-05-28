@@ -17,19 +17,19 @@ import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.SerializationProperties;
 
 public class NCPDPSerializationProperties extends SerializationProperties {
-    
+
     private String segmentDelimiter = "0x1E";
     private String groupDelimiter = "0x1D";
     private String fieldDelimiter = "0x1C";
 
     @Override
-    public Map<String, DataTypePropertyDescriptor> getProperties() {
+    public Map<String, DataTypePropertyDescriptor> getPropertyDescriptors() {
         Map<String, DataTypePropertyDescriptor> properties = new LinkedHashMap<String, DataTypePropertyDescriptor>();
-        
+
         properties.put("fieldDelimiter", new DataTypePropertyDescriptor(fieldDelimiter, "Field Delimiter", "Characters that delimit the fields in the message.", PropertyEditorType.STRING));
         properties.put("groupDelimiter", new DataTypePropertyDescriptor(groupDelimiter, "Group Delimiter", "Characters that delimit the groups in the message.", PropertyEditorType.STRING));
         properties.put("segmentDelimiter", new DataTypePropertyDescriptor(segmentDelimiter, "Segment Delimiter", "Characters that delimit the segments in the message.", PropertyEditorType.STRING));
-        
+
         return properties;
     }
 
@@ -49,7 +49,7 @@ public class NCPDPSerializationProperties extends SerializationProperties {
             }
         }
     }
-    
+
     public String getSegmentDelimiter() {
         return segmentDelimiter;
     }

@@ -15,6 +15,7 @@ import com.mirth.connect.donkey.server.message.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.ResponseValidator;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.datatype.ResponseGenerationProperties;
 import com.mirth.connect.model.datatype.ResponseValidationProperties;
 import com.mirth.connect.model.datatype.SerializationProperties;
@@ -43,6 +44,13 @@ public abstract class DataTypeServerPlugin implements ServerPlugin {
      */
     final public SerializationType getSerializationType() {
         return getDataTypeDelegate().getSerializationType();
+    }
+
+    /**
+     * Get the default properties of the data type. Must not return null.
+     */
+    final public DataTypeProperties getDefaultProperties() {
+        return getDataTypeDelegate().getDefaultProperties();
     }
 
     /**

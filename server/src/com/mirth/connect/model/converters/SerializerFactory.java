@@ -9,96 +9,56 @@
 
 package com.mirth.connect.model.converters;
 
+import java.util.Map;
 
+import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.plugins.DataTypeServerPlugin;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ExtensionController;
 
 public class SerializerFactory {
 
-    // TODO: Remove in 3.0
-//    @Deprecated
-//    public static ER7Serializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR, boolean handleSubcomponents) {
-//        Properties properties = new Properties();
-//        properties.put("useStrictParser", Boolean.toString(useStrictParser));
-//        properties.put("useStrictValidation", Boolean.toString(useStrictValidation));
-//        properties.put("handleRepetitions", Boolean.toString(handleRepetitions));
-//        if (convertLFtoCR) {
-//            properties.put("inputSegmentDelimiter", "\\r\\n|\\r|\\n");
-//        } else {
-//            properties.put("inputSegmentDelimiter", "\\r");
-//        }
-//        properties.put("outputSegmentDelimiter", "\\r");
-//        properties.put("handleSubcomponents", Boolean.toString(handleSubcomponents));
-//        return new ER7Serializer(properties);
-//    }
-//
-//    @Deprecated
-//    public static ER7Serializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR) {
-//        Properties properties = new Properties();
-//        properties.put("useStrictParser", Boolean.toString(useStrictParser));
-//        properties.put("useStrictValidation", Boolean.toString(useStrictValidation));
-//        properties.put("handleRepetitions", Boolean.toString(handleRepetitions));
-//        if (convertLFtoCR) {
-//            properties.put("inputSegmentDelimiter", "\\r\\n|\\r|\\n");
-//        } else {
-//            properties.put("inputSegmentDelimiter", "\\r");
-//        }
-//        properties.put("outputSegmentDelimiter", "\\r");
-//        return new ER7Serializer(properties);
-//    }
-//
-//    @Deprecated
-//    public static ER7Serializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions) {
-//        Properties properties = new Properties();
-//        properties.put("useStrictParser", Boolean.toString(useStrictParser));
-//        properties.put("useStrictValidation", Boolean.toString(useStrictValidation));
-//        properties.put("handleRepetitions", Boolean.toString(handleRepetitions));
-//        return new ER7Serializer(properties);
-//    }
-//
-//    @Deprecated
-//    public static ER7Serializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation) {
-//        Properties properties = new Properties();
-//        properties.put("useStrictParser", Boolean.toString(useStrictParser));
-//        properties.put("useStrictValidation", Boolean.toString(useStrictValidation));
-//        return new ER7Serializer(properties);
-//    }
-//
-//    @Deprecated
-//    public static ER7Serializer getHL7Serializer() {
-//        return new ER7Serializer(new Properties());
-//    }
-//
-//    @Deprecated
-//    public static X12Serializer getX12Serializer(boolean inferDelimiters) {
-//        Properties properties = new Properties();
-//        properties.put("inferDelimiters", Boolean.toString(inferDelimiters));
-//        return new X12Serializer(properties);
-//    }
-//
-//    @Deprecated
-//    public static EDISerializer getEDISerializer(String segmentDelim, String elementDelim, String subelementDelim) {
-//        Properties properties = new Properties();
-//        properties.put("segmentDelimiter", segmentDelim);
-//        properties.put("elementDelimiter", elementDelim);
-//        properties.put("subelementDelimiter", subelementDelim);
-//        return new EDISerializer(properties);
-//    }
-//
-//    @Deprecated
-//    public static NCPDPSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim) {
-//        Properties properties = new Properties();
-//        properties.put("segmentDelimiter", segmentDelim);
-//        properties.put("groupDelimiter", groupDelim);
-//        properties.put("fieldDelimiter", fieldDelim);
-//        return new NCPDPSerializer(properties);
-//    }
-//
-//    @Deprecated
-//    public static NCPDPSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim, boolean useStrictValidation) {
-//        Properties properties = new Properties();
-//        properties.put("segmentDelimiter", segmentDelim);
-//        properties.put("groupDelimiter", groupDelim);
-//        properties.put("fieldDelimiter", fieldDelim);
-//        properties.put("useStrictValidation", Boolean.toString(useStrictValidation));
-//        return new NCPDPSerializer(properties);
-//    }
+    private static ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+
+    public static IXMLSerializer getSerializer(String dataType) {
+        return getSerializer(dataType, null, null);
+    }
+
+    public static IXMLSerializer getSerializer(String dataType, Map<String, Object> serializationPropertiesMap, Map<String, Object> deserializationPropertiesMap) {
+        DataTypeServerPlugin plugin = extensionController.getDataTypePlugins().get(dataType);
+        if (plugin != null) {
+            if (serializationPropertiesMap == null) {
+                serializationPropertiesMap = getDefaultSerializationProperties(dataType);
+            }
+            if (deserializationPropertiesMap == null) {
+                deserializationPropertiesMap = getDefaultDeserializationProperties(dataType);
+            }
+
+            SerializerProperties properties = plugin.getDefaultProperties().getSerializerProperties();
+            properties.getSerializationProperties().setProperties(serializationPropertiesMap);
+            properties.getDeserializationProperties().setProperties(deserializationPropertiesMap);
+
+            return plugin.getSerializer(properties);
+        } else {
+            return null;
+        }
+    }
+
+    public static Map<String, Object> getDefaultSerializationProperties(String dataType) {
+        DataTypeServerPlugin plugin = extensionController.getDataTypePlugins().get(dataType);
+        if (plugin != null) {
+            return plugin.getDefaultProperties().getSerializationProperties().getProperties();
+        } else {
+            return null;
+        }
+    }
+
+    public static Map<String, Object> getDefaultDeserializationProperties(String dataType) {
+        DataTypeServerPlugin plugin = extensionController.getDataTypePlugins().get(dataType);
+        if (plugin != null) {
+            return plugin.getDefaultProperties().getDeserializationProperties().getProperties();
+        } else {
+            return null;
+        }
+    }
 }

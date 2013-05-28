@@ -17,21 +17,21 @@ import com.mirth.connect.model.datatype.DeserializationProperties;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 
 public class NCPDPDeserializationProperties extends DeserializationProperties {
-    
+
     private String segmentDelimiter = "0x1E";
     private String groupDelimiter = "0x1D";
     private String fieldDelimiter = "0x1C";
     private boolean useStrictValidation = false;
 
     @Override
-    public Map<String, DataTypePropertyDescriptor> getProperties() {
+    public Map<String, DataTypePropertyDescriptor> getPropertyDescriptors() {
         Map<String, DataTypePropertyDescriptor> properties = new LinkedHashMap<String, DataTypePropertyDescriptor>();
-        
+
         properties.put("fieldDelimiter", new DataTypePropertyDescriptor(fieldDelimiter, "Field Delimiter", "Characters that delimit the fields in the message.", PropertyEditorType.STRING));
         properties.put("groupDelimiter", new DataTypePropertyDescriptor(groupDelimiter, "Group Delimiter", "Characters that delimit the groups in the message.", PropertyEditorType.STRING));
         properties.put("segmentDelimiter", new DataTypePropertyDescriptor(segmentDelimiter, "Segment Delimiter", "Characters that delimit the segments in the message.", PropertyEditorType.STRING));
         properties.put("useStrictValidation", new DataTypePropertyDescriptor(useStrictValidation, "Use Strict Validation", "Validates the NCPDP message against a schema", PropertyEditorType.BOOLEAN));
-        
+
         return properties;
     }
 
@@ -54,7 +54,7 @@ public class NCPDPDeserializationProperties extends DeserializationProperties {
             }
         }
     }
-    
+
     public String getSegmentDelimiter() {
         return segmentDelimiter;
     }
@@ -86,5 +86,5 @@ public class NCPDPDeserializationProperties extends DeserializationProperties {
     public void setUseStrictValidation(boolean useStrictValidation) {
         this.useStrictValidation = useStrictValidation;
     }
-    
+
 }

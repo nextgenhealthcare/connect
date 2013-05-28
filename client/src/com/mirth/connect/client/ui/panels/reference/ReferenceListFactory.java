@@ -25,10 +25,11 @@ public class ReferenceListFactory {
 
     public enum ListType {
 
-        ALL("All"), CONVERSION("Conversion Functions"), LOGGING_AND_ALERTS("Logging and Alerts"), DATABASE(
-                "Database Functions"), UTILITY("Utility Functions"), DATE("Date Functions"), MESSAGE(
-                "Message Functions"), RESPONSE("Response Transformer"), MAP("Map Functions"), CHANNEL(
-                "Channel Functions");
+        ALL("All"), CONVERSION("Conversion Functions"), LOGGING_AND_ALERTS(
+                "Logging and Alerts"), DATABASE("Database Functions"), UTILITY(
+                "Utility Functions"), DATE("Date Functions"), MESSAGE(
+                "Message Functions"), RESPONSE("Response Transformer"), MAP(
+                "Map Functions"), CHANNEL("Channel Functions");
         private String value;
 
         ListType(String value) {
@@ -163,21 +164,19 @@ public class ReferenceListFactory {
     private ArrayList<CodeTemplate> setupConversionItems() {
         ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
 
-        variablelistItems.add(new CodeTemplate("Convert HL7 to XML (default parameters)", "Converts an encoded HL7 string to XML with the default serializer parameters", "SerializerFactory.getHL7Serializer().toXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Convert HL7 to XML (custom parameters)", "Converts an encoded HL7 string to XML with custom serializer parameters", "SerializerFactory.getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, handleSubcomponents).toXML(message);\n// Setting the default namespace is required when using the strict parser\ndefault xml namespace = new Namespace('urn:hl7-org:v2xml');\n", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Convert XML to HL7 (default parameters)", "Converts an XML string to HL7 with the default serializer parameters", "SerializerFactory.getHL7Serializer().fromXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Convert XML to HL7 (custom parameters)", "Converts an XML string to HL7 with custom serializer parameters", "SerializerFactory.getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, handleSubcomponents).fromXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-
-        variablelistItems.add(new CodeTemplate("Convert X12 to XML", "Converts an encoded X12 string to XML", "SerializerFactory.getX12Serializer(inferDelimiters).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:x12:xml');\n", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Convert XML to X12", "Converts an XML string to X12", "SerializerFactory.getX12Serializer(inferDelimiters).fromXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-
-        variablelistItems.add(new CodeTemplate("Convert EDI to XML", "Converts an encoded EDI string to XML", "SerializerFactory.getEDISerializer(segmentDelim, elementDelim, subelementDelim).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:edi:xml');\n", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Convert XML to EDI", "Converts an XML string to EDI", "SerializerFactory.getEDISerializer(segmentDelim, elementDelim, subelementDelim).fromXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-
-        variablelistItems.add(new CodeTemplate("Convert NCPDP to XML", "Converts an encoded NCPDP string to XML", "SerializerFactory.getNCPDPSerializer(segmentDelim, groupDelim, elementDelim).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:ncpdp:xml');\n", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Convert XML to NCPDP", "Converts an XML string to NCPDP", "SerializerFactory.getNCPDPSerializer(segmentDelim, groupDelim, elementDelim).fromXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Serializer", "Creates and returns a data type serializer with the specified serialization and deserialization properties. " + getDataTypesToolTipText(), "var dataType = 'HL7V2';\nvar serializationProperties = SerializerFactory.getDefaultSerializationProperties(dataType);\nvar deserializationProperties = SerializerFactory.getDefaultDeserializationProperties(dataType);\nvar serializer = SerializerFactory.getSerializer(dataType);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
 
         return variablelistItems;
+    }
+
+    private String getDataTypesToolTipText() {
+        StringBuilder builder = new StringBuilder("The available data type keys are:<br/><br/>");
+        for (String key : LoadedExtensions.getInstance().getDataTypePlugins().keySet()) {
+            builder.append("&nbsp;&nbsp;&nbsp;&nbsp;");
+            builder.append(key);
+            builder.append("<br/>");
+        }
+        return builder.toString();
     }
 
     private ArrayList<CodeTemplate> setupLoggingAndAlertsItems() {

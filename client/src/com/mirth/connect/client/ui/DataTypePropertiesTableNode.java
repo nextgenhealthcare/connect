@@ -24,24 +24,24 @@ public class DataTypePropertiesTableNode extends AbstractMutableTreeTableNode {
     private String propertyName;
     private List<DataTypePropertiesGroup> propertiesGroups;
     private DataTypePropertiesGroup defaultPropertiesGroup;
-    
+
     public DataTypePropertiesTableNode(String groupName, String groupDescription) {
         this.groupName = groupName;
         this.groupDescription = groupDescription;
     }
-    
+
     public DataTypePropertiesTableNode(String propertyName, List<DataTypePropertiesGroup> propertiesGroups, DataTypePropertiesGroup defaultPropertiesGroup) {
         this.propertyName = propertyName;
         this.propertiesGroups = propertiesGroups;
         this.defaultPropertiesGroup = defaultPropertiesGroup;
     }
-    
+
     @Override
     public boolean isEditable(int column) {
         if (column == 1 && propertiesGroups != null) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -53,108 +53,108 @@ public class DataTypePropertiesTableNode extends AbstractMutableTreeTableNode {
     @Override
     public Object getValueAt(int column) {
         switch (column) {
-            case 0: 
+            case 0:
                 if (groupName != null) {
-                	// Return the group name for the name column if it is a group node
+                    // Return the group name for the name column if it is a group node
                     return groupName;
                 } else {
-                	// Return the property's display name if it is a property node
-                	String displayName = defaultPropertiesGroup.getProperties().get(propertyName).getDisplayName();
-                	if (!isDefaultProperty()) {
-                		// Bold the display name if the value is not the default value
-            			displayName = "<html><b>" + displayName + "</b></html>";
-                	}
-                	
+                    // Return the property's display name if it is a property node
+                    String displayName = defaultPropertiesGroup.getPropertyDescriptors().get(propertyName).getDisplayName();
+                    if (!isDefaultProperty()) {
+                        // Bold the display name if the value is not the default value
+                        displayName = "<html><b>" + displayName + "</b></html>";
+                    }
+
                     return displayName;
                 }
-            
-            case 1: 
+
+            case 1:
                 if (groupName != null) {
-                	// Return null for the description column if it is a group node
+                    // Return null for the description column if it is a group node
                     return null;
                 } else {
-                	DataTypeNodeDescriptor descriptor = null;
-                	
-                	for (DataTypePropertiesGroup propertiesGroup : propertiesGroups) {
-                		DataTypePropertyDescriptor currentDescriptor = propertiesGroup.getProperties().get(propertyName);
-                		
-                		if (descriptor == null) {
-                			// Populate the node descriptor with the data from the first node
-                			descriptor = new DataTypeNodeDescriptor(currentDescriptor.getValue(), currentDescriptor.getEditorType(), false);
-                		} else {
-                			// If the values in the list of properties are not all the same, indicate that there are multiple values
-                			if (!descriptor.getValue().equals(currentDescriptor.getValue())) {
-                				descriptor.setMultipleValues(true);
-                				break;
-                			}
-                		}
-                	}
-                	
+                    DataTypeNodeDescriptor descriptor = null;
+
+                    for (DataTypePropertiesGroup propertiesGroup : propertiesGroups) {
+                        DataTypePropertyDescriptor currentDescriptor = propertiesGroup.getPropertyDescriptors().get(propertyName);
+
+                        if (descriptor == null) {
+                            // Populate the node descriptor with the data from the first node
+                            descriptor = new DataTypeNodeDescriptor(currentDescriptor.getValue(), currentDescriptor.getEditorType(), false);
+                        } else {
+                            // If the values in the list of properties are not all the same, indicate that there are multiple values
+                            if (!descriptor.getValue().equals(currentDescriptor.getValue())) {
+                                descriptor.setMultipleValues(true);
+                                break;
+                            }
+                        }
+                    }
+
                     return descriptor;
                 }
         }
-        
+
         return null;
     }
-    
+
     @Override
     public void setValueAt(Object value, int column) {
         if (column == 1 && propertiesGroups != null && value != null) {
             Map<String, Object> map = new HashMap<String, Object>();
             map.put(propertyName, value);
             for (DataTypePropertiesGroup propertiesGroup : propertiesGroups) {
-            	propertiesGroup.setProperties(map);
+                propertiesGroup.setProperties(map);
             }
         }
     }
-    
+
     public DataTypePropertyDescriptor getPropertyDescriptor() {
-        return defaultPropertiesGroup.getProperties().get(propertyName);
+        return defaultPropertiesGroup.getPropertyDescriptors().get(propertyName);
     }
-    
+
     public String getName() {
-    	if (groupName != null) {
-    		return groupName;
-    	} else {
-    		return defaultPropertiesGroup.getProperties().get(propertyName).getDisplayName();
-    	}
+        if (groupName != null) {
+            return groupName;
+        } else {
+            return defaultPropertiesGroup.getPropertyDescriptors().get(propertyName).getDisplayName();
+        }
     }
-    
+
     public String getDescription() {
-    	if (groupName != null) {
-    		return groupDescription;
-    	} else {
-    		return defaultPropertiesGroup.getProperties().get(propertyName).getDescription();
-    	}
+        if (groupName != null) {
+            return groupDescription;
+        } else {
+            return defaultPropertiesGroup.getPropertyDescriptors().get(propertyName).getDescription();
+        }
     }
-    
+
     /**
      * Reset the current node to its default value
      */
     public void resetToDefault() {
-    	if (propertyName != null) {
-	    	Object defaultValue = defaultPropertiesGroup.getProperties().get(propertyName).getValue();
-	    	setValueAt(defaultValue, 1);
-    	}
+        if (propertyName != null) {
+            Object defaultValue = defaultPropertiesGroup.getPropertyDescriptors().get(propertyName).getValue();
+            setValueAt(defaultValue, 1);
+        }
     }
-    
+
     /**
      * Returns whether or not the node holds the default value
      */
     public boolean isDefaultProperty() {
-    	if (propertiesGroups != null) {
-	    	Object defaultValue = defaultPropertiesGroup.getProperties().get(propertyName).getValue();
-	    	
-	    	for (DataTypePropertiesGroup propertiesGroup : propertiesGroups) {
-	    		Object value = propertiesGroup.getProperties().get(propertyName).getValue();
-	    		
-	    		if (!defaultValue.equals(value)) {
-	    			return false;
-	    		}
-	    	}
-    	}
-    	
-    	return true;
+        if (propertiesGroups != null) {
+            Object defaultValue = defaultPropertiesGroup.getPropertyDescriptors().get(propertyName).getValue();
+
+            for (DataTypePropertiesGroup propertiesGroup : propertiesGroups) {
+                Object value = propertiesGroup.getPropertyDescriptors().get(propertyName).getValue();
+
+                if (!defaultValue.equals(value)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
 }

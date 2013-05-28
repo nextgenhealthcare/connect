@@ -14,13 +14,12 @@ import org.syntax.jedit.tokenmarker.TokenMarker;
 
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
-import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.util.MessageVocabulary;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 
 public class HL7v2DataTypeClientPlugin extends DataTypeClientPlugin {
     private DataTypeDelegate dataTypeDelegate = new HL7v2DataTypeDelegate();
-    
+
     public HL7v2DataTypeClientPlugin(String name) {
         super(name);
     }
@@ -47,16 +46,15 @@ public class HL7v2DataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public void start() {
+        addConversionTemplates("// Setting the default namespace is required when using the strict parser\ndefault xml namespace = new Namespace('urn:hl7-org:v2xml');", false);
     }
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 
     @Override
-    public void reset() {
-    }
-    
+    public void reset() {}
+
     @Override
     public Class<? extends MessageVocabulary> getVocabulary() {
         return HL7v2Vocabulary.class;
@@ -76,10 +74,4 @@ public class HL7v2DataTypeClientPlugin extends DataTypeClientPlugin {
     protected DataTypeDelegate getDataTypeDelegate() {
         return dataTypeDelegate;
     }
-
-    @Override
-    public DataTypeProperties getDefaultProperties() {
-        return new HL7v2DataTypeProperties();
-    }
-
 }

@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.datatypes.ncpdp;
 import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.datatype.SerializerProperties;
 
 public class NCPDPDataTypeDelegate implements DataTypeDelegate {
@@ -20,7 +21,7 @@ public class NCPDPDataTypeDelegate implements DataTypeDelegate {
     public String getName() {
         return "NCPDP";
     }
-    
+
     @Override
     public IXMLSerializer getSerializer(SerializerProperties properties) {
         return new NCPDPSerializer(properties);
@@ -30,9 +31,14 @@ public class NCPDPDataTypeDelegate implements DataTypeDelegate {
     public boolean isBinary() {
         return false;
     }
-    
+
     @Override
     public SerializationType getSerializationType() {
         return SerializationType.XML;
+    }
+
+    @Override
+    public DataTypeProperties getDefaultProperties() {
+        return new NCPDPDataTypeProperties();
     }
 }

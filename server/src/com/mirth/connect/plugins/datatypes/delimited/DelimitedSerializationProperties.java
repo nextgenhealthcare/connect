@@ -20,23 +20,23 @@ import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.SerializationProperties;
 
 public class DelimitedSerializationProperties extends SerializationProperties {
-    
+
     private transient Logger logger = Logger.getLogger(this.getClass());
-    
+
     private String columnDelimiter = ",";
     private String recordDelimiter = "\\n";
-    private Integer[] columnWidths = null;      // list of widths: width1,width2,...,widthN
+    private Integer[] columnWidths = null; // list of widths: width1,width2,...,widthN
     private String quoteChar = "\"";
     private boolean escapeWithDoubleQuote = true;
     private String quoteEscapeChar = "\\";
-    private String[] columnNames = null;    // list of column names: name1,name2,...,nameN
+    private String[] columnNames = null; // list of column names: name1,name2,...,nameN
     private boolean numberedRows = false;
     private boolean ignoreCR = true;
-    
+
     @Override
-    public Map<String, DataTypePropertyDescriptor> getProperties() {
+    public Map<String, DataTypePropertyDescriptor> getPropertyDescriptors() {
         Map<String, DataTypePropertyDescriptor> properties = new LinkedHashMap<String, DataTypePropertyDescriptor>();
-        
+
         properties.put("columnDelimiter", new DataTypePropertyDescriptor(columnDelimiter, "Column Delimiter", "If column values are delimited, enter the column delimiter that separates columns.  For example, this is a comma in a CSV file.", PropertyEditorType.STRING));
         properties.put("recordDelimiter", new DataTypePropertyDescriptor(recordDelimiter, "Record Delimiter", "Enter the character that separates each record (a message may contain multiple records).  For example, this is a newline (\\n) in a CSV file.", PropertyEditorType.STRING));
         properties.put("columnWidths", new DataTypePropertyDescriptor(toCommaSeparatedString(columnWidths), "Column Widths", "If the column values are fixed width, enter a comma separated list of fixed column widths.  By default, column values are assumed to be delimited.", PropertyEditorType.STRING));
@@ -46,10 +46,10 @@ public class DelimitedSerializationProperties extends SerializationProperties {
         properties.put("columnNames", new DataTypePropertyDescriptor(toCommaSeparatedString(columnNames), "Column Names", "To override the default column names (column1, ..., columnN), enter a comma separated list of column names.", PropertyEditorType.STRING));
         properties.put("numberedRows", new DataTypePropertyDescriptor(numberedRows, "Numbered Rows", "Check to number each row in the XML representation of the message.", PropertyEditorType.BOOLEAN));
         properties.put("ignoreCR", new DataTypePropertyDescriptor(ignoreCR, "Ignore Carriage Returns", "Ignores carriage return (\\r) characters.  These are read over and skipped without processing them.", PropertyEditorType.BOOLEAN));
-        
+
         return properties;
     }
-    
+
     @Override
     public void setProperties(Map<String, Object> properties) {
         if (properties != null) {
@@ -62,26 +62,25 @@ public class DelimitedSerializationProperties extends SerializationProperties {
             }
 
             if (properties.get("columnWidths") != null) {
-            	if (StringUtils.isEmpty((String) properties.get("columnWidths"))) {
-            		columnWidths = null;
-            	} else {
-	                // Split the comma delimited list of column widths and store as int[]
-	                String[] temp = ((String) properties.get("columnWidths")).split(",");
-	                columnWidths = new Integer[temp.length];
-	                for (int i=0; i < temp.length; i++) {
-	                    try {
-	                        columnWidths[i] = Integer.parseInt(temp[i]);
-	                        
-	                        if (columnWidths[i] <= 0) {
-	                            logger.error("Fixed column width must be positive integer: " + columnWidths[i]);
-	                        }
-	                    }
-	                    catch (NumberFormatException e) {
-	                        columnWidths[i] = 0;
-	                        logger.warn("Invalid number format in Column Widths: " + temp[i]);
-	                    }
-	                }
-            	}
+                if (StringUtils.isEmpty((String) properties.get("columnWidths"))) {
+                    columnWidths = null;
+                } else {
+                    // Split the comma delimited list of column widths and store as int[]
+                    String[] temp = ((String) properties.get("columnWidths")).split(",");
+                    columnWidths = new Integer[temp.length];
+                    for (int i = 0; i < temp.length; i++) {
+                        try {
+                            columnWidths[i] = Integer.parseInt(temp[i]);
+
+                            if (columnWidths[i] <= 0) {
+                                logger.error("Fixed column width must be positive integer: " + columnWidths[i]);
+                            }
+                        } catch (NumberFormatException e) {
+                            columnWidths[i] = 0;
+                            logger.warn("Invalid number format in Column Widths: " + temp[i]);
+                        }
+                    }
+                }
             }
 
             if (StringUtils.isNotEmpty((String) properties.get("quoteChar"))) {
@@ -91,16 +90,16 @@ public class DelimitedSerializationProperties extends SerializationProperties {
             if (properties.get("escapeWithDoubleQuote") != null) {
                 escapeWithDoubleQuote = (Boolean) properties.get("escapeWithDoubleQuote");
             }
-            
+
             if (StringUtils.isNotEmpty((String) properties.get("quoteEscapeChar"))) {
                 quoteEscapeChar = (String) properties.get("quoteEscapeChar");
             }
-            
+
             if (properties.get("columnNames") != null) {
                 // Split the comma delimited list of column names and store as String[]
                 columnNames = ((String) properties.get("columnNames")).split(",");
-                
-                for (int i=0; i < columnNames.length; i++) {
+
+                for (int i = 0; i < columnNames.length; i++) {
                     if (!validXMLElementName(columnNames[i])) {
                         logger.error("Invalid column name: " + columnNames[i] + " (must be a combination of letters, digits, periods, dashes, underscores and colons that begins with a letter, underscore or colon)");
                     }
@@ -110,28 +109,28 @@ public class DelimitedSerializationProperties extends SerializationProperties {
             if (properties.get("numberedRows") != null) {
                 numberedRows = (Boolean) properties.get("numberedRows");
             }
-            
+
             if (properties.get("ignoreCR") != null) {
                 ignoreCR = (Boolean) properties.get("ignoreCR");
             }
         }
     }
-    
+
     private String toCommaSeparatedString(Object[] objects) {
-    	StringBuilder builder = new StringBuilder();
-    	
-    	if (objects != null && objects.length > 0) {
-    		builder.append(objects[0]);
-    		
-    		for (int i = 1; i < objects.length; i++) {
-    			builder.append(",");
-    			builder.append(objects[i]);
-    		}
-    	}
-    	
-    	return builder.toString();
+        StringBuilder builder = new StringBuilder();
+
+        if (objects != null && objects.length > 0) {
+            builder.append(objects[0]);
+
+            for (int i = 1; i < objects.length; i++) {
+                builder.append(",");
+                builder.append(objects[i]);
+            }
+        }
+
+        return builder.toString();
     }
-    
+
     private boolean validXMLElementName(String s) {
 
         // Reference: http://www.w3.org/TR/REC-xml/#sec-well-formed
@@ -142,27 +141,22 @@ public class DelimitedSerializationProperties extends SerializationProperties {
         //
         // Note: this is not 100% complete, as it does not include tests for the so called
         //  "CombiningChar" nor "Extender".
-        
+
         // Must not be null or empty string 
         if (s == null || s.length() == 0) {
             return false;
         }
-        
+
         // First character must be a letter, underscore or colon
         char ch = s.charAt(0);
         if (!Character.isLetter(ch) && ch != '_' && ch != ':') {
             return false;
         }
-    
+
         // Remaining characters must be letter, digit, period, dash, underscore or colon
-        for (int i=1; i < s.length(); i++) {
+        for (int i = 1; i < s.length(); i++) {
             ch = s.charAt(i);
-            if (!Character.isLetter(ch) && 
-                    !Character.isDigit(ch) &&
-                    ch != '.' &&
-                    ch != '-' &&
-                    ch != '_' && 
-                    ch != ':') {
+            if (!Character.isLetter(ch) && !Character.isDigit(ch) && ch != '.' && ch != '-' && ch != '_' && ch != ':') {
                 return false;
             }
         }

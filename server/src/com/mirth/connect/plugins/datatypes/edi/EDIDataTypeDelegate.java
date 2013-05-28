@@ -12,15 +12,16 @@ package com.mirth.connect.plugins.datatypes.edi;
 import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.datatype.SerializerProperties;
 
 public class EDIDataTypeDelegate implements DataTypeDelegate {
-    
+
     @Override
     public String getName() {
         return "EDI/X12";
     }
-    
+
     @Override
     public IXMLSerializer getSerializer(SerializerProperties properties) {
         return new EDISerializer(properties);
@@ -30,9 +31,14 @@ public class EDIDataTypeDelegate implements DataTypeDelegate {
     public boolean isBinary() {
         return false;
     }
-    
+
     @Override
     public SerializationType getSerializationType() {
         return SerializationType.XML;
+    }
+
+    @Override
+    public DataTypeProperties getDefaultProperties() {
+        return new EDIDataTypeProperties();
     }
 }
