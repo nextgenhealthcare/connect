@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
+import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 
@@ -56,7 +57,7 @@ public abstract class PollConnector extends SourceConnector {
     }
 
     @Override
-    public void halt() throws StopException {
+    public void halt() throws HaltException {
         terminated.set(true);
         //TODO Possible nullpointerexception if halted before the first start task was ever completed.
         if (task != null) {

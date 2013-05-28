@@ -42,6 +42,7 @@ import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
@@ -235,6 +236,9 @@ public class TcpReceiver extends SourceConnector {
             throw firstCause;
         }
     }
+    
+    @Override
+    public void onHalt() throws HaltException {}
 
     @Override
     public void handleRecoveredResponse(DispatchResult dispatchResult) {

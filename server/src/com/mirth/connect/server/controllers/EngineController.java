@@ -14,6 +14,7 @@ import java.util.Set;
 
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.PauseException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
@@ -57,7 +58,7 @@ public interface EngineController {
      */
     public void stopChannel(String channelId) throws StopException;
     
-    public void haltChannel(String channelId) throws StopException;
+    public void haltChannel(String channelId) throws HaltException;
 
     /**
      * Pauses the channel with the specified id.

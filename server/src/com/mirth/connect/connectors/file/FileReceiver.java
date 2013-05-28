@@ -36,6 +36,7 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
@@ -151,6 +152,15 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         }
 
         eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+    }
+
+    @Override
+    public void onHalt() throws HaltException {
+        try {
+            onStop();
+        } catch (StopException e) {
+            throw new HaltException(e);
+        }
     }
 
     @Override

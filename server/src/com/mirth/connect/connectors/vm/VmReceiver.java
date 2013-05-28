@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.vm;
 import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
@@ -39,6 +40,11 @@ public class VmReceiver extends SourceConnector {
 
     @Override
     public void onStop() throws StopException {
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.DISCONNECTED));
+    }
+
+    @Override
+    public void onHalt() throws HaltException {
         eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.DISCONNECTED));
     }
 

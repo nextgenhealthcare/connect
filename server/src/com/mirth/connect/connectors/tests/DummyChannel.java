@@ -20,6 +20,7 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.PauseException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
@@ -79,7 +80,7 @@ public class DummyChannel extends Channel {
     }
 
     @Override
-    public void halt() throws StopException {
+    public void halt() throws HaltException {
         SourceConnector sourceConnector = getSourceConnector();
 
         if (sourceConnector != null) {

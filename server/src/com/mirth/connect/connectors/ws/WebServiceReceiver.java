@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
@@ -147,8 +148,17 @@ public class WebServiceReceiver extends SourceConnector {
     }
 
     @Override
+    public void onHalt() throws HaltException {
+        try {
+            onStop();
+        } catch (StopException e) {
+            throw new HaltException(e);
+        }
+    }
+
+    @Override
     public void handleRecoveredResponse(DispatchResult dispatchResult) {
-    	finishDispatch(dispatchResult);
+        finishDispatch(dispatchResult);
     }
 
     public String processData(String message) {

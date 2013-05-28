@@ -37,6 +37,7 @@ import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProper
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConfiguration;
+import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.PauseException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
@@ -294,7 +295,7 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public void haltChannel(String channelId) throws StopException {
+    public void haltChannel(String channelId) throws HaltException {
         donkey.haltChannel(channelId);
     }
 

@@ -18,6 +18,7 @@ import org.dcm4che2.tool.dcmrcv.MirthDcmRcv;
 
 import com.mirth.connect.donkey.model.event.ConnectorEventType;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
@@ -36,15 +37,12 @@ public class DICOMReceiver extends SourceConnector {
     @Override
     public void onDeploy() throws DeployException {
         this.connectorProperties = (DICOMReceiverProperties) getConnectorProperties();
-        
+
         dcmrcv = new MirthDcmRcv(this);
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {
-        // TODO Auto-generated method stub
-        
-    }
+    public void onUndeploy() throws UndeployException {}
 
     @Override
     public void onStart() throws StartException {
@@ -145,7 +143,7 @@ public class DICOMReceiver extends SourceConnector {
             dcmrcv.initTransferCapability();
 
             // connection tls settings
-            
+
             if (!StringUtils.equals(connectorProperties.getTls(), "notls")) {
                 if (connectorProperties.getTls().equals("without")) {
                     dcmrcv.setTlsWithoutEncyrption();
@@ -206,11 +204,18 @@ public class DICOMReceiver extends SourceConnector {
         logger.debug("closed DICOM port");
     }
 
-	@Override
-	public void handleRecoveredResponse(DispatchResult dispatchResult) {
-		finishDispatch(dispatchResult);
-	}
+    @Override
+    public void onHalt() throws HaltException {
+        try {
+            onStop();
+        } catch (StopException e) {
+            throw new HaltException(e);
+        }
+    }
 
-
+    @Override
+    public void handleRecoveredResponse(DispatchResult dispatchResult) {
+        finishDispatch(dispatchResult);
+    }
 
 }

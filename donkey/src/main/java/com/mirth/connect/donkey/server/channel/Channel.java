@@ -50,6 +50,7 @@ import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.PauseException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.Startable;
@@ -545,7 +546,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
     }
 
-    public void halt() throws StopException {
+    public void halt() throws HaltException {
         Future<?> task = null;
         Throwable firstCause = null;
 
@@ -605,11 +606,11 @@ public class Channel implements Startable, Stoppable, Runnable {
             }
         } catch (Throwable t) {
             Throwable cause = t.getCause();
-            if (cause instanceof StopException) {
-                throw (StopException) cause;
+            if (cause instanceof HaltException) {
+                throw (HaltException) cause;
             }
 
-            throw new StopException("Failed to halt channel.", t);
+            throw new HaltException("Failed to halt channel.", t);
         } finally {
             synchronized (controlExecutor) {
                 if (task != null) {
@@ -730,7 +731,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
     }
 
-    private void halt(List<Integer> metaDataIds) throws StopException, InterruptedException {
+    private void halt(List<Integer> metaDataIds) throws HaltException, InterruptedException {
         stopSourceQueue = true;
 
         destinationChainExecutor.shutdownNow();
@@ -759,7 +760,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         if (firstCause != null) {
             updateCurrentState(ChannelState.STOPPED);
-            throw new StopException("Failed to stop channel " + name + " (" + channelId + "): One or more connectors failed to stop.", firstCause);
+            throw new HaltException("Failed to stop channel " + name + " (" + channelId + "): One or more connectors failed to stop.", firstCause);
         }
     }
 
@@ -780,14 +781,14 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
     }
 
-    private void haltConnector(Integer metaDataId) throws StopException {
+    private void haltConnector(Integer metaDataId) throws HaltException {
         try {
             if (metaDataId == 0) {
                 sourceConnector.halt();
             } else {
                 getDestinationConnector(metaDataId).halt();
             }
-        } catch (StopException e) {
+        } catch (HaltException e) {
             if (metaDataId == 0) {
                 logger.error("Error stopping Source connector for channel " + name + " (" + channelId + ").", e);
             } else {

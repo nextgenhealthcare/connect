@@ -224,11 +224,11 @@ public class Donkey {
         channel.stop();
     }
 
-    public void haltChannel(String channelId) throws StopException {
+    public void haltChannel(String channelId) throws HaltException {
         Channel channel = deployedChannels.get(channelId);
 
         if (channel == null) {
-            throw new StopException("Failed to find deployed channel id: " + channelId, null);
+            throw new HaltException("Failed to find deployed channel id: " + channelId, null);
         }
 
         channel.halt();

@@ -9,8 +9,16 @@
 
 package com.mirth.connect.donkey.server;
 
-public interface Stoppable {
-    public void stop() throws StopException;
+public class HaltException extends Exception {
+    public HaltException(String message) {
+        super(message);
+    }
 
-    public void halt() throws HaltException;
+    public HaltException(Throwable cause) {
+        super(cause);
+    }
+
+    public HaltException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

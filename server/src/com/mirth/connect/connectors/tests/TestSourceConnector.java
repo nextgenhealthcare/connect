@@ -14,6 +14,7 @@ import java.util.List;
 
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
@@ -41,6 +42,11 @@ public class TestSourceConnector extends SourceConnector {
 
     @Override
     public void onStop() throws StopException {
+        // TODO Auto-generated method stub
+    }
+    
+    @Override
+    public void onHalt() throws HaltException {
         // TODO Auto-generated method stub
     }
 

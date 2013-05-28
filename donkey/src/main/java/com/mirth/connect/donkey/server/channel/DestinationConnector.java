@@ -26,6 +26,7 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.controllers.MessageController;
@@ -165,7 +166,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     }
 
     @Override
-    public void halt() throws StopException {
+    public void halt() throws HaltException {
         setCurrentState(ChannelState.STOPPING);
 
         if (thread != null) {
@@ -174,11 +175,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 thread.join();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new StopException("Failed to stop destination connector for channel: " + getChannelId(), e);
+                throw new HaltException("Failed to stop destination connector for channel: " + getChannelId(), e);
             }
         }
 
-        onStop();
+        onHalt();
 
         setCurrentState(ChannelState.STOPPED);
     }

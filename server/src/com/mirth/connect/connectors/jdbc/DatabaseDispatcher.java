@@ -68,6 +68,9 @@ public class DatabaseDispatcher extends DestinationConnector {
     public void onStop() {}
 
     @Override
+    public void onHalt() {}
+
+    @Override
     public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message) {
         DatabaseDispatcherProperties databaseDispatcherProperties = (DatabaseDispatcherProperties) connectorProperties;
         databaseDispatcherProperties.setUrl(replacer.replaceValues(databaseDispatcherProperties.getUrl(), message));

@@ -12,6 +12,7 @@ package com.mirth.connect.donkey.server.channel;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.Startable;
 import com.mirth.connect.donkey.server.StopException;
@@ -34,6 +35,8 @@ public abstract class Connector implements Startable, Stoppable {
     public abstract void onStart() throws StartException;
 
     public abstract void onStop() throws StopException;
+    
+    public abstract void onHalt() throws HaltException;
     
     public String getChannelId() {
         return channelId;
