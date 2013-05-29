@@ -35,6 +35,7 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConfiguration;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
+import com.mirth.connect.plugins.datapruner.DataPruner;
 import com.mirth.connect.plugins.datapruner.DataPruner.Strategy;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;

@@ -37,6 +37,7 @@ import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
 import com.mirth.connect.model.ServerEvent.Outcome;
+import com.mirth.connect.plugins.datapruner.ArchiverMessageList;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
