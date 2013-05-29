@@ -55,7 +55,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
         this.charset = "UTF-8";
         this.socketTimeout = "30000";
     }
-    
+
     public HttpDispatcherProperties(HttpDispatcherProperties props) {
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
 
@@ -207,7 +207,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
         builder.append(newLine);
 
         builder.append("METHOD: ");
-        builder.append(method);
+        builder.append(method.toUpperCase());
         builder.append(newLine);
 
         if (StringUtils.isNotBlank(username)) {
@@ -215,10 +215,6 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
             builder.append(username);
             builder.append(newLine);
         }
-
-        builder.append("METHOD: ");
-        builder.append(method);
-        builder.append(newLine);
 
         builder.append(newLine);
         builder.append("[HEADERS]");
