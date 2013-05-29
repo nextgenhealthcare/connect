@@ -259,7 +259,7 @@
 	
 	
 	
-	<!-- Message Pruner/Archiver -->
+	<!-- Data Pruner/Archiver -->
 	
 	<delete id="prunerDeleteMessages" parameterType="map">
 		DELETE

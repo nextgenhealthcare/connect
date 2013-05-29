@@ -276,7 +276,7 @@
 	
 	
 	
-	<!-- Message Pruner/Archiver -->
+	<!-- Data Pruner/Archiver -->
 	
 	<delete id="prunerDeleteMessages" parameterType="map">
 		<choose>
@@ -435,4 +435,9 @@
 		OFFSET #{offset}
 		LIMIT #{limit}
 	</select>
+	
+	<update id="prunerDeleteEvents" parameterType="map">
+		DELETE FROM event
+		WHERE date_created <![CDATA[ < ]]> #{dateThreshold}
+	</update>
 </mapper>

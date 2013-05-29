@@ -45,7 +45,7 @@
 		<property name="plugins.javascriptstep" value="${extensions}/javascriptstep" />
 		<property name="plugins.mapper" value="${extensions}/mapper" />
 		<property name="plugins.messagebuilder" value="${extensions}/messagebuilder" />
-		<property name="plugins.messagepruner" value="${extensions}/messagepruner" />
+		<property name="plugins.datapruner" value="${extensions}/datapruner" />
 		<property name="plugins.mllpmode" value="${extensions}/mllpmode" />
 		<property name="plugins.pdfviewer" value="${extensions}/pdfviewer" />
 		<property name="plugins.rtfviewer" value="${extensions}/rtfviewer" />
@@ -599,18 +599,18 @@
 			<fileset dir="${lib.extensions}/messagebuilder" />
 		</copy>
 
-		<!-- plugins.messagepruner -->
-		<mkdir dir="${plugins.messagepruner}" />
-		<copy todir="${plugins.messagepruner}">
-			<fileset dir="${src}/com/mirth/connect/plugins/messagepruner">
+		<!-- plugins.datapruner -->
+		<mkdir dir="${plugins.datapruner}" />
+		<copy todir="${plugins.datapruner}">
+			<fileset dir="${src}/com/mirth/connect/plugins/datapruner">
 				<include name="*.xml" />
 			</fileset>
 		</copy>
-		<copy todir="${plugins.messagepruner}/lib" failonerror="false">
-			<fileset dir="${lib.extensions}/messagepruner" />
+		<copy todir="${plugins.datapruner}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/datapruner" />
 		</copy>
-		<jar destfile="${plugins.messagepruner}/messagepruner-server.jar" basedir="${classes}">
-			<include name="com/mirth/connect/plugins/messagepruner/**" />
+		<jar destfile="${plugins.datapruner}/datapruner-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datapruner/**" />
 		</jar>
 
 		<!-- plugins.mllpmode -->
@@ -873,7 +873,7 @@
 
 		<zip destfile="${dist.extensions}/dashboardstatus-${version}.zip" basedir="${extensions}" includes="dashboardstatus/**/*" />
 		<zip destfile="${dist.extensions}/serverlog-${version}.zip" basedir="${extensions}" includes="serverlog/**/*" />
-		<zip destfile="${dist.extensions}/messagepruner-${version}.zip" basedir="${extensions}" includes="messagepruner/**/*" />
+		<zip destfile="${dist.extensions}/datapruner-${version}.zip" basedir="${extensions}" includes="datapruner/**/*" />
 		<zip destfile="${dist.extensions}/javascriptstep-${version}.zip" basedir="${extensions}" includes="javascriptstep/**/*" />
 		<zip destfile="${dist.extensions}/mapper-${version}.zip" basedir="${extensions}" includes="mapper/**/*" />
 		<zip destfile="${dist.extensions}/messagebuilder-${version}.zip" basedir="${extensions}" includes="messagebuilder/**/*" />

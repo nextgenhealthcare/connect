@@ -1,0 +1,16 @@
+<pluginMetaData path="datapruner">
+	<name>Data Pruner</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.0.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides data pruning capability for Mirth Connect</description>
+	<serverClasses>
+		<string>com.mirth.connect.plugins.datapruner.DataPrunerService</string>
+	</serverClasses>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.datapruner.DataPrunerClient</string>
+	</clientClasses>
+	<library type="CLIENT" path="datapruner-client.jar" />
+	<library type="SERVER" path="datapruner-server.jar" />
+</pluginMetaData>
