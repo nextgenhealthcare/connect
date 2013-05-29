@@ -1928,7 +1928,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         archiveCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         archiveCheckBox.setText("Allow message archiving");
-        archiveCheckBox.setToolTipText("<html>If checked and the message pruner and archiver are enabled, messages<br />in this channel will be archived before being pruned.</html>");
+        archiveCheckBox.setToolTipText("<html>If checked and the data pruner and archiver are enabled, messages<br />in this channel will be archived before being pruned.</html>");
 
         javax.swing.GroupLayout messagePruningPanelLayout = new javax.swing.GroupLayout(messagePruningPanel);
         messagePruningPanel.setLayout(messagePruningPanelLayout);

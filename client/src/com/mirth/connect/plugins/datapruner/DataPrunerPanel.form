@@ -4,6 +4,8 @@
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="scheduleButtonGroup">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="pruneEventsButtonGroup">
+    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -30,7 +32,8 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="archiverContainerPanel" pref="813" max="32767" attributes="0"/>
                   <Component id="pruningSchedulePanel" alignment="0" max="32767" attributes="0"/>
-                  <Component id="pruningSchedulePanel1" alignment="0" max="32767" attributes="0"/>
+                  <Component id="statusPanel" alignment="0" max="32767" attributes="0"/>
+                  <Component id="pruneSettingsPanel" alignment="0" max="32767" attributes="0"/>
               </Group>
           </Group>
       </Group>
@@ -39,11 +42,13 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="pruningSchedulePanel1" min="-2" max="-2" attributes="0"/>
+              <Component id="statusPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="pruningSchedulePanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="archiverContainerPanel" pref="97" max="32767" attributes="0"/>
+              <Component id="pruneSettingsPanel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="archiverContainerPanel" pref="90" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -81,14 +86,12 @@
                               <Component id="dailyRadio" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="weeklyRadio" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="monthlyRadio" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="blockSizeLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
                               <Component id="dayOfWeek" pref="0" max="32767" attributes="1"/>
                               <Component id="dayOfMonth" alignment="0" pref="0" max="32767" attributes="1"/>
                               <Component id="timeOfDay" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
-                              <Component id="blockSizeTextField" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
@@ -106,7 +109,7 @@
                       </Group>
                       <Component id="disabledRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="535" max="32767" attributes="0"/>
+                  <EmptySpace pref="541" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -136,11 +139,6 @@
                       <Component id="timeOfDayMonthly" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
                       <Component id="dayOfMonth" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="blockSizeTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="blockSizeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -161,7 +159,7 @@
               <ComponentRef name="scheduleButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Hourly"/>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Run the message pruner hourly (on the hour, for example: 12:00am, 1:00am, 2:00am, and etc.)&lt;/html&gt;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Run the data pruner hourly (on the hour, for example: 12:00am, 1:00am, 2:00am, and etc.)&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -184,7 +182,7 @@
               <ComponentRef name="scheduleButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Daily"/>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Run the message pruner daily at the specified time.&lt;/html&gt;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Run the data pruner daily at the specified time.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -212,7 +210,7 @@
               <ComponentRef name="scheduleButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Weekly"/>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Run the message pruner weekly at the specified time.&lt;/html&gt;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Run the data pruner weekly at the specified time.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -250,7 +248,7 @@
               <ComponentRef name="scheduleButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Monthly"/>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Run the message pruner monthly at the specified time.&lt;/html&gt;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Run the data pruner monthly at the specified time.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -288,7 +286,7 @@
               <ComponentRef name="scheduleButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Disabled"/>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Disables message pruning and archiving.&lt;/html&gt;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Disables data pruning and archiving.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -296,16 +294,6 @@
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="disabledRadioActionPerformed"/>
           </Events>
-        </Component>
-        <Component class="javax.swing.JLabel" name="blockSizeLabel">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Block Size:"/>
-          </Properties>
-        </Component>
-        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="blockSizeTextField">
-          <Properties>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If this number is 0, all messages are pruned in a single query. If the single query is slowing down&lt;br&gt;the system for too long, messages can be pruned in blocks of the specified size. Block pruning can&lt;br&gt;be a much longer process, but it will not slow down the system as much as a single query.&lt;/html&gt;"/>
-          </Properties>
         </Component>
       </SubComponents>
     </Container>
@@ -332,7 +320,7 @@
         <Property name="useNullLayout" type="boolean" value="true"/>
       </Layout>
     </Container>
-    <Container class="javax.swing.JPanel" name="pruningSchedulePanel1">
+    <Container class="javax.swing.JPanel" name="statusPanel">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -430,6 +418,138 @@
         <Component class="javax.swing.JLabel" name="currentStateLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="Current State:"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPanel" name="pruneSettingsPanel">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+            <TitledBorder title="Prune Settings">
+              <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
+                <MatteColorBorder bottom="0" left="0" right="0" top="1">
+                  <Color PropertyName="color" blue="cc" green="cc" red="cc" type="rgb"/>
+                </MatteColorBorder>
+              </Border>
+              <Font PropertyName="font" name="Tahoma" size="11" style="1"/>
+            </TitledBorder>
+          </Border>
+        </Property>
+      </Properties>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="1" attributes="0">
+                      <Component id="pruneEventAgeLabel" min="-2" max="-2" attributes="0"/>
+                      <Component id="pruneEventsLabel" min="-2" max="-2" attributes="0"/>
+                      <Component id="blockSizeLabel" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Group type="102" attributes="0">
+                          <Component id="pruneEventsYes" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="pruneEventsNo" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <Component id="pruneEventAgeTextField" max="32767" attributes="0"/>
+                      <Component id="blockSizeTextField" max="32767" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="eventDaysLabel" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" attributes="0">
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="blockSizeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="blockSizeTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="pruneEventsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="pruneEventsYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="pruneEventsNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="pruneEventAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="pruneEventAgeTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="eventDaysLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="blockSizeTextField">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If this number is 0, all messages are pruned in a single query. If the single query is slowing down&lt;br&gt;the system for too long, messages can be pruned in blocks of the specified size. Block pruning can&lt;br&gt;be a much longer process, but it will not slow down the system as much as a single query.&lt;/html&gt;"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="blockSizeLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Block Size:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="pruneEventsLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Prune Events:"/>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="pruneEventsYes">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="pruneEventsButtonGroup"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Yes"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Yes, event records older than the Event Age will be pruned. If No, event records will not be pruned.&lt;/html&gt;"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pruneEventsYesActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="pruneEventsNo">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="pruneEventsButtonGroup"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="No"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Yes, event records will be pruned in addition to messages. If No, event records will not be pruned.&lt;/html&gt;"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pruneEventsNoActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JLabel" name="pruneEventAgeLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Prune Event Age:"/>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="pruneEventAgeTextField">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Events older than this number of days will be pruned if Prune Events is set to Yes.&lt;/html&gt;"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="eventDaysLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="days"/>
           </Properties>
         </Component>
       </SubComponents>

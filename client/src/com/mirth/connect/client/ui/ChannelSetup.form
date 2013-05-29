@@ -740,7 +740,7 @@
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Allow message archiving"/>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked and the message pruner and archiver are enabled, messages&lt;br /&gt;in this channel will be archived before being pruned.&lt;/html&gt;"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked and the data pruner and archiver are enabled, messages&lt;br /&gt;in this channel will be archived before being pruned.&lt;/html&gt;"/>
                   </Properties>
                 </Component>
               </SubComponents>

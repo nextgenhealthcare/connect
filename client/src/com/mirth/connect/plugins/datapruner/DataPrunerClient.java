@@ -7,19 +7,19 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.plugins.messagepruner;
+package com.mirth.connect.plugins.datapruner;
 
 import com.mirth.connect.client.ui.AbstractSettingsPanel;
 import com.mirth.connect.plugins.SettingsPanelPlugin;
 
-public class MessagePrunerClient extends SettingsPanelPlugin {
+public class DataPrunerClient extends SettingsPanelPlugin {
 
     private AbstractSettingsPanel settingsPanel = null;
 
-    public MessagePrunerClient(String name) {
+    public DataPrunerClient(String name) {
         super(name);
 
-        settingsPanel = new MessagePrunerPanel("Message Pruner", this);
+        settingsPanel = new DataPrunerPanel("Data Pruner", this);
     }
 
     @Override
@@ -41,6 +41,6 @@ public class MessagePrunerClient extends SettingsPanelPlugin {
 
     @Override
     public String getPluginPointName() {
-        return "Message Pruner";
+        return "Data Pruner";
     }
 }
