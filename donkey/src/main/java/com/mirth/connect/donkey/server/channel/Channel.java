@@ -575,7 +575,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                         thread.interrupt();
                     }
                 }
-                
+
                 List<Integer> deployedMetaDataIds = new ArrayList<Integer>();
                 deployedMetaDataIds.add(0);
 
@@ -584,7 +584,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                         deployedMetaDataIds.add(metaDataId);
                     }
                 }
-                
+
                 for (Integer metaDataId : deployedMetaDataIds) {
                     try {
                         haltConnector(metaDataId);
@@ -600,7 +600,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             }
 
             task.get();
-            
+
             if (firstCause != null) {
                 throw firstCause;
             }
@@ -880,7 +880,9 @@ public class Channel implements Startable, Stoppable, Runnable {
                 }
 
                 // Create the DispatchResult at the very end because lockAcquired might have changed
-                dispatchResult = new DispatchResult(persistedMessageId, processedMessage, response, sourceConnector.isRespondAfterProcessing(), removeContent, removeAttachments, lockAcquired);
+                if (persistedMessageId != null) {
+                    dispatchResult = new DispatchResult(persistedMessageId, processedMessage, response, sourceConnector.isRespondAfterProcessing(), removeContent, removeAttachments, lockAcquired);
+                }
             }
 
             return dispatchResult;
