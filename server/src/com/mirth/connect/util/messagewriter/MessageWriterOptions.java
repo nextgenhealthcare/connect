@@ -19,8 +19,9 @@ public class MessageWriterOptions implements Serializable {
     private boolean encrypt;
     private String rootFolder;
     private String filePattern;
-    private String archiver;
-    private String compressor;
+    private String archiveFileName;
+    private String archiveFormat;
+    private String compressFormat;
 
     public ContentType getContentType() {
         return contentType;
@@ -86,21 +87,29 @@ public class MessageWriterOptions implements Serializable {
         this.filePattern = filePattern;
     }
 
-    public String getArchiver() {
-        return archiver;
+    public String getArchiveFileName() {
+        return archiveFileName;
+    }
+
+    public void setArchiveFileName(String archiveFileName) {
+        this.archiveFileName = archiveFileName;
+    }
+
+    public String getArchiveFormat() {
+        return archiveFormat;
     }
 
     /**
-     * @param archiver
+     * @param archiveFormat
      *            The archiver format to use to archive messages/folders that are written to the
      *            root folder. See org.apache.commons.compress.archivers.ArchiveStreamFactory.
      */
-    public void setArchiver(String archiver) {
-        this.archiver = archiver;
+    public void setArchiveFormat(String archiveFormat) {
+        this.archiveFormat = archiveFormat;
     }
 
-    public String getCompressor() {
-        return compressor;
+    public String getCompressFormat() {
+        return compressFormat;
     }
 
     /**
@@ -108,7 +117,7 @@ public class MessageWriterOptions implements Serializable {
      *            The compressor format to use to compress the archive file. See
      *            org.apache.commons.compress.compressors.CompressorStreamFactory.
      */
-    public void setCompressor(String compressor) {
-        this.compressor = compressor;
+    public void setCompressFormat(String compressFormat) {
+        this.compressFormat = compressFormat;
     }
 }

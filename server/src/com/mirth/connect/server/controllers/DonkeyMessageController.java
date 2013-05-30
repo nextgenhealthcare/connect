@@ -425,8 +425,10 @@ public class DonkeyMessageController extends MessageController {
         messageList.setPageSize(pageSize);
 
         try {
-            MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(options, ConfigurationController.getInstance().getEncryptor(), channelId);
-            return new MessageExporter().exportMessages(messageList, messageWriter).getNumExported();
+            MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(options, ConfigurationController.getInstance().getEncryptor());
+            int numExported = new MessageExporter().exportMessages(messageList, messageWriter).getNumExported();
+            messageWriter.close();
+            return numExported;
         } catch (MessageWriterException e) {
             throw new MessageExportException(e);
         }

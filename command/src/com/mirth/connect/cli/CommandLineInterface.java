@@ -850,12 +850,13 @@ public class CommandLineInterface {
             writerOptions.setEncrypt(false);
             writerOptions.setRootFolder("/");
             writerOptions.setFilePattern(fXml.getAbsolutePath());
-            writerOptions.setArchiver(null);
-            writerOptions.setCompressor(null);
+            writerOptions.setArchiveFormat(null);
+            writerOptions.setCompressFormat(null);
             
-            MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, client.getEncryptor(), channelId);
+            MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, client.getEncryptor());
 
             messageCount = new MessageExporter().exportMessages(messageList, messageWriter).getNumExported();
+            messageWriter.close();
         } catch (Exception e) {
             Throwable cause = ExceptionUtils.getRootCause(e);
             error("unable to write file " + path + ": " + cause, cause);

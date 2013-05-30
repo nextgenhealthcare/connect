@@ -12,17 +12,17 @@ package com.mirth.connect.util.messagewriter;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.UUID;
 
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.mirth.commons.encryption.Encryptor;
 
 public class MessageWriterFactory {
-    private final static String DATE_FORMAT = "yyyyMMddHHmmss";
-
+    public final static String ARCHIVE_DATE_PATTERN = "yyyy-MM-dd-HH-mm-ss";
+    
     private static MessageWriterFactory instance;
 
     public static MessageWriterFactory getInstance() {
@@ -37,7 +37,7 @@ public class MessageWriterFactory {
 
     private MessageWriterFactory() {}
 
-    public MessageWriter getMessageWriter(MessageWriterOptions options, Encryptor encryptor, String channelId) throws MessageWriterException {
+    public MessageWriter getMessageWriter(MessageWriterOptions options, Encryptor encryptor) throws MessageWriterException {
         String rootFolder = FilenameUtils.normalizeNoEndSeparator(options.getRootFolder());
         String filePattern = options.getFilePattern();
 
@@ -47,22 +47,25 @@ public class MessageWriterFactory {
 
         MessageWriterVfs vfsWriter = new MessageWriterVfs("file://" + rootFolder, filePattern, options.getContentType(), options.isDestinationContent(), options.isEncrypt(), encryptor);
 
-        if (options.getArchiver() == null) {
+        if (options.getArchiveFormat() == null) {
             return vfsWriter;
         }
-
+        
+        if (options.getArchiveFileName() == null) {
+            options.setArchiveFileName(new SimpleDateFormat(ARCHIVE_DATE_PATTERN).format(Calendar.getInstance().getTime()));
+        }
+        
         /*
          * If we are writing to an archive, make the vfsWriter write to a temporary folder that will
          * be removed once the archive file has been created
          */
-        String tempFolder = rootFolder + IOUtils.DIR_SEPARATOR + UUID.randomUUID().toString();
+        String tempFolder = rootFolder + IOUtils.DIR_SEPARATOR + "." + options.getArchiveFileName();
+        FileUtils.deleteQuietly(new File(tempFolder));
         vfsWriter.setUri("file://" + tempFolder);
 
-        // determine the archive's extension and file name
-        String extension = getArchiveExtension(options.getArchiver(), options.getCompressor());
-        File archiveFile = new File(rootFolder + IOUtils.DIR_SEPARATOR + channelId + "_" + new SimpleDateFormat(DATE_FORMAT).format(Calendar.getInstance().getTime()) + "." + extension);
+        File archiveFile = new File(rootFolder + IOUtils.DIR_SEPARATOR + options.getArchiveFileName() + "." + getArchiveExtension(options.getArchiveFormat(), options.getCompressFormat()));
 
-        return new MessageWriterArchive(vfsWriter, new File(tempFolder), archiveFile, options.getArchiver(), options.getCompressor());
+        return new MessageWriterArchive(vfsWriter, new File(tempFolder), archiveFile, options.getArchiveFormat(), options.getCompressFormat());
     }
 
     private String getArchiveExtension(String archiver, String compressor) {

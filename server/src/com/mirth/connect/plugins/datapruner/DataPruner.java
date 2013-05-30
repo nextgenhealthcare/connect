@@ -9,6 +9,8 @@
 
 package com.mirth.connect.plugins.datapruner;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -22,13 +24,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.util.ThreadUtils;
@@ -37,16 +40,13 @@ import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
 import com.mirth.connect.model.ServerEvent.Outcome;
-import com.mirth.connect.plugins.datapruner.ArchiverMessageList;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.MessageExporter;
-import com.mirth.connect.util.MessageExporter.MessageExportException;
 import com.mirth.connect.util.messagewriter.MessageWriter;
-import com.mirth.connect.util.messagewriter.MessageWriterException;
 import com.mirth.connect.util.messagewriter.MessageWriterFactory;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
@@ -77,7 +77,7 @@ public class DataPruner implements Runnable {
     private MessageExporter messageExporter = new MessageExporter();
     private DataPrunerStatus status = new DataPrunerStatus();
     private DataPrunerStatus lastStatus;
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = Logger.getLogger(getClass());
 
     public DataPruner() {
         this.retryCount = 3;
@@ -275,6 +275,7 @@ public class DataPruner implements Runnable {
                 pruneEvents();
             }
             
+            String date = new SimpleDateFormat(MessageWriterFactory.ARCHIVE_DATE_PATTERN).format(Calendar.getInstance().getTime());
             Queue<PrunerTask> taskQueue;
 
             try {
@@ -296,13 +297,8 @@ public class DataPruner implements Runnable {
                     status.setTaskStartTime(Calendar.getInstance());
                     
                     int[] result = new int[] { 0, 0, 0 };
-                    MessageWriter archiver = null;
-    
-                    if (archiveEnabled) {
-                        archiver = MessageWriterFactory.getInstance().getMessageWriter(archiverOptions, ConfigurationController.getInstance().getEncryptor(), task.getChannelId());
-                    }
                     
-                    result = pruneChannel(task.getChannelId(), archiver, task.getMessageDateThreshold(), task.getContentDateThreshold());
+                    result = pruneChannel(task.getChannelId(), task.getMessageDateThreshold(), task.getContentDateThreshold(), archiverOptions.getRootFolder() + IOUtils.DIR_SEPARATOR + date);
                     
                     status.getProcessedChannelIds().add(task.getChannelId());
                     
@@ -335,12 +331,14 @@ public class DataPruner implements Runnable {
                     status.setCurrentChannelName(null);
                 }
             }
-
+            
             logger.debug("Pruner job finished executing");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             eventController.dispatchEvent(new ServerEvent(DataPrunerService.PLUGINPOINT + " Halted", Level.INFORMATION, Outcome.SUCCESS, null));
             logger.debug("Data Pruner halted");
+        } catch (Throwable t) {
+            logger.error("An error occurred while executing the data pruner", t);
         } finally {
             status.setEndTime(Calendar.getInstance());
             lastStatus = SerializationUtils.clone(status);
@@ -379,13 +377,13 @@ public class DataPruner implements Runnable {
         }
     }
 
-    public int[] pruneChannel(String channelId, MessageWriter archiver, Calendar messageDateThreshold, Calendar contentDateThreshold) throws InterruptedException, DataPrunerException {
+    protected int[] pruneChannel(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder) throws InterruptedException, DataPrunerException {
         logger.debug("Executing pruner for channel: " + channelId);
 
         if (messageDateThreshold == null && contentDateThreshold == null) {
             return new int[] { 0, 0, 0 };
         }
-
+        
         // the content date threshold is only used/needed if it is later than the message date threshold
         if (messageDateThreshold != null && contentDateThreshold != null && contentDateThreshold.getTimeInMillis() <= messageDateThreshold.getTimeInMillis()) {
             contentDateThreshold = null;
@@ -397,10 +395,10 @@ public class DataPruner implements Runnable {
             ThreadUtils.checkInterruptedStatus();
 
             try {
-                if (archiver == null) {
+                if (!archiveEnabled) {
                     return pruneWithoutArchiver(channelId, messageDateThreshold, contentDateThreshold);
                 } else {
-                    return pruneWithArchiver(archiver, channelId, messageDateThreshold, contentDateThreshold);
+                    return pruneWithArchiver(channelId, messageDateThreshold, contentDateThreshold, archiveFolder);
                 }
             } catch (InterruptedException e) {
                 throw e;
@@ -470,8 +468,19 @@ public class DataPruner implements Runnable {
         logger.debug("Pruning completed in " + (System.currentTimeMillis() - startTime) + "ms");
         return new int[] { 0, numMessagesPruned, numContentPruned };
     }
-
-    private int[] pruneWithArchiver(MessageWriter archiver, String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold) throws DataPrunerException, InterruptedException {
+    
+    private int[] pruneWithArchiver(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder) throws DataPrunerException, InterruptedException {
+        String tempChannelFolder = archiveFolder + "/." + channelId;
+        String finalChannelFolder = archiveFolder + "/" + channelId;
+        MessageWriterOptions messageWriterOptions = SerializationUtils.clone(archiverOptions);
+        
+        if (messageWriterOptions.getArchiveFormat() == null) {
+            messageWriterOptions.setRootFolder(tempChannelFolder);
+        } else {
+            messageWriterOptions.setRootFolder(archiveFolder);
+            messageWriterOptions.setArchiveFileName(channelId);
+        }
+        
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
         params.put("skipIncomplete", isSkipIncomplete());
@@ -482,19 +491,27 @@ public class DataPruner implements Runnable {
         }
 
         ArchiverMessageList messageList = new ArchiverMessageList(channelId, pageSize, params);
-
-        if (archiver instanceof PassthruMessageWriter) {
-            messageList.setIncludeContent(false);
-        }
-
         List<Long> archivedMessageIds;
 
         try {
-            logger.debug("Running archiver for channel: " + channelId);
+            logger.debug("Running archiver, channel: " + channelId + ", root folder: " + messageWriterOptions.getRootFolder() + ", archive format: " + messageWriterOptions.getArchiveFormat() + ", archive filename: " + messageWriterOptions.getArchiveFileName() + ", file pattern: " + messageWriterOptions.getFilePattern());
             status.setArchiving(true);
+            MessageWriter archiver = MessageWriterFactory.getInstance().getMessageWriter(messageWriterOptions, ConfigurationController.getInstance().getEncryptor());
             archivedMessageIds = messageExporter.exportMessages(messageList, archiver).getProcessedIds();
-        } catch (MessageExportException e) {
-            throw new DataPrunerException(e);
+            
+            if (messageWriterOptions.getArchiveFormat() == null) {
+                try {
+                    FileUtils.moveDirectory(new File(tempChannelFolder), new File(finalChannelFolder));
+                } catch (IOException e) {
+                    logger.error("Failed to move " + tempChannelFolder + " to " + finalChannelFolder, e);
+                }
+            }
+            
+            archiver.close();
+        } catch (Throwable t) {
+            FileUtils.deleteQuietly(new File(tempChannelFolder));
+            FileUtils.deleteQuietly(new File(finalChannelFolder));
+            throw new DataPrunerException(t);
         } finally {
             status.setArchiving(false);
         }
@@ -774,15 +791,5 @@ public class DataPruner implements Runnable {
         public Calendar getContentDateThreshold() {
             return contentDateThreshold;
         }
-    }
-
-    private class PassthruMessageWriter implements MessageWriter {
-        @Override
-        public boolean write(Message message) throws MessageWriterException {
-            return true;
-        }
-
-        @Override
-        public void close() throws MessageWriterException {}
     }
 }

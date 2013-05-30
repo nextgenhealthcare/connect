@@ -10,12 +10,13 @@
 package com.mirth.connect.util.messagewriter;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.util.ArchiveUtils;
-import com.mirth.connect.util.ArchiveUtils.CompressException;
 
 public class MessageWriterArchive implements MessageWriter {
     private MessageWriterVfs vfsWriter;
@@ -66,8 +67,22 @@ public class MessageWriterArchive implements MessageWriter {
 
         if (messagesWritten) {
             try {
-                ArchiveUtils.createArchive(rootFolder, archiveFile, archiver, compressor);
-            } catch (CompressException e) {
+                File tempFile = new File(archiveFile.getParent() + IOUtils.DIR_SEPARATOR + "." + archiveFile.getName());
+                
+                try {
+                    FileUtils.forceDelete(tempFile);
+                } catch (FileNotFoundException e) {
+                }
+                
+                ArchiveUtils.createArchive(rootFolder, tempFile, archiver, compressor);
+                
+                try {
+                    FileUtils.forceDelete(archiveFile);
+                } catch (FileNotFoundException e) {
+                }
+                
+                FileUtils.moveFile(tempFile, archiveFile);
+            } catch (Exception e) {
                 throw new MessageWriterException(e);
             } finally {
                 FileUtils.deleteQuietly(rootFolder);

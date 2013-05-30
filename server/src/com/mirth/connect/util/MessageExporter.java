@@ -61,12 +61,6 @@ public class MessageExporter {
             }
         } while (messageList.hasNextPage());
 
-        try {
-            messageWriter.close();
-        } catch (Exception e) {
-            logger.error("Failed to close message writer", e);
-        }
-
         return new MessageExportResult(processedMessageIds, numExported);
     }
 

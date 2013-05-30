@@ -53,15 +53,13 @@ import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class MessageExportPanel extends JPanel {
-    /**
-     * The prefix for compressed export files. This prefix is determined by the code in
-     * com.mirth.connect.util.export.MessageWriterFactory.
-     */
-    private final static String COMPRESSED_FILE_PREFIX = "${channelId}_${currentDate}";
+    private final static String ARCHIVER_MODE_PATTERN = "[timestamp]/[channel id]";
+    private final static String EXPORT_MODE_PATTERN = "[timestamp]";
     private final static String XML_EXPORT_FORMAT = "XML serialized message";
     private final static String NO_COMPRESSION = "none";
 
     private Preferences userPreferences;
+    private boolean archiverMode;
     private boolean initialized;
     private ButtonGroup archiveButtonGroup = new ButtonGroup();
     private JLabel archiveLabel = new JLabel("Enable Archiving:");
@@ -84,7 +82,7 @@ public class MessageExportPanel extends JPanel {
     private JScrollPane filePatternScrollPane = new JScrollPane();
     private JTextPane filePatternTextPane = new MirthTextPane();
     private VariableList varList = new VariableList();
-    private JLabel zipFileLabel = new JLabel();
+    private JLabel rootPathExtLabel = new JLabel();
     private Component[] archiveComponents;
 
     /**
@@ -102,11 +100,12 @@ public class MessageExportPanel extends JPanel {
      *            If true, enables components that allow the user to select a local file-system
      *            folder to export to
      */
-    public MessageExportPanel(Preferences userPreferences, boolean archiver, boolean allowLocalExport) {
+    public MessageExportPanel(Preferences userPreferences, boolean archiverMode, boolean allowLocalExport) {
         this.userPreferences = userPreferences;
-
+        this.archiverMode = archiverMode;
+        
         initComponents();
-        initLayout(archiver, allowLocalExport);
+        initLayout(allowLocalExport);
         initialized = true;
     }
 
@@ -158,8 +157,8 @@ public class MessageExportPanel extends JPanel {
 
         if (compressComboBox.getSelectedItem() instanceof ArchiveFormat) {
             ArchiveFormat archiveFormat = (ArchiveFormat) compressComboBox.getSelectedItem();
-            options.setArchiver(archiveFormat.getArchiver());
-            options.setCompressor(archiveFormat.getCompressor());
+            options.setArchiveFormat(archiveFormat.getArchiver());
+            options.setCompressFormat(archiveFormat.getCompressor());
         }
 
         options.setRootFolder(rootPathTextField.getText());
@@ -189,7 +188,7 @@ public class MessageExportPanel extends JPanel {
 
         encryptCheckBox.setSelected(options.isEncrypt());
 
-        ArchiveFormat archiveFormat = ArchiveFormat.lookup(options.getArchiver(), options.getCompressor());
+        ArchiveFormat archiveFormat = ArchiveFormat.lookup(options.getArchiveFormat(), options.getCompressFormat());
 
         if (archiveFormat == null) {
             compressComboBox.setSelectedItem(NO_COMPRESSION);
@@ -305,6 +304,12 @@ public class MessageExportPanel extends JPanel {
         archiveButtonGroup.add(archiveYes);
         archiveButtonGroup.add(archiveNo);
         archiveYes.setSelected(true);
+        
+        if (archiverMode) {
+            rootPathExtLabel.setText("/" + ARCHIVER_MODE_PATTERN + "/");
+        } else {
+            rootPathExtLabel.setVisible(false);
+        }
 
         exportButtonGroup.add(exportServerRadio);
         exportButtonGroup.add(exportLocalRadio);
@@ -313,12 +318,11 @@ public class MessageExportPanel extends JPanel {
 
         filePatternTextPane.setText("message_${message.messageId}.xml");
         filePatternScrollPane.setViewportView(filePatternTextPane);
-        zipFileLabel.setVisible(false);
 
         // this is the list of components that will be disabled when the archive radio "No" is selected, see archiveChanged()
         archiveComponents = new Component[] { contentLabel, contentComboBox, encryptCheckBox,
                 varList, compressLabel, compressComboBox, exportToLabel, exportServerRadio,
-                exportLocalRadio, browseButton, rootPathLabel, rootPathTextField, zipFileLabel,
+                exportLocalRadio, browseButton, rootPathLabel, rootPathTextField, rootPathExtLabel,
                 filePatternLabel, filePatternScrollPane, filePatternTextPane };
 
         // @formatter:off
@@ -396,19 +400,21 @@ public class MessageExportPanel extends JPanel {
     private void compressComboBoxChanged() {
         if (compressComboBox.getSelectedItem() instanceof ArchiveFormat) {
             ArchiveFormat archiveFormat = (ArchiveFormat) compressComboBox.getSelectedItem();
-            zipFileLabel.setText("/" + COMPRESSED_FILE_PREFIX + "." + archiveFormat);
-            zipFileLabel.setVisible(true);
+            rootPathExtLabel.setText("/" + ((archiverMode) ? ARCHIVER_MODE_PATTERN : EXPORT_MODE_PATTERN) + "." + archiveFormat);
+            rootPathExtLabel.setVisible(true);
+        } else if (archiverMode) {
+            rootPathExtLabel.setText("/" + ARCHIVER_MODE_PATTERN + "/");
         } else {
-            zipFileLabel.setVisible(false);
+            rootPathExtLabel.setVisible(false);
         }
     }
 
-    private void initLayout(boolean archiver, boolean allowLocalExport) {
+    private void initLayout(boolean allowLocalExport) {
         String rowGap = "2"; // TODO find a better way in mig layout to set the row gap for all rows, given that # of rows can change
 
         setLayout(new MigLayout("insets 0 0 0 0, wrap, fillx, hidemode 3", "[right]12[left, grow][170!]", ""));
 
-        if (archiver) {
+        if (archiverMode) {
             add(archiveLabel);
             add(archiveYes, "split 2");
             add(archiveNo, "gapbottom " + rowGap);
@@ -421,7 +427,7 @@ public class MessageExportPanel extends JPanel {
         add(encryptCheckBox, "gapleft 8");
 //        add(attachmentsCheckBox, "gapleft 8");
 
-        if (!archiver) {
+        if (!archiverMode) {
             add(varList, "spany 5, growy");
         }
 
@@ -437,7 +443,7 @@ public class MessageExportPanel extends JPanel {
 
         add(rootPathLabel);
         add(rootPathTextField, "grow, split 2, height 22!, gapbottom " + rowGap);
-        add(zipFileLabel, "hidemode 2");
+        add(rootPathExtLabel, "hidemode 2");
 
         add(filePatternLabel, "aligny top");
         add(filePatternScrollPane, "grow, push, split 2");
@@ -455,7 +461,7 @@ public class MessageExportPanel extends JPanel {
 
         final JFrame frame = new JFrame();
 
-        MessageExportPanel panel = new MessageExportPanel(null, true, false);
+        MessageExportPanel panel = new MessageExportPanel(null, false, true);
         panel.setBackground(new Color(255, 255, 255));
 
         frame.setSize(800, 230);
