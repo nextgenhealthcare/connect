@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 
+import org.apache.log4j.Logger;
+
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
@@ -25,6 +27,7 @@ import com.mirth.connect.donkey.util.ThreadUtils;
 
 public class RecoveryTask implements Callable<List<Message>> {
     private Channel channel;
+    private Logger logger = Logger.getLogger(getClass());
 
     public RecoveryTask(Channel channel) {
         this.channel = channel;
@@ -77,7 +80,7 @@ public class RecoveryTask implements Callable<List<Message>> {
                             } catch (InterruptedException e) {
                                 throw e;
                             } catch (Exception e) {
-                                System.err.println("Failed to recover message " + messageId + "-" + metaDataId);
+                                logger.error("Failed to recover message " + messageId + "-" + metaDataId + ": " + e.getMessage());
                             }
                         }
                     }

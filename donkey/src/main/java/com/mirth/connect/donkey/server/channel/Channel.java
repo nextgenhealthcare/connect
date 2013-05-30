@@ -1725,10 +1725,17 @@ public class Channel implements Startable, Stoppable, Runnable {
                         try {
                             processUnfinishedMessages();
                         } catch (InterruptedException e) {
-                            logger.error("Startup recovery interrupted");
+                            logger.error("Startup recovery interrupted", e);
                             Thread.currentThread().interrupt();
                         } catch (Exception e) {
-                            logger.error("Startup recovery failed");
+                            Throwable cause;
+                            if (e instanceof ExecutionException) {
+                                cause = e.getCause();
+                            } else {
+                                cause = e;
+                            }
+
+                            logger.error("Startup recovery failed: " + cause.getMessage(), cause);
                         }
 
                         ThreadUtils.checkInterruptedStatus();
