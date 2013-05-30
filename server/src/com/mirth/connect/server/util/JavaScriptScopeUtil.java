@@ -122,6 +122,11 @@ public class JavaScriptScopeUtil {
     private static void addRouter(Scriptable scope) {
         scope.put("router", scope, new VMRouter());
     }
+    
+    // Replacer
+    private static void addReplacer(Scriptable scope) {
+        scope.put("replacer", scope, new TemplateValueReplacer());
+    }
 
     // Global Map Builder
     private static void addGlobalMap(Scriptable scope) {
@@ -155,6 +160,7 @@ public class JavaScriptScopeUtil {
     private static Scriptable getBasicScope(Context context) {
         Scriptable scope = getScope(context);
         addRouter(scope);
+        addReplacer(scope);
         addGlobalMap(scope);
         return scope;
     }

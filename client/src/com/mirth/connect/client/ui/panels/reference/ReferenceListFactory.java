@@ -25,11 +25,10 @@ public class ReferenceListFactory {
 
     public enum ListType {
 
-        ALL("All"), CONVERSION("Conversion Functions"), LOGGING_AND_ALERTS(
-                "Logging and Alerts"), DATABASE("Database Functions"), UTILITY(
-                "Utility Functions"), DATE("Date Functions"), MESSAGE(
-                "Message Functions"), RESPONSE("Response Transformer"), MAP(
-                "Map Functions"), CHANNEL("Channel Functions");
+        ALL("All"), CONVERSION("Conversion Functions"), LOGGING_AND_ALERTS("Logging and Alerts"), DATABASE(
+                "Database Functions"), UTILITY("Utility Functions"), DATE("Date Functions"), MESSAGE(
+                "Message Functions"), RESPONSE("Response Transformer"), MAP("Map Functions"), CHANNEL(
+                "Channel Functions"), POSTPROCESSOR("Postprocessor Functions");
         private String value;
 
         ListType(String value) {
@@ -78,6 +77,7 @@ public class ReferenceListFactory {
         references.put(ListType.MAP.getValue(), setupMapItems());
         references.put(ListType.UTILITY.getValue(), setupUtilityItems());
         references.put(ListType.DATE.getValue(), setupDateItems());
+        references.put(ListType.POSTPROCESSOR.getValue(), setupPostprocessorItems());
 
         for (Entry<String, ConnectorSettingsPanel> connectorEntry : LoadedExtensions.getInstance().getConnectors().entrySet()) {
             ArrayList<CodeTemplate> items = connectorEntry.getValue().getReferenceItems();
@@ -184,7 +184,7 @@ public class ReferenceListFactory {
         variablelistItems.add(new CodeTemplate("Log an Info Statement", "Outputs the message to the system info log.", "logger.info('message');", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Log an Error Statement", "Outputs the message to the system error log.", "logger.error('message');", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Send an Email", "Sends an alert email using the alert SMTP properties.", "var smtpConn = SMTPConnectionFactory.createSMTPConnection();\nsmtpConn.send('to', 'cc', 'from', 'subject', 'body');", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Trigger an Alert", "Trigger a custom alert for the current channel.", "alerts.sendAlert('message');", CodeSnippetType.CODE, ContextType.CHANNEL_CONTEXT.getContext()));
+        // TODO: Add template to dispatch alert/event directly
 
         return variablelistItems;
     }
@@ -213,11 +213,9 @@ public class ReferenceListFactory {
 
         variablelistItems.add(new CodeTemplate("Incoming Message", "The original message received.", "connectorMessage.getRawData()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Incoming Message (XML)", "The original message as XML", "msg", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Message Type", "The message type", "connectorMessage.getType()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Message Source", "The message source (sending facility)", "connectorMessage.getSource()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Message Version", "The message version", "connectorMessage.getVersion()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Message ID", "The id of the message in Mirth that is unique to the channel", "connectorMessage.getMessageId()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Message Protocol", "The message protocol", "connectorMessage.getProtocol().toString()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Message ID", "The ID of the overall message being processed", "connectorMessage.getMessageId()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Metadata ID", "The ID of the connector the message is currently being processed through", "connectorMessage.getMetaDataId()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Message Inbound Data Type", "The inbound data type for this connector message", "connectorMessage.getRaw().getDataType()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Iterate Over Segment", "Iterates over a segment that repeats in a message.  Replace SEG with your segment name (i.e. OBX)", "for each (seg in msg..SEG) {\n\tvar sample_value = seg['SEG.1']['SEG.1.1'].toString();\n}\n", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Iterate Over All Segments", "Iterates over all segments in a message.  The if-statement checks for only segments named \"SEG\".", "for each (seg in msg.children()) {\n\tif (seg.name().toString() == \"SEG\") {\n\t\tvar sample_value = seg['SEG.1']['SEG.1.1'].toString();\n\t}\n}\n", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Create Segment (individual)", "Create a new segment that can be used in any message", "createSegment('segmentName')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
@@ -281,9 +279,8 @@ public class ReferenceListFactory {
         variablelistItems.add(new CodeTemplate("Write Bytes to File", "Write bytes to file", "FileUtil.write('filename', append(true/false), byteData);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("BASE-64 Encode Data", "Encode a byte array to a BASE-64 string", "FileUtil.encode(data);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Decode BASE-64 Data", "Decode a BASE-64 string to a byte array", "FileUtil.decode(data);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Route Message to Channel", "Sends the specified data to a different channel using its queue", "router.routeMessage('channelName', 'message');", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Route Message to Channel (w/ queue option)", "Sends the specified data to a different channel with 'Use Queue' option. Without the queue the router will wait for a response, which is returned.", "router.routeMessage('channelName', 'message', useQueue);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Route Message by Channel ID (w/ queue option)", "Sends the specified data to a different channel with 'Use Queue' option. Without the queue the router will wait for a response, which is returned.", "router.routeMessageByChannelId('channelId', 'message', useQueue);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Route Message to Channel", "Sends the specified data to a different channel.", "router.routeMessage('channelName', 'message');", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Route Message by Channel ID", "Sends the specified data to a different channel.", "router.routeMessageByChannelId('channelId', 'message');", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Perform Message Object Value Replacement", "Returns a string that has been run through Velocity replacer with a connectorMessage context", "var results = replacer.replaceValues(template, connectorMessage);", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Perform Map Value Replacement", "Returns a string that has been run through Velocity replacer with a map context", "var results = replacer.replaceValues(template, map);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Format Overpunch NCPDP Number", "Returns number with decimal points and correct sign", "var number = NCPDPUtil.formatNCPDPNumber('number', decimalpoints);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
@@ -305,6 +302,15 @@ public class ReferenceListFactory {
         variablelistItems.add(new CodeTemplate("Convert Date String", "Parse a date and return a newly formatted date", "var datestring = DateUtil.convertDate(inpattern, outpattern, date);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Get Current Date", "Returns the current date/time in specified format", "var dateString = DateUtil.getCurrentDate(pattern);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
 
+        return variablelistItems;
+    }
+
+    private ArrayList<CodeTemplate> setupPostprocessorItems() {
+        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+        variablelistItems.add(new CodeTemplate("Completed Message Object", "The final message object, which contains all processed source and destination connector messages.", "message", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Merged Connector Message", "Returns a connector message that has a channel map and response map which are merged from all connector messages.\nThis also includes the raw and processed raw content from the source connector.", "message.getMergedConnectorMessage()", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Source Connector Message", "Returns the source connector message contained in the final message object.", "message.getConnectorMessages().get(0)", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Destination Connector Message", "Returns a specific destination connector message contained in the final message object.", "message.getConnectorMessages().get(metaDataId)", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         return variablelistItems;
     }
 }
