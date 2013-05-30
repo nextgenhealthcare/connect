@@ -907,7 +907,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         try {
-            Filter importFilter = (Filter) serializer.fromXML(ImportConverter.convertFilter(content));
+            Filter importFilter = (Filter) serializer.fromXML(content, Filter.class);
             prevSelRow = -1;
             modified = true;
 

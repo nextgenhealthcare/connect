@@ -885,8 +885,13 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         try {
-            // TODO MIRTH-2371 Test import again after importConvert updates
-            Transformer importTransformer = (Transformer) serializer.fromXML(ImportConverter.convertTransformer(content, incomingDataType, outgoingDataType));
+            /*
+             * Note: We removed the ability to migrate old transformer XML that was generated prior
+             * to version 3.0.0, since it did not contain a version field, which posed problems when
+             * migrating to 3.0.0. Transformers prior to 3.0.0 can still be migrated when imported
+             * as part of a connector.
+             */
+            Transformer importTransformer = (Transformer) serializer.fromXML(content, Transformer.class);
             prevSelRow = -1;
             modified = true;
             invalidVar = false;

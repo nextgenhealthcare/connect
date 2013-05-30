@@ -11,7 +11,9 @@ package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
 
-public class PollConnectorProperties implements Serializable {
+import com.mirth.connect.donkey.util.migration.Migratable;
+
+public class PollConnectorProperties implements Serializable, Migratable {
     public static final String POLLING_TYPE_INTERVAL = "interval";
     public static final String POLLING_TYPE_TIME = "time";
 

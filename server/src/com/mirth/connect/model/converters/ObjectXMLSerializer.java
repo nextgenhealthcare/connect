@@ -10,11 +10,18 @@
 package com.mirth.connect.model.converters;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 import com.mirth.connect.model.ArchiveMetaData;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
@@ -48,8 +55,13 @@ import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.alert.DefaultTrigger;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
+import com.mirth.connect.model.util.ImportConverter3_0_0;
+import com.thoughtworks.xstream.io.xml.DomReader;
+import com.thoughtworks.xstream.mapper.Mapper;
 
 public class ObjectXMLSerializer extends XStreamSerializer {
+    public final static String VERSION_ATTRIBUTE_NAME = "version";
+    
     private static final Class<?>[] annotatedClasses = new Class<?>[] {//@formatter:off
         AlertAction.class,
         AlertActionGroup.class,
@@ -59,6 +71,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         AlertStatus.class,
         ArchiveMetaData.class,
         Channel.class,
+        ChannelProperties.class,
         ChannelStatistics.class,
         ChannelSummary.class,
         CodeTemplate.class,
@@ -94,8 +107,16 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         return instance;
     }
 
+    public static Class<?>[] getAnnotatedClasses() {
+        return annotatedClasses;
+    }
+    
+    private Mapper mapper;
+
     private ObjectXMLSerializer() {
         processAnnotations(annotatedClasses);
+        mapper = getXStream().getMapper();
+        getXStream().registerConverter(new MigratableConverter(mapper, VERSION_ATTRIBUTE_NAME));
     }
 
     public String toXML(Object source) {
@@ -107,13 +128,47 @@ public class ObjectXMLSerializer extends XStreamSerializer {
     }
 
     public Object fromXML(String source) {
-        return deserialize(source);
+        return deserialize(new StringReader(source));
+    }
+    
+    public Object fromXML(String source, Class<?> expectedClass) {
+        try {
+            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(source)));
+
+            /*
+             * Have the ImportConverter migrate the serialized object to the version 3.0.0
+             * structure, which is when the "version" attribute and the Migratable interface were
+             * first introduced. After converting it to the 3.0.0 structure, the migration methods
+             * in the Migratable interface will migrate the object to the current Mirth version (see
+             * MigratableConverter).
+             */
+            document = ImportConverter3_0_0.convert(document, source, expectedClass);
+
+            return getXStream().unmarshal(new DomReader(document));
+        } catch (Exception e) {
+            // TODO handle exception
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public Object fromXML(Reader reader) {
-        return deserialize(reader);
+    @Override
+    public Object deserialize(String source) {
+        return deserialize(new StringReader(source));
     }
 
+    @Override
+    public Object deserialize(Reader reader) {
+        try {
+            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(reader));
+            return getXStream().unmarshal(new DomReader(document));
+        } catch (Exception e) {
+            // TODO handle exception
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
     public void processAnnotations(Class<?>[] classes) {
         getXStream().processAnnotations(classes);
     }

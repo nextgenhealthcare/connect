@@ -14,10 +14,11 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.ObjectUtils;
 
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("codeTemplate")
-public class CodeTemplate implements Serializable {
+public class CodeTemplate implements Serializable, Migratable {
     public enum CodeSnippetType {
         CODE("Code"), VARIABLE("Variable"), FUNCTION("Function");
 
@@ -58,7 +59,6 @@ public class CodeTemplate implements Serializable {
     private String code;
     private CodeSnippetType type;
     private int scope;
-    private String version;
 
     public CodeTemplate() {
 
@@ -121,14 +121,6 @@ public class CodeTemplate implements Serializable {
         this.scope = scope;
     }
 
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
     public boolean equals(Object that) {
         if (this == that) {
             return true;
@@ -140,7 +132,7 @@ public class CodeTemplate implements Serializable {
 
         CodeTemplate codeTemplate = (CodeTemplate) that;
 
-        return ObjectUtils.equals(this.getId(), codeTemplate.getId()) && ObjectUtils.equals(this.getName(), codeTemplate.getName()) && ObjectUtils.equals(this.getTooltip(), codeTemplate.getTooltip()) && ObjectUtils.equals(this.getScope(), codeTemplate.getScope()) && ObjectUtils.equals(this.getType(), codeTemplate.getType()) && ObjectUtils.equals(this.getCode(), codeTemplate.getCode()) && ObjectUtils.equals(this.getVersion(), codeTemplate.getVersion());
+        return ObjectUtils.equals(this.getId(), codeTemplate.getId()) && ObjectUtils.equals(this.getName(), codeTemplate.getName()) && ObjectUtils.equals(this.getTooltip(), codeTemplate.getTooltip()) && ObjectUtils.equals(this.getScope(), codeTemplate.getScope()) && ObjectUtils.equals(this.getType(), codeTemplate.getType()) && ObjectUtils.equals(this.getCode(), codeTemplate.getCode());
     }
 
     public String toString() {
@@ -151,8 +143,7 @@ public class CodeTemplate implements Serializable {
         builder.append("scope=" + getScope() + ", ");
         builder.append("type=" + getType() + ", ");
         builder.append("code=" + getCode() + ", ");
-        builder.append("name=" + getName() + ", ");
-        builder.append("version=" + getVersion());
+        builder.append("name=" + getName());
         builder.append("]");
         return builder.toString();
     }

@@ -13,7 +13,9 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.SerializationUtils;
 
-public abstract class DataTypeProperties implements Serializable {
+import com.mirth.connect.donkey.util.migration.Migratable;
+
+public abstract class DataTypeProperties implements Serializable, Migratable {
 	
 	protected SerializationProperties serializationProperties;
 	protected DeserializationProperties deserializationProperties;

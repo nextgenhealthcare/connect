@@ -239,8 +239,19 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
         archiverPanel.resetInvalidProperties();
 //        archiverPanel.setIncludeAttachments(Boolean.parseBoolean(properties.getProperty("includeAttachments", Boolean.FALSE.toString())));
-        archiverPanel.setMessageWriterOptions((MessageWriterOptions) serializer.fromXML(properties.getProperty("archiverOptions")));
+        
+        String archiverOptions = properties.getProperty("archiverOptions");
 
+        /*
+         * archiverOptions might be empty if the pruner settings were migrated from a previous
+         * version of Mirth Connect.
+         */
+        if (archiverOptions == null) {
+            archiverPanel.setMessageWriterOptions(new MessageWriterOptions());
+        } else {
+            archiverPanel.setMessageWriterOptions((MessageWriterOptions) serializer.fromXML(archiverOptions));
+        }
+        
         if (archiverPanel.isEnabled()) {
             archiverPanel.setArchiveEnabled(Boolean.parseBoolean(properties.getProperty("archiveEnabled", Boolean.FALSE.toString())));
         }

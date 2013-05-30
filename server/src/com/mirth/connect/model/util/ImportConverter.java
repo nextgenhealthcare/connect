@@ -9,20 +9,14 @@
 
 package com.mirth.connect.model.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -44,33 +38,19 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.mirth.connect.connectors.smtp.Attachment;
-import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.ServerConfiguration;
-import com.mirth.connect.model.ServerSettings;
-import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.DocumentSerializer;
+import com.mirth.connect.model.converters.MigratableConverter;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.CharsetUtils;
+import com.mirth.connect.util.XmlUtil;
 
 public class ImportConverter {
     private static final String HL7V2 = "HL7V2";
     private static final String XML = "XML";
-    private static ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-
     private static Pattern matchVersion = Pattern.compile("<version>([\\.0-9]+?)<\\/version>");
 
     private enum Direction {
         INBOUND, OUTBOUND
-    }
-
-    /*
-     * Method used to convert messages from one version to another.
-     */
-    public static String convertMessage(String message) throws Exception {
-        return convertPackageNames(message);
     }
 
     /**
@@ -82,8 +62,8 @@ public class ImportConverter {
     private static String convertPackageNames(String xml) {
         return xml.replaceAll("com.webreach.mirth", "com.mirth.connect");
     }
-
-    public static ServerConfiguration convertServerConfiguration(String serverConfiguration) throws Exception {
+    
+    public static Document convertServerConfiguration(String serverConfiguration) throws Exception {
         serverConfiguration = convertPackageNames(serverConfiguration);
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -102,7 +82,7 @@ public class ImportConverter {
 
         Element channelsRoot = (Element) document.getElementsByTagName("channels").item(0);
         NodeList channels = getElements(document, "channel", "com.mirth.connect.model.Channel");
-        List<Channel> channelList = new ArrayList<Channel>();
+        List<Element> channelList = new ArrayList<Element>();
         int length = channels.getLength();
 
         for (int i = 0; i < length; i++) {
@@ -117,53 +97,27 @@ public class ImportConverter {
             trans.transform(new DOMSource(channel), new StreamResult(sw));
             String channelDocXML = sw.toString();
 
-            channelList.add((Channel) serializer.fromXML(convertChannelString(channelDocXML)));
-
+            channelList.add(XmlUtil.elementFromXml(convertChannelString(channelDocXML)));
             channelsRoot.removeChild(channel);
         }
-
-        DocumentSerializer docSerializer = new DocumentSerializer();
-        serverConfiguration = docSerializer.toXML(document);
-
-        serverConfiguration = convertGlobalScripts(serverConfiguration);
-
-        serverConfiguration = convertAlerts(serverConfiguration);
-
-        serverConfiguration = convertCodeTemplates(serverConfiguration);
-
-        ServerConfiguration config = (ServerConfiguration) serializer.fromXML(serverConfiguration);
-        config.setChannels(channelList);
         
-        // ServerSettings and UpdateSettings didn't exist until 2.1
-        if (config.getServerSettings() == null) {
-            config.setServerSettings(new ServerSettings());
+        for (Element channel : channelList) {
+            channelsRoot.appendChild(document.importNode(channel, true));
         }
         
-        if (config.getUpdateSettings() == null) {
-            config.setUpdateSettings(new UpdateSettings());
+        NodeList codeTemplates = documentElement.getElementsByTagName("codeTemplates");
+        int codeTemplateCount = codeTemplates.getLength();
+        
+        for (int i = 0; i < codeTemplateCount; i++) {
+            Element codeTemplate = (Element) codeTemplates.item(i);
+            Element convertedCodeTemplate = convertCodeTemplates(XmlUtil.elementToXml(codeTemplate)).getDocumentElement();
+            documentElement.replaceChild(document.importNode(convertedCodeTemplate, true), codeTemplate);
         }
-
-        return config;
+        
+        return document;
     }
 
-    public static String convertGlobalScripts(String globalScriptsXml) {
-        globalScriptsXml = convertPackageNames(globalScriptsXml);
-        globalScriptsXml = runStringConversions(globalScriptsXml);
-
-        return globalScriptsXml;
-    }
-
-    public static Map<String, String> convertGlobalScripts(Map<String, String> globalScripts) throws Exception {
-        return (Map<String, String>) serializer.fromXML(convertGlobalScripts(serializer.toXML(globalScripts)));
-    }
-
-    public static String convertAlerts(String alertsXml) {
-        alertsXml = convertPackageNames(alertsXml);
-
-        return alertsXml;
-    }
-
-    public static String convertCodeTemplates(String codeTemplatesXML) throws Exception {
+    public static Document convertCodeTemplates(String codeTemplatesXML) throws Exception {
         codeTemplatesXML = convertPackageNames(codeTemplatesXML);
         codeTemplatesXML = runStringConversions(codeTemplatesXML);
 
@@ -194,19 +148,9 @@ public class ImportConverter {
             }
         }
 
-        DocumentSerializer docSerializer = new DocumentSerializer();
-
-        return docSerializer.toXML(document);
+        return document;
     }
-
-    public static List<CodeTemplate> convertCodeTemplates(List<CodeTemplate> codeTemplates) throws Exception {
-        return (List<CodeTemplate>) serializer.fromXML(convertCodeTemplates(serializer.toXML(codeTemplates)));
-    }
-
-    public static Channel convertChannelObject(Channel channel) throws Exception {
-        return (Channel) serializer.fromXML(convertChannelString(serializer.toXML(channel)));
-    }
-
+    
     public static String convertChannelString(String channel) throws Exception {
         channel = convertPackageNames(channel);
         channel = runStringConversions(channel);
@@ -236,7 +180,7 @@ public class ImportConverter {
          */
         String versionData = getComponentVersion(xmlData, "1.8.2");
 
-        if (compareVersions(versionData, "2.0.0") < 0) {
+        if (MigratableConverter.compareVersions(versionData, "2.0.0") < 0) {
             // Run any string replacements for 2.0.0 here.
         }
 
@@ -321,7 +265,7 @@ public class ImportConverter {
                 }
 
                 Element modeElement = document.createElement("mode");
-                modeElement.setTextContent(Connector.Mode.SOURCE.toString());
+                modeElement.setTextContent("SOURCE");
                 sourceConnectorRoot.appendChild(modeElement);
 
                 updateFilterFor1_4((Element) sourceConnectorRoot.getElementsByTagName("filter").item(0));
@@ -332,7 +276,7 @@ public class ImportConverter {
 
                 for (int i = 0; i < destinationsConnectors.getLength(); i++) {
                     modeElement = document.createElement("mode");
-                    modeElement.setTextContent(Connector.Mode.DESTINATION.toString());
+                    modeElement.setTextContent("DESTINATION");
 
                     Element destinationsConnector = (Element) destinationsConnectors.item(i);
                     destinationsConnector.appendChild(modeElement);
@@ -468,7 +412,7 @@ public class ImportConverter {
      * Convert the source and destination connectors for the channel from
      * pre-1.8 to 1.8
      */
-    public static void convertChannelConnectorsFor1_8(Document document, Element channelRoot) throws Exception {
+    private static void convertChannelConnectorsFor1_8(Document document, Element channelRoot) throws Exception {
         Element sourceConnectorRoot = (Element) channelRoot.getElementsByTagName("sourceConnector").item(0);
         Element destinationConnectorRoot = (Element) channelRoot.getElementsByTagName("destinationConnectors").item(0);
         NodeList destinationsConnectors = getElements(destinationConnectorRoot, "connector", "com.mirth.connect.model.Connector");
@@ -497,7 +441,7 @@ public class ImportConverter {
      *            Properties to be added if missing, or changed if already
      *            present.
      */
-    public static void updateProperties(Document document, Element properties, Map<String, String> defaultProperties, Map<String, String> changeProperties) throws Exception {
+    private static void updateProperties(Document document, Element properties, Map<String, String> defaultProperties, Map<String, String> changeProperties) throws Exception {
         // Make a working copy of the properies so we can remove existing
         // properties
         Map<String, String> missingProperties = new HashMap<String, String>();
@@ -531,7 +475,7 @@ public class ImportConverter {
     }
 
     /** Get the child transport node of a connector */
-    public static Node getConnectorTransportNode(Element connectorRoot) throws Exception {
+    private static Node getConnectorTransportNode(Element connectorRoot) throws Exception {
 
         // There will be exactly one.
         NodeList transportNames = connectorRoot.getElementsByTagName("transportName");
@@ -540,13 +484,13 @@ public class ImportConverter {
     }
 
     /** Get the child properties element of a connector */
-    public static Element getPropertiesElement(Element connectorRoot) throws Exception {
+    private static Element getPropertiesElement(Element connectorRoot) throws Exception {
         NodeList propertiesElements = connectorRoot.getElementsByTagName("properties");
         return (Element) propertiesElements.item(0);
     }
 
     /** Convert a single source or destination connector from pre-1.8 to 1.8 */
-    public static void convertOneConnectorFor1_8(Document document, Element connectorRoot) throws Exception {
+    private static void convertOneConnectorFor1_8(Document document, Element connectorRoot) throws Exception {
 
         Node transportNode = getConnectorTransportNode(connectorRoot);
         String transportNameText = transportNode.getTextContent();
@@ -611,7 +555,7 @@ public class ImportConverter {
         }
     }
 
-    public static void convertChannelConnectorsFor2_0(Document document, Element channelRoot) throws Exception {
+    private static void convertChannelConnectorsFor2_0(Document document, Element channelRoot) throws Exception {
         Element sourceConnectorRoot = (Element) channelRoot.getElementsByTagName("sourceConnector").item(0);
         Element destinationConnectorRoot = (Element) channelRoot.getElementsByTagName("destinationConnectors").item(0);
         NodeList destinationsConnectors = getElements(destinationConnectorRoot, "connector", "com.mirth.connect.model.Connector");
@@ -629,7 +573,7 @@ public class ImportConverter {
     }
 
     /** Convert soap connector and destination settings */
-    public static void convertSoapConnectorFor2_0(Document document, Element connectorRoot) throws Exception {
+    private static void convertSoapConnectorFor2_0(Document document, Element connectorRoot) throws Exception {
 
         // convert SOAP reader and SOAP writer to the new formats
         Node transportNode = getConnectorTransportNode(connectorRoot);
@@ -761,7 +705,7 @@ public class ImportConverter {
     }
 
     /** Convert http connector and destination settings */
-    public static void convertHttpConnectorFor2_0(Document document, Element connectorRoot) throws Exception {
+    private static void convertHttpConnectorFor2_0(Document document, Element connectorRoot) throws Exception {
 
         // convert HTTP Listener and HTTP writer to the new formats
         Node transportNode = getConnectorTransportNode(connectorRoot);
@@ -910,7 +854,7 @@ public class ImportConverter {
         }
     }
     
-    public static void convertFileConnectorFor2_2(Document document, Element connectorRoot) throws Exception {
+    private static void convertFileConnectorFor2_2(Document document, Element connectorRoot) throws Exception {
         Node transportNode = getConnectorTransportNode(connectorRoot);
         String transportNameText = transportNode.getTextContent();
         Element propertiesElement = getPropertiesElement(connectorRoot);
@@ -930,7 +874,7 @@ public class ImportConverter {
         }
     }
     
-    public static void convertEmailConnectorFor2_2(Document document, Element connectorRoot) throws Exception {
+    private static void convertEmailConnectorFor2_2(Document document, Element connectorRoot) throws Exception {
         // convert Email Sender to the new SMTP Sender
         Node transportNode = getConnectorTransportNode(connectorRoot);
         String transportNameText = transportNode.getTextContent();
@@ -967,7 +911,7 @@ public class ImportConverter {
             propertyDefaults.put("charsetEncoding", CharsetUtils.DEFAULT_ENCODING);
             propertyDefaults.put("html", "0");
             propertyDefaults.put("body", "");
-            propertyDefaults.put("attachments", serializer.toXML(new ArrayList<Attachment>()));
+            propertyDefaults.put("attachments", "<list/>");
 
             List<String> attachmentNames = null;
             List<String> attachmentContents = null;
@@ -1008,21 +952,28 @@ public class ImportConverter {
                 }
             }
             
-            List<Attachment> attachments = new ArrayList<Attachment>();
+            Document attachmentDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader("<list></list>")));
             
-            // If any attachments existed, convert them now
             if (attachmentNames != null) {
                 for (int i = 0; i < attachmentNames.size(); i++) {
-                    Attachment attachment = new Attachment();
-                    attachment.setName(attachmentNames.get(i));
-                    attachment.setContent(attachmentContents.get(i));
-                    attachment.setMimeType(attachmentTypes.get(i));
+                    Element attachment = attachmentDoc.createElement("com.mirth.connect.connectors.smtp.Attachment");
+                    attachmentDoc.appendChild(attachment);
                     
-                    attachments.add(attachment);
+                    Element name = attachmentDoc.createElement("name");
+                    name.setTextContent(attachmentNames.get(i));
+                    attachment.appendChild(name);
+                    
+                    Element content = attachmentDoc.createElement("content");
+                    content.setTextContent(attachmentContents.get(i));
+                    attachment.appendChild(content);
+                    
+                    Element mimeType = attachmentDoc.createElement("mimeType");
+                    mimeType.setTextContent(attachmentTypes.get(i));
+                    attachment.appendChild(mimeType);
                 }
             }
             
-            propertyChanges.put("attachments", serializer.toXML(attachments));
+            propertyChanges.put("attachments", new DocumentSerializer().toXML(attachmentDoc));
 
             propertyChanges.put("DataType", "SMTP Sender");
 
@@ -1033,7 +984,7 @@ public class ImportConverter {
         }
     }
     
-    public static void convertChannelConnectorsFor2_2(Document document, Element channelRoot) throws Exception {
+    private static void convertChannelConnectorsFor2_2(Document document, Element channelRoot) throws Exception {
         Element sourceConnectorRoot = (Element) channelRoot.getElementsByTagName("sourceConnector").item(0);
         Element destinationConnectorRoot = (Element) channelRoot.getElementsByTagName("destinationConnectors").item(0);
         NodeList destinationsConnectors = getElements(destinationConnectorRoot, "connector", "com.mirth.connect.model.Connector");
@@ -1086,6 +1037,7 @@ public class ImportConverter {
     public static String convertConnector(String connectorXml) throws Exception {
         connectorXml = convertPackageNames(connectorXml);
         connectorXml = runStringConversions(connectorXml);
+        connectorXml = removeInvalidHexChar(connectorXml);
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
@@ -1111,7 +1063,7 @@ public class ImportConverter {
              */
             String versionData = getComponentVersion(connectorXml, "1.8.2");
 
-            if (compareVersions(versionData, "2.0.0") < 0) {
+            if (MigratableConverter.compareVersions(versionData, "2.0.0") < 0) {
                 convertHttpConnectorFor2_0(document, connectorRoot);
             }
         }
@@ -1119,7 +1071,7 @@ public class ImportConverter {
         // Conversions for 2.2.0
         String versionData = getComponentVersion(connectorXml, "2.1.1");
         
-        if (compareVersions(versionData, "2.2.0") < 0) {
+        if (MigratableConverter.compareVersions(versionData, "2.2.0") < 0) {
             convertFileConnectorFor2_2(document, connectorRoot);
             convertEmailConnectorFor2_2(document, connectorRoot);
         }
@@ -1277,7 +1229,7 @@ public class ImportConverter {
 
                 Element useStrictParserProperty = document.createElement("property");
                 useStrictParserProperty.setAttribute("name", "useStrictParser");
-                useStrictParserProperty.setTextContent("true");
+                useStrictParserProperty.setTextContent("false");
 
                 inboundPropertiesElement.appendChild(handleRepetitionsProperty);
                 inboundPropertiesElement.appendChild(useStrictValidationProperty);
@@ -1299,7 +1251,7 @@ public class ImportConverter {
 
                 Element useStrictParserProperty = document.createElement("property");
                 useStrictParserProperty.setAttribute("name", "useStrictParser");
-                useStrictParserProperty.setTextContent("true");
+                useStrictParserProperty.setTextContent("false");
 
                 outboundPropertiesElement.appendChild(handleRepetitionsProperty);
                 outboundPropertiesElement.appendChild(useStrictValidationProperty);
@@ -1652,7 +1604,7 @@ public class ImportConverter {
         }
     }
 
-    public static Element createRegexElement(Document document) {
+    private static Element createRegexElement(Document document) {
         Element entryElement = document.createElement("entry");
         Element regexElement = document.createElement("string");
         // Element stringArrayElement = document.createElement("string-array");
@@ -1666,7 +1618,7 @@ public class ImportConverter {
         return entryElement;
     }
 
-    public static Element createDefaultValueElement(Document document) {
+    private static Element createDefaultValueElement(Document document) {
         Element entryElement = document.createElement("entry");
         Element defaultValueElement = document.createElement("string");
         Element defaultValueValueElement = document.createElement("string");
@@ -1679,26 +1631,10 @@ public class ImportConverter {
         return entryElement;
     }
 
-    public static String updateLocalAndGlobalVariables(String xml) throws Exception {
+    private static String updateLocalAndGlobalVariables(String xml) throws Exception {
         xml = xml.replaceAll("localMap.put", "channelMap.put");
         xml = xml.replaceAll("localMap.get", "channelMap.get");
         return xml;
-    }
-
-    private static String read(File file) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
-        StringBuilder contents = new StringBuilder();
-        String line = null;
-
-        try {
-            while ((line = reader.readLine()) != null) {
-                contents.append(line + "\n");
-            }
-        } finally {
-            reader.close();
-        }
-
-        return contents.toString();
     }
 
     /**
@@ -1784,58 +1720,5 @@ public class ImportConverter {
         }
         
         return elements;
-    }
-
-    /**
-     * Compares two versions strings (ex. 1.6.1.2335).
-     * 
-     * @param version1
-     * @param version2
-     * @return -1 if version1 < version2, 1 if version1 > version2, 0 if
-     *         version1 = version2
-     */
-    public static int compareVersions(String version1, String version2) {
-        if ((version1 == null) && (version2 == null)) {
-            return 0;
-        } else if ((version1 != null) && (version2 == null)) {
-            return 1;
-        } else if ((version1 == null) && (version2 != null)) {
-            return -1;
-        } else {
-            String[] numbers1 = normalizeVersion(version1, 4).split("\\.");
-            String[] numbers2 = normalizeVersion(version2, 4).split("\\.");
-
-            for (int i = 0; i < numbers1.length; i++) {
-                if (Integer.valueOf(numbers1[i]) < Integer.valueOf(numbers2[i])) {
-                    return -1;
-                } else if (Integer.valueOf(numbers1[i]) > Integer.valueOf(numbers2[i])) {
-                    return 1;
-                }
-            }
-        }
-
-        return 0;
-    }
-
-    public static String normalizeVersion(String version, int length) {
-        List<String> numbers = new ArrayList<String>(Arrays.asList(version.split("\\.")));
-
-        while (numbers.size() < length) {
-            numbers.add("0");
-        }
-
-        StringBuilder builder = new StringBuilder();
-
-        for (ListIterator<String> iterator = numbers.listIterator(); iterator.hasNext() && iterator.nextIndex() < length;) {
-            String number = iterator.next();
-
-            if (iterator.hasNext()) {
-                builder.append(number + ".");
-            } else {
-                builder.append(number);
-            }
-        }
-
-        return builder.toString();
     }
 }

@@ -14,8 +14,9 @@ import java.io.Serializable;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.util.migration.Migratable;
 
-public class ResponseConnectorProperties implements Serializable {
+public class ResponseConnectorProperties implements Serializable, Migratable {
 
     /**
      * "Respond From" key indicating that no response should be sent back
@@ -110,5 +111,4 @@ public class ResponseConnectorProperties implements Serializable {
     public void setRespondAfterProcessing(boolean respondAfterProcessing) {
         this.respondAfterProcessing = respondAfterProcessing;
     }
-
 }

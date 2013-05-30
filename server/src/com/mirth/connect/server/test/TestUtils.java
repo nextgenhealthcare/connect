@@ -72,7 +72,7 @@ public class TestUtils {
         channel.setName(channelId);
         channel.setRevision(1);
         channel.setSourceConnector(sourceConnector);
-        channel.getDestinationConnectors().add(destinationConnector);
+        channel.addDestination(destinationConnector);
         channel.setLastModified(Calendar.getInstance());
         
         return channel;

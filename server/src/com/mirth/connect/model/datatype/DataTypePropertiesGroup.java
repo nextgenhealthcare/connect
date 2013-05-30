@@ -14,7 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public abstract class DataTypePropertiesGroup implements Serializable {
+import com.mirth.connect.donkey.util.migration.Migratable;
+
+public abstract class DataTypePropertiesGroup implements Serializable, Migratable {
 
     public abstract Map<String, DataTypePropertyDescriptor> getPropertyDescriptors();
 

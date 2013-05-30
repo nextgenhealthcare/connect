@@ -71,6 +71,7 @@ import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.attachments.AttachmentHandlerFactory;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.attachments.JavaScriptAttachmentHandler;
@@ -481,6 +482,14 @@ public class DonkeyEngineController implements EngineController {
                 if (!connector.isWaitForPrevious() || channel.getDestinationChains().size() == 0) {
                     chain = createDestinationChain(channel);
                     channel.addDestinationChain(chain);
+                }
+                
+                Integer metaDataId = connector.getMetaDataId();
+                
+                if (metaDataId == null) {
+                    metaDataId = model.getNextMetaDataId();
+                    model.setNextMetaDataId(metaDataId + 1);
+                    connector.setMetaDataId(metaDataId);
                 }
 
                 chain.addDestination(connector.getMetaDataId(), createFilterTransformerExecutor(channelId, connector), createDestinationConnector(channelId, connector, storageSettings));

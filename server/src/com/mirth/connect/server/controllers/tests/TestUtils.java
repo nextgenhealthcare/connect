@@ -177,7 +177,7 @@ public class TestUtils {
         channel.setName(channelName);
         channel.setRevision(0);
         channel.setSourceConnector(sourceConnector);
-        channel.getDestinationConnectors().add(destinationConnector);
+        channel.addDestination(destinationConnector);
 
         return channel;
     }

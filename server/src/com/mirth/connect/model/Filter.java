@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
 
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -24,7 +25,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  */
 
 @XStreamAlias("filter")
-public class Filter implements Serializable {
+public class Filter implements Serializable, Migratable {
 	private List<Rule> rules;
 
 	public Filter() {

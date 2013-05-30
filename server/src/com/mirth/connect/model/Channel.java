@@ -12,13 +12,12 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -28,7 +27,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  */
 
 @XStreamAlias("channel")
-public class Channel implements Serializable, Auditable {
+public class Channel implements Serializable, Auditable, Migratable {
     private String id;
     private Integer nextMetaDataId;
     private String name;

@@ -15,6 +15,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -26,7 +27,9 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  */
 
 @XStreamAlias("connector")
-public class Connector implements Serializable {
+public class Connector implements Serializable, Migratable {
+    private static int migrateMetaDataId = 1;
+
     public enum Mode {
         SOURCE, DESTINATION
     }

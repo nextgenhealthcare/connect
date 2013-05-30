@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
 
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.xstream.Base64StringConverter;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -27,7 +28,7 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
  */
 
 @XStreamAlias("transformer")
-public class Transformer implements Serializable {
+public class Transformer implements Serializable, Migratable {
     private List<Step> steps;
 
     @XStreamConverter(Base64StringConverter.class)

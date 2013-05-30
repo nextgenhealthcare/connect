@@ -17,7 +17,9 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -27,18 +29,20 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.exceptions.PersistenceException;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelProperties;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.PluginMetaData;
-import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
-import com.mirth.connect.model.util.ImportConverter;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 
@@ -71,6 +75,7 @@ public class DefaultMigrationController extends MigrationController {
     }
 
     // TODO: Rewrite with fewer returns
+    @Override
     public void migrate() {
         // check for one of the tables to see if we should run the create script
 
@@ -154,22 +159,41 @@ public class DefaultMigrationController extends MigrationController {
         }
     }
 
+    @Override
     public void migrateChannels() {
+        SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+
         try {
-            for (Channel channel : channelController.getChannels(null)) {
-                if (!channel.getVersion().equals(configurationController.getServerVersion())) {
-                    Channel updatedChannel = ImportConverter.convertChannelObject(channel);
-//                    PropertyVerifier.checkChannelProperties(updatedChannel);
-//                    PropertyVerifier.checkConnectorProperties(updatedChannel, extensionController.getConnectorMetaData());
-                    updatedChannel.setVersion(configurationController.getServerVersion());
-                    channelController.updateChannel(updatedChannel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
+            List<Map<String, String>> serializedDataList = session.selectList("Channel.getSerializedChannelData");
+
+            for (Map<String, String> serializedData : serializedDataList) {
+                String sourceConnector = serializer.toXML(serializer.fromXML(serializedData.get("sourceConnector"), Connector.class));
+                String destinationConnectors = serializer.toXML(serializer.fromXML(serializedData.get("destinationConnectors"), Connector.class));
+                String properties = serializer.toXML(serializer.fromXML(serializedData.get("properties"), ChannelProperties.class));
+
+                if (!sourceConnector.equals(serializedData.get("sourceConnector")) || !destinationConnectors.equals(serializedData.get("destinationConnectors")) || !properties.equals(serializedData.get("properties"))) {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("channelId", serializedData.get("id"));
+                    params.put("sourceConnector", sourceConnector);
+                    params.put("destinationConnectors", destinationConnectors);
+                    params.put("properties", properties);
+                
+                    session.update("Channel.updateSerializedChannelData", params);
+                    logger.info("Migrated channel " + serializedData.get("id") + " to version " + ConfigurationController.getInstance().getServerVersion());
                 }
             }
-        } catch (Exception e) {
-            logger.error("Could not migrate channels.", e);
+        } finally {
+            session.close();
         }
     }
+    
+    private String migrateXml(String xml) {
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+        return serializer.serialize(serializer.deserialize(xml));
+    }
 
+    @Override
     public void migrateExtensions() {
         for (PluginMetaData plugin : extensionController.getPluginMetaData().values()) {
             try {
@@ -283,14 +307,23 @@ public class DefaultMigrationController extends MigrationController {
             // Update the code template scopes and package names
             CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
             try {
-                codeTemplateController.updateCodeTemplates(ImportConverter.convertCodeTemplates(codeTemplateController.getCodeTemplate(null)));
+                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+                List<CodeTemplate> codeTemplates = codeTemplateController.getCodeTemplate(null);
+                List<CodeTemplate> convertedCodeTemplates = (List<CodeTemplate>) serializer.fromXML(serializer.toXML(codeTemplates));
+                codeTemplateController.updateCodeTemplates(convertedCodeTemplates);
             } catch (Exception e) {
                 logger.error("Error migrating code templates.", e);
             }
 
             // Update the global script package names
             try {
-                scriptController.setGlobalScripts(ImportConverter.convertGlobalScripts(scriptController.getGlobalScripts()));
+                Map<String, String> globalScripts = scriptController.getGlobalScripts();
+                
+                for (Entry<String, String> globalScriptEntry : globalScripts.entrySet()) {
+                    globalScripts.put(globalScriptEntry.getKey(), globalScriptEntry.getValue().replaceAll("com.webreach.mirth", "com.mirth.connect"));
+                }
+                
+                scriptController.setGlobalScripts(globalScripts);
             } catch (Exception e) {
                 logger.error("Error migrating global scripts.", e);
             }

@@ -11,7 +11,9 @@ package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
 
-public abstract class ConnectorProperties implements Serializable {
+import com.mirth.connect.donkey.util.migration.Migratable;
+
+public abstract class ConnectorProperties implements Serializable, Migratable {
     public abstract String getProtocol();
 
     public abstract String getName();

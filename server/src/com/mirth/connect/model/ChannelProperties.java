@@ -17,10 +17,13 @@ import java.util.Set;
 
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.model.attachments.AttachmentHandlerFactory;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
-public class ChannelProperties implements Serializable {
+@XStreamAlias("channelProperties")
+public class ChannelProperties implements Serializable, Migratable {
     private boolean clearGlobalChannelMap;
     private MessageStorageMode messageStorageMode;
     private boolean encryptData;

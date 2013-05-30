@@ -388,9 +388,6 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
             parent.alertException(this, e.getStackTrace(), e.getMessage());
         }
 
-        // Set the version when creating new code templates in case they are exported
-        // without being retrieved from the server again, which always sets the version
-        codeTemplate.setVersion(PlatformUI.SERVER_VERSION);
         codeTemplate.setName(getNewCodeTemplateName(model.getRowCount() + 1));
         codeTemplate.setCode(functionCodeExample);
         codeTemplate.setTooltip("");

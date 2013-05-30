@@ -9,14 +9,10 @@
 
 package com.mirth.connect.server.util.test;
 
-import static org.junit.Assert.fail;
-
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import com.mirth.connect.client.core.Client;
@@ -25,14 +21,11 @@ import com.mirth.connect.connectors.js.JavaScriptReceiverProperties;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Transformer;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.server.controllers.tests.TestUtils;
 
 public class TestServer {
     private final static String CLIENT_ADDRESS = "https://localhost:8443";
     private final static String VERSION = "3.0.0";
-    private final static String CHANNEL_XML_FILE = "testchannel.xml";
 
     @Test
     public final void test() throws Exception {
@@ -92,16 +85,5 @@ public class TestServer {
         channel.getDestinationConnectors().addAll(destinationConnectors);
 
         return channel;
-    }
-
-    private Channel getChannelFromXmlFile() throws Exception {
-        InputStream stream = this.getClass().getClassLoader().getResourceAsStream(CHANNEL_XML_FILE);
-
-        if (stream == null) {
-            fail("Could not find " + CHANNEL_XML_FILE);
-        }
-
-        String channelXml = ImportConverter.convertChannelString(IOUtils.toString(stream));
-        return (Channel) ObjectXMLSerializer.getInstance().fromXML(channelXml);
     }
 }

@@ -251,7 +251,7 @@ public class DataPrunerService implements ServicePlugin {
         properties.put("time", "12:00 AM");
         properties.put("pruningBlockSize", String.valueOf(DEFAULT_PRUNING_BLOCK_SIZE));
         properties.put("archiveEnabled", serializer.serialize(false));
-        properties.put("includeAttachments", serializer.serialize(false));
+//        properties.put("includeAttachments", serializer.serialize(false));
         properties.put("archiverOptions", serializer.serialize(new MessageWriterOptions()));
         properties.put("pruneEvents", Boolean.toString(false));
         properties.put("maxEventAge", "");
@@ -277,7 +277,11 @@ public class DataPrunerService implements ServicePlugin {
 //        boolean includeAttachments = Boolean.parseBoolean(properties.getProperty("includeAttachments", Boolean.FALSE.toString()));
 
         if (pruner.isArchiveEnabled()) {
-            pruner.setArchiverOptions((MessageWriterOptions) serializer.fromXML(properties.getProperty("archiverOptions")));
+            if (properties.contains("archiverOptions")) {
+                pruner.setArchiverOptions(new MessageWriterOptions());
+            } else {
+                pruner.setArchiverOptions((MessageWriterOptions) serializer.fromXML(properties.getProperty("archiverOptions")));
+            }
         }
 
         if (Boolean.parseBoolean(properties.getProperty("pruneEvents", Boolean.FALSE.toString()))) {

@@ -117,7 +117,6 @@ import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
-import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 
@@ -2072,7 +2071,12 @@ public class Frame extends JXFrame {
         if (content != null) {
             try {
                 ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-                Map<String, String> importScripts = (Map<String, String>) serializer.fromXML(ImportConverter.convertGlobalScripts(content));
+                Map<String, String> importScripts = (Map<String, String>) serializer.fromXML(content);
+                
+                for (Entry<String, String> globalScriptEntry : importScripts.entrySet()) {
+                    importScripts.put(globalScriptEntry.getKey(), globalScriptEntry.getValue().replaceAll("com.webreach.mirth", "com.mirth.connect"));
+                }
+                
                 globalScriptsPanel.importAllScripts(importScripts);
             } catch (Exception e) {
                 alertException(this, e.getStackTrace(), "Invalid scripts file. " + e.getMessage());
@@ -2972,27 +2976,16 @@ public class Frame extends JXFrame {
     }
 
     public void importChannel(String content, boolean showAlerts) {
-        String channelXML = "";
         boolean overwrite = false;
-
-        try {
-            channelXML = ImportConverter.convertChannelString(content);
-        } catch (Exception e) {
-            if (showAlerts) {
-                alertException(this, e.getStackTrace(), "Invalid channel file:\n" + e.getMessage());
-            }
-            return;
-        }
-
-        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         Channel importChannel;
 
         try {
-            importChannel = (Channel) serializer.fromXML(channelXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"));
+            importChannel = (Channel) ObjectXMLSerializer.getInstance().fromXML(content, Channel.class);
         } catch (Exception e) {
             if (showAlerts) {
                 alertException(this, e.getStackTrace(), "Invalid channel file:\n" + e.getMessage());
             }
+            
             return;
         }
 
@@ -3313,10 +3306,7 @@ public class Frame extends JXFrame {
 
         if (content != null) {
             try {
-                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-                Connector connector = (Connector) serializer.fromXML(ImportConverter.convertConnector(content));
-//                PropertyVerifier.checkConnectorProperties(connector, getConnectorMetaData());
-                channelEditPanel.importConnector(connector);
+                channelEditPanel.importConnector((Connector) ObjectXMLSerializer.getInstance().fromXML(content, Connector.class));
             } catch (Exception e) {
                 alertException(this, e.getStackTrace(), e.getMessage());
             }
@@ -4247,7 +4237,8 @@ public class Frame extends JXFrame {
                 ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 boolean append = false;
 
-                List<CodeTemplate> newCodeTemplates = (List<CodeTemplate>) serializer.fromXML(ImportConverter.convertCodeTemplates(content));
+                List<CodeTemplate> newCodeTemplates = (List<CodeTemplate>) serializer.fromXML(content, CodeTemplate.class);
+                
                 if (codeTemplates != null && codeTemplates.size() > 0) {
                     if (alertOption(this, "Would you like to append these code templates to the existing code templates?")) {
                         append = true;

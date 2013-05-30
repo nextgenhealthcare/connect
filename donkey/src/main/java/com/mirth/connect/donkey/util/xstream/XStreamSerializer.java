@@ -81,7 +81,7 @@ public class XStreamSerializer implements Serializer {
         return HierarchicalStreams.readClassType(new XppReader(reader, new MXParser()), getXStream().getMapper());
     }
     
-    protected XStream getXStream() {
+    public XStream getXStream() {
         return xstream;
     }
 }

@@ -41,14 +41,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         logger.debug("getting codeTemplate: " + codeTemplate);
 
         try {
-            List<CodeTemplate> codeTemplates = SqlConfig.getSqlSessionManager().selectList("CodeTemplate.getCodeTemplate", codeTemplate);
-
-            // The version is not stored in the database, so set it when pulling code templates out.
-            for (CodeTemplate singleCodeTemplate : codeTemplates) {
-                singleCodeTemplate.setVersion(configurationController.getServerVersion());
-            }
-
-            return codeTemplates;
+            return SqlConfig.getSqlSessionManager().selectList("CodeTemplate.getCodeTemplate", codeTemplate);
         } catch (PersistenceException e) {
             throw new ControllerException(e);
         }

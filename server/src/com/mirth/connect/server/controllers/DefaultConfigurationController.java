@@ -68,6 +68,7 @@ import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.commons.encryption.Output;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
+import com.mirth.connect.donkey.util.migration.DonkeyElement;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.DatabaseSettings;
 import com.mirth.connect.model.DriverInfo;
@@ -79,13 +80,16 @@ import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.alert.AlertModel;
+import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.util.MirthElement;
 import com.mirth.connect.server.mybatis.KeyValuePair;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.PasswordRequirementsChecker;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.XmlUtil;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.
@@ -721,7 +725,30 @@ public class DefaultConfigurationController extends ConfigurationController {
 
                 // deserialize the XML secret key to an Object
                 ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-                SecretKey secretKey = (SecretKey) serializer.fromXML(getProperty(PROPERTIES_CORE, "encryption.key"));
+                String xml = getProperty(PROPERTIES_CORE, "encryption.key");
+
+                /*
+                 * This is a fix to account for an error that occurred when testing migration
+                 * from version 1.8.2 to 3.0.0. The key was serialized as an instance of
+                 * com.sun.crypto.provider.DESedeKey, but fails to correctly deserialize as an
+                 * instance of java.security.KeyRep. The fix below extracts the "<default>" node
+                 * from the serialized xml and uses that to deserialize to java.security.KeyRep.
+                 * (MIRTH-2552)
+                 */
+                Document document = new DocumentSerializer().fromXML(xml);
+                DonkeyElement root = new MirthElement(document.getDocumentElement());
+                DonkeyElement keyRep = root.getChildElement("java.security.KeyRep");
+
+                if (keyRep != null) {
+                    DonkeyElement defaultElement = keyRep.getChildElement("default");
+
+                    if (defaultElement != null) {
+                        defaultElement.setNodeName("java.security.KeyRep");
+                        xml = XmlUtil.elementToXml(defaultElement);
+                    }
+                }
+
+                SecretKey secretKey = (SecretKey) serializer.fromXML(xml);
 
                 // add the secret key entry to the new keystore
                 KeyStore.SecretKeyEntry entry = new KeyStore.SecretKeyEntry(secretKey);

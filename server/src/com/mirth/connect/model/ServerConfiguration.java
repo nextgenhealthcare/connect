@@ -14,11 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.model.alert.AlertModel;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("serverConfiguration")
-public class ServerConfiguration implements Serializable {
+public class ServerConfiguration implements Serializable, Migratable {
     private String date;
     private List<Channel> channels = null;
     private List<User> users = null;

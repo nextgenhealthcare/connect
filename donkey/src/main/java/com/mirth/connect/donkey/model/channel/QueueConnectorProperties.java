@@ -11,7 +11,9 @@ package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
 
-public class QueueConnectorProperties implements Serializable {
+import com.mirth.connect.donkey.util.migration.Migratable;
+
+public class QueueConnectorProperties implements Serializable, Migratable {
     private boolean queueEnabled;
     private boolean sendFirst;
     private int retryIntervalMillis;

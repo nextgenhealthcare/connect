@@ -730,22 +730,13 @@ public class CommandLineInterface {
 
         String path = arguments[1].getText();
         File fXml = new File(path);
-
-        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+        
         try {
-            String codeTemplatesXml = FileUtils.readFileToString(fXml);
-            try {
-                codeTemplatesXml = ImportConverter.convertCodeTemplates(codeTemplatesXml);
-            } catch (Exception e) {
-                error("error migrating code templates", e);
-            }
-            client.updateCodeTemplates((List<CodeTemplate>) serializer.fromXML(codeTemplatesXml));
+            client.updateCodeTemplates((List<CodeTemplate>) ObjectXMLSerializer.getInstance().fromXML(FileUtils.readFileToString(fXml), CodeTemplate.class));
+            out.println("Code Templates Import Complete");
         } catch (IOException e) {
             error("cannot read " + path, e);
-            return;
         }
-
-        out.println("Code Templates Import Complete");
     }
     
     private void commandImportMessages(Token[] arguments) {
@@ -1283,25 +1274,13 @@ public class CommandLineInterface {
         String channelXML = "";
 
         try {
-            channelXML = ImportConverter.convertChannelString(FileUtils.readFileToString(importFile));
+            channelXML = FileUtils.readFileToString(importFile);
         } catch (Exception e1) {
             error("invalid channel file.", e1);
             return;
         }
 
-        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        Channel importChannel;
-
-        try {
-            importChannel = (Channel) serializer.fromXML(channelXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"));
-//            PropertyVerifier.checkChannelProperties(importChannel);
-//            PropertyVerifier.checkConnectorProperties(importChannel, client.getConnectorMetaData());
-
-        } catch (Exception e) {
-            error("invalid channel file.", e);
-            return;
-        }
-
+        Channel importChannel = (Channel) ObjectXMLSerializer.getInstance().fromXML(channelXML, Channel.class);
         String channelName = importChannel.getName();
         String tempId = client.getGuid();
 
