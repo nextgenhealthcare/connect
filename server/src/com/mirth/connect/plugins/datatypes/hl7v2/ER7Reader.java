@@ -70,7 +70,8 @@ public class ER7Reader extends SAXParser {
         String subcomponentSeparator = DEFAULT_SUBCOMPONENT_TERMINATOR;
 
         // if we have a header, grab the actual separators from the message
-        if (message.substring(0, 3).equalsIgnoreCase("MSH")) {
+        String firstSegment = message.substring(0, 3);
+        if (firstSegment.equalsIgnoreCase("MSH") || firstSegment.equalsIgnoreCase("FHS") || firstSegment.equalsIgnoreCase("BHS")) {
             fieldSeparator = new String(new char[] { message.charAt(3) });
 
             int nextDelimiter = message.indexOf(message.charAt(3), 4);
