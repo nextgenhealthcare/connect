@@ -17,19 +17,22 @@ public class VmDispatcherProperties extends ConnectorProperties implements Dispa
     private QueueConnectorProperties queueConnectorProperties;
 
     private String channelId;
+    private String responseTimeout;
     private String channelTemplate;
 
     public VmDispatcherProperties() {
         queueConnectorProperties = new QueueConnectorProperties();
 
         this.channelId = "none";
+        this.responseTimeout = "10000";
         this.channelTemplate = "${message.encodedData}";
     }
-    
+
     public VmDispatcherProperties(VmDispatcherProperties props) {
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
 
         channelId = props.getChannelId();
+        responseTimeout = props.getResponseTimeout();
         channelTemplate = props.getChannelTemplate();
     }
 
@@ -39,6 +42,14 @@ public class VmDispatcherProperties extends ConnectorProperties implements Dispa
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
+    }
+
+    public String getResponseTimeout() {
+        return responseTimeout;
+    }
+
+    public void setResponseTimeout(String responseTimeout) {
+        this.responseTimeout = responseTimeout;
     }
 
     public String getChannelTemplate() {
