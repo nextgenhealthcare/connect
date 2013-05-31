@@ -38,6 +38,7 @@ public class JavaScriptExecutor<T> {
             }
             
             // TODO wait for the task thread to complete before exiting?
+            Thread.currentThread().interrupt();
             throw e;
         }
     }
