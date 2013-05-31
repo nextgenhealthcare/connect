@@ -21,6 +21,13 @@
 		<result property="shutdownScript" column="SHUTDOWN_SCRIPT" />
 	</resultMap>
 	
+	<resultMap id="channel-serialized-data" type="map">
+		<result property="id" column="ID" javaType="String" />
+		<result property="sourceConnector" column="SOURCE_CONNECTOR" javaType="String" />
+		<result property="destinationConnectors" column="DESTINATION_CONNECTORS" javaType="String" />
+		<result property="properties" column="PROPERTIES" javaType="String" />
+	</resultMap>
+	
 	<select id="getChannel" parameterType="com.mirth.connect.model.Channel" resultMap="get-channel-result">
 		SELECT C.*
 		FROM CHANNEL C
@@ -29,6 +36,19 @@
 			<if test="name != null">AND C.NAME = #{name}</if>
 		</where>
 	</select>
+	
+	<select id="getSerializedChannelData" resultMap="channel-serialized-data">
+		SELECT C.ID, C.SOURCE_CONNECTOR, C.DESTINATION_CONNECTORS, C.PROPERTIES
+		FROM CHANNEL C
+	</select>
+	
+	<update id="updateSerializedChannelData" parameterType="map">
+		UPDATE CHANNEL
+		SET SOURCE_CONNECTOR = #{sourceConnector},
+		DESTINATION_CONNECTORS = #{destinationConnectors},
+		PROPERTIES = #{properties}
+		WHERE ID = #{channelId}
+	</update>
 	
 	<select id="getChannelRevision" resultType="com.mirth.connect.model.Channel">
 		SELECT ID, REVISION
