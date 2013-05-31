@@ -123,7 +123,6 @@ public class DashboardTableNode extends AbstractSortableTreeTableNode {
             row[colOffset + 5] = (statistics.get(Status.FILTERED) == null) ? 0L : statistics.get(Status.FILTERED);
             row[colOffset + 7] = (statistics.get(Status.SENT) == null) ? 0L : statistics.get(Status.SENT);
             row[colOffset + 8] = (statistics.get(Status.ERROR) == null) ? 0L : statistics.get(Status.ERROR);
-            //row[colOffset + 9] = null; // TODO: show alerted?
         } else {
             row[colOffset + 4] = 0L;
             row[colOffset + 5] = 0L;

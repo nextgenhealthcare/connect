@@ -3,6 +3,7 @@ package com.mirth.connect.server.alert;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -12,11 +13,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.alert.AlertAction;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.event.EventListener;
 import com.mirth.connect.server.util.SMTPConnectionFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
@@ -27,6 +31,7 @@ public abstract class AlertWorker extends EventListener {
     protected Logger logger = Logger.getLogger(this.getClass());
     protected ExecutorService actionExecutor = Executors.newSingleThreadExecutor();
     protected Map<String, Alert> enabledAlerts = new ConcurrentHashMap<String, Alert>();
+    protected EventController eventController = ControllerFactory.getFactory().createEventController();
     
     public AlertWorker() {
         super();
@@ -51,7 +56,9 @@ public abstract class AlertWorker extends EventListener {
         Alert alert = enabledAlerts.get(alertId);
         
         if (alert != null) {
-            return new AlertStatus();
+            AlertStatus alertStatus = new AlertStatus();
+            alertStatus.setAlertedCount(alert.getAlertedCount());
+            return alertStatus;
         }
         
         return null;
@@ -126,6 +133,14 @@ public abstract class AlertWorker extends EventListener {
             for (String channelName : channels) {
                 router.routeMessage(channelName, body);
             }
+            
+            // Dispatch a server event to notify that an alert was dispatched
+            ServerEvent serverEvent = new ServerEvent("Alert Dispatched");
+            for (Entry<String, Object> entry : context.entrySet()) {
+                String value = entry.getValue().toString();
+                serverEvent.addAttribute(entry.getKey(), value);
+            }
+            eventController.dispatchEvent(serverEvent);
 
             return null;
         }

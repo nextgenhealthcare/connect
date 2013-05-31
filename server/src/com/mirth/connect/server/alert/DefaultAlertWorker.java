@@ -57,6 +57,7 @@ public class DefaultAlertWorker extends AlertWorker {
         for (AlertActionGroup actionGroup : alert.getModel().getActionGroups()) {
             if (CollectionUtils.isNotEmpty(actionGroup.getActions())) {
                 actionExecutor.submit(new ActionTask(actionGroup, context));
+                alert.incrementAlertedCount();
             }
         }
     }

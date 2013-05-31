@@ -120,14 +120,6 @@ public class DashboardTableColumnFactory extends ColumnFactory {
                 column.setToolTipText("<html><body>The number of messages that errored in this channel.<br>This value will be highlighted if it is greater than 0.</body></html>");
                 break;
 
-            case 9:
-                column.setCellRenderer(new NumberCellRenderer());
-                column.setComparator(new NumberCellComparator());
-                column.setMaxWidth(UIConstants.MIN_WIDTH);
-                column.setMinWidth(UIConstants.MIN_WIDTH);
-                column.setToolTipText("<html><body>The number of alerts sent that were triggered by this channel.</body></html>");
-                break;
-
             default:
                 DashboardColumnPlugin plugin = plugins.get(modelIndex);
 

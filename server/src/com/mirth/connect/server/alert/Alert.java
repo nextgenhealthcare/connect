@@ -2,6 +2,7 @@ package com.mirth.connect.server.alert;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.server.controllers.ConfigurationController;
@@ -12,11 +13,13 @@ public class Alert {
     private Long enabledDateTime;
     private Long enabledNanoTime;
     private Map<Integer, Object> properties = new HashMap<Integer, Object>();
+    private AtomicInteger alertedCount;
     
     public Alert(AlertModel model) {
         this.model = model;
         enabledDateTime = System.nanoTime();
         enabledNanoTime = System.nanoTime();
+        alertedCount = new AtomicInteger(0);
     }
 
     public AlertModel getModel() {
@@ -43,6 +46,18 @@ public class Alert {
         context.put("serverId", ConfigurationController.getInstance().getServerId());
         
         return context;
+    }
+    
+    public int getAlertedCount() {
+        return alertedCount.get();
+    }
+
+    public void incrementAlertedCount() {
+        alertedCount.incrementAndGet();
+    }
+    
+    public void resetAlertedCount() {
+        alertedCount.set(0);
     }
 
 }

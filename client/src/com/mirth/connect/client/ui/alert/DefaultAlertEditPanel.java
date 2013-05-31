@@ -110,20 +110,27 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
     }
 
     @Override
-    public void editAlert(AlertModel alertModel) {
-        nameTextField.setText(alertModel.getName());
-
-        enabledCheckBox.setSelected(alertModel.isEnabled());
-
-        alertActionPane.setActionGroup(alertModel.getActionGroups().get(0));
-
-        alertTriggerPane.setTrigger(alertModel.getTrigger());
-        alertChannelPane.setChannels(((ChannelTrigger) alertModel.getTrigger()).getChannels(), true);
-
-        updateVariableList();
-
-        this.alertModel = alertModel;
-        updateTasks();
+    public boolean editAlert(AlertModel alertModel) {
+        if (alertModel.getTrigger() instanceof DefaultTrigger) {
+            nameTextField.setText(alertModel.getName());
+    
+            enabledCheckBox.setSelected(alertModel.isEnabled());
+    
+            alertActionPane.setActionGroup(alertModel.getActionGroups().get(0));
+    
+            alertTriggerPane.setTrigger(alertModel.getTrigger());
+            alertChannelPane.setChannels(((ChannelTrigger) alertModel.getTrigger()).getChannels(), true);
+    
+            updateVariableList();
+    
+            this.alertModel = alertModel;
+            updateTasks();
+            
+            return true;
+        } else {
+            parent.alertError(parent, "This alert cannot be edited. Plugin may be missing.");
+            return false;
+        }
     }
 
     @Override

@@ -12,7 +12,7 @@ public abstract class AlertEditPanel extends JPanel {
 
     public abstract void addAlert();
 
-    public abstract void editAlert(AlertModel alertModel);
+    public abstract boolean editAlert(AlertModel alertModel);
 
     public abstract boolean saveAlert();
 }

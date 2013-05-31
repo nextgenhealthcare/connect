@@ -201,6 +201,8 @@ public class Frame extends JXFrame {
     private UpdateClient updateClient = null;
     private boolean refreshingStatuses = false;
     private boolean queueRefreshStatus = false;
+    private boolean refreshingAlerts = false;
+    private boolean queueRefreshAlert = false;
     private Map<String, Integer> safeErrorFailCountMap = new HashMap<String, Integer>();
     private Map<Component, String> componentTaskMap = new HashMap<Component, String>();
     private boolean acceleratorKeyPressed = false;
@@ -571,11 +573,12 @@ public class Frame extends JXFrame {
      * alert in the editor.
      */
     public void editAlert(AlertModel alertModel) {
-        setBold(viewPane, UIConstants.ERROR_CONSTANT);
-        setCurrentContentPage(alertEditPanel);
-        setFocus(alertEditTasks);
-        setVisibleTasks(alertEditTasks, alertEditPopupMenu, 0, 0, false);
-        alertEditPanel.editAlert(alertModel);
+        if (alertEditPanel.editAlert(alertModel)) {
+            setBold(viewPane, UIConstants.ERROR_CONSTANT);
+            setCurrentContentPage(alertEditPanel);
+            setFocus(alertEditTasks);
+            setVisibleTasks(alertEditTasks, alertEditPopupMenu, 0, 0, false);
+        }
     }
 
     /**
@@ -610,7 +613,7 @@ public class Frame extends JXFrame {
         }
 
         // Start a new status updater job if the current content page is the dashboard
-        if (currentContentPage == dashboardPanel) {
+        if (currentContentPage == dashboardPanel || currentContentPage == alertPanel) {
             statusUpdaterJob = statusUpdaterExecutor.submit(new StatusUpdater());
         }
     }
@@ -1864,7 +1867,7 @@ public class Frame extends JXFrame {
         setCurrentContentPage(alertPanel);
         setFocus(alertTasks);
         setSaveEnabled(false);
-        doRefreshAlerts();
+        doRefreshAlerts(true);
     }
 
     public void doShowExtensions() {
@@ -2274,6 +2277,14 @@ public class Frame extends JXFrame {
 
     public synchronized boolean isRefreshingStatuses() {
         return refreshingStatuses;
+    }
+    
+    public synchronized void setRefreshingAlerts(boolean refreshingAlerts) {
+        this.refreshingAlerts = refreshingAlerts;
+    }
+
+    public synchronized boolean isRefreshingAlerts() {
+        return refreshingAlerts;
     }
 
     public synchronized void increaseSafeErrorFailCount(String safeErrorKey) {
@@ -3746,8 +3757,25 @@ public class Frame extends JXFrame {
             worker.execute();
         }
     }
-
+    
     public void doRefreshAlerts() {
+        doRefreshAlerts(true);
+    }
+
+    public void doRefreshAlerts(boolean queue) {
+        // Don't allow anything to be getting or setting refreshingAlerts
+        // while this block is being executed.
+        synchronized (this) {
+            if (isRefreshingAlerts()) {
+                if (queue) {
+                    queueRefreshAlert = true;
+                }
+                return;
+            }
+
+            setRefreshingAlerts(true);
+        }
+        
         final String workingId = startWorking("Loading alerts...");
 
         final List<String> selectedAlertIds = alertPanel.getSelectedAlertIds();
@@ -3769,6 +3797,14 @@ public class Frame extends JXFrame {
                 alertPanel.updateAlertTable(alertStatusList);
                 alertPanel.setSelectedAlertIds(selectedAlertIds);
                 stopWorking(workingId);
+                
+                setRefreshingAlerts(false);
+
+                // Perform another refresh if any were queued up to ensure the alert dashboard is up to date.
+                if (queueRefreshAlert) {
+                    queueRefreshAlert = false;
+                    doRefreshAlerts(false);
+                }
             }
         };
 
@@ -3832,7 +3868,7 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                doRefreshAlerts();
+                doRefreshAlerts(true);
                 stopWorking(workingId);
             }
         };
@@ -3863,7 +3899,7 @@ public class Frame extends JXFrame {
 
                 if (alerts == null || alerts.isEmpty()) {
                     JOptionPane.showMessageDialog(Frame.this, "Alert no longer exists.");
-                    doRefreshAlerts();
+                    doRefreshAlerts(true);
                 } else {
                     retrieveChannels();
                     editAlert(alerts.get(0));
@@ -3896,7 +3932,7 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                doRefreshAlerts();
+                doRefreshAlerts(true);
                 stopWorking(workingId);
             }
         };
@@ -3925,7 +3961,7 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                doRefreshAlerts();
+                doRefreshAlerts(true);
                 stopWorking(workingId);
             }
         };
@@ -3974,7 +4010,7 @@ public class Frame extends JXFrame {
         AlertModel alert;
         if (CollectionUtils.isEmpty(alerts)) {
             JOptionPane.showMessageDialog(Frame.this, "Alert no longer exists.");
-            doRefreshAlerts();
+            doRefreshAlerts(true);
         } else {
             alert = alerts.get(0);
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
@@ -4101,7 +4137,7 @@ public class Frame extends JXFrame {
             alertException(this, e.getStackTrace(), e.getMessage());
         }
 
-        doRefreshAlerts();
+        doRefreshAlerts(true);
     }
 
     /**

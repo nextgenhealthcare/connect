@@ -8,6 +8,7 @@ public class AlertStatus {
     private String id;
     private String name;
     private boolean enabled;
+    private Integer alertedCount;
 
     public String getId() {
         return id;
@@ -31,5 +32,13 @@ public class AlertStatus {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public Integer getAlertedCount() {
+        return alertedCount;
+    }
+
+    public void setAlertedCount(Integer alertedCount) {
+        this.alertedCount = alertedCount;
     }
 }

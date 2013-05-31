@@ -11,8 +11,6 @@ package com.mirth.connect.client.core;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.util.PaginatedList;
@@ -23,7 +21,6 @@ public class PaginatedMessageList extends PaginatedList<Message> {
     private MessageFilter messageFilter;
     private String channelId;
     private boolean includeContent;
-    private Logger logger = Logger.getLogger(getClass());
 
     public Client getClient() {
         return client;

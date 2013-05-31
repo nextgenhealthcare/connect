@@ -11,8 +11,6 @@ package com.mirth.connect.client.core;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.util.PaginatedList;
@@ -21,9 +19,6 @@ public class PaginatedEventList extends PaginatedList<ServerEvent> {
     private Long itemCount;
     private Client client;
     private EventFilter eventFilter;
-    private String channelId;
-    private boolean includeContent;
-    private Logger logger = Logger.getLogger(getClass());
 
     public Client getClient() {
         return client;
@@ -39,22 +34,6 @@ public class PaginatedEventList extends PaginatedList<ServerEvent> {
 
     public void setEventFilter(EventFilter eventFilter) {
         this.eventFilter = eventFilter;
-    }
-
-    public String getChannelId() {
-        return channelId;
-    }
-
-    public void setChannelId(String channelId) {
-        this.channelId = channelId;
-    }
-
-    public boolean isIncludeContent() {
-        return includeContent;
-    }
-
-    public void setIncludeContent(boolean includeContent) {
-        this.includeContent = includeContent;
     }
 
     public void setItemCount(Long itemCount) {

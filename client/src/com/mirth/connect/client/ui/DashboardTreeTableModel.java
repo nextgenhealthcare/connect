@@ -44,8 +44,7 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
             case 6: return Integer.class; // Queued
             case 7: return Integer.class; // Sent
             case 8: return Integer.class; // Errored
-            case 9: return String.class; // Alerted
-            case 10: return Integer.class; // Connection
+            case 9: return Integer.class; // Connection
             default: return String.class;
         }
         // @formatter:on

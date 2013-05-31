@@ -34,6 +34,8 @@ import com.mirth.connect.client.ui.CellData;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.ImageCellRenderer;
 import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.NumberCellComparator;
+import com.mirth.connect.client.ui.NumberCellRenderer;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.UIConstants;
@@ -46,6 +48,7 @@ public class DefaultAlertPanel extends AlertPanel {
     private static final String STATUS_COLUMN_NAME = "Status";
     private static final String NAME_COLUMN_NAME = "Name";
     private static final String ID_COLUMN_NAME = "Id";
+    private static final String ALERTED_COLUMN_NAME = "Alerted";
     private static final String ENABLED_STATUS = "Enabled";
     private static final int NAME_COLUMN_NUMBER = 1;
     private static final int ID_COLUMN_NUMBER = 2;
@@ -60,7 +63,7 @@ public class DefaultAlertPanel extends AlertPanel {
     private void makeAlertTable() {
 
         alertTable.setModel(new RefreshTableModel(null, new String[] { STATUS_COLUMN_NAME,
-                NAME_COLUMN_NAME, ID_COLUMN_NAME }) {
+                NAME_COLUMN_NAME, ID_COLUMN_NAME, ALERTED_COLUMN_NAME }) {
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return false;
@@ -83,6 +86,12 @@ public class DefaultAlertPanel extends AlertPanel {
         alertTable.getColumnExt(ID_COLUMN_NAME).setMinWidth(215);
         alertTable.getColumnExt(ID_COLUMN_NAME).setMaxWidth(215);
         alertTable.getColumnExt(ID_COLUMN_NAME).setToolTipText("<html><body>The unique id of this alert.</body></html>");
+        
+        alertTable.getColumnExt(ALERTED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
+        alertTable.getColumnExt(ALERTED_COLUMN_NAME).setComparator(new NumberCellComparator());
+        alertTable.getColumnExt(ALERTED_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
+        alertTable.getColumnExt(ALERTED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        alertTable.getColumnExt(ALERTED_COLUMN_NAME).setToolTipText("<html><body>The number of times alerts have been sent.</body></html>");
 
         alertTable.packTable(UIConstants.COL_MARGIN);
 
@@ -231,7 +240,7 @@ public class DefaultAlertPanel extends AlertPanel {
         Object[][] tableData = null;
 
         if (alertStatusList != null) {
-            tableData = new Object[alertStatusList.size()][3];
+            tableData = new Object[alertStatusList.size()][4];
 
             for (int i = 0; i < alertStatusList.size(); i++) {
                 AlertStatus alertStatus = alertStatusList.get(i);
@@ -243,6 +252,10 @@ public class DefaultAlertPanel extends AlertPanel {
                 }
                 tableData[i][1] = alertStatus.getName();
                 tableData[i][2] = alertStatus.getId();
+                
+                if (alertStatus.getAlertedCount() != null) {
+                    tableData[i][3] = alertStatus.getAlertedCount();
+                }
             }
         }
 

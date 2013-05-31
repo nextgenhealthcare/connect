@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -87,7 +86,7 @@ public class ServerEvent extends Event {
 
     public void addAttribute(String name, String value) {
         if (attributes == null) {
-            attributes = new HashMap<String, String>();
+            attributes = new LinkedHashMap<String, String>();
         }
 
         attributes.put(name, value);

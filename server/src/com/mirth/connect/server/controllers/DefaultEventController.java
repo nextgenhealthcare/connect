@@ -47,6 +47,7 @@ public class DefaultEventController extends EventController {
     private static Map<Object, BlockingQueue<Event>> channelEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
     private static Map<Object, BlockingQueue<Event>> connectorEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
     private static Map<Object, BlockingQueue<Event>> serverEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
+    private static Map<Object, BlockingQueue<Event>> genericEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
 
     private DefaultEventController() {
         addListener(new AuditableEventListener());
@@ -86,6 +87,10 @@ public class DefaultEventController extends EventController {
         if (types.contains(EventType.SERVER)) {
             serverEventQueues.put(listener, queue);
         }
+        
+        if (types.contains(EventType.GENERIC)) {
+            genericEventQueues.put(listener, queue);
+        }
     }
 
     @Override
@@ -95,6 +100,7 @@ public class DefaultEventController extends EventController {
         channelEventQueues.remove(listener);
         connectorEventQueues.remove(listener);
         serverEventQueues.remove(listener);
+        genericEventQueues.remove(listener);
 
         listener.shutdown();
     }
@@ -117,12 +123,12 @@ public class DefaultEventController extends EventController {
                 queues = connectorEventQueues;
             } else if (event instanceof ServerEvent) {
                 queues = serverEventQueues;
+            } else {
+                queues = genericEventQueues;
             }
 
-            if (queues != null) {
-                for (BlockingQueue<Event> queue : queues.values()) {
-                    queue.put(event);
-                }
+            for (BlockingQueue<Event> queue : queues.values()) {
+                queue.put(event);
             }
         } catch (InterruptedException e) {
 

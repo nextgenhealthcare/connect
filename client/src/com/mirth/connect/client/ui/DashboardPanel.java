@@ -59,13 +59,12 @@ public class DashboardPanel extends javax.swing.JPanel {
     private static final String SENT_COLUMN_NAME = "Sent";
     private static final String ERROR_COLUMN_NAME = "Errored";
     private static final String FILTERED_COLUMN_NAME = "Filtered";
-    private static final String ALERTED_COLUMN_NAME = "Alerted";
     private static final String LAST_DEPLOYED_COLUMN_NAME = "Last Deployed";
     private static final String DEPLOYED_REVISION_DELTA_COLUMN_NAME = "Rev \u0394";
     private static final String[] defaultColumns = new String[] { STATUS_COLUMN_NAME,
             NAME_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME,
             RECEIVED_COLUMN_NAME, FILTERED_COLUMN_NAME, QUEUED_COLUMN_NAME, SENT_COLUMN_NAME,
-            ERROR_COLUMN_NAME, ALERTED_COLUMN_NAME };
+            ERROR_COLUMN_NAME };
 
     private Frame parent;
     private boolean showLifetimeStats = false;
