@@ -46,8 +46,8 @@ public class JmsDispatcher extends DestinationConnector {
     @Override
     public void onDeploy() throws DeployException {
         connectorProperties = (JmsDispatcherProperties) getConnectorProperties();
-        jmsClient = new JmsClient(this, connectorProperties);
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+        jmsClient = new JmsClient(this, connectorProperties, getDestinationName());
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -62,7 +62,7 @@ public class JmsDispatcher extends DestinationConnector {
             throw new StartException("Failed to establish JMS connection", e);
         }
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.CONNECTED));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.CONNECTED));
     }
 
     @Override
@@ -73,7 +73,7 @@ public class JmsDispatcher extends DestinationConnector {
             throw new StopException("Failed to close JMS connection", e);
         }
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.DISCONNECTED));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.DISCONNECTED));
     }
 
     @Override
@@ -94,7 +94,7 @@ public class JmsDispatcher extends DestinationConnector {
 
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) throws InterruptedException {
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.SENDING));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.SENDING));
         JmsDispatcherProperties jmsDispatcherProperties = (JmsDispatcherProperties) connectorProperties;
         Session session = jmsClient.getSession();
 
@@ -103,10 +103,10 @@ public class JmsDispatcher extends DestinationConnector {
             return new Response(Status.SENT, null, "Message sent successfully.");
         } catch (Exception e) {
             logger.error("An error occurred in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\": " + e.getMessage(), ExceptionUtils.getRootCause(e));
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), e.getMessage(), e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), e.getMessage(), e));
             return new Response(Status.QUEUED, null, ErrorMessageBuilder.buildErrorResponse("Error occurred when attempting to send JMS message.", e), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_407, e.getMessage(), e));
         } finally {
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
         }
     }
 }

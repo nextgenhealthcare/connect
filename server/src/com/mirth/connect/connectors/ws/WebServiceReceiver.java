@@ -132,7 +132,7 @@ public class WebServiceReceiver extends SourceConnector {
 
         webServiceEndpoint.publish(context);
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -162,7 +162,7 @@ public class WebServiceReceiver extends SourceConnector {
     }
 
     public String processData(String message) {
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.RECEIVING));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.RECEIVING));
 
         RawMessage rawMessage = new RawMessage(message);
         DispatchResult dispatchResult = null;
@@ -183,7 +183,7 @@ public class WebServiceReceiver extends SourceConnector {
         }
 
         // TODO find a way to call this after the response was sent
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
         return response;
     }
 }

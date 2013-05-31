@@ -103,13 +103,16 @@ public class DefaultAlertWorker extends AlertWorker {
                             }
                         }
 
+                        // Create and populate the context for template value replacement with trigger specific values
                         Map<String, Object> context = alert.createContext();
 
                         context.put("systemTime", String.valueOf(errorEvent.getNanoTime()));
                         context.put("channelId", channelId);
                         context.put("channelName", channelName);
+                        context.put("connectorName", errorEvent.getConnectorName());
                         context.put("error", fullErrorMessage);
                         context.put("errorMessage", (errorEvent.getThrowable() == null) ? "No exception message." : errorEvent.getThrowable().getMessage());
+                        context.put("errorType", errorEvent.getType());
 
                         triggerAction(alert, context);
                     }

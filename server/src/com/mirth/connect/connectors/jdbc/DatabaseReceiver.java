@@ -70,7 +70,7 @@ public class DatabaseReceiver extends PollConnector {
 
         delegate.deploy();
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -105,7 +105,7 @@ public class DatabaseReceiver extends PollConnector {
     @SuppressWarnings("unchecked")
     @Override
     protected void poll() throws InterruptedException {
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.POLLING));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.POLLING));
         Object result = null;
 
         try {
@@ -115,7 +115,7 @@ public class DatabaseReceiver extends PollConnector {
                 return;
             }
 
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.READING));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.READING));
 
             // the result object will be a ResultSet or if JavaScript is used, we also allow the user to return a List<Map<String, Object>>
             if (result instanceof ResultSet) {
@@ -130,7 +130,7 @@ public class DatabaseReceiver extends PollConnector {
             throw e;
         } catch (Exception e) {
             logger.error("Failed to poll for messages from the database in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\"", e);
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), null, e.getCause()));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), null, e.getCause()));
             return;
         } finally {
             if (result instanceof ResultSet) {
@@ -141,10 +141,10 @@ public class DatabaseReceiver extends PollConnector {
                 delegate.afterPoll();
             } catch (DatabaseReceiverException e) {
                 logger.error("Error in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\": " + e.getMessage(), ExceptionUtils.getRootCause(e));
-                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), null, e.getCause()));
+                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), null, e.getCause()));
             }
 
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
         }
     }
 
@@ -187,7 +187,7 @@ public class DatabaseReceiver extends PollConnector {
             } else {
                 String errorMessage = "Received invalid list entry in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\", expected Map<String, Object>: " + object.toString();
                 logger.error(errorMessage);
-                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), errorMessage, null));
+                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), errorMessage, null));
             }
         }
     }
@@ -206,7 +206,7 @@ public class DatabaseReceiver extends PollConnector {
         } catch (Exception e) {
             String errorMessage = "Failed to process row retrieved from the database in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\"";
             logger.error(errorMessage, e);
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), errorMessage, e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), errorMessage, e));
         } finally {
             finishDispatch(dispatchResult);
         }

@@ -124,7 +124,7 @@ public class HttpDispatcher extends DestinationConnector {
         HttpDispatcherProperties httpDispatcherProperties = (HttpDispatcherProperties) connectorProperties;
 
         String info = "Host: " + httpDispatcherProperties.getHost() + "   Method: " + httpDispatcherProperties.getMethod();
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.WRITING));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.WRITING));
 
         String responseData = null;
         String responseError = null;
@@ -190,12 +190,12 @@ public class HttpDispatcher extends DestinationConnector {
             if (statusCode < HttpStatus.SC_BAD_REQUEST) {
                 responseStatus = Status.SENT;
             } else {
-                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Received error response from HTTP server.", null));
+                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Received error response from HTTP server.", null));
                 responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Received error response from HTTP server.", null);
                 responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_404, responseData, null);
             }
         } catch (Exception e) {
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error connecting to HTTP server.", e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error connecting to HTTP server.", e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error connecting to HTTP server", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_403, "Error connecting to HTTP server", e);
 
@@ -213,7 +213,7 @@ public class HttpDispatcher extends DestinationConnector {
                     tempFile = null;
                 }
             } finally {
-                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
             }
         }
 

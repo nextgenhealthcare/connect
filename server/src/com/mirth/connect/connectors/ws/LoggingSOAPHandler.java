@@ -43,7 +43,7 @@ public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
 
     public void close(MessageContext mc) {
         logger.debug("Web Service connection closed.");
-        eventController.dispatchEvent(new ConnectorEvent(webServiceReceiver.getChannelId(), webServiceReceiver.getMetaDataId(), ConnectorEventType.IDLE));
+        eventController.dispatchEvent(new ConnectorEvent(webServiceReceiver.getChannelId(), webServiceReceiver.getMetaDataId(), webServiceReceiver.getSourceName(), ConnectorEventType.IDLE));
     }
 
     public boolean handleFault(SOAPMessageContext smc) {
@@ -55,7 +55,7 @@ public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
             Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
             if (!outbound) {
                 logger.debug("Web Service message received.");
-                eventController.dispatchEvent(new ConnectorEvent(webServiceReceiver.getChannelId(), webServiceReceiver.getMetaDataId(), ConnectorEventType.CONNECTED));
+                eventController.dispatchEvent(new ConnectorEvent(webServiceReceiver.getChannelId(), webServiceReceiver.getMetaDataId(), webServiceReceiver.getSourceName(), ConnectorEventType.CONNECTED));
             } else {
                 logger.debug("Web Service returning response.");
             }

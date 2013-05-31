@@ -86,7 +86,7 @@ public class JavaScriptReceiver extends PollConnector {
     @Override
     public void poll() throws InterruptedException {
         Object result = null;
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.READING));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.READING));
 
         try {
             result = jsExecutor.execute(new JavaScriptReceiverTask());
@@ -106,7 +106,7 @@ public class JavaScriptReceiver extends PollConnector {
             }
         }
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
     }
 
     private class JavaScriptReceiverTask extends JavaScriptTask<Object> {

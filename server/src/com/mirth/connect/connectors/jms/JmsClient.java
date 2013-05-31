@@ -44,6 +44,7 @@ import com.mirth.connect.util.BeanUtil;
 public class JmsClient implements ExceptionListener {
     private Connector connector;
     private JmsConnectorProperties connectorProperties;
+    private String connectorName;
     private Connection connection;
     private Session session;
     private Context initialContext;
@@ -54,9 +55,10 @@ public class JmsClient implements ExceptionListener {
     private AtomicBoolean attemptingReconnect = new AtomicBoolean(false);
     private Logger logger = Logger.getLogger(getClass());
 
-    public JmsClient(final Connector connector, JmsConnectorProperties connectorProperties) {
+    public JmsClient(final Connector connector, JmsConnectorProperties connectorProperties, String connectorName) {
         this.connector = connector;
         this.connectorProperties = connectorProperties;
+        this.connectorName = connectorName;
     }
 
     private ConnectionFactory lookupConnectionFactoryWithJndi() throws Exception {
@@ -193,7 +195,7 @@ public class JmsClient implements ExceptionListener {
                         connector.onStop();
                     } catch (Exception e1) {
                         logger.error("Failed to close connection", e1);
-                        eventController.dispatchEvent(new ConnectorEvent(connector.getChannelId(), connector.getMetaDataId(), ConnectorEventType.DISCONNECTED));
+                        eventController.dispatchEvent(new ConnectorEvent(connector.getChannelId(), connector.getMetaDataId(), connectorName, ConnectorEventType.DISCONNECTED));
                     }
 
                     do {
@@ -230,6 +232,6 @@ public class JmsClient implements ExceptionListener {
     private void reportError(String errorMessage, Exception e) {
         String channelId = connector.getChannelId();
         logger.error(errorMessage + " (channel: " + ChannelController.getInstance().getDeployedChannelById(channelId).getName() + ")", e);
-        eventController.dispatchEvent(new ErrorEvent(channelId, connector.getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), null, e.getCause()));
+        eventController.dispatchEvent(new ErrorEvent(channelId, connector.getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorName, null, e.getCause()));
     }
 }

@@ -110,7 +110,7 @@ public class SmtpDispatcher extends DestinationConnector {
         Status responseStatus = Status.QUEUED;
 
         String info = "From: " + smtpDispatcherProperties.getFrom() + " To: " + smtpDispatcherProperties.getTo() + " SMTP Info: " + smtpDispatcherProperties.getSmtpHost() + ":" + smtpDispatcherProperties.getSmtpPort();
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.WRITING, info));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.WRITING, info));
 
         try {
             Email email = null;
@@ -225,14 +225,14 @@ public class SmtpDispatcher extends DestinationConnector {
             responseStatus = Status.SENT;
             responseStatusMessage = "Email sent successfully.";
         } catch (Exception e) {
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error sending email message", e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error sending email message", e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error sending email message", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_402, "Error sending email message", e);
 
             // TODO: Exception handling
 //            connector.handleException(new Exception(e));
         } finally {
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);

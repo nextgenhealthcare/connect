@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.velocity.tools.generic.DateTool;
+
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.server.controllers.ConfigurationController;
 
@@ -44,6 +46,7 @@ public class Alert {
         context.put("alertId", model.getId());
         context.put("alertName", model.getName());
         context.put("serverId", ConfigurationController.getInstance().getServerId());
+        context.put("date", new DateTool());
         
         return context;
     }

@@ -185,7 +185,7 @@ public class DICOMReceiver extends SourceConnector {
             // start the DICOM port
             dcmrcv.start();
 
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
         } catch (Exception e) {
             throw new StartException("Failed to start DICOM Listener", e);
         }
@@ -198,7 +198,7 @@ public class DICOMReceiver extends SourceConnector {
         } catch (Exception e) {
             logger.error("Unable to close DICOM port.", e);
         } finally {
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.DISCONNECTED));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.DISCONNECTED));
         }
 
         logger.debug("closed DICOM port");

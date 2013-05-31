@@ -35,17 +35,17 @@ public class VmReceiver extends SourceConnector {
 
     @Override
     public void onStart() throws StartException {
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
     }
 
     @Override
     public void onStop() throws StopException {
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.DISCONNECTED));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.DISCONNECTED));
     }
 
     @Override
     public void onHalt() throws HaltException {
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.DISCONNECTED));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.DISCONNECTED));
     }
 
     @Override
@@ -55,13 +55,13 @@ public class VmReceiver extends SourceConnector {
 
     @Override
     public DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.RECEIVING));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.RECEIVING));
         return super.dispatchRawMessage(rawMessage);
     }
 
     @Override
     public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String errorMessage) {
         super.finishDispatch(dispatchResult, attemptedResponse, errorMessage);
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
     }
 }

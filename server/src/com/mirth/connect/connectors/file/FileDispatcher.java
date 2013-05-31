@@ -56,7 +56,7 @@ public class FileDispatcher extends DestinationConnector {
 
         this.charsetEncoding = CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding(), System.getProperty("ca.uhn.hl7v2.llp.charset"));
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -95,7 +95,7 @@ public class FileDispatcher extends DestinationConnector {
             }
         }
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.WRITING, "Writing file to: " + info));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.WRITING, "Writing file to: " + info));
 
         String responseData = null;
         String responseError = null;
@@ -139,7 +139,7 @@ public class FileDispatcher extends DestinationConnector {
             responseStatusMessage = "File successfully written: " + fileDispatcherProperties.toURIString();
             responseStatus = Status.SENT;
         } catch (Exception e) {
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error writing file", e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error writing file", e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error writing file", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_403, "Error writing file", e);
             // TODO: handleException
@@ -155,7 +155,7 @@ public class FileDispatcher extends DestinationConnector {
                 }
             }
 
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);

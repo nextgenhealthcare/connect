@@ -121,7 +121,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             }
         }
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -151,7 +151,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             throw new StopException("Failed to stop File Connector", e);
         }
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -165,7 +165,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
 
     @Override
     protected void poll() {
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.POLLING));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.POLLING));
         try {
 
             FileInfo[] files = listFiles();
@@ -184,16 +184,16 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 }
 
                 if (!routingError && !files[i].isDirectory()) {
-                    eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.READING));
+                    eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.READING));
                     processFile(files[i]);
-                    eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+                    eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
                 }
             }
         } catch (Throwable t) {
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), null, t));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), null, t));
             logger.error("Error polling in channel: " + getChannelId(), t);
         } finally {
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
         }
     }
 
@@ -351,7 +351,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 }
             }
         } catch (Exception e) {
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), "", e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), "", e));
             logger.error("Error processing file in channel: " + getChannelId(), e);
         }
     }

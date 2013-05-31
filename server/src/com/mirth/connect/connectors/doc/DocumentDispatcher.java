@@ -60,7 +60,7 @@ public class DocumentDispatcher extends DestinationConnector {
     public void onDeploy() throws DeployException {
         this.connectorProperties = (DocumentDispatcherProperties) getConnectorProperties();
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -99,7 +99,7 @@ public class DocumentDispatcher extends DestinationConnector {
         }
         info += documentDispatcherProperties.getDocumentType() + " Document Type Result Written To: " + documentDispatcherProperties.getHost() + "/" + documentDispatcherProperties.getOutputPattern();
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.WRITING, info));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.WRITING, info));
 
         try {
             File file = createFile(documentDispatcherProperties.getHost() + "/" + documentDispatcherProperties.getOutputPattern());
@@ -109,14 +109,14 @@ public class DocumentDispatcher extends DestinationConnector {
             responseStatusMessage = "Document successfully written: " + documentDispatcherProperties.getOutputPattern();
             responseStatus = Status.SENT;
         } catch (Exception e) {
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error writing document", e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error writing document", e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error writing document", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_401, "Error writing document", e);
 
             // TODO: Handle exception
 //            connector.handleException(e);
         } finally {
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);

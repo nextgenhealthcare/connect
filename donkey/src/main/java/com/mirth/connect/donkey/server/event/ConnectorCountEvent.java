@@ -5,8 +5,8 @@ import com.mirth.connect.donkey.model.event.ConnectorEventType;
 public class ConnectorCountEvent extends ConnectorEvent {
     private Boolean increment;
 
-    public ConnectorCountEvent(String channelId, Integer metaDataId, ConnectorEventType state, ConnectorEventType displayState, String message, Boolean increment) {
-        super(channelId, metaDataId, state, displayState, message);
+    public ConnectorCountEvent(String channelId, Integer metaDataId, String connectorName, ConnectorEventType state, ConnectorEventType displayState, String message, Boolean increment) {
+        super(channelId, metaDataId, connectorName, state, displayState, message);
 
         this.setIncrement(increment);
     }

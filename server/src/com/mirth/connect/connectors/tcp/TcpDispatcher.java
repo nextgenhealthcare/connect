@@ -90,7 +90,7 @@ public class TcpDispatcher extends DestinationConnector {
 
         sending = new AtomicBoolean(false);
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -177,7 +177,7 @@ public class TcpDispatcher extends DestinationConnector {
 
                 logger.debug("Creating new socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
                 String info = "Trying to connect on " + tcpDispatcherProperties.getRemoteAddress() + ":" + tcpDispatcherProperties.getRemotePort() + "...";
-                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.CONNECTING, info));
+                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.CONNECTING, info));
 
                 if (tcpDispatcherProperties.isOverrideLocalBinding()) {
                     socket = SocketUtil.createSocket(tcpDispatcherProperties.getRemoteAddress(), tcpDispatcherProperties.getRemotePort(), tcpDispatcherProperties.getLocalAddress(), tcpDispatcherProperties.getLocalPort());
@@ -190,13 +190,13 @@ public class TcpDispatcher extends DestinationConnector {
                 socket.setSendBufferSize(parseInt(tcpDispatcherProperties.getBufferSize()));
                 socket.setSoTimeout(parseInt(tcpDispatcherProperties.getResponseTimeout()));
                 socket.setKeepAlive(tcpDispatcherProperties.isKeepConnectionOpen());
-                eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), ConnectorEventType.CONNECTED, null, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), true));
+                eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.CONNECTED, null, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), true));
             }
 
             ThreadUtils.checkInterruptedStatus();
 
             // Send the message
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.SENDING, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket)));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.SENDING, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket)));
             BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream(), parseInt(tcpDispatcherProperties.getBufferSize()));
             BatchStreamReader batchStreamReader = new DefaultBatchStreamReader(socket.getInputStream());
             StreamHandler streamHandler = transmissionModeProvider.getStreamHandler(socket.getInputStream(), bos, batchStreamReader, tcpDispatcherProperties.getTransmissionModeProperties());
@@ -209,7 +209,7 @@ public class TcpDispatcher extends DestinationConnector {
                 // Attempt to get the response from the remote endpoint
                 try {
                     String info = "Waiting for response from " + SocketUtil.getInetAddress(socket) + " (Timeout: " + tcpDispatcherProperties.getResponseTimeout() + " ms)... ";
-                    eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.WAITING_FOR_RESPONSE, info));
+                    eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.WAITING_FOR_RESPONSE, info));
                     byte[] responseBytes = streamHandler.read();
                     if (responseBytes != null) {
                         streamHandler.commit(true);
@@ -238,8 +238,8 @@ public class TcpDispatcher extends DestinationConnector {
 
                     responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, responseStatusMessage + ": " + e.getMessage(), e);
                     logger.warn(responseStatusMessage + " (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
-                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), responseStatusMessage + ".", e));
-                    eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.FAILURE, responseStatusMessage + " from " + SocketUtil.getInetAddress(socket)));
+                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), responseStatusMessage + ".", e));
+                    eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.FAILURE, responseStatusMessage + " from " + SocketUtil.getInetAddress(socket)));
 
                     closeSocketQuietly();
                 }
@@ -257,7 +257,7 @@ public class TcpDispatcher extends DestinationConnector {
             }
         } catch (Exception e) {
             String monitorMessage = "Error sending message (" + SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket) + "): " + e.getMessage() + (e.getMessage().endsWith(".") ? "" : ". ");
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.FAILURE, monitorMessage));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.FAILURE, monitorMessage));
 
             // If an exception occurred then close the socket, even if keep connection open is true
             closeSocketQuietly();
@@ -270,10 +270,10 @@ public class TcpDispatcher extends DestinationConnector {
                 logger.debug("Error sending message via TCP (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
             }
 
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorProperties.getName(), "Error sending message via TCP.", e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error sending message via TCP.", e));
         } finally {
             sending.set(false);
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket)));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket)));
         }
 
         if (responseStatus == Status.SENT) {
@@ -302,7 +302,7 @@ public class TcpDispatcher extends DestinationConnector {
             SocketUtil.closeSocket(socket);
         } finally {
             if (wasOpen) {
-                eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), ConnectorEventType.DISCONNECTED, ConnectorEventType.CONNECTED, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), false));
+                eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.DISCONNECTED, ConnectorEventType.CONNECTED, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), false));
             }
         }
     }

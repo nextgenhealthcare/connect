@@ -50,8 +50,8 @@ public class JmsReceiver extends SourceConnector {
     @Override
     public void onDeploy() throws DeployException {
         connectorProperties = (JmsReceiverProperties) getConnectorProperties();
-        jmsClient = new JmsClient(this, connectorProperties);
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+        jmsClient = new JmsClient(this, connectorProperties, getSourceName());
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
     }
 
     @Override
@@ -92,7 +92,7 @@ public class JmsReceiver extends SourceConnector {
             throw new StartException("Failed to initialize JMS message consumer for destination \"" + destinationName + "\"", e);
         }
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.CONNECTED));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.CONNECTED));
     }
 
     @Override
@@ -103,7 +103,7 @@ public class JmsReceiver extends SourceConnector {
             throw new StopException("Failed to close JMS connection", e);
         }
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.DISCONNECTED));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.DISCONNECTED));
     }
 
     @Override
@@ -132,7 +132,7 @@ public class JmsReceiver extends SourceConnector {
             boolean attemptedResponse = false;
             String responseError = null;
 
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.RECEIVING));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.RECEIVING));
 
             try {
                 rawMessage = jmsMessageToRawMessage(message);
@@ -155,7 +155,7 @@ public class JmsReceiver extends SourceConnector {
                 reportError("Failed to process message", e);
             } finally {
                 finishDispatch(dispatchResult, attemptedResponse, responseError);
-                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
             }
         }
 
@@ -205,6 +205,6 @@ public class JmsReceiver extends SourceConnector {
 
     private void reportError(String errorMessage, Exception e) {
         logger.error(errorMessage + " (channel: " + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + ")", e);
-        eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, connectorProperties.getName(), null, e.getCause()));
+        eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), null, e.getCause()));
     }
 }

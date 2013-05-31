@@ -8,15 +8,15 @@ public class ErrorEvent extends Event {
     private String channelId;
     private Integer metaDataId;
     private ErrorEventType type;
-    private String source;
+    private String connectorName;
     private String customMessage;
     private Throwable throwable;
 
-    public ErrorEvent(String channelId, Integer metaDataId, ErrorEventType type, String source, String customMessage, Throwable throwable) {
+    public ErrorEvent(String channelId, Integer metaDataId, ErrorEventType type, String connectorName, String customMessage, Throwable throwable) {
         this.channelId = channelId;
         this.metaDataId = metaDataId;
         this.type = type;
-        this.source = source;
+        this.connectorName = connectorName;
         this.customMessage = customMessage;
         this.throwable = throwable;
     }
@@ -45,12 +45,12 @@ public class ErrorEvent extends Event {
         this.type = type;
     }
 
-    public String getSource() {
-        return source;
+    public String getConnectorName() {
+        return connectorName;
     }
 
-    public void setSource(String source) {
-        this.source = source;
+    public void setConnectorName(String connectorName) {
+        this.connectorName = connectorName;
     }
 
     public String getCustomMessage() {

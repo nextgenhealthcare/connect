@@ -100,9 +100,9 @@ public class HttpReceiver extends SourceConnector {
 
             logger.debug("starting HTTP server with address: " + host + ":" + port);
             server.start();
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
         } catch (Exception e) {
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.FAILURE));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.FAILURE));
             throw new StartException("Failed to start HTTP Listener", e);
         }
     }
@@ -130,7 +130,7 @@ public class HttpReceiver extends SourceConnector {
         @Override
         public void handle(String target, Request baseRequest, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException {
             logger.debug("received HTTP request");
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.CONNECTED));
+            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.CONNECTED));
             DispatchResult dispatchResult = null;
             String sentResponse = null;
             boolean attemptedResponse = false;
@@ -216,7 +216,7 @@ public class HttpReceiver extends SourceConnector {
                 try {
                     finishDispatch(dispatchResult, attemptedResponse, responseError);
                 } finally {
-                    eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.IDLE));
+                    eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
                 }
             }
 
@@ -258,7 +258,7 @@ public class HttpReceiver extends SourceConnector {
             }
         }
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), ConnectorEventType.RECEIVING));
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.RECEIVING));
 
         return dispatchRawMessage(new RawMessage(rawMessageContent));
     }
