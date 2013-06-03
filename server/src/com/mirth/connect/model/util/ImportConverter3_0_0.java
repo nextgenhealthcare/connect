@@ -643,15 +643,61 @@ public class ImportConverter3_0_0 {
     }
     
     private static void migrateJavaScriptReceiverProperties(DonkeyElement properties) {
-        // TODO
+        logger.debug("Migrating JavaScriptReceiverProperties");
+        
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.connectors.js.JavaScriptReceiverProperties");
+        properties.removeChildren();
+        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
+
+        migratePollConnectorProperties(properties.addChildElement("pollConnectorProperties"), oldProperties.getProperty("pollingType"), oldProperties.getProperty("pollingTime"), oldProperties.getProperty("pollingFrequency"));
+        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"));
+    
+        properties.addChildElement("script").setTextContent(oldProperties.getProperty("script", ""));
     }
     
     private static void migrateJavaScriptDispatcherProperties(DonkeyElement properties) {
-        // TODO
+        logger.debug("Migrating JavaScriptDispatcherProperties");
+        
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.connectors.js.JavaScriptDispatcherProperties");
+        properties.removeChildren();
+        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
+
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), null, null, null);
+        
+        properties.addChildElement("script").setTextContent(oldProperties.getProperty("script", ""));
     }
     
     private static void migrateSmtpDispatcherProperties(DonkeyElement properties) {
-        // TODO
+        logger.debug("Migrating SmtpDispatcherProperties");
+        
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.connectors.smtp.SmtpDispatcherProperties");
+        properties.removeChildren();
+        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
+
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), null, null, null);
+        
+        properties.addChildElement("attachments").setTextContent(oldProperties.getProperty("attachments", "&lt;list/&gt;"));  
+        properties.addChildElement("authentication").setTextContent(readBooleanProperty(oldProperties, "authentication", false)); 
+        properties.addChildElement("body").setTextContent(oldProperties.getProperty("body", ""));
+        properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
+        properties.addChildElement("encryption").setTextContent(oldProperties.getProperty("encryption", "none"));
+        properties.addChildElement("from").setTextContent(oldProperties.getProperty("from", ""));
+        properties.addChildElement("headers").setTextContent(oldProperties.getProperty("headers", "&lt;linked-hash-map/&gt;")); 
+        properties.addChildElement("html").setTextContent(readBooleanProperty(oldProperties, "html", false)); 
+        properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", "")); 
+        properties.addChildElement("smtpHost").setTextContent(oldProperties.getProperty("smtpHost", ""));   
+        properties.addChildElement("smtpPort").setTextContent(oldProperties.getProperty("smtpPort", "25"));   
+        properties.addChildElement("subject").setTextContent(oldProperties.getProperty("subject", "25"));   
+        properties.addChildElement("timeout").setTextContent(oldProperties.getProperty("timeout", "5000"));   
+        properties.addChildElement("to").setTextContent(oldProperties.getProperty("to", ""));            
+        properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", ""));  
+        
+        properties.addChildElement("cc").setTextContent("");  
+        properties.addChildElement("bcc").setTextContent("");  
+        properties.addChildElement("replyTo").setTextContent("");  
     }
     
     private static void migrateLLPReceiverProperties(DonkeyElement properties) {
