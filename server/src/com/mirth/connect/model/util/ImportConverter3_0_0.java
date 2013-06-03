@@ -9,9 +9,13 @@
 
 package com.mirth.connect.model.util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.Properties;
 
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -53,7 +57,7 @@ public class ImportConverter3_0_0 {
         if (document.getDocumentElement().hasAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME)) {
             return document;
         }
-        
+
         DocumentSerializer documentSerializer = new DocumentSerializer();
         logger.debug("Converting serialized object with expected class \"" + expectedClass.getName() + "\" to 3.0.0 structure");
 
@@ -112,14 +116,23 @@ public class ImportConverter3_0_0 {
         migrateChannelProperties(channel.getChildElement("properties"));
 
         // migrate source connector
-        migrateConnector(channel.getChildElement("sourceConnector"), 0);
+        DonkeyElement sourceConnector = channel.getChildElement("sourceConnector");
+        migrateConnector(sourceConnector, 0);
+        DonkeyElement responseConnectorProperties = sourceConnector.getChildElement("properties").getChildElement("responseConnectorProperties");
 
         // migrate destination connectors
         int metaDataId = 1;
 
         for (DonkeyElement destinationConnector : channel.getChildElement("destinationConnectors").getChildElements()) {
-            migrateConnector(destinationConnector, metaDataId++);
+            migrateConnector(destinationConnector, metaDataId);
             destinationConnector.getChildElement("waitForPrevious").setTextContent(synchronous);
+
+            // Fix response value
+            if (responseConnectorProperties != null && destinationConnector.getChildElement("name").getTextContent().equals(responseConnectorProperties.getChildElement("responseVariable").getTextContent())) {
+                responseConnectorProperties.getChildElement("responseVariable").setTextContent("d" + metaDataId);
+            }
+
+            metaDataId++;
         }
 
         channel.addChildElement("nextMetaDataId").setTextContent(Integer.toString(metaDataId));
@@ -168,6 +181,7 @@ public class ImportConverter3_0_0 {
         // convert connector properties
         DonkeyElement properties = connector.getChildElement("properties");
         String dataType = readPropertiesElement(properties).getProperty("DataType");
+        DonkeyElement transformer = connector.getChildElement("transformer");
 
         if (dataType.equals("Channel Reader")) {
             migrateVmReceiverProperties(properties);
@@ -200,13 +214,32 @@ public class ImportConverter3_0_0 {
         } else if (dataType.equals("JMS Writer")) {
             migrateJmsDispatcherProperties(properties);
         } else if (dataType.equals("LLP Listener")) {
-            migrateLLPReceiverProperties(properties);
+            // Some properties have been moved from the LLP Listener connector to the HL7 v2.x data type
+            if (transformer.getChildElement("inboundProtocol").getTextContent().equals("HL7V2")) {
+                Properties connectorProperties = readPropertiesElement(properties);
+                DonkeyElement inboundProperties = transformer.getChildElement("inboundProperties");
+                if (inboundProperties == null) {
+                    inboundProperties = transformer.addChildElement("inboundProperties");
+                }
+
+                boolean frameEncodingHex = connectorProperties.getProperty("charEncoding", "hex").equals("hex");
+                addChildAndSetName(inboundProperties, "segmentDelimiter").setTextContent(convertToEscapedString(connectorProperties.getProperty("segmentEnd", "0D"), frameEncodingHex));
+                addChildAndSetName(inboundProperties, "successfulACKCode").setTextContent(connectorProperties.getProperty("ackCodeSuccessful", "AA"));
+                addChildAndSetName(inboundProperties, "successfulACKMessage").setTextContent(connectorProperties.getProperty("ackMsgSuccessful", ""));
+                addChildAndSetName(inboundProperties, "errorACKCode").setTextContent(connectorProperties.getProperty("ackCodeError", "AE"));
+                addChildAndSetName(inboundProperties, "errorACKMessage").setTextContent(connectorProperties.getProperty("ackMsgError", "An Error Occured Processing Message."));
+                addChildAndSetName(inboundProperties, "rejectedACKCode").setTextContent(connectorProperties.getProperty("ackCodeRejected", "AR"));
+                addChildAndSetName(inboundProperties, "rejectedACKMessage").setTextContent(connectorProperties.getProperty("ackMsgRejected", "Message Rejected."));
+                addChildAndSetName(inboundProperties, "msh15ACKAccept").setTextContent(readBooleanProperty(connectorProperties, "checkMSH15", false));
+            }
+
+            migrateLLPListenerProperties(properties);
         } else if (dataType.equals("LLP Sender")) {
-            migrateLLPDispatcherProperties(properties);
+            migrateLLPSenderProperties(properties);
         } else if (dataType.equals("TCP Listener")) {
-            migrateTcpReceiverProperties(properties);
+            migrateTCPListenerProperties(properties);
         } else if (dataType.equals("TCP Sender")) {
-            migrateTcpDispatcherProperties(properties);
+            migrateTCPSenderProperties(properties);
         } else if (dataType.equals("SMTP Sender")) {
             migrateSmtpDispatcherProperties(properties);
         } else if (dataType.equals("Web Service Listener")) {
@@ -214,19 +247,30 @@ public class ImportConverter3_0_0 {
         } else if (dataType.equals("Web Service Sender")) {
             migrateWebServiceDispatcherProperties(properties);
         }
-        
+
         // convert transformer (no conversion needed for filter since it didn't change at all in 3.0.0)
-        migrateTransformer(connector.getChildElement("transformer"));
+        migrateTransformer(transformer);
 
         // default waitForPrevious to true
         connector.addChildElement("waitForPrevious").setTextContent("true");
     }
 
+    /*
+     * This is used for properties that are set on the not-yet-changed element. The
+     * readPropertiesElement method checks the "name" attribute, so we need to set it here
+     * beforehand.
+     */
+    private static DonkeyElement addChildAndSetName(DonkeyElement parent, String name) {
+        DonkeyElement child = parent.addChildElement(name);
+        child.setAttribute("name", name);
+        return child;
+    }
+
     private static void migrateChannelProperties(DonkeyElement properties) {
         logger.debug("Migrating channel properties");
-        
+
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
-        
+
         Properties oldProperties = readPropertiesElement(properties);
         properties.removeChildren();
 
@@ -262,44 +306,44 @@ public class ImportConverter3_0_0 {
         codeTemplate.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         codeTemplate.removeChild("version");
     }
-    
+
     private static void migrateAlert(DonkeyElement alert) {
         // TODO
     }
 
     private static void migrateServerConfiguration(DonkeyElement serverConfiguration) {
         serverConfiguration.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
-        
+
         DonkeyElement channels = serverConfiguration.getChildElement("channels");
-        
+
         if (channels != null) {
             for (DonkeyElement channel : channels.getChildElements()) {
                 migrateChannel(channel);
             }
         }
-        
+
         DonkeyElement alerts = serverConfiguration.getChildElement("alerts");
-        
+
         if (alerts != null) {
             for (DonkeyElement alert : alerts.getChildElements()) {
                 migrateAlert(alert);
             }
         }
-        
+
         DonkeyElement codeTemplates = serverConfiguration.getChildElement("codeTemplates");
-        
+
         if (codeTemplates != null) {
             for (DonkeyElement codeTemplate : codeTemplates.getChildElements()) {
                 migrateCodeTemplate(codeTemplate);
             }
         }
-        
+
         DonkeyElement pluginProperties = serverConfiguration.getChildElement("pluginProperties");
-        
+
         if (pluginProperties != null) {
             for (DonkeyElement entry : pluginProperties.getChildElements()) {
                 DonkeyElement pluginName = entry.getChildElement("string");
-                
+
                 if (pluginName.getTextContent().equals("Message Pruner")) {
                     pluginName.setTextContent("Data Pruner");
                     convertDataPrunerProperties(entry.getChildElement("properties"));
@@ -307,7 +351,7 @@ public class ImportConverter3_0_0 {
             }
         }
     }
-    
+
     private static void convertDataPrunerProperties(DonkeyElement propertiesElement) {
         Properties properties = readPropertiesElement(propertiesElement);
 
@@ -329,14 +373,71 @@ public class ImportConverter3_0_0 {
 
         DonkeyElement inboundProperties = transformer.getChildElement("inboundProperties");
         DonkeyElement outboundProperties = transformer.getChildElement("outboundProperties");
-        
+
+        /*
+         * We set the inbound and outbound HL7v2 segment delimiters here because each property set
+         * is dependent on the other. If at least one of them has "Convert LF to CR" enabled, then
+         * it can affect the value of the segment delimiters set on both elements.
+         */
+        if (inboundDataType.getTextContent().equals("HL7V2") || outboundDataType.getTextContent().equals("HL7V2")) {
+            boolean convertLFtoCRInbound = readBooleanValue(readPropertiesElement(inboundProperties), "convertLFtoCR", false);
+            boolean convertLFtoCROutbound = readBooleanValue(readPropertiesElement(outboundProperties), "convertLFtoCR", false);
+
+            if (inboundDataType.getTextContent().equals("HL7V2") && inboundProperties != null) {
+                setHL7v2SegmentDelimiters(inboundProperties, convertLFtoCRInbound, convertLFtoCROutbound);
+            }
+            if (outboundDataType.getTextContent().equals("HL7V2") && outboundProperties != null) {
+                setHL7v2SegmentDelimiters(outboundProperties, convertLFtoCRInbound, convertLFtoCROutbound);
+            }
+        }
+
         if (inboundProperties != null) {
             migrateDataTypeProperties(inboundProperties, inboundDataType.getTextContent());
         }
-        
+
         if (outboundProperties != null) {
             migrateDataTypeProperties(outboundProperties, outboundDataType.getTextContent());
         }
+    }
+
+    private static void setHL7v2SegmentDelimiters(DonkeyElement properties, boolean convertLFtoCRInbound, boolean convertLFtoCROutbound) {
+        String segmentDelimiter;
+        String inboundSegmentDelimiter;
+        String outboundSegmentDelimiter;
+
+        // If we've manually set a segment delimiter (i.e. with an LLP Listener), retrieve that here
+        if (properties.getChildElement("segmentDelimiter") != null) {
+            segmentDelimiter = properties.getChildElement("segmentDelimiter").getTextContent();
+        } else {
+            segmentDelimiter = "\\r";
+        }
+
+        if (!convertLFtoCRInbound && !convertLFtoCROutbound) {
+            /*
+             * If "Convert LF to CR" is disabled on both the inbound and outbound side, then no
+             * replacement will be done. Therefore, the expected inbound and outbound delimiters
+             * will be the same.
+             */
+            inboundSegmentDelimiter = outboundSegmentDelimiter = segmentDelimiter;
+        } else {
+            /*
+             * If "Convert LF to CR" is enabled on at least one side, then there may be more than
+             * one accepted inbound delimiter, and the outbound delimiter will always be a carriage
+             * return.
+             */
+            if (segmentDelimiter.equals("\\r")) {
+                inboundSegmentDelimiter = "\\r\\n|\\r|\\n";
+            } else if (segmentDelimiter.equals("\\n")) {
+                inboundSegmentDelimiter = "\\r\\n|\\n";
+            } else {
+                inboundSegmentDelimiter = "\\r\\n|\\n|" + segmentDelimiter;
+            }
+
+            outboundSegmentDelimiter = "\\r";
+        }
+
+        addChildAndSetName(properties, "inboundSegmentDelimiter").setTextContent(inboundSegmentDelimiter);
+        addChildAndSetName(properties, "outboundSegmentDelimiter").setTextContent(outboundSegmentDelimiter);
     }
 
     private static void migrateDataTypeProperties(DonkeyElement properties, String dataType) {
@@ -361,13 +462,13 @@ public class ImportConverter3_0_0 {
 
     private static void migrateVmReceiverProperties(DonkeyElement properties) {
         logger.debug("Migrating VmReceiverProperties");
-        
+
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.vm.VmReceiverProperties");
         properties.removeChildren();
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
-        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"));
+        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), true);
     }
 
     private static void migrateVmDispatcherProperties(DonkeyElement properties) {
@@ -377,7 +478,7 @@ public class ImportConverter3_0_0 {
         properties.removeChildren();
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
-        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), null, null, null);
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
 
         String host = oldProperties.getProperty("host", "none");
 
@@ -388,7 +489,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("channelId").setTextContent(host);
         properties.addChildElement("channelTemplate").setTextContent(oldProperties.getProperty("template", "${message.encodedData}"));
     }
-    
+
     private static void migrateDICOMReceiverProperties(DonkeyElement properties) {
         logger.debug("Migrating DICOMReceiverProperties");
         Properties oldProperties = readPropertiesElement(properties);
@@ -400,7 +501,7 @@ public class ImportConverter3_0_0 {
         listenerConnectorProperties.addChildElement("host").setTextContent(oldProperties.getProperty("host", "0.0.0.0"));
         listenerConnectorProperties.addChildElement("port").setTextContent(oldProperties.getProperty("port", "104"));
 
-        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"));
+        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), false);
         properties.addChildElement("soCloseDelay").setTextContent(oldProperties.getProperty("soclosedelay", "50"));
         properties.addChildElement("releaseTo").setTextContent(oldProperties.getProperty("releaseto", "5"));
         properties.addChildElement("requestTo").setTextContent(oldProperties.getProperty("requestto", "5"));
@@ -439,8 +540,8 @@ public class ImportConverter3_0_0 {
         properties.setAttribute("class", "com.mirth.connect.connectors.dimse.DICOMDispatcherProperties");
         properties.removeChildren();
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
-        
-        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), null, null, null);
+
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
 
         properties.addChildElement("host").setTextContent(oldProperties.getProperty("host", "127.0.0.1"));
         properties.addChildElement("port").setTextContent(oldProperties.getProperty("port", "104"));
@@ -479,15 +580,15 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("trustStore").setTextContent(oldProperties.getProperty("truststore", ""));
         properties.addChildElement("trustStorePW").setTextContent(oldProperties.getProperty("truststorepw", ""));
     }
-    
+
     private static void migrateDocumentDispatcherProperties(DonkeyElement properties) {
         logger.debug("Migrating DocumentDispatcherProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.doc.DocumentDispatcherProperties");
         properties.removeChildren();
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
-        
-        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), null, null, null);
+
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
         properties.addChildElement("host").setTextContent(oldProperties.getProperty("host", ""));
         properties.addChildElement("outputPattern").setTextContent(oldProperties.getProperty("outputPattern", ""));
         properties.addChildElement("documentType").setTextContent(oldProperties.getProperty("documentType", "pdf"));
@@ -495,17 +596,17 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", ""));
         properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", ""));
     }
-    
+
     private static void migrateFileReceiverProperties(DonkeyElement properties) {
         logger.debug("Migrating FileReceiverProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.file.FileReceiverProperties");
         properties.removeChildren();
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
-        
+
         migratePollConnectorProperties(properties.addChildElement("pollConnectorProperties"), oldProperties.getProperty("pollingType"), oldProperties.getProperty("pollingTime"), oldProperties.getProperty("pollingFrequency"));
-        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), "");
-        
+        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), "None", true);
+
         properties.addChildElement("scheme").setTextContent(oldProperties.getProperty("scheme", "file"));
         properties.addChildElement("host").setTextContent(oldProperties.getProperty("host", ""));
         properties.addChildElement("fileFilter").setTextContent(oldProperties.getProperty("fileFilter", "*"));
@@ -524,37 +625,36 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("binary").setTextContent(readBooleanProperty(oldProperties, "binary", false));
         properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
         properties.addChildElement("processBatch").setTextContent(readBooleanProperty(oldProperties, "processBatchFiles", false));
-        
+
         String moveToDirectory = oldProperties.getProperty("moveToDirectory");
         String moveToFileName = oldProperties.getProperty("moveToPattern");
-        
+
         properties.addChildElement("moveToDirectory").setTextContent(moveToDirectory);
         properties.addChildElement("moveToFileName").setTextContent(moveToFileName);
-        
+
         String afterProcessingAction = "None";
-        
+
         if (Boolean.parseBoolean(oldProperties.getProperty("autoDelete", "false"))) {
             afterProcessingAction = "Delete";
         } else if (!StringUtils.isBlank(moveToDirectory) || !StringUtils.isBlank(moveToFileName)) {
             afterProcessingAction = "Move";
         }
-        
+
         properties.addChildElement("afterProcessingAction").setTextContent(afterProcessingAction);
-        
-        
+
         String errorMoveToDirectory = oldProperties.getProperty("moveToErrorDirectory");
         String errorReadingAction = "None";
-        
+
         if (!StringUtils.isBlank(errorMoveToDirectory)) {
             errorReadingAction = "Move";
         }
-        
+
         properties.addChildElement("errorReadingAction").setTextContent(errorReadingAction);
         properties.addChildElement("errorMoveToDirectory").setTextContent(errorMoveToDirectory);
         properties.addChildElement("errorMoveToFileName").setTextContent("");
         properties.addChildElement("errorResponseAction").setTextContent("After Processing Action");
     }
-    
+
     private static void migrateFileDispatcherProperties(DonkeyElement properties) {
         logger.debug("Migrating FileDispatcherProperties");
         Properties oldProperties = readPropertiesElement(properties);
@@ -562,8 +662,8 @@ public class ImportConverter3_0_0 {
         properties.removeChildren();
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
-        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), null, null, null);
-        
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
+
         properties.addChildElement("scheme").setTextContent(oldProperties.getProperty("scheme", "file"));
         properties.addChildElement("host").setTextContent(oldProperties.getProperty("host", ""));
         properties.addChildElement("outputPattern").setTextContent(oldProperties.getProperty("outputPattern", ""));
@@ -581,17 +681,17 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
         properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", ""));
     }
-    
+
     private static void migrateHttpReceiverProperties(DonkeyElement properties) {
         logger.debug("Migrating HttpReceiverProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.http.HttpReceiverProperties");
         properties.removeChildren();
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
-        
+
         buildListenerConnectorProperties(properties.addChildElement("listenerConnectorProperties"), oldProperties.getProperty("host"), oldProperties.getProperty("port"), 80);
-        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("receiverResponse"));
-        
+        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("receiverResponse"), true);
+
         properties.addChildElement("bodyOnly").setTextContent(readBooleanProperty(oldProperties, "receiverBodyOnly", true));
         properties.addChildElement("responseContentType").setTextContent(oldProperties.getProperty("receiverResponseContentType", "text/plain"));
         properties.addChildElement("responseStatusCode").setTextContent(oldProperties.getProperty("receiverResponseStatusCode", ""));
@@ -600,7 +700,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("contextPath").setTextContent(oldProperties.getProperty("receiverContextPath", ""));
         properties.addChildElement("timeout").setTextContent(oldProperties.getProperty("receiverTimeout", "0"));
     }
-    
+
     private static void migrateHttpDispatcherProperties(DonkeyElement properties) {
         logger.debug("Migrating HttpDispatcherProperties");
         Properties oldProperties = readPropertiesElement(properties);
@@ -608,7 +708,7 @@ public class ImportConverter3_0_0 {
         properties.removeChildren();
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
-        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), readBooleanProperty(oldProperties, "usePersistentQueues"), readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("queuePollInterval"));
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), readBooleanProperty(oldProperties, "usePersistentQueues"), readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), null);
 
         properties.addChildElement("host").setTextContent(oldProperties.getProperty("host", ""));
         properties.addChildElement("method").setTextContent(oldProperties.getProperty("dispatcherMethod", "post"));
@@ -625,23 +725,23 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("charset").setTextContent(oldProperties.getProperty("dispatcherCharset", "UTF-8"));
         properties.addChildElement("socketTimeout").setTextContent(oldProperties.getProperty("dispatcherSocketTimeout", "30000"));
     }
-    
+
     private static void migrateDatabaseReceiverProperties(DonkeyElement properties) {
         // TODO
     }
-    
+
     private static void migrateDatabaseDispatcherProperties(DonkeyElement properties) {
         // TODO
     }
-    
+
     private static void migrateJmsReceiverProperties(DonkeyElement properties) {
         // TODO
     }
-    
+
     private static void migrateJmsDispatcherProperties(DonkeyElement properties) {
         // TODO
     }
-    
+
     private static void migrateJavaScriptReceiverProperties(DonkeyElement properties) {
         logger.debug("Migrating JavaScriptReceiverProperties");
         
@@ -651,11 +751,11 @@ public class ImportConverter3_0_0 {
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         migratePollConnectorProperties(properties.addChildElement("pollConnectorProperties"), oldProperties.getProperty("pollingType"), oldProperties.getProperty("pollingTime"), oldProperties.getProperty("pollingFrequency"));
-        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"));
+        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), false);
     
         properties.addChildElement("script").setTextContent(oldProperties.getProperty("script", ""));
     }
-    
+
     private static void migrateJavaScriptDispatcherProperties(DonkeyElement properties) {
         logger.debug("Migrating JavaScriptDispatcherProperties");
         
@@ -664,11 +764,11 @@ public class ImportConverter3_0_0 {
         properties.removeChildren();
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
-        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), null, null, null);
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
         
         properties.addChildElement("script").setTextContent(oldProperties.getProperty("script", ""));
     }
-    
+
     private static void migrateSmtpDispatcherProperties(DonkeyElement properties) {
         logger.debug("Migrating SmtpDispatcherProperties");
         
@@ -677,7 +777,7 @@ public class ImportConverter3_0_0 {
         properties.removeChildren();
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
-        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), null, null, null);
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
         
         properties.addChildElement("attachments").setTextContent(oldProperties.getProperty("attachments", "&lt;list/&gt;"));  
         properties.addChildElement("authentication").setTextContent(readBooleanProperty(oldProperties, "authentication", false)); 
@@ -699,40 +799,240 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("bcc").setTextContent("");  
         properties.addChildElement("replyTo").setTextContent("");  
     }
-    
-    private static void migrateLLPReceiverProperties(DonkeyElement properties) {
-        // TODO
+
+    private static void migrateLLPListenerProperties(DonkeyElement properties) {
+        logger.debug("Migrating LLPListenerProperties");
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.connectors.tcp.TcpReceiverProperties");
+        properties.removeChildren();
+        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
+
+        DonkeyElement listenerConnectorProperties = properties.addChildElement("listenerConnectorProperties");
+        listenerConnectorProperties.addChildElement("host").setTextContent(oldProperties.getProperty("host", "0.0.0.0"));
+        listenerConnectorProperties.addChildElement("port").setTextContent(oldProperties.getProperty("port", "6661"));
+
+        String responseValue = oldProperties.getProperty("responseValue", "None");
+        if (readBooleanValue(oldProperties, "sendACK", true)) {
+            responseValue = "Auto-generate (After source transformer)";
+        }
+        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), responseValue, true);
+
+        DonkeyElement transmissionModeProperties = properties.addChildElement("transmissionModeProperties");
+        transmissionModeProperties.setAttribute("class", "com.mirth.connect.model.transmission.framemode.FrameModeProperties");
+        transmissionModeProperties.addChildElement("pluginPointName").setTextContent("MLLP");
+
+        boolean frameEncodingHex = oldProperties.getProperty("charEncoding", "hex").equals("hex");
+        String startOfMessageBytes;
+        String endOfMessageBytes;
+        if (frameEncodingHex) {
+            startOfMessageBytes = stripHexPrefix(oldProperties.getProperty("messageStart", "0B"));
+            endOfMessageBytes = stripHexPrefix(oldProperties.getProperty("messageEnd", "1C")) + stripHexPrefix(oldProperties.getProperty("recordSeparator", "0D"));
+        } else {
+            startOfMessageBytes = convertToHexString(oldProperties.getProperty("messageStart", "\u000B"));
+            endOfMessageBytes = convertToHexString(oldProperties.getProperty("messageEnd", "\u001C") + oldProperties.getProperty("recordSeparator", "\r"));
+        }
+        transmissionModeProperties.addChildElement("startOfMessageBytes").setTextContent(startOfMessageBytes);
+        transmissionModeProperties.addChildElement("endOfMessageBytes").setTextContent(endOfMessageBytes);
+
+        properties.addChildElement("serverMode").setTextContent(readBooleanProperty(oldProperties, "serverMode", true));
+        properties.addChildElement("reconnectInterval").setTextContent(oldProperties.getProperty("reconnectInterval", "5000"));
+        properties.addChildElement("receiveTimeout").setTextContent(oldProperties.getProperty("receiveTimeout", "0"));
+        properties.addChildElement("bufferSize").setTextContent(oldProperties.getProperty("bufferSize", "65536"));
+        properties.addChildElement("maxConnections").setTextContent("10");
+        properties.addChildElement("keepConnectionOpen").setTextContent("true");
+        properties.addChildElement("processBatch").setTextContent(readBooleanProperty(oldProperties, "processBatchFiles", false));
+        properties.addChildElement("dataTypeBinary").setTextContent("false");
+        properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
+        properties.addChildElement("respondOnNewConnection").setTextContent(readBooleanValue(oldProperties, "ackOnNewConnection", false) ? "1" : "0");
+        properties.addChildElement("responseAddress").setTextContent(oldProperties.getProperty("ackIP", ""));
+        properties.addChildElement("responsePort").setTextContent(oldProperties.getProperty("ackPort", ""));
     }
-    
-    private static void migrateLLPDispatcherProperties(DonkeyElement properties) {
-        // TODO
+
+    /*
+     * Strips off "0x" or "0X" from the beginning of a string.
+     */
+    private static String stripHexPrefix(String hexString) {
+        return hexString.startsWith("0x") || hexString.startsWith("0X") ? hexString.substring(2) : hexString;
     }
-    
-    private static void migrateTcpReceiverProperties(DonkeyElement properties) {
-        // TODO
+
+    /*
+     * Converts a string (either in hexadecimal format or in literal ASCII) to a Java-escaped
+     * format. Any instances of character 0x0D gets converted to "\\r", 0x0B to "\\u000B", etc.
+     */
+    private static String convertToEscapedString(String str, boolean hex) {
+        String fixedString = str;
+        if (hex) {
+            byte[] bytes = stringToByteArray(stripHexPrefix(str));
+            try {
+                fixedString = new String(bytes, "US-ASCII");
+            } catch (UnsupportedEncodingException e) {
+                fixedString = new String(bytes);
+            }
+        }
+        return StringEscapeUtils.escapeJava(fixedString);
     }
-    
-    private static void migrateTcpDispatcherProperties(DonkeyElement properties) {
-        // TODO
+
+    /*
+     * Converts an ASCII string into a byte array, and then returns the associated hexadecimal
+     * representation of the bytes.
+     */
+    private static String convertToHexString(String str) {
+        try {
+            return Hex.encodeHexString(str.getBytes("US-ASCII"));
+        } catch (UnsupportedEncodingException e) {
+            return Hex.encodeHexString(str.getBytes());
+        }
     }
-    
+
+    /*
+     * Converts a hexadecimal string into a byte array, where each pair of characters is represented
+     * as a single byte.
+     */
+    private static byte[] stringToByteArray(String str) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
+        if (StringUtils.isNotBlank(str)) {
+            String hexString = str.toUpperCase().replaceAll("[^0-9A-F]", "");
+
+            for (String hexByte : ((hexString.length() % 2 > 0 ? "0" : "") + hexString).split("(?<=\\G..)")) {
+                bytes.write((byte) ((Character.digit(hexByte.charAt(0), 16) << 4) + Character.digit(hexByte.charAt(1), 16)));
+            }
+        }
+
+        return bytes.toByteArray();
+    }
+
+    private static void migrateLLPSenderProperties(DonkeyElement properties) {
+        logger.debug("Migrating LLPSenderProperties");
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.connectors.tcp.TcpDispatcherProperties");
+        properties.removeChildren();
+        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
+
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), readBooleanProperty(oldProperties, "usePersistentQueues"), readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), oldProperties.getProperty("maxRetryCount"));
+
+        DonkeyElement transmissionModeProperties = properties.addChildElement("transmissionModeProperties");
+        transmissionModeProperties.setAttribute("class", "com.mirth.connect.model.transmission.framemode.FrameModeProperties");
+        transmissionModeProperties.addChildElement("pluginPointName").setTextContent("MLLP");
+
+        boolean frameEncodingHex = oldProperties.getProperty("charEncoding", "hex").equals("hex");
+        String startOfMessageBytes;
+        String endOfMessageBytes;
+        if (frameEncodingHex) {
+            startOfMessageBytes = stripHexPrefix(oldProperties.getProperty("messageStart", "0B"));
+            endOfMessageBytes = stripHexPrefix(oldProperties.getProperty("messageEnd", "1C")) + stripHexPrefix(oldProperties.getProperty("recordSeparator", "0D"));
+        } else {
+            startOfMessageBytes = convertToHexString(oldProperties.getProperty("messageStart", "\u000B"));
+            endOfMessageBytes = convertToHexString(oldProperties.getProperty("messageEnd", "\u001C") + oldProperties.getProperty("recordSeparator", "\r"));
+        }
+        transmissionModeProperties.addChildElement("startOfMessageBytes").setTextContent(startOfMessageBytes);
+        transmissionModeProperties.addChildElement("endOfMessageBytes").setTextContent(endOfMessageBytes);
+
+        properties.addChildElement("remoteAddress").setTextContent(oldProperties.getProperty("host", "127.0.0.1"));
+        properties.addChildElement("remotePort").setTextContent(oldProperties.getProperty("port", "6660"));
+        properties.addChildElement("overrideLocalBinding").setTextContent("false");
+        properties.addChildElement("localAddress").setTextContent("0.0.0.0");
+        properties.addChildElement("localPort").setTextContent("0");
+        properties.addChildElement("sendTimeout").setTextContent(oldProperties.getProperty("sendTimeout", "5000"));
+        properties.addChildElement("bufferSize").setTextContent(oldProperties.getProperty("bufferSize", "65536"));
+        properties.addChildElement("keepConnectionOpen").setTextContent(readBooleanProperty(oldProperties, "keepSendSocketOpen", false));
+
+        String ackTimeout = oldProperties.getProperty("ackTimeout", "5000");
+        properties.addChildElement("responseTimeout").setTextContent(ackTimeout);
+        properties.addChildElement("ignoreResponse").setTextContent(ackTimeout.equals("0") ? "true" : "false");
+
+        properties.addChildElement("queueOnResponseTimeout").setTextContent(readBooleanProperty(oldProperties, "queueAckTimeout", true));
+        properties.addChildElement("processHL7ACK").setTextContent(readBooleanProperty(oldProperties, "processHl7AckResponse", true));
+        properties.addChildElement("dataTypeBinary").setTextContent("false");
+        properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
+        properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", "${message.encodedData}"));
+    }
+
+    private static void migrateTCPListenerProperties(DonkeyElement properties) {
+        logger.debug("Migrating TCPListenerProperties");
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.connectors.tcp.TcpReceiverProperties");
+        properties.removeChildren();
+        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
+
+        DonkeyElement listenerConnectorProperties = properties.addChildElement("listenerConnectorProperties");
+        listenerConnectorProperties.addChildElement("host").setTextContent(oldProperties.getProperty("host", "0.0.0.0"));
+        listenerConnectorProperties.addChildElement("port").setTextContent(oldProperties.getProperty("port", "6661"));
+
+        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), true);
+
+        DonkeyElement transmissionModeProperties = properties.addChildElement("transmissionModeProperties");
+        transmissionModeProperties.setAttribute("class", "com.mirth.connect.model.transmission.framemode.FrameModeProperties");
+        transmissionModeProperties.addChildElement("pluginPointName").setTextContent("Basic");
+        transmissionModeProperties.addChildElement("startOfMessageBytes").setTextContent("");
+        transmissionModeProperties.addChildElement("endOfMessageBytes").setTextContent("");
+
+        properties.addChildElement("serverMode").setTextContent("true");
+        properties.addChildElement("reconnectInterval").setTextContent("5000");
+        properties.addChildElement("receiveTimeout").setTextContent(oldProperties.getProperty("receiveTimeout", "5000"));
+        properties.addChildElement("bufferSize").setTextContent(oldProperties.getProperty("bufferSize", "65536"));
+        properties.addChildElement("maxConnections").setTextContent("10");
+        properties.addChildElement("keepConnectionOpen").setTextContent(readBooleanProperty(oldProperties, "keepSendSocketOpen", false));
+        properties.addChildElement("processBatch").setTextContent("false");
+        properties.addChildElement("dataTypeBinary").setTextContent(readBooleanProperty(oldProperties, "binary", false));
+        properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
+        properties.addChildElement("respondOnNewConnection").setTextContent(readBooleanValue(oldProperties, "ackOnNewConnection", false) ? "1" : "0");
+        properties.addChildElement("responseAddress").setTextContent(oldProperties.getProperty("ackIP", ""));
+        properties.addChildElement("responsePort").setTextContent(oldProperties.getProperty("ackPort", ""));
+    }
+
+    private static void migrateTCPSenderProperties(DonkeyElement properties) {
+        logger.debug("Migrating TCPSenderProperties");
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.connectors.tcp.TcpDispatcherProperties");
+        properties.removeChildren();
+        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
+
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), readBooleanProperty(oldProperties, "usePersistentQueues"), readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), oldProperties.getProperty("maxRetryCount"));
+
+        DonkeyElement transmissionModeProperties = properties.addChildElement("transmissionModeProperties");
+        transmissionModeProperties.setAttribute("class", "com.mirth.connect.model.transmission.framemode.FrameModeProperties");
+        transmissionModeProperties.addChildElement("pluginPointName").setTextContent("Basic");
+        transmissionModeProperties.addChildElement("startOfMessageBytes").setTextContent("");
+        transmissionModeProperties.addChildElement("endOfMessageBytes").setTextContent("");
+
+        properties.addChildElement("remoteAddress").setTextContent(oldProperties.getProperty("host", "127.0.0.1"));
+        properties.addChildElement("remotePort").setTextContent(oldProperties.getProperty("port", "6660"));
+        properties.addChildElement("overrideLocalBinding").setTextContent("false");
+        properties.addChildElement("localAddress").setTextContent("0.0.0.0");
+        properties.addChildElement("localPort").setTextContent("0");
+        properties.addChildElement("sendTimeout").setTextContent(oldProperties.getProperty("sendTimeout", "5000"));
+        properties.addChildElement("bufferSize").setTextContent(oldProperties.getProperty("bufferSize", "65536"));
+        properties.addChildElement("keepConnectionOpen").setTextContent(readBooleanProperty(oldProperties, "keepSendSocketOpen", false));
+
+        String ackTimeout = oldProperties.getProperty("ackTimeout", "5000");
+        properties.addChildElement("responseTimeout").setTextContent(ackTimeout);
+        properties.addChildElement("ignoreResponse").setTextContent(ackTimeout.equals("0") ? "true" : "false");
+
+        properties.addChildElement("queueOnResponseTimeout").setTextContent("true");
+        properties.addChildElement("processHL7ACK").setTextContent("false");
+        properties.addChildElement("dataTypeBinary").setTextContent(readBooleanProperty(oldProperties, "binary", false));
+        properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
+        properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", "${message.encodedData}"));
+    }
+
     private static void migrateWebServiceReceiverProperties(DonkeyElement properties) {
         // TODO
     }
-    
+
     private static void migrateWebServiceDispatcherProperties(DonkeyElement properties) {
         // TODO
     }
-    
+
     private static void migratePollConnectorProperties(DonkeyElement properties, String type, String time, String freq) {
         if (type == null) {
             type = "interval";
         }
-        
+
         if (freq == null) {
             freq = "5000";
         }
-        
+
         Calendar timestamp;
         String hour = "0";
         String minute = "0";
@@ -745,68 +1045,80 @@ public class ImportConverter3_0_0 {
             } catch (DateParserException e) {
             }
         }
-        
+
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         properties.addChildElement("pollingType").setTextContent(type);
         properties.addChildElement("pollingHour").setTextContent(hour);
         properties.addChildElement("pollingMinute").setTextContent(minute);
         properties.addChildElement("pollingFrequency").setTextContent(freq);
     }
-    
+
     private static void buildListenerConnectorProperties(DonkeyElement properties, String host, String port, int defaultPort) {
         if (host == null) {
             host = "0.0.0.0";
         }
-        
+
         if (port == null) {
             port = Integer.toString(defaultPort);
         }
-        
+
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         properties.addChildElement("host").setTextContent(host);
         properties.addChildElement("port").setTextContent(port);
     }
 
-    private static void migrateResponseConnectorProperties(DonkeyElement properties, String responseValue) {
+    private static void migrateResponseConnectorProperties(DonkeyElement properties, String responseValue, boolean autoResponseEnabled) {
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         properties.addChildElement("responseVariable").setTextContent(responseValue);
 
         DonkeyElement defaultQueueOnResponses = properties.addChildElement("defaultQueueOnResponses");
         defaultQueueOnResponses.addChildElement("string").setTextContent("None");
-        defaultQueueOnResponses.addChildElement("string").setTextContent("Auto-generate (Before processing)");
 
         DonkeyElement defaultQueueOffResponses = properties.addChildElement("defaultQueueOffResponses");
         defaultQueueOffResponses.addChildElement("string").setTextContent("None");
-        defaultQueueOffResponses.addChildElement("string").setTextContent("Auto-generate (Before processing)");
-        defaultQueueOffResponses.addChildElement("string").setTextContent("Auto-generate (After source transformer)");
-        defaultQueueOffResponses.addChildElement("string").setTextContent("Auto-generate (Destinations completed)");
-        defaultQueueOffResponses.addChildElement("string").setTextContent("Postprocessor");
+
+        if (autoResponseEnabled) {
+            defaultQueueOnResponses.addChildElement("string").setTextContent("Auto-generate (Before processing)");
+
+            defaultQueueOffResponses.addChildElement("string").setTextContent("Auto-generate (Before processing)");
+            defaultQueueOffResponses.addChildElement("string").setTextContent("Auto-generate (After source transformer)");
+            defaultQueueOffResponses.addChildElement("string").setTextContent("Auto-generate (Destinations completed)");
+            defaultQueueOffResponses.addChildElement("string").setTextContent("Postprocessor");
+        }
 
         properties.addChildElement("respondAfterProcessing").setTextContent("true");
     }
 
-    private static void buildQueueConnectorProperties(DonkeyElement queueConnectorProperties, String queueEnabled, String rotate, String reconnectInterval) {
+    private static void buildQueueConnectorProperties(DonkeyElement queueConnectorProperties) {
+        buildQueueConnectorProperties(queueConnectorProperties, null, null, null, null);
+    }
+
+    private static void buildQueueConnectorProperties(DonkeyElement queueConnectorProperties, String queueEnabled, String rotate, String reconnectInterval, String retryCount) {
         if (queueEnabled == null) {
             queueEnabled = "false";
         }
-        
+
         if (rotate == null) {
             rotate = "false";
         }
-        
+
         if (reconnectInterval == null) {
             reconnectInterval = "1000";
         }
-        
+
+        if (retryCount == null) {
+            retryCount = "0";
+        }
+
         queueConnectorProperties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         queueConnectorProperties.addChildElement("queueEnabled").setTextContent(queueEnabled);
         queueConnectorProperties.addChildElement("sendFirst").setTextContent("false");
         queueConnectorProperties.addChildElement("retryIntervalMillis").setTextContent(reconnectInterval);
         queueConnectorProperties.addChildElement("regenerateTemplate").setTextContent("false");
-        queueConnectorProperties.addChildElement("retryCount").setTextContent("0");
+        queueConnectorProperties.addChildElement("retryCount").setTextContent(retryCount);
         queueConnectorProperties.addChildElement("rotate").setTextContent(rotate);
     }
-    
+
     private static void migrateDelimitedProperties(DonkeyElement properties) {
         // TODO
     }
@@ -832,9 +1144,9 @@ public class ImportConverter3_0_0 {
         properties.removeChildren();
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
-        String convertLFtoCR = oldProperties.getProperty("convertLFtoCR", "true");
-        String inboundSegmentDelimiter = "\\r\\n|\\r|\\n";
-        String outboundSegmentDelimiter = convertLFtoCR.equals("true") ? "\\r" : "\\r\\n|\\r|\\n"; // TODO check to make sure this is correct
+        // If the data type was HL7 v2.x we set these two properties earlier, so retrieve them now
+        String inboundSegmentDelimiter = oldProperties.getProperty("inboundSegmentDelimiter", "\\r\\n|\\r|\\n");
+        String outboundSegmentDelimiter = oldProperties.getProperty("outboundSegmentDelimiter", "\\r");
 
         DonkeyElement serializationProperties = properties.addChildElement("serializationProperties");
         serializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v2.HL7v2SerializationProperties");
@@ -857,13 +1169,18 @@ public class ImportConverter3_0_0 {
         responseGenerationProperties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         responseGenerationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v2.HL7v2ResponseGenerationProperties");
         responseGenerationProperties.addChildElement("segmentDelimiter").setTextContent(outboundSegmentDelimiter);
-        responseGenerationProperties.addChildElement("successfulACKCode").setTextContent("AA");
-        responseGenerationProperties.addChildElement("successfulACKMessage").setTextContent("");
-        responseGenerationProperties.addChildElement("errorACKCode").setTextContent("AE");
-        responseGenerationProperties.addChildElement("errorACKMessage").setTextContent("An Error Occured Processing Message.");
-        responseGenerationProperties.addChildElement("rejectedACKCode").setTextContent("AR");
-        responseGenerationProperties.addChildElement("rejectedACKMessage").setTextContent("Message Rejected.");
-        responseGenerationProperties.addChildElement("msh15ACKAccept").setTextContent("false");
+
+        /*
+         * These properties would have been set manually in migrateConnector if the source connector
+         * was an LLP Listener. Otherwise, just set the defaults.
+         */
+        responseGenerationProperties.addChildElement("successfulACKCode").setTextContent(oldProperties.getProperty("successfulACKCode", "AA"));
+        responseGenerationProperties.addChildElement("successfulACKMessage").setTextContent(oldProperties.getProperty("successfulACKMessage", ""));
+        responseGenerationProperties.addChildElement("errorACKCode").setTextContent(oldProperties.getProperty("errorACKCode", "AE"));
+        responseGenerationProperties.addChildElement("errorACKMessage").setTextContent(oldProperties.getProperty("errorACKMessage", "An Error Occured Processing Message."));
+        responseGenerationProperties.addChildElement("rejectedACKCode").setTextContent(oldProperties.getProperty("rejectedACKCode", "AR"));
+        responseGenerationProperties.addChildElement("rejectedACKMessage").setTextContent(oldProperties.getProperty("rejectedACKMessage", "Message Rejected."));
+        responseGenerationProperties.addChildElement("msh15ACKAccept").setTextContent(oldProperties.getProperty("msh15ACKAccept", "false"));
 
         DonkeyElement responseValidationProperties = properties.addChildElement("responseValidationProperties");
         responseValidationProperties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
@@ -872,7 +1189,7 @@ public class ImportConverter3_0_0 {
         responseValidationProperties.addChildElement("errorACKCode").setTextContent("AE");
         responseValidationProperties.addChildElement("rejectedACKCode").setTextContent("AR");
     }
-    
+
     private static void migrateHL7v3Properties(DonkeyElement properties) {
         // TODO
     }
@@ -900,8 +1217,6 @@ public class ImportConverter3_0_0 {
         migrateHL7v2Properties(transformer.addChildElement("outboundProperties"));
     }
 
-    
-    
     // Utility functions
 
     private static Properties readPropertiesElement(DonkeyElement propertiesElement) {
@@ -913,9 +1228,10 @@ public class ImportConverter3_0_0 {
 
         return properties;
     }
-    
+
     /**
-     * Writes all the entries in the given properties object to the propertiesElement. Any existing elements in propertiesElement will be removed first.
+     * Writes all the entries in the given properties object to the propertiesElement. Any existing
+     * elements in propertiesElement will be removed first.
      */
     private static void writePropertiesElement(DonkeyElement propertiesElement, Properties properties) {
         propertiesElement.removeChildren();
@@ -926,21 +1242,26 @@ public class ImportConverter3_0_0 {
             property.setTextContent(properties.getProperty(key.toString()));
         }
     }
-    
+
     private static String readBooleanProperty(Properties properties, String name) {
         String value = properties.getProperty(name);
-        
+
         if (value == null) {
             return null;
         } else {
-            return Boolean.toString(Boolean.parseBoolean(value));
+            return readBooleanProperty(properties, name, false);
         }
     }
-    
+
     private static String readBooleanProperty(Properties properties, String name, boolean defaultValue) {
-        return Boolean.toString(Boolean.parseBoolean(properties.getProperty(name, Boolean.toString(defaultValue))));
+        return Boolean.toString(readBooleanValue(properties, name, defaultValue));
     }
-    
+
+    private static boolean readBooleanValue(Properties properties, String name, boolean defaultValue) {
+        String property = properties.getProperty(name, Boolean.toString(defaultValue));
+        return property.equals("1") || Boolean.parseBoolean(property);
+    }
+
     private static void dumpElement(DonkeyElement element) {
         try {
             String xml = XmlUtil.elementToXml(element);
