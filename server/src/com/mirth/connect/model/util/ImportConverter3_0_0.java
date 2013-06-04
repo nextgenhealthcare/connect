@@ -1262,7 +1262,14 @@ public class ImportConverter3_0_0 {
     }
 
     private static void migrateHL7v3Properties(DonkeyElement properties) {
-        // TODO
+        logger.debug("Migrating HL7v3DataTypeProperties");
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v3.HL7V3DataTypeProperties");
+        properties.removeChildren();
+
+        DonkeyElement serializationProperties = properties.addChildElement("serializationProperties");
+        serializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v3.HL7V3SerializationProperties");
+        serializationProperties.addChildElement("stripNamespaces").setTextContent(oldProperties.getProperty("stripNamespaces", "true"));
     }
 
     private static void migrateNCPDPProperties(DonkeyElement properties) {
