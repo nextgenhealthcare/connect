@@ -454,8 +454,6 @@ public class ImportConverter3_0_0 {
     private static void migrateDataTypeProperties(DonkeyElement properties, String dataType) {
         if (dataType.equals("DELIMITED")) {
             migrateDelimitedProperties(properties);
-        } else if (dataType.equals("DICOM")) {
-            migrateDICOMProperties(properties);
         } else if (dataType.equals("EDI")) {
             migrateEDIProperties(properties);
         } else if (dataType.equals("HL7V2")) {
@@ -1181,10 +1179,6 @@ public class ImportConverter3_0_0 {
     }
 
     private static void migrateDelimitedProperties(DonkeyElement properties) {
-        // TODO
-    }
-
-    private static void migrateDICOMProperties(DonkeyElement properties) {
         // TODO
     }
 
