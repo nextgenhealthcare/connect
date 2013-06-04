@@ -12,7 +12,9 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
@@ -203,18 +205,28 @@ public class AlertChannelPane extends JPanel {
 
         public AlertChannels getAlertChannels() {
             AlertChannels channels = new AlertChannels();
-
-            for (int i = 0; i < modelRoot.getModelChildCount(); i++) {
-                ChannelTreeTableNode channelNode = (ChannelTreeTableNode) modelRoot.getModelChildAt(i);
+            
+            ChannelTreeTableNode channelNode = (ChannelTreeTableNode) modelRoot.getModelChildAt(0);
+            channels.setNewChannel(((ConnectorTreeTableNode) channelNode.getModelChildAt(0)).isEnabled(), ((ConnectorTreeTableNode) channelNode.getModelChildAt(1)).isEnabled());
+            
+            for (int i = 1; i < modelRoot.getModelChildCount(); i++) {
+                channelNode = (ChannelTreeTableNode) modelRoot.getModelChildAt(i);
                 String channelId = channelNode.getChannelId();
 
-                channels.addChannel(channelId);
-
+                boolean newConnector = false;
+                Map<Integer, Boolean> connectors = new HashMap<Integer, Boolean>();
+                
                 for (int j = 0; j < channelNode.getModelChildCount(); j++) {
                     ConnectorTreeTableNode connectorNode = (ConnectorTreeTableNode) channelNode.getModelChildAt(j);
 
-                    channels.addConnector(channelId, connectorNode.getMetaDataId(), connectorNode.isEnabled());
+                    if (connectorNode.getMetaDataId() == null) {
+                        newConnector = connectorNode.isEnabled();
+                    } else {
+                        connectors.put(connectorNode.getMetaDataId(), connectorNode.isEnabled());
+                    }
                 }
+                
+                channels.addChannel(channelId, newConnector, connectors);
             }
 
             return channels;

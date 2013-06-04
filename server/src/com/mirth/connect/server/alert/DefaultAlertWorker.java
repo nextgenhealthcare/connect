@@ -74,7 +74,7 @@ public class DefaultAlertWorker extends AlertWorker {
 
                 Set<ErrorEventType> errorEventTypes = errorTrigger.getErrorEventTypes();
 
-                AlertChannels alertChannels = errorTrigger.getChannels();
+                AlertChannels alertChannels = errorTrigger.getAlertChannels();
 
                 if ((errorEventTypes == null || errorEventTypes.contains(errorEvent.getType())) && alertChannels.isConnectorEnabled(channelId, metaDataId)) {
                     boolean trigger = true;

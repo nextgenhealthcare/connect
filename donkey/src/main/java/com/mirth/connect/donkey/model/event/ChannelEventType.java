@@ -3,7 +3,9 @@ package com.mirth.connect.donkey.model.event;
 import org.apache.commons.lang.WordUtils;
 
 import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+@XStreamAlias("channelEventType")
 public enum ChannelEventType {
     DEPLOY, UNDEPLOY, STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED;
 

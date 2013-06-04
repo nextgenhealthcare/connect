@@ -120,7 +120,7 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
             alertActionPane.setActionGroup(alertModel.getActionGroups().get(0));
     
             alertTriggerPane.setTrigger(alertModel.getTrigger());
-            alertChannelPane.setChannels(((ChannelTrigger) alertModel.getTrigger()).getChannels(), true);
+            alertChannelPane.setChannels(((ChannelTrigger) alertModel.getTrigger()).getAlertChannels(), true);
     
             updateVariableList();
     
@@ -168,7 +168,7 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
         alertModel.setEnabled(enabledCheckBox.isSelected());
 
         AlertTrigger trigger = alertTriggerPane.getTrigger();
-        ((ChannelTrigger) trigger).setChannels(alertChannelPane.getChannels());
+        ((ChannelTrigger) trigger).setAlertChannels(alertChannelPane.getChannels());
 
         alertModel.setTrigger(trigger);
 

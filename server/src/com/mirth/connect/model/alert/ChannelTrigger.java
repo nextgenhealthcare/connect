@@ -3,14 +3,14 @@ package com.mirth.connect.model.alert;
 
 public abstract class ChannelTrigger {
     
-    private AlertChannels channels = new AlertChannels();
+    private AlertChannels alertChannels = new AlertChannels();
 
-    public AlertChannels getChannels() {
-        return channels;
+    public AlertChannels getAlertChannels() {
+        return alertChannels;
     }
 
-    public void setChannels(AlertChannels channels) {
-        this.channels = channels;
+    public void setAlertChannels(AlertChannels channels) {
+        this.alertChannels = channels;
     }
     
 }
