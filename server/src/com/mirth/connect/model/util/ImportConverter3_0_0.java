@@ -1248,7 +1248,23 @@ public class ImportConverter3_0_0 {
     }
 
     private static void migrateNCPDPProperties(DonkeyElement properties) {
-        // TODO
+        logger.debug("Migrating NCPDPDataTypeProperties");
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.plugins.datatypes.ncpdp.NCPDPDataTypeProperties");
+        properties.removeChildren();
+
+        DonkeyElement serializationProperties = properties.addChildElement("serializationProperties");
+        serializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.ncpdp.NCPDPSerializationProperties");
+        serializationProperties.addChildElement("fieldDelimiter").setTextContent(oldProperties.getProperty("fieldDelimiter", "0x1C"));
+        serializationProperties.addChildElement("groupDelimiter").setTextContent(oldProperties.getProperty("groupDelimiter", "0x1D"));
+        serializationProperties.addChildElement("segmentDelimiter").setTextContent(oldProperties.getProperty("segmentDelimiter", "0x1E"));
+
+        DonkeyElement deserializationProperties = properties.addChildElement("deserializationProperties");
+        deserializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.ncpdp.NCPDPDeserializationProperties");
+        deserializationProperties.addChildElement("fieldDelimiter").setTextContent(oldProperties.getProperty("fieldDelimiter", "0x1C"));
+        deserializationProperties.addChildElement("groupDelimiter").setTextContent(oldProperties.getProperty("groupDelimiter", "0x1D"));
+        deserializationProperties.addChildElement("segmentDelimiter").setTextContent(oldProperties.getProperty("segmentDelimiter", "0x1E"));
+        deserializationProperties.addChildElement("useStrictValidation").setTextContent(oldProperties.getProperty("useStrictValidation", "false"));
     }
 
     private static void migrateX12Properties(DonkeyElement properties) {
