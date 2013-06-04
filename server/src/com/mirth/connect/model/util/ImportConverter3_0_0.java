@@ -402,11 +402,11 @@ public class ImportConverter3_0_0 {
             migrateDataTypeProperties(outboundProperties, outboundDataType.getTextContent());
         }
 
-        // Rename EDI data types to "EDI/X12"
-        if (inboundDataType.getTextContent().equals("EDI")) {
+        // Rename EDI and X12 data types to "EDI/X12"
+        if (inboundDataType.getTextContent().equals("EDI") || inboundDataType.getTextContent().equals("X12")) {
             inboundDataType.setTextContent("EDI/X12");
         }
-        if (outboundDataType.getTextContent().equals("EDI")) {
+        if (outboundDataType.getTextContent().equals("EDI") || outboundDataType.getTextContent().equals("X12")) {
             outboundDataType.setTextContent("EDI/X12");
         }
     }
@@ -1286,7 +1286,17 @@ public class ImportConverter3_0_0 {
     }
 
     private static void migrateX12Properties(DonkeyElement properties) {
-        // TODO
+        logger.debug("Migrating X12DataTypeProperties");
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.plugins.datatypes.edi.EDIDataTypeProperties");
+        properties.removeChildren();
+
+        DonkeyElement serializationProperties = properties.addChildElement("serializationProperties");
+        serializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.edi.EDISerializationProperties");
+        serializationProperties.addChildElement("segmentDelimiter").setTextContent(oldProperties.getProperty("segmentDelimiter", "~"));
+        serializationProperties.addChildElement("elementDelimiter").setTextContent(oldProperties.getProperty("elementDelimiter", "*"));
+        serializationProperties.addChildElement("subelementDelimiter").setTextContent(oldProperties.getProperty("subelementDelimiter", ":"));
+        serializationProperties.addChildElement("inferX12Delimiters").setTextContent(oldProperties.getProperty("inferX12Delimiters", "true"));
     }
 
     private static void migrateXMLProperties(DonkeyElement properties) {
