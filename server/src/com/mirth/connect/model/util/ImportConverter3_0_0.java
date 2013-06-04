@@ -401,6 +401,14 @@ public class ImportConverter3_0_0 {
         if (outboundProperties != null) {
             migrateDataTypeProperties(outboundProperties, outboundDataType.getTextContent());
         }
+
+        // Rename EDI data types to "EDI/X12"
+        if (inboundDataType.getTextContent().equals("EDI")) {
+            inboundDataType.setTextContent("EDI/X12");
+        }
+        if (outboundDataType.getTextContent().equals("EDI")) {
+            outboundDataType.setTextContent("EDI/X12");
+        }
     }
 
     private static void setHL7v2SegmentDelimiters(DonkeyElement properties, boolean convertLFtoCRInbound, boolean convertLFtoCROutbound) {
@@ -1181,7 +1189,17 @@ public class ImportConverter3_0_0 {
     }
 
     private static void migrateEDIProperties(DonkeyElement properties) {
-        // TODO
+        logger.debug("Migrating EDIDataTypeProperties");
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.plugins.datatypes.edi.EDIDataTypeProperties");
+        properties.removeChildren();
+
+        DonkeyElement serializationProperties = properties.addChildElement("serializationProperties");
+        serializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.edi.EDISerializationProperties");
+        serializationProperties.addChildElement("segmentDelimiter").setTextContent(oldProperties.getProperty("segmentDelimiter", "~"));
+        serializationProperties.addChildElement("elementDelimiter").setTextContent(oldProperties.getProperty("elementDelimiter", "*"));
+        serializationProperties.addChildElement("subelementDelimiter").setTextContent(oldProperties.getProperty("subelementDelimiter", ":"));
+        serializationProperties.addChildElement("inferX12Delimiters").setTextContent("false");
     }
 
     private static void migrateHL7v2Properties(DonkeyElement properties) {
