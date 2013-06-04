@@ -1256,7 +1256,14 @@ public class ImportConverter3_0_0 {
     }
 
     private static void migrateXMLProperties(DonkeyElement properties) {
-        // TODO
+        logger.debug("Migrating XMLDataTypeProperties");
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.plugins.datatypes.xml.XMLDataTypeProperties");
+        properties.removeChildren();
+
+        DonkeyElement serializationProperties = properties.addChildElement("serializationProperties");
+        serializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.xml.XMLSerializationProperties");
+        serializationProperties.addChildElement("stripNamespaces").setTextContent(oldProperties.getProperty("stripNamespaces", "true"));
     }
 
     private static void createDefaultTransformer(DonkeyElement transformer) {
