@@ -31,6 +31,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -62,7 +63,7 @@ public class ImportConverter {
     private static String convertPackageNames(String xml) {
         return xml.replaceAll("com.webreach.mirth", "com.mirth.connect");
     }
-    
+
     public static Document convertServerConfiguration(String serverConfiguration) throws Exception {
         serverConfiguration = convertPackageNames(serverConfiguration);
 
@@ -100,20 +101,20 @@ public class ImportConverter {
             channelList.add(XmlUtil.elementFromXml(convertChannelString(channelDocXML)));
             channelsRoot.removeChild(channel);
         }
-        
+
         for (Element channel : channelList) {
             channelsRoot.appendChild(document.importNode(channel, true));
         }
-        
+
         NodeList codeTemplates = documentElement.getElementsByTagName("codeTemplates");
         int codeTemplateCount = codeTemplates.getLength();
-        
+
         for (int i = 0; i < codeTemplateCount; i++) {
             Element codeTemplate = (Element) codeTemplates.item(i);
             Element convertedCodeTemplate = convertCodeTemplates(XmlUtil.elementToXml(codeTemplate)).getDocumentElement();
             documentElement.replaceChild(document.importNode(convertedCodeTemplate, true), codeTemplate);
         }
-        
+
         return document;
     }
 
@@ -150,7 +151,7 @@ public class ImportConverter {
 
         return document;
     }
-    
+
     public static String convertChannelString(String channel) throws Exception {
         channel = convertPackageNames(channel);
         channel = runStringConversions(channel);
@@ -393,7 +394,7 @@ public class ImportConverter {
             convertChannelConnectorsFor2_0(document, channelRoot);
             updateFilterFor2_0(document);
         }
-        
+
         // Run for all versions prior to 3.x
         if (majorVersion < 3) {
             // Run for all versions prior to 2.2
@@ -610,6 +611,10 @@ public class ImportConverter {
                 value = properties.item(i).getTextContent();
 
                 // Now rename attributes
+                if (attribute.equals("externalAddress")) {
+                    propertyChanges.put("host", value);
+                }
+
                 if (attribute.equals("responseValue")) {
                     propertyChanges.put("receiverResponseValue", value);
                 }
@@ -620,7 +625,6 @@ public class ImportConverter {
             }
 
             // set changes
-            propertyChanges.put("host", "0.0.0.0");
             propertyChanges.put("DataType", "Web Service Listener");
 
             // set new name of transport node
@@ -673,10 +677,28 @@ public class ImportConverter {
                 // Now rename attributes
                 if (attribute.equals("attachmentNames")) {
                     propertyChanges.put("dispatcherAttachmentNames", value);
+
+                    if (StringUtils.isNotBlank(value) && !value.trim().equals("<list/>")) {
+                        propertyChanges.put("dispatcherUseMtom", "1");
+                    }
                 }
 
                 if (attribute.equals("wsdlUrl")) {
                     propertyChanges.put("dispatcherWsdlUrl", value);
+                }
+
+                if (attribute.equals("soapActionURI")) {
+                    propertyChanges.put("dispatcherSoapAction", value);
+                }
+
+                if (attribute.equals("method")) {
+                    propertyChanges.put("dispatcherOperation", value);
+
+                    if (StringUtils.isNotBlank(value)) {
+                        defaultOperations.clear();
+                        defaultOperations.add(value);
+                        propertyChanges.put("dispatcherWsdlOperations", serializer.toXML(defaultOperations));
+                    }
                 }
 
                 if (attribute.equals("replyChannelId")) {
@@ -853,7 +875,7 @@ public class ImportConverter {
             updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
         }
     }
-    
+
     private static void convertFileConnectorFor2_2(Document document, Element connectorRoot) throws Exception {
         Node transportNode = getConnectorTransportNode(connectorRoot);
         String transportNameText = transportNode.getTextContent();
@@ -873,7 +895,7 @@ public class ImportConverter {
             updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
         }
     }
-    
+
     private static void convertEmailConnectorFor2_2(Document document, Element connectorRoot) throws Exception {
         // convert Email Sender to the new SMTP Sender
         Node transportNode = getConnectorTransportNode(connectorRoot);
@@ -951,28 +973,28 @@ public class ImportConverter {
                     }
                 }
             }
-            
+
             Document attachmentDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader("<list></list>")));
-            
+
             if (attachmentNames != null) {
                 for (int i = 0; i < attachmentNames.size(); i++) {
                     Element attachment = attachmentDoc.createElement("com.mirth.connect.connectors.smtp.Attachment");
                     attachmentDoc.appendChild(attachment);
-                    
+
                     Element name = attachmentDoc.createElement("name");
                     name.setTextContent(attachmentNames.get(i));
                     attachment.appendChild(name);
-                    
+
                     Element content = attachmentDoc.createElement("content");
                     content.setTextContent(attachmentContents.get(i));
                     attachment.appendChild(content);
-                    
+
                     Element mimeType = attachmentDoc.createElement("mimeType");
                     mimeType.setTextContent(attachmentTypes.get(i));
                     attachment.appendChild(mimeType);
                 }
             }
-            
+
             propertyChanges.put("attachments", new DocumentSerializer().toXML(attachmentDoc));
 
             propertyChanges.put("DataType", "SMTP Sender");
@@ -983,7 +1005,7 @@ public class ImportConverter {
             updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
         }
     }
-    
+
     private static void convertChannelConnectorsFor2_2(Document document, Element channelRoot) throws Exception {
         Element sourceConnectorRoot = (Element) channelRoot.getElementsByTagName("sourceConnector").item(0);
         Element destinationConnectorRoot = (Element) channelRoot.getElementsByTagName("destinationConnectors").item(0);
@@ -1067,10 +1089,10 @@ public class ImportConverter {
                 convertHttpConnectorFor2_0(document, connectorRoot);
             }
         }
-        
+
         // Conversions for 2.2.0
         String versionData = getComponentVersion(connectorXml, "2.1.1");
-        
+
         if (MigratableConverter.compareVersions(versionData, "2.2.0") < 0) {
             convertFileConnectorFor2_2(document, connectorRoot);
             convertEmailConnectorFor2_2(document, connectorRoot);
@@ -1679,10 +1701,10 @@ public class ImportConverter {
             }
         }
     }
-    
+
     /**
      * Gets elements by the tag name passed in and returns the NodeList from
-     * the first tagName that returns results.  If there are no results from
+     * the first tagName that returns results. If there are no results from
      * any of the tagNames an empty list is returned.
      * 
      * @param document
@@ -1692,18 +1714,18 @@ public class ImportConverter {
      */
     private static NodeList getElements(Document document, String tagName, String... oldTagNames) {
         NodeList elements = document.getElementsByTagName(tagName);
-        
+
         // loop through the oldTagNames while there are still no results
         for (int i = 0; (elements.getLength() == 0) && (i < oldTagNames.length); i++) {
             elements = document.getElementsByTagName(oldTagNames[i]);
         }
-        
+
         return elements;
     }
-    
+
     /**
      * Gets elements by the tag name passed in and returns the NodeList from
-     * the first tagName that returns results.  If there are no results from
+     * the first tagName that returns results. If there are no results from
      * any of the tagNames an empty list is returned.
      * 
      * @param element
@@ -1713,12 +1735,12 @@ public class ImportConverter {
      */
     private static NodeList getElements(Element element, String tagName, String... oldTagNames) {
         NodeList elements = element.getElementsByTagName(tagName);
-        
+
         // loop through the oldTagNames while there are still no results
         for (int i = 0; (elements.getLength() == 0) && (i < oldTagNames.length); i++) {
             elements = element.getElementsByTagName(oldTagNames[i]);
         }
-        
+
         return elements;
     }
 }

@@ -24,7 +24,6 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
 
     private String className;
     private String serviceName;
-    private String responseValue;
     private List<String> usernames;
     private List<String> passwords;
 
@@ -34,7 +33,6 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
 
         this.className = "com.mirth.connect.connectors.ws.DefaultAcceptMessage";
         this.serviceName = "Mirth";
-        this.responseValue = "None";
         this.usernames = new ArrayList<String>();
         this.passwords = new ArrayList<String>();
     }
@@ -53,14 +51,6 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
-    }
-
-    public String getResponseValue() {
-        return responseValue;
-    }
-
-    public void setResponseValue(String responseValue) {
-        this.responseValue = responseValue;
     }
 
     public List<String> getUsernames() {

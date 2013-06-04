@@ -13,6 +13,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -38,6 +40,7 @@ import com.mirth.connect.util.XmlUtil;
 
 public class ImportConverter3_0_0 {
     private final static String VERSION_STRING = "3.0.0";
+    private final static Pattern STRING_NODE_PATTERN = Pattern.compile("(?<=<(string)>).*(?=</string>)|<null/>");
 
     private static Logger logger = Logger.getLogger(ImportConverter3_0_0.class);
 
@@ -243,9 +246,9 @@ public class ImportConverter3_0_0 {
         } else if (dataType.equals("SMTP Sender")) {
             migrateSmtpDispatcherProperties(properties);
         } else if (dataType.equals("Web Service Listener")) {
-            migrateWebServiceReceiverProperties(properties);
+            migrateWebServiceListenerProperties(properties);
         } else if (dataType.equals("Web Service Sender")) {
-            migrateWebServiceDispatcherProperties(properties);
+            migrateWebServiceSenderProperties(properties);
         }
 
         // convert transformer (no conversion needed for filter since it didn't change at all in 3.0.0)
@@ -744,7 +747,7 @@ public class ImportConverter3_0_0 {
 
     private static void migrateJavaScriptReceiverProperties(DonkeyElement properties) {
         logger.debug("Migrating JavaScriptReceiverProperties");
-        
+
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.js.JavaScriptReceiverProperties");
         properties.removeChildren();
@@ -752,52 +755,52 @@ public class ImportConverter3_0_0 {
 
         migratePollConnectorProperties(properties.addChildElement("pollConnectorProperties"), oldProperties.getProperty("pollingType"), oldProperties.getProperty("pollingTime"), oldProperties.getProperty("pollingFrequency"));
         migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), false);
-    
+
         properties.addChildElement("script").setTextContent(oldProperties.getProperty("script", ""));
     }
 
     private static void migrateJavaScriptDispatcherProperties(DonkeyElement properties) {
         logger.debug("Migrating JavaScriptDispatcherProperties");
-        
+
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.js.JavaScriptDispatcherProperties");
         properties.removeChildren();
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
-        
+
         properties.addChildElement("script").setTextContent(oldProperties.getProperty("script", ""));
     }
 
     private static void migrateSmtpDispatcherProperties(DonkeyElement properties) {
         logger.debug("Migrating SmtpDispatcherProperties");
-        
+
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.smtp.SmtpDispatcherProperties");
         properties.removeChildren();
         properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
-        
-        properties.addChildElement("attachments").setTextContent(oldProperties.getProperty("attachments", "&lt;list/&gt;"));  
-        properties.addChildElement("authentication").setTextContent(readBooleanProperty(oldProperties, "authentication", false)); 
+
+        properties.addChildElement("attachments").setTextContent(oldProperties.getProperty("attachments", "&lt;list/&gt;"));
+        properties.addChildElement("authentication").setTextContent(readBooleanProperty(oldProperties, "authentication", false));
         properties.addChildElement("body").setTextContent(oldProperties.getProperty("body", ""));
         properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
         properties.addChildElement("encryption").setTextContent(oldProperties.getProperty("encryption", "none"));
         properties.addChildElement("from").setTextContent(oldProperties.getProperty("from", ""));
-        properties.addChildElement("headers").setTextContent(oldProperties.getProperty("headers", "&lt;linked-hash-map/&gt;")); 
-        properties.addChildElement("html").setTextContent(readBooleanProperty(oldProperties, "html", false)); 
-        properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", "")); 
-        properties.addChildElement("smtpHost").setTextContent(oldProperties.getProperty("smtpHost", ""));   
-        properties.addChildElement("smtpPort").setTextContent(oldProperties.getProperty("smtpPort", "25"));   
-        properties.addChildElement("subject").setTextContent(oldProperties.getProperty("subject", "25"));   
-        properties.addChildElement("timeout").setTextContent(oldProperties.getProperty("timeout", "5000"));   
-        properties.addChildElement("to").setTextContent(oldProperties.getProperty("to", ""));            
-        properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", ""));  
-        
-        properties.addChildElement("cc").setTextContent("");  
-        properties.addChildElement("bcc").setTextContent("");  
-        properties.addChildElement("replyTo").setTextContent("");  
+        properties.addChildElement("headers").setTextContent(oldProperties.getProperty("headers", "&lt;linked-hash-map/&gt;"));
+        properties.addChildElement("html").setTextContent(readBooleanProperty(oldProperties, "html", false));
+        properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", ""));
+        properties.addChildElement("smtpHost").setTextContent(oldProperties.getProperty("smtpHost", ""));
+        properties.addChildElement("smtpPort").setTextContent(oldProperties.getProperty("smtpPort", "25"));
+        properties.addChildElement("subject").setTextContent(oldProperties.getProperty("subject", "25"));
+        properties.addChildElement("timeout").setTextContent(oldProperties.getProperty("timeout", "5000"));
+        properties.addChildElement("to").setTextContent(oldProperties.getProperty("to", ""));
+        properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", ""));
+
+        properties.addChildElement("cc").setTextContent("");
+        properties.addChildElement("bcc").setTextContent("");
+        properties.addChildElement("replyTo").setTextContent("");
     }
 
     private static void migrateLLPListenerProperties(DonkeyElement properties) {
@@ -1016,12 +1019,62 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", "${message.encodedData}"));
     }
 
-    private static void migrateWebServiceReceiverProperties(DonkeyElement properties) {
-        // TODO
+    private static void migrateWebServiceListenerProperties(DonkeyElement properties) {
+        logger.debug("Migrating WebServiceListenerProperties");
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.connectors.ws.WebServiceReceiverProperties");
+        properties.removeChildren();
+
+        DonkeyElement listenerConnectorProperties = properties.addChildElement("listenerConnectorProperties");
+        listenerConnectorProperties.addChildElement("host").setTextContent(oldProperties.getProperty("host", "0.0.0.0"));
+        listenerConnectorProperties.addChildElement("port").setTextContent(oldProperties.getProperty("port", "8081"));
+
+        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("receiverResponseValue", "None"), true);
+
+        properties.addChildElement("className").setTextContent(oldProperties.getProperty("receiverClassName", "com.mirth.connect.connectors.ws.DefaultAcceptMessage"));
+        properties.addChildElement("serviceName").setTextContent(oldProperties.getProperty("receiverServiceName", "Mirth"));
+        convertList(properties.addChildElement("usernames"), oldProperties.getProperty("receiverUsernames", ""));
+        convertList(properties.addChildElement("passwords"), oldProperties.getProperty("receiverPasswords", ""));
     }
 
-    private static void migrateWebServiceDispatcherProperties(DonkeyElement properties) {
-        // TODO
+    private static void migrateWebServiceSenderProperties(DonkeyElement properties) {
+        logger.debug("Migrating WebServiceSenderProperties");
+        dumpElement(properties);
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.connectors.ws.WebServiceDispatcherProperties");
+        properties.removeChildren();
+
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), readBooleanProperty(oldProperties, "usePersistentQueues"), readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), null);
+
+        properties.addChildElement("wsdlUrl").setTextContent(oldProperties.getProperty("dispatcherWsdlUrl", ""));
+        properties.addChildElement("service").setTextContent(oldProperties.getProperty("dispatcherService", ""));
+        properties.addChildElement("port").setTextContent(oldProperties.getProperty("dispatcherPort", ""));
+        properties.addChildElement("operation").setTextContent(oldProperties.getProperty("dispatcherOperation", "Press Get Operations"));
+        properties.addChildElement("useAuthentication").setTextContent(readBooleanProperty(oldProperties, "dispatcherUseAuthentication", false));
+        properties.addChildElement("username").setTextContent(oldProperties.getProperty("dispatcherUsername", ""));
+        properties.addChildElement("password").setTextContent(oldProperties.getProperty("dispatcherPassword", ""));
+        properties.addChildElement("envelope").setTextContent(oldProperties.getProperty("dispatcherEnvelope", ""));
+        properties.addChildElement("oneWay").setTextContent(readBooleanProperty(oldProperties, "dispatcherOneWay", false));
+        properties.addChildElement("useMtom").setTextContent(readBooleanProperty(oldProperties, "dispatcherUseMtom", false));
+        convertList(properties.addChildElement("attachmentNames"), oldProperties.getProperty("dispatcherAttachmentNames", ""));
+        convertList(properties.addChildElement("attachmentContents"), oldProperties.getProperty("dispatcherAttachmentContents", ""));
+        convertList(properties.addChildElement("attachmentTypes"), oldProperties.getProperty("dispatcherAttachmentTypes", ""));
+        properties.addChildElement("soapAction").setTextContent(oldProperties.getProperty("dispatcherSoapAction", ""));
+        properties.addChildElement("wsdlCacheId").setTextContent("");
+        convertList(properties.addChildElement("wsdlOperations"), oldProperties.getProperty("dispatcherWsdlOperations", "<list><string>Press Get Operations</string></list>"));
+    }
+
+    private static void convertList(DonkeyElement properties, String list) {
+        if (StringUtils.isNotEmpty(list)) {
+            Matcher matcher = STRING_NODE_PATTERN.matcher(list);
+            while (matcher.find()) {
+                if (matcher.group(1) != null) {
+                    properties.addChildElement("string").setTextContent(matcher.group());
+                } else {
+                    properties.addChildElement("null");
+                }
+            }
+        }
     }
 
     private static void migratePollConnectorProperties(DonkeyElement properties, String type, String time, String freq) {
