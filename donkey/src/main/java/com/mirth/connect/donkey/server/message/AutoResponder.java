@@ -9,6 +9,8 @@
 
 package com.mirth.connect.donkey.server.message;
 
+import java.util.Map;
+
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
@@ -41,4 +43,16 @@ public interface AutoResponder {
      * @return The response that should be sent back to the originating system.
      */
     public Response getResponse(Status status, String message, ConnectorMessage connectorMessage);
+
+    /**
+     * Returns a response message generated based on the passed inbound message and properties
+     * objects.
+     * 
+     * @param message
+     *            - The message to base the response generation on.
+     * @param properties
+     *            - A map of additional properties that the AutoResponder needs to generate the
+     *            response string.
+     */
+    public String generateResponseMessage(String message, Map<String, Object> properties) throws Exception;
 }

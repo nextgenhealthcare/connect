@@ -9,6 +9,8 @@
 
 package com.mirth.connect.server.message;
 
+import java.util.Map;
+
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
@@ -19,5 +21,10 @@ public class DefaultAutoResponder implements AutoResponder {
     @Override
     public Response getResponse(Status status, String message, ConnectorMessage connectorMessage) {
         return new Response(status, null);
+    }
+
+    @Override
+    public String generateResponseMessage(String message, Map<String, Object> properties) throws Exception {
+        return null;
     }
 }

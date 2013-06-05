@@ -19,14 +19,14 @@ import com.mirth.connect.model.datatype.SerializerProperties;
 
 // Supports ACKS from 2.1-2.4
 // 2.5 is supported but the advanced fields in ERR and SFT are not supported
-public class ACKGenerator {
-    private Logger logger = Logger.getLogger(this.getClass());
+public class HL7v2ACKGenerator {
+    private static Logger logger = Logger.getLogger(HL7v2ACKGenerator.class);
 
-    public String generateAckResponse(String message, boolean isXML, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
+    public static String generateAckResponse(String message, boolean isXML, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
         return generateAckResponse(message, isXML, acknowledgementCode, textMessage, dateFormat, errorMessage, "\r");
     }
 
-    public String generateAckResponse(String message, boolean isXML, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage, String segmentDelim) throws Exception {
+    public static String generateAckResponse(String message, boolean isXML, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage, String segmentDelim) throws Exception {
         if (message == null || message.length() < 9) {
             logger.error("Unable to parse, message is null or too short: " + message);
             throw new Exception("Unable to parse, message is null or too short: " + message);

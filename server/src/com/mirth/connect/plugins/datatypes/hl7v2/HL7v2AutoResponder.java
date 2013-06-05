@@ -11,6 +11,7 @@ package com.mirth.connect.plugins.datatypes.hl7v2;
 
 import java.io.CharArrayReader;
 import java.io.Reader;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -33,6 +34,13 @@ import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.StringUtil;
 
 public class HL7v2AutoResponder implements AutoResponder {
+
+    private static final String IS_XML = "isXML";
+    private static final String ACK_CODE = "ackCode";
+    private static final String TEXT_MESSAGE = "textMessage";
+    private static final String DATE_FORMAT = "dateFormat";
+    private static final String ERROR_MESSAGE = "errorMessage";
+    private static final String SEGMENT_DELIMITER = "segmentDelimiter";
 
     private Logger logger = Logger.getLogger(getClass());
     private HL7v2SerializationProperties serializationProperties;
@@ -167,7 +175,7 @@ public class HL7v2AutoResponder implements AutoResponder {
                 ackMessage = hl7v2Properties.getSuccessfulACKMessage();
             }
 
-            ACK = new ACKGenerator().generateAckResponse(hl7Message, isXML, ackCode, ackMessage, "yyyyMMddHHmmss", new String(), deserializationSegmentDelimiter);
+            ACK = HL7v2ACKGenerator.generateAckResponse(hl7Message, isXML, ackCode, ackMessage, "yyyyMMddHHmmss", new String(), deserializationSegmentDelimiter);
             statusMessage = "HL7v2 " + (nack ? "N" : "") + "ACK successfully generated.";
             logger.debug("HL7v2 " + (nack ? "N" : "") + "ACK successfully generated: " + ACK);
         } catch (Exception e) {
@@ -177,5 +185,17 @@ public class HL7v2AutoResponder implements AutoResponder {
         }
 
         return new Response(status, ACK, statusMessage, error);
+    }
+
+    @Override
+    public String generateResponseMessage(String message, Map<String, Object> properties) throws Exception {
+        boolean isXML = (Boolean) properties.get(IS_XML);
+        String acknowledgementCode = (String) properties.get(ACK_CODE);
+        String textMessage = (String) properties.get(TEXT_MESSAGE);
+        String dateFormat = (String) properties.get(DATE_FORMAT);
+        String errorMessage = (String) properties.get(ERROR_MESSAGE);
+        String segmentDelim = (String) properties.get(SEGMENT_DELIMITER);
+
+        return HL7v2ACKGenerator.generateAckResponse(message, isXML, acknowledgementCode, textMessage, dateFormat, errorMessage, segmentDelim);
     }
 }

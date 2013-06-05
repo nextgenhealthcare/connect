@@ -9,6 +9,12 @@
 
 package com.mirth.connect.server.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.mirth.connect.model.datatype.DataTypeProperties;
+import com.mirth.connect.plugins.DataTypeServerPlugin;
+import com.mirth.connect.server.controllers.ControllerFactory;
 
 // Wrapper for the LLP ack generator
 // Made so that ACKs can be generated from JS
@@ -16,20 +22,33 @@ public class ACKGenerator {
     private final String DEFAULTDATEFORMAT = "yyyyMMddHHmmss";
 
     /**
-     * This method defaults the protocol to HL7v2, along with the dateFormat to
-     * "yyyyMMddHHmmss" and the errorMessage to ""
+     * This method defaults the protocol to ER7, along with the dateFormat to "yyyyMMddHHmmss" and
+     * the errorMessage to ""
      */
-    //TODO change to use extensions since this method is not part of a data type package
     public String generateAckResponse(String message, String acknowledgementCode, String textMessage) throws Exception {
-        return new com.mirth.connect.plugins.datatypes.hl7v2.ACKGenerator().generateAckResponse(message, false, acknowledgementCode, textMessage, DEFAULTDATEFORMAT, new String());
+        return generateAckResponse(message, false, acknowledgementCode, textMessage, DEFAULTDATEFORMAT, "");
+    }
+
+    @Deprecated
+    public String generateAckResponse(String message, String dataType, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
+        return generateAckResponse(message, dataType.equals("XML"), acknowledgementCode, textMessage, dateFormat, errorMessage);
     }
 
     public String generateAckResponse(String message, boolean isXML, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
-        return new com.mirth.connect.plugins.datatypes.hl7v2.ACKGenerator().generateAckResponse(message, isXML, acknowledgementCode, textMessage, dateFormat, errorMessage);
-    }
-    
-    @Deprecated
-    public String generateAckResponse(String message, String dataType, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
-        return new com.mirth.connect.plugins.datatypes.hl7v2.ACKGenerator().generateAckResponse(message, dataType.equals("XML"), acknowledgementCode, textMessage, dateFormat, errorMessage);
+        DataTypeServerPlugin plugin = ControllerFactory.getFactory().createExtensionController().getDataTypePlugins().get("HL7V2");
+        if (plugin != null) {
+            Map<String, Object> properties = new HashMap<String, Object>();
+            properties.put("isXML", isXML);
+            properties.put("ackCode", acknowledgementCode);
+            properties.put("textMessage", textMessage);
+            properties.put("dateFormat", dateFormat);
+            properties.put("errorMessage", errorMessage);
+            properties.put("segmentDelimiter", "\r");
+
+            DataTypeProperties dataTypeProperties = plugin.getDefaultProperties();
+            return plugin.getAutoResponder(dataTypeProperties.getSerializationProperties(), dataTypeProperties.getResponseGenerationProperties()).generateResponseMessage(message, properties);
+        } else {
+            return null;
+        }
     }
 }
