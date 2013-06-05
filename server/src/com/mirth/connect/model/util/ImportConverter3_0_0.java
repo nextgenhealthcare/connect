@@ -765,13 +765,72 @@ public class ImportConverter3_0_0 {
     }
 
     private static void migrateJmsReceiverProperties(DonkeyElement properties) {
-        // TODO
-        throw new UnsupportedOperationException();
-    }
+        logger.debug("Migrating JmsReceiverProperties");
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.connectors.jms.JmsReceiverProperties");
+        properties.removeChildren();
 
+        properties.addChildElement("useJndi").setTextContent(readBooleanProperty(oldProperties, "useJndi", false));
+        properties.addChildElement("jndiProviderUrl").setTextContent(oldProperties.getProperty("jndiProviderUrl", ""));
+        properties.addChildElement("jndiInitialContextFactory").setTextContent(oldProperties.getProperty("jndiInitialFactory", ""));
+        properties.addChildElement("jndiConnectionFactoryName").setTextContent(oldProperties.getProperty("connectionFactoryJndiName", ""));
+        properties.addChildElement("connectionFactoryClass").setTextContent(oldProperties.getProperty("connectionFactoryClass", ""));
+        properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", ""));
+        properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", ""));
+        properties.addChildElement("destinationName").setTextContent(oldProperties.getProperty("host", ""));
+        properties.addChildElement("reconnectIntervalMillis").setTextContent("10000");
+        properties.addChildElement("clientId").setTextContent(oldProperties.getProperty("clientId", ""));
+        properties.addChildElement("topic").setTextContent(readBooleanProperty(oldProperties, "durable", false));
+        properties.addChildElement("durableTopic").setTextContent(readBooleanProperty(oldProperties, "durable", false));
+        properties.addChildElement("selector").setTextContent(oldProperties.getProperty("selector", ""));
+
+        Properties oldConnectionProperties = readPropertiesElement(new DonkeyElement(XmlUtil.elementFromXml(oldProperties.getProperty("connectionFactoryProperties"))));
+
+        DonkeyElement connectionProperties = properties.addChildElement("connectionProperties");
+        connectionProperties.setAttribute("class", "linked-hash-map");
+        
+        for (Object key : oldConnectionProperties.keySet()) {
+            String value = oldConnectionProperties.getProperty((String) key);
+            
+            DonkeyElement entry = connectionProperties.addChildElement("entry");
+            entry.addChildElement("string", (String) key);
+            entry.addChildElement("string", value);
+        }
+    }
+    
     private static void migrateJmsDispatcherProperties(DonkeyElement properties) {
-        // TODO
-        throw new UnsupportedOperationException();
+        logger.debug("Migrating JmsDispatcherProperties");
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.connectors.jms.JmsDispatcherProperties");
+        properties.removeChildren();
+        
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
+
+        properties.addChildElement("useJndi").setTextContent(readBooleanProperty(oldProperties, "useJndi", false));
+        properties.addChildElement("jndiProviderUrl").setTextContent(oldProperties.getProperty("jndiProviderUrl", ""));
+        properties.addChildElement("jndiInitialContextFactory").setTextContent(oldProperties.getProperty("jndiInitialFactory", ""));
+        properties.addChildElement("jndiConnectionFactoryName").setTextContent(oldProperties.getProperty("connectionFactoryJndiName", ""));
+        properties.addChildElement("connectionFactoryClass").setTextContent(oldProperties.getProperty("connectionFactoryClass", ""));
+        properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", ""));
+        properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", ""));
+        properties.addChildElement("destinationName").setTextContent(oldProperties.getProperty("host", ""));
+        properties.addChildElement("reconnectIntervalMillis").setTextContent("10000");
+        properties.addChildElement("clientId").setTextContent("");
+        properties.addChildElement("topic").setTextContent("false");
+        properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", "${message.encodedData}"));
+
+        Properties oldConnectionProperties = readPropertiesElement(new DonkeyElement(XmlUtil.elementFromXml(oldProperties.getProperty("connectionFactoryProperties"))));
+
+        DonkeyElement connectionProperties = properties.addChildElement("connectionProperties");
+        connectionProperties.setAttribute("class", "linked-hash-map");
+        
+        for (Object key : oldConnectionProperties.keySet()) {
+            String value = oldConnectionProperties.getProperty((String) key);
+            
+            DonkeyElement entry = connectionProperties.addChildElement("entry");
+            entry.addChildElement("string", (String) key);
+            entry.addChildElement("string", value);
+        }
     }
 
     private static void migrateJavaScriptReceiverProperties(DonkeyElement properties) {
