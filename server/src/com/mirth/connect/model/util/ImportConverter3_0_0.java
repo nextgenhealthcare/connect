@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -159,7 +160,7 @@ public class ImportConverter3_0_0 {
         } else if (mode.equals("SOURCE")) {
             connector.addChildElement("metaDataId").setTextContent("0");
         }
-        
+
         // add a response transformer
         if (mode.equals("DESTINATION")) {
             createDefaultTransformer(connector.addChildElement("responseTransformer"));
@@ -205,7 +206,7 @@ public class ImportConverter3_0_0 {
         } else if (connectorName.equals("LLP Listener")) {
             transportName.setTextContent("TCP Listener");
             DonkeyElement transformer = connector.getChildElement("transformer");
-            
+
             // Some properties have been moved from the LLP Listener connector to the HL7 v2.x data type
             if (transformer.getChildElement("inboundProtocol").getTextContent().equals("HL7V2")) {
                 Properties connectorProperties = readPropertiesElement(properties);
@@ -240,7 +241,7 @@ public class ImportConverter3_0_0 {
         } else if (connectorName.equals("Web Service Sender")) {
             migrateWebServiceSenderProperties(properties);
         }
-        
+
         // convert transformer (no conversion needed for filter since it didn't change at all in 3.0.0)
         migrateTransformer(connector.getChildElement("transformer"));
 
@@ -361,7 +362,7 @@ public class ImportConverter3_0_0 {
 
         DonkeyElement inboundProperties = transformer.getChildElement("inboundProperties");
         DonkeyElement outboundProperties = transformer.getChildElement("outboundProperties");
-        
+
         /*
          * We set the inbound and outbound HL7v2 segment delimiters here because each property set
          * is dependent on the other. If at least one of them has "Convert LF to CR" enabled, then
@@ -374,12 +375,12 @@ public class ImportConverter3_0_0 {
             if (inboundDataType.getTextContent().equals("HL7V2") && inboundProperties != null) {
                 setHL7v2SegmentDelimiters(inboundProperties, convertLFtoCRInbound, convertLFtoCROutbound);
             }
-            
+
             if (outboundDataType.getTextContent().equals("HL7V2") && outboundProperties != null) {
                 setHL7v2SegmentDelimiters(outboundProperties, convertLFtoCRInbound, convertLFtoCROutbound);
             }
         }
-        
+
         if (inboundProperties == null) {
             inboundProperties = transformer.addChildElement("inboundProperties");
         }
@@ -387,7 +388,7 @@ public class ImportConverter3_0_0 {
         if (outboundProperties == null) {
             outboundProperties = transformer.addChildElement("outboundProperties");
         }
-        
+
         migrateDataTypeProperties(inboundProperties, inboundDataType.getTextContent());
         migrateDataTypeProperties(outboundProperties, outboundDataType.getTextContent());
 
@@ -729,13 +730,13 @@ public class ImportConverter3_0_0 {
 
         boolean useScript = readBooleanValue(oldProperties, "useScript", false);
         boolean useAck = readBooleanValue(oldProperties, "useAck", false);
-        
+
         properties.addChildElement("driver").setTextContent(oldProperties.getProperty("driver", "Please Select One"));
         properties.addChildElement("url").setTextContent(oldProperties.getProperty("URL", ""));
         properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", ""));
         properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", ""));
-        properties.addChildElement("select").setTextContent(oldProperties.getProperty(useScript ? "script": "query", ""));
-        properties.addChildElement("update").setTextContent(oldProperties.getProperty(useScript ? "ackScript": "ack", ""));
+        properties.addChildElement("select").setTextContent(oldProperties.getProperty(useScript ? "script" : "query", ""));
+        properties.addChildElement("update").setTextContent(oldProperties.getProperty(useScript ? "ackScript" : "ack", ""));
         properties.addChildElement("useScript").setTextContent(Boolean.toString(useScript));
         properties.addChildElement("cacheResults").setTextContent("true");
         properties.addChildElement("keepConnectionOpen").setTextContent("true");
@@ -750,11 +751,11 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.jdbc.DatabaseDispatcherProperties");
         properties.removeChildren();
-        
+
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
-        
+
         boolean useScript = readBooleanValue(oldProperties, "useScript", false);
-        
+
         properties.addChildElement("driver").setTextContent(oldProperties.getProperty("driver", "Please Select One"));
         properties.addChildElement("url").setTextContent(oldProperties.getProperty("URL", ""));
         properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", ""));
@@ -1142,7 +1143,7 @@ public class ImportConverter3_0_0 {
     private static void migrateResponseConnectorProperties(DonkeyElement properties) {
         migrateResponseConnectorProperties(properties, "None", false);
     }
-    
+
     private static void migrateResponseConnectorProperties(DonkeyElement properties, String responseValue, boolean autoResponseEnabled) {
         properties.addChildElement("responseVariable").setTextContent(responseValue);
 
@@ -1194,8 +1195,67 @@ public class ImportConverter3_0_0 {
     }
 
     private static void migrateDelimitedProperties(DonkeyElement properties) {
-        // TODO
-        throw new UnsupportedOperationException();
+        logger.debug("Migrating DelimitedDataTypeProperties");
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties");
+        properties.removeChildren();
+
+        DonkeyElement serializationProperties = properties.addChildElement("serializationProperties");
+        serializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties");
+        serializationProperties.addChildElement("columnDelimiter").setTextContent(oldProperties.getProperty("columnDelimiter", ","));
+        serializationProperties.addChildElement("recordDelimiter").setTextContent(escapeString(oldProperties.getProperty("recordDelimiter", "\n")));
+
+        String columnWidths = oldProperties.getProperty("columnWidths");
+        if (StringUtils.isNotBlank(columnWidths)) {
+            serializationProperties.addChildElement("columnWidths");
+            for (String width : columnWidths.split(",")) {
+                serializationProperties.getChildElement("columnWidths").addChildElement("int").setTextContent(String.valueOf(NumberUtils.toInt(width, 0)));
+            }
+        }
+
+        serializationProperties.addChildElement("quoteChar").setTextContent(oldProperties.getProperty("quoteChar", "\""));
+        serializationProperties.addChildElement("escapeWithDoubleQuote").setTextContent(oldProperties.getProperty("escapeWithDoubleQuote", "true"));
+        serializationProperties.addChildElement("quoteEscapeChar").setTextContent(oldProperties.getProperty("quoteEscapeChar", "\\"));
+
+        String columnNames = oldProperties.getProperty("columnNames");
+        if (StringUtils.isNotBlank(columnNames)) {
+            serializationProperties.addChildElement("columnNames");
+            for (String name : columnNames.split(",")) {
+                serializationProperties.getChildElement("columnNames").addChildElement("string").setTextContent(name);
+            }
+        }
+
+        serializationProperties.addChildElement("numberedRows").setTextContent(oldProperties.getProperty("numberedRows", "false"));
+        serializationProperties.addChildElement("ignoreCR").setTextContent(oldProperties.getProperty("ignoreCR", "true"));
+
+        DonkeyElement deserializationProperties = properties.addChildElement("deserializationProperties");
+        deserializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties");
+        deserializationProperties.addChildElement("columnDelimiter").setTextContent(oldProperties.getProperty("columnDelimiter", ","));
+        deserializationProperties.addChildElement("recordDelimiter").setTextContent(escapeString(oldProperties.getProperty("recordDelimiter", "\n")));
+
+        if (StringUtils.isNotBlank(columnWidths)) {
+            deserializationProperties.addChildElement("columnWidths");
+            for (String width : columnWidths.split(",")) {
+                deserializationProperties.getChildElement("columnWidths").addChildElement("int").setTextContent(String.valueOf(NumberUtils.toInt(width, 0)));
+            }
+        }
+
+        deserializationProperties.addChildElement("quoteChar").setTextContent(oldProperties.getProperty("quoteChar", "\""));
+        deserializationProperties.addChildElement("escapeWithDoubleQuote").setTextContent(oldProperties.getProperty("escapeWithDoubleQuote", "true"));
+        deserializationProperties.addChildElement("quoteEscapeChar").setTextContent(oldProperties.getProperty("quoteEscapeChar", "\\"));
+
+        DonkeyElement batchProperties = properties.addChildElement("batchProperties");
+        batchProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties");
+        batchProperties.addChildElement("batchSkipRecords").setTextContent(oldProperties.getProperty("batchSkipRecords", "0"));
+        batchProperties.addChildElement("batchSplitByRecord").setTextContent(oldProperties.getProperty("batchSplitByRecord", "true"));
+        batchProperties.addChildElement("batchMessageDelimiter").setTextContent(oldProperties.getProperty("batchMessageDelimiter", ""));
+        batchProperties.addChildElement("batchMessageDelimiterIncluded").setTextContent(oldProperties.getProperty("batchMessageDelimiterIncluded", "false"));
+        batchProperties.addChildElement("batchGroupingColumn").setTextContent(oldProperties.getProperty("batchGroupingColumn", ""));
+        batchProperties.addChildElement("batchScript").setTextContent(oldProperties.getProperty("batchScript", ""));
+    }
+
+    private static String escapeString(String str) {
+        return str.replace("\b", "\\b").replace("\t", "\\t").replace("\n", "\\n").replace("\f", "\\f").replace("\r", "\\r");
     }
 
     private static void migrateEDIProperties(DonkeyElement properties) {
