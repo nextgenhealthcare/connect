@@ -249,12 +249,10 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                 bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (!props.isIgnoreResponse()) {
-            if (props.getResponseTimeout().length() == 0) {
-                valid = false;
-                if (highlight) {
-                    responseTimeoutField.setBackground(UIConstants.INVALID_COLOR);
-                }
+        if (props.getResponseTimeout().length() == 0) {
+            valid = false;
+            if (highlight) {
+                responseTimeoutField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         if (props.getTemplate().length() == 0) {
@@ -393,7 +391,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
         remoteAddressField.setToolTipText("<html>The DNS domain name or IP address on which to connect.</html>");
 
-        responseTimeoutField.setToolTipText("<html>The number of milliseconds the connector should wait for a response from the host after sending a message.<br/>If the End of Message byte sequence is defined, a response will be received when it is detected.<br/>If the timeout elapses, all data received at that point will be stored as the response data.</html>");
+        responseTimeoutField.setToolTipText("<html>The number of milliseconds the connector should wait whenever attempting to read from the remote socket.</html>");
 
         responseTimeoutLabel.setText("Response Timeout (ms):");
 
@@ -721,8 +719,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
     private void ignoreResponseCheckBoxActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_ignoreResponseCheckBoxActionPerformed
     {//GEN-HEADEREND:event_ignoreResponseCheckBoxActionPerformed
         boolean selected = ignoreResponseCheckBox.isSelected();
-        responseTimeoutLabel.setEnabled(!selected);
-        responseTimeoutField.setEnabled(!selected);
         processHL7ACKLabel.setEnabled(!selected);
         processHL7ACKYesRadio.setEnabled(!selected);
         processHL7ACKNoRadio.setEnabled(!selected);

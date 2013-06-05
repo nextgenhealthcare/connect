@@ -311,7 +311,7 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="responseTimeoutField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The number of milliseconds the connector should wait for a response from the host after sending a message.&lt;br/&gt;If the End of Message byte sequence is defined, a response will be received when it is detected.&lt;br/&gt;If the timeout elapses, all data received at that point will be stored as the response data.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The number of milliseconds the connector should wait whenever attempting to read from the remote socket.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="responseTimeoutLabel">
