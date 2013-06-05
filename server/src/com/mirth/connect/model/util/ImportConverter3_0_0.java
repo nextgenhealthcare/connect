@@ -1334,7 +1334,6 @@ public class ImportConverter3_0_0 {
         DonkeyElement serializationProperties = properties.addChildElement("serializationProperties");
         serializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v3.HL7V3SerializationProperties");
         serializationProperties.addChildElement("stripNamespaces").setTextContent(oldProperties.getProperty("stripNamespaces", "true"));
-        throw new UnsupportedOperationException();
     }
 
     private static void migrateNCPDPProperties(DonkeyElement properties) {
