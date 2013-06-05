@@ -468,7 +468,7 @@ public class ImportConverter3_0_0 {
         properties.setAttribute("class", "com.mirth.connect.connectors.vm.VmReceiverProperties");
         properties.removeChildren();
 
-        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), true);
+        buildResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), true);
     }
 
     private static void migrateVmDispatcherProperties(DonkeyElement properties) {
@@ -496,11 +496,9 @@ public class ImportConverter3_0_0 {
         properties.setAttribute("class", "com.mirth.connect.connectors.dimse.DICOMReceiverProperties");
         properties.removeChildren();
 
-        DonkeyElement listenerConnectorProperties = properties.addChildElement("listenerConnectorProperties");
-        listenerConnectorProperties.addChildElement("host").setTextContent(oldProperties.getProperty("host", "0.0.0.0"));
-        listenerConnectorProperties.addChildElement("port").setTextContent(oldProperties.getProperty("port", "104"));
-
-        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), false);
+        buildListenerConnectorProperties(properties.addChildElement("listenerConnectorProperties"), oldProperties.getProperty("host"), oldProperties.getProperty("port"), 104);
+        buildResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), false);
+        
         properties.addChildElement("soCloseDelay").setTextContent(oldProperties.getProperty("soclosedelay", "50"));
         properties.addChildElement("releaseTo").setTextContent(oldProperties.getProperty("releaseto", "5"));
         properties.addChildElement("requestTo").setTextContent(oldProperties.getProperty("requestto", "5"));
@@ -600,8 +598,8 @@ public class ImportConverter3_0_0 {
         properties.setAttribute("class", "com.mirth.connect.connectors.file.FileReceiverProperties");
         properties.removeChildren();
 
-        migratePollConnectorProperties(properties.addChildElement("pollConnectorProperties"), oldProperties.getProperty("pollingType"), oldProperties.getProperty("pollingTime"), oldProperties.getProperty("pollingFrequency"));
-        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), "None", true);
+        buildPollConnectorProperties(properties.addChildElement("pollConnectorProperties"), oldProperties.getProperty("pollingType"), oldProperties.getProperty("pollingTime"), oldProperties.getProperty("pollingFrequency"));
+        buildResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), "None", true);
 
         properties.addChildElement("scheme").setTextContent(oldProperties.getProperty("scheme", "file"));
         properties.addChildElement("host").setTextContent(oldProperties.getProperty("host", ""));
@@ -684,7 +682,7 @@ public class ImportConverter3_0_0 {
         properties.removeChildren();
 
         buildListenerConnectorProperties(properties.addChildElement("listenerConnectorProperties"), oldProperties.getProperty("host"), oldProperties.getProperty("port"), 80);
-        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("receiverResponse"), true);
+        buildResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("receiverResponse"), true);
 
         properties.addChildElement("bodyOnly").setTextContent(readBooleanProperty(oldProperties, "receiverBodyOnly", true));
         properties.addChildElement("responseContentType").setTextContent(oldProperties.getProperty("receiverResponseContentType", "text/plain"));
@@ -725,8 +723,8 @@ public class ImportConverter3_0_0 {
         properties.setAttribute("class", "com.mirth.connect.connectors.jdbc.DatabaseReceiverProperties");
         properties.removeChildren();
 
-        migratePollConnectorProperties(properties.addChildElement("pollConnectorProperties"), oldProperties.getProperty("pollingType"), oldProperties.getProperty("pollingTime"), oldProperties.getProperty("pollingFrequency"));
-        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"));
+        buildPollConnectorProperties(properties.addChildElement("pollConnectorProperties"), oldProperties.getProperty("pollingType"), oldProperties.getProperty("pollingTime"), oldProperties.getProperty("pollingFrequency"));
+        buildResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"));
 
         boolean useScript = readBooleanValue(oldProperties, "useScript", false);
         boolean useAck = readBooleanValue(oldProperties, "useAck", false);
@@ -840,8 +838,8 @@ public class ImportConverter3_0_0 {
         properties.setAttribute("class", "com.mirth.connect.connectors.js.JavaScriptReceiverProperties");
         properties.removeChildren();
 
-        migratePollConnectorProperties(properties.addChildElement("pollConnectorProperties"), oldProperties.getProperty("pollingType"), oldProperties.getProperty("pollingTime"), oldProperties.getProperty("pollingFrequency"));
-        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), false);
+        buildPollConnectorProperties(properties.addChildElement("pollConnectorProperties"), oldProperties.getProperty("pollingType"), oldProperties.getProperty("pollingTime"), oldProperties.getProperty("pollingFrequency"));
+        buildResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), false);
 
         properties.addChildElement("script").setTextContent(oldProperties.getProperty("script", ""));
     }
@@ -902,7 +900,7 @@ public class ImportConverter3_0_0 {
         if (readBooleanValue(oldProperties, "sendACK", true)) {
             responseValue = "Auto-generate (After source transformer)";
         }
-        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), responseValue, true);
+        buildResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), responseValue, true);
 
         DonkeyElement transmissionModeProperties = properties.addChildElement("transmissionModeProperties");
         transmissionModeProperties.setAttribute("class", "com.mirth.connect.model.transmission.framemode.FrameModeProperties");
@@ -1044,7 +1042,7 @@ public class ImportConverter3_0_0 {
         listenerConnectorProperties.addChildElement("host").setTextContent(oldProperties.getProperty("host", "0.0.0.0"));
         listenerConnectorProperties.addChildElement("port").setTextContent(oldProperties.getProperty("port", "6661"));
 
-        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), true);
+        buildResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), true);
 
         DonkeyElement transmissionModeProperties = properties.addChildElement("transmissionModeProperties");
         transmissionModeProperties.setAttribute("class", "com.mirth.connect.model.transmission.framemode.FrameModeProperties");
@@ -1110,7 +1108,7 @@ public class ImportConverter3_0_0 {
         listenerConnectorProperties.addChildElement("host").setTextContent(oldProperties.getProperty("host", "0.0.0.0"));
         listenerConnectorProperties.addChildElement("port").setTextContent(oldProperties.getProperty("port", "8081"));
 
-        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("receiverResponseValue", "None"), true);
+        buildResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("receiverResponseValue", "None"), true);
 
         properties.addChildElement("className").setTextContent(oldProperties.getProperty("receiverClassName", "com.mirth.connect.connectors.ws.DefaultAcceptMessage"));
         properties.addChildElement("serviceName").setTextContent(oldProperties.getProperty("receiverServiceName", "Mirth"));
@@ -1158,7 +1156,7 @@ public class ImportConverter3_0_0 {
         }
     }
 
-    private static void migratePollConnectorProperties(DonkeyElement properties, String type, String time, String freq) {
+    private static void buildPollConnectorProperties(DonkeyElement properties, String type, String time, String freq) {
         if (type == null) {
             type = "interval";
         }
@@ -1199,11 +1197,11 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("port").setTextContent(port);
     }
 
-    private static void migrateResponseConnectorProperties(DonkeyElement properties) {
-        migrateResponseConnectorProperties(properties, "None", false);
+    private static void buildResponseConnectorProperties(DonkeyElement properties) {
+        buildResponseConnectorProperties(properties, "None", false);
     }
 
-    private static void migrateResponseConnectorProperties(DonkeyElement properties, String responseValue, boolean autoResponseEnabled) {
+    private static void buildResponseConnectorProperties(DonkeyElement properties, String responseValue, boolean autoResponseEnabled) {
         properties.addChildElement("responseVariable").setTextContent(responseValue);
 
         DonkeyElement defaultQueueOnResponses = properties.addChildElement("defaultQueueOnResponses");
