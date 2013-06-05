@@ -75,7 +75,6 @@ public class Channel implements Startable, Stoppable, Runnable {
     private String channelId;
     private String name;
     private String serverId;
-    private String version;
     private int revision;
     private Calendar deployDate;
 
@@ -135,14 +134,6 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     public void setServerId(String serverId) {
         this.serverId = serverId;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
     }
 
     public int getRevision() {

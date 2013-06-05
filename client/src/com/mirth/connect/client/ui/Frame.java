@@ -2990,8 +2990,10 @@ public class Frame extends JXFrame {
         boolean overwrite = false;
         Channel importChannel;
 
+        // TODO check the version of the channel being imported and show a confirmation dialog as was done before (see commented code below)
+        
         try {
-            importChannel = (Channel) ObjectXMLSerializer.getInstance().fromXML(content, Channel.class);
+            importChannel = ObjectXMLSerializer.getInstance().fromXML(content, Channel.class);
         } catch (Exception e) {
             if (showAlerts) {
                 alertException(this, e.getStackTrace(), "Invalid channel file:\n" + e.getMessage());
@@ -3004,19 +3006,19 @@ public class Frame extends JXFrame {
          * Checks to see if the passed in channel version is current, and
          * prompts the user if it is not.
          */
-        if (showAlerts) {
-            int option = JOptionPane.YES_OPTION;
-
-            if (importChannel.getVersion() == null) {
-                option = JOptionPane.showConfirmDialog(this, "The channel being imported is from an unknown version of Mirth." + "\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
-            } else if (!importChannel.getVersion().equals(PlatformUI.SERVER_VERSION)) {
-                option = JOptionPane.showConfirmDialog(this, "The channel being imported is from Mirth version " + importChannel.getVersion() + ". You are using Mirth version " + PlatformUI.SERVER_VERSION + ".\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
-            }
-
-            if (option != JOptionPane.YES_OPTION) {
-                return;
-            }
-        }
+//        if (showAlerts) {
+//            int option = JOptionPane.YES_OPTION;
+//
+//            if (importChannel.getVersion() == null) {
+//                option = JOptionPane.showConfirmDialog(this, "The channel being imported is from an unknown version of Mirth." + "\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
+//            } else if (!importChannel.getVersion().equals(PlatformUI.SERVER_VERSION)) {
+//                option = JOptionPane.showConfirmDialog(this, "The channel being imported is from Mirth version " + importChannel.getVersion() + ". You are using Mirth version " + PlatformUI.SERVER_VERSION + ".\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
+//            }
+//
+//            if (option != JOptionPane.YES_OPTION) {
+//                return;
+//            }
+//        }
 
         try {
             String channelName = importChannel.getName();
@@ -3059,7 +3061,6 @@ public class Frame extends JXFrame {
 
             }
 
-            importChannel.setVersion(mirthClient.getVersion());
             channels.put(importChannel.getId(), importChannel);
         } catch (ClientException e) {
             alertException(this, e.getStackTrace(), e.getMessage());
@@ -3317,7 +3318,7 @@ public class Frame extends JXFrame {
 
         if (content != null) {
             try {
-                channelEditPanel.importConnector((Connector) ObjectXMLSerializer.getInstance().fromXML(content, Connector.class));
+                channelEditPanel.importConnector(ObjectXMLSerializer.getInstance().fromXML(content, Connector.class));
             } catch (Exception e) {
                 alertException(this, e.getStackTrace(), e.getMessage());
             }
@@ -4273,7 +4274,7 @@ public class Frame extends JXFrame {
                 ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 boolean append = false;
 
-                List<CodeTemplate> newCodeTemplates = (List<CodeTemplate>) serializer.fromXML(content, CodeTemplate.class);
+                List<CodeTemplate> newCodeTemplates = serializer.listFromXML(content, CodeTemplate.class);
                 
                 if (codeTemplates != null && codeTemplates.size() > 0) {
                     if (alertOption(this, "Would you like to append these code templates to the existing code templates?")) {

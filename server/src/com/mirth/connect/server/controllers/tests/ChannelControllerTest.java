@@ -48,7 +48,6 @@ public class ChannelControllerTest extends TestCase {
             sampleChannel.setId(configurationController.generateGuid());
             sampleChannel.setName("Channel" + i);
             sampleChannel.setDescription("This is a sample channel");
-            sampleChannel.setVersion(configurationController.getServerVersion());
             sampleChannel.setRevision(0);
 
             sampleChannel.setLastModified(Calendar.getInstance());

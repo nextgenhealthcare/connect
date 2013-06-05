@@ -732,7 +732,7 @@ public class CommandLineInterface {
         File fXml = new File(path);
         
         try {
-            client.updateCodeTemplates((List<CodeTemplate>) ObjectXMLSerializer.getInstance().fromXML(FileUtils.readFileToString(fXml), CodeTemplate.class));
+            client.updateCodeTemplates(ObjectXMLSerializer.getInstance().listFromXML(FileUtils.readFileToString(fXml), CodeTemplate.class));
             out.println("Code Templates Import Complete");
         } catch (IOException e) {
             error("cannot read " + path, e);
@@ -1280,7 +1280,7 @@ public class CommandLineInterface {
             return;
         }
 
-        Channel importChannel = (Channel) ObjectXMLSerializer.getInstance().fromXML(channelXML, Channel.class);
+        Channel importChannel = ObjectXMLSerializer.getInstance().fromXML(channelXML, Channel.class);
         String channelName = importChannel.getName();
         String tempId = client.getGuid();
 
@@ -1311,7 +1311,6 @@ public class CommandLineInterface {
 
         }
 
-        importChannel.setVersion(client.getVersion());
         client.updateChannel(importChannel, true);
         out.println("Channel '" + channelName + "' imported successfully.");
     }

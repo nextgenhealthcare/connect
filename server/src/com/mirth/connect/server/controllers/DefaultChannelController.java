@@ -224,7 +224,6 @@ public class DefaultChannelController extends ChannelController {
         }
 
         ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-        channel.setVersion(configurationController.getServerVersion());
 
         String sourceVersion = extensionController.getConnectorMetaDataByTransportName(channel.getSourceConnector().getTransportName()).getPluginVersion();
         channel.getSourceConnector().setVersion(sourceVersion);

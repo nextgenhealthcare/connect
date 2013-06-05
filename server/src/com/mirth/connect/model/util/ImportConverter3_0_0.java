@@ -27,7 +27,7 @@ import org.w3c.dom.NodeList;
 
 import com.mirth.connect.donkey.util.DateParser;
 import com.mirth.connect.donkey.util.DateParser.DateParserException;
-import com.mirth.connect.donkey.util.migration.DonkeyElement;
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.CodeTemplate;
@@ -36,6 +36,7 @@ import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.alert.Alert;
 import com.mirth.connect.util.XmlUtil;
 
 public class ImportConverter3_0_0 {
@@ -61,46 +62,46 @@ public class ImportConverter3_0_0 {
             return document;
         }
 
-        DocumentSerializer documentSerializer = new DocumentSerializer();
-        logger.debug("Converting serialized object with expected class \"" + expectedClass.getName() + "\" to 3.0.0 structure");
+        DonkeyElement root = new DonkeyElement(document.getDocumentElement());
 
-        if (expectedClass == Channel.class) {
-            document = documentSerializer.fromXML(ImportConverter.convertChannelString(objectXml));
-            migrateChannel(new MirthElement(document.getDocumentElement()));
-        } else if (expectedClass == Connector.class) {
-            Element root = document.getDocumentElement();
+        if (root.getNodeName().equals("list") && (expectedClass == Connector.class || expectedClass == Alert.class)) {
+            NodeList childNodes = root.getChildNodes();
+            int childCount = childNodes.getLength();
 
-            if (root.getNodeName().equals("list")) {
-                NodeList listItems = root.getChildNodes();
-                int itemCount = listItems.getLength();
+            for (int i = 0; i < childCount; i++) {
+                Node node = childNodes.item(i);
 
-                for (int i = (itemCount - 1); i >= 0; i--) {
-                    if (listItems.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                        Element element = (Element) listItems.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE && !((Element) node).hasAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME)) {
+                    Element child = (Element) node;
 
-                        if (!element.hasAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME) && (element.getNodeName().equals("connector") || element.getNodeName().equals("com.mirth.connect.model.Connector") || element.getNodeName().equals("com.webreach.mirth.model.Connector"))) {
-                            Element convertedConnector = XmlUtil.elementFromXml(ImportConverter.convertConnector(XmlUtil.elementToXml(element)));
-                            migrateConnector(new MirthElement(convertedConnector), null);
-                            root.replaceChild(document.importNode(convertedConnector, true), element);
-                        }
+                    if (expectedClass == Connector.class) {
+                        Element convertedConnector = XmlUtil.elementFromXml(ImportConverter.convertConnector(XmlUtil.elementToXml(child)));
+                        migrateConnector(new DonkeyElement(convertedConnector), null);
+                        root.replaceChild(document.importNode(convertedConnector, true), child);
+                    } else if (expectedClass == Alert.class) {
+                        migrateAlert(new DonkeyElement(child));
                     }
                 }
-            } else {
-                document = documentSerializer.fromXML(ImportConverter.convertConnector(objectXml));
-                migrateConnector(new MirthElement(document.getDocumentElement()), null);
             }
+        } else if (expectedClass == Channel.class) {
+            document = new DocumentSerializer().fromXML(ImportConverter.convertChannelString(objectXml));
+            migrateChannel(new DonkeyElement(document.getDocumentElement()));
+        } else if (expectedClass == Connector.class) {
+            document = new DocumentSerializer().fromXML(ImportConverter.convertConnector(objectXml));
+            migrateConnector(new DonkeyElement(document.getDocumentElement()), null);
+        } else if (expectedClass == Alert.class) {
+            migrateAlert(root);
         } else if (expectedClass == ChannelProperties.class) {
-            DonkeyElement root = new MirthElement(document.getDocumentElement());
             migrateChannelProperties(root);
             root.setNodeName("channelProperties");
         } else if (expectedClass == CodeTemplate.class) {
             document = ImportConverter.convertCodeTemplates(objectXml);
-            migrateCodeTemplate(new MirthElement(document.getDocumentElement()));
+            migrateCodeTemplate(new DonkeyElement(document.getDocumentElement()));
         } else if (expectedClass == ServerConfiguration.class) {
             document = ImportConverter.convertServerConfiguration(objectXml);
-            migrateServerConfiguration(new MirthElement(document.getDocumentElement()));
+            migrateServerConfiguration(new DonkeyElement(document.getDocumentElement()));
         } else if (expectedClass == Filter.class) {
-            document = documentSerializer.fromXML(ImportConverter.convertFilter(objectXml));
+            document = new DocumentSerializer().fromXML(ImportConverter.convertFilter(objectXml));
             // no 3.0.0 conversion is needed for the Filter class since it didn't change at all in 3.0.0
         }
 
@@ -109,8 +110,6 @@ public class ImportConverter3_0_0 {
 
     private static void migrateChannel(DonkeyElement channel) {
         logger.debug("Migrating channel to version " + VERSION_STRING);
-        channel.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
-//        channel.getChildElement("version").setTextContent(VERSION_STRING);
         channel.removeChild("version"); // TODO is it safe to remove the version property from the Channel class and other classes?
 
         // migrate channel properties
@@ -144,8 +143,6 @@ public class ImportConverter3_0_0 {
     private static void migrateConnector(DonkeyElement connector, Integer metaDataId) {
         logger.debug("Migrating connector");
 
-        connector.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
-
         DonkeyElement version = connector.getChildElement("version");
 
         if (version == null) {
@@ -162,61 +159,53 @@ public class ImportConverter3_0_0 {
         } else if (mode.equals("SOURCE")) {
             connector.addChildElement("metaDataId").setTextContent("0");
         }
-
-        // convert transportName
-        DonkeyElement transportName = connector.getChildElement("transportName");
-
-        if (transportName.getTextContent().equals("JMS Reader")) {
-            transportName.setTextContent("JMS Listener");
-        } else if (transportName.getTextContent().equals("JMS Writer")) {
-            transportName.setTextContent("JMS Sender");
-        } else if (transportName.getTextContent().equals("LLP Listener")) {
-            transportName.setTextContent("TCP Listener");
-        } else if (transportName.getTextContent().equals("LLP Sender")) {
-            transportName.setTextContent("TCP Sender");
-        }
-
+        
         // add a response transformer
         if (mode.equals("DESTINATION")) {
             createDefaultTransformer(connector.addChildElement("responseTransformer"));
         }
 
         // convert connector properties
+        DonkeyElement transportName = connector.getChildElement("transportName");
+        String connectorName = transportName.getTextContent();
         DonkeyElement properties = connector.getChildElement("properties");
-        String dataType = readPropertiesElement(properties).getProperty("DataType");
-        DonkeyElement transformer = connector.getChildElement("transformer");
 
-        if (dataType.equals("Channel Reader")) {
+        if (connectorName.equals("Channel Reader")) {
             migrateVmReceiverProperties(properties);
-        } else if (dataType.equals("Channel Writer")) {
+        } else if (connectorName.equals("Channel Writer")) {
             migrateVmDispatcherProperties(properties);
-        } else if (dataType.equals("Database Reader")) {
+        } else if (connectorName.equals("Database Reader")) {
             migrateDatabaseReceiverProperties(properties);
-        } else if (dataType.equals("Database Writer")) {
+        } else if (connectorName.equals("Database Writer")) {
             migrateDatabaseDispatcherProperties(properties);
-        } else if (dataType.equals("DICOM Listener")) {
+        } else if (connectorName.equals("DICOM Listener")) {
             migrateDICOMReceiverProperties(properties);
-        } else if (dataType.equals("DICOM Sender")) {
+        } else if (connectorName.equals("DICOM Sender")) {
             migrateDICOMDispatcherProperties(properties);
-        } else if (dataType.equals("Document Writer")) {
+        } else if (connectorName.equals("Document Writer")) {
             migrateDocumentDispatcherProperties(properties);
-        } else if (dataType.equals("File Reader")) {
+        } else if (connectorName.equals("File Reader")) {
             migrateFileReceiverProperties(properties);
-        } else if (dataType.equals("File Writer")) {
+        } else if (connectorName.equals("File Writer")) {
             migrateFileDispatcherProperties(properties);
-        } else if (dataType.equals("HTTP Listener")) {
+        } else if (connectorName.equals("HTTP Listener")) {
             migrateHttpReceiverProperties(properties);
-        } else if (dataType.equals("HTTP Sender")) {
+        } else if (connectorName.equals("HTTP Sender")) {
             migrateHttpDispatcherProperties(properties);
-        } else if (dataType.equals("JavaScript Reader")) {
+        } else if (connectorName.equals("JavaScript Reader")) {
             migrateJavaScriptReceiverProperties(properties);
-        } else if (dataType.equals("JavaScript Writer")) {
+        } else if (connectorName.equals("JavaScript Writer")) {
             migrateJavaScriptDispatcherProperties(properties);
-        } else if (dataType.equals("JMS Reader")) {
+        } else if (connectorName.equals("JMS Reader")) {
+            transportName.setTextContent("JMS Listener");
             migrateJmsReceiverProperties(properties);
-        } else if (dataType.equals("JMS Writer")) {
+        } else if (connectorName.equals("JMS Writer")) {
+            transportName.setTextContent("JMS Sender");
             migrateJmsDispatcherProperties(properties);
-        } else if (dataType.equals("LLP Listener")) {
+        } else if (connectorName.equals("LLP Listener")) {
+            transportName.setTextContent("TCP Listener");
+            DonkeyElement transformer = connector.getChildElement("transformer");
+            
             // Some properties have been moved from the LLP Listener connector to the HL7 v2.x data type
             if (transformer.getChildElement("inboundProtocol").getTextContent().equals("HL7V2")) {
                 Properties connectorProperties = readPropertiesElement(properties);
@@ -237,22 +226,23 @@ public class ImportConverter3_0_0 {
             }
 
             migrateLLPListenerProperties(properties);
-        } else if (dataType.equals("LLP Sender")) {
+        } else if (connectorName.equals("LLP Sender")) {
+            transportName.setTextContent("TCP Sender");
             migrateLLPSenderProperties(properties);
-        } else if (dataType.equals("TCP Listener")) {
+        } else if (connectorName.equals("TCP Listener")) {
             migrateTCPListenerProperties(properties);
-        } else if (dataType.equals("TCP Sender")) {
+        } else if (connectorName.equals("TCP Sender")) {
             migrateTCPSenderProperties(properties);
-        } else if (dataType.equals("SMTP Sender")) {
+        } else if (connectorName.equals("SMTP Sender")) {
             migrateSmtpDispatcherProperties(properties);
-        } else if (dataType.equals("Web Service Listener")) {
+        } else if (connectorName.equals("Web Service Listener")) {
             migrateWebServiceListenerProperties(properties);
-        } else if (dataType.equals("Web Service Sender")) {
+        } else if (connectorName.equals("Web Service Sender")) {
             migrateWebServiceSenderProperties(properties);
         }
-
+        
         // convert transformer (no conversion needed for filter since it didn't change at all in 3.0.0)
-        migrateTransformer(transformer);
+        migrateTransformer(connector.getChildElement("transformer"));
 
         // default waitForPrevious to true
         connector.addChildElement("waitForPrevious").setTextContent("true");
@@ -271,8 +261,6 @@ public class ImportConverter3_0_0 {
 
     private static void migrateChannelProperties(DonkeyElement properties) {
         logger.debug("Migrating channel properties");
-
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         Properties oldProperties = readPropertiesElement(properties);
         properties.removeChildren();
@@ -306,17 +294,15 @@ public class ImportConverter3_0_0 {
     }
 
     private static void migrateCodeTemplate(DonkeyElement codeTemplate) {
-        codeTemplate.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         codeTemplate.removeChild("version");
     }
 
     private static void migrateAlert(DonkeyElement alert) {
         // TODO
+        throw new UnsupportedOperationException();
     }
 
     private static void migrateServerConfiguration(DonkeyElement serverConfiguration) {
-        serverConfiguration.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
-
         DonkeyElement channels = serverConfiguration.getChildElement("channels");
 
         if (channels != null) {
@@ -366,7 +352,6 @@ public class ImportConverter3_0_0 {
 
     private static void migrateTransformer(DonkeyElement transformer) {
         logger.debug("Migrating Transformer");
-        transformer.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         // TODO make sure that protocol/data type names haven't changed in 3.0.0
         DonkeyElement inboundDataType = transformer.getChildElement("inboundProtocol");
@@ -376,31 +361,35 @@ public class ImportConverter3_0_0 {
 
         DonkeyElement inboundProperties = transformer.getChildElement("inboundProperties");
         DonkeyElement outboundProperties = transformer.getChildElement("outboundProperties");
-
+        
         /*
          * We set the inbound and outbound HL7v2 segment delimiters here because each property set
          * is dependent on the other. If at least one of them has "Convert LF to CR" enabled, then
          * it can affect the value of the segment delimiters set on both elements.
          */
         if (inboundDataType.getTextContent().equals("HL7V2") || outboundDataType.getTextContent().equals("HL7V2")) {
-            boolean convertLFtoCRInbound = readBooleanValue(readPropertiesElement(inboundProperties), "convertLFtoCR", false);
-            boolean convertLFtoCROutbound = readBooleanValue(readPropertiesElement(outboundProperties), "convertLFtoCR", false);
+            boolean convertLFtoCRInbound = (inboundProperties == null) ? false : readBooleanValue(readPropertiesElement(inboundProperties), "convertLFtoCR", false);
+            boolean convertLFtoCROutbound = (outboundProperties == null) ? false : readBooleanValue(readPropertiesElement(outboundProperties), "convertLFtoCR", false);
 
             if (inboundDataType.getTextContent().equals("HL7V2") && inboundProperties != null) {
                 setHL7v2SegmentDelimiters(inboundProperties, convertLFtoCRInbound, convertLFtoCROutbound);
             }
+            
             if (outboundDataType.getTextContent().equals("HL7V2") && outboundProperties != null) {
                 setHL7v2SegmentDelimiters(outboundProperties, convertLFtoCRInbound, convertLFtoCROutbound);
             }
         }
-
-        if (inboundProperties != null) {
-            migrateDataTypeProperties(inboundProperties, inboundDataType.getTextContent());
+        
+        if (inboundProperties == null) {
+            inboundProperties = transformer.addChildElement("inboundProperties");
         }
 
-        if (outboundProperties != null) {
-            migrateDataTypeProperties(outboundProperties, outboundDataType.getTextContent());
+        if (outboundProperties == null) {
+            outboundProperties = transformer.addChildElement("outboundProperties");
         }
+        
+        migrateDataTypeProperties(inboundProperties, inboundDataType.getTextContent());
+        migrateDataTypeProperties(outboundProperties, outboundDataType.getTextContent());
 
         // Rename EDI and X12 data types to "EDI/X12"
         if (inboundDataType.getTextContent().equals("EDI") || inboundDataType.getTextContent().equals("X12")) {
@@ -466,6 +455,8 @@ public class ImportConverter3_0_0 {
             migrateX12Properties(properties);
         } else if (dataType.equals("XML")) {
             migrateXMLProperties(properties);
+        } else {
+            logger.error("Unrecognized data type: " + dataType);
         }
     }
 
@@ -475,7 +466,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.vm.VmReceiverProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), true);
     }
@@ -485,7 +475,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.vm.VmDispatcherProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
 
@@ -496,6 +485,7 @@ public class ImportConverter3_0_0 {
         }
 
         properties.addChildElement("channelId").setTextContent(host);
+        properties.addChildElement("responseTimeout").setTextContent("10000");
         properties.addChildElement("channelTemplate").setTextContent(oldProperties.getProperty("template", "${message.encodedData}"));
     }
 
@@ -504,7 +494,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.dimse.DICOMReceiverProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         DonkeyElement listenerConnectorProperties = properties.addChildElement("listenerConnectorProperties");
         listenerConnectorProperties.addChildElement("host").setTextContent(oldProperties.getProperty("host", "0.0.0.0"));
@@ -548,7 +537,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.dimse.DICOMDispatcherProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
 
@@ -595,7 +583,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.doc.DocumentDispatcherProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
         properties.addChildElement("host").setTextContent(oldProperties.getProperty("host", ""));
@@ -611,7 +598,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.file.FileReceiverProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         migratePollConnectorProperties(properties.addChildElement("pollConnectorProperties"), oldProperties.getProperty("pollingType"), oldProperties.getProperty("pollingTime"), oldProperties.getProperty("pollingFrequency"));
         migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), "None", true);
@@ -669,7 +655,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.file.FileDispatcherProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
 
@@ -696,7 +681,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.http.HttpReceiverProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         buildListenerConnectorProperties(properties.addChildElement("listenerConnectorProperties"), oldProperties.getProperty("host"), oldProperties.getProperty("port"), 80);
         migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("receiverResponse"), true);
@@ -715,7 +699,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.http.HttpDispatcherProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), readBooleanProperty(oldProperties, "usePersistentQueues"), readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), null);
 
@@ -736,19 +719,58 @@ public class ImportConverter3_0_0 {
     }
 
     private static void migrateDatabaseReceiverProperties(DonkeyElement properties) {
-        // TODO
+        logger.debug("Migrating DatabaseReceiverProperties");
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.connectors.jdbc.DatabaseReceiverProperties");
+        properties.removeChildren();
+
+        migratePollConnectorProperties(properties.addChildElement("pollConnectorProperties"), oldProperties.getProperty("pollingType"), oldProperties.getProperty("pollingTime"), oldProperties.getProperty("pollingFrequency"));
+        migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"));
+
+        boolean useScript = readBooleanValue(oldProperties, "useScript", false);
+        boolean useAck = readBooleanValue(oldProperties, "useAck", false);
+        
+        properties.addChildElement("driver").setTextContent(oldProperties.getProperty("driver", "Please Select One"));
+        properties.addChildElement("url").setTextContent(oldProperties.getProperty("URL", ""));
+        properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", ""));
+        properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", ""));
+        properties.addChildElement("select").setTextContent(oldProperties.getProperty(useScript ? "script": "query", ""));
+        properties.addChildElement("update").setTextContent(oldProperties.getProperty(useScript ? "ackScript": "ack", ""));
+        properties.addChildElement("useScript").setTextContent(Boolean.toString(useScript));
+        properties.addChildElement("cacheResults").setTextContent("true");
+        properties.addChildElement("keepConnectionOpen").setTextContent("true");
+        properties.addChildElement("updateMode").setTextContent(useAck ? "3" : "1");
+        properties.addChildElement("retryCount").setTextContent("3");
+        properties.addChildElement("retryInterval").setTextContent("10000");
+        properties.addChildElement("fetchSize").setTextContent("1000");
     }
 
     private static void migrateDatabaseDispatcherProperties(DonkeyElement properties) {
-        // TODO
+        logger.debug("Migrating DatabaseDispatcherProperties");
+        Properties oldProperties = readPropertiesElement(properties);
+        properties.setAttribute("class", "com.mirth.connect.connectors.jdbc.DatabaseDispatcherProperties");
+        properties.removeChildren();
+        
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
+        
+        boolean useScript = readBooleanValue(oldProperties, "useScript", false);
+        
+        properties.addChildElement("driver").setTextContent(oldProperties.getProperty("driver", "Please Select One"));
+        properties.addChildElement("url").setTextContent(oldProperties.getProperty("URL", ""));
+        properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", ""));
+        properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", ""));
+        properties.addChildElement("query").setTextContent(oldProperties.getProperty(useScript ? "script" : "query", ""));
+        properties.addChildElement("useScript").setTextContent(Boolean.toString(useScript));
     }
 
     private static void migrateJmsReceiverProperties(DonkeyElement properties) {
         // TODO
+        throw new UnsupportedOperationException();
     }
 
     private static void migrateJmsDispatcherProperties(DonkeyElement properties) {
         // TODO
+        throw new UnsupportedOperationException();
     }
 
     private static void migrateJavaScriptReceiverProperties(DonkeyElement properties) {
@@ -757,7 +779,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.js.JavaScriptReceiverProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         migratePollConnectorProperties(properties.addChildElement("pollConnectorProperties"), oldProperties.getProperty("pollingType"), oldProperties.getProperty("pollingTime"), oldProperties.getProperty("pollingFrequency"));
         migrateResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), false);
@@ -771,7 +792,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.js.JavaScriptDispatcherProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
 
@@ -784,7 +804,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.smtp.SmtpDispatcherProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
 
@@ -814,7 +833,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.tcp.TcpReceiverProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         DonkeyElement listenerConnectorProperties = properties.addChildElement("listenerConnectorProperties");
         listenerConnectorProperties.addChildElement("host").setTextContent(oldProperties.getProperty("host", "0.0.0.0"));
@@ -916,7 +934,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.tcp.TcpDispatcherProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), readBooleanProperty(oldProperties, "usePersistentQueues"), readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), oldProperties.getProperty("maxRetryCount"));
 
@@ -962,7 +979,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.tcp.TcpReceiverProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         DonkeyElement listenerConnectorProperties = properties.addChildElement("listenerConnectorProperties");
         listenerConnectorProperties.addChildElement("host").setTextContent(oldProperties.getProperty("host", "0.0.0.0"));
@@ -995,7 +1011,6 @@ public class ImportConverter3_0_0 {
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.tcp.TcpDispatcherProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), readBooleanProperty(oldProperties, "usePersistentQueues"), readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), oldProperties.getProperty("maxRetryCount"));
 
@@ -1105,7 +1120,6 @@ public class ImportConverter3_0_0 {
             }
         }
 
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         properties.addChildElement("pollingType").setTextContent(type);
         properties.addChildElement("pollingHour").setTextContent(hour);
         properties.addChildElement("pollingMinute").setTextContent(minute);
@@ -1121,13 +1135,15 @@ public class ImportConverter3_0_0 {
             port = Integer.toString(defaultPort);
         }
 
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         properties.addChildElement("host").setTextContent(host);
         properties.addChildElement("port").setTextContent(port);
     }
 
+    private static void migrateResponseConnectorProperties(DonkeyElement properties) {
+        migrateResponseConnectorProperties(properties, "None", false);
+    }
+    
     private static void migrateResponseConnectorProperties(DonkeyElement properties, String responseValue, boolean autoResponseEnabled) {
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         properties.addChildElement("responseVariable").setTextContent(responseValue);
 
         DonkeyElement defaultQueueOnResponses = properties.addChildElement("defaultQueueOnResponses");
@@ -1169,7 +1185,6 @@ public class ImportConverter3_0_0 {
             retryCount = "0";
         }
 
-        queueConnectorProperties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         queueConnectorProperties.addChildElement("queueEnabled").setTextContent(queueEnabled);
         queueConnectorProperties.addChildElement("sendFirst").setTextContent("false");
         queueConnectorProperties.addChildElement("retryIntervalMillis").setTextContent(reconnectInterval);
@@ -1180,6 +1195,7 @@ public class ImportConverter3_0_0 {
 
     private static void migrateDelimitedProperties(DonkeyElement properties) {
         // TODO
+        throw new UnsupportedOperationException();
     }
 
     private static void migrateEDIProperties(DonkeyElement properties) {
@@ -1198,16 +1214,14 @@ public class ImportConverter3_0_0 {
 
     private static void migrateHL7v2Properties(DonkeyElement properties) {
         /*
-         * Note: 'properties' may be a blank element (when this is called from
-         * createDefaultTransformer()). In that case it should be sure to set the appropriate
-         * default values for version 3.0.0.
+         * Note: 'properties' may be a blank element. In that case it should be sure to set the
+         * appropriate default values for version 3.0.0.
          */
 
         logger.debug("Migrating HL7v2DataTypeProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v2.HL7v2DataTypeProperties");
         properties.removeChildren();
-        properties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
 
         // If the data type was HL7 v2.x we set these two properties earlier, so retrieve them now
         String inboundSegmentDelimiter = oldProperties.getProperty("inboundSegmentDelimiter", "\\r\\n|\\r|\\n");
@@ -1215,7 +1229,6 @@ public class ImportConverter3_0_0 {
 
         DonkeyElement serializationProperties = properties.addChildElement("serializationProperties");
         serializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v2.HL7v2SerializationProperties");
-        serializationProperties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         serializationProperties.addChildElement("handleRepetitions").setTextContent(oldProperties.getProperty("handleRepetitions", "false"));
         serializationProperties.addChildElement("handleSubcomponents").setTextContent(oldProperties.getProperty("handleSubcomponents", "false"));
         serializationProperties.addChildElement("useStrictParser").setTextContent(oldProperties.getProperty("useStrictParser", "false"));
@@ -1224,14 +1237,12 @@ public class ImportConverter3_0_0 {
         serializationProperties.addChildElement("segmentDelimiter").setTextContent(inboundSegmentDelimiter);
 
         DonkeyElement deserializationProperties = properties.addChildElement("deserializationProperties");
-        deserializationProperties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         deserializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v2.HL7v2DeserializationProperties");
         deserializationProperties.addChildElement("useStrictParser").setTextContent(oldProperties.getProperty("useStrictParser", "false"));
         deserializationProperties.addChildElement("useStrictValidation").setTextContent(oldProperties.getProperty("useStrictValidation", "false"));
         deserializationProperties.addChildElement("segmentDelimiter").setTextContent(outboundSegmentDelimiter);
 
         DonkeyElement responseGenerationProperties = properties.addChildElement("responseGenerationProperties");
-        responseGenerationProperties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         responseGenerationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v2.HL7v2ResponseGenerationProperties");
         responseGenerationProperties.addChildElement("segmentDelimiter").setTextContent(outboundSegmentDelimiter);
 
@@ -1248,7 +1259,6 @@ public class ImportConverter3_0_0 {
         responseGenerationProperties.addChildElement("msh15ACKAccept").setTextContent(oldProperties.getProperty("msh15ACKAccept", "false"));
 
         DonkeyElement responseValidationProperties = properties.addChildElement("responseValidationProperties");
-        responseValidationProperties.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         responseValidationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v2.HL7v2ResponseValidationProperties");
         responseValidationProperties.addChildElement("successfulACKCode").setTextContent("AA");
         responseValidationProperties.addChildElement("errorACKCode").setTextContent("AE");
@@ -1264,6 +1274,7 @@ public class ImportConverter3_0_0 {
         DonkeyElement serializationProperties = properties.addChildElement("serializationProperties");
         serializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v3.HL7V3SerializationProperties");
         serializationProperties.addChildElement("stripNamespaces").setTextContent(oldProperties.getProperty("stripNamespaces", "true"));
+        throw new UnsupportedOperationException();
     }
 
     private static void migrateNCPDPProperties(DonkeyElement properties) {
@@ -1312,7 +1323,6 @@ public class ImportConverter3_0_0 {
     }
 
     private static void createDefaultTransformer(DonkeyElement transformer) {
-        transformer.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         transformer.addChildElement("steps");
         transformer.addChildElement("inboundDataType").setTextContent("HL7V2");
         transformer.addChildElement("outboundDataType").setTextContent("HL7V2");

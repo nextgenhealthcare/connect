@@ -68,7 +68,7 @@ import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.commons.encryption.Output;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.util.migration.DonkeyElement;
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.DatabaseSettings;
 import com.mirth.connect.model.DriverInfo;
@@ -82,7 +82,6 @@ import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.model.util.MirthElement;
 import com.mirth.connect.server.mybatis.KeyValuePair;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.DatabaseUtil;
@@ -736,7 +735,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                  * (MIRTH-2552)
                  */
                 Document document = new DocumentSerializer().fromXML(xml);
-                DonkeyElement root = new MirthElement(document.getDocumentElement());
+                DonkeyElement root = new DonkeyElement(document.getDocumentElement());
                 DonkeyElement keyRep = root.getChildElement("java.security.KeyRep");
 
                 if (keyRep != null) {

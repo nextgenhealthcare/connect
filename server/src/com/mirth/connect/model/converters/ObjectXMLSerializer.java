@@ -12,6 +12,8 @@ package com.mirth.connect.model.converters;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -131,7 +133,31 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         return deserialize(new StringReader(source));
     }
     
-    public Object fromXML(String source, Class<?> expectedClass) {
+    /**
+     * Deserializes a source XML string and returns an object of the expectedClass type.
+     */
+    public <T> T fromXML(String source, Class<T> expectedClass) {
+        return (T) doFromXML(source, expectedClass);
+    }
+
+    /**
+     * Deserializes a source XML string and returns a List of objects of the expectedListItemClass
+     * type. If the source xml string represents a single object, then a list with that single
+     * object will be returned.
+     */
+    public <T> List<T> listFromXML(String source, Class<T> expectedListItemClass) {
+        Object object = doFromXML(source, expectedListItemClass);
+        
+        if (!(object instanceof List<?>)) {
+            List<T> objectList = new ArrayList<T>();
+            objectList.add((T) object);
+            return objectList;
+        }
+        
+        return (List<T>) object;
+    }
+
+    private Object doFromXML(String source, Class<?> expectedClass) {
         try {
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(source)));
 

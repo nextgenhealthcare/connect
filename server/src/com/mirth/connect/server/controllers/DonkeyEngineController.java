@@ -448,7 +448,6 @@ public class DonkeyEngineController implements EngineController {
         channel.setName(model.getName());
         channel.setEnabled(model.isEnabled());
         channel.setRevision(model.getRevision());
-        channel.setVersion(model.getVersion());
         channel.setInitialState(channelProperties.isInitialStateStarted() ? ChannelState.STARTED : ChannelState.STOPPED);
         channel.setStorageSettings(storageSettings);
         channel.setMetaDataColumns(channelProperties.getMetaDataColumns());

@@ -307,7 +307,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         if (content != null) {
             try {
-                ServerConfiguration configuration = (ServerConfiguration) ObjectXMLSerializer.getInstance().fromXML(content, ServerConfiguration.class);
+                ServerConfiguration configuration = ObjectXMLSerializer.getInstance().fromXML(content, ServerConfiguration.class);
 
                 if (getFrame().alertOption(this, "Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels,\nalerts, server properties, and plugin properties.")) {
                     try {

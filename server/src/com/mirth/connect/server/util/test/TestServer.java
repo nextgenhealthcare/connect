@@ -58,7 +58,6 @@ public class TestServer {
         Channel channel = new Channel();
         channel.setId("testchannel");
         channel.setName("testchannel");
-        channel.setVersion("0");
         channel.setLastModified(Calendar.getInstance());
         channel.setRevision(0);
         channel.setSourceConnector(sourceConnector);

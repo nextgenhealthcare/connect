@@ -9,7 +9,6 @@
 		<result property='nextMetaDataId' column='NEXT_METADATA_ID' />
 		<result property='description' column='DESCRIPTION' />
 		<result property='enabled' column='IS_ENABLED' />
-		<result property='version' column='VERSION' />
 		<result property='revision' column='REVISION' />
 		<result property='lastModified' column='LAST_MODIFIED' />
 		<result property='sourceConnector' column='SOURCE_CONNECTOR' />
@@ -58,12 +57,12 @@
 	<insert id='insertChannel' parameterType='com.mirth.connect.model.Channel'>
 		INSERT INTO
 		CHANNEL (ID,
-		NAME, NEXT_METADATA_ID, DESCRIPTION, IS_ENABLED, VERSION, REVISION, LAST_MODIFIED,
+		NAME, NEXT_METADATA_ID, DESCRIPTION, IS_ENABLED, REVISION, LAST_MODIFIED,
 		SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES,
 		PREPROCESSING_SCRIPT, POSTPROCESSING_SCRIPT, DEPLOY_SCRIPT,
 		SHUTDOWN_SCRIPT)
 		VALUES (#{id}, #{name}, #{nextMetaDataId}, #{description}, #{enabled},
-		#{version}, #{revision}, #{lastModified}, #{sourceConnector},
+		#{revision}, #{lastModified}, #{sourceConnector},
 		#{destinationConnectors}, #{properties}, #{preprocessingScript},
 		#{postprocessingScript}, #{deployScript}, #{shutdownScript})
 	</insert>
@@ -74,7 +73,6 @@
 		NEXT_METADATA_ID = #{nextMetaDataId},
 		DESCRIPTION = #{description},
 		IS_ENABLED = #{enabled},
-		VERSION = #{version},
 		REVISION = #{revision},
 		LAST_MODIFIED = #{lastModified},
 		SOURCE_CONNECTOR = #{sourceConnector},

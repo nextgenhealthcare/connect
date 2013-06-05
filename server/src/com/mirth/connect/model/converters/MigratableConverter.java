@@ -8,9 +8,8 @@ import java.util.ListIterator;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.util.migration.DonkeyElement;
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
-import com.mirth.connect.model.util.MirthElement;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.converters.reflection.ReflectionConverter;
@@ -41,13 +40,17 @@ public class MigratableConverter extends ReflectionConverter {
 
     @Override
     public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
-        writer.addAttribute(versionAttributeName, currentVersion);
+        if (context.get("wroteDocumentElement") == null) {
+            context.put("wroteDocumentElement", true);
+            writer.addAttribute(versionAttributeName, currentVersion);
+        }
+        
         super.marshal(value, writer, context);
     }
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        DonkeyElement element = new MirthElement((org.w3c.dom.Element) ((DocumentReader) reader).getCurrent());
+        DonkeyElement element = new DonkeyElement((org.w3c.dom.Element) ((DocumentReader) reader).getCurrent());
         logger.debug("Unmarshalling element: " + element.getNodeName());
 
         if (element.hasAttribute(versionAttributeName) && compareVersions(element.getAttribute(versionAttributeName), currentVersion) < 0) {

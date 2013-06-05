@@ -1,4 +1,4 @@
-package com.mirth.connect.model.util;
+package com.mirth.connect.donkey.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,36 +6,36 @@ import java.util.List;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.TypeInfo;
 import org.w3c.dom.UserDataHandler;
 
-import com.mirth.connect.donkey.util.migration.DonkeyElement;
-
-public class MirthElement implements DonkeyElement {
+/**
+ * Represents a DOM document element. Implements additional convenience methods beyond what is defined by the org.w3c.dom.Element interface.
+ */
+public class DonkeyElement implements Element {
     private org.w3c.dom.Element element;
 
-    public MirthElement(org.w3c.dom.Element element) {
+    public DonkeyElement(org.w3c.dom.Element element) {
         this.element = element;
     }
 
-    @Override
-    public MirthElement getChildElement(String name) {
+    public DonkeyElement getChildElement(String name) {
         NodeList children = element.getChildNodes();
         int childCount = children.getLength();
 
         for (int i = 0; i < childCount; i++) {
             if (children.item(i).getNodeName().equals(name) && children.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                return new MirthElement((org.w3c.dom.Element) children.item(i));
+                return new DonkeyElement((org.w3c.dom.Element) children.item(i));
             }
         }
 
         return null;
     }
-    
-    @Override
+
     public List<DonkeyElement> getChildElements() {
         NodeList childNodes = element.getChildNodes();
         int childCount = childNodes.getLength();
@@ -43,37 +43,41 @@ public class MirthElement implements DonkeyElement {
 
         for (int i = 0; i < childCount; i++) {
             Node node = childNodes.item(i);
-            
+
             if (node.getNodeType() == Node.ELEMENT_NODE) {
-                childElements.add(new MirthElement((org.w3c.dom.Element) node));
+                childElements.add(new DonkeyElement((org.w3c.dom.Element) node));
             }
         }
 
         return childElements;
     }
 
-    @Override
-    public MirthElement addChildElement(String name) {
+    public DonkeyElement addChildElement(String name) {
         org.w3c.dom.Element child = element.getOwnerDocument().createElement(name);
         element.appendChild(child);
-        return new MirthElement(child);
+        return new DonkeyElement(child);
+    }
+    
+    public DonkeyElement addChildElement(String name, String content) {
+        org.w3c.dom.Element child = element.getOwnerDocument().createElement(name);
+        element.appendChild(child);
+        child.setTextContent(content);
+        return new DonkeyElement(child);
     }
 
-    @Override
     public DonkeyElement removeChild(String name) {
         NodeList children = element.getChildNodes();
         int childCount = children.getLength();
 
         for (int i = 0; i < childCount; i++) {
             if (children.item(i).getNodeName().equals(name) && children.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                return new MirthElement((org.w3c.dom.Element) element.removeChild(children.item(i)));
+                return new DonkeyElement((org.w3c.dom.Element) element.removeChild(children.item(i)));
             }
         }
 
         return null;
     }
-    
-    @Override
+
     public void removeChildren() {
         NodeList children = element.getChildNodes();
         int childCount = children.getLength();
@@ -82,8 +86,7 @@ public class MirthElement implements DonkeyElement {
             element.removeChild(children.item(i));
         }
     }
-    
-    @Override
+
     public boolean removeChildren(String name) {
         NodeList children = element.getChildNodes();
         int childCount = children.getLength();
@@ -98,8 +101,7 @@ public class MirthElement implements DonkeyElement {
 
         return removed;
     }
-    
-    @Override
+
     public void setNodeName(String name) {
         element.getOwnerDocument().renameNode(element, element.getNamespaceURI(), name);
     }

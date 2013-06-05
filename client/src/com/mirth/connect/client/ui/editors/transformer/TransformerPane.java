@@ -891,7 +891,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
              * migrating to 3.0.0. Transformers prior to 3.0.0 can still be migrated when imported
              * as part of a connector.
              */
-            Transformer importTransformer = (Transformer) serializer.fromXML(content, Transformer.class);
+            Transformer importTransformer = serializer.fromXML(content, Transformer.class);
             prevSelRow = -1;
             modified = true;
             invalidVar = false;
