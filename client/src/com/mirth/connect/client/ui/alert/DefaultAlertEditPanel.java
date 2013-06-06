@@ -61,7 +61,7 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
         add(headerPanel, "grow, span");
         add(alertTriggerPane, "grow, sg 1, height 100");
         add(alertChannelPane, "grow, sg 1, height 100, wrap");
-        add(alertActionPane, "grow, sg 1, height 100, span");
+        add(alertActionPane, "grow, sgy 1, width 100, height 100, span");
     }
 
     private void updateTasks() {

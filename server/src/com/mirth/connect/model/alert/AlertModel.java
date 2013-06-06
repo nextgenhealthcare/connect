@@ -3,10 +3,11 @@ package com.mirth.connect.model.alert;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("alertModel")
-public class AlertModel {
+public class AlertModel implements Migratable {
 
     private String id;
     private String name;

@@ -11,7 +11,9 @@ package com.mirth.connect.model.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,9 +37,9 @@ import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.server.alert.Alert;
 import com.mirth.connect.util.XmlUtil;
 
 public class ImportConverter3_0_0 {
@@ -65,7 +67,7 @@ public class ImportConverter3_0_0 {
 
         DonkeyElement root = new DonkeyElement(document.getDocumentElement());
 
-        if (root.getNodeName().equals("list") && (expectedClass == Connector.class || expectedClass == Alert.class)) {
+        if (root.getNodeName().equals("list") && (expectedClass == Connector.class || expectedClass == AlertModel.class)) {
             NodeList childNodes = root.getChildNodes();
             int childCount = childNodes.getLength();
 
@@ -79,7 +81,7 @@ public class ImportConverter3_0_0 {
                         Element convertedConnector = XmlUtil.elementFromXml(ImportConverter.convertConnector(XmlUtil.elementToXml(child)));
                         migrateConnector(new DonkeyElement(convertedConnector), null);
                         root.replaceChild(document.importNode(convertedConnector, true), child);
-                    } else if (expectedClass == Alert.class) {
+                    } else if (expectedClass == AlertModel.class) {
                         migrateAlert(new DonkeyElement(child));
                     }
                 }
@@ -90,7 +92,7 @@ public class ImportConverter3_0_0 {
         } else if (expectedClass == Connector.class) {
             document = new DocumentSerializer().fromXML(ImportConverter.convertConnector(objectXml));
             migrateConnector(new DonkeyElement(document.getDocumentElement()), null);
-        } else if (expectedClass == Alert.class) {
+        } else if (expectedClass == AlertModel.class) {
             migrateAlert(root);
         } else if (expectedClass == ChannelProperties.class) {
             migrateChannelProperties(root);
@@ -264,6 +266,8 @@ public class ImportConverter3_0_0 {
         logger.debug("Migrating channel properties");
 
         Properties oldProperties = readPropertiesElement(properties);
+        Properties channelProperties = readPropertiesElement(properties.getChildElement("channels"));
+        Properties emailProperties = readPropertiesElement(properties.getChildElement("emails"));
         properties.removeChildren();
 
         properties.addChildElement("clearGlobalChannelMap").setTextContent(oldProperties.getProperty("clearGlobalChannelMap", "true"));
@@ -299,8 +303,89 @@ public class ImportConverter3_0_0 {
     }
 
     private static void migrateAlert(DonkeyElement alert) {
-        // TODO
-        throw new UnsupportedOperationException();
+        logger.debug("Migrating DICOMReceiverProperties");
+
+        alert.setNodeName("alertModel");
+
+        /*
+         * Expression is not migrated because the error codes that are commonly used are no longer
+         * valid.
+         */
+        alert.removeChild("expression");
+        // Template and subject are migrated
+        String template = alert.removeChild("template").getTextContent();
+        String subject = alert.removeChild("subject").getTextContent();
+
+        /*
+         * Store all the alert channels before removing the old element.
+         */
+        DonkeyElement channels = alert.removeChild("channels");
+        List<String> channelList = new ArrayList<String>();
+        if (channels != null) {
+            for (DonkeyElement channel : channels.getChildElements()) {
+                channelList.add(channel.getTextContent());
+            }
+        }
+
+        /*
+         * Store all the alert emails before removing the old element.
+         */
+        DonkeyElement emails = alert.removeChild("emails");
+        List<String> emailList = new ArrayList<String>();
+        if (emails != null) {
+            for (DonkeyElement email : emails.getChildElements()) {
+                emailList.add(email.getTextContent());
+            }
+        }
+
+        /*
+         * Add the trigger type element. Migrated alerts will always use the default trigger type.
+         */
+        DonkeyElement triggerProperties = alert.addChildElement("trigger");
+        triggerProperties.setAttribute("class", "defaultTrigger");
+
+        /*
+         * Channels created after this alert will not be active for the alert. This matches the
+         * pre-3.x behavior.
+         */
+        DonkeyElement alertChannelsProperties = triggerProperties.addChildElement("alertChannels");
+        alertChannelsProperties.addChildElement("newChannel");
+
+        /*
+         * Add each channel that was stored. Destinations created after the alert was created WILL
+         * be active for the alert. This semi-matches the pre-3.x behavior because alerts were
+         * active for a channel only, but might have been filtered based on the connector type.
+         */
+        DonkeyElement channelsProperties = alertChannelsProperties.addChildElement("channels");
+        for (String channelId : channelList) {
+            DonkeyElement entryProperties = channelsProperties.addChildElement("entry");
+            entryProperties.addChildElement("string").setTextContent(channelId);
+            entryProperties.addChildElement("set").addChildElement("null");
+        }
+
+        // Add the regex element but don't copy from expression because the error codes are no longer used.
+        triggerProperties.addChildElement("regex");
+
+        // Add the actionGroups variables element for the alert.
+        DonkeyElement actionGroupsProperties = alert.addChildElement("actionGroups");
+
+        // Add the AlertActionGroup object.
+        DonkeyElement alertActionGroupProperties = actionGroupsProperties.addChildElement("alertActionGroup");
+        // Add the actions variable for the AlertActionGroup
+        DonkeyElement actionsProperties = alertActionGroupProperties.addChildElement("actions");
+        /*
+         * Add an AlertAction for each stored email address. All pre-3.x alerts only used the EMAIL
+         * protocol
+         */
+        for (String email : emailList) {
+            DonkeyElement alertActionProperties = actionsProperties.addChildElement("alertAction");
+            alertActionProperties.addChildElement("protocol").setTextContent("EMAIL");
+            alertActionProperties.addChildElement("recipient").setTextContent(email);
+        }
+        // Copy the subject from the old alert.
+        alertActionGroupProperties.addChildElement("subject").setTextContent(subject);
+        // Copy the template from the old alert.
+        alertActionGroupProperties.addChildElement("template").setTextContent(template);
     }
 
     private static void migrateServerConfiguration(DonkeyElement serverConfiguration) {

@@ -4076,24 +4076,12 @@ public class Frame extends JXFrame {
         }
     }
 
-    public void importAlert(String content, boolean showAlerts) {
-        String alertXML = "";
-
-        try {
-            //TODO Convert older versions
-            alertXML = content;
-        } catch (Exception e) {
-            if (showAlerts) {
-                alertException(this, e.getStackTrace(), "Invalid alert file:\n" + e.getMessage());
-            }
-            return;
-        }
-
+    public void importAlert(String alertXML, boolean showAlerts) {
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        AlertModel importAlert;
+        List<AlertModel> alertList;
 
         try {
-            importAlert = (AlertModel) serializer.fromXML(alertXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"));
+            alertList = (List<AlertModel>) serializer.listFromXML(alertXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"), AlertModel.class);
         } catch (Exception e) {
             if (showAlerts) {
                 alertException(this, e.getStackTrace(), "Invalid alert file:\n" + e.getMessage());
@@ -4101,41 +4089,43 @@ public class Frame extends JXFrame {
             return;
         }
 
-        try {
-            String alertName = importAlert.getName();
-            String tempId = mirthClient.getGuid();
+        for (AlertModel importAlert : alertList) {
+            try {
+                String alertName = importAlert.getName();
+                String tempId = mirthClient.getGuid();
 
-            // Check to see that the alert name doesn't already exist.
-            if (!checkAlertName(alertName)) {
-                if (!alertOption(this, "Would you like to overwrite the existing alert?  Choose 'No' to create a new alert.")) {
-                    do {
-                        alertName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.", alertName);
-                        if (alertName == null) {
-                            return;
-                        }
-                    } while (!checkAlertName(alertName));
+                // Check to see that the alert name doesn't already exist.
+                if (!checkAlertName(alertName)) {
+                    if (!alertOption(this, "Would you like to overwrite the existing alert?  Choose 'No' to create a new alert.")) {
+                        do {
+                            alertName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.", alertName);
+                            if (alertName == null) {
+                                return;
+                            }
+                        } while (!checkAlertName(alertName));
 
-                    importAlert.setName(alertName);
-                    importAlert.setId(tempId);
-                } else {
-                    for (Entry<String, String> entry : alertPanel.getAlertNames().entrySet()) {
-                        String id = entry.getKey();
-                        String name = entry.getValue();
-                        if (name.equalsIgnoreCase(alertName)) {
-                            // If overwriting, use the old id
-                            importAlert.setId(id);
+                        importAlert.setName(alertName);
+                        importAlert.setId(tempId);
+                    } else {
+                        for (Entry<String, String> entry : alertPanel.getAlertNames().entrySet()) {
+                            String id = entry.getKey();
+                            String name = entry.getValue();
+                            if (name.equalsIgnoreCase(alertName)) {
+                                // If overwriting, use the old id
+                                importAlert.setId(id);
+                            }
                         }
                     }
                 }
+            } catch (ClientException e) {
+                alertException(this, e.getStackTrace(), e.getMessage());
             }
-        } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
-        }
 
-        try {
-            mirthClient.updateAlert(importAlert);
-        } catch (Exception e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
+            try {
+                mirthClient.updateAlert(importAlert);
+            } catch (Exception e) {
+                alertException(this, e.getStackTrace(), e.getMessage());
+            }
         }
 
         doRefreshAlerts(true);
