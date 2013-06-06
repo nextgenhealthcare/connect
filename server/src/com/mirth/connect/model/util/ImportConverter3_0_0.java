@@ -303,7 +303,7 @@ public class ImportConverter3_0_0 {
     }
 
     private static void migrateAlert(DonkeyElement alert) {
-        logger.debug("Migrating DICOMReceiverProperties");
+        logger.debug("Migrating alert");
 
         alert.setNodeName("alertModel");
 
