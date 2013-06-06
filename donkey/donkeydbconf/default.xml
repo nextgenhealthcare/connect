@@ -119,11 +119,6 @@
 		ORDER BY m.id, mm.id
 	</query>
 	
-	<query id="insertEvent">
-		INSERT INTO d_events (event_type, channel_id, metadata_id, message_id, message_status, event_date)
-		VALUES (?, ?, ?, ?, ?, ?)
-	</query>
-	
 	<query id="getChannelStatistics">
 		SELECT metadata_id, received, filtered, transformed, pending, sent, error
 		FROM d_ms${localChannelId}
@@ -346,7 +341,6 @@
 	<query id="createMessageStatisticsTable"></query>
 	<query id="createMessageSequence"></query>
 	<query id="createChannelsTable"></query>
-	<query id="createEventsTable"></query>
 	<query id="getNextMessageId"></query>
 	<query id="addMetaDataColumnString"></query>
 	<query id="addMetaDataColumnStringIndex"></query>

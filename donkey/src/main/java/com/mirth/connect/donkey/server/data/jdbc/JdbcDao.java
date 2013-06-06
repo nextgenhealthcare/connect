@@ -1579,7 +1579,6 @@ public class JdbcDao implements DonkeyDao {
 
     public boolean initTableStructure() {
         boolean createChannelsTable = !tableExists("d_channels");
-        boolean createEventsTable = !tableExists("d_events");
         boolean createSequencesTable = (querySource.queryExists("createSequencesTable") && !tableExists("d_message_sequences"));
 
         if (createChannelsTable) {
@@ -1587,17 +1586,12 @@ public class JdbcDao implements DonkeyDao {
             createTable("createChannelsTable", null);
         }
 
-        if (createEventsTable) {
-            logger.debug("Creating events table");
-            createTable("createEventsTable", null);
-        }
-
         if (createSequencesTable) {
             logger.debug("Creating sequences table");
             createTable("createSequencesTable", null);
         }
 
-        return (createChannelsTable || createEventsTable || createSequencesTable);
+        return (createChannelsTable || createSequencesTable);
     }
 
     private boolean tableExists(String tableName) {

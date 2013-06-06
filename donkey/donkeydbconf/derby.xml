@@ -155,18 +155,6 @@
 		CREATE INDEX d_channels_index1 ON d_channels(local_channel_id)
 	</query>
 	
-	<query id="createEventsTable">
-		CREATE TABLE d_events (
-	        event_id bigint GENERATED ALWAYS AS IDENTITY (START WITH 1) NOT NULL PRIMARY KEY,
-	        event_type integer NOT NULL,
-	        channel_id character varying(36) NOT NULL,
-	        metadata_id integer,
-	        message_id bigint,
-	        message_status character(1),
-	        event_date timestamp NOT NULL
-        )
-	</query>
-	
 	<query id="getNextMessageId">
 		SELECT NEXT VALUE FOR d_msq${localChannelId} FROM d_channels
 	</query>

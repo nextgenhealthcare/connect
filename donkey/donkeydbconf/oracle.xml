@@ -126,22 +126,6 @@
         )
 	</query>
 	
-	<query id="createEventsTable">
-		CREATE TABLE d_events (
-	        event_id NUMBER(19) NOT NULL PRIMARY KEY,
-	        event_type NUMBER(10) NOT NULL,
-	        channel_id NVARCHAR2(36) NOT NULL,
-	        metadata_id NUMBER(10),
-	        message_id NUMBER(19),
-	        message_status CHAR(1),
-	        event_date TIMESTAMP NOT NULL
-        )
-	</query>
-	
-	<query id="createEventsTableSequence">
-		CREATE SEQUENCE d_events_seq START WITH 1 INCREMENT BY 1
-	</query>
-	
 	<query id="dropMessageTable">
 		DROP TABLE d_m${localChannelId}
 	</query>

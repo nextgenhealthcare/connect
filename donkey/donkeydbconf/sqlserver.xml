@@ -146,18 +146,6 @@
 		CREATE INDEX d_channels_index1 ON d_channels(local_channel_id)
 	</query>
 	
-	<query id="createEventsTable">
-		CREATE TABLE d_events (
-	        event_id BIGINT IDENTITY (1, 1) NOT NULL PRIMARY KEY,
-	        event_type INTEGER NOT NULL,
-	        channel_id NVARCHAR(36) NOT NULL,
-	        metadata_id INTEGER,
-	        message_id BIGINT,
-	        message_status CHAR(1),
-	        event_date DATETIME NOT NULL
-        )
-	</query>
-	
 	<query id="createSequencesTable">
 		CREATE TABLE d_message_sequences (
 			local_channel_id BIGINT NOT NULL PRIMARY KEY,
