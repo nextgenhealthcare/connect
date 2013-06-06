@@ -63,9 +63,10 @@ public class DashboardConnectorEventListener extends EventListener {
 
             String connectorId = channelId + "_" + metaDataId;
 
-            ConnectorEventType state = connectorEvent.getDisplayState() == null ? connectorEvent.getState() : connectorEvent.getDisplayState();
-            String stateString = state.toString();
-            Color color = getColor(state);
+            ConnectorEventType eventType = connectorEvent.getState();
+            
+            ConnectorEventType connectorState = eventType;
+            Integer connectorCount = null;
 
             if (event instanceof ConnectorCountEvent) {
                 ConnectorCountEvent connectorCountEvent = (ConnectorCountEvent) connectorEvent;
@@ -85,8 +86,25 @@ public class DashboardConnectorEventListener extends EventListener {
                         count.decrementAndGet();
                     }
                 }
+                
+                connectorCount = count.get();
 
-                stateString += " (" + count.get() + ")";
+                if (connectorCount == 0) {
+                    connectorState = ConnectorEventType.IDLE;
+                } else {
+                    connectorState = ConnectorEventType.CONNECTED;
+                }
+            }
+            
+            String stateString = null;
+            if (connectorState.isState()) {
+                stateString = connectorState.toString();
+                if (connectorCount != null && connectorCount > 0) {
+                    stateString += " (" + connectorCount + ")";
+                }
+                Color color = getColor(connectorState);
+            
+                connectorStateMap.put(connectorId, new Object[] { color, stateString });
             }
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
@@ -140,7 +158,6 @@ public class DashboardConnectorEventListener extends EventListener {
                 }
             }
 
-            connectorStateMap.put(connectorId, new Object[] { color, stateString });
         }
     }
 
@@ -309,6 +326,9 @@ public class DashboardConnectorEventListener extends EventListener {
 
             case DISCONNECTED:
                 return Color.red;
+                
+            case INFO:
+                return Color.blue;
 
             default:
                 return Color.black;

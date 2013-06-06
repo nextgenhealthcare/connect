@@ -5,7 +5,7 @@ import org.apache.commons.lang.WordUtils;
 import com.mirth.connect.donkey.model.message.Status;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
-@XStreamAlias("errorEventType")
+@XStreamAlias("messageEventType")
 public enum MessageEventType {
     RECEIVED, FILTERED, SENT, QUEUED, ERRORED;
 

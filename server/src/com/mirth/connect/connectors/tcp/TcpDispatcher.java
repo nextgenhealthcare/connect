@@ -190,7 +190,7 @@ public class TcpDispatcher extends DestinationConnector {
                 socket.setSendBufferSize(parseInt(tcpDispatcherProperties.getBufferSize()));
                 socket.setSoTimeout(parseInt(tcpDispatcherProperties.getResponseTimeout()));
                 socket.setKeepAlive(tcpDispatcherProperties.isKeepConnectionOpen());
-                eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.CONNECTED, null, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), true));
+                eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.CONNECTED, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), true));
             }
 
             ThreadUtils.checkInterruptedStatus();
@@ -302,7 +302,7 @@ public class TcpDispatcher extends DestinationConnector {
             SocketUtil.closeSocket(socket);
         } finally {
             if (wasOpen) {
-                eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.DISCONNECTED, ConnectorEventType.CONNECTED, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), false));
+                eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.DISCONNECTED, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), false));
             }
         }
     }

@@ -9,23 +9,17 @@ public class ConnectorEvent extends Event {
     private Integer metaDataId;
     private String connectorName;
     private ConnectorEventType state;
-    private ConnectorEventType displayState;
     private String message;
 
     public ConnectorEvent(String channelId, Integer metaDataId, String connectorName, ConnectorEventType state) {
-        this(channelId, metaDataId, connectorName, state, null, "");
+        this(channelId, metaDataId, connectorName, state, "");
     }
 
     public ConnectorEvent(String channelId, Integer metaDataId, String connectorName, ConnectorEventType state, String message) {
-        this(channelId, metaDataId, connectorName, state, null, message);
-    }
-
-    public ConnectorEvent(String channelId, Integer metaDataId, String connectorName, ConnectorEventType state, ConnectorEventType displayState, String message) {
         this.channelId = channelId;
         this.metaDataId = metaDataId;
         this.connectorName = connectorName;
         this.state = state;
-        this.displayState = displayState;
         this.message = message;
     }
 
@@ -59,14 +53,6 @@ public class ConnectorEvent extends Event {
 
     public void setState(ConnectorEventType state) {
         this.state = state;
-    }
-
-    public ConnectorEventType getDisplayState() {
-        return displayState;
-    }
-
-    public void setDisplayState(ConnectorEventType displayState) {
-        this.displayState = displayState;
     }
 
     public String getMessage() {

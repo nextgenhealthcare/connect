@@ -272,38 +272,51 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
                 // This means pausing the list for multi-select would also pause the 
                 // list for no selection.  The log size will also not be correct for
                 // multi-select because it is enforcing the size on the larger list.
-                if (selectedConnectors != null) {
+                
+                boolean addRow = false;
+                if (selectedConnectors == null) {
+                    addRow = true;
+                } else {
                     List<Integer> selectedMetaDataIds = selectedConnectors.get(channelId);
-                    
-                    if (selectedMetaDataIds != null && (selectedMetaDataIds.contains(null) || selectedMetaDataIds.contains(metaDataId))) {
-                        tableSize++;
-    
-                        tableData[i][0] = row[0];       // Id (hidden)
-                        tableData[i][1] = row[2];       // Timestamp
-                        tableData[i][2] = row[1];       // Channel Name (hidden when viewing a specific channel)
-                        tableData[i][3] = row[3];       // Connector Info
-    
-                        // Event State - INITIALIZED (blue), CONNECTED (green), BUSY (yellow), DONE (black), DISCONNECTED (red)
-                        if (row[4].equalsIgnoreCase("INITIALIZED")) {
-                            tableData[i][4] = new CellData(blueBullet, "Initialized");
-                        } else if (row[4].equalsIgnoreCase("CONNECTING")) {
-                            tableData[i][4] = new CellData(yellowBullet, "Attempting to Connect");
-                        } else if (row[4].equalsIgnoreCase("CONNECTED")) {
-                            tableData[i][4] = new CellData(greenBullet, "Connected");
-                        } else if (row[4].equalsIgnoreCase("BUSY")) {
-                            tableData[i][4] = new CellData(yellowBullet, "Busy");
-                        } else if (row[4].equalsIgnoreCase("DONE")) {
-                            tableData[i][4] = new CellData(blackBullet, "Done");
-                        } else if (row[4].equalsIgnoreCase("DISCONNECTED")) {
-                            tableData[i][4] = new CellData(redBullet, "Disconnected");
-                        } else if (row[4].equalsIgnoreCase("INFO")) {
-                            tableData[i][4] = new CellData(yellowBullet, "Info");
-                        } else if (row[4].equalsIgnoreCase("FAILURE")) {
-                            tableData[i][4] = new CellData(redBullet, "Failure");
-                        }
-    
-                        tableData[i][5] = row[5];       // Infomation
+                    addRow = selectedMetaDataIds != null && (selectedMetaDataIds.contains(null) || selectedMetaDataIds.contains(metaDataId));
+                }
+                
+                if (addRow) {
+                    tableSize++;
+
+                    tableData[i][0] = row[0];       // Id (hidden)
+                    tableData[i][1] = row[2];       // Timestamp
+                    tableData[i][2] = row[1];       // Channel Name (hidden when viewing a specific channel)
+                    tableData[i][3] = row[3];       // Connector Info
+
+                    // Event State - INITIALIZED (blue), CONNECTED (green), BUSY (yellow), DONE (black), DISCONNECTED (red)
+                    if (row[4].equalsIgnoreCase("IDLE")) {
+                        tableData[i][4] = new CellData(yellowBullet, "Idle");
+                    } else if (row[4].equalsIgnoreCase("READING")) {
+                        tableData[i][4] = new CellData(greenBullet, "Reading");
+                    } else if (row[4].equalsIgnoreCase("WRITING")) {
+                        tableData[i][4] = new CellData(yellowBullet, "Writing");
+                    } else if (row[4].equalsIgnoreCase("POLLING")) {
+                        tableData[i][4] = new CellData(greenBullet, "Polling");
+                    } else if (row[4].equalsIgnoreCase("RECEIVING")) {
+                        tableData[i][4] = new CellData(greenBullet, "Receiving");
+                    } else if (row[4].equalsIgnoreCase("SENDING")) {
+                        tableData[i][4] = new CellData(yellowBullet, "Sending");
+                    } else if (row[4].equalsIgnoreCase("WAITING FOR RESPONSE")) {
+                        tableData[i][4] = new CellData(yellowBullet, "Waiting for Response");
+                    } else if (row[4].equalsIgnoreCase("CONNECTED")) {
+                        tableData[i][4] = new CellData(greenBullet, "Connected");
+                    } else if (row[4].equalsIgnoreCase("CONNECTING")) {
+                        tableData[i][4] = new CellData(yellowBullet, "Connecting");
+                    } else if (row[4].equalsIgnoreCase("DISCONNECTED")) {
+                        tableData[i][4] = new CellData(redBullet, "Disconnected");
+                    } else if (row[4].equalsIgnoreCase("INFO")) {
+                        tableData[i][4] = new CellData(blueBullet, "Info");
+                    } else if (row[4].equalsIgnoreCase("FAILURE")) {
+                        tableData[i][4] = new CellData(blackBullet, "Failure");
                     }
+
+                    tableData[i][5] = row[5];       // Infomation
                 }
             }
 
