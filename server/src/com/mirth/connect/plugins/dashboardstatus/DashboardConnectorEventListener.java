@@ -312,12 +312,12 @@ public class DashboardConnectorEventListener extends EventListener {
     public Color getColor(ConnectorEventType type) {
         switch (type) {
             case IDLE:
-            case WRITING:
-            case SENDING:
             case CONNECTING:
             case WAITING_FOR_RESPONSE:
                 return Color.yellow;
 
+            case WRITING:
+            case SENDING:
             case READING:
             case RECEIVING:
             case POLLING:

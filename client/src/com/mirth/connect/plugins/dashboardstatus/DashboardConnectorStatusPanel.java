@@ -289,19 +289,18 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
                     tableData[i][2] = row[1];       // Channel Name (hidden when viewing a specific channel)
                     tableData[i][3] = row[3];       // Connector Info
 
-                    // Event State - INITIALIZED (blue), CONNECTED (green), BUSY (yellow), DONE (black), DISCONNECTED (red)
                     if (row[4].equalsIgnoreCase("IDLE")) {
                         tableData[i][4] = new CellData(yellowBullet, "Idle");
                     } else if (row[4].equalsIgnoreCase("READING")) {
                         tableData[i][4] = new CellData(greenBullet, "Reading");
                     } else if (row[4].equalsIgnoreCase("WRITING")) {
-                        tableData[i][4] = new CellData(yellowBullet, "Writing");
+                        tableData[i][4] = new CellData(greenBullet, "Writing");
                     } else if (row[4].equalsIgnoreCase("POLLING")) {
                         tableData[i][4] = new CellData(greenBullet, "Polling");
                     } else if (row[4].equalsIgnoreCase("RECEIVING")) {
                         tableData[i][4] = new CellData(greenBullet, "Receiving");
                     } else if (row[4].equalsIgnoreCase("SENDING")) {
-                        tableData[i][4] = new CellData(yellowBullet, "Sending");
+                        tableData[i][4] = new CellData(greenBullet, "Sending");
                     } else if (row[4].equalsIgnoreCase("WAITING FOR RESPONSE")) {
                         tableData[i][4] = new CellData(yellowBullet, "Waiting for Response");
                     } else if (row[4].equalsIgnoreCase("CONNECTED")) {
