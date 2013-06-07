@@ -9,6 +9,9 @@
 
 package com.mirth.connect.connectors.vm;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -54,6 +57,10 @@ public class VmDispatcher extends DestinationConnector {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ExecutorService executor;
     private int timeout;
+    private static final String SOURCE_CHANNEL_ID = "sourceChannelId";
+    private static final String SOURCE_CHANNEL_IDS = "sourceChannelIds";
+    private static final String SOURCE_MESSAGE_ID = "sourceMessageId";
+    private static final String SOURCE_MESSAGE_IDS = "sourceMessageIds";
     private static transient Log logger = LogFactory.getLog(VMRouter.class);
 
     @Override
@@ -95,9 +102,10 @@ public class VmDispatcher extends DestinationConnector {
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage message) {
         VmDispatcherProperties vmDispatcherProperties = (VmDispatcherProperties) connectorProperties;
 
-        String channelId = vmDispatcherProperties.getChannelId();
+        String targetChannelId = vmDispatcherProperties.getChannelId();
+        String currentChannelId = getChannelId();
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.SENDING, "Target Channel: " + channelId));
+        eventController.dispatchEvent(new ConnectorEvent(currentChannelId, getMetaDataId(), getDestinationName(), ConnectorEventType.SENDING, "Target Channel: " + targetChannelId));
 
         String responseData = null;
         String responseError = null;
@@ -105,7 +113,7 @@ public class VmDispatcher extends DestinationConnector {
         Status responseStatus = Status.QUEUED; // Always set the status to QUEUED
 
         try {
-            if (!channelId.equals("none")) {
+            if (!targetChannelId.equals("none")) {
                 boolean isBinary = ExtensionController.getInstance().getDataTypePlugins().get(this.getOutboundDataType().getType()).isBinary();
                 byte[] data = AttachmentUtil.reAttachMessage(vmDispatcherProperties.getChannelTemplate(), message, Constants.ATTACHMENT_CHARSET, isBinary);
 
@@ -117,8 +125,31 @@ public class VmDispatcher extends DestinationConnector {
                     rawMessage = new RawMessage(StringUtils.newString(data, Constants.ATTACHMENT_CHARSET), null, null);
                 }
 
-                rawMessage.getChannelMap().put("sourceChannelId", getChannelId());
-                rawMessage.getChannelMap().put("sourceMessageId", message.getMessageId());
+                Map<String, Object> rawChannelMap = rawMessage.getChannelMap();
+                Map<String, Object> channelMap = message.getChannelMap();
+
+                /*
+                 * Build the lists of source channel and message Ids if this channel is not the
+                 * start of the chain.
+                 */
+                List<String> sourceChannelIds = getSourceChannelIds(channelMap);
+                List<Long> sourceMessageIds = getSourceMessageIds(channelMap);
+
+                // Add the current channelId to the chain if it is built
+                if (sourceChannelIds != null) {
+                    sourceChannelIds.add(currentChannelId);
+                    rawChannelMap.put(SOURCE_CHANNEL_IDS, sourceChannelIds);
+                }
+
+                // Add the current messageId to the chain if it is built
+                if (sourceMessageIds != null) {
+                    sourceMessageIds.add(message.getMessageId());
+                    rawChannelMap.put(SOURCE_MESSAGE_IDS, sourceMessageIds);
+                }
+
+                // Always store the originating channelId and messageId
+                rawChannelMap.put(SOURCE_CHANNEL_ID, currentChannelId);
+                rawChannelMap.put(SOURCE_MESSAGE_ID, message.getMessageId());
 
                 // Remove the reference to the raw message so its doesn't hold the entire message in memory.
                 data = null;
@@ -126,9 +157,9 @@ public class VmDispatcher extends DestinationConnector {
                 DispatchResult dispatchResult = null;
 
                 if (timeout > 0) {
-                    dispatchResult = executor.submit(new DispatchTask(channelId, rawMessage)).get(timeout, TimeUnit.MILLISECONDS);
+                    dispatchResult = executor.submit(new DispatchTask(targetChannelId, rawMessage)).get(timeout, TimeUnit.MILLISECONDS);
                 } else {
-                    dispatchResult = ControllerFactory.getFactory().createEngineController().dispatchRawMessage(channelId, rawMessage);
+                    dispatchResult = ControllerFactory.getFactory().createEngineController().dispatchRawMessage(targetChannelId, rawMessage);
                 }
 
                 if (dispatchResult.getSelectedResponse() != null) {
@@ -138,7 +169,7 @@ public class VmDispatcher extends DestinationConnector {
             }
 
             responseStatus = Status.SENT;
-            responseStatusMessage = "Message routed successfully to channel id: " + channelId;
+            responseStatusMessage = "Message routed successfully to channel id: " + targetChannelId;
         } catch (Throwable e) {
             Throwable cause;
             if (e instanceof ExecutionException) {
@@ -147,21 +178,87 @@ public class VmDispatcher extends DestinationConnector {
                 cause = e;
             }
 
-            String shortMessage = "Error routing message to channel id: " + channelId;
+            String shortMessage = "Error routing message to channel id: " + targetChannelId;
             String longMessage = shortMessage;
 
             if (e instanceof TimeoutException) {
                 longMessage += ". A cycle may be present where a channel is attempting to dispatch a message to itself. If this is the case, enable queuing on the source or destination connectors.";
             }
 
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), longMessage, cause));
+            eventController.dispatchEvent(new ErrorEvent(currentChannelId, getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), longMessage, cause));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse(shortMessage, cause);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_412, longMessage, cause);
         } finally {
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
+            eventController.dispatchEvent(new ConnectorEvent(currentChannelId, getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);
+    }
+
+    private List<String> getSourceChannelIds(Map<String, Object> map) {
+        Object object = map.get(SOURCE_CHANNEL_ID);
+
+        List<String> sourceChannelIds = null;
+
+        /*
+         * If the source channel id already exists, then a source channel id list needs to be
+         * created to store the historical channel ids.
+         */
+        if (object != null && object instanceof String) {
+            String sourceChannelId = (String) object;
+            sourceChannelIds = new ArrayList<String>();
+
+            Object listObject = map.get(SOURCE_CHANNEL_IDS);
+
+            /*
+             * If the source channel id list already exists, add all items into the new list.
+             * Otherwise only add the previous channel id to the new list.
+             */
+            if (listObject == null) {
+                sourceChannelIds.add(sourceChannelId);
+            } else {
+                try {
+                    sourceChannelIds.addAll((List<String>) listObject);
+                } catch (ClassCastException e) {
+                    sourceChannelIds.add(sourceChannelId);
+                }
+            }
+        }
+
+        return sourceChannelIds;
+    }
+
+    private List<Long> getSourceMessageIds(Map<String, Object> map) {
+        Object object = map.get(SOURCE_MESSAGE_ID);
+
+        List<Long> sourceMessageIds = null;
+
+        /*
+         * If the source message id already exists, then a source message id list needs to be
+         * created to store the historical message ids.
+         */
+        if (object != null && object instanceof Long) {
+            Long sourceMessageId = (Long) object;
+            sourceMessageIds = new ArrayList<Long>();
+
+            Object listObject = map.get(SOURCE_MESSAGE_IDS);
+
+            /*
+             * If the source message id list already exists, add all items into the new list.
+             * Otherwise only add the previous message id to the new list.
+             */
+            if (listObject == null) {
+                sourceMessageIds.add(sourceMessageId);
+            } else {
+                try {
+                    sourceMessageIds.addAll((List<Long>) listObject);
+                } catch (ClassCastException e) {
+                    sourceMessageIds.add(sourceMessageId);
+                }
+            }
+        }
+
+        return sourceMessageIds;
     }
 
     private class DispatchTask implements Callable<DispatchResult> {
