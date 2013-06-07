@@ -33,6 +33,7 @@ public class DashboardConnectorEventListener extends EventListener {
     private static long logId = 1;
     private Map<String, Object[]> connectorStateMap = new HashMap<String, Object[]>();
     private Map<String, AtomicInteger> connectorCountMap = new ConcurrentHashMap<String, AtomicInteger>();
+    private Map<String, Integer> maxConnectionMap = new ConcurrentHashMap<String, Integer>();
     private Map<String, LinkedList<String[]>> connectorInfoLogs = new ConcurrentHashMap<String, LinkedList<String[]>>();
     private LinkedList<String[]> entireConnectorInfoLogs = new LinkedList<String[]>();
     private Map<String, Map<String, Long>> lastDisplayedLogIndexBySessionId = new ConcurrentHashMap<String, Map<String, Long>>();
@@ -67,10 +68,20 @@ public class DashboardConnectorEventListener extends EventListener {
             
             ConnectorEventType connectorState = eventType;
             Integer connectorCount = null;
+            Integer maximum = null;
 
             if (event instanceof ConnectorCountEvent) {
                 ConnectorCountEvent connectorCountEvent = (ConnectorCountEvent) connectorEvent;
-
+                
+                maximum = connectorCountEvent.getMaximum();
+                Boolean increment = connectorCountEvent.isIncrement();
+                
+                if (maximum != null) {
+                    maxConnectionMap.put(connectorId, maximum);
+                } else {
+                    maximum = maxConnectionMap.get(connectorId);
+                }
+                
                 AtomicInteger count = connectorCountMap.get(connectorId);
 
                 if (count == null) {
@@ -78,7 +89,6 @@ public class DashboardConnectorEventListener extends EventListener {
                     connectorCountMap.put(connectorId, count);
                 }
 
-                Boolean increment = connectorCountEvent.isIncrement();
                 if (increment != null) {
                     if (increment) {
                         count.incrementAndGet();
@@ -98,12 +108,16 @@ public class DashboardConnectorEventListener extends EventListener {
             
             String stateString = null;
             if (connectorState.isState()) {
-                stateString = connectorState.toString();
-                if (connectorCount != null && connectorCount > 0) {
-                    stateString += " (" + connectorCount + ")";
-                }
                 Color color = getColor(connectorState);
-            
+                stateString = connectorState.toString();
+                if (connectorCount != null) {
+                    if (maximum != null && connectorCount.equals(maximum)) {
+                        stateString += " <font color='red'>(" + connectorCount + ")</font>";
+                    } else if (connectorCount > 0) {
+                        stateString += " (" + connectorCount + ")";
+                    }
+                }
+                
                 connectorStateMap.put(connectorId, new Object[] { color, stateString });
             }
 

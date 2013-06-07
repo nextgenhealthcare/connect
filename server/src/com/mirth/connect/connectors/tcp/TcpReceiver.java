@@ -108,7 +108,7 @@ public class TcpReceiver extends SourceConnector {
 
         disposing = new AtomicBoolean(false);
 
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
+        eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE, null, maxConnections));
     }
 
     @Override
@@ -549,7 +549,7 @@ public class TcpReceiver extends SourceConnector {
                                     }
                                 }
 
-                                eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), null));
+                                eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), (Boolean) null));
                             } else {
                                 // If no bytes were returned, then assume we have finished processing all possible messages from the input stream.
                                 logger.debug("Stream reader returned null (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");

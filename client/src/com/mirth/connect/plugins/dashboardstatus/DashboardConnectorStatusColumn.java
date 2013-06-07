@@ -77,7 +77,7 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
         if (currentStates != null && currentStates.containsKey(connectorName)) {
             Object[] stateData = currentStates.get(connectorName);
             ImageIcon icon = iconMap.get(((Color) stateData[0]).getRGB());
-            return new CellData(icon, (String) stateData[1]);
+            return new CellData(icon, "<html>" + (String) stateData[1] + "</html>");
         } else {
             return new CellData(blackBullet, "Unknown");
         }
@@ -90,7 +90,7 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
         if (currentStates != null && currentStates.containsKey(connectorName)) {
             Object[] stateData = currentStates.get(connectorName);
             ImageIcon icon = iconMap.get(((Color) stateData[0]).getRGB());
-            return new CellData(icon, (String) stateData[1]);
+            return new CellData(icon, "<html>" + (String) stateData[1] + "</html>");
         } else {
             return new CellData(blackBullet, "Unknown");
         }

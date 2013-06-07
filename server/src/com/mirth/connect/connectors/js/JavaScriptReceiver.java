@@ -62,6 +62,7 @@ public class JavaScriptReceiver extends PollConnector {
         }
 
         this.scriptId = scriptId;
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
     }
 
     @Override

@@ -71,6 +71,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
         }
 
         this.scriptId = scriptId;
+        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
     }
 
     @Override
