@@ -33,7 +33,7 @@ public class VariableList extends javax.swing.JPanel {
     public VariableList() {
         initComponents();
     }
-    
+
     public MirthVariableList getMirthVariableList() {
         return mirthVariableList;
     }
@@ -63,7 +63,11 @@ public class VariableList extends javax.swing.JPanel {
         variables.add("Timestamp");
         variables.add("Unique ID");
         variables.add("Original File Name");
-        variables.add("Count");
+
+        if (mirthVariableList.getTransferMode() == TransferMode.VELOCITY) {
+            variables.add("Count");
+        }
+
         variables.add("XML Entity Encoder");
         variables.add("XML Pretty Printer");
         variables.add("CDATA Tag");

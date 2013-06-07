@@ -38,7 +38,7 @@ public class TemplateValueReplacer {
     private Logger logger = Logger.getLogger(this.getClass());
     private long count = 1;
 
-    protected synchronized long getCount() {
+    public synchronized long getCount() {
         return count++;
     }
 
@@ -142,7 +142,7 @@ public class TemplateValueReplacer {
             return template;
         }
     }
-    
+
     public String replaceValues(String template, Message message) {
         if (hasReplaceableValues(template)) {
             VelocityContext context = getDefaultContext();
@@ -274,7 +274,7 @@ public class TemplateValueReplacer {
 
         context.put("date", new DateTool());
         context.put("DATE", new SimpleDateFormat("dd-MM-yy_HH-mm-ss.SS").format(new Date()));
-        context.put("COUNT", String.valueOf(getCount()));
+        context.put("COUNT", new CountTool());
         context.put("UUID", UUID.randomUUID().toString());
         context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
         context.put("encoder", Entities.getInstance(false)); // TODO: Remove in 3.0
@@ -300,8 +300,8 @@ public class TemplateValueReplacer {
     }
 
     /**
-     * Loads the connector message, global channel map, channel map, connector map and response map
-     * into the passed context.
+     * Loads the connector message, global channel map, channel map, connector
+     * map and response map into the passed context.
      * 
      * @return void
      */
@@ -321,8 +321,8 @@ public class TemplateValueReplacer {
     }
 
     /**
-     * Loads the message, global channel map, merged channel map, merged connector map and merged
-     * response map into the passed context.
+     * Loads the message, global channel map, merged channel map, merged
+     * connector map and merged response map into the passed context.
      * 
      * @return void
      */
@@ -356,6 +356,13 @@ public class TemplateValueReplacer {
                 }
             }
             return null;
+        }
+    }
+
+    public class CountTool {
+        @Override
+        public String toString() {
+            return String.valueOf(getCount());
         }
     }
 }

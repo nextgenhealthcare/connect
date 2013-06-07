@@ -86,7 +86,6 @@ public class VariableListHandler extends TransferHandler {
         staticJsReferences.put("Timestamp", "var dateString = DateUtil.getCurrentDate('yyyyMMddHHmmss');");
         staticJsReferences.put("Unique ID", "var uuid = UUIDGenerator.getUUID();");
         staticJsReferences.put("Date", "var date = DateUtil.getDate('pattern','date');");
-        staticJsReferences.put("Count", "var count = 0;\nif(globalMap.get('count') != undefined) {\n\tcount = globalMap.get('count');\n\tcount++;\n\tglobalMap.put('count', count);\n} else {\n\tcount=1;\n\tglobalMap.put('count',count);\n}\n");
         staticJsReferences.put("Original File Name", "$('originalFilename')");
         staticJsReferences.put("DICOM Message Raw Data", "var rawData = DICOMUtil.getDICOMRawData(connectorMessage);");
         staticJsReferences.put("Message with Attachments", "var rawData = AttachmentUtil.reAttachMessage(connectorMessage)");
@@ -102,6 +101,10 @@ public class VariableListHandler extends TransferHandler {
     public VariableListHandler(TransferMode transferMode, List<Connector> connectors) {
         this.transferMode = transferMode;
         populateConnectors(connectors);
+    }
+
+    public TransferMode getTransferMode() {
+        return transferMode;
     }
 
     public void setTransferMode(TransferMode transferMode) {

@@ -71,6 +71,10 @@ public class MirthVariableList extends JXList {
         setTransferHandler(new VariableListHandler(transferMode, connectors));
     }
 
+    public TransferMode getTransferMode() {
+        return ((VariableListHandler) getTransferHandler()).getTransferMode();
+    }
+
     public void setTransferMode(TransferMode transferMode) {
         ((VariableListHandler) getTransferHandler()).setTransferMode(transferMode);
     }
