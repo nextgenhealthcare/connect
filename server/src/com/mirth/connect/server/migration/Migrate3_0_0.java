@@ -19,7 +19,7 @@ import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
-import com.mirth.connect.util.XmlUtil;
+import com.mirth.connect.util.MigrationUtil;
 
 public class Migrate3_0_0 {
     private static Logger logger = Logger.getLogger(Migrate3_0_0.class);
@@ -94,9 +94,9 @@ public class Migrate3_0_0 {
 
                 channel.addChildElement("revision", String.valueOf(revision));
 
-                new DonkeyElement((Element) channel.appendChild(document.importNode(XmlUtil.elementFromXml(sourceConnector), true))).setNodeName("sourceConnector");
-                new DonkeyElement((Element) channel.appendChild(document.importNode(XmlUtil.elementFromXml(destinationConnectors), true))).setNodeName("destinationConnectors");
-                channel.appendChild(document.importNode(XmlUtil.elementFromXml(properties), true));
+                new DonkeyElement((Element) channel.appendChild(document.importNode(MigrationUtil.elementFromXml(sourceConnector), true))).setNodeName("sourceConnector");
+                new DonkeyElement((Element) channel.appendChild(document.importNode(MigrationUtil.elementFromXml(destinationConnectors), true))).setNodeName("destinationConnectors");
+                channel.appendChild(document.importNode(MigrationUtil.elementFromXml(properties), true));
 
                 channel.addChildElement("preprocessingScript", preprocessingScript);
                 channel.addChildElement("postprocessingScript", postprocessingScript);

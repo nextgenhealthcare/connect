@@ -40,10 +40,9 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.mirth.connect.model.converters.DocumentSerializer;
-import com.mirth.connect.model.converters.MigratableConverter;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.CharsetUtils;
-import com.mirth.connect.util.XmlUtil;
+import com.mirth.connect.util.MigrationUtil;
 
 public class ImportConverter {
     private static final String HL7V2 = "HL7V2";
@@ -98,7 +97,7 @@ public class ImportConverter {
             trans.transform(new DOMSource(channel), new StreamResult(sw));
             String channelDocXML = sw.toString();
 
-            channelList.add(XmlUtil.elementFromXml(convertChannelString(channelDocXML)));
+            channelList.add(MigrationUtil.elementFromXml(convertChannelString(channelDocXML)));
             channelsRoot.removeChild(channel);
         }
 
@@ -111,7 +110,7 @@ public class ImportConverter {
 
         for (int i = 0; i < codeTemplateCount; i++) {
             Element codeTemplate = (Element) codeTemplates.item(i);
-            Element convertedCodeTemplate = convertCodeTemplates(XmlUtil.elementToXml(codeTemplate)).getDocumentElement();
+            Element convertedCodeTemplate = convertCodeTemplates(MigrationUtil.elementToXml(codeTemplate)).getDocumentElement();
             documentElement.replaceChild(document.importNode(convertedCodeTemplate, true), codeTemplate);
         }
 
@@ -181,7 +180,7 @@ public class ImportConverter {
          */
         String versionData = getComponentVersion(xmlData, "1.8.2");
 
-        if (MigratableConverter.compareVersions(versionData, "2.0.0") < 0) {
+        if (MigrationUtil.compareVersions(versionData, "2.0.0") < 0) {
             // Run any string replacements for 2.0.0 here.
         }
 
@@ -1085,7 +1084,7 @@ public class ImportConverter {
              */
             String versionData = getComponentVersion(connectorXml, "1.8.2");
 
-            if (MigratableConverter.compareVersions(versionData, "2.0.0") < 0) {
+            if (MigrationUtil.compareVersions(versionData, "2.0.0") < 0) {
                 convertHttpConnectorFor2_0(document, connectorRoot);
             }
         }
@@ -1093,7 +1092,7 @@ public class ImportConverter {
         // Conversions for 2.2.0
         String versionData = getComponentVersion(connectorXml, "2.1.1");
 
-        if (MigratableConverter.compareVersions(versionData, "2.2.0") < 0) {
+        if (MigrationUtil.compareVersions(versionData, "2.2.0") < 0) {
             convertFileConnectorFor2_2(document, connectorRoot);
             convertEmailConnectorFor2_2(document, connectorRoot);
         }

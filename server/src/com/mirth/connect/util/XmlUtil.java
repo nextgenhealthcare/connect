@@ -14,7 +14,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Hashtable;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -27,10 +26,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import com.mirth.connect.model.converters.DocumentSerializer;
 
 public class XmlUtil {
 
@@ -177,16 +172,6 @@ public class XmlUtil {
             }
         }
         return buffer.toString();
-    }
-    
-    public static String elementToXml(Element element) throws Exception {
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-        document.appendChild(document.importNode(element, true));
-        return new DocumentSerializer().toXML(document);
-    }
-    
-    public static Element elementFromXml(String xml) {
-        return new DocumentSerializer().fromXML(xml).getDocumentElement();
     }
 
     private static void addEntity(String entity, int value) {

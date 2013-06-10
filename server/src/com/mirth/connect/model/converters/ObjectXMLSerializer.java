@@ -58,8 +58,8 @@ import com.mirth.connect.model.alert.DefaultTrigger;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.util.ImportConverter3_0_0;
+import com.mirth.connect.util.MigrationUtil;
 import com.thoughtworks.xstream.io.xml.DomReader;
-import com.thoughtworks.xstream.mapper.Mapper;
 
 public class ObjectXMLSerializer extends XStreamSerializer {
     public final static String VERSION_ATTRIBUTE_NAME = "version";
@@ -113,12 +113,12 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         return annotatedClasses;
     }
     
-    private Mapper mapper;
-
     private ObjectXMLSerializer() {
         processAnnotations(annotatedClasses);
-        mapper = getXStream().getMapper();
-        getXStream().registerConverter(new MigratableConverter(mapper, VERSION_ATTRIBUTE_NAME));
+    }
+    
+    public void init(String currentVersion) {
+        getXStream().registerConverter(new MigratableConverter(MigrationUtil.normalizeVersion(currentVersion, 3), getXStream().getMapper()));
     }
 
     public String toXML(Object source) {

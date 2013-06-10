@@ -10,7 +10,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.converters.DocumentSerializer;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class MigrationUtil {
     /**
@@ -27,6 +29,27 @@ public class MigrationUtil {
      */
     public static Element elementFromXml(String xml) {
         return new DocumentSerializer().fromXML(xml).getDocumentElement();
+    }
+    
+    /**
+     * Extract the version string from an XML serialized object
+     */
+    public static String getSerializedObjectVersion(String serializedObject) {
+        DonkeyElement element = new DonkeyElement(elementFromXml(serializedObject));
+
+        // Objects serialized by version >= 3.0.0 should have a version attribute on the root element
+        if (element.hasAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME)) {
+            return element.getAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME);
+        }
+
+        // Pre-3.0.0 objects might have a 'version' child node, check for it
+        DonkeyElement versionElement = element.getChildElement("version");
+
+        if (versionElement != null) {
+            return versionElement.getTextContent();
+        }
+
+        return null;
     }
     
     /**
@@ -83,7 +106,7 @@ public class MigrationUtil {
         for (ListIterator<String> iterator = numbers.listIterator(); iterator.hasNext() && iterator.nextIndex() < length;) {
             String number = iterator.next();
 
-            if (iterator.hasNext()) {
+            if (iterator.hasNext() && iterator.nextIndex() < length) {
                 builder.append(number + ".");
             } else {
                 builder.append(number);

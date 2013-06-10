@@ -87,7 +87,6 @@ import com.mirth.connect.server.util.PasswordRequirementsChecker;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.MigrationUtil;
-import com.mirth.connect.util.XmlUtil;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.
@@ -737,7 +736,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
                     if (defaultElement != null) {
                         defaultElement.setNodeName("java.security.KeyRep");
-                        xml = XmlUtil.elementToXml(defaultElement);
+                        xml = MigrationUtil.elementToXml(defaultElement);
                     }
                 }
 

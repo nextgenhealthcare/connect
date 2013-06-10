@@ -39,10 +39,10 @@ import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.DocumentSerializer;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.util.XmlUtil;
+import com.mirth.connect.util.MigrationUtil;
 
 public class ImportConverter3_0_0 {
+    private final static String VERSION_ATTRIBUTE_NAME = "version";
     private final static String VERSION_STRING = "3.0.0";
     private final static Pattern STRING_NODE_PATTERN = Pattern.compile("(?<=<(string)>).*(?=</string>)|<null/>");
 
@@ -61,7 +61,7 @@ public class ImportConverter3_0_0 {
      * @return A DOM document representing the object in version 3.0.0 format
      */
     public static Document convert(Document document, String objectXml, Class<?> expectedClass) throws Exception {
-        if (document.getDocumentElement().hasAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME)) {
+        if (document.getDocumentElement().hasAttribute(VERSION_ATTRIBUTE_NAME)) {
             return document;
         }
 
@@ -74,11 +74,11 @@ public class ImportConverter3_0_0 {
             for (int i = 0; i < childCount; i++) {
                 Node node = childNodes.item(i);
 
-                if (node.getNodeType() == Node.ELEMENT_NODE && !((Element) node).hasAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME)) {
+                if (node.getNodeType() == Node.ELEMENT_NODE && !((Element) node).hasAttribute(VERSION_ATTRIBUTE_NAME)) {
                     Element child = (Element) node;
 
                     if (expectedClass == Connector.class) {
-                        Element convertedConnector = XmlUtil.elementFromXml(ImportConverter.convertConnector(XmlUtil.elementToXml(child)));
+                        Element convertedConnector = MigrationUtil.elementFromXml(ImportConverter.convertConnector(MigrationUtil.elementToXml(child)));
                         migrateConnector(new DonkeyElement(convertedConnector), null);
                         root.replaceChild(document.importNode(convertedConnector, true), child);
                     } else if (expectedClass == AlertModel.class) {
@@ -865,7 +865,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("durableTopic").setTextContent(readBooleanProperty(oldProperties, "durable", false));
         properties.addChildElement("selector").setTextContent(oldProperties.getProperty("selector", ""));
 
-        Properties oldConnectionProperties = readPropertiesElement(new DonkeyElement(XmlUtil.elementFromXml(oldProperties.getProperty("connectionFactoryProperties"))));
+        Properties oldConnectionProperties = readPropertiesElement(new DonkeyElement(MigrationUtil.elementFromXml(oldProperties.getProperty("connectionFactoryProperties"))));
 
         DonkeyElement connectionProperties = properties.addChildElement("connectionProperties");
         connectionProperties.setAttribute("class", "linked-hash-map");
@@ -900,7 +900,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("topic").setTextContent("false");
         properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", "${message.encodedData}"));
 
-        Properties oldConnectionProperties = readPropertiesElement(new DonkeyElement(XmlUtil.elementFromXml(oldProperties.getProperty("connectionFactoryProperties"))));
+        Properties oldConnectionProperties = readPropertiesElement(new DonkeyElement(MigrationUtil.elementFromXml(oldProperties.getProperty("connectionFactoryProperties"))));
 
         DonkeyElement connectionProperties = properties.addChildElement("connectionProperties");
         connectionProperties.setAttribute("class", "linked-hash-map");
@@ -1578,7 +1578,7 @@ public class ImportConverter3_0_0 {
 
     private static void dumpElement(DonkeyElement element) {
         try {
-            String xml = XmlUtil.elementToXml(element);
+            String xml = MigrationUtil.elementToXml(element);
             System.out.println(xml);
         } catch (Exception e) {
             e.printStackTrace();

@@ -119,6 +119,7 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
+import com.mirth.connect.util.MigrationUtil;
 
 /**
  * The main content frame for the Mirth Client Application. Extends JXFrame and
@@ -418,6 +419,9 @@ public class Frame extends JXFrame {
             int patchVersion = Integer.parseInt(version.split("\\.")[2]);
             PlatformUI.HELP_LOCATION += "v" + majorVersion + "r" + minorVersion + "p" + patchVersion + "/";
             PlatformUI.BUILD_DATE = mirthClient.getBuildDate();
+
+            // Initialize ObjectXMLSerializer once we know the server version
+            ObjectXMLSerializer.getInstance().init(PlatformUI.SERVER_VERSION);
         } catch (ClientException e) {
             alertError(this, "Could not get server information.");
         }
@@ -2987,11 +2991,13 @@ public class Frame extends JXFrame {
     }
 
     public void importChannel(String content, boolean showAlerts) {
-        boolean overwrite = false;
-        Channel importChannel;
-
-        // TODO check the version of the channel being imported and show a confirmation dialog as was done before (see commented code below)
+        if (showAlerts && !promptObjectMigration(content, "channel")) {
+            return;
+        }
         
+        boolean overwrite = false;
+        Channel importChannel = null;
+
         try {
             importChannel = ObjectXMLSerializer.getInstance().fromXML(content, Channel.class);
         } catch (Exception e) {
@@ -3001,24 +3007,6 @@ public class Frame extends JXFrame {
             
             return;
         }
-
-        /**
-         * Checks to see if the passed in channel version is current, and
-         * prompts the user if it is not.
-         */
-//        if (showAlerts) {
-//            int option = JOptionPane.YES_OPTION;
-//
-//            if (importChannel.getVersion() == null) {
-//                option = JOptionPane.showConfirmDialog(this, "The channel being imported is from an unknown version of Mirth." + "\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
-//            } else if (!importChannel.getVersion().equals(PlatformUI.SERVER_VERSION)) {
-//                option = JOptionPane.showConfirmDialog(this, "The channel being imported is from Mirth version " + importChannel.getVersion() + ". You are using Mirth version " + PlatformUI.SERVER_VERSION + ".\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
-//            }
-//
-//            if (option != JOptionPane.YES_OPTION) {
-//                return;
-//            }
-//        }
 
         try {
             String channelName = importChannel.getName();
@@ -3095,8 +3083,6 @@ public class Frame extends JXFrame {
             }
         } else {
             try {
-//                PropertyVerifier.checkChannelProperties(importChannel);
-//                PropertyVerifier.checkConnectorProperties(importChannel, getConnectorMetaData());
                 updateChannel(importChannel, overwrite);
                 doShowChannel();
             } catch (Exception e) {
@@ -4619,5 +4605,31 @@ public class Frame extends JXFrame {
 
     public Set<String> getAllChannelTags() {
         return allChannelTags;
+    }
+    
+    /**
+     * Checks to see if the serialized object version is current, and prompts the user if it is not.
+     */
+    private boolean promptObjectMigration(String content, String objectName) {
+        String version = MigrationUtil.normalizeVersion(MigrationUtil.getSerializedObjectVersion(content), 3);
+        StringBuilder message = new StringBuilder();
+
+        if (version == null) {
+            message.append("The " + objectName + " being imported is from an unknown version of Mirth Connect.\n");
+        } else {
+            int comparison = MigrationUtil.compareVersions(version, PlatformUI.SERVER_VERSION);
+
+            if (comparison > 0) {
+                alertInformation(this, "The " + objectName + " being imported originated from Mirth version " + version + ".\nYou are using Mirth Connect version " + PlatformUI.SERVER_VERSION + ".\nThe " + objectName + " cannot be imported, because it originated from a newer version of Mirth Connect.");
+                return false;
+            }
+
+            if (comparison < 0) {
+                message.append("The " + objectName + " being imported originated from Mirth version " + version + ".\n");
+            }
+        }
+
+        message.append("You are using Mirth Connect version " + PlatformUI.SERVER_VERSION + ".\nWould you like to automatically convert the " + objectName + " to the " + PlatformUI.SERVER_VERSION + " format?");
+        return JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this, message.toString(), "Select an Option", JOptionPane.YES_NO_OPTION);
     }
 }

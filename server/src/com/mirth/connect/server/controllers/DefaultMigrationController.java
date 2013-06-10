@@ -154,6 +154,7 @@ public class DefaultMigrationController extends MigrationController {
             }
 
             if (compareVersions(oldVersion, newVersion) < 0) {
+                logger.info("Migrating database schema from version " + oldVersion + " to " + newVersion);
                 migrate(Version.fromString(oldVersion));
 
                 if (result == null) {
