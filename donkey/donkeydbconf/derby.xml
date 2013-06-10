@@ -137,10 +137,7 @@
 	</query>
 	
 	<query id="createMessageSequence">
-		CREATE SEQUENCE d_msq${localChannelId}
-		START WITH 1
-		INCREMENT BY 1
-		NO CYCLE
+		INSERT INTO d_message_sequences (local_channel_id) VALUES (${localChannelId})
 	</query>
 	
 	<query id="createChannelsTable">
@@ -155,8 +152,15 @@
 		CREATE INDEX d_channels_index1 ON d_channels(local_channel_id)
 	</query>
 	
-	<query id="getNextMessageId">
-		SELECT NEXT VALUE FOR d_msq${localChannelId} FROM d_channels
+	<query id="createSequencesTable">
+		CREATE TABLE d_message_sequences (
+			local_channel_id bigint NOT NULL PRIMARY KEY,
+			id bigint NOT NULL DEFAULT 1
+		)
+	</query>
+	
+	<query id="createSequencesTableIndex1">
+		CREATE INDEX d_message_sequences_index ON d_channels(local_channel_id)
 	</query>
 	
 	<query id="addMetaDataColumnString">
@@ -237,11 +241,23 @@
 	</query>
 	
 	<query id="dropMessageSequence">
-		DROP SEQUENCE d_msq${localChannelId} RESTRICT
+		DELETE FROM d_message_sequences WHERE local_channel_id = ${localChannelId}
 	</query>
 	
 	<query id="deleteChannel">
         DELETE FROM d_channels WHERE local_channel_id = ${localChannelId}
+	</query>
+	
+	<query id="getNextMessageId">
+		SELECT id
+		FROM d_message_sequences
+		WHERE local_channel_id = ${localChannelId}
+	</query>
+	
+	<query id="incrementMessageIdSequence">
+		UPDATE d_message_sequences
+		SET id = id + 1
+		WHERE local_channel_id = ${localChannelId}
 	</query>
 
 	<query id="deleteMessageCascadeConnectorMessage">

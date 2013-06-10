@@ -115,7 +115,7 @@
 	</query>
 	
 	<query id="createMessageSequence">
-		CREATE SEQUENCE d_msq${localChannelId} START WITH 1 INCREMENT BY 1
+		CREATE SEQUENCE d_msq${localChannelId} START WITH 1 INCREMENT BY 1 NOCACHE
 	</query>
 	
 	<query id="createChannelsTable">
