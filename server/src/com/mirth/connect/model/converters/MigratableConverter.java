@@ -50,7 +50,8 @@ public class MigratableConverter extends ReflectionConverter {
          * child nodes will not have the "version" attribute.
          */
         if (context.get("readDocumentElement") == null) {
-            context.put(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, element.getAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME));
+            String version = element.hasAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME) ? element.getAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME) : null;
+            context.put(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, version);
             context.put("readDocumentElement", true);
         }
 
