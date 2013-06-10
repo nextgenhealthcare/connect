@@ -25,8 +25,8 @@ import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.MessageEncryptionUtil;
+import com.mirth.connect.util.ValueReplacer;
 
 public class MessageWriterVfs implements MessageWriter {
     private String uri;
@@ -38,7 +38,7 @@ public class MessageWriterVfs implements MessageWriter {
     private String currentFile;
     private FileObject currentFileObject;
     private Writer writer;
-    private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    private ValueReplacer replacer = new ValueReplacer();
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
     public MessageWriterVfs(String uri, String exportFilePattern, ContentType contentType, boolean destinationContent, boolean encrypted, Encryptor encryptor) {

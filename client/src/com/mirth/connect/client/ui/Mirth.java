@@ -29,6 +29,8 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.JTextComponent.KeyBinding;
 
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.velocity.app.Velocity;
+import org.apache.velocity.runtime.RuntimeConstants;
 import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 import org.jdesktop.swingx.plaf.windows.WindowsLookAndFeelAddons;
 
@@ -281,6 +283,9 @@ public class Mirth {
             username = "";
             password = "";
         }
+        
+        // disable the velocity logging
+        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
         
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {

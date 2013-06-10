@@ -89,5 +89,7 @@
 	<classpathentry kind="lib" path="lib/miglayout-core-4.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-vfs2-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-beanutils-1.8.2.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-tools-2.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
