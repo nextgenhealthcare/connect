@@ -1,31 +1,42 @@
-<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'><mapper namespace='CodeTemplate'>
-   <resultMap id='get-code-template-result'
-              type='com.mirth.connect.model.CodeTemplate'>
-      <result property='id' column='ID'/>
-      <result property='name' column='NAME'/>
-      <result property='scope' column='CODE_SCOPE'/>
-      <result property='type' column='CODE_TYPE'/>
-      <result property='tooltip' column='TOOLTIP'/>
-      <result property='code' column='CODE'/>
-   </resultMap>
-   <select id='getCodeTemplate'
-           parameterType='com.mirth.connect.model.CodeTemplate'
-           resultMap='get-code-template-result'>
-		SELECT C.ID, C.NAME, C.CODE_SCOPE, C.CODE_TYPE, C.TOOLTIP, C.CODE
-		FROM CODE_TEMPLATE C
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
+
+<mapper namespace='CodeTemplate'>
+	<resultMap id="codeTemplate-serialized-data" type="map">
+		<result property="id" column="ID" javaType="String" />
+		<result property="codeTemplate" column="CODE_TEMPLATE" javaType="String" />
+	</resultMap>
+
+	<select id='getCodeTemplate' parameterType='String' resultType='com.mirth.connect.model.CodeTemplate'>
+		SELECT CODE_TEMPLATE
+		FROM CODE_TEMPLATE
 		<where>
-         <if test='id != null'>AND C.ID = #{id}</if>
-      </where>
-	  </select>
-   <insert id='insertCodeTemplate' parameterType='com.mirth.connect.model.CodeTemplate'>
-		INSERT INTO CODE_TEMPLATE (ID, NAME, CODE_SCOPE, CODE_TYPE, TOOLTIP, CODE)
-		VALUES (#{id}, #{name}, #{scope}, #{type}, #{tooltip}, #{code})
+			<if test='value != null'>ID = #{value}</if>
+		</where>
+	</select>
+	
+	<select id="getSerializedCodeTemplateData" resultMap="codeTemplate-serialized-data">
+		SELECT ID, CODE_TEMPLATE
+		FROM CODE_TEMPLATE
+	</select>
+	
+	<update id="updateSerializedCodeTemplateData" parameterType="map">
+		UPDATE CODE_TEMPLATE
+		SET CODE_TEMPLATE = #{codeTemplate}
+		WHERE ID = #{id}
+	</update>
+	
+	<insert id='insertCodeTemplate' parameterType='map'>
+		INSERT INTO
+		CODE_TEMPLATE (ID, CODE_TEMPLATE)
+		VALUES (#{id}, #{codeTemplate})
 	</insert>
-   <delete id='deleteCodeTemplate'
-           parameterType='com.mirth.connect.model.CodeTemplate'>
+	
+	<delete id='deleteCodeTemplate' parameterType='String'>
 		DELETE FROM CODE_TEMPLATE
 		<where>
-         <if test='id != null'>AND ID=#{id}</if>
-      </where>
-	  </delete>
+			<if test='value != null'>ID=#{value}</if>
+		</where>
+	</delete>
 </mapper>

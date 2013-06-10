@@ -198,7 +198,7 @@ public class Mirth extends Thread {
      */
     public void startup() {
         Donkey.getInstance().setSerializer(ObjectXMLSerializer.getInstance());
-        
+
         configurationController.initializeSecuritySettings();
         configurationController.initializeDatabaseSettings();
 
@@ -228,7 +228,7 @@ public class Mirth extends Thread {
         extensionController.uninstallExtensions();
         migrationController.migrateExtensions();
         extensionController.initPlugins();
-        migrationController.migrateChannels();
+        migrationController.migrateSerializedData();
         userController.resetUserStatus();
         scriptController.compileGlobalScripts();
 
@@ -241,16 +241,16 @@ public class Mirth extends Thread {
         // problem starting the engine that causes it to hang
         startWebServer();
         startEngine();
-        
+
         extensionController.startPlugins();
-        
+
         try {
             alertController.initAlerts();
             engineController.redeployAllChannels();
         } catch (Exception e) {
             logger.error(e);
         }
-        
+
         printSplashScreen();
     }
 
@@ -354,7 +354,11 @@ public class Mirth extends Thread {
             contextFactory.setCertAlias("mirthconnect");
             contextFactory.setKeyManagerPassword(mirthProperties.getString("keystore.keypass"));
             // disabling low and medium strength cipers (see MIRTH-1924)
-            contextFactory.setExcludeCipherSuites(new String[] { "SSL_RSA_WITH_DES_CBC_SHA", "SSL_DHE_RSA_WITH_DES_CBC_SHA", "SSL_DHE_DSS_WITH_DES_CBC_SHA", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA", "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA", "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA" });
+            contextFactory.setExcludeCipherSuites(new String[] { "SSL_RSA_WITH_DES_CBC_SHA",
+                    "SSL_DHE_RSA_WITH_DES_CBC_SHA", "SSL_DHE_DSS_WITH_DES_CBC_SHA",
+                    "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
+                    "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA",
+                    "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA" });
 
             HandlerList handlers = new HandlerList();
             String contextPath = mirthProperties.getString("http.contextpath");
@@ -421,18 +425,18 @@ public class Mirth extends Thread {
             } else {
                 webappsDir = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "webapps" + File.separator;
             }
-            
+
             File[] listOfFiles = new File(webappsDir).listFiles(filter);
 
             if (listOfFiles != null) {
                 for (File file : listOfFiles) {
                     logger.debug("webApp File Path: " + file.getAbsolutePath());
-    
+
                     WebAppContext webapp = new WebAppContext();
                     webapp.setContextPath(contextPath + file.getName().substring(0, file.getName().length() - 4));
-    
+
                     logger.debug("webApp Context Path: " + webapp.getContextPath());
-    
+
                     webapp.setWar(file.getPath());
                     handlers.addHandler(webapp);
                     webapps.add(webapp);

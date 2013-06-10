@@ -34,8 +34,11 @@ public class Migrate3_0_0 {
         String migrationScript = IOUtils.toString(Migrate3_0_0.class.getResourceAsStream("/deltas/" + configurationController.getDatabaseType() + "-9-3.0.0.sql"));
         DatabaseUtil.executeScript(migrationScript, true);
 
-        // Make sure to set next metadata id to 1
+        migrateChannelTable();
+        migrateCodeTemplateTable();
+    }
 
+    private static void migrateChannelTable() {
         Connection conn = null;
         PreparedStatement preparedStatement = null;
         ResultSet results = null;
@@ -79,6 +82,7 @@ public class Migrate3_0_0 {
                 DonkeyElement channel = new DonkeyElement(element);
 
                 channel.addChildElement("id", channelId);
+                channel.addChildElement("nextMetaDataId", "1");
                 channel.addChildElement("name", name);
                 channel.addChildElement("description", description);
                 channel.addChildElement("enabled", Boolean.toString(isEnabled));
@@ -122,6 +126,76 @@ public class Migrate3_0_0 {
 
         } catch (Exception e) {
             logger.error("Error migrating channels.", e);
+        } finally {
+            DbUtils.closeQuietly(results);
+            DbUtils.closeQuietly(preparedStatement);
+            DbUtils.closeQuietly(conn);
+            if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
+                SqlConfig.getSqlSessionManager().close();
+            }
+        }
+    }
+
+    private static void migrateCodeTemplateTable() {
+        Connection conn = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet results = null;
+
+        try {
+            SqlConfig.getSqlSessionManager().startManagedSession();
+            conn = SqlConfig.getSqlSessionManager().getConnection();
+
+            /*
+             * MIRTH-1667: Derby fails if autoCommit is set to true and
+             * there are a large number of results. The following error
+             * occurs: "ERROR 40XD0: Container has been closed"
+             */
+            conn.setAutoCommit(false);
+
+            preparedStatement = conn.prepareStatement("SELECT ID, NAME, CODE_SCOPE, CODE_TYPE, TOOLTIP, CODE FROM __CODE_TEMPLATE");
+            results = preparedStatement.executeQuery();
+
+            while (results.next()) {
+                String id = results.getString(1);
+                String name = results.getString(2);
+                String codeScope = results.getString(3);
+                String codeType = results.getString(4);
+                String toolTip = results.getString(5);
+                String code = results.getString(6);
+
+                Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+                Element element = document.createElement("codeTemplate");
+                document.appendChild(element);
+                DonkeyElement codeTemplate = new DonkeyElement(element);
+
+                codeTemplate.addChildElement("id", id);
+                codeTemplate.addChildElement("name", name);
+                codeTemplate.addChildElement("tooltip", toolTip);
+                codeTemplate.addChildElement("code", code);
+                codeTemplate.addChildElement("type", codeType);
+                codeTemplate.addChildElement("scope", codeScope);
+
+                String serializedCodeTemplate = new DocumentSerializer().toXML(document);
+
+                PreparedStatement updateStatement = null;
+                try {
+                    updateStatement = conn.prepareStatement("INSERT INTO CODE_TEMPLATE (ID, CODE_TEMPLATE) VALUES (?, ?)");
+                    updateStatement.setString(1, id);
+                    updateStatement.setString(2, serializedCodeTemplate);
+                    updateStatement.executeUpdate();
+                    updateStatement.close();
+                } catch (Exception e) {
+                    logger.error("Error migrating code template " + id + ".", e);
+                } finally {
+                    DbUtils.closeQuietly(updateStatement);
+                }
+            }
+
+            // Since autoCommit was set to false, commit the updates
+            conn.commit();
+
+        } catch (Exception e) {
+            logger.error("Error migrating code templates.", e);
         } finally {
             DbUtils.closeQuietly(results);
             DbUtils.closeQuietly(preparedStatement);

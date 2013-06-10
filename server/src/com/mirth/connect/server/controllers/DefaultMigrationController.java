@@ -32,6 +32,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.migration.Migrate2_0_0;
@@ -191,23 +192,34 @@ public class DefaultMigrationController extends MigrationController {
     }
 
     @Override
-    public void migrateChannels() {
+    public void migrateSerializedData() {
+        migrateSerializedData("Channel.getSerializedChannelData", "Channel.updateSerializedChannelData", "channel", Channel.class);
+        migrateSerializedData("CodeTemplate.getSerializedCodeTemplateData", "CodeTemplate.updateSerializedCodeTemplateData", "codeTemplate", CodeTemplate.class);
+    }
+
+    /**
+     * It is assumed that for each migratable class that uses this an "id" column exists in the
+     * database, which is used as the primary key when updating the row. It's also assumed that for
+     * the time being, any additional columns besides the ID and serialized XML (e.g. name,
+     * revision) will not change during migration.
+     */
+    private void migrateSerializedData(String selectQuery, String updateStatement, String serializedColumnName, Class<?> expectedClass) {
         SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
         try {
-            List<Map<String, String>> serializedDataList = session.selectList("Channel.getSerializedChannelData");
+            List<Map<String, String>> serializedDataList = session.selectList(selectQuery);
 
             for (Map<String, String> serializedData : serializedDataList) {
-                String channel = serializer.toXML(serializer.fromXML(serializedData.get("channel"), Channel.class));
+                String migratedData = serializer.toXML(serializer.fromXML(serializedData.get(serializedColumnName), expectedClass));
 
-                if (!channel.equals(serializedData.get("channel"))) {
+                if (!migratedData.equals(serializedData.get(serializedColumnName))) {
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("id", serializedData.get("id"));
-                    params.put("channel", channel);
+                    params.put(serializedColumnName, migratedData);
 
-                    session.update("Channel.updateSerializedChannelData", params);
-                    logger.info("Migrated channel " + serializedData.get("id") + " to version " + ConfigurationController.getInstance().getServerVersion());
+                    session.update(updateStatement, params);
+                    logger.info("Migrated " + serializedColumnName + " " + serializedData.get("id") + " to version " + ConfigurationController.getInstance().getServerVersion());
                 }
             }
         } finally {

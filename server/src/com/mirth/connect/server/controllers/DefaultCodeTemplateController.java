@@ -9,7 +9,9 @@
 
 package com.mirth.connect.server.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
@@ -21,11 +23,8 @@ import com.mirth.connect.server.util.SqlConfig;
 public class DefaultCodeTemplateController extends CodeTemplateController {
     private Logger logger = Logger.getLogger(this.getClass());
     private static CodeTemplateController instance = null;
-    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
-    private DefaultCodeTemplateController() {
-
-    }
+    private DefaultCodeTemplateController() {}
 
     public static CodeTemplateController create() {
         synchronized (DefaultCodeTemplateController.class) {
@@ -41,7 +40,8 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         logger.debug("getting codeTemplate: " + codeTemplate);
 
         try {
-            return SqlConfig.getSqlSessionManager().selectList("CodeTemplate.getCodeTemplate", codeTemplate);
+            String id = codeTemplate == null ? null : codeTemplate.getId();
+            return SqlConfig.getSqlSessionManager().selectList("CodeTemplate.getCodeTemplate", id);
         } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
@@ -58,15 +58,17 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
 
     private void insertCodeTemplate(CodeTemplate codeTemplate) throws ControllerException {
         try {
-            CodeTemplate codeTemplateFilter = new CodeTemplate();
-            codeTemplateFilter.setId(codeTemplate.getId());
-
             try {
                 SqlConfig.getSqlSessionManager().startManagedSession();
 
                 // insert the codeTemplate and its properties
                 logger.debug("adding codeTemplate: " + codeTemplate);
-                SqlConfig.getSqlSessionManager().insert("CodeTemplate.insertCodeTemplate", codeTemplate);
+
+                Map<String, Object> params = new HashMap<String, Object>();
+                params.put("id", codeTemplate.getId());
+                params.put("codeTemplate", codeTemplate);
+
+                SqlConfig.getSqlSessionManager().insert("CodeTemplate.insertCodeTemplate", params);
 
                 SqlConfig.getSqlSessionManager().commit();
             } finally {
@@ -81,7 +83,8 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         logger.debug("removing codeTemplate: " + codeTemplate);
 
         try {
-            SqlConfig.getSqlSessionManager().delete("CodeTemplate.deleteCodeTemplate", codeTemplate);
+            String id = codeTemplate == null ? null : codeTemplate.getId();
+            SqlConfig.getSqlSessionManager().delete("CodeTemplate.deleteCodeTemplate", id);
 
             if (DatabaseUtil.statementExists("CodeTemplate.vacuumCodeTemplateTable")) {
                 SqlConfig.getSqlSessionManager().update("CodeTemplate.vacuumCodeTemplateTable");

@@ -20,7 +20,7 @@ public abstract class MigrationController extends Controller {
 
     public abstract void migrate();
 
-    public abstract void migrateChannels();
+    public abstract void migrateSerializedData();
 
     public abstract void migrateExtensions();
 }
