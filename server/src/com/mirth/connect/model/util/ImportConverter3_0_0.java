@@ -266,8 +266,6 @@ public class ImportConverter3_0_0 {
         logger.debug("Migrating channel properties");
 
         Properties oldProperties = readPropertiesElement(properties);
-        Properties channelProperties = readPropertiesElement(properties.getChildElement("channels"));
-        Properties emailProperties = readPropertiesElement(properties.getChildElement("emails"));
         properties.removeChildren();
 
         properties.addChildElement("clearGlobalChannelMap").setTextContent(oldProperties.getProperty("clearGlobalChannelMap", "true"));
@@ -583,7 +581,7 @@ public class ImportConverter3_0_0 {
 
         buildListenerConnectorProperties(properties.addChildElement("listenerConnectorProperties"), oldProperties.getProperty("host"), oldProperties.getProperty("port"), 104);
         buildResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), false);
-        
+
         properties.addChildElement("soCloseDelay").setTextContent(oldProperties.getProperty("soclosedelay", "50"));
         properties.addChildElement("releaseTo").setTextContent(oldProperties.getProperty("releaseto", "5"));
         properties.addChildElement("requestTo").setTextContent(oldProperties.getProperty("requestto", "5"));
@@ -686,7 +684,7 @@ public class ImportConverter3_0_0 {
         buildPollConnectorProperties(properties.addChildElement("pollConnectorProperties"), oldProperties.getProperty("pollingType"), oldProperties.getProperty("pollingTime"), oldProperties.getProperty("pollingFrequency"));
         buildResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), "None", true);
 
-        properties.addChildElement("scheme").setTextContent(oldProperties.getProperty("scheme", "file"));
+        properties.addChildElement("scheme").setTextContent(oldProperties.getProperty("scheme", "file").toUpperCase());
         properties.addChildElement("host").setTextContent(oldProperties.getProperty("host", ""));
         properties.addChildElement("fileFilter").setTextContent(oldProperties.getProperty("fileFilter", "*"));
         properties.addChildElement("regex").setTextContent(readBooleanProperty(oldProperties, "regex", false));
@@ -711,27 +709,27 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("moveToDirectory").setTextContent(moveToDirectory);
         properties.addChildElement("moveToFileName").setTextContent(moveToFileName);
 
-        String afterProcessingAction = "None";
+        String afterProcessingAction = "NONE";
 
         if (Boolean.parseBoolean(oldProperties.getProperty("autoDelete", "false"))) {
-            afterProcessingAction = "Delete";
+            afterProcessingAction = "DELETE";
         } else if (!StringUtils.isBlank(moveToDirectory) || !StringUtils.isBlank(moveToFileName)) {
-            afterProcessingAction = "Move";
+            afterProcessingAction = "MOVE";
         }
 
         properties.addChildElement("afterProcessingAction").setTextContent(afterProcessingAction);
 
         String errorMoveToDirectory = oldProperties.getProperty("moveToErrorDirectory");
-        String errorReadingAction = "None";
+        String errorReadingAction = "NONE";
 
         if (!StringUtils.isBlank(errorMoveToDirectory)) {
-            errorReadingAction = "Move";
+            errorReadingAction = "MOVE";
         }
 
         properties.addChildElement("errorReadingAction").setTextContent(errorReadingAction);
         properties.addChildElement("errorMoveToDirectory").setTextContent(errorMoveToDirectory);
         properties.addChildElement("errorMoveToFileName").setTextContent("");
-        properties.addChildElement("errorResponseAction").setTextContent("After Processing Action");
+        properties.addChildElement("errorResponseAction").setTextContent("AFTER_PROCESSING");
     }
 
     private static void migrateFileDispatcherProperties(DonkeyElement properties) {
@@ -742,7 +740,7 @@ public class ImportConverter3_0_0 {
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
 
-        properties.addChildElement("scheme").setTextContent(oldProperties.getProperty("scheme", "file"));
+        properties.addChildElement("scheme").setTextContent(oldProperties.getProperty("scheme", "file").toUpperCase());
         properties.addChildElement("host").setTextContent(oldProperties.getProperty("host", ""));
         properties.addChildElement("outputPattern").setTextContent(oldProperties.getProperty("outputPattern", ""));
         properties.addChildElement("anonymous").setTextContent(readBooleanProperty(oldProperties, "FTPAnonymous", true));
@@ -871,22 +869,22 @@ public class ImportConverter3_0_0 {
 
         DonkeyElement connectionProperties = properties.addChildElement("connectionProperties");
         connectionProperties.setAttribute("class", "linked-hash-map");
-        
+
         for (Object key : oldConnectionProperties.keySet()) {
             String value = oldConnectionProperties.getProperty((String) key);
-            
+
             DonkeyElement entry = connectionProperties.addChildElement("entry");
             entry.addChildElement("string", (String) key);
             entry.addChildElement("string", value);
         }
     }
-    
+
     private static void migrateJmsDispatcherProperties(DonkeyElement properties) {
         logger.debug("Migrating JmsDispatcherProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.jms.JmsDispatcherProperties");
         properties.removeChildren();
-        
+
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
 
         properties.addChildElement("useJndi").setTextContent(readBooleanProperty(oldProperties, "useJndi", false));
@@ -906,10 +904,10 @@ public class ImportConverter3_0_0 {
 
         DonkeyElement connectionProperties = properties.addChildElement("connectionProperties");
         connectionProperties.setAttribute("class", "linked-hash-map");
-        
+
         for (Object key : oldConnectionProperties.keySet()) {
             String value = oldConnectionProperties.getProperty((String) key);
-            
+
             DonkeyElement entry = connectionProperties.addChildElement("entry");
             entry.addChildElement("string", (String) key);
             entry.addChildElement("string", value);
