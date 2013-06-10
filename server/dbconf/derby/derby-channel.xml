@@ -3,84 +3,56 @@
 <!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
 
 <mapper namespace="Channel">
-	<resultMap type="com.mirth.connect.model.Channel" id="get-channel-result">
-		<result property="id" column="ID" />
-		<result property="name" column="NAME" />
-		<result property='nextMetaDataId' column='NEXT_METADATA_ID' />
-		<result property="description" column="DESCRIPTION" />
-		<result property="enabled" column="IS_ENABLED" />
-		<result property="revision" column="REVISION" />		
-		<result property="lastModified" column="LAST_MODIFIED" />	
-		<result property="sourceConnector" column="SOURCE_CONNECTOR" />
-		<result property="destinationConnectors" column="DESTINATION_CONNECTORS" />
-		<result property="properties" column="PROPERTIES" />
-		<result property="preprocessingScript" column="PREPROCESSING_SCRIPT" />
-		<result property="postprocessingScript" column="POSTPROCESSING_SCRIPT" />
-		<result property="deployScript" column="DEPLOY_SCRIPT" />
-		<result property="shutdownScript" column="SHUTDOWN_SCRIPT" />
-	</resultMap>
-	
 	<resultMap id="channel-serialized-data" type="map">
 		<result property="id" column="ID" javaType="String" />
-		<result property="sourceConnector" column="SOURCE_CONNECTOR" javaType="String" />
-		<result property="destinationConnectors" column="DESTINATION_CONNECTORS" javaType="String" />
-		<result property="properties" column="PROPERTIES" javaType="String" />
+		<result property="channel" column="CHANNEL" javaType="String" />
 	</resultMap>
 	
-	<select id="getChannel" parameterType="com.mirth.connect.model.Channel" resultMap="get-channel-result">
-		SELECT C.*
-		FROM CHANNEL C
-		<where>
-			<if test="id != null">C.ID = #{id}</if>
-			<if test="name != null">AND C.NAME = #{name}</if>
-		</where>
+	<resultMap id="channel-revision-data" type="map">
+		<result property="id" column="ID" javaType="String" />
+		<result property="revision" column="REVISION" javaType="Integer" />
+	</resultMap>
+	
+	<select id="getChannel" parameterType="String" resultType="com.mirth.connect.model.Channel">
+		SELECT CHANNEL
+		FROM CHANNEL
+		WHERE ID = #{value}
 	</select>
 	
 	<select id="getSerializedChannelData" resultMap="channel-serialized-data">
-		SELECT C.ID, C.SOURCE_CONNECTOR, C.DESTINATION_CONNECTORS, C.PROPERTIES
-		FROM CHANNEL C
+		SELECT ID, CHANNEL
+		FROM CHANNEL
 	</select>
 	
 	<update id="updateSerializedChannelData" parameterType="map">
 		UPDATE CHANNEL
-		SET SOURCE_CONNECTOR = #{sourceConnector},
-		DESTINATION_CONNECTORS = #{destinationConnectors},
-		PROPERTIES = #{properties}
-		WHERE ID = #{channelId}
-	</update>
-	
-	<select id="getChannelRevision" resultType="com.mirth.connect.model.Channel">
-		SELECT ID, REVISION FROM CHANNEL WITH UR
-	</select>
-	
-	<insert id="insertChannel" parameterType="com.mirth.connect.model.Channel">
-		INSERT INTO
-		CHANNEL (ID, NAME, NEXT_METADATA_ID, DESCRIPTION, IS_ENABLED, REVISION, LAST_MODIFIED, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT, POSTPROCESSING_SCRIPT, DEPLOY_SCRIPT, SHUTDOWN_SCRIPT)
-		VALUES (#{id}, #{name}, #{nextMetaDataId}, #{description}, #{enabled}, #{revision}, #{lastModified}, #{sourceConnector}, #{destinationConnectors}, #{properties}, #{preprocessingScript}, #{postprocessingScript}, #{deployScript}, #{shutdownScript})
-	</insert>
-	
-	<update id="updateChannel" parameterType="com.mirth.connect.model.Channel">
-		UPDATE CHANNEL
-		SET NAME = #{name},
-			NEXT_METADATA_ID = #{nextMetaDataId},
-			DESCRIPTION = #{description},
-			IS_ENABLED = #{enabled},
-			REVISION = #{revision},
-			LAST_MODIFIED = #{lastModified},
-			SOURCE_CONNECTOR = #{sourceConnector},
-			DESTINATION_CONNECTORS = #{destinationConnectors},
-			PROPERTIES = #{properties},
-			PREPROCESSING_SCRIPT = #{preprocessingScript},
-			POSTPROCESSING_SCRIPT = #{postprocessingScript},
-			DEPLOY_SCRIPT = #{deployScript},
-			SHUTDOWN_SCRIPT = #{shutdownScript}
+		SET CHANNEL = #{channel}
 		WHERE ID = #{id}
 	</update>
 	
-	<delete id="deleteChannel" parameterType="com.mirth.connect.model.Channel">
+	<select id='getChannelRevision' resultMap='channel-revision-data'>
+		SELECT ID, REVISION
+		FROM CHANNEL WITH UR
+	</select>
+	
+	<insert id='insertChannel' parameterType='map'>
+		INSERT INTO
+		CHANNEL (ID, NAME, REVISION, CHANNEL)
+		VALUES (#{id}, #{name}, #{revision}, #{channel})
+	</insert>
+	
+	<update id='updateChannel' parameterType='map'>
+		UPDATE CHANNEL
+		SET NAME = #{name},
+		REVISION = #{revision},
+		CHANNEL = #{channel}
+		WHERE ID = #{id}
+	</update>
+	
+	<delete id='deleteChannel' parameterType='String'>
 		DELETE FROM CHANNEL
 		<where>
-			<if test='id != null'>ID=#{id}</if>
+			<if test='value != null'>ID=#{value}</if>
 		</where>
 	</delete>
 	

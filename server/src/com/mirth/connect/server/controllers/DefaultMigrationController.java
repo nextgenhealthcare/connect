@@ -10,13 +10,9 @@
 package com.mirth.connect.server.controllers;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +24,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -36,26 +31,47 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.mirth.connect.model.ChannelProperties;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.PluginMetaData;
-import com.mirth.connect.model.ServerSettings;
-import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.migration.Migrate2_0_0;
+import com.mirth.connect.server.migration.Migrate3_0_0;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.MigrationUtil;
 
 /**
  * The MigrationController migrates the database to the current version.
- * 
  */
 public class DefaultMigrationController extends MigrationController {
     private Logger logger = Logger.getLogger(this.getClass());
-    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-    private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
+
+    public enum Version {
+        V0("0"), V1("1"), V2("2"), V3("3"), V4("4"), V5("5"), V6("6"), V7("7"), V8("8"), V9("9"), V3_0_0(
+                "3.0.0");
+
+        private String value;
+
+        private Version(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+
+        public static Version fromString(String value) {
+            for (Version version : values()) {
+                if (version.toString().equals(value)) {
+                    return version;
+                }
+            }
+            return null;
+        }
+    }
 
     // singleton pattern
     private static DefaultMigrationController instance = null;
@@ -74,15 +90,13 @@ public class DefaultMigrationController extends MigrationController {
         }
     }
 
-    // TODO: Rewrite with fewer returns
     @Override
     public void migrate() {
-        // check for one of the tables to see if we should run the create script
-
+        // Check for one of the tables to see if we should run the create script
         Connection conn = null;
         ResultSet resultSet = null;
-
         SqlConfig.getSqlSessionManager().startManagedSession();
+
         try {
             conn = SqlConfig.getSqlSessionManager().getConnection();
 
@@ -91,9 +105,9 @@ public class DefaultMigrationController extends MigrationController {
 
             // Specify the type of object; in this case we want tables
             String[] types = { "TABLE" };
-            String tablePattern = "CONFIGURATION"; // this is a table that has
-            // remained unchanged since
-            // day 1
+            // This is a table that has remained unchanged since day 1
+            String tablePattern = "CONFIGURATION";
+
             resultSet = dbmd.getTables(null, null, tablePattern, types);
 
             boolean resultFound = resultSet.next();
@@ -104,11 +118,9 @@ public class DefaultMigrationController extends MigrationController {
                 resultFound = resultSet.next();
             }
 
-            // If missing this table we can assume that they don't have the
-            // schema installed
+            // If missing this table we can assume that they don't have the schema installed
             if (!resultFound) {
                 createSchema(conn);
-                migrateServerProperties();
                 return;
             }
         } catch (Exception e) {
@@ -117,46 +129,65 @@ public class DefaultMigrationController extends MigrationController {
         } finally {
             DbUtils.closeQuietly(resultSet);
             DbUtils.closeQuietly(conn);
-            if(SqlConfig.getSqlSessionManager().isManagedSessionStarted()){
+            if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
                 SqlConfig.getSqlSessionManager().close();
             }
         }
 
-        // otherwise proceed with migration if necessary
+        // Otherwise proceed with migration if necessary
+        String newVersion = configurationController.getServerVersion();
+
         try {
-            int newSchemaVersion = configurationController.getSchemaVersion();
-            int oldSchemaVersion;
+            String oldVersion;
 
-            if (newSchemaVersion == -1)
+            if (newVersion == null) {
                 return;
-
-            Object result = null;
-
-            try {
-                result = SqlConfig.getSqlSessionManager().selectOne("Configuration.getSchemaVersion");
-            } catch (PersistenceException e) {
-
             }
+
+            Object result = SqlConfig.getSqlSessionManager().selectOne("Configuration.getSchemaVersion");
 
             if (result == null) {
-                oldSchemaVersion = 0;
+                oldVersion = "0";
             } else {
-                oldSchemaVersion = ((Integer) result).intValue();
+                oldVersion = (String) result;
             }
 
-            if (oldSchemaVersion != newSchemaVersion) {
-                migrate(oldSchemaVersion, newSchemaVersion);
+            if (compareVersions(oldVersion, newVersion) < 0) {
+                migrate(Version.fromString(oldVersion));
 
-                if (result == null)
-                    SqlConfig.getSqlSessionManager().update("Configuration.setInitialSchemaVersion", newSchemaVersion);
-                else
-                    SqlConfig.getSqlSessionManager().update("Configuration.updateSchemaVersion", newSchemaVersion);
+                if (result == null) {
+                    SqlConfig.getSqlSessionManager().update("Configuration.setInitialSchemaVersion", newVersion);
+                } else {
+                    SqlConfig.getSqlSessionManager().update("Configuration.updateSchemaVersion", newVersion);
+                }
             }
-
-            migrateServerProperties();
         } catch (Exception e) {
-            logger.error("Could not initialize migration controller.", e);
+            logger.error("Could not migrate to version " + newVersion, e);
         }
+    }
+
+    /**
+     * Compares two schema versions to see which one is most recent. Versions 1-9 are the old
+     * versions; after version 9 the product version is used.
+     * 
+     * @return zero if the versions are equal, a negative value if version1 is less than version2,
+     *         and a positive value if version1 is greater than version2
+     */
+    private int compareVersions(String version1, String version2) {
+        boolean version1IsOld = version1.matches("\\d");
+        boolean version2IsOld = version2.matches("\\d");
+
+        // Deal with old versions first
+        if (version1IsOld && !version2IsOld) {
+            return -1;
+        } else if (!version1IsOld && version2IsOld) {
+            return 1;
+        } else if (version1IsOld && version2IsOld) {
+            return Integer.parseInt(version1) - Integer.parseInt(version2);
+        }
+
+        // Assume both versions are new
+        return MigrationUtil.compareVersions(version1, version2);
     }
 
     @Override
@@ -168,17 +199,13 @@ public class DefaultMigrationController extends MigrationController {
             List<Map<String, String>> serializedDataList = session.selectList("Channel.getSerializedChannelData");
 
             for (Map<String, String> serializedData : serializedDataList) {
-                String sourceConnector = serializer.toXML(serializer.fromXML(serializedData.get("sourceConnector"), Connector.class));
-                String destinationConnectors = serializer.toXML(serializer.fromXML(serializedData.get("destinationConnectors"), Connector.class));
-                String properties = serializer.toXML(serializer.fromXML(serializedData.get("properties"), ChannelProperties.class));
+                String channel = serializer.toXML(serializer.fromXML(serializedData.get("channel"), Channel.class));
 
-                if (!sourceConnector.equals(serializedData.get("sourceConnector")) || !destinationConnectors.equals(serializedData.get("destinationConnectors")) || !properties.equals(serializedData.get("properties"))) {
+                if (!channel.equals(serializedData.get("channel"))) {
                     Map<String, String> params = new HashMap<String, String>();
-                    params.put("channelId", serializedData.get("id"));
-                    params.put("sourceConnector", sourceConnector);
-                    params.put("destinationConnectors", destinationConnectors);
-                    params.put("properties", properties);
-                
+                    params.put("id", serializedData.get("id"));
+                    params.put("channel", channel);
+
                     session.update("Channel.updateSerializedChannelData", params);
                     logger.info("Migrated channel " + serializedData.get("id") + " to version " + ConfigurationController.getInstance().getServerVersion());
                 }
@@ -186,11 +213,6 @@ public class DefaultMigrationController extends MigrationController {
         } finally {
             session.close();
         }
-    }
-    
-    private String migrateXml(String xml) {
-        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        return serializer.serialize(serializer.deserialize(xml));
     }
 
     @Override
@@ -278,141 +300,24 @@ public class DefaultMigrationController extends MigrationController {
         DatabaseUtil.executeScript(creationScript, true);
     }
 
-    private void migrate(int oldSchemaVersion, int newSchemaVersion) throws Exception {
-        while (oldSchemaVersion < newSchemaVersion) {
-            int nextSchemaVersion = oldSchemaVersion + 1;
+    private void migrate(Version oldSchemaVersion) throws Exception {
+        int oldVersionNumber = Integer.parseInt(oldSchemaVersion.toString());
 
-            // gets and executes the correct migration script based on dbtype
-            // and versions
-            String migrationScript = IOUtils.toString(getClass().getResourceAsStream("/deltas/" + configurationController.getDatabaseType() + "-" + oldSchemaVersion + "-" + nextSchemaVersion + ".sql"));
-            DatabaseUtil.executeScript(migrationScript, true);
-
-            // executes any necessary database content migration
-            migrateContents(oldSchemaVersion, nextSchemaVersion);
-
-            oldSchemaVersion++;
-        }
-    }
-
-    /**
-     * When migrating Mirth Connect versions, certain configurations saved to
-     * the database might also need to be updated. This method uses the schema
-     * version migration process to migrate configurations saved in the
-     * database.
-     */
-    private void migrateContents(int oldVersion, int newVersion) throws Exception {
-
-        // This migration is for 2.0.0
-        if ((oldVersion == 6) && (newVersion == 7)) {
-            // Update the code template scopes and package names
-            CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
-            try {
-                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-                List<CodeTemplate> codeTemplates = codeTemplateController.getCodeTemplate(null);
-                List<CodeTemplate> convertedCodeTemplates = (List<CodeTemplate>) serializer.fromXML(serializer.toXML(codeTemplates));
-                codeTemplateController.updateCodeTemplates(convertedCodeTemplates);
-            } catch (Exception e) {
-                logger.error("Error migrating code templates.", e);
-            }
-
-            // Update the global script package names
-            try {
-                Map<String, String> globalScripts = scriptController.getGlobalScripts();
-                
-                for (Entry<String, String> globalScriptEntry : globalScripts.entrySet()) {
-                    globalScripts.put(globalScriptEntry.getKey(), globalScriptEntry.getValue().replaceAll("com.webreach.mirth", "com.mirth.connect"));
-                }
-                
-                scriptController.setGlobalScripts(globalScripts);
-            } catch (Exception e) {
-                logger.error("Error migrating global scripts.", e);
-            }
-
-            // Update the connector package names in the database so the
-            // connector objects can serialize to the new package names
-            Connection conn = null;
-            Statement statement = null;
-            ResultSet results = null;
-
-            try {
-                SqlConfig.getSqlSessionManager().startManagedSession();
-                conn = SqlConfig.getSqlSessionManager().getConnection();
-
-                /*
-                 * MIRTH-1667: Derby fails if autoCommit is set to true and
-                 * there are a large number of results. The following error
-                 * occurs: "ERROR 40XD0: Container has been closed"
-                 */
-                conn.setAutoCommit(false);
-
-                statement = conn.createStatement();
-                results = statement.executeQuery("SELECT ID, SOURCE_CONNECTOR, DESTINATION_CONNECTORS FROM CHANNEL");
-
-                while (results.next()) {
-                    String channelId = results.getString(1);
-                    String sourceConnector = results.getString(2);
-                    String destinationConnectors = results.getString(3);
-
-                    sourceConnector = sourceConnector.replaceAll("com.webreach.mirth", "com.mirth.connect");
-                    destinationConnectors = destinationConnectors.replaceAll("com.webreach.mirth", "com.mirth.connect");
-
-                    PreparedStatement preparedStatement = null;
-                    try {
-                        preparedStatement = conn.prepareStatement("UPDATE CHANNEL SET SOURCE_CONNECTOR = ?, DESTINATION_CONNECTORS = ? WHERE ID = ?");
-                        preparedStatement.setString(1, sourceConnector);
-                        preparedStatement.setString(2, destinationConnectors);
-                        preparedStatement.setString(3, channelId);
-
-                        preparedStatement.executeUpdate();
-                        preparedStatement.close();
-                    } catch (Exception ex) {
-                        logger.error("Error migrating connectors.", ex);
-                    } finally {
-                        DbUtils.closeQuietly(preparedStatement);
-                    }
-                }
-
-                // Since autoCommit was set to false, commit the updates
-                conn.commit();
-
-            } catch (Exception e) {
-                logger.error("Error migrating connectors.", e);
-            } finally {
-                DbUtils.closeQuietly(results);
-                DbUtils.closeQuietly(statement);
-                DbUtils.closeQuietly(conn);
-                if(SqlConfig.getSqlSessionManager().isManagedSessionStarted()){
-                    SqlConfig.getSqlSessionManager().close();
-                }
-            }
-        }
-    }
-
-    /*
-     * Since we moved the server properties from a file to the database, we need
-     * to copy over the previous properties into the database if a file exists
-     */
-    private void migrateServerProperties() {
-        try {
-            File propertiesFile = new File(configurationController.getBaseDir() + File.separator + "server.properties");
-
-            if (propertiesFile.exists()) {
-                Properties newProperties = configurationController.getServerSettings().getProperties();
-                Properties oldProperties = new Properties();
-
-                oldProperties.load(new FileInputStream(propertiesFile));
-                newProperties.putAll(oldProperties);
-                configurationController.setServerSettings(new ServerSettings(newProperties));
-                configurationController.setUpdateSettings(new UpdateSettings(newProperties));
-
-                if (!propertiesFile.delete()) {
-                    logger.error("Could not delete existing server.properties file. Please delete it manually.");
-                }
-            }
-        } catch (ControllerException ce) {
-            logger.error("Error loading current server properties from database.", ce);
-        } catch (IOException ioe) {
-            logger.error("Error loading existing server.properties file.", ioe);
+        switch (oldSchemaVersion) {
+            case V0:
+            case V1:
+            case V2:
+            case V3:
+            case V4:
+            case V5:
+            case V6:
+                Migrate2_0_0.migrate(oldVersionNumber);
+                oldVersionNumber = 7;
+            case V7:
+            case V8:
+            case V9:
+                Migrate3_0_0.migrate(oldVersionNumber);
+            case V3_0_0:
         }
     }
 }

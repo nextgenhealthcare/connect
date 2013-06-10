@@ -126,7 +126,6 @@
 
 	<target name="dist" depends="build-manager, build-cli, build-webadmin">
 		<echo>Application version: ${version}</echo>
-		<echo>Database schema version: ${schemaVersion}</echo>
 
 		<ant antfile="${server}/build.xml" dir="${server}" target="create-dist">
 			<property name="version" value="${version}" />

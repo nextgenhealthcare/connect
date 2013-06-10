@@ -25,10 +25,8 @@ import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -88,6 +86,7 @@ import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.PasswordRequirementsChecker;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.MigrationUtil;
 import com.mirth.connect.util.XmlUtil;
 
 /**
@@ -357,11 +356,6 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     @Override
-    public int getSchemaVersion() {
-        return versionConfig.getInt("schema.version", -1);
-    }
-
-    @Override
     public String getBuildDate() {
         return versionConfig.getString("mirth.date");
     }
@@ -616,7 +610,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             KeyStore keyStore = null;
 
             // if the current server version is pre-2.2, load the keystore as JKS
-            if (compareVersions("2.2.0", getServerVersion()) == 1) {
+            if (MigrationUtil.compareVersions("2.2.0", getServerVersion()) == 1) {
                 keyStore = KeyStore.getInstance("JKS");
             } else {
                 keyStore = KeyStore.getInstance("JCEKS");
@@ -933,7 +927,8 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
 
         // Remove properties that are no longer used if they exist
-        String[] propertiesToRemove = new String[] { "keystore.storetype", "keystore.algorithm", "keystore.alias", "truststore.storetype", "truststore.algorithm" };
+        String[] propertiesToRemove = new String[] { "keystore.storetype", "keystore.algorithm",
+                "keystore.alias", "truststore.storetype", "truststore.algorithm" };
         List<String> removedProperties = new ArrayList<String>();
 
         for (String propertyToRemove : propertiesToRemove) {
@@ -955,60 +950,6 @@ public class DefaultConfigurationController extends ConfigurationController {
                 logger.error("The following properties should be removed from mirth.properties manually: " + removedProperties.toString());
             }
         }
-    }
-
-    /**
-     * Compares two versions strings (ex. 1.6.1.2335).
-     * 
-     * @param version1
-     * @param version2
-     * @return -1 if version1 < version2,
-     *         1 if version1 > version2,
-     *         0 if version1 = version2
-     */
-    private int compareVersions(String version1, String version2) {
-        if ((version1 == null) && (version2 == null)) {
-            return 0;
-        } else if ((version1 != null) && (version2 == null)) {
-            return 1;
-        } else if ((version1 == null) && (version2 != null)) {
-            return -1;
-        } else {
-            String[] numbers1 = normalizeVersion(version1, 3).split("\\.");
-            String[] numbers2 = normalizeVersion(version2, 3).split("\\.");
-
-            for (int i = 0; i < numbers1.length; i++) {
-                if (Integer.valueOf(numbers1[i]) < Integer.valueOf(numbers2[i])) {
-                    return -1;
-                } else if (Integer.valueOf(numbers1[i]) > Integer.valueOf(numbers2[i])) {
-                    return 1;
-                }
-            }
-        }
-
-        return 0;
-    }
-
-    private String normalizeVersion(String version, int length) {
-        List<String> numbers = new ArrayList<String>(Arrays.asList(version.split("\\.")));
-
-        while (numbers.size() < length) {
-            numbers.add("0");
-        }
-
-        StringBuilder builder = new StringBuilder();
-
-        for (Iterator<String> iterator = numbers.iterator(); iterator.hasNext();) {
-            String number = iterator.next();
-
-            if (iterator.hasNext()) {
-                builder.append(number + ".");
-            } else {
-                builder.append(number);
-            }
-        }
-
-        return builder.toString();
     }
 
     private boolean isDatabaseRunning() {

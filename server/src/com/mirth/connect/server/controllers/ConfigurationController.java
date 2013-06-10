@@ -51,25 +51,25 @@ public abstract class ConfigurationController extends Controller {
      * 
      */
     public abstract void initializeSecuritySettings();
-    
+
     /**
      * Initializes the DatabaseSettings from the properties configuration.
      */
     public abstract void initializeDatabaseSettings();
-    
+
     /**
      * Migrates the encryption key from the database to a new JCEKS keystore.
      * This should only be run once during the migration from pre-2.2 to 2.2.
      */
     public abstract void migrateKeystore();
-    
+
     /**
      * Returns the default encryptor.
      * 
      * @return the default encryptor
      */
     public abstract Encryptor getEncryptor();
-    
+
     /**
      * Returns the default digester.
      * 
@@ -139,7 +139,7 @@ public abstract class ConfigurationController extends Controller {
      * @throws ControllerException
      */
     public abstract EncryptionSettings getEncryptionSettings() throws ControllerException;
-    
+
     /**
      * Returns all database settings.
      * 
@@ -147,15 +147,16 @@ public abstract class ConfigurationController extends Controller {
      * @throws ControllerException
      */
     public abstract DatabaseSettings getDatabaseSettings() throws ControllerException;
-    
+
     /**
      * Sets all server settings.
      * 
-     * @param server settings
+     * @param server
+     *            settings
      * @throws ControllerException
      */
     public abstract void setServerSettings(ServerSettings settings) throws ControllerException;
-    
+
     /**
      * Returns all update settings.
      * 
@@ -167,7 +168,8 @@ public abstract class ConfigurationController extends Controller {
     /**
      * Sets all update settings.
      * 
-     * @param update settings
+     * @param update
+     *            settings
      * @throws ControllerException
      */
     public abstract void setUpdateSettings(UpdateSettings settings) throws ControllerException;
@@ -183,7 +185,8 @@ public abstract class ConfigurationController extends Controller {
      * A list of database driver metadata specified in the dbdrivers.xml file.
      * 
      * @return a list of database driver metadata
-     * @throws ControllerException if the list could not be retrieved or parsed
+     * @throws ControllerException
+     *             if the list could not be retrieved or parsed
      */
     public abstract List<DriverInfo> getDatabaseDrivers() throws ControllerException;
 
@@ -193,13 +196,6 @@ public abstract class ConfigurationController extends Controller {
      * @return the server version
      */
     public abstract String getServerVersion();
-
-    /**
-     * Returns the current database schema version.
-     * 
-     * @return the current database schema version.
-     */
-    public abstract int getSchemaVersion();
 
     /**
      * Returns the server build date.
@@ -218,7 +214,7 @@ public abstract class ConfigurationController extends Controller {
      * <li>Server properties</li>
      * <li>Scripts</li>
      * </ul>
-     *  
+     * 
      * @return the server configuration
      * @throws ControllerException
      */
@@ -227,9 +223,11 @@ public abstract class ConfigurationController extends Controller {
     /**
      * Restores the server configuration.
      * 
-     * @param serverConfiguration the server configuration to restore
-     * @throws ControllerException if the server configuration could not be restored
-     * @throws InterruptedException 
+     * @param serverConfiguration
+     *            the server configuration to restore
+     * @throws ControllerException
+     *             if the server configuration could not be restored
+     * @throws InterruptedException
      */
     public abstract void setServerConfiguration(ServerConfiguration serverConfiguration) throws StartException, StopException, ControllerException, InterruptedException;
 
@@ -245,7 +243,8 @@ public abstract class ConfigurationController extends Controller {
     /**
      * Returns the current status of the server.
      * 
-     * @return 0 if the server is running, 1 if it is unavailable, and 2 if it is currently starting.
+     * @return 0 if the server is running, 1 if it is unavailable, and 2 if it is currently
+     *         starting.
      */
     public abstract int getStatus();
 
@@ -259,14 +258,15 @@ public abstract class ConfigurationController extends Controller {
     /**
      * Sets the engine starting status.
      * 
-     * @param isEngineStarting the starting status of the engine
+     * @param isEngineStarting
+     *            the starting status of the engine
      */
     public abstract void setEngineStarting(boolean isEngineStarting);
 
     // properties
 
     public abstract Properties getPropertiesForGroup(String group);
-    
+
     public abstract void removePropertiesForGroup(String group);
 
     public abstract String getProperty(String group, String name);
