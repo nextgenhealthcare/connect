@@ -129,12 +129,24 @@ public class ImportConverter3_0_0 {
         int metaDataId = 1;
 
         for (DonkeyElement destinationConnector : channel.getChildElement("destinationConnectors").getChildElements()) {
-            migrateConnector(destinationConnector, metaDataId);
+            // Before migrating, we clone the destination connector here in case we need to add a response channel writer later
+            DonkeyElement oldDestinationConnector = new DonkeyElement((Element) destinationConnector.cloneNode(true));
+
+            String sendResponseToChannelId = migrateConnector(destinationConnector, metaDataId);
+            String destinationName = destinationConnector.getChildElement("name").getTextContent();
             destinationConnector.getChildElement("waitForPrevious").setTextContent(synchronous);
 
             // Fix response value
-            if (responseConnectorProperties != null && destinationConnector.getChildElement("name").getTextContent().equals(responseConnectorProperties.getChildElement("responseVariable").getTextContent())) {
+            if (responseConnectorProperties != null && destinationName.equals(responseConnectorProperties.getChildElement("responseVariable").getTextContent())) {
                 responseConnectorProperties.getChildElement("responseVariable").setTextContent("d" + metaDataId);
+            }
+
+            // Add a destination connector if the previous one used the Send Response To option
+            if (StringUtils.isNotBlank(sendResponseToChannelId) && !sendResponseToChannelId.equals("sink")) {
+                createResponseChannelWriter(oldDestinationConnector, metaDataId++, sendResponseToChannelId);
+
+                // Insert the migrated response channel writer before the next destination connector, or at the end
+                destinationConnector.getParentNode().insertBefore(oldDestinationConnector.cloneNode(true), destinationConnector.getNextSibling());
             }
 
             metaDataId++;
@@ -143,7 +155,70 @@ public class ImportConverter3_0_0 {
         channel.addChildElement("nextMetaDataId").setTextContent(Integer.toString(metaDataId));
     }
 
-    private static void migrateConnector(DonkeyElement connector, Integer metaDataId) {
+    private static void createResponseChannelWriter(DonkeyElement connector, Integer prevMetaDataId, String channelId) {
+        String responseMapKey = "d" + String.valueOf(prevMetaDataId);
+        DonkeyElement name = connector.getChildElement("name");
+        name.setTextContent(name.getTextContent() + " - Send response to channel " + channelId);
+
+        connector.getChildElement("transportName").setTextContent("Channel Writer");
+
+        // Remove all connector properties and replace them with Channel Writer properties
+        DonkeyElement properties = connector.getChildElement("properties");
+        properties.removeChildren();
+        addChildAndSetName(properties, "DataType").setTextContent("Channel Writer");
+        addChildAndSetName(properties, "host").setTextContent(channelId);
+        // This connector should always wait on the previous one
+        addChildAndSetName(properties, "synchronised").setTextContent("0");
+        // Sends the response data from the previous destination
+        addChildAndSetName(properties, "template").setTextContent("${" + responseMapKey + ".message}");
+
+        // Remove all transformer steps
+        DonkeyElement transformer = connector.getChildElement("transformer");
+        transformer.getChildElement("steps").removeChildren();
+        // We don't want the transformer to run, so set the outbound data type equal to the inbound,
+        // and remove all properties (which will cause migration to set them as the defaults)
+        transformer.getChildElement("outboundProtocol").setTextContent(transformer.getChildElement("inboundProtocol").getTextContent());
+        transformer.getChildElement("inboundProperties").removeChildren();
+        transformer.getChildElement("outboundProperties").removeChildren();
+
+        // If the previous destination had a filter, we need to add a filter on this destination as well
+        // The filter has a single step that accepts the message if the previous destination was not filtered
+        if (connector.getChildElement("filter").getChildElement("rules").getChildElements().size() > 0) {
+            // Remove all filter rules
+            connector.getChildElement("filter").getChildElement("rules").removeChildren();
+
+            DonkeyElement rule = connector.getChildElement("filter").getChildElement("rules").addChildElement("rule");
+            rule.addChildElement("sequenceNumber", "0");
+            rule.addChildElement("name", "Accept message if \"$('" + responseMapKey + "').getStatus()\" does not equal 'FILTERED'");
+            rule.addChildElement("type", "Rule Builder");
+            rule.addChildElement("operator", "NONE");
+
+            DonkeyElement data = rule.addChildElement("data");
+            data.setAttribute("class", "map");
+            addMapEntry(data, "Values", "'FILTERED'", true);
+            addMapEntry(data, "Name", "", false);
+            addMapEntry(data, "Equals", "0", false);
+            addMapEntry(data, "Field", "$('" + responseMapKey + "').getStatus()", false);
+            addMapEntry(data, "OriginalField", "", false);
+
+            rule.addChildElement("script", "if($('" + responseMapKey + "').getStatus() != 'FILTERED')\n{\nreturn true;\n}\nreturn false;");
+        }
+
+        // Run the new destination connector through regular migration
+        migrateConnector(connector, prevMetaDataId + 1);
+    }
+
+    private static void addMapEntry(DonkeyElement map, String key, String value, boolean valueIsList) {
+        DonkeyElement entry = map.addChildElement("entry");
+        entry.addChildElement("string", key);
+        if (valueIsList) {
+            entry.addChildElement("list").addChildElement("string", value);
+        } else {
+            entry.addChildElement("string", value);
+        }
+    }
+
+    private static String migrateConnector(DonkeyElement connector, Integer metaDataId) {
         logger.debug("Migrating connector");
 
         DonkeyElement version = connector.getChildElement("version");
@@ -172,6 +247,7 @@ public class ImportConverter3_0_0 {
         DonkeyElement transportName = connector.getChildElement("transportName");
         String connectorName = transportName.getTextContent();
         DonkeyElement properties = connector.getChildElement("properties");
+        String sendResponseToChannelId = null;
 
         if (connectorName.equals("Channel Reader")) {
             migrateVmReceiverProperties(properties);
@@ -194,7 +270,7 @@ public class ImportConverter3_0_0 {
         } else if (connectorName.equals("HTTP Listener")) {
             migrateHttpReceiverProperties(properties);
         } else if (connectorName.equals("HTTP Sender")) {
-            migrateHttpDispatcherProperties(properties);
+            sendResponseToChannelId = migrateHttpDispatcherProperties(properties);
         } else if (connectorName.equals("JavaScript Reader")) {
             migrateJavaScriptReceiverProperties(properties);
         } else if (connectorName.equals("JavaScript Writer")) {
@@ -231,17 +307,17 @@ public class ImportConverter3_0_0 {
             migrateLLPListenerProperties(properties);
         } else if (connectorName.equals("LLP Sender")) {
             transportName.setTextContent("TCP Sender");
-            migrateLLPSenderProperties(properties);
+            sendResponseToChannelId = migrateLLPSenderProperties(properties);
         } else if (connectorName.equals("TCP Listener")) {
             migrateTCPListenerProperties(properties);
         } else if (connectorName.equals("TCP Sender")) {
-            migrateTCPSenderProperties(properties);
+            sendResponseToChannelId = migrateTCPSenderProperties(properties);
         } else if (connectorName.equals("SMTP Sender")) {
             migrateSmtpDispatcherProperties(properties);
         } else if (connectorName.equals("Web Service Listener")) {
             migrateWebServiceListenerProperties(properties);
         } else if (connectorName.equals("Web Service Sender")) {
-            migrateWebServiceSenderProperties(properties);
+            sendResponseToChannelId = migrateWebServiceSenderProperties(properties);
         }
 
         // convert transformer (no conversion needed for filter since it didn't change at all in 3.0.0)
@@ -249,6 +325,8 @@ public class ImportConverter3_0_0 {
 
         // default waitForPrevious to true
         connector.addChildElement("waitForPrevious").setTextContent("true");
+
+        return sendResponseToChannelId;
     }
 
     /*
@@ -776,7 +854,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("timeout").setTextContent(oldProperties.getProperty("receiverTimeout", "0"));
     }
 
-    private static void migrateHttpDispatcherProperties(DonkeyElement properties) {
+    private static String migrateHttpDispatcherProperties(DonkeyElement properties) {
         logger.debug("Migrating HttpDispatcherProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.http.HttpDispatcherProperties");
@@ -798,6 +876,8 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("contentType").setTextContent(oldProperties.getProperty("dispatcherContentType", "text/plain"));
         properties.addChildElement("charset").setTextContent(oldProperties.getProperty("dispatcherCharset", "UTF-8"));
         properties.addChildElement("socketTimeout").setTextContent(oldProperties.getProperty("dispatcherSocketTimeout", "30000"));
+
+        return oldProperties.getProperty("dispatcherReplyChannelId");
     }
 
     private static void migrateDatabaseReceiverProperties(DonkeyElement properties) {
@@ -1070,7 +1150,7 @@ public class ImportConverter3_0_0 {
         return bytes.toByteArray();
     }
 
-    private static void migrateLLPSenderProperties(DonkeyElement properties) {
+    private static String migrateLLPSenderProperties(DonkeyElement properties) {
         logger.debug("Migrating LLPSenderProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.tcp.TcpDispatcherProperties");
@@ -1113,6 +1193,8 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("dataTypeBinary").setTextContent("false");
         properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
         properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", "${message.encodedData}"));
+
+        return oldProperties.getProperty("replyChannelId");
     }
 
     private static void migrateTCPListenerProperties(DonkeyElement properties) {
@@ -1147,7 +1229,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("responsePort").setTextContent(oldProperties.getProperty("ackPort", ""));
     }
 
-    private static void migrateTCPSenderProperties(DonkeyElement properties) {
+    private static String migrateTCPSenderProperties(DonkeyElement properties) {
         logger.debug("Migrating TCPSenderProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.tcp.TcpDispatcherProperties");
@@ -1179,6 +1261,8 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("dataTypeBinary").setTextContent(readBooleanProperty(oldProperties, "binary", false));
         properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
         properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", "${message.encodedData}"));
+
+        return oldProperties.getProperty("replyChannelId");
     }
 
     private static void migrateWebServiceListenerProperties(DonkeyElement properties) {
@@ -1199,7 +1283,7 @@ public class ImportConverter3_0_0 {
         convertList(properties.addChildElement("passwords"), oldProperties.getProperty("receiverPasswords", ""));
     }
 
-    private static void migrateWebServiceSenderProperties(DonkeyElement properties) {
+    private static String migrateWebServiceSenderProperties(DonkeyElement properties) {
         logger.debug("Migrating WebServiceSenderProperties");
         dumpElement(properties);
         Properties oldProperties = readPropertiesElement(properties);
@@ -1224,6 +1308,8 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("soapAction").setTextContent(oldProperties.getProperty("dispatcherSoapAction", ""));
         properties.addChildElement("wsdlCacheId").setTextContent("");
         convertList(properties.addChildElement("wsdlOperations"), oldProperties.getProperty("dispatcherWsdlOperations", "<list><string>Press Get Operations</string></list>"));
+
+        return oldProperties.getProperty("dispatcherReplyChannelId");
     }
 
     private static void convertList(DonkeyElement properties, String list) {

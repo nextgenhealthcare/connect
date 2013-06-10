@@ -82,7 +82,6 @@ public class Migrate3_0_0 {
                 DonkeyElement channel = new DonkeyElement(element);
 
                 channel.addChildElement("id", channelId);
-                channel.addChildElement("nextMetaDataId", "1");
                 channel.addChildElement("name", name);
                 channel.addChildElement("description", description);
                 channel.addChildElement("enabled", Boolean.toString(isEnabled));
