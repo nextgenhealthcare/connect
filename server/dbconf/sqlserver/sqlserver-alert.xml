@@ -34,8 +34,10 @@
 
 	<insert id="updateAlert" parameterType="map">
 		UPDATE ALERT
-		SET ALERT = #{alert},
-		NAME = #{name}
+		SET ALERT = #{alert}
+		<if test='name != null'>
+			, NAME = #{name}
+		</if>
 		WHERE ID = #{id}
 	</insert>
 

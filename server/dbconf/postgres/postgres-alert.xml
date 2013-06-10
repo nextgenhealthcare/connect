@@ -1,4 +1,12 @@
-<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'><mapper namespace='Alert'>
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
+
+<mapper namespace='Alert'>
+	<resultMap id="alert" type="map">
+		<id property="id" column="ID" javaType="String" />
+		<result property="name" column="NAME" javaType="String" />
+		<result property="alert" column="ALERT" javaType="String" />
+	</resultMap>
 
 	<select id='getAlertNameExists' parameterType='map' resultType='java.lang.Boolean'>
 		SELECT EXISTS (
@@ -9,8 +17,8 @@
 		)
 	</select>
 
-	<select id='getAlert' parameterType='java.lang.String' resultType='map'>
-		SELECT *
+	<select id='getAlert' parameterType='java.lang.String' resultMap='alert'>
+		SELECT ID, NAME, ALERT
 		FROM ALERT
 		<where>
 			<if test='value != null'>
@@ -25,12 +33,14 @@
 		VALUES (#{id}, #{name}, #{alert})
 	</insert>
 
-	<insert id='updateAlert' parameterType='map'>
+	<update id='updateAlert' parameterType='map'>
 		UPDATE ALERT
-		SET ALERT = #{alert},
-		NAME = #{name}
+		SET ALERT = #{alert}
+		<if test='name != null'>
+			, NAME = #{name}
+		</if>
 		WHERE ID = #{id}
-	</insert>
+	</update>
 
 	<delete id='deleteAlert' parameterType='java.lang.String'>
 		DELETE FROM ALERT

@@ -117,6 +117,9 @@ public class AlertActionPane extends JPanel {
         if (model.getRowCount() == 0) {
             actionTable.clearSelection();
             removeActionButton.setEnabled(false);
+        } else {
+            actionTable.getSelectionModel().setSelectionInterval(0, 0);
+            removeActionButton.setEnabled(true);
         }
     }
 

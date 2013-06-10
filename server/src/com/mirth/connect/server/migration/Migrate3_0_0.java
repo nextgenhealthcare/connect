@@ -3,7 +3,11 @@ package com.mirth.connect.server.migration;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -35,6 +39,7 @@ public class Migrate3_0_0 {
         DatabaseUtil.executeScript(migrationScript, true);
 
         migrateChannelTable();
+        migrateAlertTable();
         migrateCodeTemplateTable();
     }
 
@@ -130,6 +135,162 @@ public class Migrate3_0_0 {
             DbUtils.closeQuietly(preparedStatement);
             DbUtils.closeQuietly(conn);
             if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
+                SqlConfig.getSqlSessionManager().close();
+            }
+        }
+    }
+    
+    private static void migrateAlertTable() {
+        Connection conn = null;
+        PreparedStatement statement = null;
+        ResultSet results = null;
+
+        try {
+            SqlConfig.getSqlSessionManager().startManagedSession();
+            conn = SqlConfig.getSqlSessionManager().getConnection();
+            
+            Map<String, List<String>> alertEmails = new HashMap<String, List<String>>();
+            Map<String, List<String>> alertChannels = new HashMap<String, List<String>>();
+
+            /*
+             * MIRTH-1667: Derby fails if autoCommit is set to true and
+             * there are a large number of results. The following error
+             * occurs: "ERROR 40XD0: Container has been closed"
+             */
+            conn.setAutoCommit(false);
+
+            // Build a list of emails for each alert
+            statement = conn.prepareStatement("SELECT ALERT_ID, EMAIL FROM __ALERT_EMAIL");
+            results = statement.executeQuery();
+            
+            while (results.next()) {
+                String alertId = results.getString(1);
+                String email = results.getString(2);
+
+                List<String> emailSet = alertEmails.get(alertId);
+                
+                if (emailSet == null) {
+                    emailSet = new ArrayList<String>();
+                    alertEmails.put(alertId, emailSet);
+                }
+                
+                emailSet.add(email);
+            }
+            
+            DbUtils.closeQuietly(results);
+                
+            // Build a list of applied channels for each alert
+            statement = conn.prepareStatement("SELECT CHANNEL_ID, ALERT_ID FROM __CHANNEL_ALERT");
+            results = statement.executeQuery();
+            
+            while (results.next()) {
+                String channelId = results.getString(1);
+                String alertId = results.getString(2);
+
+                List<String> channelSet = alertChannels.get(alertId);
+                
+                if (channelSet == null) {
+                    channelSet = new ArrayList<String>();
+                    alertChannels.put(alertId, channelSet);
+                }
+                
+                channelSet.add(channelId);
+            }
+            
+            DbUtils.closeQuietly(results);
+
+            statement = conn.prepareStatement("SELECT ID, NAME, IS_ENABLED, EXPRESSION, TEMPLATE, SUBJECT FROM __ALERT");
+            results = statement.executeQuery();
+            
+            while (results.next()) {
+                String alertId = results.getString(1);
+                String name = results.getString(2);
+                boolean enabled = results.getBoolean(3);
+                String expression = results.getString(4);
+                String template = results.getString(5);
+                String subject = results.getString(6);
+                
+                /*
+                 * Create a new document with alertModel as the root node
+                 */
+                Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+                Element alertNode = document.createElement("alert");
+                document.appendChild(alertNode);
+                
+                Element node = document.createElement("id");
+                node.setTextContent(alertId);
+                alertNode.appendChild(node);
+                
+                node = document.createElement("name");
+                node.setTextContent(name);
+                alertNode.appendChild(node);
+                
+                node = document.createElement("expression");
+                node.setTextContent(expression);
+                alertNode.appendChild(node);
+                
+                node = document.createElement("template");
+                node.setTextContent(template);
+                alertNode.appendChild(node);
+                
+                node = document.createElement("enabled");
+                node.setTextContent(Boolean.toString(enabled));
+                alertNode.appendChild(node);
+                
+                node = document.createElement("subject");
+                node.setTextContent(subject);
+                alertNode.appendChild(node);
+                
+                // Add each applied channel to the document
+                Element channelNode = document.createElement("channels");
+                alertNode.appendChild(channelNode);
+                List<String> channelList = alertChannels.get(alertId);
+                if (channelList != null) {
+                    for (String channelId : channelList) {
+                        Element stringNode = document.createElement("string");
+                        stringNode.setTextContent(channelId);
+                        channelNode.appendChild(stringNode);
+                    }
+                }
+                
+                // Add each email address to the document
+                Element emailNode = document.createElement("emails");
+                alertNode.appendChild(emailNode);
+                List<String> emailList = alertEmails.get(alertId);
+                if (emailList != null) {
+                    for (String email : emailList) {
+                        Element stringNode = document.createElement("string");
+                        stringNode.setTextContent(email);
+                        emailNode.appendChild(stringNode);
+                    }
+                }
+                
+                String alert = new DocumentSerializer(true).toXML(document);
+                
+                PreparedStatement updateStatement = null;
+                try {
+                    updateStatement = conn.prepareStatement("INSERT INTO ALERT VALUES (?, ?, ?)");
+                    updateStatement.setString(1, alertId);
+                    updateStatement.setString(2, name);
+                    updateStatement.setString(3, alert);
+                    updateStatement.executeUpdate();
+                    updateStatement.close();
+                } catch (Exception ex) {
+                    logger.error("Error migrating alert " + alertId + ".", ex);
+                } finally {
+                    DbUtils.closeQuietly(updateStatement);
+                }
+            }
+            
+            // Since autoCommit was set to false, commit the updates
+            conn.commit();
+        } catch (Exception e) {
+            logger.error("Error migrating alerts.", e);
+        } finally {
+            DbUtils.closeQuietly(results);
+            DbUtils.closeQuietly(statement);
+            DbUtils.closeQuietly(conn);
+            if(SqlConfig.getSqlSessionManager().isManagedSessionStarted()){
                 SqlConfig.getSqlSessionManager().close();
             }
         }

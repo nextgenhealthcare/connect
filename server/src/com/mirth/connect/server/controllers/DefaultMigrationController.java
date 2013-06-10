@@ -34,6 +34,7 @@ import org.w3c.dom.NodeList;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.migration.Migrate2_0_0;
 import com.mirth.connect.server.migration.Migrate3_0_0;
@@ -195,6 +196,7 @@ public class DefaultMigrationController extends MigrationController {
     @Override
     public void migrateSerializedData() {
         migrateSerializedData("Channel.getSerializedChannelData", "Channel.updateSerializedChannelData", "channel", Channel.class);
+        migrateSerializedData("Alert.getAlert", "Alert.updateAlert", "alert", AlertModel.class);
         migrateSerializedData("CodeTemplate.getSerializedCodeTemplateData", "CodeTemplate.updateSerializedCodeTemplateData", "codeTemplate", CodeTemplate.class);
     }
 

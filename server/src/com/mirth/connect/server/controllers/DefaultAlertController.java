@@ -141,7 +141,10 @@ public class DefaultAlertController extends AlertController {
             List<AlertModel> alerts = new ArrayList<AlertModel>();
 
             for (Map<String, Object> row : rows) {
-                alerts.add((AlertModel) serializer.deserialize((String) row.get("alert")));
+                AlertModel model = (AlertModel) serializer.deserialize((String) row.get("alert"));
+                if (model != null) {
+                    alerts.add(model);
+                }
             }
 
             return alerts;

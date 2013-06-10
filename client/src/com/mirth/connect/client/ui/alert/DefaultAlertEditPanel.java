@@ -143,11 +143,6 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
             return false;
         }
 
-        if (alertModel.getActionGroups().get(0).getActions().isEmpty()) {
-            parent.alertWarning(parent, "Alert requires at least one action.");
-            return false;
-        }
-
         List<String> triggerValidationErrors = alertTriggerPane.doValidate();
         if (CollectionUtils.isNotEmpty(triggerValidationErrors)) {
             String errorString = "";
