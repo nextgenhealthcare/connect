@@ -36,7 +36,7 @@ public class MigrationUtil {
      *         version1 = version2
      */
     public static int compareVersions(String version1, String version2) {
-        return compareVersions(version1, version2);
+        return compareVersions(version1, version2, 3);
     }
     
     /**
