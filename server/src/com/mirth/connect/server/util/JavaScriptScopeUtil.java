@@ -118,6 +118,14 @@ public class JavaScriptScopeUtil {
         scope.put("connector", scope, message.getConnectorName());
     }
 
+    private static void addResponse(Scriptable scope, Response response) {
+        scope.put("response", scope, new ImmutableResponse(response));
+        // Convert java to JS so we can use the == comparator in javascript
+        scope.put("responseStatus", scope, Context.javaToJS(response.getStatus(), scope));
+        scope.put("responseErrorMessage", scope, response.getError());
+        scope.put("responseStatusMessage", scope, response.getStatusMessage());
+    }
+
     // Router Builder
     private static void addRouter(Scriptable scope) {
         scope.put("router", scope, new VMRouter());
@@ -224,20 +232,11 @@ public class JavaScriptScopeUtil {
     }
 
     public static Scriptable getResponseTransformerScope(Object logger, Response response, ConnectorMessage message, String template) {
-        Scriptable scope = getBasicScope(getContext(), logger);
-        scope.put("connectorMessage", scope, new ImmutableConnectorMessage(message));
-        scope.put("response", scope, new ImmutableResponse(response));
-        scope.put("connectorMap", scope, message.getConnectorMap());
-        scope.put("channelMap", scope, message.getChannelMap());
-        scope.put("responseMap", scope, message.getResponseMap());
-        scope.put("connector", scope, message.getConnectorName());
+        Scriptable scope = getBasicScope(getContext(), logger, message);
+        addConnectorMessage(scope, message);
+        addResponse(scope, response);
         addStatusValues(scope);
         scope.put("template", scope, template);
-        // Convert java to JS so we can use the == comparator in javascript
-        scope.put("responseStatus", scope, Context.javaToJS(response.getStatus(), scope));
-        scope.put("responseErrorMessage", scope, response.getError());
-        scope.put("responseStatusMessage", scope, response.getStatusMessage());
-
         return scope;
     }
 
