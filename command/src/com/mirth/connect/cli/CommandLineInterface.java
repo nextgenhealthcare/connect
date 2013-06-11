@@ -59,10 +59,10 @@ import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.User;
+import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
-import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.util.MessageExporter;
 import com.mirth.connect.util.MessageImporter;
 import com.mirth.connect.util.MessageImporter.MessageImportException;
@@ -435,8 +435,8 @@ public class CommandLineInterface {
         out.println("export id|\"name\"|* \"path\"\n\tExports the specified channel to <path>\n");
         out.println("importcfg \"path\"\n\tImports configuration specified by <path>\n");
         out.println("exportcfg \"path\"\n\tExports the configuration to <path>\n");
-        out.println("importalerts \"path\"\n\tImports alerts specified by <path>\n");
-        out.println("exportalerts \"path\"\n\tExports alerts to <path>\n");
+        out.println("importalert \"path\" [force]\n\tImports alert specified by <path>.  Optional 'force' overwrites existing alerts.\n");
+        out.println("exportalert id|\"name\"|* \"path\"\n\tExports the specified alert to <path>\n");
         out.println("importscripts \"path\"\n\tImports global script specified by <path>\n");
         out.println("exportscripts \"path\"\n\tExports global script to <path>\n");
         out.println("importcodetemplates \"path\"\n\tImports code templates specified by <path>\n");
@@ -664,11 +664,58 @@ public class CommandLineInterface {
     }
 
     private void commandImportAlerts(Token[] arguments) throws ClientException {
-        //TODO 
+        String path = arguments[1].getText();
+
+        boolean force = false;
+        if (arguments.length >= 3 && arguments[2] == Token.FORCE) {
+            force = true;
+        }
+
+        File fXml = new File(path);
+        doImportAlert(fXml, force);
     }
 
     private void commandExportAlerts(Token[] arguments) throws ClientException {
-        //TODO
+        if (arguments.length < 3) {
+            error("invalid number of arguments. Syntax is: export id|name|* \"path\"", null);
+            return;
+        }
+
+        Token key = arguments[1];
+        String path = arguments[2].getText();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+        List<AlertModel> alerts = client.getAlert(null);
+        if (key == Token.WILDCARD) {
+            for (AlertModel alert : alerts) {
+                try {
+                    File fXml = new File(path + alert.getName() + ".xml");
+                    out.println("Exporting " + alert.getName());
+                    String alertXML = serializer.toXML(alert);
+                    FileUtils.writeStringToFile(fXml, alertXML);
+                } catch (IOException e) {
+                    error("unable to write file " + path + ": " + e, e);
+                }
+            }
+            out.println("Export Complete.");
+            return;
+        } else {
+            File fXml = new File(path);
+            StringToken skey = Token.stringToken(key.getText());
+
+            for (AlertModel alert : alerts) {
+                if (skey.equalsIgnoreCase(alert.getName()) != skey.equalsIgnoreCase(alert.getId())) {
+                    out.println("Exporting " + alert.getName());
+                    String alertXML = serializer.toXML(alert);
+                    try {
+                        FileUtils.writeStringToFile(fXml, alertXML);
+                    } catch (IOException e) {
+                        error("unable to write file " + path + ": " + e, e);
+                    }
+                    out.println("Export Complete.");
+                    return;
+                }
+            }
+        }
     }
 
     private void commandExportScripts(Token[] arguments) throws ClientException {
@@ -868,7 +915,7 @@ public class CommandLineInterface {
 
     private void commandExport(Token[] arguments) throws ClientException {
         if (arguments.length < 3) {
-            error("invalid number of arguments. Syntax is: export id|name|all \"path\"", null);
+            error("invalid number of arguments. Syntax is: export id|name|* \"path\"", null);
             return;
         }
 
@@ -1313,6 +1360,64 @@ public class CommandLineInterface {
 
         client.updateChannel(importChannel, true);
         out.println("Channel '" + channelName + "' imported successfully.");
+    }
+    
+    private void doImportAlert(File importFile, boolean force) throws ClientException {
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+        List<AlertModel> alertList;
+
+        try {
+            alertList = (List<AlertModel>) serializer.listFromXML(FileUtils.readFileToString(importFile).replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"), AlertModel.class);
+        } catch (Exception e) {
+            error("invalid alert file.", e);
+            return;
+        }
+
+        for (AlertModel importAlert : alertList) {
+            String alertName = importAlert.getName();
+            String tempId = client.getGuid();
+
+            // Check to see that the alert name doesn't already exist.
+            if (!checkAlertName(alertName)) {
+                if (!force) {
+                    importAlert.setName(tempId);
+                    importAlert.setId(tempId);
+                } else {
+                    for (AlertModel alert : client.getAlert(null)) {
+                        if (alert.getName().equalsIgnoreCase(alertName)) {
+                            // If overwriting, use the old id
+                            importAlert.setId(alert.getId());
+                        }
+                    }
+                }
+            }
+
+            client.updateAlert(importAlert);
+            out.println("Alert '" + alertName + "' imported successfully.");
+        }
+    }
+    
+    private boolean checkAlertName(String name) throws ClientException {
+        if (name.equals("")) {
+            out.println("Channel name cannot be empty.");
+            return false;
+        }
+
+        Pattern alphaNumericPattern = Pattern.compile("^[a-zA-Z_0-9\\-\\s]*$");
+        Matcher matcher = alphaNumericPattern.matcher(name);
+
+        if (!matcher.find()) {
+            out.println("Channel name cannot have special characters besides hyphen, underscore, and space.");
+            return false;
+        }
+
+        for (AlertModel alert : client.getAlert(null)) {
+            if (alert.getName().equalsIgnoreCase(name)) {
+                out.println("Alert \"" + name + "\" already exists.");
+                return false;
+            }
+        }
+        return true;
     }
 
     private String replaceValues(String source) {
