@@ -58,7 +58,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
     private ShowLineEndingsAction showLineEndingsAction;
     private JMenu varlist;
     private JMenu funclist;
-    private boolean saveEnabled;
+    private boolean saveDisabled;
     protected boolean showSnippets;
 
     public MirthSyntaxTextArea() {
@@ -71,7 +71,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         this.showSnippets = showSnippets;
         this.setCaretVisible(false);
         this.setShowLineEndings(false);
-        this.saveEnabled = true;
+        this.saveDisabled = false;
         // Setup menu actions
         cutAction = new CutAction(this);
         copyAction = new CopyAction(this);
@@ -184,7 +184,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
     }
 
     public void setSaveEnabled(boolean saveEnabled) {
-        this.saveEnabled = saveEnabled;
+        this.saveDisabled = !saveEnabled;
     }
 
     /**
@@ -193,7 +193,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
      */
     public void setDocument(SyntaxDocument doc) {
         super.setDocument(doc);
-        if (saveEnabled) {
+        if (!saveDisabled) {
             this.getDocument().addDocumentListener(new DocumentListener() {
 
                 public void changedUpdate(DocumentEvent e) {
