@@ -33,30 +33,34 @@ public class ErrorMessageBuilder {
             stackTrace = ExceptionUtils.getStackTrace(e);
         }
 
-        builder.append(errorType + LINE_SEPARATOR);
+        builder.append(errorType);
 
         if (StringUtils.isNotBlank(errorSourceLine)) {
+            builder.append(LINE_SEPARATOR);
             builder.append("ERROR SOURCE: ");
-            builder.append(errorSourceLine + LINE_SEPARATOR);
+            builder.append(errorSourceLine);
         }
 
         if (StringUtils.isNotBlank(customMessage)) {
+            builder.append(LINE_SEPARATOR);
             builder.append("ERROR MESSAGE: ");
-            builder.append(customMessage + LINE_SEPARATOR);
-            builder.append(stackTrace + LINE_SEPARATOR);
-        } else {
-            builder.append(stackTrace + LINE_SEPARATOR);
+            builder.append(customMessage);
+        }
+
+        if (StringUtils.isNotBlank(stackTrace)) {
+            builder.append(LINE_SEPARATOR);
+            builder.append(stackTrace);
         }
 
         return builder.toString();
     }
-    
+
     public static String buildErrorResponse(String customMessage, Throwable e) {
         String responseException = new String();
         if (e != null) {
             responseException = " [" + e.getClass().getSimpleName() + ": " + e.getMessage() + "]";
         }
-        
+
         return customMessage + responseException;
     }
 }

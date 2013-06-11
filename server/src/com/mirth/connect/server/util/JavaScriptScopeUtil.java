@@ -116,6 +116,7 @@ public class JavaScriptScopeUtil {
         scope.put("channelMap", scope, message.getChannelMap());
         scope.put("responseMap", scope, message.getResponseMap());
         scope.put("connector", scope, message.getConnectorName());
+        scope.put("alerts", scope, new AlertSender(message));
     }
 
     private static void addResponse(Scriptable scope, Response response) {
@@ -143,7 +144,7 @@ public class JavaScriptScopeUtil {
 
     // Channel Builder
     private static void addChannel(Scriptable scope, String channelId) {
-        //TODO add way to dispatch events in the scope
+        scope.put("alerts", scope, new AlertSender(channelId));
         scope.put("channelId", scope, channelId);
         scope.put("globalChannelMap", scope, GlobalChannelVariableStoreFactory.getInstance().get(channelId));
     }

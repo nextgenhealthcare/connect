@@ -184,7 +184,7 @@ public class ReferenceListFactory {
         variablelistItems.add(new CodeTemplate("Log an Info Statement", "Outputs the message to the system info log.", "logger.info('message');", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Log an Error Statement", "Outputs the message to the system error log.", "logger.error('message');", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Send an Email", "Sends an alert email using the alert SMTP properties.", "var smtpConn = SMTPConnectionFactory.createSMTPConnection();\nsmtpConn.send('to', 'cc', 'from', 'subject', 'body');", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        // TODO: Add template to dispatch alert/event directly
+        variablelistItems.add(new CodeTemplate("Trigger an Alert", "Trigger a custom alert for the current channel.", "alerts.sendAlert('message');", CodeSnippetType.CODE, ContextType.CHANNEL_CONTEXT.getContext()));
 
         return variablelistItems;
     }

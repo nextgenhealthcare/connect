@@ -76,7 +76,10 @@ public class DefaultAlertWorker extends AlertWorker {
 
                 AlertChannels alertChannels = errorTrigger.getAlertChannels();
 
-                if ((errorEventTypes == null || errorEventTypes.contains(errorEvent.getType())) && alertChannels.isConnectorEnabled(channelId, metaDataId)) {
+                boolean containsType = (errorEventTypes == null || errorEventTypes.contains(errorEvent.getType()));
+                boolean eventSourceEnabled = (metaDataId == null ? alertChannels.isChannelEnabled(channelId) : alertChannels.isConnectorEnabled(channelId, metaDataId));
+
+                if (containsType && eventSourceEnabled) {
                     boolean trigger = true;
                     String fullErrorMessage = ErrorMessageBuilder.buildErrorMessage(errorEvent.getType().toString(), errorEvent.getCustomMessage(), errorEvent.getThrowable());
 
@@ -92,7 +95,6 @@ public class DefaultAlertWorker extends AlertWorker {
                     }
 
                     if (trigger) {
-
                         String channelName = "";
 
                         if (channelId != null) {
