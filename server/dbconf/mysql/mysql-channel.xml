@@ -52,7 +52,7 @@
 	<delete id="deleteChannel" parameterType="String">
 		DELETE FROM CHANNEL
 		<where>
-			<if test="id != null">ID=#{value}</if>
+			<if test="value != null">ID=#{value}</if>
 		</where>
 	</delete>
 </mapper>
