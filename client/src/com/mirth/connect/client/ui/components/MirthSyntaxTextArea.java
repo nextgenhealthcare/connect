@@ -58,6 +58,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
     private ShowLineEndingsAction showLineEndingsAction;
     private JMenu varlist;
     private JMenu funclist;
+    // This needs to be saveDisabled instead of saveEnabled because JEditTextArea actually calls setDocument before this gets initialized
     private boolean saveDisabled;
     protected boolean showSnippets;
 
