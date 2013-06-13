@@ -658,6 +658,32 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_RESUME.getName()), new NameValuePair("id", channelId) };
         serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
     }
+    
+    /**
+     * Starts the connector with the specified channel and metaData ids.
+     * 
+     * @param channelId
+     * @param metaDataId
+     * @throws ClientException
+     */
+    public void startConnector(String channelId, Integer metaDataId) throws ClientException {
+        logger.debug("starting connector: channelId=" + channelId + ", metaDataId=" + metaDataId);
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_START_CONNECTOR.getName()), new NameValuePair("id", channelId), new NameValuePair("metaDataId", String.valueOf(metaDataId)) };
+        serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
+    }
+    
+    /**
+     * Stops the connector with the specified channel and metaData ids.
+     * 
+     * @param channelId
+     * @param metaDataId
+     * @throws ClientException
+     */
+    public void stopConnector(String channelId, Integer metaDataId) throws ClientException {
+        logger.debug("stopping connector: channelId=" + channelId + ", metaDataId=" + metaDataId);
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STOP_CONNECTOR.getName()), new NameValuePair("id", channelId), new NameValuePair("metaDataId", String.valueOf(metaDataId)) };
+        serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
+    }
 
     /**
      * Returns the Statistics for the channel with the specified id.

@@ -45,6 +45,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import com.mirth.connect.client.ui.components.MirthTreeTable;
+import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
@@ -277,63 +278,94 @@ public class DashboardPanel extends javax.swing.JPanel {
          * 7 - Stop
          * 8 - Halt
          * 9 - Undeploy Channel
+         * 10 - Start Connector
+         * 11 - Stop Connector
          */
 
-        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, -1, true); // show all
-        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, 1, false); // hide "Send Messages"
-        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 3, 3, false); // hide "Remove All Messages"
-        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 9, false); // hide start, pause, stop, halt and undeploy
+        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, -1, false); // hide all
+        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 2, 2, true); // show "View Messages"
+        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 4, 4, true); // show "Clear Statistics"
 
-        boolean removeChannelOptions = false;
+        // Indicates if any channel nodes are selected.
+        boolean useChannelOptions = true;
+        // Indicates if only nodes for a single channel is selected. This is true even if only a connector node is selected.
+        boolean singleChannel = true;
+        // Stores all channel ids that are selected, even if only a channel's connector is selected
+        Set<String> selectedChannelIds = new HashSet<String>();
+        // Stores all channel ids that have their channel node selected.
+        Set<String> selectedChannelNodes = new HashSet<String>();
 
-        for (DashboardTableNode node : statusTable.getSelectedNodes()) {
+        List<DashboardTableNode> selectedNodes = statusTable.getSelectedNodes();
+        for (DashboardTableNode node : selectedNodes) {
+
+            selectedChannelIds.add(node.getChannelId());
+            if (node.getStatus().getStatusType() == StatusType.CHANNEL) {
+                selectedChannelNodes.add(node.getChannelId());
+            } else if (!selectedChannelNodes.contains(node.getChannelId())) {
+                useChannelOptions = false;
+            }
+
+            if (selectedChannelIds.size() > 1) {
+                singleChannel = false;
+            }
+        }
+
+        for (DashboardTableNode node : selectedNodes) {
             DashboardStatus status = node.getStatus();
             StatusType statusType = status.getStatusType();
 
-            if (statusType == StatusType.CHANNEL) {
-                switch (status.getState()) {
-                    case STARTED:
-                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 6, 7, true);
-                        break;
-                    case STARTING:
-                        if (statusTable.getSelectedRowCount() == 1) {
+            if (useChannelOptions) {
+                if (statusType == StatusType.CHANNEL) {
+
+                    switch (status.getState()) {
+                        case STARTED:
+                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 6, 7, true);
+                            break;
+                        case PAUSED:
+                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 5, true);
+                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 7, 7, true);
+                            break;
+                        case STOPPED:
+                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 5, true);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, 1, true);
+                    parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 3, 3, true);
+                    parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 9, 9, true);
+
+                    if (isHaltable(node)) {
+                        // Hide tasks that can not be performed on a channel that is haltable
+                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 3, 3, false);
+                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 9, false);
+
+                        if (singleChannel) {
+                            // Show the halt task only if a single channel is selected
                             parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 8, 8, true);
                         } else {
-                            removeChannelOptions = true;
+                            break;
                         }
-                        break;
-                    case STOPPING:
-                        if (statusTable.getSelectedRowCount() == 1) {
-                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 8, 8, true);
-                        } else {
-                            removeChannelOptions = true;
-                        }
-                        break;
-                    case PAUSED:
-                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 5, true);
-                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 7, 7, true);
-                        break;
-                    case PAUSING:
-                        if (statusTable.getSelectedRowCount() == 1) {
-                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 8, 8, true);
-                        } else {
-                            removeChannelOptions = true;
-                        }
-                        break;
-                    default:
-                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 5, true);
-                        break;
+                    }
+                }
+            } else if (selectedChannelNodes.size() == 0){
+                DashboardTableNode channelNode = (DashboardTableNode) node.getParent();
+                if (channelNode.getStatus().getState() != ChannelState.STARTED && channelNode.getStatus().getState() != ChannelState.PAUSED) {
+                    parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 10, 11, false);
+                    break;
                 }
 
-                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, 1, true);
-                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 3, 3, true);
-                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 9, 9, true);
-            }
-
-            // If a selected channel is starting/stopping, do not show any options unless it is the only selected channel.
-            if (removeChannelOptions) {
-                parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 9, false); // hide start, pause, stop, halt and undeploy
-                break;
+                switch (status.getState()) {
+                    case STARTED:
+                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 11, 11, true);
+                        break;
+                    case STOPPED:
+                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 10, 10, true);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -342,6 +374,30 @@ public class DashboardPanel extends javax.swing.JPanel {
         }
 
         updateCurrentPluginPanel();
+    }
+
+    /**
+     * Checks if this node or any of its children are in a haltable state
+     * 
+     * @param node
+     * @return
+     */
+    private boolean isHaltable(DashboardTableNode node) {
+        ChannelState nodeState = node.getStatus().getState();
+
+        boolean haltable = (nodeState == ChannelState.STARTING || nodeState == ChannelState.STOPPING || nodeState == ChannelState.PAUSING);
+
+        if (haltable) {
+            return true;
+        } else {
+            for (int i = 0; i < node.getChildCount(); i++) {
+                if (isHaltable((DashboardTableNode) node.getChildAt(i))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public synchronized void updateTable(List<DashboardStatus> statuses) {

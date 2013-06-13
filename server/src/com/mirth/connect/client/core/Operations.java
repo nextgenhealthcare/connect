@@ -40,6 +40,8 @@ public class Operations {
     public static final Operation CHANNEL_HALT = new Operation("haltChannel", "Halt channel", true);
     public static final Operation CHANNEL_PAUSE = new Operation("pauseChannel", "Pause channel", true);
     public static final Operation CHANNEL_RESUME = new Operation("resumeChannel", "Resume channel", true);
+    public static final Operation CHANNEL_START_CONNECTOR = new Operation("startConnector", "Start connector", true);
+    public static final Operation CHANNEL_STOP_CONNECTOR = new Operation("stopConnector", "Stop connector", true);
     public static final Operation CHANNEL_GET_STATUS = new Operation("getChannelStatusList", "Get channel status list", false);
 
     // Code Templates
@@ -147,6 +149,8 @@ public class Operations {
         operationMap.put(CHANNEL_HALT.getName(), CHANNEL_HALT);
         operationMap.put(CHANNEL_PAUSE.getName(), CHANNEL_PAUSE);
         operationMap.put(CHANNEL_RESUME.getName(), CHANNEL_RESUME);
+        operationMap.put(CHANNEL_START_CONNECTOR.getName(), CHANNEL_START_CONNECTOR);
+        operationMap.put(CHANNEL_STOP_CONNECTOR.getName(), CHANNEL_STOP_CONNECTOR);
         operationMap.put(CHANNEL_GET_STATUS.getName(), CHANNEL_GET_STATUS);
         operationMap.put(CODE_TEMPLATE_GET.getName(), CODE_TEMPLATE_GET);
         operationMap.put(CODE_TEMPLATE_UPDATE.getName(), CODE_TEMPLATE_UPDATE);

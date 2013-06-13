@@ -311,6 +311,16 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
+    public void startConnector(String channelId, Integer metaDataId) throws StartException {
+        donkey.startConnector(channelId, metaDataId);
+    }
+
+    @Override
+    public void stopConnector(String channelId, Integer metaDataId) throws StopException {
+        donkey.stopConnector(channelId, metaDataId);
+    }
+
+    @Override
     public List<DashboardStatus> getChannelStatusList() {
         List<DashboardStatus> statuses = new ArrayList<DashboardStatus>();
 

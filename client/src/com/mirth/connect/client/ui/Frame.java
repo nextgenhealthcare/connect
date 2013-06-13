@@ -858,12 +858,15 @@ public class Frame extends JXFrame {
         addTask(TaskConstants.DASHBOARD_REMOVE_ALL_MESSAGES, "Remove All Messages", "Remove all Messages in this channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/email_delete.png")), dashboardTasks, dashboardPopupMenu);
         addTask(TaskConstants.DASHBOARD_CLEAR_STATS, "Clear Statistics", "Reset the statistics for this channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/chart_bar_delete.png")), dashboardTasks, dashboardPopupMenu);
 
-        addTask(TaskConstants.DASHBOARD_START, "Start", "Start the currently selected channel/connector.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_play_blue.png")), dashboardTasks, dashboardPopupMenu);
-        addTask(TaskConstants.DASHBOARD_PAUSE, "Pause", "Pause the currently selected channel/connector.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_pause_blue.png")), dashboardTasks, dashboardPopupMenu);
-        addTask(TaskConstants.DASHBOARD_STOP, "Stop", "Stop the currently selected channel/connector.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_stop_blue.png")), dashboardTasks, dashboardPopupMenu);
-        addTask(TaskConstants.DASHBOARD_HALT, "Halt", "Halt the currently selected channel/connector.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/stop.png")), dashboardTasks, dashboardPopupMenu);
+        addTask(TaskConstants.DASHBOARD_START, "Start", "Start the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_play_blue.png")), dashboardTasks, dashboardPopupMenu);
+        addTask(TaskConstants.DASHBOARD_PAUSE, "Pause", "Pause the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_pause_blue.png")), dashboardTasks, dashboardPopupMenu);
+        addTask(TaskConstants.DASHBOARD_STOP, "Stop", "Stop the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_stop_blue.png")), dashboardTasks, dashboardPopupMenu);
+        addTask(TaskConstants.DASHBOARD_HALT, "Halt", "Halt the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/stop.png")), dashboardTasks, dashboardPopupMenu);
 
         addTask(TaskConstants.DASHBOARD_UNDEPLOY, "Undeploy Channel", "Undeploys the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_undo.png")), dashboardTasks, dashboardPopupMenu);
+
+        addTask(TaskConstants.DASHBOARD_START_CONNECTOR, "Start", "Start the currently selected connector.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_play_blue.png")), dashboardTasks, dashboardPopupMenu);
+        addTask(TaskConstants.DASHBOARD_STOP_CONNECTOR, "Stop", "Stop the currently selected connector.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_stop_blue.png")), dashboardTasks, dashboardPopupMenu);
 
         setNonFocusable(dashboardTasks);
         taskPaneContainer.add(dashboardTasks);
@@ -2491,6 +2494,68 @@ public class Frame extends JXFrame {
                     } catch (ClientException e) {
                         alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
+                    return null;
+                }
+
+                public void done() {
+                    doRefreshStatuses(true);
+                    stopWorking(workingId);
+                }
+            };
+
+            worker.execute();
+        }
+    }
+
+    public void doStartConnector() {
+        List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
+
+        if (selectedStatuses.size() == 0) {
+            return;
+        }
+
+        for (final DashboardStatus status : selectedStatuses) {
+            final String workingId = startWorking("Starting connector...");
+
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                public Void doInBackground() {
+                    try {
+                        mirthClient.startConnector(status.getChannelId(), status.getMetaDataId());
+                    } catch (ClientException e) {
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    }
+
+                    return null;
+                }
+
+                public void done() {
+                    doRefreshStatuses(true);
+                    stopWorking(workingId);
+                }
+            };
+
+            worker.execute();
+        }
+    }
+
+    public void doStopConnector() {
+        List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
+
+        if (selectedStatuses.size() == 0) {
+            return;
+        }
+
+        for (final DashboardStatus status : selectedStatuses) {
+            final String workingId = startWorking("Stopping connector...");
+
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                public Void doInBackground() {
+                    try {
+                        mirthClient.stopConnector(status.getChannelId(), status.getMetaDataId());
+                    } catch (ClientException e) {
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    }
+
                     return null;
                 }
 

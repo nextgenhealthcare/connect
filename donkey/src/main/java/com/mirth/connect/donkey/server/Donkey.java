@@ -254,6 +254,26 @@ public class Donkey {
         channel.resume();
     }
 
+    public void startConnector(String channelId, Integer metaDataId) throws StartException {
+        Channel channel = deployedChannels.get(channelId);
+
+        if (channel == null) {
+            throw new StartException("Failed to find deployed channel id: " + channelId, null);
+        }
+
+        channel.startConnector(metaDataId);
+    }
+
+    public void stopConnector(String channelId, Integer metaDataId) throws StopException {
+        Channel channel = deployedChannels.get(channelId);
+
+        if (channel == null) {
+            throw new StopException("Failed to find deployed channel id: " + channelId, null);
+        }
+
+        channel.stopConnector(metaDataId);
+    }
+
     public void restartChannel(final String channelId, final boolean forceStop) {
         restartChannel(channelId, forceStop, 0);
     }

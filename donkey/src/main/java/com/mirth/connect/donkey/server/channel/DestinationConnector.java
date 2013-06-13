@@ -45,6 +45,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private ConnectorMessageQueue queue = new ConnectorMessageQueue();
     private String destinationName;
     private boolean enabled;
+    private boolean forceQueue;
     private ResponseTransformerExecutor responseTransformerExecutor;
     private StorageSettings storageSettings = new StorageSettings();
     private DonkeyDaoFactory daoFactory;
@@ -76,6 +77,14 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public boolean isForceQueue() {
+        return forceQueue;
+    }
+
+    public void setForceQueue(boolean forceQueue) {
+        this.forceQueue = forceQueue;
     }
 
     public Integer getOrderId() {
@@ -133,6 +142,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     @Override
     public void start() throws StartException {
         setCurrentState(ChannelState.STARTING);
+        forceQueue = false;
 
         if (isQueueEnabled()) {
             // Remove any items in the queue's buffer because they may be outdated and refresh the queue size
@@ -201,7 +211,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
      */
     public void process(DonkeyDao dao, ConnectorMessage message, Status previousStatus) throws InterruptedException {
         ConnectorProperties connectorProperties = null;
-        boolean attemptSend = !isQueueEnabled() || (queueProperties.isSendFirst() && queue.size() == 0);
+        boolean attemptSend = !isQueueEnabled() || (queueProperties.isSendFirst() && queue.size() == 0 && !forceQueue);
 
         // we need to get the connector envelope if we will be attempting to send the message     
         if (attemptSend) {
@@ -442,7 +452,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
             // Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
             // unsynchronized with the data store.
             queue.invalidate(false);
-            setCurrentState(ChannelState.STOPPED);
 
             if (dao != null) {
                 dao.close();

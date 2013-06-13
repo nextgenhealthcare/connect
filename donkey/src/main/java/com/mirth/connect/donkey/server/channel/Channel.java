@@ -680,10 +680,20 @@ public class Channel implements Startable, Stoppable, Runnable {
             ThreadUtils.checkInterruptedStatus();
 
             try {
-                stopConnector(metaDataId);
+                if (metaDataId == 0) {
+                    sourceConnector.stop();
+                } else {
+                    getDestinationConnector(metaDataId).stop();
+                }
             } catch (Throwable t) {
+                if (metaDataId == 0) {
+                    logger.error("Error stopping Source connector for channel " + name + " (" + channelId + ").", t);
+                } else {
+                    logger.error("Error stopping destination connector \"" + getDestinationConnector(metaDataId).getDestinationName() + "\" for channel " + name + " (" + channelId + ").", t);
+                }
+
                 if (firstCause == null) {
-                    firstCause = t;
+                   firstCause = t;
                 }
             }
         }
@@ -754,21 +764,64 @@ public class Channel implements Startable, Stoppable, Runnable {
             throw new HaltException("Failed to stop channel " + name + " (" + channelId + "): One or more connectors failed to stop.", firstCause);
         }
     }
+    
+    public void startConnector(Integer metaDataId) throws StartException {
+        Future<?> task = null;
 
-    private void stopConnector(Integer metaDataId) throws StopException {
         try {
-            if (metaDataId == 0) {
-                sourceConnector.stop();
-            } else {
-                getDestinationConnector(metaDataId).stop();
+            synchronized (controlExecutor) {
+                if (lock == ChannelLock.UNLOCKED || lock == ChannelLock.DEBUG) {
+                    task = controlExecutor.submit(metaDataId == 0 ? new ResumeTask() : new StartDestinationTask(metaDataId));
+                    controlTasks.add(task);
+                }
             }
-        } catch (StopException e) {
-            if (metaDataId == 0) {
-                logger.error("Error stopping Source connector for channel " + name + " (" + channelId + ").", e);
-            } else {
-                logger.error("Error stopping destination connector \"" + getDestinationConnector(metaDataId).getDestinationName() + "\" for channel " + name + " (" + channelId + ").", e);
+
+            if (task != null) {
+                task.get();
             }
-            throw e;
+        } catch (Throwable t) {
+            Throwable cause = t.getCause();
+            if (cause instanceof StartException) {
+                throw (StartException) cause;
+            }
+
+            throw new StartException("Failed to start connector.", t);
+        } finally {
+            synchronized (controlExecutor) {
+                if (task != null) {
+                    controlTasks.remove(task);
+                }
+            }
+        }
+    }
+
+    public void stopConnector(Integer metaDataId) throws StopException {
+        Future<?> task = null;
+
+        try {
+            synchronized (controlExecutor) {
+                if (lock == ChannelLock.UNLOCKED || lock == ChannelLock.DEBUG) {
+                    task = controlExecutor.submit(metaDataId == 0 ? new PauseTask() : new StopDestinationTask(metaDataId));
+                    controlTasks.add(task);
+                }
+            }
+
+            if (task != null) {
+                task.get();
+            }
+        } catch (Throwable t) {
+            Throwable cause = t.getCause();
+            if (cause instanceof StopException) {
+                throw (StopException) cause;
+            }
+
+            throw new StopException("Failed to stop connector.", t);
+        } finally {
+            synchronized (controlExecutor) {
+                if (task != null) {
+                    controlTasks.remove(task);
+                }
+            }
         }
     }
 
@@ -1841,7 +1894,6 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             return null;
         }
-
     }
 
     private class ResumeTask implements Callable<Void> {
@@ -1868,6 +1920,71 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             return null;
         }
+    }
+    
+    private class StartDestinationTask implements Callable<Void> {
+        
+        private Integer metaDataId;
+        
+        public StartDestinationTask(Integer metaDataId) {
+            this.metaDataId = metaDataId;
+        }
 
+        @Override
+        public Void call() throws Exception {
+            DestinationConnector destinationConnector = getDestinationConnector(metaDataId);
+            
+            if (currentState == ChannelState.STARTED || currentState == ChannelState.PAUSED) {
+                if (destinationConnector.getCurrentState() != ChannelState.STARTED) {
+                    try {
+                        destinationConnector.start();
+                    } catch (Throwable t) {
+                        throw new StartException("Failed to stop connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "). ", t);
+                    }
+                }
+            } else {
+                logger.error("Failed to start connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "): The channel is not started or paused.");
+            }
+            
+            return null;
+        }
+        
+    }
+    
+    private class StopDestinationTask implements Callable<Void> {
+        
+        private Integer metaDataId;
+        
+        public StopDestinationTask(Integer metaDataId) {
+            this.metaDataId = metaDataId;
+        }
+
+
+        @Override
+        public Void call() throws Exception {
+            DestinationConnector destinationConnector = getDestinationConnector(metaDataId);
+            
+            if (currentState == ChannelState.STARTED || currentState == ChannelState.PAUSED) {
+                if (destinationConnector.getCurrentState() != ChannelState.STOPPED) {
+                    // Destination connectors can only be stopped individually if the queue is enabled.
+                    if (destinationConnector.isQueueEnabled()) {
+                        try {
+                            // Force messages to be queued after this point even if attempt first is on.
+                            destinationConnector.setForceQueue(true);
+                            destinationConnector.stop();
+                        } catch (Throwable t) {
+                            throw new StopException("Failed to stop connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "). ", t);
+                        }
+                    } else {
+                        logger.error("Failed to stop connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "): Destination connectors must have queueing enabled to be stopped individually.");
+                    }
+                }
+            } else {
+                logger.error("Failed to stop connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "): The channel is not started or paused.");
+            }
+            
+            return null;
+        }
+        
     }
 }

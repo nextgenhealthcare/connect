@@ -48,8 +48,15 @@ public class ChannelStatusServlet extends MirthServlet {
         PrintWriter out = response.getWriter();
         Operation operation = Operations.getOperation(request.getParameter("op"));
         String channelId = request.getParameter("id");
+
         Map<String, Object> parameterMap = new HashMap<String, Object>();
         parameterMap.put("channelId", channelId);
+
+        Integer metaDataId = null;
+        if (request.getParameterMap().containsKey("metaDataId")) {
+            metaDataId = Integer.parseInt(request.getParameter("metaDataId"));
+            parameterMap.put("metaDataId", metaDataId);
+        }
 
         if ((!operation.equals(Operations.CHANNEL_GET_STATUS) && !isUserAuthorized(request, parameterMap)) || (operation.equals(Operations.CHANNEL_GET_STATUS) && (!isUserAuthorized(request, null)))) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -66,6 +73,10 @@ public class ChannelStatusServlet extends MirthServlet {
                 engineController.pauseChannel(channelId);
             } else if (operation.equals(Operations.CHANNEL_RESUME)) {
                 engineController.resumeChannel(channelId);
+            } else if (operation.equals(Operations.CHANNEL_START_CONNECTOR)) {
+                engineController.startConnector(channelId, metaDataId);
+            } else if (operation.equals(Operations.CHANNEL_STOP_CONNECTOR)) {
+                engineController.stopConnector(channelId, metaDataId);
             } else if (operation.equals(Operations.CHANNEL_GET_STATUS)) {
                 response.setContentType(APPLICATION_XML);
                 List<DashboardStatus> channelStatuses = null;

@@ -104,6 +104,8 @@ public class TaskConstants {
     public static final String DASHBOARD_PAUSE = "doPause";
     public static final String DASHBOARD_STOP = "doStop";
     public static final String DASHBOARD_HALT = "doHalt";
+    public static final String DASHBOARD_START_CONNECTOR = "doStartConnector";
+    public static final String DASHBOARD_STOP_CONNECTOR = "doStopConnector";
     public static final String DASHBOARD_UNDEPLOY = "doUndeployChannel";
     
     // Event Tasks

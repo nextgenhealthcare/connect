@@ -77,6 +77,10 @@ public interface EngineController {
      */
     public void resumeChannel(String channelId) throws StartException, StopException;
 
+    public void startConnector(String channelId, Integer metaDataId) throws StartException;
+
+    public void stopConnector(String channelId, Integer metaDataId) throws StopException;
+
     /**
      * Returns a list of ChannelStatus objects representing the running
      * channels.

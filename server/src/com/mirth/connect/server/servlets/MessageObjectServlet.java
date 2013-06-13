@@ -54,23 +54,12 @@ public class MessageObjectServlet extends MirthServlet {
                 ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 PrintWriter out = response.getWriter();
                 Operation operation = Operations.getOperation(request.getParameter("op"));
-                // TODO: remove?
-//                String uid = null;
-//                boolean useNewTempTable = false;
                 List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-                // TODO: remove?
-//                if (request.getParameter("uid") != null && !request.getParameter("uid").equals("")) {
-//                    uid = request.getParameter("uid");
-//                    useNewTempTable = true;
-//                } else {
-//                    uid = request.getSession().getId();
-//                }
-
                 if (operation.equals(Operations.GET_MAX_MESSAGE_ID)) {
                     String channelId = request.getParameter("channelId");
-                    
+
                     parameterMap.put("channelId", channelId);
 
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
