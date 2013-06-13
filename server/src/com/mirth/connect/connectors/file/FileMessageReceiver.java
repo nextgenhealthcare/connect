@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -72,7 +72,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
     public FileMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readDir, String moveDir, String moveToPattern, String errorDir, Long frequency) throws InitialisationException {
         super(connector, component, endpoint, frequency);
         fileConnector = (FileConnector) connector;
-        
+
         // Replace variables in the readDir now, all others will be done every message
         this.readDir = replacer.replaceValues(readDir, fileConnector.getChannelId());
         this.moveDir = moveDir;
@@ -145,7 +145,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
         } else {
             Arrays.sort(files, new Comparator<FileInfo>() {
                 public int compare(FileInfo file1, FileInfo file2) {
-                    return file1.getName().compareTo(file2.getName());
+                    return file1.getName().compareToIgnoreCase(file2.getName());
                 }
             });
         }
@@ -190,7 +190,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 
             VariableFilenameParser filenameParser = (VariableFilenameParser) fileConnector.getFilenameParser();
             filenameParser.setChannelId(fileConnector.getChannelId());
-            
+
             if (moveToPattern != null) {
                 destinationName = filenameParser.getFilename(adapter, moveToPattern);
             }
@@ -239,10 +239,10 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 
                     if (errorDir != null) {
                         logger.error("Moving file to error directory: " + errorDir);
-                        
+
                         VariableFilenameParser filenameParser = (VariableFilenameParser) fileConnector.getFilenameParser();
                         filenameParser.setChannelId(fileConnector.getChannelId());
-                        
+
                         destinationDir = filenameParser.getFilename(adapter, errorDir);
                         destinationName = file.getName();
                     }
