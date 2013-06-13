@@ -1,9 +1,6 @@
 package com.mirth.connect.client.ui.alert;
 
 import java.awt.Point;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
@@ -16,17 +13,14 @@ import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
 import javax.swing.DropMode;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -40,6 +34,7 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.components.MirthTableTransferHandler;
 import com.mirth.connect.model.alert.AlertStatus;
 
 public class DefaultAlertPanel extends AlertPanel {
@@ -86,7 +81,7 @@ public class DefaultAlertPanel extends AlertPanel {
         alertTable.getColumnExt(ID_COLUMN_NAME).setMinWidth(215);
         alertTable.getColumnExt(ID_COLUMN_NAME).setMaxWidth(215);
         alertTable.getColumnExt(ID_COLUMN_NAME).setToolTipText("<html><body>The unique id of this alert.</body></html>");
-        
+
         alertTable.getColumnExt(ALERTED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
         alertTable.getColumnExt(ALERTED_COLUMN_NAME).setComparator(new NumberCellComparator());
         alertTable.getColumnExt(ALERTED_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
@@ -103,88 +98,14 @@ public class DefaultAlertPanel extends AlertPanel {
         // Sort by Alert Name column
         alertTable.getRowSorter().toggleSortOrder(alertTable.getColumnModelIndex(NAME_COLUMN_NAME));
 
-        class CustomTransferHandler extends TransferHandler {
-
-            @Override
-            protected Transferable createTransferable(JComponent c) {
-                MirthTable table = (MirthTable) c;
-                int[] rows = table.getSelectedModelRows();
-
-                // Don't put anything on the clipboard if no rows are selected
-                if (rows.length == 0) {
-                    return null;
-                }
-
-                StringBuilder builder = new StringBuilder();
-
-                for (int i = 0; i < rows.length; i++) {
-                    builder.append(table.getModel().getValueAt(rows[i], NAME_COLUMN_NUMBER));
-                    builder.append(" (");
-                    builder.append(table.getModel().getValueAt(rows[i], ID_COLUMN_NUMBER));
-                    builder.append(")");
-
-                    if (i != rows.length - 1) {
-                        builder.append("\n");
-                    }
-                }
-
-                return new StringSelection(builder.toString());
-            }
-
-            @Override
-            public int getSourceActions(JComponent c) {
-                return COPY_OR_MOVE;
-            }
-
-            @Override
-            public boolean importData(TransferSupport support) {
-                if (canImport(support)) {
-                    try {
-                        List<File> fileList = (List<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-                        boolean showAlerts = (fileList.size() == 1);
-
-                        for (File file : fileList) {
-                            if (FilenameUtils.isExtension(file.getName(), "xml")) {
-                                parent.importAlert(parent.readFileToString(file), showAlerts);
-                            }
-                        }
-
-                        return true;
-                    } catch (Exception e) {
-                        // Let it return false
-                    }
-                }
-
-                return false;
-            }
-
-            @Override
-            public boolean canImport(TransferSupport support) {
-                if (support.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-                    try {
-                        List<File> fileList = (List<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-
-                        for (File file : fileList) {
-                            if (!FilenameUtils.isExtension(file.getName(), "xml")) {
-                                return false;
-                            }
-                        }
-
-                        return true;
-                    } catch (Exception e) {
-                        // Return true anyway until this bug is fixed:
-                        // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6759788
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-        }
-
         alertTable.setDragEnabled(true);
         alertTable.setDropMode(DropMode.ON);
-        alertTable.setTransferHandler(new CustomTransferHandler());
+        alertTable.setTransferHandler(new MirthTableTransferHandler(NAME_COLUMN_NUMBER, ID_COLUMN_NUMBER) {
+            @Override
+            public void importFile(File file, boolean showAlerts) {
+                parent.importAlert(parent.readFileToString(file), showAlerts);
+            }
+        });
 
         alertTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
@@ -252,7 +173,7 @@ public class DefaultAlertPanel extends AlertPanel {
                 }
                 tableData[i][1] = alertStatus.getName();
                 tableData[i][2] = alertStatus.getId();
-                
+
                 if (alertStatus.getAlertedCount() != null) {
                     tableData[i][3] = alertStatus.getAlertedCount();
                 }
