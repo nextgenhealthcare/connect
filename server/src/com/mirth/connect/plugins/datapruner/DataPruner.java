@@ -404,17 +404,18 @@ public class DataPruner implements Runnable {
                 if (!archiveEnabled && strategy == null && !DatabaseUtil.statementExists("Message.pruneMessagesByIds")) {
                     return pruneChannelByDate(localChannelId, messageDateThreshold, contentDateThreshold);
                 } else {
-                    List<Long> ids;
+                    PruneIds ids;
                     PruneResult result = new PruneResult();
 
                     if (!archiveEnabled) {
-                        ids = getIdsToPrune(localChannelId, (contentDateThreshold == null) ? messageDateThreshold : contentDateThreshold);
+                        ids = getIdsToPrune(localChannelId, messageDateThreshold, contentDateThreshold);
                     } else {
                         ids = archive(channelId, messageDateThreshold, contentDateThreshold, archiveFolder);
-                        result.numMessagesArchived = ids.size();
+                        result.numMessagesArchived = ids.messageIds.size();
                     }
                     
-                    result.numContentPruned = pruneChannelByIds(localChannelId, ids, (contentDateThreshold == null) ? null : messageDateThreshold);
+                    result.numContentPruned = pruneChannelByIds(localChannelId, ids.contentMessageIds, true);
+                    result.numMessagesPruned = pruneChannelByIds(localChannelId, ids.messageIds, false);
                     return result;
                 }
             } catch (InterruptedException e) {
@@ -456,7 +457,19 @@ public class DataPruner implements Runnable {
         logger.debug("Pruning messages");
         params.put("dateThreshold", messageDateThreshold);
         
+        if (DatabaseUtil.statementExists("Message.pruneAttachments")) {
+            runDelete("Message.pruneAttachments", params, limit);
+        }
+        
+        if (DatabaseUtil.statementExists("Message.pruneCustomMetaData")) {
+            runDelete("Message.pruneCustomMetaData", params, limit);
+        }
+        
         runDelete("Message.pruneMessageContent", params, limit);
+        
+        if (DatabaseUtil.statementExists("Message.pruneConnectorMessages")) {
+            runDelete("Message.pruneConnectorMessages", params, limit);
+        }
         
         result.numMessagesPruned += runDelete("Message.pruneMessages", params, limit);
 
@@ -464,11 +477,11 @@ public class DataPruner implements Runnable {
         return result;
     }
     
-    private List<Long> getIdsToPrune(long localChannelId, Calendar dateThreshold) {
+    private PruneIds getIdsToPrune(long localChannelId, Calendar messageDateThreshold, Calendar contentDateThreshold) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("localChannelId", localChannelId);
         params.put("skipIncomplete", isSkipIncomplete());
-        params.put("dateThreshold", dateThreshold);
+        params.put("dateThreshold", (contentDateThreshold == null) ? messageDateThreshold : contentDateThreshold);
 
         if (getSkipStatuses().length > 0) {
             params.put("skipStatuses", getSkipStatuses());
@@ -483,16 +496,24 @@ public class DataPruner implements Runnable {
             session.close();
         }
 
-        List<Long> ids = new ArrayList<Long>();
+        PruneIds pruneIds = new PruneIds();
+        long messageMillis = messageDateThreshold.getTimeInMillis();
 
         for (Map<String, Object> map : maps) {
-            ids.add((Long) map.get("id"));
+            long receivedDate = ((Calendar) map.get("mm_received_date")).getTimeInMillis();
+            long id = (Long) map.get("id");
+
+            if (receivedDate < messageMillis) {
+                pruneIds.messageIds.add(id);
+            }
+
+            pruneIds.contentMessageIds.add(id);
         }
 
-        return ids;
+        return pruneIds;
     }
     
-    private List<Long> archive(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder) throws DataPrunerException {
+    private PruneIds archive(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder) throws DataPrunerException {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
         params.put("skipIncomplete", isSkipIncomplete());
@@ -502,7 +523,7 @@ public class DataPruner implements Runnable {
             params.put("skipStatuses", getSkipStatuses());
         }
         
-        DataPrunerMessageList messageList = new DataPrunerMessageList(channelId, pageSize, params);
+        DataPrunerMessageList messageList = new DataPrunerMessageList(channelId, pageSize, params, messageDateThreshold);
         String tempChannelFolder = archiveFolder + "/." + channelId;
         String finalChannelFolder = archiveFolder + "/" + channelId;
         
@@ -530,7 +551,12 @@ public class DataPruner implements Runnable {
             }
             
             archiver.close();
-            return messageList.getMessageIds();
+            
+            PruneIds ids = new PruneIds();
+            ids.messageIds = messageList.getMessageIds();
+            ids.contentMessageIds = messageList.getContentMessageIds();
+            
+            return ids;
         } catch (Throwable t) {
             FileUtils.deleteQuietly(new File(tempChannelFolder));
             FileUtils.deleteQuietly(new File(finalChannelFolder));
@@ -540,7 +566,7 @@ public class DataPruner implements Runnable {
         }
     }
     
-    private long pruneChannelByIds(long localChannelId, List<Long> messageIds, Calendar messageDateThreshold) throws DataPrunerException, InterruptedException {
+    private long pruneChannelByIds(long localChannelId, List<Long> messageIds, boolean contentOnly) throws DataPrunerException, InterruptedException {
         if (messageIds.size() == 0) {
             logger.debug("Skipping pruner since no messages were found to prune");
             return 0;
@@ -617,22 +643,33 @@ public class DataPruner implements Runnable {
         }
 
         ThreadUtils.checkInterruptedStatus();
-        logger.debug("Pruning " + messageIds.size() + " message records in local channel id " + localChannelId + " with strategy: " + strategy);
+        logger.debug("Pruning " + messageIds.size() + " message " + (contentOnly ? "content " : "") + "records in local channel id " + localChannelId + " with strategy: " + strategy);
         ThreadUtils.checkInterruptedStatus();
         int numPruned;
         long startTime = System.currentTimeMillis();
 
-        if (messageDateThreshold != null) {
+        if (contentOnly) {
             numPruned = runDelete("Message.pruneMessageContent", params, limit);
-            params.put("dateThreshold", messageDateThreshold);
-        }
-        
-        runDelete("Message.pruneMessageContent", params, limit);
-        
-        if (DatabaseUtil.statementExists("Message.pruneMessagesByIds")) {
-            numPruned = runDelete("Message.pruneMessagesByIds", params, limit);
         } else {
-            numPruned = runDelete("Message.pruneMessages", params, limit);
+            if (DatabaseUtil.statementExists("Message.pruneAttachments")) {
+                runDelete("Message.pruneAttachments", params, limit);
+            }
+            
+            if (DatabaseUtil.statementExists("Message.pruneCustomMetaData")) {
+                runDelete("Message.pruneCustomMetaData", params, limit);
+            }
+            
+            runDelete("Message.pruneMessageContent", params, limit);
+            
+            if (DatabaseUtil.statementExists("Message.pruneConnectorMessages")) {
+                runDelete("Message.pruneConnectorMessages", params, limit);
+            }
+            
+            if (DatabaseUtil.statementExists("Message.pruneMessagesByIds")) {
+                numPruned = runDelete("Message.pruneMessagesByIds", params, limit);
+            } else {
+                numPruned = runDelete("Message.pruneMessages", params, limit);
+            }
         }
         
         logger.debug("Pruning ended in " + (System.currentTimeMillis() - startTime) + "ms");
@@ -731,6 +768,11 @@ public class DataPruner implements Runnable {
         long secs = (ms % 60000) / 1000;
         
         return mins + " minute" + (mins == 1 ? "" : "s") + ", " + secs + " second" + (secs == 1 ? "" : "s");
+    }
+    
+    private class PruneIds {
+        public List<Long> messageIds = new ArrayList<Long>();
+        public List<Long> contentMessageIds = new ArrayList<Long>();
     }
     
     private class PruneResult {

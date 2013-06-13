@@ -49,6 +49,7 @@
 		<result property="id" column="id" javaType="Long" />
 		<result property="server_id" column="server_id" javaType="String" />
 		<result property="received_date" column="received_date" javaType="java.util.Calendar" />
+		<result property="mm_received_date" column="mm_received_date" javaType="java.util.Calendar" />
 		<result property="processed" column="processed" javaType="Boolean" />
 		<result property="import_id" column="import_id" javaType="Long" />
 		<result property="import_channel_id" column="import_channel_id" javaType="String" />
@@ -384,7 +385,8 @@
 				m.received_date,
 				m.processed,
 				m.import_id,
-				m.import_channel_id
+				m.import_channel_id,
+				mm.received_date AS mm_received_date
 			
 			FROM d_m${localChannelId} m
 			JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0

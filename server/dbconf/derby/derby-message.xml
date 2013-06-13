@@ -49,6 +49,7 @@
 		<result property="id" column="ID" javaType="Long" />
 		<result property="server_id" column="SERVER_ID" javaType="String" />
 		<result property="received_date" column="RECEIVED_DATE" javaType="java.util.Calendar" />
+		<result property="mm_received_date" column="MM_RECEIVED_DATE" javaType="java.util.Calendar" />
 		<result property="processed" column="PROCESSED" javaType="Boolean" />
 		<result property="import_id" column="IMPORT_ID" javaType="Long" />
 		<result property="import_channel_id" column="IMPORT_CHANNEL_ID" javaType="String" />
@@ -296,8 +297,29 @@
 		)
 	</delete>
 	
+	<delete id="pruneConnectorMessages" parameterType="map">
+		DELETE FROM d_mm${localChannelId}
+		WHERE message_id IN (
+			<include refid="prunerSelectMessageIdsToDelete" />
+		)
+	</delete>
+
 	<delete id="pruneMessageContent" parameterType="map">
 		DELETE FROM d_mc${localChannelId}
+		WHERE message_id IN (
+			<include refid="prunerSelectMessageIdsToDelete" />
+		)
+	</delete>
+	
+	<delete id="pruneCustomMetaData" parameterType="map">
+		DELETE FROM d_mcm${localChannelId}
+		WHERE message_id IN (
+			<include refid="prunerSelectMessageIdsToDelete" />
+		)
+	</delete>
+	
+	<delete id="pruneAttachments" parameterType="map">
+		DELETE FROM d_ma${localChannelId}
 		WHERE message_id IN (
 			<include refid="prunerSelectMessageIdsToDelete" />
 		)
@@ -347,7 +369,8 @@
 			m.received_date,
 			m.processed,
 			m.import_id,
-			m.import_channel_id
+			m.import_channel_id,
+			mm.received_date AS MM_RECEIVED_DATE
 			
 		FROM d_m${localChannelId} m
 		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}

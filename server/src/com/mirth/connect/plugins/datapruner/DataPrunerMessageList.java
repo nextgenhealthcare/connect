@@ -31,8 +31,10 @@ public class DataPrunerMessageList extends PaginatedList<Message> {
     private DonkeyDaoFactory daoFactory = Donkey.getInstance().getDaoFactory();
     private String channelId;
     private List<Long> messageIds = new ArrayList<Long>();
+    private List<Long> contentMessageIds = new ArrayList<Long>();
+    private long messageDateMillis;
 
-    public DataPrunerMessageList(String channelId, int pageSize, Map<String, Object> params) {
+    public DataPrunerMessageList(String channelId, int pageSize, Map<String, Object> params, Calendar messageDateThreshold) {
         this.channelId = channelId;
         this.params = new HashMap<String, Object>();
 
@@ -42,10 +44,15 @@ public class DataPrunerMessageList extends PaginatedList<Message> {
         }
 
         setPageSize(pageSize);
+        messageDateMillis = messageDateThreshold.getTimeInMillis();
     }
     
     public List<Long> getMessageIds() {
         return messageIds;
+    }
+    
+    public List<Long> getContentMessageIds() {
+        return contentMessageIds;
     }
 
     @Override
@@ -56,6 +63,7 @@ public class DataPrunerMessageList extends PaginatedList<Message> {
     @Override
     protected List<Message> getItems(int offset, int limit) throws Exception {
         messageIds.clear();
+        contentMessageIds.clear();
         
         List<Map<String, Object>> maps;
         SqlSession session = SqlConfig.getSqlSessionManager().openSession();
@@ -74,6 +82,7 @@ public class DataPrunerMessageList extends PaginatedList<Message> {
         try {
             for (Map<String, Object> map : maps) {
                 Long messageId = (Long) map.get("id");
+                long connectorReceivedDateMillis = ((Calendar) map.get("mm_received_date")).getTimeInMillis();
 
                 Map<Integer, ConnectorMessage> connectorMessages = null;
                 connectorMessages = dao.getConnectorMessages(channelId, messageId);
@@ -88,7 +97,12 @@ public class DataPrunerMessageList extends PaginatedList<Message> {
                 message.getConnectorMessages().putAll(connectorMessages);
 
                 messages.add(message);
-                messageIds.add(messageId);
+                
+                contentMessageIds.add(messageId);
+                
+                if (connectorReceivedDateMillis < messageDateMillis) {
+                    messageIds.add(messageId);
+                }
             }
 
             return messages;
