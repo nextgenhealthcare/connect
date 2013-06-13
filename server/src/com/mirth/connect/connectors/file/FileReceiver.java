@@ -251,7 +251,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         } else {
             Arrays.sort(files, new Comparator<FileInfo>() {
                 public int compare(FileInfo file1, FileInfo file2) {
-                    return file1.getName().compareTo(file2.getName());
+                    return file1.getName().compareToIgnoreCase(file2.getName());
                 }
             });
         }
