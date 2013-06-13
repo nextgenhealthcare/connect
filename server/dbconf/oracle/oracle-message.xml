@@ -44,6 +44,15 @@
 		<result property="importId" column="import_id" />
 		<result property="importChannelId" column="import_channel_id" />
 	</resultMap>
+	
+	<resultMap id="pruner-message-map" type="map">
+		<result property="id" column="id" javaType="Long" />
+		<result property="server_id" column="server_id" javaType="String" />
+		<result property="received_date" column="received_date" javaType="java.util.Calendar" />
+		<result property="processed" column="processed" javaType="Boolean" />
+		<result property="import_id" column="import_id" javaType="Long" />
+		<result property="import_channel_id" column="import_channel_id" javaType="String" />
+	</resultMap>
 
 	<select id="searchMessages" parameterType="map" resultMap="messageSearchResult">
 		<if test="offset != null and limit != null">
@@ -277,14 +286,18 @@
 	
 	<!-- Data Pruner/Archiver -->
 	
-	<delete id="prunerDeleteMessages" parameterType="map">
+	<delete id="pruneMessages" parameterType="map">
 		DELETE FROM d_m${localChannelId}
 		WHERE id IN (
 			SELECT m.id
 			FROM d_m${localChannelId} m
-			JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
+			
+			<if test="dateThreshold != null">
+				JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
+			</if>
+			
 			<where>
-				<include refid="prunerDeleteWhere" />
+				<include refid="pruneWhere" />
 				
 				<if test="limit != null">
 					AND rownum <![CDATA[ <= ]]> ${limit}
@@ -293,7 +306,7 @@
 		)
 	</delete>
 	
-	<delete id="prunerDeleteMessageContent" parameterType="map">
+	<delete id="pruneMessageContent" parameterType="map">
 		DELETE FROM d_mc${localChannelId}
 		WHERE message_id IN (
 			SELECT m.id
@@ -303,7 +316,7 @@
 			</if>
 			
 			<where>
-				<include refid="prunerDeleteWhere" />
+				<include refid="pruneWhere" />
 
 				<if test="limit != null">
 					AND rownum <![CDATA[ <= ]]> ${limit}
@@ -312,7 +325,7 @@
 		)
 	</delete>
 
-	<sql id="prunerDeleteWhere">
+	<sql id="pruneWhere">
 	
 		<!-- The following criteria are intended to be used only by the archiver, or the pruner if there is no archiver. -->
 		
@@ -362,7 +375,7 @@
 		</if>
 	</sql>
 	
-	<select id="prunerSelectMessagesToArchive" parameterType="map" resultMap="message">
+	<select id="getMessagesToPrune" parameterType="map" resultMap="pruner-message-map">
 		SELECT a.* FROM (SELECT b.*, rownum b_rownum FROM (
 	
 			SELECT
@@ -397,4 +410,9 @@
 		
 		) b WHERE rownum <![CDATA[ <= ]]> (${offset} + ${limit})) a WHERE b_rownum > ${offset}
 	</select>
+	
+	<update id="pruneEvents" parameterType="map">
+		DELETE FROM event
+		WHERE date_created <![CDATA[ < ]]> #{dateThreshold}
+	</update>
 </mapper>

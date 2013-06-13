@@ -16,7 +16,11 @@ import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
 public class TestFilterTransformer implements FilterTransformer {
     @Override
     public FilterTransformerResult doFilterTransform(ConnectorMessage message) {
-        return new FilterTransformerResult(true, null);
+        if (message != null && message.getTransformed() != null) {
+            return new FilterTransformerResult(true, message.getTransformed().getContent());
+        }
+
+        return new FilterTransformerResult(true, "");
     }
 
     @Override

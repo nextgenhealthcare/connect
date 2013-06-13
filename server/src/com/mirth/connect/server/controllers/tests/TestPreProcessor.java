@@ -16,7 +16,11 @@ public class TestPreProcessor implements PreProcessor {
 
     @Override
     public String doPreProcess(ConnectorMessage message) {
-        return message.getRaw().getContent();
+        if (message != null && message.getRaw() != null) {
+            return message.getRaw().getContent();
+        }
+        
+        return null;
     }
 
 }

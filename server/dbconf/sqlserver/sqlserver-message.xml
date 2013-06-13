@@ -44,6 +44,15 @@
 		<result property="importId" column="import_id" />
 		<result property="importChannelId" column="import_channel_id" />
 	</resultMap>
+	
+	<resultMap id="pruner-message-map" type="map">
+		<result property="id" column="id" javaType="Long" />
+		<result property="server_id" column="server_id" javaType="String" />
+		<result property="received_date" column="received_date" javaType="java.util.Calendar" />
+		<result property="processed" column="processed" javaType="Boolean" />
+		<result property="import_id" column="import_id" javaType="Long" />
+		<result property="import_channel_id" column="import_channel_id" javaType="String" />
+	</resultMap>
 
 	<select id="searchMessagesUngrouped" parameterType="map" resultMap="messageSearchResult">
 		<if test="offset != null and limit != null">
@@ -261,7 +270,7 @@
 	
 	<!-- Data Pruner/Archiver -->
 	
-	<delete id="prunerDeleteMessages" parameterType="map">
+	<delete id="pruneMessages" parameterType="map">
 		DELETE
 		
 		<if test="limit != null">
@@ -277,11 +286,11 @@
 		</if>
 		
 		<where>
-			<include refid="prunerDeleteWhere" />
+			<include refid="pruneWhere" />
 		</where>
 	</delete>
 	
-	<delete id="prunerDeleteMessageContent" parameterType="map">
+	<delete id="pruneMessageContent" parameterType="map">
 		DELETE
 		
 		<if test="limit != null">
@@ -298,11 +307,11 @@
 		</if>
 		
 		<where>
-			<include refid="prunerDeleteWhere" />
+			<include refid="pruneWhere" />
 		</where>
 	</delete>
 	
-	<sql id="prunerDeleteWhere">
+	<sql id="pruneWhere">
 	
 		<!-- Criteria used when pruning without an archiver -->
 		
@@ -352,7 +361,7 @@
 		</if>
 	</sql>
 	
-	<select id="prunerSelectMessagesToArchive" parameterType="map" resultMap="message">
+	<select id="getMessagesToPrune" parameterType="map" resultMap="pruner-message-map">
 		SELECT a.* FROM (
 			SELECT
 				m.id,
@@ -384,4 +393,9 @@
 			</if>
 		) AS a WHERE a.rownum <![CDATA[ > ]]> ${offset} AND a.rownum <![CDATA[ <= ]]> (${offset} + ${limit})
 	</select>
+	
+	<update id="pruneEvents" parameterType="map">
+		DELETE FROM event
+		WHERE date_created <![CDATA[ < ]]> #{dateThreshold}
+	</update>
 </mapper>

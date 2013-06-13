@@ -68,6 +68,9 @@ import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.plugins.datatypes.hl7v2.HL7v2DataTypeProperties;
+import com.mirth.connect.plugins.datatypes.hl7v2.HL7v2ResponseValidationProperties;
+import com.mirth.connect.plugins.datatypes.hl7v2.HL7v2ResponseValidator;
+import com.mirth.connect.plugins.datatypes.hl7v2.HL7v2SerializationProperties;
 import com.mirth.connect.server.Mirth;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -227,7 +230,9 @@ public class TestUtils {
         channel.setPreProcessor(new TestPreProcessor());
         channel.setPostProcessor(new TestPostProcessor());
 
-        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()));
+        DataType dataType = new DataType("HL7V2", new TestSerializer(), null, new TestAutoResponder(), new HL7v2ResponseValidator(new HL7v2SerializationProperties(), new HL7v2ResponseValidationProperties()));
+
+        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(dataType, dataType);
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
         channel.setSourceFilterTransformer(filterTransformer);
 
@@ -236,6 +241,7 @@ public class TestUtils {
         sourceConnector.setChannel(channel);
         sourceConnector.setRespondAfterProcessing(respondAfterProcessing);
         sourceConnector.setMetaDataReplacer(new MetaDataReplacer());
+        sourceConnector.setInboundDataType(dataType);
 
         channel.setSourceConnector(sourceConnector);
         channel.setResponseSelector(new ResponseSelector(sourceConnector.getInboundDataType()));
@@ -261,11 +267,11 @@ public class TestUtils {
                 testDestinationConnector.setEnabled(true);
                 testDestinationConnector.setQueue(queue);
 
-                ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()));
+                ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(dataType, dataType);
                 responseTransformerExecutor.setResponseTransformer(new TestResponseTransformer());
                 testDestinationConnector.setResponseTransformerExecutor(responseTransformerExecutor);
 
-                filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()));
+                filterTransformer = new FilterTransformerExecutor(dataType, dataType);
                 filterTransformer.setFilterTransformer(new TestFilterTransformer());
                 chain.addDestination(metaDataId++, filterTransformer, testDestinationConnector);
             }
@@ -535,8 +541,8 @@ public class TestUtils {
                 result.next();
                 maxId = result.getLong(1) + 1;
                 close(result);
-                statement.execute("DROP SEQUENCE d_msq" + localChannelId + " RESTRICT");
-                statement.execute("CREATE SEQUENCE d_msq" + localChannelId + " START WITH " + maxId + " INCREMENT BY 1 NO CYCLE");
+                statement.execute("DELETE FROM d_message_sequences WHERE local_channel_id = " + localChannelId);
+                statement.execute("INSERT INTO d_message_sequences (local_channel_id) VALUES (" + localChannelId + ")");
                 connection.commit();
             } finally {
                 close(result);

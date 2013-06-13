@@ -137,7 +137,7 @@ public class MessageExportDialog extends JDialog {
                 messageList.setIncludeContent(true);
 
                 MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, encryptor);
-                exportCount = new MessageExporter().exportMessages(messageList, messageWriter).getNumExported();
+                exportCount = new MessageExporter().exportMessages(messageList, messageWriter);
                 messageWriter.close();
             } else {
                 exportCount = parent.mirthClient.exportMessagesServer(channelId, messageFilter, pageSize, false, writerOptions);

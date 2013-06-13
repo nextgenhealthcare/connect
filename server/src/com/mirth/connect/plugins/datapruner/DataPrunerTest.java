@@ -123,6 +123,9 @@ public class DataPrunerTest {
                     pruner.pruneChannel(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, pruner.getArchiverOptions().getRootFolder());
                     assertEquals(messagesPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
                     assertEquals(contentPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
+                } catch (AssertionError e) {
+                    logger.error(e);
+                    throw e;
                 } finally {
                     FileUtils.deleteQuietly(new File(TEMP_ARCHIVE_FOLDER));
                 }
@@ -184,81 +187,14 @@ public class DataPrunerTest {
 
         long startTime = System.currentTimeMillis();
         pruner.pruneChannel(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null);
-        long endTime = System.currentTimeMillis();
-
-        logger.info("Archiver/Pruner executed in " + (endTime - startTime) + "ms");
-
+        long duration = System.currentTimeMillis() - startTime;
+        
+        System.out.println("Archiver/Pruner executed in " + duration + "ms");
+        System.out.println(TestUtils.getPerSecondRate((long) Math.pow(2, PERFORMANCE_TEST_POWER), duration, 2) + " msg/sec");
+        
         assertEquals(0, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(0, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
     }
-
-//    @Test
-//    public final void testDerbyDeleteCascade() throws Exception {
-//        ChannelController.getInstance().initChannelStorage(TEST_CHANNEL_ID);
-//
-//        Message message = MessageController.getInstance().createNewMessage(TEST_CHANNEL_ID, TEST_SERVER_ID);
-//        message.setReceivedDate(Calendar.getInstance());
-//        message.setProcessed(true);
-//
-//        ConnectorMessage sourceMessage = new ConnectorMessage(TEST_CHANNEL_ID, message.getMessageId(), 0, TEST_SERVER_ID, message.getReceivedDate(), Status.RECEIVED);
-//        message.getConnectorMessages().put(0, sourceMessage);
-//
-//        ConnectorMessage destinationMessage = new ConnectorMessage(TEST_CHANNEL_ID, message.getMessageId(), 1, TEST_SERVER_ID, message.getReceivedDate(), Status.SENT);
-//        message.getConnectorMessages().put(1, destinationMessage);
-//
-//        sourceMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 0, ContentType.RAW, TEST_MESSAGE_CONTENT, null, null));
-//        destinationMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 1, ContentType.RAW, TEST_MESSAGE_CONTENT, null, null));
-//
-//        TestUtils.deleteAllMessages(TEST_CHANNEL_ID);
-//        TestUtils.createTestMessages(TEST_CHANNEL_ID, message, 1);
-//        TestUtils.deleteAllMessages(TEST_CHANNEL_ID);
-//    }
-
-//    @Test
-//    public final void testPrunerConcurrency() throws Exception {
-//        final int channelTestSize = 30000;
-//        final int power = 10;
-//
-//        logger.info("Starting pruner concurrency test");
-//
-//        ChannelController.getInstance().initChannelStorage(TEST_CHANNEL_ID);
-//        final Channel channel = TestUtils.createChannel(TEST_CHANNEL_ID, TEST_SERVER_ID, true, 4, 1);
-//        prepareTestMessages(TEST_CHANNEL_ID, true, false, true, Status.SENT, power);
-//
-//        ExecutorService executor = Executors.newSingleThreadExecutor();
-//        Future<Void> future = executor.submit(new Callable<Void>() {
-//            @Override
-//            public Void call() {
-//                try {
-//                    Thread.sleep(5000);
-//                } catch (InterruptedException e1) {
-//                    e1.printStackTrace();
-//                }
-//
-//                logger.info("Running channel test");
-//                long startTime = System.currentTimeMillis();
-//
-//                try {
-//                    TestUtils.runChannelTest(channel, TestUtils.TEST_HL7_MESSAGE, channelTestSize);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//
-//                long duration = System.currentTimeMillis() - startTime;
-//                logger.info("Channel test completed in " + duration + "ms");
-//                return null;
-//            }
-//        });
-//
-//        DataPruner pruner = new DataPruner();
-//        
-//        logger.info("Executing pruner");
-//        pruner.executePruner(TEST_CHANNEL_ID, messageDateThreshold, null);
-//        logger.info("Pruner completed");
-//
-//        future.get();
-//        executor.shutdown();
-//    }
     
     @Test
     @Ignore
@@ -268,14 +204,19 @@ public class DataPrunerTest {
          * administrator, that routes messages to other channels that will be pruned. Then specify
          * the ids of those channels below.
          */
-        final String readerChannelId = "6028bc62-589a-471d-a97f-df8b72c42385";
-        String[] pruneChannelIds = new String[] { "2204dfad-11b5-405c-9900-d2f7b2621fd9", "2204dfad-11b5-405c-9900-d2f7b2621fd9" };
+        final String readerChannelId = "f7158274-8692-4e53-9d17-db732c3346b8";
         ExecutorService executor = Executors.newSingleThreadExecutor();
         TestUtils.startMirthServer(15000);
 
         DataPruner pruner = new DataPruner();
-        pruner.setBlockSize(1000);
+        pruner.setBlockSize(10);
+        pruner.setStrategy(Strategy.INCLUDE_LIST);
+        pruner.setRetryCount(0);
         
+        TestUtils.deleteAllMessages(readerChannelId);
+        TestUtils.deleteAllMessages("0831345e-bbe0-4d62-8f2d-c65280bd479b");
+        TestUtils.deleteAllMessages("b2e28f1b-d867-435a-a5f6-3b33d5261e66");
+
         // send messages into the test channel on a separate thread
         Future<Void> future = executor.submit(new Callable<Void>() {
             @Override
@@ -297,11 +238,7 @@ public class DataPrunerTest {
         
         // run the pruner while messages are processing
         while (!future.isDone()) {
-            for (String channelId : pruneChannelIds) {
-                logger.info("executing pruner for channel " + channelId);
-                pruner.pruneChannel(channelId, null, Calendar.getInstance(), null);
-            }
-            
+            pruner.run();
             Thread.sleep(2000);
         }
         
@@ -356,6 +293,16 @@ public class DataPrunerTest {
         }
 
         logger.debug("Finished preparing test messages");
+    }
+    
+    private static class PassthruArchiver implements MessageWriter {
+        @Override
+        public boolean write(Message message) throws MessageWriterException {
+            return true;
+        }
+
+        @Override
+        public void close() throws MessageWriterException {}
     }
 
     private static class TestArchiver implements MessageWriter {

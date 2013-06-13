@@ -9,6 +9,8 @@
 
 package com.mirth.connect.plugins.datapruner;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +18,7 @@ import java.util.Map.Entry;
 
 import org.apache.ibatis.session.SqlSession;
 
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
@@ -23,13 +26,13 @@ import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.PaginatedList;
 
-public class ArchiverMessageList extends PaginatedList<Message> {
+public class DataPrunerMessageList extends PaginatedList<Message> {
     private Map<String, Object> params;
     private DonkeyDaoFactory daoFactory = Donkey.getInstance().getDaoFactory();
     private String channelId;
-    private boolean includeContent = true;
+    private List<Long> messageIds = new ArrayList<Long>();
 
-    public ArchiverMessageList(String channelId, int pageSize, Map<String, Object> params) {
+    public DataPrunerMessageList(String channelId, int pageSize, Map<String, Object> params) {
         this.channelId = channelId;
         this.params = new HashMap<String, Object>();
 
@@ -40,13 +43,9 @@ public class ArchiverMessageList extends PaginatedList<Message> {
 
         setPageSize(pageSize);
     }
-
-    public boolean isIncludeContent() {
-        return includeContent;
-    }
-
-    public void setIncludeContent(boolean includeContent) {
-        this.includeContent = includeContent;
+    
+    public List<Long> getMessageIds() {
+        return messageIds;
     }
 
     @Override
@@ -56,31 +55,45 @@ public class ArchiverMessageList extends PaginatedList<Message> {
 
     @Override
     protected List<Message> getItems(int offset, int limit) throws Exception {
+        messageIds.clear();
+        
+        List<Map<String, Object>> maps;
         SqlSession session = SqlConfig.getSqlSessionManager().openSession();
         params.put("offset", offset);
         params.put("limit", limit);
 
-        List<Message> messages;
-        
         try {
-            messages = session.selectList("Message.prunerSelectMessagesToArchive", params);
+            maps = session.selectList("Message.getMessagesToPrune", params);
         } finally {
             session.close();
         }
 
-        if (includeContent) {
-            DonkeyDao dao = daoFactory.getDao();
-    
-            try {
-                for (Message message : messages) {
-                    message.setChannelId(channelId);
-                    message.getConnectorMessages().putAll(dao.getConnectorMessages(channelId, message.getMessageId()));
-                }
-            } finally {
-                dao.close();
-            }
-        }
+        List<Message> messages = new ArrayList<Message>();
+        DonkeyDao dao = daoFactory.getDao();
 
-        return messages;
+        try {
+            for (Map<String, Object> map : maps) {
+                Long messageId = (Long) map.get("id");
+
+                Map<Integer, ConnectorMessage> connectorMessages = null;
+                connectorMessages = dao.getConnectorMessages(channelId, messageId);
+
+                Message message = new Message();
+                message.setMessageId(messageId);
+                message.setChannelId(channelId);
+                message.setReceivedDate((Calendar) map.get("received_date"));
+                message.setProcessed((Boolean) map.get("processed"));
+                message.setServerId((String) map.get("server_id"));
+                message.setImportId((Long) map.get("import_id"));
+                message.getConnectorMessages().putAll(connectorMessages);
+
+                messages.add(message);
+                messageIds.add(messageId);
+            }
+
+            return messages;
+        } finally {
+            dao.close();
+        }
     }
 }

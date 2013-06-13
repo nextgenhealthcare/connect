@@ -893,7 +893,7 @@ public class CommandLineInterface {
             
             MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, client.getEncryptor());
 
-            messageCount = new MessageExporter().exportMessages(messageList, messageWriter).getNumExported();
+            messageCount = new MessageExporter().exportMessages(messageList, messageWriter);
             messageWriter.close();
         } catch (Exception e) {
             Throwable cause = ExceptionUtils.getRootCause(e);

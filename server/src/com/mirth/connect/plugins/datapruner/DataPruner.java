@@ -269,13 +269,14 @@ public class DataPruner implements Runnable {
     @Override
     public void run() {
         try {
-            logger.debug("Executing pruner, started at " + new SimpleDateFormat("MM/dd/yyyy hh:mm aa").format(status.getStartTime().getTime()));
+            logger.debug("Executing pruner, started at " + new SimpleDateFormat("MM/dd/yyyy hh:mm aa").format(Calendar.getInstance().getTime()));
             
             if (pruneEvents) {
                 pruneEvents();
             }
             
             String date = new SimpleDateFormat(MessageWriterFactory.ARCHIVE_DATE_PATTERN).format(Calendar.getInstance().getTime());
+            String archiveFolder = (archiveEnabled) ? archiverOptions.getRootFolder() + IOUtils.DIR_SEPARATOR + date : null;
             Queue<PrunerTask> taskQueue;
 
             try {
@@ -296,9 +297,7 @@ public class DataPruner implements Runnable {
                     status.setCurrentChannelName(task.getChannelName());
                     status.setTaskStartTime(Calendar.getInstance());
                     
-                    int[] result = new int[] { 0, 0, 0 };
-                    
-                    result = pruneChannel(task.getChannelId(), task.getMessageDateThreshold(), task.getContentDateThreshold(), archiverOptions.getRootFolder() + IOUtils.DIR_SEPARATOR + date);
+                    PruneResult result = pruneChannel(task.getChannelId(), task.getMessageDateThreshold(), task.getContentDateThreshold(), archiveFolder);
                     
                     status.getProcessedChannelIds().add(task.getChannelId());
                     
@@ -307,11 +306,11 @@ public class DataPruner implements Runnable {
                     attributes.put("Channel Name", task.getChannelName());
                     
                     if (archiveEnabled) {
-                        attributes.put("Messages Archived", Integer.toString(result[0]));
+                        attributes.put("Messages Archived", Long.toString(result.numMessagesArchived));
                     }
                     
-                    attributes.put("Messages Pruned", Integer.toString(result[1]));
-                    attributes.put("Content Rows Pruned", Integer.toString(result[2]));
+                    attributes.put("Messages Pruned", Long.toString(result.numMessagesPruned));
+                    attributes.put("Content Rows Pruned", Long.toString(result.numContentPruned));
                     attributes.put("Time Elapsed", getTimeElapsed());
                     eventController.dispatchEvent(new ServerEvent(DataPrunerService.PLUGINPOINT, Level.INFORMATION, Outcome.SUCCESS, attributes));
                 } catch (InterruptedException e) {
@@ -362,7 +361,7 @@ public class DataPruner implements Runnable {
                 Map<String, Object> params = new HashMap<String, Object>();
                 params.put("dateThreshold", dateThreshold);
 
-                int numEventsPruned = session.delete("Message.prunerDeleteEvents", params);
+                int numEventsPruned = session.delete("Message.pruneEvents", params);
 
                 Map<String, String> attributes = new HashMap<String, String>();
                 attributes.put("Events Pruned", Integer.toString(numEventsPruned));
@@ -377,11 +376,11 @@ public class DataPruner implements Runnable {
         }
     }
 
-    protected int[] pruneChannel(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder) throws InterruptedException, DataPrunerException {
+    protected PruneResult pruneChannel(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder) throws InterruptedException, DataPrunerException {
         logger.debug("Executing pruner for channel: " + channelId);
 
         if (messageDateThreshold == null && contentDateThreshold == null) {
-            return new int[] { 0, 0, 0 };
+            return new PruneResult();
         }
         
         // the content date threshold is only used/needed if it is later than the message date threshold
@@ -390,15 +389,33 @@ public class DataPruner implements Runnable {
         }
 
         int retries = retryCount;
+        long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
 
         while (true) {
             ThreadUtils.checkInterruptedStatus();
 
             try {
-                if (!archiveEnabled) {
-                    return pruneWithoutArchiver(channelId, messageDateThreshold, contentDateThreshold);
+                /*
+                 * Choose the method of pruning. If we are not archiving, then prune by date.
+                 * Otherwise select the message ids to prune first, then constrain the deletion to
+                 * those ids. This is necessary when archiving in order to be sure that only
+                 * messages that were successfully archived get deleted.
+                 */
+                if (!archiveEnabled && strategy == null && !DatabaseUtil.statementExists("Message.pruneMessagesByIds")) {
+                    return pruneChannelByDate(localChannelId, messageDateThreshold, contentDateThreshold);
                 } else {
-                    return pruneWithArchiver(channelId, messageDateThreshold, contentDateThreshold, archiveFolder);
+                    List<Long> ids;
+                    PruneResult result = new PruneResult();
+
+                    if (!archiveEnabled) {
+                        ids = getIdsToPrune(localChannelId, (contentDateThreshold == null) ? messageDateThreshold : contentDateThreshold);
+                    } else {
+                        ids = archive(channelId, messageDateThreshold, contentDateThreshold, archiveFolder);
+                        result.numMessagesArchived = ids.size();
+                    }
+                    
+                    result.numContentPruned = pruneChannelByIds(localChannelId, ids, (contentDateThreshold == null) ? null : messageDateThreshold);
+                    return result;
                 }
             } catch (InterruptedException e) {
                 throw e;
@@ -411,16 +428,12 @@ public class DataPruner implements Runnable {
             }
         }
     }
-
-    private int[] pruneWithoutArchiver(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold) throws InterruptedException {
-        int numMessagesPruned = 0;
-        int numContentPruned = 0;
-
+    
+    private PruneResult pruneChannelByDate(long localChannelId, Calendar messageDateThreshold, Calendar contentDateThreshold) throws InterruptedException {
         Integer limit = getBlockSize();
 
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
-        params.put("dateThreshold", contentDateThreshold);
+        params.put("localChannelId", localChannelId);
         params.put("skipIncomplete", isSkipIncomplete());
 
         if (getSkipStatuses().length > 0) {
@@ -431,75 +444,84 @@ public class DataPruner implements Runnable {
             params.put("limit", limit);
         }
 
+        PruneResult result = new PruneResult();
         long startTime = System.currentTimeMillis();
 
         if (contentDateThreshold != null) {
             logger.debug("Pruning content");
-            numContentPruned += runDelete("Message.prunerDeleteMessageContent", params, limit, true);
+            params.put("dateThreshold", contentDateThreshold);
+            result.numContentPruned += runDelete("Message.pruneMessageContent", params, limit);
         }
 
-        if (messageDateThreshold != null) {
-            logger.debug("Pruning messages");
-            params.put("dateThreshold", messageDateThreshold);
-
-            if (contentDateThreshold == null) {
-                numContentPruned += runDelete("Message.prunerDeleteMessageContent", params, limit, true);
-            }
-
-            /*
-             * These manual "cascade" delete queries are only needed for databases that don't
-             * support cascade deletion with the Message.prunerDeleteMessages query. When
-             * manually cascading, we do not allow the thread to be interrupted while deleting,
-             * since it could result in partially deleted messages.
-             */
-            if (DatabaseUtil.statementExists("Message.prunerCascadeDeleteConnectorMessages")) {
-                numContentPruned += runDelete("Message.prunerCascadeDeleteMessageContent", params, limit, false);
-                runDelete("Message.prunerCascadeDeleteCustomMetadata", params, limit, false);
-                runDelete("Message.prunerCascadeDeleteAttachments", params, limit, false);
-                runDelete("Message.prunerCascadeDeleteConnectorMessages", params, limit, false);
-                numMessagesPruned += runDelete("Message.prunerDeleteMessages", params, limit, false);
-
-                ThreadUtils.checkInterruptedStatus();
-            } else {
-                numMessagesPruned += runDelete("Message.prunerDeleteMessages", params, limit, true);
-            }
-        }
+        logger.debug("Pruning messages");
+        params.put("dateThreshold", messageDateThreshold);
+        
+        runDelete("Message.pruneMessageContent", params, limit);
+        
+        result.numMessagesPruned += runDelete("Message.pruneMessages", params, limit);
 
         logger.debug("Pruning completed in " + (System.currentTimeMillis() - startTime) + "ms");
-        return new int[] { 0, numMessagesPruned, numContentPruned };
+        return result;
     }
     
-    private int[] pruneWithArchiver(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder) throws DataPrunerException, InterruptedException {
-        String tempChannelFolder = archiveFolder + "/." + channelId;
-        String finalChannelFolder = archiveFolder + "/" + channelId;
-        MessageWriterOptions messageWriterOptions = SerializationUtils.clone(archiverOptions);
-        
-        if (messageWriterOptions.getArchiveFormat() == null) {
-            messageWriterOptions.setRootFolder(tempChannelFolder);
-        } else {
-            messageWriterOptions.setRootFolder(archiveFolder);
-            messageWriterOptions.setArchiveFileName(channelId);
-        }
-        
+    private List<Long> getIdsToPrune(long localChannelId, Calendar dateThreshold) {
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
+        params.put("localChannelId", localChannelId);
         params.put("skipIncomplete", isSkipIncomplete());
-        params.put("dateThreshold", (contentDateThreshold == null) ? messageDateThreshold : contentDateThreshold);
+        params.put("dateThreshold", dateThreshold);
 
         if (getSkipStatuses().length > 0) {
             params.put("skipStatuses", getSkipStatuses());
         }
 
-        ArchiverMessageList messageList = new ArchiverMessageList(channelId, pageSize, params);
-        List<Long> archivedMessageIds;
+        List<Map<String, Object>> maps;
+        SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
 
         try {
+            maps = session.selectList("Message.getMessagesToPrune", params);
+        } finally {
+            session.close();
+        }
+
+        List<Long> ids = new ArrayList<Long>();
+
+        for (Map<String, Object> map : maps) {
+            ids.add((Long) map.get("id"));
+        }
+
+        return ids;
+    }
+    
+    private List<Long> archive(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder) throws DataPrunerException {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
+        params.put("skipIncomplete", isSkipIncomplete());
+        params.put("dateThreshold", (contentDateThreshold == null) ? messageDateThreshold : contentDateThreshold);
+        
+        if (getSkipStatuses().length > 0) {
+            params.put("skipStatuses", getSkipStatuses());
+        }
+        
+        DataPrunerMessageList messageList = new DataPrunerMessageList(channelId, pageSize, params);
+        String tempChannelFolder = archiveFolder + "/." + channelId;
+        String finalChannelFolder = archiveFolder + "/" + channelId;
+        
+        try {
+            MessageWriterOptions messageWriterOptions = SerializationUtils.clone(archiverOptions);
+            
+            if (messageWriterOptions.getArchiveFormat() == null) {
+                messageWriterOptions.setRootFolder(tempChannelFolder);
+            } else {
+                messageWriterOptions.setRootFolder(archiveFolder);
+                messageWriterOptions.setArchiveFileName(channelId);
+            }
+            
             logger.debug("Running archiver, channel: " + channelId + ", root folder: " + messageWriterOptions.getRootFolder() + ", archive format: " + messageWriterOptions.getArchiveFormat() + ", archive filename: " + messageWriterOptions.getArchiveFileName() + ", file pattern: " + messageWriterOptions.getFilePattern());
             status.setArchiving(true);
             MessageWriter archiver = MessageWriterFactory.getInstance().getMessageWriter(messageWriterOptions, ConfigurationController.getInstance().getEncryptor());
-            archivedMessageIds = messageExporter.exportMessages(messageList, archiver).getProcessedIds();
+            messageExporter.exportMessages(messageList, archiver);
             
-            if (messageWriterOptions.getArchiveFormat() == null) {
+            if (messageWriterOptions.getArchiveFormat() == null && new File(tempChannelFolder).isDirectory()) {
                 try {
                     FileUtils.moveDirectory(new File(tempChannelFolder), new File(finalChannelFolder));
                 } catch (IOException e) {
@@ -508,6 +530,7 @@ public class DataPruner implements Runnable {
             }
             
             archiver.close();
+            return messageList.getMessageIds();
         } catch (Throwable t) {
             FileUtils.deleteQuietly(new File(tempChannelFolder));
             FileUtils.deleteQuietly(new File(finalChannelFolder));
@@ -515,22 +538,15 @@ public class DataPruner implements Runnable {
         } finally {
             status.setArchiving(false);
         }
-
-        if (archivedMessageIds.size() == 0) {
-            logger.debug("Not pruning since no messages were archived");
-            return new int[] { 0, 0, 0 };
+    }
+    
+    private long pruneChannelByIds(long localChannelId, List<Long> messageIds, Calendar messageDateThreshold) throws DataPrunerException, InterruptedException {
+        if (messageIds.size() == 0) {
+            logger.debug("Skipping pruner since no messages were found to prune");
+            return 0;
         }
 
-        Integer limit = getBlockSize();
-
-        params = new HashMap<String, Object>();
-        params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
-
-        if (limit != null) {
-            params.put("limit", limit);
-        }
-
-        List<Long> unarchivedMessageIds = getInvertedList(archivedMessageIds);
+        List<Long> invertedMessageIdList = getInvertedList(messageIds);
         List<long[]> includeRanges = null;
         List<long[]> excludeRanges = null;
         Strategy strategy = this.strategy;
@@ -542,35 +558,43 @@ public class DataPruner implements Runnable {
          * messages: DELETE ... WHERE NOT IN ([unarchived message ids]) AND id BETWEEN min AND max.
          */
         if (strategy == null) {
-            if (archivedMessageIds.size() > LIST_LIMIT && unarchivedMessageIds.size() > LIST_LIMIT) {
-                includeRanges = getRanges(archivedMessageIds);
-                excludeRanges = getRanges(unarchivedMessageIds);
+            if (messageIds.size() > LIST_LIMIT && invertedMessageIdList.size() > LIST_LIMIT) {
+                includeRanges = getRanges(messageIds);
+                excludeRanges = getRanges(invertedMessageIdList);
 
                 strategy = (includeRanges.size() < excludeRanges.size()) ? Strategy.INCLUDE_RANGES : Strategy.EXCLUDE_RANGES;
             } else {
-                strategy = (archivedMessageIds.size() < unarchivedMessageIds.size()) ? Strategy.INCLUDE_LIST : Strategy.EXCLUDE_LIST;
+                strategy = (messageIds.size() < invertedMessageIdList.size()) ? Strategy.INCLUDE_LIST : Strategy.EXCLUDE_LIST;
             }
         }
 
         ThreadUtils.checkInterruptedStatus();
+        Integer limit = getBlockSize();
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("localChannelId", localChannelId);
+
+        if (limit != null) {
+            params.put("limit", limit);
+        }
 
         switch (strategy) {
             case INCLUDE_LIST:
-                params.put("includeMessageList", StringUtils.join(archivedMessageIds, ','));
+                params.put("includeMessageList", StringUtils.join(messageIds, ','));
                 break;
 
             case EXCLUDE_LIST:
-                params.put("minMessageId", archivedMessageIds.get(0));
-                params.put("maxMessageId", archivedMessageIds.get(archivedMessageIds.size() - 1));
+                params.put("minMessageId", messageIds.get(0));
+                params.put("maxMessageId", messageIds.get(messageIds.size() - 1));
 
-                if (unarchivedMessageIds.size() > 0) {
-                    params.put("excludeMessageList", StringUtils.join(unarchivedMessageIds, ','));
+                if (invertedMessageIdList.size() > 0) {
+                    params.put("excludeMessageList", StringUtils.join(invertedMessageIdList, ','));
                 }
                 break;
 
             case INCLUDE_RANGES:
                 if (includeRanges == null) {
-                    includeRanges = getRanges(archivedMessageIds);
+                    includeRanges = getRanges(messageIds);
                 }
 
                 params.put("includeMessageRanges", includeRanges);
@@ -578,13 +602,13 @@ public class DataPruner implements Runnable {
 
             case EXCLUDE_RANGES:
                 if (excludeRanges == null) {
-                    excludeRanges = getRanges(unarchivedMessageIds);
+                    excludeRanges = getRanges(invertedMessageIdList);
                 }
 
                 List<long[]> ranges = excludeRanges;
 
-                params.put("minMessageId", archivedMessageIds.get(0));
-                params.put("maxMessageId", archivedMessageIds.get(archivedMessageIds.size() - 1));
+                params.put("minMessageId", messageIds.get(0));
+                params.put("maxMessageId", messageIds.get(messageIds.size() - 1));
 
                 if (!ranges.isEmpty()) {
                     params.put("excludeMessageRanges", ranges);
@@ -593,82 +617,38 @@ public class DataPruner implements Runnable {
         }
 
         ThreadUtils.checkInterruptedStatus();
-        logger.debug("Pruning " + archivedMessageIds.size() + " messages in channel " + channelId + " with strategy: " + strategy);
-        int numContentPruned = 0;
-        int numMessagesPruned = 0;
-        SqlSession session = SqlConfig.getSqlSessionManager().openSession();
+        logger.debug("Pruning " + messageIds.size() + " message records in local channel id " + localChannelId + " with strategy: " + strategy);
         ThreadUtils.checkInterruptedStatus();
+        int numPruned;
         long startTime = System.currentTimeMillis();
 
-        try {
-            /*
-             * Delete content for all messages that were archived if a content date threshold was
-             * given.
-             */
-            if (contentDateThreshold != null) {
-                numContentPruned += runDelete("Message.prunerDeleteMessageContent", params, limit, true);
-            }
-
-            if (messageDateThreshold != null) {
-                /*
-                 * If content was pruned separately, then we need to add an additional check for the
-                 * message date threshold. If content was not pruned separately, then we are safe to
-                 * delete all of the messages that were archived.
-                 */
-                if (contentDateThreshold != null) {
-                    params.put("dateThreshold", messageDateThreshold);
-                }
-
-                /*
-                 * These manual "cascade" delete queries are only needed for databases that don't
-                 * support cascade deletion with the Message.prunerDeleteMessages query. When
-                 * manually cascading, we do not allow the thread to be interrupted while deleting,
-                 * since it could result in partially deleted messages.
-                 */
-                if (DatabaseUtil.statementExists("Message.prunerCascadeDeleteConnectorMessages")) {
-                    numContentPruned += runDelete("Message.prunerCascadeDeleteMessageContent", params, limit, false);
-                    runDelete("Message.prunerCascadeDeleteCustomMetadata", params, limit, false);
-                    runDelete("Message.prunerCascadeDeleteAttachments", params, limit, false);
-                    runDelete("Message.prunerCascadeDeleteConnectorMessages", params, limit, false);
-                    numMessagesPruned += runDelete("Message.prunerDeleteMessages", params, limit, false);
-
-                    ThreadUtils.checkInterruptedStatus();
-                } else {
-                    numMessagesPruned += runDelete("Message.prunerDeleteMessages", params, limit, true);
-                }
-            }
-
-            session.commit();
-            logger.debug("Pruning completed in " + (System.currentTimeMillis() - startTime) + "ms");
-            return new int[] { archivedMessageIds.size(), numMessagesPruned, numContentPruned };
-        } finally {
-            session.close();
+        if (messageDateThreshold != null) {
+            numPruned = runDelete("Message.pruneMessageContent", params, limit);
+            params.put("dateThreshold", messageDateThreshold);
         }
+        
+        runDelete("Message.pruneMessageContent", params, limit);
+        
+        if (DatabaseUtil.statementExists("Message.pruneMessagesByIds")) {
+            numPruned = runDelete("Message.pruneMessagesByIds", params, limit);
+        } else {
+            numPruned = runDelete("Message.pruneMessages", params, limit);
+        }
+        
+        logger.debug("Pruning ended in " + (System.currentTimeMillis() - startTime) + "ms");
+        return numPruned;
     }
 
-    protected int runDelete(String query, Map<String, Object> params, Integer limit, boolean interruptible) throws InterruptedException {
-        SqlSession session = SqlConfig.getSqlSessionManager().openSession();
-
-        if (interruptible) {
-            ThreadUtils.checkInterruptedStatus();
-        }
+    private int runDelete(String query, Map<String, Object> params, Integer limit) throws InterruptedException {
+        SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
+        ThreadUtils.checkInterruptedStatus();
 
         try {
             status.setPruning(true);
             
             if (limit == null) {
                 int count = session.delete(query, params);
-
-                if (interruptible) {
-                    ThreadUtils.checkInterruptedStatus();
-                }
-
-                session.commit();
-
-                if (interruptible) {
-                    ThreadUtils.checkInterruptedStatus();
-                }
-
+                ThreadUtils.checkInterruptedStatus();
                 return count;
             }
 
@@ -677,17 +657,7 @@ public class DataPruner implements Runnable {
 
             do {
                 deletedRows = session.delete(query, params);
-
-                if (interruptible) {
-                    ThreadUtils.checkInterruptedStatus();
-                }
-
-                session.commit();
-
-                if (interruptible) {
-                    ThreadUtils.checkInterruptedStatus();
-                }
-
+                ThreadUtils.checkInterruptedStatus();
                 total += deletedRows;
             } while (deletedRows >= limit && deletedRows > 0);
 
@@ -761,6 +731,12 @@ public class DataPruner implements Runnable {
         long secs = (ms % 60000) / 1000;
         
         return mins + " minute" + (mins == 1 ? "" : "s") + ", " + secs + " second" + (secs == 1 ? "" : "s");
+    }
+    
+    private class PruneResult {
+        public long numMessagesArchived;
+        public long numMessagesPruned;
+        public long numContentPruned;
     }
     
     private class PrunerTask {

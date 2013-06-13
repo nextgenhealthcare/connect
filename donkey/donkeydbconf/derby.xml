@@ -23,7 +23,7 @@
 	<query id="createConnectorMessageTable">
 		CREATE TABLE d_mm${localChannelId} (
 	        id integer NOT NULL,
-	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE RESTRICT,
+	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE,
 	        received_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	        status character(1) NOT NULL,
 	        connector_name character varying(256),
@@ -62,7 +62,7 @@
 	        is_encrypted boolean NOT NULL,
 	        data_type character varying(255),
 	        CONSTRAINT mc${localChannelId}_PKEY PRIMARY KEY(message_id, metadata_id, content_type),
-	        CONSTRAINT mc${localChannelId}_FKEY FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE RESTRICT
+	        CONSTRAINT mc${localChannelId}_FKEY FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE CASCADE
         )
 	</query>
 	
@@ -83,7 +83,7 @@
 	        METADATA_ID integer NOT NULL,
 	        MESSAGE_ID bigint NOT NULL,
 	        CONSTRAINT mcm${localChannelId}_PKEY PRIMARY KEY(message_id, metadata_id),
-	        CONSTRAINT mcm${localChannelId}_FKEY FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE RESTRICT
+	        CONSTRAINT mcm${localChannelId}_FKEY FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE CASCADE
         )
 	</query>
 	
@@ -98,7 +98,7 @@
 	<query id="createMessageAttachmentTable">
 		CREATE TABLE d_ma${localChannelId} (
 	        id character varying(255) NOT NULL,
-	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE RESTRICT,
+	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE,
 	        type character varying(40),
 	        segment_id integer NOT NULL,
 	        attachment_size integer NOT NULL,
@@ -201,8 +201,8 @@
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id
 		WHERE mm.id = ? and mm.status = ?
 		ORDER BY m.id
-		OFFSET ? ROWS
-		FETCH FIRST ? ROWS ONLY
+		OFFSET ${offset} ROWS
+		FETCH FIRST ${limit} ROWS ONLY
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange">
@@ -212,8 +212,8 @@
 		WHERE mm.id = ? AND mm.status = ?
 		AND m.id <![CDATA[ >= ]]> ? AND m.id <![CDATA[ <= ]]> ?
 		ORDER BY m.id
-		OFFSET ? ROWS
-		FETCH FIRST ? ROWS ONLY
+		OFFSET ${offset} ROWS
+		FETCH FIRST ${limit} ROWS ONLY
 	</query>
 
 	<query id="dropMessageTable">
