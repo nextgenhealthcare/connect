@@ -27,6 +27,7 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
     private String host;
     private String fileFilter;
     private boolean regex;
+    private boolean directoryRecursion;
     private boolean ignoreDot;
     private boolean anonymous;
     private String username;
@@ -61,6 +62,7 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
         host = "";
         fileFilter = "*";
         regex = false;
+        directoryRecursion = false;
         ignoreDot = true;
         anonymous = true;
         username = "anonymous";
@@ -114,6 +116,14 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
 
     public void setRegex(boolean regex) {
         this.regex = regex;
+    }
+
+    public boolean isDirectoryRecursion() {
+        return directoryRecursion;
+    }
+
+    public void setDirectoryRecursion(boolean directoryRecursion) {
+        this.directoryRecursion = directoryRecursion;
     }
 
     public boolean isIgnoreDot() {
@@ -296,7 +306,6 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
 
     @Override
     public String toFormattedString() {
-        // TODO Auto-generated method stub
         return null;
     }
 

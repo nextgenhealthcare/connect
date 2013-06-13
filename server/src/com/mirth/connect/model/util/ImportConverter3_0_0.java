@@ -766,6 +766,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("host").setTextContent(oldProperties.getProperty("host", ""));
         properties.addChildElement("fileFilter").setTextContent(oldProperties.getProperty("fileFilter", "*"));
         properties.addChildElement("regex").setTextContent(readBooleanProperty(oldProperties, "regex", false));
+        properties.addChildElement("directoryRecursion").setTextContent("false");
         properties.addChildElement("ignoreDot").setTextContent(readBooleanProperty(oldProperties, "ignoreDot", true));
         properties.addChildElement("anonymous").setTextContent(readBooleanProperty(oldProperties, "FTPAnonymous", true));
         properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", "anonymous"));

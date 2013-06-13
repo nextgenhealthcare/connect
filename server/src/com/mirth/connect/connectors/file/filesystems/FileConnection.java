@@ -10,6 +10,7 @@
 package com.mirth.connect.connectors.file.filesystems;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
@@ -21,6 +22,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 
 import com.mirth.connect.connectors.file.FileConnectorException;
@@ -52,6 +54,10 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
         public String getAbsolutePath() {
 
             return this.theFile.getAbsolutePath();
+        }
+
+        public String getCanonicalPath() throws IOException {
+            return this.theFile.getCanonicalPath();
         }
 
         /** Gets the absolute pathname of the directory holding the file */
@@ -109,12 +115,7 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
             filenameFilter = new WildcardFileFilter(filenamePattern.trim().split("\\s*,\\s*"));
         }
 
-        File readDirectory = null;
-        try {
-            readDirectory = new File(fromDir);
-        } catch (Exception e) {
-            throw new FileConnectorException("Read directory does not exist: " + fromDir, e);
-        }
+        File readDirectory = getReadDirectory(fromDir);
 
         try {
             File[] todoFiles = readDirectory.listFiles(filenameFilter);
@@ -133,6 +134,25 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
             }
         } catch (Exception e) {
             throw new FileConnectorException("Error listing files from [" + fromDir + "] for pattern [" + filenamePattern + "]", e);
+        }
+    }
+
+    @Override
+    public List<String> listDirectories(String fromDir) throws Exception {
+        List<String> directories = new ArrayList<String>();
+
+        for (File directory : getReadDirectory(fromDir).listFiles((FileFilter) DirectoryFileFilter.DIRECTORY)) {
+            directories.add(directory.getCanonicalPath());
+        }
+
+        return directories;
+    }
+
+    private File getReadDirectory(String fromDir) throws Exception {
+        try {
+            return new File(fromDir);
+        } catch (Exception e) {
+            throw new FileConnectorException("Read directory does not exist: " + fromDir, e);
         }
     }
 

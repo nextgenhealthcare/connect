@@ -10,6 +10,7 @@
 package com.mirth.connect.connectors.file.filesystems;
 
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
@@ -59,6 +60,10 @@ public class SftpConnection implements FileSystemConnection {
 			
 			return getParent() + "/" + getName();
 		}
+		
+		public String getCanonicalPath() throws IOException {
+            throw new UnsupportedOperationException();
+        }
 		
 		/** Gets the absolute pathname of the directory holding the file */
 		public String getParent() {
@@ -149,6 +154,26 @@ public class SftpConnection implements FileSystemConnection {
 
 		return files;
 	}
+	
+	@Override
+    public List<String> listDirectories(String fromDir) throws Exception {
+        List<String> directories = new ArrayList<String>();
+        
+        cwd(fromDir);
+        
+        @SuppressWarnings("unchecked")
+        Vector<ChannelSftp.LsEntry> entries = client.ls(".");
+
+        for (Iterator<ChannelSftp.LsEntry> iter = entries.iterator(); iter.hasNext();) {
+            ChannelSftp.LsEntry entry = iter.next();
+
+            if (entry.getAttrs().isDir() || entry.getAttrs().isLink()) {
+                directories.add(new SftpFileInfo(fromDir, entry).getAbsolutePath());
+            }
+        }
+        
+        return directories;
+    }
 
     @Override
     public boolean exists(String file, String path) {

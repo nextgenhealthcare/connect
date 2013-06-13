@@ -18,6 +18,8 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="ignoreDotFilesButtonGroup">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="directoryRecursionButtonGroup">
+    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -43,85 +45,44 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
-              <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="secureModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="validateConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="anonymousLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="errorMoveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="processBatchFilesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="errorMoveToFileNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="errorResponseActionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="sortFilesByLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="afterProcessingActionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="checkFileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="moveToFileNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="moveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="moveToFileLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="ignoreDotFilesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="timeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="hostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="schemeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="directoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="filenameFilterLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="directoryRecursionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="ignoreDotFilesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="anonymousLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="timeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="secureModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="passiveModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="validateConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="afterProcessingActionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="moveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="moveToFileNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="moveToFileLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="errorResponseActionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="errorMoveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="errorMoveToFileNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="checkFileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="sortFilesByLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="processBatchFilesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="validateConnectionYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="validateConnectionNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="anonymousYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="anonymousNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="passwordField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
-                  <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
-                  <Component id="sortBy" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
-                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="processBatchFilesYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="processBatchFilesNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="fileTypeBinary" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="fileAge" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
-                  <Component id="afterProcessingActionComboBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="checkFileAgeYes" min="-2" max="-2" attributes="1"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="checkFileAgeNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="timeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="ignoreDotFilesYesRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="ignoreDotFilesNoRadio" min="-2" max="-2" attributes="0"/>
-                  </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="fileNameFilter" min="-2" pref="200" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="filenameFilterRegexCheckBox" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="directoryField" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="hostField" min="-2" pref="200" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -130,29 +91,76 @@
                       <Component id="pathField" min="-2" pref="185" max="-2" attributes="1"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
+                      <Component id="schemeComboBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="testConnection" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="directoryRecursionYesRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="directoryRecursionNoRadio" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="ignoreDotFilesYesRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="ignoreDotFilesNoRadio" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="anonymousYes" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="anonymousNo" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="usernameField" min="-2" pref="125" max="-2" attributes="0"/>
+                  <Component id="passwordField" min="-2" pref="125" max="-2" attributes="0"/>
+                  <Component id="timeoutField" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
                       <Component id="secureModeYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="secureModeNo" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="schemeComboBox" min="-2" max="-2" attributes="0"/>
+                      <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="testConnection" min="-2" max="-2" attributes="0"/>
+                      <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="validateConnectionYes" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="validateConnectionNo" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="afterProcessingActionComboBox" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="errorMoveToDirectoryField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
-                          <Component id="errorMoveToFileNameField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
-                          <Component id="errorResponseActionComboBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="errorReadingActionComboBox" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="moveToDirectoryField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                           <Component id="moveToFileNameField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                          <Component id="errorReadingActionComboBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="errorResponseActionComboBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="errorMoveToDirectoryField" min="-2" pref="250" max="-2" attributes="1"/>
+                          <Component id="errorMoveToFileNameField" min="-2" pref="250" max="-2" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jScrollPane1" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="fileAge" min="-2" pref="75" max="-2" attributes="1"/>
+                  <Component id="sortBy" min="-2" pref="75" max="-2" attributes="1"/>
+                  <Component id="charsetEncodingCombobox" min="-2" pref="125" max="-2" attributes="1"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="checkFileAgeYes" min="-2" max="-2" attributes="1"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="checkFileAgeNo" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="fileTypeBinary" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="processBatchFilesYes" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="processBatchFilesNo" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace pref="62" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -181,6 +189,12 @@
                   <Component id="filenameFilterLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="fileNameFilter" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="filenameFilterRegexCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="directoryRecursionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="directoryRecursionYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="directoryRecursionNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -233,7 +247,7 @@
                   <Component id="afterProcessingActionComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="moveToDirectoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -249,7 +263,7 @@
                           <Component id="moveToFileLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="errorReadingActionComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="errorResponseActionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="errorResponseActionComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -264,43 +278,43 @@
                           <Component id="errorMoveToFileNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="errorMoveToFileNameField" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="checkFileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkFileAgeYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkFileAgeNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="fileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="fileAge" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="sortFilesByLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="sortBy" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="fileTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="fileTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="fileTypeASCII" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="encodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="processBatchFilesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="processBatchFilesYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="processBatchFilesNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
-                  <Component id="jScrollPane1" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" min="-2" pref="162" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="checkFileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="checkFileAgeYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="checkFileAgeNo" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="fileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileAge" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="sortFilesByLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="sortBy" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="fileTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileTypeASCII" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="encodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="processBatchFilesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="processBatchFilesYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="processBatchFilesNo" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace pref="21" max="32767" attributes="0"/>
+              <EmptySpace pref="20" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -888,7 +902,6 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="ignoreDotFilesButtonGroup"/>
         </Property>
-        <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
         <Property name="toolTipText" type="java.lang.String" value="Select No to process files starting with a period."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
@@ -998,6 +1011,55 @@
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="errorMoveToFileNameField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If files which cause processing errors should be renamed, enter the new name here.&lt;br/&gt;The filename specified may include template substitutions from the list to the right.&lt;br/&gt;If this field is left empty, files which cause processing errors will not be renamed.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="directoryRecursionLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Include All Subdirectories:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="directoryRecursionYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="directoryRecursionButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to traverse directories recursively and search for files in each one.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="directoryRecursionYesRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="directoryRecursionNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="directoryRecursionButtonGroup"/>
+        </Property>
+        <Property name="selected" type="boolean" value="true"/>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to only search for files in the selected directory/location, ignoring subdirectories.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
       </Properties>
     </Component>
   </SubComponents>

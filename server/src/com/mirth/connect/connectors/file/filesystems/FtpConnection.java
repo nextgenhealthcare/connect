@@ -54,6 +54,10 @@ public class FtpConnection implements FileSystemConnection {
 			return getParent() + "/" + getName();
 		}
 		
+		public String getCanonicalPath() throws IOException {
+		    throw new UnsupportedOperationException();
+        }
+		
 		/** Gets the absolute pathname of the directory holding the file */
 		public String getParent() {
 			
@@ -121,9 +125,7 @@ public class FtpConnection implements FileSystemConnection {
 	}
 
 	@Override
-	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot)
-		throws Exception
-	{
+	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception {
         FilenameFilter filenameFilter;
         
         if (isRegex) {
@@ -158,6 +160,30 @@ public class FtpConnection implements FileSystemConnection {
 		}
 		return v;
 	}
+	
+	@Override
+    public List<String> listDirectories(String fromDir) throws Exception {
+        List<String> directories = new ArrayList<String>();
+        
+        if (!cwd(fromDir)) {
+            logger.error("listFiles.changeWorkingDirectory: " + client.getReplyCode() + "-" + client.getReplyString());
+            throw new IOException("Ftp error: " + client.getReplyCode());
+        }
+
+        FTPFile[] ftpDirectories = client.listDirectories();
+        if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
+            logger.error("listFiles.listFiles: " + client.getReplyCode() + "-" + client.getReplyString());
+            throw new IOException("Ftp error: " + client.getReplyCode());
+        }
+        
+        for (FTPFile directory : ftpDirectories) {
+            if (directory != null) {
+                directories.add(new FtpFileInfo(fromDir, directory).getAbsolutePath());
+            }
+        }
+        
+        return directories;
+    }
 	
     @Override
     public boolean exists(String file, String path) {

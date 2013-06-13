@@ -47,6 +47,10 @@ public class WebDavConnection implements FileSystemConnection {
         public String getAbsolutePath() {
             return theFile.getAbsolutePath();
         }
+        
+        public String getCanonicalPath() throws IOException {
+            return this.theFile.getCanonicalPath();
+        }
 
         /** Gets the absolute pathname of the directory holding the file */
         public String getParent() {
@@ -108,6 +112,19 @@ public class WebDavConnection implements FileSystemConnection {
             filenameFilter = new WildcardFileFilter(filenamePattern.trim().split("\\s*,\\s*"));
         }
 
+        return list(fromDir, true, filenameFilter, ignoreDot);
+    }
+    
+    @Override
+    public List<String> listDirectories(String fromDir) throws Exception {
+        List<String> directories = new ArrayList<String>();
+        for (FileInfo directory : list(fromDir, false, null, false)) {
+            directories.add(directory.getCanonicalPath());
+        }
+        return directories;
+    }
+    
+    private List<FileInfo> list(String fromDir, boolean files, FilenameFilter filenameFilter, boolean ignoreDot) throws Exception {
         client.setPath(fromDir);
         WebdavResource[] resources = client.listWebdavResources();
         
@@ -139,12 +156,15 @@ public class WebDavConnection implements FileSystemConnection {
 
             }
 
-            if (file.isFile()) {
-                if (filenameFilter.accept(null, file.getName()) && !(ignoreDot && file.getName().startsWith("."))) {
+            if (files) {
+                if (file.isFile() && filenameFilter.accept(null, file.getName()) && !(ignoreDot && file.getName().startsWith("."))) {
                     fileInfoList.add(new WebDavFileInfo(fromDir, file));
                 }
+            } else if (file.isDirectory()) {
+                fileInfoList.add(new WebDavFileInfo(fromDir, file));
             }
         }
+        
         return fileInfoList;
     }
 

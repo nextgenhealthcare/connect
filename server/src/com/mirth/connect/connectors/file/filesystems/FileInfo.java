@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.file.filesystems;
 
+import java.io.IOException;
+
 public interface FileInfo {
 
 	/** Gets the name of the file relative to the folder searched */
@@ -16,6 +18,9 @@ public interface FileInfo {
 	
 	/** Gets the absolute pathname of the file */
 	public String getAbsolutePath();
+	
+	/** Gets the canonical pathname string of the file */
+    public String getCanonicalPath() throws IOException;
 	
 	/** Gets the absolute pathname of the directory holding the file */
 	public String getParent();

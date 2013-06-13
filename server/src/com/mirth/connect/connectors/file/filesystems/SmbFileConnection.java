@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.file.filesystems;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.regex.Pattern;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
+import jcifs.smb.SmbFileFilter;
 import jcifs.smb.SmbFileInputStream;
 import jcifs.smb.SmbFileOutputStream;
 import jcifs.smb.SmbFilenameFilter;
@@ -45,6 +47,10 @@ public class SmbFileConnection implements FileSystemConnection {
 
         public String getAbsolutePath() {
             return this.theFile.getPath();
+        }
+        
+        public String getCanonicalPath() throws IOException {
+            return this.theFile.getCanonicalPath();
         }
 
         public String getParent() {
@@ -149,6 +155,31 @@ public class SmbFileConnection implements FileSystemConnection {
         } catch (Exception e) {
             throw new FileConnectorException("Error listing files in dir [" + dir + "] for patthern [" + filenamePattern + "]", e);
         }
+    }
+    
+    @Override
+    public List<String> listDirectories(String fromDir) throws Exception {
+        List<String> directories = new ArrayList<String>();
+        SmbFile readDirectory = null;
+        
+        try {
+            readDirectory = getSmbFile(share, getPath(fromDir, null));
+        } catch (Exception e) {
+            throw new FileConnectorException("Directory does not exist: " + fromDir, e);
+        }
+        
+        SmbFileFilter fileFilter = new SmbFileFilter() {
+            @Override
+            public boolean accept(SmbFile file) throws SmbException {
+                return file.isDirectory();
+            }
+        };
+        
+        for (SmbFile directory : readDirectory.listFiles(fileFilter)) {
+            directories.add(directory.getCanonicalPath());
+        }
+        
+        return directories;
     }
 
     @Override

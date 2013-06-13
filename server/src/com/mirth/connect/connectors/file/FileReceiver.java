@@ -19,7 +19,11 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -167,33 +171,65 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
     protected void poll() {
         eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.POLLING));
         try {
-
-            FileInfo[] files = listFiles();
-
-            if (files == null) {
-                return;
-            }
-
-            // sort files by specified attribute before processing
-            sortFiles(files);
-            routingError = false;
-
-            for (int i = 0; i < files.length; i++) {
-                if (isTerminated()) {
-                    return;
+            if (connectorProperties.isDirectoryRecursion()) {
+                Set<String> visitedDirectories = new HashSet<String>();
+                Stack<String> directoryStack = new Stack<String>();
+                directoryStack.push(readDir);
+                
+                FileInfo[] files;
+                
+                while ((files = listFilesRecursively(visitedDirectories, directoryStack)) != null) {
+                    processFiles(files);
                 }
-
-                if (!routingError && !files[i].isDirectory()) {
-                    eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.READING));
-                    processFile(files[i]);
-                    eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
-                }
+            } else {
+                processFiles(listFiles(readDir));
             }
         } catch (Throwable t) {
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), null, t));
             logger.error("Error polling in channel: " + getChannelId(), t);
         } finally {
             eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
+        }
+    }
+    
+    private FileInfo[] listFilesRecursively(Set<String> visitedDirectories, Stack<String> directoryStack) throws Exception {
+        while (!directoryStack.isEmpty()) {
+            // Get the current directory
+            String fromDir = directoryStack.pop();
+            
+            if (!visitedDirectories.contains(fromDir)) {
+                visitedDirectories.add(fromDir);
+                
+                // Add any subdirectories to the stack
+                List<String> directories = listDirectories(fromDir);
+                
+                for (int i = directories.size() - 1; i >= 0; i--) {
+                    directoryStack.push(directories.get(i));
+                }
+                
+                // Return the files from the current directory
+                return listFiles(fromDir);
+            }
+        }
+        
+        return null;
+    }
+    
+    private void processFiles(FileInfo[] files) {
+        // sort files by specified attribute before processing
+        sortFiles(files);
+        routingError = false;
+
+        for (int i = 0; i < files.length; i++) {
+            if (isTerminated()) {
+                return;
+            }
+
+            if (!routingError && !files[i].isDirectory()) {
+                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.READING));
+                processFile(files[i]);
+                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
+            }
         }
     }
 
@@ -331,18 +367,18 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
 
                         // Delete the destination file if it exists, and then rename the original file
                         deleteFile(destinationName, destinationDir, true);
-                        boolean resultOfFileMoveOperation = renameFile(file.getName(), readDir, destinationName, destinationDir);
+                        boolean resultOfFileMoveOperation = renameFile(file.getName(), file.getParent(), destinationName, destinationDir);
 
                         if (!resultOfFileMoveOperation) {
-                            throw new FileConnectorException("Error moving file from [" + pathname(file.getName(), readDir) + "] to [" + pathname(destinationName, destinationDir) + "]");
+                            throw new FileConnectorException("Error moving file from [" + pathname(file.getName(), file.getParent()) + "] to [" + pathname(destinationName, destinationDir) + "]");
                         }
                     }
                 } else if (action == FileAction.DELETE) {
                     // Delete the original file
-                    boolean resultOfFileMoveOperation = deleteFile(file.getName(), readDir, false);
+                    boolean resultOfFileMoveOperation = deleteFile(file.getName(), file.getParent(), false);
 
                     if (!resultOfFileMoveOperation) {
-                        throw new FileConnectorException("Error deleting file from [" + pathname(file.getName(), readDir) + "]");
+                        throw new FileConnectorException("Error deleting file from [" + pathname(file.getName(), file.getParent()) + "]");
                     }
                 }
 
@@ -389,7 +425,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             FileSystemConnection con = fileConnector.getConnection(uri, null, connectorProperties);
             Reader in = null;
             try {
-                in = new InputStreamReader(con.readFile(file.getName(), readDir), charsetEncoding);
+                in = new InputStreamReader(con.readFile(file.getName(), file.getParent()), charsetEncoding);
                 batchAdaptor.processBatch(in, this);
             } finally {
                 if (in != null) {
@@ -440,7 +476,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         FileSystemConnection con = fileConnector.getConnection(uri, null, connectorProperties);
 
         try {
-            InputStream is = con.readFile(file.getName(), readDir);
+            InputStream is = con.readFile(file.getName(), file.getParent());
 
             // Get the size of the file
             long length = file.getSize();
@@ -485,11 +521,28 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
      * @return a list of files to be processed.
      * @throws Exception
      */
-    FileInfo[] listFiles() throws Exception {
+    FileInfo[] listFiles(String fromDir) throws Exception {
         FileSystemConnection con = fileConnector.getConnection(uri, null, connectorProperties);
 
         try {
-            return con.listFiles(readDir, filenamePattern, connectorProperties.isRegex(), connectorProperties.isIgnoreDot()).toArray(new FileInfo[0]);
+            List<FileInfo> files = con.listFiles(fromDir, filenamePattern, connectorProperties.isRegex(), connectorProperties.isIgnoreDot());
+            return files == null ? null : files.toArray(new FileInfo[files.size()]);
+        } finally {
+            fileConnector.releaseConnection(uri, con, null, connectorProperties);
+        }
+    }
+    
+    /**
+     * Get a list of subdirectories within a directory.
+     * 
+     * @return a list of subdirectories.
+     * @throws Exception
+     */
+    List<String> listDirectories(String fromDir) throws Exception {
+        FileSystemConnection con = fileConnector.getConnection(uri, null, connectorProperties);
+
+        try {
+            return con.listDirectories(fromDir);
         } finally {
             fileConnector.releaseConnection(uri, con, null, connectorProperties);
         }
