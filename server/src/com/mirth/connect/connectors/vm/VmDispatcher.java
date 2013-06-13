@@ -182,7 +182,7 @@ public class VmDispatcher extends DestinationConnector {
             String longMessage = shortMessage;
 
             if (e instanceof TimeoutException) {
-                longMessage += ". A cycle may be present where a channel is attempting to dispatch a message to itself. If this is the case, enable queuing on the source or destination connectors.";
+                longMessage += ". A cycle may be present where a channel is attempting to dispatch a message to itself. If this is the case, enable queuing on the source or destination connectors, otherwise try increasing the response timeout.";
             }
 
             eventController.dispatchEvent(new ErrorEvent(currentChannelId, getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), longMessage, cause));
