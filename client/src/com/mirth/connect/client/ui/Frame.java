@@ -4683,6 +4683,10 @@ public class Frame extends JXFrame {
             message.append("The " + objectName + " being imported is from an unknown version of Mirth Connect.\n");
         } else {
             int comparison = MigrationUtil.compareVersions(version, PlatformUI.SERVER_VERSION);
+            
+            if (comparison == 0) {
+                return true;
+            }
 
             if (comparison > 0) {
                 alertInformation(this, "The " + objectName + " being imported originated from Mirth version " + version + ".\nYou are using Mirth Connect version " + PlatformUI.SERVER_VERSION + ".\nThe " + objectName + " cannot be imported, because it originated from a newer version of Mirth Connect.");
