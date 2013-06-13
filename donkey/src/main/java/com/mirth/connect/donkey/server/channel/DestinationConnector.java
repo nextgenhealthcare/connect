@@ -11,6 +11,7 @@ package com.mirth.connect.donkey.server.channel;
 
 import java.util.Calendar;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -45,7 +46,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private ConnectorMessageQueue queue = new ConnectorMessageQueue();
     private String destinationName;
     private boolean enabled;
-    private boolean forceQueue;
+    private AtomicBoolean forceQueue = new AtomicBoolean(false);
     private ResponseTransformerExecutor responseTransformerExecutor;
     private StorageSettings storageSettings = new StorageSettings();
     private DonkeyDaoFactory daoFactory;
@@ -80,11 +81,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
     }
 
     public boolean isForceQueue() {
-        return forceQueue;
+        return forceQueue.get();
     }
 
     public void setForceQueue(boolean forceQueue) {
-        this.forceQueue = forceQueue;
+        this.forceQueue.set(forceQueue);
     }
 
     public Integer getOrderId() {
@@ -142,7 +143,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
     @Override
     public void start() throws StartException {
         setCurrentState(ChannelState.STARTING);
-        forceQueue = false;
 
         if (isQueueEnabled()) {
             // Remove any items in the queue's buffer because they may be outdated and refresh the queue size
@@ -153,6 +153,13 @@ public abstract class DestinationConnector extends Connector implements Runnable
         }
 
         onStart();
+
+        /*
+         * If forceQueue was enabled because this connector was stopped individually, disable it
+         * AFTER onStart() so make sure the connector does not attempt to send before it is finished
+         * starting.
+         */
+        forceQueue.set(false);
 
         setCurrentState(ChannelState.STARTED);
     }
@@ -211,7 +218,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
      */
     public void process(DonkeyDao dao, ConnectorMessage message, Status previousStatus) throws InterruptedException {
         ConnectorProperties connectorProperties = null;
-        boolean attemptSend = !isQueueEnabled() || (queueProperties.isSendFirst() && queue.size() == 0 && !forceQueue);
+        boolean attemptSend = !isQueueEnabled() || (queueProperties.isSendFirst() && queue.size() == 0 && !isForceQueue());
 
         // we need to get the connector envelope if we will be attempting to send the message     
         if (attemptSend) {
