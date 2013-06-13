@@ -30,7 +30,7 @@ import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
-import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.ServerEventContext;
@@ -224,7 +224,7 @@ public class TestPreProcessor {
         assertTrue(executor.awaitTermination(1000, TimeUnit.MILLISECONDS));
     }
 
-    private ConnectorMessage createConnectorMessage(String channelId, long messageId, int metaDataId) throws SerializerException {
+    private ConnectorMessage createConnectorMessage(String channelId, long messageId, int metaDataId) throws XmlSerializerException {
         ConnectorMessage connectorMessage = new ConnectorMessage();
         connectorMessage.setChannelId(channelId);
         connectorMessage.setMessageId(messageId);

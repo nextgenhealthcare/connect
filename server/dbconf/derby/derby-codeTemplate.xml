@@ -3,25 +3,20 @@
 <!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
 
 <mapper namespace="CodeTemplate">
-	<resultMap id="codeTemplate-serialized-data" type="map">
+	<resultMap id="code-template" type="map">
 		<result property="id" column="ID" javaType="String" />
 		<result property="codeTemplate" column="CODE_TEMPLATE" javaType="String" />
 	</resultMap>
 	
-	<select id='getCodeTemplate' parameterType='String' resultType='com.mirth.connect.model.CodeTemplate'>
-		SELECT CODE_TEMPLATE
+	<select id="getCodeTemplate" parameterType="String" resultMap="code-template">
+		SELECT ID, CODE_TEMPLATE
 		FROM CODE_TEMPLATE
 		<where>
 			<if test='value != null'>ID = #{value}</if>
 		</where>
 	</select>
 	
-	<select id="getSerializedCodeTemplateData" resultMap="codeTemplate-serialized-data">
-		SELECT ID, CODE_TEMPLATE
-		FROM CODE_TEMPLATE
-	</select>
-	
-	<update id="updateSerializedCodeTemplateData" parameterType="map">
+	<update id="updateCodeTemplate" parameterType="map">
 		UPDATE CODE_TEMPLATE
 		SET CODE_TEMPLATE = #{codeTemplate}
 		WHERE ID = #{id}

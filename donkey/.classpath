@@ -56,7 +56,7 @@
 			<attribute name="javadoc_location" value="http://jdbc.postgresql.org/documentation/publicapi/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/xstream/xstream-1.4.3.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/xstream-1.4.4.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/xpp3_min-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.1.24-bin.jar"/>
 	<classpathentry kind="lib" path="lib/database/ojdbc6.jar"/>

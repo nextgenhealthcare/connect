@@ -30,7 +30,7 @@ import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterfa
 import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.SerializationType;
-import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
@@ -690,8 +690,8 @@ public class DonkeyEngineController implements EngineController {
             } else {
                 try {
                     template = serializer.toXML(transformer.getOutboundTemplate());
-                } catch (SerializerException e) {
-                    throw new SerializerException("Error serializing transformer outbound template for connector \"" + connector.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
+                } catch (XmlSerializerException e) {
+                    throw new XmlSerializerException("Error serializing transformer outbound template for connector \"" + connector.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
                 }
             }
 
@@ -746,8 +746,8 @@ public class DonkeyEngineController implements EngineController {
             } else {
                 try {
                     template = serializer.toXML(transformer.getOutboundTemplate());
-                } catch (SerializerException e) {
-                    throw new SerializerException("Error serializing response transformer outbound template for connector \"" + connector.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
+                } catch (XmlSerializerException e) {
+                    throw new XmlSerializerException("Error serializing response transformer outbound template for connector \"" + connector.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
                 }
             }
 

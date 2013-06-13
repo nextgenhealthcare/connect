@@ -11,18 +11,18 @@ package com.mirth.connect.donkey.model.message;
 
 import com.mirth.connect.donkey.model.DonkeyException;
 
-public class SerializerException extends DonkeyException {
+public class XmlSerializerException extends DonkeyException {
     private static final long serialVersionUID = 1L;
 
-    public SerializerException(Throwable cause) {
+    public XmlSerializerException(Throwable cause) {
         super(cause);
     }
 
-    public SerializerException(String message) {
+    public XmlSerializerException(String message) {
         super(message);
     }
 
-    public SerializerException(String message, Throwable cause, String formattedError) {
+    public XmlSerializerException(String message, Throwable cause, String formattedError) {
         super(message, cause, formattedError);
     }
 }

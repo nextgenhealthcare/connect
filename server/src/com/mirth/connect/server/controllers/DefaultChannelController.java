@@ -429,10 +429,15 @@ public class DefaultChannelController extends ChannelController {
                     String channelId = channelRevision.getKey();
 
                     if (!channelCacheById.containsKey(channelId) || channelRevision.getValue() > channelCacheById.get(channelId).getRevision()) {
-                        List<Channel> channelList = SqlConfig.getSqlSessionManager().selectList("Channel.getChannel", channelId);
+                        Channel channel = null;
+                        
+                        try {
+                            channel = SqlConfig.getSqlSessionManager().selectOne("Channel.getChannel", channelId);
+                        } catch (Exception e) {
+                            logger.error("Failed to load channel " + channelId + " from the database", e);
+                        }
 
-                        if (!channelList.isEmpty()) {
-                            Channel channel = channelList.get(0);
+                        if (channel != null) {
                             Channel oldChannel = channelCacheById.get(channelId);
 
                             channelCacheById.put(channel.getId(), channel);
@@ -448,9 +453,9 @@ public class DefaultChannelController extends ChannelController {
                             }
                         } else {
                             /*
-                             * The channel must have been removed from the database after the
-                             * initial revision query, remove it from the cache if it already
-                             * existed.
+                             * The channel was either removed from the database after the initial
+                             * revision query or an error occurred while attempting to retrieve it,
+                             * remove it from the cache if it already existed.
                              */
                             if (channelCacheById.containsKey(channelId)) {
                                 // Remove channel from cache

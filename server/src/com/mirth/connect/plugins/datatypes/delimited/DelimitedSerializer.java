@@ -20,7 +20,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
@@ -65,7 +65,7 @@ public class DelimitedSerializer implements IXMLSerializer {
     }
 
     @Override
-    public String fromXML(String source) throws SerializerException {
+    public String fromXML(String source) throws XmlSerializerException {
 
         StringBuilder builder = new StringBuilder();
 
@@ -80,13 +80,13 @@ public class DelimitedSerializer implements IXMLSerializer {
         } catch (Exception e) {
             String exceptionMessage = e.getClass().getName() + ":" + e.getMessage();
             logger.error(exceptionMessage);
-            throw new SerializerException("Error converting XML to delimited text", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to delimited text", e));
+            throw new XmlSerializerException("Error converting XML to delimited text", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to delimited text", e));
         }
         return builder.toString();
     }
 
     @Override
-    public Map<String, String> getMetadataFromDocument(Document doc) throws SerializerException {
+    public Map<String, String> getMetadataFromDocument(Document doc) throws XmlSerializerException {
         Map<String, String> map = new HashMap<String, String>();
         populateMetadata(map);
         return map;
@@ -101,7 +101,7 @@ public class DelimitedSerializer implements IXMLSerializer {
     }
 
     @Override
-    public String toXML(String source) throws SerializerException {
+    public String toXML(String source) throws XmlSerializerException {
         try {
             StringWriter stringWriter = new StringWriter();
             XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);

@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.util.MigrationUtil;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -76,8 +77,7 @@ public class MigratableConverter extends ReflectionConverter {
 //                instance.migrate3_0_2(element);
 //            }
         } catch (Exception e) {
-            logger.error("An error occurred while attempting to migrate serialized object element: " + element.getNodeName(), e);
-            // TODO should we throw a runtime exception here, or allow execution to continue?
+            throw new SerializerException("An error occurred while attempting to migrate serialized object element: " + element.getNodeName(), e);
         }
     }
 }

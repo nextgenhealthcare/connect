@@ -15,7 +15,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.SerializerProperties;
@@ -38,17 +38,17 @@ public class RawSerializer implements IXMLSerializer {
     }
 
     @Override
-    public String toXML(String source) throws SerializerException {
+    public String toXML(String source) throws XmlSerializerException {
         return null;
     }
 
     @Override
-    public String fromXML(String source) throws SerializerException {
+    public String fromXML(String source) throws XmlSerializerException {
         return null;
     }
 
     @Override
-    public Map<String, String> getMetadataFromDocument(Document doc) throws SerializerException {
+    public Map<String, String> getMetadataFromDocument(Document doc) throws XmlSerializerException {
         Map<String, String> map = new HashMap<String, String>();
         return map;
     }

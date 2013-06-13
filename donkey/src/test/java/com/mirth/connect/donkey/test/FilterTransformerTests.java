@@ -24,7 +24,7 @@ import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
-import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.server.Donkey;
@@ -108,13 +108,13 @@ public class FilterTransformerTests {
             }
 
             @Override
-            public String toXML(String message) throws SerializerException {
-                throw new SerializerException("Inbound serialization failed.");
+            public String toXML(String message) throws XmlSerializerException {
+                throw new XmlSerializerException("Inbound serialization failed.");
             }
 
             @Override
-            public String fromXML(String message) throws SerializerException {
-                throw new SerializerException("Outbound serialization failed.");
+            public String fromXML(String message) throws XmlSerializerException {
+                throw new XmlSerializerException("Outbound serialization failed.");
             }
         }
 
@@ -138,7 +138,7 @@ public class FilterTransformerTests {
 
             try {
                 filterTransformerExecutor.processConnectorMessage(connectorMessage);
-            } catch (SerializerException e) {
+            } catch (XmlSerializerException e) {
             }
 
             assertNull(connectorMessage.getTransformed());

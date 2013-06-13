@@ -22,7 +22,6 @@
 		<typeHandler javaType="java.util.GregorianCalendar" handler="com.mirth.connect.server.sqlmap.extensions.CalendarTypeHandler" />
 		<typeHandler javaType="Status" handler="com.mirth.connect.server.sqlmap.extensions.StatusTypeHandler" />
 		<typeHandler javaType="ContentType" handler="com.mirth.connect.server.sqlmap.extensions.ContentTypeHandler" />
-		<typeHandler javaType="com.mirth.connect.model.CodeTemplate" handler="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
 		<typeHandler javaType="com.mirth.connect.model.ServerEvent$Level" handler="com.mirth.connect.server.sqlmap.extensions.EventLevelTypeHandler" />
 		<typeHandler javaType="com.mirth.connect.model.ServerEvent$Outcome" handler="com.mirth.connect.server.sqlmap.extensions.EventOutcomeTypeHandler" />
 		<typeHandler javaType="com.mirth.connect.model.Channel" handler="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />

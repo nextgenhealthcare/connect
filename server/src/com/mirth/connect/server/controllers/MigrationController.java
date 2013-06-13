@@ -9,6 +9,8 @@
 
 package com.mirth.connect.server.controllers;
 
+import com.mirth.connect.server.migration.DatabaseSchemaMigrationException;
+
 /**
  * The MigrationController migrates the database to the current version.
  * 
@@ -18,7 +20,12 @@ public abstract class MigrationController extends Controller {
         return ControllerFactory.getFactory().createMigrationController();
     }
 
-    public abstract void migrate();
+    /**
+     * Runs migration procedures when a version change is detected
+     * 
+     * @throws DatabaseSchemaMigrationException Thrown if an error occurred while attempting to migrate the database schema
+     */
+    public abstract void migrate() throws DatabaseSchemaMigrationException;
 
     public abstract void migrateSerializedData();
 

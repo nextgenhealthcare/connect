@@ -51,6 +51,7 @@ import com.mirth.connect.client.core.PaginatedMessageList;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.CodeTemplate;
@@ -783,6 +784,8 @@ public class CommandLineInterface {
             out.println("Code Templates Import Complete");
         } catch (IOException e) {
             error("cannot read " + path, e);
+        } catch (SerializerException e) {
+            error("invalid file: " + path, e);
         }
     }
     
@@ -1318,16 +1321,16 @@ public class CommandLineInterface {
     }
 
     private void doImportChannel(File importFile, boolean force) throws ClientException {
-        String channelXML = "";
+        Channel importChannel = null;
 
         try {
-            channelXML = FileUtils.readFileToString(importFile);
+            String channelXML = FileUtils.readFileToString(importFile);
+            importChannel = ObjectXMLSerializer.getInstance().fromXML(channelXML, Channel.class);
         } catch (Exception e1) {
             error("invalid channel file.", e1);
             return;
         }
 
-        Channel importChannel = ObjectXMLSerializer.getInstance().fromXML(channelXML, Channel.class);
         String channelName = importChannel.getName();
         String tempId = client.getGuid();
 

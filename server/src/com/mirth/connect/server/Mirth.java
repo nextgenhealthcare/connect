@@ -59,6 +59,7 @@ import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.controllers.UserController;
 import com.mirth.connect.server.logging.JuliToLog4JService;
 import com.mirth.connect.server.logging.LogOutputStream;
+import com.mirth.connect.server.migration.DatabaseSchemaMigrationException;
 import com.mirth.connect.server.servlets.AlertServlet;
 import com.mirth.connect.server.servlets.ChannelServlet;
 import com.mirth.connect.server.servlets.ChannelStatisticsServlet;
@@ -223,7 +224,16 @@ public class Mirth extends Thread {
         }
 
         extensionController.removePropertiesForUninstalledExtensions();
-        migrationController.migrate();
+        
+        try {
+            migrationController.migrate();
+        } catch (DatabaseSchemaMigrationException e) {
+            logger.error("Failed to migrate database schema", e);
+            stopDatabase();
+            running = false;
+            return;
+        }
+        
         configurationController.migrateKeystore();
         extensionController.setDefaultExtensionStatus();
         extensionController.uninstallExtensions();

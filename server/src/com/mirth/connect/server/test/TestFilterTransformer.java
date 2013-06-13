@@ -23,7 +23,7 @@ import org.junit.Test;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
-import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
 import com.mirth.connect.plugins.datatypes.xml.DefaultXMLSerializer;
@@ -127,7 +127,7 @@ public class TestFilterTransformer {
         System.out.println("\nFilter/Transformer Performance: " + duration + "ms\n");
     }
     
-    private ConnectorMessage createConnectorMessage(String channelId, long messageId, int metaDataId) throws SerializerException {
+    private ConnectorMessage createConnectorMessage(String channelId, long messageId, int metaDataId) throws XmlSerializerException {
         ConnectorMessage connectorMessage = new ConnectorMessage();
         connectorMessage.setChannelId(channelId);
         connectorMessage.setMessageId(messageId);

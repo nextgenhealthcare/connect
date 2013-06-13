@@ -9,7 +9,7 @@
 
 package com.mirth.connect.donkey.test.util;
 
-import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 
 public class TestSerializer implements XmlSerializer {
@@ -25,12 +25,12 @@ public class TestSerializer implements XmlSerializer {
     }
 
     @Override
-    public String toXML(String message) throws SerializerException {
+    public String toXML(String message) throws XmlSerializerException {
         return message;
     }
 
     @Override
-    public String fromXML(String message) throws SerializerException {
+    public String fromXML(String message) throws XmlSerializerException {
         return message;
     }
 

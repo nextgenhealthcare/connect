@@ -36,51 +36,16 @@ import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.migration.DatabaseSchemaMigrationException;
+import com.mirth.connect.server.migration.LegacyMigrator;
 import com.mirth.connect.server.migration.Migrate2_0_0;
 import com.mirth.connect.server.migration.Migrate3_0_0;
+import com.mirth.connect.server.migration.Migrator;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
-import com.mirth.connect.util.MigrationUtil;
 
-/**
- * The MigrationController migrates the database to the current version.
- */
 public class DefaultMigrationController extends MigrationController {
-    private Logger logger = Logger.getLogger(this.getClass());
-    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-    private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-
-    public enum Version {
-        V0("0"), V1("1"), V2("2"), V3("3"), V4("4"), V5("5"), V6("6"), V7("7"), V8("8"), V9("9"), V3_0_0(
-                "3.0.0");
-
-        private String value;
-
-        private Version(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-
-        public static Version fromString(String value) {
-            for (Version version : values()) {
-                if (version.toString().equals(value)) {
-                    return version;
-                }
-            }
-            return null;
-        }
-    }
-
-    // singleton pattern
     private static DefaultMigrationController instance = null;
-
-    private DefaultMigrationController() {
-
-    }
 
     public static MigrationController create() {
         synchronized (DefaultMigrationController.class) {
@@ -91,9 +56,112 @@ public class DefaultMigrationController extends MigrationController {
             return instance;
         }
     }
+    
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+    private Logger logger = Logger.getLogger(this.getClass());
 
+    private DefaultMigrationController() {}
+
+    private enum Version {
+        /*
+         * When a new version of Mirth Connect requires migration code, the version must be
+         * added to the version list here and the appropriate Migrator implementation must be
+         * specified in the switch statement in getMigrator() below. The version list must be kept
+         * in historical order.
+         */
+        
+        // @formatter:off
+        
+        V0("0"),
+        V1("1"),
+        V2("2"),
+        V3("3"),
+        V4("4"),
+        V5("5"),
+        V6("6"),
+        V7("7"),
+        V8("8"),
+        V9("9"),
+        V3_0_0("3.0.0");
+
+        public Migrator getMigrator() {
+            switch (this) {
+                case V0: return new LegacyMigrator(0);
+                case V1: return new LegacyMigrator(1);
+                case V2: return new LegacyMigrator(2);
+                case V3: return new LegacyMigrator(3);
+                case V4: return new LegacyMigrator(4);
+                case V5: return new LegacyMigrator(5);
+                case V6: return new LegacyMigrator(6);
+                case V7: return new Migrate2_0_0();
+                case V8: return new LegacyMigrator(8);
+                case V9: return new LegacyMigrator(9);
+                case V3_0_0: return new Migrate3_0_0();
+            }
+
+            return null;
+        }
+        
+        // @formatter:on
+        
+        private String versionString;
+
+        private Version(String value) {
+            this.versionString = value;
+        }
+
+        public boolean nextVersionExists() {
+            return ordinal() < getLatest().ordinal();
+        }
+
+        public Version getNextVersion() {
+            return values()[ordinal() + 1];
+        }
+        
+        @Override
+        public String toString() {
+            return versionString;
+        }
+
+        public static Version getLatest() {
+            Version[] allVersions = values();
+            return allVersions[allVersions.length - 1];
+        }
+
+        public static Version fromString(String value) {
+            for (Version version : values()) {
+                if (version.toString().equals(value)) {
+                    return version;
+                }
+            }
+
+            return null;
+        }
+    }
+    
     @Override
-    public void migrate() {
+    public void migrate() throws DatabaseSchemaMigrationException {
+        initDatabase();
+        Version version = getVersion();
+
+        while (version.nextVersionExists()) {
+            version = version.getNextVersion();
+            Migrator migrator = version.getMigrator();
+            
+            if (migrator != null) {
+                logger.info("Migrating database to version " + version);
+                migrator.migrate();
+            }
+            
+            updateVersion(version);
+        }
+    }
+    
+    /**
+     * Builds the database schema on the connected database if it does not exist
+     */
+    private void initDatabase() throws DatabaseSchemaMigrationException {
         // Check for one of the tables to see if we should run the create script
         Connection conn = null;
         ResultSet resultSet = null;
@@ -122,114 +190,53 @@ public class DefaultMigrationController extends MigrationController {
 
             // If missing this table we can assume that they don't have the schema installed
             if (!resultFound) {
-                createSchema(conn);
-                return;
+                String creationScript = IOUtils.toString(getClass().getResourceAsStream("/" + configurationController.getDatabaseType() + "/" + configurationController.getDatabaseType() + "-database.sql"));
+                DatabaseUtil.executeScript(creationScript, false);
+                updateVersion(Version.getLatest());
             }
         } catch (Exception e) {
-            logger.error("Could not create schema on the configured database.", e);
-            return;
+            throw new DatabaseSchemaMigrationException(e);
         } finally {
             DbUtils.closeQuietly(resultSet);
             DbUtils.closeQuietly(conn);
+            
             if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
                 SqlConfig.getSqlSessionManager().close();
             }
         }
+    }
+    
+    private Version getVersion() {
+        String version = (String) SqlConfig.getSqlSessionManager().selectOne("Configuration.getSchemaVersion");
 
-        // Otherwise proceed with migration if necessary
-        String newVersion = configurationController.getServerVersion();
+        if (version == null) {
+            version = "0";
+        }
 
+        return Version.fromString(version);
+    }
+    
+    private void updateVersion(Version version) throws DatabaseSchemaMigrationException {
+        SqlSession session = null;
+        
         try {
-            String oldVersion;
-
-            if (newVersion == null) {
-                return;
-            }
-
+            session = SqlConfig.getSqlSessionManager().openSession(true);
             Object result = SqlConfig.getSqlSessionManager().selectOne("Configuration.getSchemaVersion");
-
+            
             if (result == null) {
-                oldVersion = "0";
+                SqlConfig.getSqlSessionManager().insert("Configuration.setInitialSchemaVersion", version.toString());
             } else {
-                oldVersion = (String) result;
-            }
-
-            if (compareVersions(oldVersion, newVersion) < 0) {
-                logger.info("Migrating database schema from version " + oldVersion + " to " + newVersion);
-                migrate(Version.fromString(oldVersion));
-
-                if (result == null) {
-                    SqlConfig.getSqlSessionManager().update("Configuration.setInitialSchemaVersion", newVersion);
-                } else {
-                    SqlConfig.getSqlSessionManager().update("Configuration.updateSchemaVersion", newVersion);
-                }
+                SqlConfig.getSqlSessionManager().update("Configuration.updateSchemaVersion", version.toString());
             }
         } catch (Exception e) {
-            logger.error("Could not migrate to version " + newVersion, e);
-        }
-    }
-
-    /**
-     * Compares two schema versions to see which one is most recent. Versions 1-9 are the old
-     * versions; after version 9 the product version is used.
-     * 
-     * @return zero if the versions are equal, a negative value if version1 is less than version2,
-     *         and a positive value if version1 is greater than version2
-     */
-    private int compareVersions(String version1, String version2) {
-        boolean version1IsOld = version1.matches("\\d");
-        boolean version2IsOld = version2.matches("\\d");
-
-        // Deal with old versions first
-        if (version1IsOld && !version2IsOld) {
-            return -1;
-        } else if (!version1IsOld && version2IsOld) {
-            return 1;
-        } else if (version1IsOld && version2IsOld) {
-            return Integer.parseInt(version1) - Integer.parseInt(version2);
-        }
-
-        // Assume both versions are new
-        return MigrationUtil.compareVersions(version1, version2);
-    }
-
-    @Override
-    public void migrateSerializedData() {
-        migrateSerializedData("Channel.getSerializedChannelData", "Channel.updateSerializedChannelData", "channel", Channel.class);
-        migrateSerializedData("Alert.getAlert", "Alert.updateAlert", "alert", AlertModel.class);
-        migrateSerializedData("CodeTemplate.getSerializedCodeTemplateData", "CodeTemplate.updateSerializedCodeTemplateData", "codeTemplate", CodeTemplate.class);
-    }
-
-    /**
-     * It is assumed that for each migratable class that uses this an "id" column exists in the
-     * database, which is used as the primary key when updating the row. It's also assumed that for
-     * the time being, any additional columns besides the ID and serialized XML (e.g. name,
-     * revision) will not change during migration.
-     */
-    private void migrateSerializedData(String selectQuery, String updateStatement, String serializedColumnName, Class<?> expectedClass) {
-        SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
-        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-
-        try {
-            List<Map<String, String>> serializedDataList = session.selectList(selectQuery);
-
-            for (Map<String, String> serializedData : serializedDataList) {
-                String migratedData = serializer.toXML(serializer.fromXML(serializedData.get(serializedColumnName), expectedClass));
-
-                if (!migratedData.equals(serializedData.get(serializedColumnName))) {
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put("id", serializedData.get("id"));
-                    params.put(serializedColumnName, migratedData);
-
-                    session.update(updateStatement, params);
-                    logger.info("Migrated " + serializedColumnName + " " + serializedData.get("id") + " to version " + ConfigurationController.getInstance().getServerVersion());
-                }
-            }
+            throw new DatabaseSchemaMigrationException("Failed to update database version information.", e);
         } finally {
-            session.close();
+            if (session != null) {
+                session.close();
+            }
         }
     }
-
+    
     @Override
     public void migrateExtensions() {
         for (PluginMetaData plugin : extensionController.getPluginMetaData().values()) {
@@ -273,7 +280,7 @@ public class DefaultMigrationController extends MigrationController {
             }
         }
     }
-
+    
     private TreeMap<Integer, String> getDeltaScriptsForVersion(int currentVersion, Document document) throws Exception {
         TreeMap<Integer, String> deltaScripts = new TreeMap<Integer, String>();
         NodeList diffNodes = document.getElementsByTagName("diff");
@@ -309,30 +316,45 @@ public class DefaultMigrationController extends MigrationController {
 
         return deltaScripts;
     }
-
-    private void createSchema(Connection conn) throws Exception {
-        String creationScript = IOUtils.toString(getClass().getResourceAsStream("/" + configurationController.getDatabaseType() + "/" + configurationController.getDatabaseType() + "-database.sql"));
-        DatabaseUtil.executeScript(creationScript, true);
+    
+    @Override
+    public void migrateSerializedData() {
+        migrateSerializedData("Channel.getSerializedChannelData", "Channel.updateSerializedChannelData", "channel", Channel.class);
+        migrateSerializedData("Alert.getAlert", "Alert.updateAlert", "alert", AlertModel.class);
+        migrateSerializedData("CodeTemplate.getCodeTemplate", "CodeTemplate.updateCodeTemplate", "codeTemplate", CodeTemplate.class);
     }
 
-    private void migrate(Version oldSchemaVersion) throws Exception {
-        int oldVersionNumber = Integer.parseInt(oldSchemaVersion.toString());
+    /**
+     * It is assumed that for each migratable class that uses this an "id" column exists in the
+     * database, which is used as the primary key when updating the row. It's also assumed that for
+     * the time being, any additional columns besides the ID and serialized XML (e.g. name,
+     * revision) will not change during migration.
+     */
+    private void migrateSerializedData(String selectQuery, String updateStatement, String serializedColumnName, Class<?> expectedClass) {
+        SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
-        switch (oldSchemaVersion) {
-            case V0:
-            case V1:
-            case V2:
-            case V3:
-            case V4:
-            case V5:
-            case V6:
-                Migrate2_0_0.migrate(oldVersionNumber);
-                oldVersionNumber = 7;
-            case V7:
-            case V8:
-            case V9:
-                Migrate3_0_0.migrate(oldVersionNumber);
-            case V3_0_0:
+        try {
+            List<Map<String, String>> serializedDataList = session.selectList(selectQuery);
+
+            for (Map<String, String> serializedData : serializedDataList) {
+                try {
+                    String migratedData = serializer.toXML(serializer.fromXML(serializedData.get(serializedColumnName), expectedClass));
+    
+                    if (!migratedData.equals(serializedData.get(serializedColumnName))) {
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put("id", serializedData.get("id"));
+                        params.put(serializedColumnName, migratedData);
+    
+                        session.update(updateStatement, params);
+                        logger.info("Migrated " + serializedColumnName + " " + serializedData.get("id"));
+                    }
+                } catch (Exception e) {
+                    logger.error("Failed to migrate " + serializedColumnName + " " + serializedData.get("id"), e);
+                }
+            }
+        } finally {
+            session.close();
         }
     }
 }

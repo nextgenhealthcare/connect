@@ -20,6 +20,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 import com.mirth.connect.model.ArchiveMetaData;
 import com.mirth.connect.model.Channel;
@@ -169,12 +170,10 @@ public class ObjectXMLSerializer extends XStreamSerializer {
              * MigratableConverter).
              */
             document = ImportConverter3_0_0.convert(document, source, expectedClass);
-
+            
             return getXStream().unmarshal(new DomReader(document));
         } catch (Exception e) {
-            // TODO handle exception
-            e.printStackTrace();
-            return null;
+            throw new SerializerException(e);
         }
     }
 
@@ -189,9 +188,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(reader));
             return getXStream().unmarshal(new DomReader(document));
         } catch (Exception e) {
-            // TODO handle exception
-            e.printStackTrace();
-            return null;
+            throw new SerializerException(e);
         }
     }
     

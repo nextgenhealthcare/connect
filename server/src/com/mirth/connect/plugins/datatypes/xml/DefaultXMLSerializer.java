@@ -14,7 +14,7 @@ import java.util.Map;
 
 import org.w3c.dom.Document;
 
-import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.SerializerProperties;
@@ -45,7 +45,7 @@ public class DefaultXMLSerializer implements IXMLSerializer {
     }
 	
 	@Override
-	public String toXML(String source) throws SerializerException {
+	public String toXML(String source) throws XmlSerializerException {
 	    if (serializationProperties.isStripNamespaces()) {
 	        source = StringUtil.stripNamespaces(source);
         }
@@ -54,11 +54,11 @@ public class DefaultXMLSerializer implements IXMLSerializer {
 	}
 
 	@Override
-	public String fromXML(String source) throws SerializerException {
+	public String fromXML(String source) throws XmlSerializerException {
 		return source;
 	}
 
-	private Map<String, String> getMetadata() throws SerializerException {
+	private Map<String, String> getMetadata() throws XmlSerializerException {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("version", "1.0");
 		map.put("type", "XML-Message");
@@ -67,7 +67,7 @@ public class DefaultXMLSerializer implements IXMLSerializer {
 	}
 
 	@Override
-	public Map<String, String> getMetadataFromDocument(Document doc) throws SerializerException {
+	public Map<String, String> getMetadataFromDocument(Document doc) throws XmlSerializerException {
 		return getMetadata();
 	}
 }

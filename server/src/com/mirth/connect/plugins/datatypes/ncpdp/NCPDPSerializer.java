@@ -22,7 +22,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
@@ -124,7 +124,7 @@ public class NCPDPSerializer implements IXMLSerializer {
     }
 
     @Override
-    public String fromXML(String source) throws SerializerException {
+    public String fromXML(String source) throws XmlSerializerException {
         /*
          * Need to determine the version by looking at the raw message.
          * The transaction header will contain the version ("51" for 5.1 and
@@ -161,12 +161,12 @@ public class NCPDPSerializer implements IXMLSerializer {
             reader.parse(new InputSource(new StringReader(prettyPattern.matcher(source).replaceAll("><"))));
             return handler.getOutput().toString();
         } catch (Exception e) {
-            throw new SerializerException("Error converting XML to NCPDP message.", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to NCPDP", e));
+            throw new XmlSerializerException("Error converting XML to NCPDP message.", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to NCPDP", e));
         }
     }
 
     @Override
-    public String toXML(String source) throws SerializerException {
+    public String toXML(String source) throws XmlSerializerException {
         try {
             NCPDPReader ncpdpReader = new NCPDPReader(serializationSegmentDelimiter, serializationGroupDelimiter, serializationFieldDelimiter);
             StringWriter stringWriter = new StringWriter();
@@ -175,7 +175,7 @@ public class NCPDPSerializer implements IXMLSerializer {
             ncpdpReader.parse(new InputSource(new StringReader(source)));
             return stringWriter.toString();
         } catch (Exception e) {
-            throw new SerializerException("Error converting NCPDP message to XML.", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting NCPDP to XML", e));
+            throw new XmlSerializerException("Error converting NCPDP message to XML.", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting NCPDP to XML", e));
         }
     }
 

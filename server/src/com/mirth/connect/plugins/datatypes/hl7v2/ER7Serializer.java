@@ -30,7 +30,7 @@ import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
-import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
@@ -120,7 +120,7 @@ public class ER7Serializer implements IXMLSerializer {
      * @return
      */
     @Override
-    public String toXML(String source) throws SerializerException {
+    public String toXML(String source) throws XmlSerializerException {
         try {
             if (serializationProperties.isUseStrictParser()) {
                 if (serializationPipeParser == null || serializationXmlParser == null) {
@@ -174,7 +174,7 @@ public class ER7Serializer implements IXMLSerializer {
                 return stringWriter.toString();
             }
         } catch (Exception e) {
-            throw new SerializerException("Error converting ER7 to XML", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting ER7 to XML", e));
+            throw new XmlSerializerException("Error converting ER7 to XML", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting ER7 to XML", e));
         }
     }
 
@@ -186,7 +186,7 @@ public class ER7Serializer implements IXMLSerializer {
      * @return
      */
     @Override
-    public String fromXML(String source) throws SerializerException {
+    public String fromXML(String source) throws XmlSerializerException {
         try {
             if (deserializationProperties.isUseStrictParser()) {
                 if (deserializationPipeParser == null || deserializationXmlParser == null) {
@@ -251,7 +251,7 @@ public class ER7Serializer implements IXMLSerializer {
                 return handler.getOutput().toString();
             }
         } catch (Exception e) {
-            throw new SerializerException("Error converting XML to ER7", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to ER7", e));
+            throw new XmlSerializerException("Error converting XML to ER7", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to ER7", e));
         }
     }
 

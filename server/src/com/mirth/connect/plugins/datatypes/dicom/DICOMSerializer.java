@@ -41,7 +41,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DICOMConverter;
@@ -86,7 +86,7 @@ public class DICOMSerializer implements IXMLSerializer {
     }
 
     @Override
-    public String fromXML(String source) throws SerializerException {
+    public String fromXML(String source) throws XmlSerializerException {
         if (source == null || source.length() == 0) {
             return org.apache.commons.lang3.StringUtils.EMPTY;
         }
@@ -139,12 +139,12 @@ public class DICOMSerializer implements IXMLSerializer {
             parser.parse(new InputSource(new ByteArrayInputStream(documentBytes)), contentHandler);
             return StringUtils.newStringUsAscii(Base64Util.encodeBase64(DICOMConverter.dicomObjectToByteArray(dicomObject)));
         } catch (Exception e) {
-            throw new SerializerException("Error converting XML to DICOM", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to DICOM", e));
+            throw new XmlSerializerException("Error converting XML to DICOM", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to DICOM", e));
         }
     }
 
     @Override
-    public String toXML(String source) throws SerializerException {
+    public String toXML(String source) throws XmlSerializerException {
         try {
             byte[] encodedMessage = org.apache.commons.codec.binary.StringUtils.getBytesUsAscii(source);
 
@@ -183,7 +183,7 @@ public class DICOMSerializer implements IXMLSerializer {
                 }
             }
         } catch (Exception e) {
-            throw new SerializerException("Error converting DICOM to XML", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting DICOM to XML", e));
+            throw new XmlSerializerException("Error converting DICOM to XML", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting DICOM to XML", e));
         }
     }
 

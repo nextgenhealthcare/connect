@@ -53,22 +53,38 @@ public class XStreamSerializer implements Serializer {
 
     @Override
     public String serialize(Object serializableObject) {
-        return xstream.toXML(serializableObject);
+        try {
+            return xstream.toXML(serializableObject);
+        } catch (Exception e) {
+            throw new SerializerException(e);
+        }
     }
     
     @Override
     public void serialize(Object serializableObject, Writer writer) {
-        xstream.toXML(serializableObject, writer);
+        try {
+            xstream.toXML(serializableObject, writer);
+        } catch (Exception e) {
+            throw new SerializerException(e);
+        }
     }
 
     @Override
     public Object deserialize(String serializedObject) {
-        return xstream.fromXML(serializedObject);
+        try {
+            return xstream.fromXML(serializedObject);
+        } catch (Exception e) {
+            throw new SerializerException(e);
+        }
     }
     
     @Override
     public Object deserialize(Reader reader) {
-        return xstream.fromXML(reader);
+        try {
+            return xstream.fromXML(reader);
+        } catch (Exception e) {
+            throw new SerializerException(e);
+        }
     }
     
     @Override
@@ -78,7 +94,11 @@ public class XStreamSerializer implements Serializer {
 
     @Override
     public Class<?> getClass(Reader reader) {
-        return HierarchicalStreams.readClassType(new XppReader(reader, new MXParser()), getXStream().getMapper());
+        try {
+            return HierarchicalStreams.readClassType(new XppReader(reader, new MXParser()), getXStream().getMapper());
+        } catch (Exception e) {
+            throw new SerializerException(e);
+        }
     }
     
     public XStream getXStream() {

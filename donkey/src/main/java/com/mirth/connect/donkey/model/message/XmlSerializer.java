@@ -10,9 +10,9 @@
 package com.mirth.connect.donkey.model.message;
 
 public interface XmlSerializer {
-    public String toXML(String message) throws SerializerException;
+    public String toXML(String message) throws XmlSerializerException;
 
-    public String fromXML(String message) throws SerializerException;
+    public String fromXML(String message) throws XmlSerializerException;
 
     public boolean isSerializationRequired(boolean toXml);
 

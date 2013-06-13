@@ -119,13 +119,15 @@ public class DefaultAlertController extends AlertController {
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
             List<Map<String, Object>> rows = SqlConfig.getSqlSessionManager().selectList("Alert.getAlert", alertId);
 
-            AlertModel alertModel = null;
-
             if (!rows.isEmpty()) {
-                alertModel = (AlertModel) serializer.deserialize((String) rows.get(0).get("alert"));
+                try {
+                    return serializer.fromXML((String) rows.get(0).get("alert"), AlertModel.class);
+                } catch (Exception e) {
+                    logger.error("Failed to load alert " + alertId, e);
+                }
             }
 
-            return alertModel;
+            return null;
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -141,9 +143,10 @@ public class DefaultAlertController extends AlertController {
             List<AlertModel> alerts = new ArrayList<AlertModel>();
 
             for (Map<String, Object> row : rows) {
-                AlertModel model = (AlertModel) serializer.deserialize((String) row.get("alert"));
-                if (model != null) {
-                    alerts.add(model);
+                try {
+                    alerts.add(serializer.fromXML((String) row.get("alert"), AlertModel.class));
+                } catch (Exception e) {
+                    logger.error("Failed to load alert " + row.get("id"), e);
                 }
             }
 

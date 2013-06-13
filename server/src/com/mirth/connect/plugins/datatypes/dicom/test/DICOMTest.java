@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 import org.xml.sax.SAXException;
 
-import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.converters.tests.Stopwatch;
 import com.mirth.connect.plugins.datatypes.dicom.DICOMSerializer;
 
@@ -102,7 +102,7 @@ public class DICOMTest {
 //        }
     }
 
-	private static long runTest(String testMessage) throws SerializerException, SAXException, IOException {
+	private static long runTest(String testMessage) throws XmlSerializerException, SAXException, IOException {
 		Stopwatch stopwatch = new Stopwatch();
 //		Properties properties = new Properties();
 //        properties.put("includePixelData","no");

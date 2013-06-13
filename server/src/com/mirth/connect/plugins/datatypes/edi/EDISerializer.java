@@ -23,7 +23,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
@@ -65,12 +65,12 @@ public class EDISerializer implements IXMLSerializer {
     }
 
 	@Override
-	public String fromXML(String source) throws SerializerException {
+	public String fromXML(String source) throws XmlSerializerException {
 		XMLReader xr;
 		try {
 			xr = XMLReaderFactory.createXMLReader();
 		} catch (SAXException e) {
-			throw new SerializerException(e.getMessage(), e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
+			throw new XmlSerializerException(e.getMessage(), e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
 		}
 		EDIXMLHandler handler = new EDIXMLHandler();
 		xr.setContentHandler(handler);
@@ -79,13 +79,13 @@ public class EDISerializer implements IXMLSerializer {
             //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
             xr.parse(new InputSource(new StringReader(prettyPattern.matcher(source).replaceAll("</$1><"))));
 		} catch (Exception e) {
-			throw new SerializerException(e.getMessage(), e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
+			throw new XmlSerializerException(e.getMessage(), e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
 		}
 		return handler.getOutput().toString();
 	}
 
 	@Override
-    public String toXML(String source) throws SerializerException {
+    public String toXML(String source) throws XmlSerializerException {
         try {
             String elementDelimiter = serializationElementDelimiter;
             String subelementDelimiter = serializationSubelementDelimiter;

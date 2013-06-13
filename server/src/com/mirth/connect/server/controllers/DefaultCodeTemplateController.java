@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 
@@ -40,9 +42,21 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         logger.debug("getting codeTemplate: " + codeTemplate);
 
         try {
-            String id = codeTemplate == null ? null : codeTemplate.getId();
-            return SqlConfig.getSqlSessionManager().selectList("CodeTemplate.getCodeTemplate", id);
-        } catch (PersistenceException e) {
+            ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+            String id = (codeTemplate == null) ? null : codeTemplate.getId();
+            List<Map<String, Object>> rows = SqlConfig.getSqlSessionManager().selectList("CodeTemplate.getCodeTemplate", id);
+            List<CodeTemplate> codeTemplates = new ArrayList<CodeTemplate>();
+            
+            for (Map<String, Object> row : rows) {
+                try {
+                    codeTemplates.add(serializer.fromXML((String) row.get("codeTemplate"), CodeTemplate.class));
+                } catch (Exception e) {
+                    logger.error("Failed to load code template " + row.get("id"), e);
+                }
+            }
+            
+            return codeTemplates;
+        } catch (Exception e) {
             throw new ControllerException(e);
         }
     }
@@ -66,7 +80,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
 
                 Map<String, Object> params = new HashMap<String, Object>();
                 params.put("id", codeTemplate.getId());
-                params.put("codeTemplate", codeTemplate);
+                params.put("codeTemplate", ObjectXMLSerializer.getInstance().toXML(codeTemplate));
 
                 SqlConfig.getSqlSessionManager().insert("CodeTemplate.insertCodeTemplate", params);
 
