@@ -705,9 +705,6 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         timeOfDay.setEnabled(false);
         timeOfDayWeekly.setEnabled(false);
         timeOfDayMonthly.setEnabled(false);
-
-        blockSizeLabel.setEnabled(true);
-        blockSizeTextField.setEnabled(true);
     }//GEN-LAST:event_hourlyRadioActionPerformed
 
     private void dailyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dailyRadioActionPerformed
@@ -719,9 +716,6 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         timeOfDay.setEnabled(true);
         timeOfDayWeekly.setEnabled(false);
         timeOfDayMonthly.setEnabled(false);
-
-        blockSizeLabel.setEnabled(true);
-        blockSizeTextField.setEnabled(true);
     }//GEN-LAST:event_dailyRadioActionPerformed
 
     private void weeklyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_weeklyRadioActionPerformed
@@ -733,9 +727,6 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         timeOfDay.setEnabled(false);
         timeOfDayWeekly.setEnabled(true);
         timeOfDayMonthly.setEnabled(false);
-
-        blockSizeLabel.setEnabled(true);
-        blockSizeTextField.setEnabled(true);
     }//GEN-LAST:event_weeklyRadioActionPerformed
 
     private void monthlyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_monthlyRadioActionPerformed
@@ -747,9 +738,6 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         timeOfDay.setEnabled(false);
         timeOfDayWeekly.setEnabled(false);
         timeOfDayMonthly.setEnabled(true);
-
-        blockSizeLabel.setEnabled(true);
-        blockSizeTextField.setEnabled(true);
     }//GEN-LAST:event_monthlyRadioActionPerformed
 
     private void disabledRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disabledRadioActionPerformed
@@ -760,8 +748,6 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         timeOfDay.setEnabled(false);
         timeOfDayWeekly.setEnabled(false);
         timeOfDayMonthly.setEnabled(false);
-        blockSizeLabel.setEnabled(false);
-        blockSizeTextField.setEnabled(false);
     }//GEN-LAST:event_disabledRadioActionPerformed
 
     private void pruneEventsYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pruneEventsYesActionPerformed
