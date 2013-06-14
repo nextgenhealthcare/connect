@@ -106,7 +106,6 @@ public class ChannelSetup extends javax.swing.JPanel {
     private boolean isDeleting = false;
     private boolean loadingChannel = false;
     private boolean channelValidationFailed = false;
-    private ChannelTagDialog channelTagDialog;
 
     /**
      * Creates the Channel Editor panel. Calls initComponents() and sets up the
@@ -2338,8 +2337,6 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         deleteTagButton.setEnabled(false);
 
-        channelTagDialog = new ChannelTagDialog(tagTable);
-
         DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] { "Tag" }) {
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return true;
@@ -2670,7 +2667,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     }//GEN-LAST:event_summaryNameFieldKeyReleased
 
     private void addTagButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTagButtonActionPerformed
-        channelTagDialog.setVisible(true);
+        new ChannelTagDialog(tagTable);
     }//GEN-LAST:event_addTagButtonActionPerformed
 
     private void deleteTagButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteTagButtonActionPerformed

@@ -36,6 +36,8 @@ public class ChannelTagDialog extends javax.swing.JDialog {
         this.parent = PlatformUI.MIRTH_FRAME;
         this.tagTable = tagTable;
         initComponents();
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setVisible(true);
     }
     
     protected JRootPane createRootPane() {
@@ -203,13 +205,13 @@ public class ChannelTagDialog extends javax.swing.JDialog {
             }
             
             model.addRow(new Object[]{tag});
-            setVisible(false);
             tagTable.setRowSelectionInterval(rowCount, rowCount);
+            dispose();
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        setVisible(false);
+        dispose();
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void tagComboBoxKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tagComboBoxKeyReleased
