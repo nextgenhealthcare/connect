@@ -47,7 +47,7 @@
 	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/xom-1.2.6.jar"/>
 	<classpathentry kind="lib" path="lib/database/ojdbc6.jar"/>
-	<classpathentry kind="lib" path="lib/jsch-0.1.44.jar"/>
+	<classpathentry kind="lib" path="lib/jsch-0.1.50.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-core-2.0.25.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-filecache-2.0.25.jar"/>
