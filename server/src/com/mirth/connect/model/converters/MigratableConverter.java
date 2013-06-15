@@ -27,7 +27,7 @@ public class MigratableConverter extends ReflectionConverter {
 
     @Override
     public boolean canConvert(Class type) {
-        return (super.canConvert(type) && ArrayUtils.contains(type.getInterfaces(), Migratable.class));
+        return type != null && super.canConvert(type) && ArrayUtils.contains(type.getInterfaces(), Migratable.class);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class MigratableConverter extends ReflectionConverter {
             context.put("wroteDocumentElement", true);
             writer.addAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, currentVersion);
         }
-        
+
         super.marshal(value, writer, context);
     }
 
@@ -44,7 +44,7 @@ public class MigratableConverter extends ReflectionConverter {
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         DonkeyElement element = new DonkeyElement((org.w3c.dom.Element) ((DocumentReader) reader).getCurrent());
         logger.debug("Unmarshalling element: " + element.getNodeName());
-        
+
         /*
          * The first element to be unmarshalled should have the "version" attribute. Once the
          * version is read from the attribute, it will be stored in the context since Migratable
