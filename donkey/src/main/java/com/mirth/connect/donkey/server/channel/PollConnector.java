@@ -23,13 +23,13 @@ import com.mirth.connect.donkey.server.StopException;
 public abstract class PollConnector extends SourceConnector {
     private Timer timer;
     private PollConnectorTask task;
-    private AtomicBoolean terminated;
+    private AtomicBoolean terminated = new AtomicBoolean(true);
 
     @Override
     public void start() throws StartException {
         super.start();
 
-        terminated = new AtomicBoolean(false);
+        terminated.set(false);
 
         PollConnectorProperties connectorProperties = ((PollConnectorPropertiesInterface) getConnectorProperties()).getPollConnectorProperties();
 
@@ -49,7 +49,7 @@ public abstract class PollConnector extends SourceConnector {
     @Override
     public void stop() throws StopException {
         terminated.set(true);
-        //TODO Possible nullpointerexception if channel start fails
+
         if (task != null) {
             task.terminate(false);
         }
@@ -59,7 +59,7 @@ public abstract class PollConnector extends SourceConnector {
     @Override
     public void halt() throws HaltException {
         terminated.set(true);
-        //TODO Possible nullpointerexception if halted before the first start task was ever completed.
+
         if (task != null) {
             task.terminate(true);
         }
