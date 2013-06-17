@@ -26,7 +26,6 @@ import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.model.util.ImportConverter;
 
 public class SettingsPanelServer extends AbstractSettingsPanel {
     

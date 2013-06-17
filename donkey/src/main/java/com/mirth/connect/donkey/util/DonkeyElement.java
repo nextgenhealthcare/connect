@@ -1,7 +1,18 @@
 package com.mirth.connect.donkey.util;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
@@ -12,6 +23,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.TypeInfo;
 import org.w3c.dom.UserDataHandler;
+import org.xml.sax.InputSource;
 
 /**
  * Represents a DOM document element. Implements additional convenience methods beyond what is defined by the org.w3c.dom.Element interface.
@@ -21,6 +33,10 @@ public class DonkeyElement implements Element {
 
     public DonkeyElement(org.w3c.dom.Element element) {
         this.element = element;
+    }
+    
+    public DonkeyElement(String xml) throws DonkeyElementException {
+        this.element = elementFromXml(xml);
     }
 
     public DonkeyElement getChildElement(String name) {
@@ -63,6 +79,10 @@ public class DonkeyElement implements Element {
         element.appendChild(child);
         child.setTextContent(content);
         return new DonkeyElement(child);
+    }
+    
+    public DonkeyElement addChildElementFromXml(String xml) throws Exception {
+        return new DonkeyElement((Element) element.appendChild(element.getOwnerDocument().importNode(elementFromXml(xml), true)));
     }
 
     public DonkeyElement removeChild(String name) {
@@ -389,5 +409,39 @@ public class DonkeyElement implements Element {
     @Override
     public void setIdAttributeNode(Attr idAttr, boolean isId) throws DOMException {
         element.setIdAttributeNode(idAttr, isId);
+    }
+    
+    public String toXml() throws Exception {
+        return elementToXml(element);
+    }
+    
+    public static String elementToXml(Element element) throws DonkeyElementException {
+        Writer writer = new StringWriter();
+
+        try {
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            transformer.transform(new DOMSource(element), new StreamResult(writer));
+        } catch (TransformerException e) {
+            throw new DonkeyElementException(e);
+        }
+
+        return writer.toString();
+    }
+
+    public static Element elementFromXml(String xml) throws DonkeyElementException {
+        try {
+            return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(xml))).getDocumentElement();
+        } catch (Exception e) {
+            throw new DonkeyElementException(e);
+        }
+    }
+    
+    public static class DonkeyElementException extends Exception {
+        public DonkeyElementException(Throwable cause) {
+            super(cause);
+        }
     }
 }

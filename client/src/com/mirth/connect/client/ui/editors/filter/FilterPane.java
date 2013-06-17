@@ -80,7 +80,6 @@ import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.plugins.FilterRulePlugin;
 
 public class FilterPane extends MirthEditorPane implements DropTargetListener {

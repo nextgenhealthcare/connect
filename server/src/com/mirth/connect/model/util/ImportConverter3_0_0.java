@@ -31,6 +31,7 @@ import org.w3c.dom.NodeList;
 import com.mirth.connect.donkey.util.DateParser;
 import com.mirth.connect.donkey.util.DateParser.DateParserException;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.CodeTemplate;
@@ -946,17 +947,21 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("durableTopic").setTextContent(readBooleanProperty(oldProperties, "durable", false));
         properties.addChildElement("selector").setTextContent(oldProperties.getProperty("selector", ""));
 
-        Properties oldConnectionProperties = readPropertiesElement(new DonkeyElement(MigrationUtil.elementFromXml(oldProperties.getProperty("connectionFactoryProperties"))));
-
         DonkeyElement connectionProperties = properties.addChildElement("connectionProperties");
         connectionProperties.setAttribute("class", "linked-hash-map");
+        
+        try {
+            Properties oldConnectionProperties = readPropertiesElement(new DonkeyElement(oldProperties.getProperty("connectionFactoryProperties")));
 
-        for (Object key : oldConnectionProperties.keySet()) {
-            String value = oldConnectionProperties.getProperty((String) key);
+            for (Object key : oldConnectionProperties.keySet()) {
+                String value = oldConnectionProperties.getProperty((String) key);
 
-            DonkeyElement entry = connectionProperties.addChildElement("entry");
-            entry.addChildElement("string", (String) key);
-            entry.addChildElement("string", value);
+                DonkeyElement entry = connectionProperties.addChildElement("entry");
+                entry.addChildElement("string", (String) key);
+                entry.addChildElement("string", value);
+            }
+        } catch (DonkeyElementException e) {
+            logger.error("Failed to convert JMS Receiver connection properties", e);
         }
     }
 

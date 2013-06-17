@@ -78,7 +78,6 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.plugins.TransformerStepPlugin;
 
 public class TransformerPane extends MirthEditorPane implements DropTargetListener {

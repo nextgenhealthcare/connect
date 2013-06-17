@@ -13,53 +13,37 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
-import com.mirth.connect.model.converters.DocumentSerializer;
-import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.util.DatabaseUtil;
-import com.mirth.connect.server.util.SqlConfig;
-import com.mirth.connect.util.MigrationUtil;
 
-public class Migrate3_0_0 implements Migrator {
+public class Migrate3_0_0 extends ServerMigrator {
     private Logger logger = Logger.getLogger(getClass());
 
     @Override
     public void migrate() throws DatabaseSchemaMigrationException {
-        try {
-            String databaseType = ControllerFactory.getFactory().createConfigurationController().getDatabaseType();
-            String migrationScript = IOUtils.toString(getClass().getResourceAsStream("/deltas/" + databaseType + "-9-3.0.0.sql"));
-            DatabaseUtil.executeScript(migrationScript, false);
-        } catch (Exception e) {
-            throw new DatabaseSchemaMigrationException(e);
-        }
-
+        executeDeltaScript(getDatabaseType() + "-9-3.0.0.sql");
         migrateChannelTable();
         migrateAlertTable();
         migrateCodeTemplateTable();
     }
 
     private void migrateChannelTable() {
-        Connection conn = null;
         PreparedStatement preparedStatement = null;
         ResultSet results = null;
 
         try {
-            SqlConfig.getSqlSessionManager().startManagedSession();
-            conn = SqlConfig.getSqlSessionManager().getConnection();
-
             /*
              * MIRTH-1667: Derby fails if autoCommit is set to true and
              * there are a large number of results. The following error
              * occurs: "ERROR 40XD0: Container has been closed"
              */
-            conn.setAutoCommit(false);
+            Connection connection = getConnection();
+            connection.setAutoCommit(false);
 
-            preparedStatement = conn.prepareStatement("SELECT ID, NAME, DESCRIPTION, IS_ENABLED, VERSION, REVISION, LAST_MODIFIED, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT, POSTPROCESSING_SCRIPT, DEPLOY_SCRIPT, SHUTDOWN_SCRIPT FROM __CHANNEL");
+            preparedStatement = connection.prepareStatement("SELECT ID, NAME, DESCRIPTION, IS_ENABLED, VERSION, REVISION, LAST_MODIFIED, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT, POSTPROCESSING_SCRIPT, DEPLOY_SCRIPT, SHUTDOWN_SCRIPT FROM __CHANNEL");
             results = preparedStatement.executeQuery();
 
             while (results.next()) {
@@ -101,21 +85,21 @@ public class Migrate3_0_0 implements Migrator {
 
                     channel.addChildElement("revision", String.valueOf(revision));
 
-                    new DonkeyElement((Element) channel.appendChild(document.importNode(MigrationUtil.elementFromXml(sourceConnector), true))).setNodeName("sourceConnector");
-                    new DonkeyElement((Element) channel.appendChild(document.importNode(MigrationUtil.elementFromXml(destinationConnectors), true))).setNodeName("destinationConnectors");
-                    channel.appendChild(document.importNode(MigrationUtil.elementFromXml(properties), true));
-
+                    channel.addChildElementFromXml(sourceConnector).setNodeName("sourceConnector");
+                    channel.addChildElementFromXml(destinationConnectors).setNodeName("destinationConnectors");
+                    channel.addChildElementFromXml(properties);
+                    
                     channel.addChildElement("preprocessingScript", preprocessingScript);
                     channel.addChildElement("postprocessingScript", postprocessingScript);
                     channel.addChildElement("deployScript", deployScript);
                     channel.addChildElement("shutdownScript", shutdownScript);
 
-                    String serializedChannel = new DocumentSerializer().toXML(document);
+                    String serializedChannel = channel.toXml();
 
                     PreparedStatement updateStatement = null;
 
                     try {
-                        updateStatement = conn.prepareStatement("INSERT INTO CHANNEL (ID, NAME, REVISION, CHANNEL) VALUES (?, ?, ?, ?)");
+                        updateStatement = connection.prepareStatement("INSERT INTO CHANNEL (ID, NAME, REVISION, CHANNEL) VALUES (?, ?, ?, ?)");
                         updateStatement.setString(1, channelId);
                         updateStatement.setString(2, name);
                         updateStatement.setInt(3, revision);
@@ -130,30 +114,21 @@ public class Migrate3_0_0 implements Migrator {
                 }
             }
 
-            conn.commit();
+            connection.commit();
         } catch (SQLException e) {
             logger.error("Error migrating channels.", e);
         } finally {
             DbUtils.closeQuietly(results);
             DbUtils.closeQuietly(preparedStatement);
-            DbUtils.closeQuietly(conn);
-
-            if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
-                SqlConfig.getSqlSessionManager().close();
-            }
         }
     }
 
     private void migrateAlertTable() {
         Logger logger = Logger.getLogger(getClass());
-        Connection conn = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
         try {
-            SqlConfig.getSqlSessionManager().startManagedSession();
-            conn = SqlConfig.getSqlSessionManager().getConnection();
-
             Map<String, List<String>> alertEmails = new HashMap<String, List<String>>();
             Map<String, List<String>> alertChannels = new HashMap<String, List<String>>();
 
@@ -162,10 +137,11 @@ public class Migrate3_0_0 implements Migrator {
              * there are a large number of results. The following error
              * occurs: "ERROR 40XD0: Container has been closed"
              */
-            conn.setAutoCommit(false);
+            Connection connection = getConnection();
+            connection.setAutoCommit(false);
 
             // Build a list of emails for each alert
-            statement = conn.prepareStatement("SELECT ALERT_ID, EMAIL FROM __ALERT_EMAIL");
+            statement = connection.prepareStatement("SELECT ALERT_ID, EMAIL FROM __ALERT_EMAIL");
             results = statement.executeQuery();
 
             while (results.next()) {
@@ -185,7 +161,7 @@ public class Migrate3_0_0 implements Migrator {
             DbUtils.closeQuietly(results);
 
             // Build a list of applied channels for each alert
-            statement = conn.prepareStatement("SELECT CHANNEL_ID, ALERT_ID FROM __CHANNEL_ALERT");
+            statement = connection.prepareStatement("SELECT CHANNEL_ID, ALERT_ID FROM __CHANNEL_ALERT");
             results = statement.executeQuery();
 
             while (results.next()) {
@@ -204,7 +180,7 @@ public class Migrate3_0_0 implements Migrator {
 
             DbUtils.closeQuietly(results);
 
-            statement = conn.prepareStatement("SELECT ID, NAME, IS_ENABLED, EXPRESSION, TEMPLATE, SUBJECT FROM __ALERT");
+            statement = connection.prepareStatement("SELECT ID, NAME, IS_ENABLED, EXPRESSION, TEMPLATE, SUBJECT FROM __ALERT");
             results = statement.executeQuery();
 
             while (results.next()) {
@@ -273,12 +249,12 @@ public class Migrate3_0_0 implements Migrator {
                         }
                     }
 
-                    String alert = new DocumentSerializer(true).toXML(document);
+                    String alert = new DonkeyElement(alertNode).toXml();
 
                     PreparedStatement updateStatement = null;
 
                     try {
-                        updateStatement = conn.prepareStatement("INSERT INTO ALERT VALUES (?, ?, ?)");
+                        updateStatement = connection.prepareStatement("INSERT INTO ALERT VALUES (?, ?, ?)");
                         updateStatement.setString(1, alertId);
                         updateStatement.setString(2, name);
                         updateStatement.setString(3, alert);
@@ -292,38 +268,30 @@ public class Migrate3_0_0 implements Migrator {
                 }
             }
 
-            conn.commit();
+            connection.commit();
         } catch (SQLException e) {
             logger.error("Error migrating alerts.", e);
         } finally {
             DbUtils.closeQuietly(results);
             DbUtils.closeQuietly(statement);
-            DbUtils.closeQuietly(conn);
-
-            if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
-                SqlConfig.getSqlSessionManager().close();
-            }
         }
     }
 
     private void migrateCodeTemplateTable() {
         Logger logger = Logger.getLogger(getClass());
-        Connection conn = null;
         PreparedStatement preparedStatement = null;
         ResultSet results = null;
 
         try {
-            SqlConfig.getSqlSessionManager().startManagedSession();
-            conn = SqlConfig.getSqlSessionManager().getConnection();
-
             /*
              * MIRTH-1667: Derby fails if autoCommit is set to true and
              * there are a large number of results. The following error
              * occurs: "ERROR 40XD0: Container has been closed"
              */
-            conn.setAutoCommit(false);
+            Connection connection = getConnection();
+            connection.setAutoCommit(false);
 
-            preparedStatement = conn.prepareStatement("SELECT ID, NAME, CODE_SCOPE, CODE_TYPE, TOOLTIP, CODE FROM __CODE_TEMPLATE");
+            preparedStatement = connection.prepareStatement("SELECT ID, NAME, CODE_SCOPE, CODE_TYPE, TOOLTIP, CODE FROM __CODE_TEMPLATE");
             results = preparedStatement.executeQuery();
 
             while (results.next()) {
@@ -349,11 +317,11 @@ public class Migrate3_0_0 implements Migrator {
                     codeTemplate.addChildElement("type", codeType);
                     codeTemplate.addChildElement("scope", codeScope);
 
-                    String serializedCodeTemplate = new DocumentSerializer().toXML(document);
+                    String serializedCodeTemplate = new DonkeyElement(element).toXml();
 
                     PreparedStatement updateStatement = null;
                     try {
-                        updateStatement = conn.prepareStatement("INSERT INTO CODE_TEMPLATE (ID, CODE_TEMPLATE) VALUES (?, ?)");
+                        updateStatement = connection.prepareStatement("INSERT INTO CODE_TEMPLATE (ID, CODE_TEMPLATE) VALUES (?, ?)");
                         updateStatement.setString(1, id);
                         updateStatement.setString(2, serializedCodeTemplate);
                         updateStatement.executeUpdate();
@@ -366,17 +334,12 @@ public class Migrate3_0_0 implements Migrator {
                 }
             }
 
-            conn.commit();
+            connection.commit();
         } catch (Exception e) {
             logger.error("Error migrating code templates.", e);
         } finally {
             DbUtils.closeQuietly(results);
             DbUtils.closeQuietly(preparedStatement);
-            DbUtils.closeQuietly(conn);
-
-            if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
-                SqlConfig.getSqlSessionManager().close();
-            }
         }
     }
 }

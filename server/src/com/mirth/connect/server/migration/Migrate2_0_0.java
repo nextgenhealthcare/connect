@@ -2,79 +2,135 @@ package com.mirth.connect.server.migration;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Properties;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.model.ServerSettings;
-import com.mirth.connect.model.UpdateSettings;
-import com.mirth.connect.server.controllers.ConfigurationController;
-import com.mirth.connect.server.controllers.ControllerException;
-import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.ScriptController;
-import com.mirth.connect.server.util.DatabaseUtil;
-
-public class Migrate2_0_0 implements Migrator {
-    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+public class Migrate2_0_0 extends ServerMigrator {
     private Logger logger = Logger.getLogger(getClass());
     
     @Override
     public void migrate() throws DatabaseSchemaMigrationException {
-        try {
-            String migrationScript = IOUtils.toString(getClass().getResourceAsStream("/deltas/" + configurationController.getDatabaseType() + "-6-7.sql"));
-            DatabaseUtil.executeScript(migrationScript, false);
-        } catch (Exception e) {
-            throw new DatabaseSchemaMigrationException(e);
-        }
-
+        executeDeltaScript(getDatabaseType() + "-6-7.sql");
         migrateGlobalScripts();
         migrateServerProperties();
     }
 
-    private void migrateGlobalScripts() {
+    private void migrateGlobalScripts() throws DatabaseSchemaMigrationException {
+        migrateGlobalScript("Deploy");
+        migrateGlobalScript("Shutdown");
+        migrateGlobalScript("Preprocessor");
+        migrateGlobalScript("Postprocessor");
+    }
+    
+    private void migrateGlobalScript(String scriptId) throws DatabaseSchemaMigrationException {
+        final String globalGroupId = "Global";
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        
         try {
-            ScriptController scriptController = ScriptController.getInstance();
-            Map<String, String> globalScripts = scriptController.getGlobalScripts();
-
-            for (Entry<String, String> globalScriptEntry : globalScripts.entrySet()) {
-                globalScripts.put(globalScriptEntry.getKey(), globalScriptEntry.getValue().replaceAll("com.webreach.mirth", "com.mirth.connect"));
+            Connection connection = getConnection();
+            statement = connection.prepareStatement("SELECT SCRIPT FROM SCRIPT WHERE GROUP_ID = ? AND ID = ?");
+            statement.setString(1, globalGroupId);
+            statement.setString(2, scriptId);
+            
+            resultSet = statement.executeQuery();
+            
+            if (resultSet.next()) {
+                String script = resultSet.getString(1).replaceAll("com.webreach.mirth", "com.mirth.connect");
+                resultSet.close();
+                statement.close();
+                
+                statement = connection.prepareStatement("UPDATE SCRIPT SET SCRIPT = ? WHERE GROUP_ID = ? AND ID = ?");
+                statement.setString(1, script);
+                statement.setString(2, globalGroupId);
+                statement.setString(3, scriptId);
+                statement.executeUpdate();
             }
-
-            scriptController.setGlobalScripts(globalScripts);
-        } catch (Exception e) {
-            logger.error("Error migrating global scripts.", e);
+        } catch (SQLException e) {
+            throw new DatabaseSchemaMigrationException(e);
+        } finally {
+            DbUtils.closeQuietly(resultSet);
+            DbUtils.closeQuietly(statement);
         }
     }
-
-    private void migrateServerProperties() {
+    
+    private void migrateServerProperties() throws DatabaseSchemaMigrationException {
         /*
          * Since we moved the server properties from a file to the database, we need
          * to copy over the previous properties into the database if a file exists
          */
-        try {
-            File propertiesFile = new File(configurationController.getBaseDir() + File.separator + "server.properties");
-
-            if (propertiesFile.exists()) {
-                Properties newProperties = configurationController.getServerSettings().getProperties();
-                Properties oldProperties = new Properties();
-
-                oldProperties.load(new FileInputStream(propertiesFile));
-                newProperties.putAll(oldProperties);
-                configurationController.setServerSettings(new ServerSettings(newProperties));
-                configurationController.setUpdateSettings(new UpdateSettings(newProperties));
-
+        File propertiesFile = new File(getBaseDir() + IOUtils.DIR_SEPARATOR + "server.properties");
+        
+        if (propertiesFile.exists()) {
+            try {
+                Properties serverProperties = new Properties();
+                serverProperties.load(new FileInputStream(propertiesFile));
+                
+                for (Object name : serverProperties.keySet()) {
+                    updateServerProperty((String) name, serverProperties.getProperty((String) name));
+                }
+                
                 if (!propertiesFile.delete()) {
                     logger.error("Could not delete existing server.properties file. Please delete it manually.");
                 }
+            } catch (FileNotFoundException e) {
+                logger.error("Error loading existing server.properties file.", e);
+            } catch (IOException e) {
+                logger.error("Error loading existing server.properties file.", e);
             }
-        } catch (ControllerException ce) {
-            logger.error("Error loading current server properties from database.", ce);
-        } catch (IOException ioe) {
-            logger.error("Error loading existing server.properties file.", ioe);
+        }
+    }
+    
+    private String getBaseDir() {
+        URL url = getClass().getResource("mirth.properties");
+        
+        if (url == null) {
+            url = getClass().getResource("/mirth.properties");
+        }
+        
+        if (url != null) {
+            try {
+                return new File(url.toURI()).getParentFile().getParent();
+            } catch (URISyntaxException e) {
+            }
+        }
+        
+        return null;
+    }
+    
+    private void updateServerProperty(String name, String value) throws DatabaseSchemaMigrationException {
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        
+        try {
+            Connection connection = getConnection();
+            statement = connection.prepareStatement("UPDATE CONFIGURATION SET VALUE = ? WHERE CATEGORY = 'core' AND NAME = ?");
+            statement.setString(1, value);
+            statement.setString(2, name);
+            
+            if (statement.executeUpdate() == 0) {
+                statement.close();
+                statement = connection.prepareStatement("INSERT INTO CONFIGURATION (CATEGORY, NAME, VALUE) VALUES ('core', ?, ?)");
+                statement.setString(1, name);
+                statement.setString(2, value);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DatabaseSchemaMigrationException(e);
+        } finally {
+            DbUtils.closeQuietly(resultSet);
+            DbUtils.closeQuietly(statement);
         }
     }
 }
