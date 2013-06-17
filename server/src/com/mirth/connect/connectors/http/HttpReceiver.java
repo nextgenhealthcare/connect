@@ -69,7 +69,11 @@ public class HttpReceiver extends SourceConnector {
             configuration = new DefaultHttpConfiguration();
         }
 
-        configuration.configureConnector(connectorProperties);
+        try {
+            configuration.configureConnector(getChannelId(), getMetaDataId(), connectorProperties.getListenerConnectorProperties().getHost());
+        } catch (Exception e) {
+            throw new DeployException(e);
+        }
     }
 
     @Override
@@ -90,7 +94,7 @@ public class HttpReceiver extends SourceConnector {
 
         try {
             server = new Server();
-            configuration.configureReceiver(server, host, port, timeout);
+            configuration.configureReceiver(server, getChannelId(), host, port, timeout);
 
             // add the request handler
             ContextHandler contextHandler = new ContextHandler();

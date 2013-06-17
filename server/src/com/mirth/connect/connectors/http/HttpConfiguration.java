@@ -11,8 +11,6 @@ package com.mirth.connect.connectors.http;
 
 import org.eclipse.jetty.server.Server;
 
-import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-
 public interface HttpConfiguration {
 
     /**
@@ -21,9 +19,9 @@ public interface HttpConfiguration {
      * @param connector
      *            the HTTP connector to configure
      */
-    public void configureConnector(ConnectorProperties connectorProperties);
+    public void configureConnector(String channelId, Integer metaDataId, String host) throws Exception;
 
-    public void configureReceiver(Server server, String host, int port, int timeout) throws Exception;
+    public void configureReceiver(Server server, String channelId, String host, int port, int timeout) throws Exception;
 
-    public void configureDispatcher();
+    public void configureDispatcher(String channelId, Integer metaDataId, String host) throws Exception;
 }

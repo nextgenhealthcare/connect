@@ -89,7 +89,11 @@ public class HttpDispatcher extends DestinationConnector {
             configuration = new DefaultHttpConfiguration();
         }
 
-        configuration.configureConnector(connectorProperties);
+        try {
+            configuration.configureConnector(getChannelId(), getMetaDataId(), connectorProperties.getHost());
+        } catch (Exception e) {
+            throw new DeployException(e);
+        }
     }
 
     @Override
@@ -134,6 +138,7 @@ public class HttpDispatcher extends DestinationConnector {
         HttpMethod httpMethod = null;
 
         try {
+            configuration.configureDispatcher(getChannelId(), getMetaDataId(), httpDispatcherProperties.getHost());
             httpMethod = buildHttpRequest(httpDispatcherProperties, connectorMessage);
 
             // authentication

@@ -9,18 +9,19 @@
 
 package com.mirth.connect.connectors.http;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
 
-import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-
 public class DefaultHttpConfiguration implements HttpConfiguration {
-    public void configureConnector(ConnectorProperties connectorProperties) {
-
+    public void configureConnector(String channelId, Integer metaDataId, String host) throws Exception {
+        checkHost(host);
     }
 
-    public void configureReceiver(Server server, String host, int port, int timeout) throws Exception {
+    public void configureReceiver(Server server, String channelId, String host, int port, int timeout) throws Exception {
         Connector connector = new SocketConnector();
         connector.setHost(host);
         connector.setPort(port);
@@ -28,7 +29,17 @@ public class DefaultHttpConfiguration implements HttpConfiguration {
         server.addConnector(connector);
     }
 
-    public void configureDispatcher() {
-
+    public void configureDispatcher(String channelId, Integer metaDataId, String host) throws Exception {
+        checkHost(host);
+    }
+    
+    private void checkHost(String host) throws Exception {
+        try {
+            String scheme = new URI(host).getScheme();
+            if (scheme != null && scheme.equalsIgnoreCase("https")) {
+                throw new Exception("The HTTPS protocol is not supported for this connector.");
+            }
+        } catch (URISyntaxException e) {
+        }
     }
 }
