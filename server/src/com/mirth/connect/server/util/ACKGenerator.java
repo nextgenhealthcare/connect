@@ -12,6 +12,8 @@ package com.mirth.connect.server.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -20,6 +22,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 // Made so that ACKs can be generated from JS
 public class ACKGenerator {
     private final String DEFAULTDATEFORMAT = "yyyyMMddHHmmss";
+    private Logger logger = Logger.getLogger(getClass());
 
     /**
      * This method defaults the protocol to ER7, along with the dateFormat to "yyyyMMddHHmmss" and
@@ -29,8 +32,10 @@ public class ACKGenerator {
         return generateAckResponse(message, false, acknowledgementCode, textMessage, DEFAULTDATEFORMAT, "");
     }
 
+    // TODO: Remove in 3.1
     @Deprecated
     public String generateAckResponse(String message, String dataType, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
+        logger.error("This generateAckResponse(message, dataType, acknowledgementCode, textMessage, dateFormat, errorMessage) method is deprecated and will soon be removed. Please use generateAckResponse(message, isXML, acknowledgementCode, textMessage, dateFormat, errorMessage) instead.");
         return generateAckResponse(message, dataType.equals("XML"), acknowledgementCode, textMessage, dateFormat, errorMessage);
     }
 
