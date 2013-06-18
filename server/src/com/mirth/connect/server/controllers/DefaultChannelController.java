@@ -182,7 +182,12 @@ public class DefaultChannelController extends ChannelController {
     }
 
     @Override
-    public boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
+    public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
+        /*
+         * updateChannel and removeChannel must be synchronized to ensure the channel cache and database
+         * never contain different versions of a channel.
+         */
+        
         int newRevision = channel.getRevision();
         int currentRevision = 0;
 
@@ -284,7 +289,12 @@ public class DefaultChannelController extends ChannelController {
      * @throws ControllerException
      */
     @Override
-    public void removeChannel(Channel channel, ServerEventContext context) throws ControllerException {
+    public synchronized void removeChannel(Channel channel, ServerEventContext context) throws ControllerException {
+        /*
+         * updateChannel and removeChannel must be synchronized to ensure the channel cache and database
+         * never contain different versions of a channel.
+         */
+        
         logger.debug("removing channel");
 
         if ((channel != null) && ControllerFactory.getFactory().createEngineController().isDeployed(channel.getId())) {
