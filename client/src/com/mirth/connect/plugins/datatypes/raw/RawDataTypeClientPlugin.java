@@ -44,9 +44,7 @@ public class RawDataTypeClientPlugin extends DataTypeClientPlugin {
     }
 
     @Override
-    public void start() {
-        addConversionTemplates(null, true);
-    }
+    public void start() {}
 
     @Override
     public void stop() {}
