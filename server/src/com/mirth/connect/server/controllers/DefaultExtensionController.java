@@ -155,19 +155,21 @@ public class DefaultExtensionController extends ExtensionController {
                 try {
                     MetaData metaData = (MetaData) serializer.fromXML(FileUtils.readFileToString(extensionFile));
 
-                    if (metaData instanceof ConnectorMetaData) {
-                        ConnectorMetaData connectorMetaData = (ConnectorMetaData) metaData;
-                        connectorMetaDataMap.put(connectorMetaData.getName(), connectorMetaData);
+                    if (isExtensionCompatible(metaData)) {
+                        if (metaData instanceof ConnectorMetaData) {
+                            ConnectorMetaData connectorMetaData = (ConnectorMetaData) metaData;
+                            connectorMetaDataMap.put(connectorMetaData.getName(), connectorMetaData);
 
-                        if (StringUtils.contains(connectorMetaData.getProtocol(), ":")) {
-                            for (String protocol : connectorMetaData.getProtocol().split(":")) {
-                                connectorProtocolsMap.put(protocol, connectorMetaData);
+                            if (StringUtils.contains(connectorMetaData.getProtocol(), ":")) {
+                                for (String protocol : connectorMetaData.getProtocol().split(":")) {
+                                    connectorProtocolsMap.put(protocol, connectorMetaData);
+                                }
+                            } else {
+                                connectorProtocolsMap.put(connectorMetaData.getProtocol(), connectorMetaData);
                             }
-                        } else {
-                            connectorProtocolsMap.put(connectorMetaData.getProtocol(), connectorMetaData);
+                        } else if (metaData instanceof PluginMetaData) {
+                            pluginMetaDataMap.put(metaData.getName(), (PluginMetaData) metaData);
                         }
-                    } else if (metaData instanceof PluginMetaData) {
-                        pluginMetaDataMap.put(metaData.getName(), (PluginMetaData) metaData);
                     }
                 } catch (Exception e) {
                     logger.error("Error reading or parsing extension metadata file: " + extensionFile.getName(), e);
