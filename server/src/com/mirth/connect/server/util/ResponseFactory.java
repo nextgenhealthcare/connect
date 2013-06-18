@@ -9,10 +9,14 @@
 
 package com.mirth.connect.server.util;
 
+import org.apache.log4j.Logger;
+
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 
 public class ResponseFactory {
+    private static Logger logger = Logger.getLogger(ResponseFactory.class);
+
     public static Response getSentResponse(String message) {
         return new Response(Status.SENT, message);
     }
@@ -20,9 +24,10 @@ public class ResponseFactory {
     /**
      * This method has been deprecated; use getSentResponse instead
      */
-    // TODO: Decide whether we want to remove/convert this
+    // TODO: Remove in 3.1
     @Deprecated
     public static Response getSuccessResponse(String message) {
+        logger.error("The getSuccessResponse(message) method is deprecated and will soon be removed. Please use getSentResponse(message) instead.");
         return new Response(Status.SENT, message);
     }
 
@@ -33,9 +38,10 @@ public class ResponseFactory {
     /**
      * This method has been deprecated; use getErrorResponse instead
      */
-    // TODO: Decide whether we want to remove/convert this
+    // TODO: Remove in 3.1
     @Deprecated
     public static Response getFailureResponse(String message) {
+        logger.error("The getFailureResponse(message) method is deprecated and will soon be removed. Please use getErrorResponse(message) instead.");
         return new Response(Status.ERROR, message);
     }
 
