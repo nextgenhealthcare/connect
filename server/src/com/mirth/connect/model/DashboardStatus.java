@@ -44,6 +44,7 @@ public class DashboardStatus implements Serializable {
     private Map<Status, Long> lifetimeStatistics;
     private List<DashboardStatus> childStatuses = new ArrayList<DashboardStatus>();
     private Integer metaDataId;
+    private boolean queueEnabled;
     private Long queued = 0L;
     private boolean waitForPrevious = false;
     private Set<String> tags = new LinkedHashSet<String>();
@@ -119,6 +120,14 @@ public class DashboardStatus implements Serializable {
 
     public void setMetaDataId(Integer metaDataId) {
         this.metaDataId = metaDataId;
+    }
+
+    public boolean isQueueEnabled() {
+        return queueEnabled;
+    }
+
+    public void setQueueEnabled(boolean queueEnabled) {
+        this.queueEnabled = queueEnabled;
     }
 
     public Long getQueued() {

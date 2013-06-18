@@ -366,6 +366,7 @@ public class DonkeyEngineController implements EngineController {
             sourceStatus.setStatistics(stats.getConnectorStats(channelId, 0));
             sourceStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, 0));
             sourceStatus.setTags(deployedChannel.getProperties().getTags());
+            sourceStatus.setQueueEnabled(!donkeyChannel.getSourceConnector().isRespondAfterProcessing());
             sourceStatus.setQueued(new Long(donkeyChannel.getSourceQueue().size()));
 
             status.setQueued(sourceStatus.getQueued());
@@ -386,6 +387,7 @@ public class DonkeyEngineController implements EngineController {
                     destinationStatus.setStatistics(stats.getConnectorStats(channelId, metaDataId));
                     destinationStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, metaDataId));
                     destinationStatus.setTags(deployedChannel.getProperties().getTags());
+                    destinationStatus.setQueueEnabled(connector.isQueueEnabled());
                     destinationStatus.setQueued(new Long(connector.getQueue().size()));
 
                     status.setQueued(status.getQueued() + destinationStatus.getQueued());
