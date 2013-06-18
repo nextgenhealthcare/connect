@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -120,7 +120,7 @@ public class SqlConfig {
                                 String encryptedPassword = StringUtils.removeStart(mirthProperties.getString("database.password"), EncryptionSettings.ENCRYPTION_PREFIX);
                                 String decryptedPassword = encryptor.decrypt(encryptedPassword);
                                 databaseProperties.setProperty("database.password", decryptedPassword);
-                            } else if (StringUtils.isNotBlank(mirthProperties.getString("database.password"))){
+                            } else if (StringUtils.isNotBlank(mirthProperties.getString("database.password"))) {
                                 // first we need to encrypt the plaintext password
                                 String decryptedPassword = mirthProperties.getString("database.password");
                                 databaseProperties.setProperty("database.password", decryptedPassword);
@@ -161,27 +161,29 @@ public class SqlConfig {
             for (String pluginName : plugins.keySet()) {
                 PluginMetaData pmd = plugins.get(pluginName);
 
-                // only add configs for plugins that have some configs defined
-                if (pmd.getSqlMapConfigs() != null) {
-                    /* get the SQL map for the current database */
-                    String pluginSqlMapName = pmd.getSqlMapConfigs().get(database);
+                if (extensionController.isExtensionEnabled(pluginName)) {
+                    // only add configs for plugins that have some configs defined
+                    if (pmd.getSqlMapConfigs() != null) {
+                        /* get the SQL map for the current database */
+                        String pluginSqlMapName = pmd.getSqlMapConfigs().get(database);
 
-                    if (StringUtils.isBlank(pluginSqlMapName)) {
-                        /*
-                         * if we couldn't find one for the current
-                         * database, check for one that works with
-                         * all databases
-                         */
-                        pluginSqlMapName = pmd.getSqlMapConfigs().get("all");
-                    }
+                        if (StringUtils.isBlank(pluginSqlMapName)) {
+                            /*
+                             * if we couldn't find one for the current
+                             * database, check for one that works with
+                             * all databases
+                             */
+                            pluginSqlMapName = pmd.getSqlMapConfigs().get("all");
+                        }
 
-                    if (StringUtils.isNotBlank(pluginSqlMapName)) {
-                        File sqlMapConfigFile = new File(ExtensionController.getExtensionsPath() + pmd.getPath(), pluginSqlMapName);
-                        Element sqlMapElement = document.createElement("sqlMap");
-                        sqlMapElement.setAttribute("url", sqlMapConfigFile.toURI().toURL().toString());
-                        sqlMapConfigElement.appendChild(sqlMapElement);
-                    } else {
-                        throw new RuntimeException("SQL map file not found for database: " + database);
+                        if (StringUtils.isNotBlank(pluginSqlMapName)) {
+                            File sqlMapConfigFile = new File(ExtensionController.getExtensionsPath() + pmd.getPath(), pluginSqlMapName);
+                            Element sqlMapElement = document.createElement("sqlMap");
+                            sqlMapElement.setAttribute("url", sqlMapConfigFile.toURI().toURL().toString());
+                            sqlMapConfigElement.appendChild(sqlMapElement);
+                        } else {
+                            throw new RuntimeException("SQL map file not found for database: " + database);
+                        }
                     }
                 }
             }
