@@ -102,9 +102,6 @@ public class Operations {
     public static final Operation MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID = new Operation("getAttachmentsByMessageId", "Get attachments by message ID", false);
     public static final Operation MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID = new Operation("getAttachmentIdsByMessageId", "Get attachment IDs by message ID", false);
     public static final Operation MESSAGE_DICOM_MESSAGE_GET = new Operation("getDICOMMessage", "Get DICOM message", false);
-    public static final Operation MESSAGE_CREATE_TEMP_TABLE = new Operation("createMessagesTempTable", "Create message temp table", false);
-    public static final Operation MESSAGE_FILTER_TABLES_REMOVE = new Operation("removeFilterTables", "Remove filter tables", false);
-    public static final Operation CONNECTOR_MESSAGE_REMOVE = new Operation("removeConnectorMessage", "Remove connector message", true);
 
     // Events
     public static final Operation GET_MAX_EVENT_ID = new Operation("getMaxEventId", "Get max eventId", false);
@@ -201,9 +198,6 @@ public class Operations {
         operationMap.put(MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID.getName(), MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID);
         operationMap.put(MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID.getName(), MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID);
         operationMap.put(MESSAGE_DICOM_MESSAGE_GET.getName(), MESSAGE_DICOM_MESSAGE_GET);
-        operationMap.put(MESSAGE_CREATE_TEMP_TABLE.getName(), MESSAGE_CREATE_TEMP_TABLE);
-        operationMap.put(MESSAGE_FILTER_TABLES_REMOVE.getName(), MESSAGE_FILTER_TABLES_REMOVE);
-        operationMap.put(CONNECTOR_MESSAGE_REMOVE.getName(), CONNECTOR_MESSAGE_REMOVE);
         operationMap.put(GET_MAX_EVENT_ID.getName(), GET_MAX_EVENT_ID);
         operationMap.put(GET_EVENTS.getName(), GET_EVENTS);
         operationMap.put(GET_EVENT_COUNT.getName(), GET_EVENT_COUNT);
