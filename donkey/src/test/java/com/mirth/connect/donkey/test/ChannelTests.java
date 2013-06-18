@@ -99,7 +99,7 @@ public class ChannelTests {
             for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
                 if (destinationConnector.isEnabled()) {
                     assertTrue(((TestDestinationConnector) destinationConnector).isDeployed());
-                    assertFalse(destinationConnector.isRunning());
+                    assertFalse(destinationConnector.getCurrentState() != ChannelState.STOPPED);
                 }
             }
         }
@@ -135,7 +135,7 @@ public class ChannelTests {
             for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
                 if (destinationConnector.isEnabled()) {
                     assertFalse(((TestDestinationConnector) destinationConnector).isDeployed());
-                    assertFalse(destinationConnector.isRunning());
+                    assertFalse(destinationConnector.getCurrentState() != ChannelState.STOPPED);
                 }
             }
         }
@@ -165,7 +165,7 @@ public class ChannelTests {
         for (DestinationChain chain : channel.getDestinationChains()) {
             for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
                 if (destinationConnector.isEnabled()) {
-                    assertTrue(destinationConnector.isRunning());
+                    assertTrue(destinationConnector.getCurrentState() != ChannelState.STOPPED);
                 }
             }
         }
@@ -257,7 +257,7 @@ public class ChannelTests {
         for (DestinationChain chain : channel.getDestinationChains()) {
             for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
                 if (destinationConnector.isEnabled()) {
-                    assertFalse(destinationConnector.isRunning());
+                    assertFalse(destinationConnector.getCurrentState() != ChannelState.STOPPED);
                     assertEquals(((TestDestinationConnector) destinationConnector).getMessageIds().size(), TEST_SIZE);
                 }
             }
@@ -304,7 +304,7 @@ public class ChannelTests {
         for (DestinationChain chain : channel.getDestinationChains()) {
             for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
                 if (destinationConnector.isEnabled()) {
-                    assertFalse(destinationConnector.isRunning());
+                    assertFalse(destinationConnector.getCurrentState() != ChannelState.STOPPED);
                 }
             }
         }

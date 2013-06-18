@@ -96,11 +96,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
         this.orderId = orderId;
     }
 
-    @Deprecated
-    public boolean isRunning() {
-        return getCurrentState() != ChannelState.STOPPED && getCurrentState() != ChannelState.STOPPING;
-    }
-
     @Override
     public void setConnectorProperties(ConnectorProperties connectorProperties) {
         super.setConnectorProperties(connectorProperties);

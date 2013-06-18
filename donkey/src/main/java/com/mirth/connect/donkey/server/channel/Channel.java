@@ -1758,7 +1758,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                             for (Integer metaDataId : chain.getMetaDataIds()) {
                                 DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
 
-                                if (!destinationConnector.isRunning()) {
+                                if (destinationConnector.getCurrentState() == ChannelState.STOPPED) {
                                     startedMetaDataIds.add(metaDataId);
                                     destinationConnector.start();
                                 }
