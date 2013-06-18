@@ -38,10 +38,9 @@ public class SqlConfig {
     private static SqlSessionFactory sqlSessionfactory;
     private static SqlSessionManager sqlSessionManager = null;
 
-    private SqlConfig() {
-    }
-    
-    public static SqlSessionManager getSqlSessionManager(){
+    private SqlConfig() {}
+
+    public static SqlSessionManager getSqlSessionManager() {
         synchronized (SqlConfig.class) {
             if (sqlSessionManager == null) {
                 init();
@@ -53,18 +52,18 @@ public class SqlConfig {
     public SqlSessionFactory getSqlSessionFactory() {
         return sqlSessionfactory;
     }
-    
+
     /**
      * This method loads the MyBatis SQL config file for the database in use,
      * then appends sqlMap entries from any installed plugins
      */
-    public static void init(){
+    public static void init() {
         try {
             LogFactory.useLog4JLogging();
             System.setProperty("derby.stream.error.method", "com.mirth.connect.server.Mirth.getNullOutputStream");
 
             DatabaseSettings databaseSettings = ControllerFactory.getFactory().createConfigurationController().getDatabaseSettings();
-            
+
             BufferedReader br = new BufferedReader(Resources.getResourceAsReader("SqlMapConfig.xml"));
 
             // parse the SqlMapConfig (ignoring the DTD)
@@ -77,13 +76,13 @@ public class SqlConfig {
             DocumentSerializer docSerializer = new DocumentSerializer();
             Reader reader = new StringReader(docSerializer.toXML(document));
 
-            sqlSessionfactory = new SqlSessionFactoryBuilder().build(reader, databaseSettings.getProperties());            
+            sqlSessionfactory = new SqlSessionFactoryBuilder().build(reader, databaseSettings.getProperties());
             sqlSessionManager = SqlSessionManager.newInstance(sqlSessionfactory);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    
+
     private static void addPluginSqlMaps(String database, Document document) throws Exception {
         Element sqlMapConfigElement = document.getDocumentElement();
         ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
@@ -93,27 +92,29 @@ public class SqlConfig {
             for (String pluginName : plugins.keySet()) {
                 PluginMetaData pmd = plugins.get(pluginName);
 
-                // only add configs for plugins that have some configs defined
-                if (pmd.getSqlMapConfigs() != null) {
-                    /* get the SQL map for the current database */
-                    String pluginSqlMapName = pmd.getSqlMapConfigs().get(database);
+                if (extensionController.isExtensionEnabled(pluginName)) {
+                    // only add configs for plugins that have some configs defined
+                    if (pmd.getSqlMapConfigs() != null) {
+                        /* get the SQL map for the current database */
+                        String pluginSqlMapName = pmd.getSqlMapConfigs().get(database);
 
-                    if (StringUtils.isBlank(pluginSqlMapName)) {
-                        /*
-                         * if we couldn't find one for the current
-                         * database, check for one that works with
-                         * all databases
-                         */
-                        pluginSqlMapName = pmd.getSqlMapConfigs().get("all");
-                    }
+                        if (StringUtils.isBlank(pluginSqlMapName)) {
+                            /*
+                             * if we couldn't find one for the current
+                             * database, check for one that works with
+                             * all databases
+                             */
+                            pluginSqlMapName = pmd.getSqlMapConfigs().get("all");
+                        }
 
-                    if (StringUtils.isNotBlank(pluginSqlMapName)) {
-                        File sqlMapConfigFile = new File(ExtensionController.getExtensionsPath() + pmd.getPath(), pluginSqlMapName);
-                        Element sqlMapElement = document.createElement("sqlMap");
-                        sqlMapElement.setAttribute("url", sqlMapConfigFile.toURI().toURL().toString());
-                        sqlMapConfigElement.appendChild(sqlMapElement);
-                    } else {
-                        throw new RuntimeException("SQL map file not found for database: " + database);
+                        if (StringUtils.isNotBlank(pluginSqlMapName)) {
+                            File sqlMapConfigFile = new File(ExtensionController.getExtensionsPath() + pmd.getPath(), pluginSqlMapName);
+                            Element sqlMapElement = document.createElement("sqlMap");
+                            sqlMapElement.setAttribute("url", sqlMapConfigFile.toURI().toURL().toString());
+                            sqlMapConfigElement.appendChild(sqlMapElement);
+                        } else {
+                            throw new RuntimeException("SQL map file not found for database: " + database);
+                        }
                     }
                 }
             }
