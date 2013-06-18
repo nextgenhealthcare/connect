@@ -227,7 +227,7 @@ public class EventBrowser extends javax.swing.JPanel {
         return null;
     }
 
-    public void generateEventFilter() {
+    public boolean generateEventFilter() {
         eventFilter = new EventFilter();
 
         // set start/end date
@@ -245,7 +245,7 @@ public class EventBrowser extends javax.swing.JPanel {
             eventFilter.setEndDate(endCalendar);
         } catch (ParseException e) {
             parent.alertError(parent, "Invalid date.");
-            return;
+            return false;
         }
 
         Calendar startDate = eventFilter.getStartDate();
@@ -253,7 +253,7 @@ public class EventBrowser extends javax.swing.JPanel {
 
         if (startDate != null && endDate != null && startDate.getTimeInMillis() > endDate.getTimeInMillis()) {
             parent.alertError(parent, "Start date cannot be after the end date.");
-            return;
+            return false;
         }
 
         if (!nameField.getText().equals("")) {
@@ -302,29 +302,32 @@ public class EventBrowser extends javax.swing.JPanel {
             eventFilter.setMaxEventId(maxEventId);
         } catch (ClientException e) {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
-            return;
+            return false;
         }
+
+        return true;
     }
 
     public void runSearch() {
-        generateEventFilter();
-        updateFilterButtonFont(Font.PLAIN);
-        events = new PaginatedEventList();
-        events.setClient(parent.mirthClient);
-        events.setEventFilter(eventFilter);
-
-        try {
-            events.setPageSize(Integer.parseInt(pageSizeField.getText()));
-        } catch (NumberFormatException e) {
-            parent.alertError(parent, "Invalid page size.");
-            return;
+        if (generateEventFilter()) {
+            updateFilterButtonFont(Font.PLAIN);
+            events = new PaginatedEventList();
+            events.setClient(parent.mirthClient);
+            events.setEventFilter(eventFilter);
+        
+            try {
+                events.setPageSize(Integer.parseInt(pageSizeField.getText()));
+            } catch (NumberFormatException e) {
+                parent.alertError(parent, "Invalid page size.");
+                return;
+            }
+        
+            countButton.setVisible(true);
+            clearCache();
+            loadPageNumber(1);
+        
+            updateSearchCriteriaPane();
         }
-
-        countButton.setVisible(true);
-        clearCache();
-        loadPageNumber(1);
-
-        updateSearchCriteriaPane();
     }
 
     private void updateSearchCriteriaPane() {

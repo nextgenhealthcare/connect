@@ -456,7 +456,7 @@ public class MessageBrowser extends javax.swing.JPanel {
      * Constructs the MessageFilter (this.filter) based on the current form
      * selections
      */
-    private void generateMessageFilter() {
+    private boolean generateMessageFilter() {
         messageFilter = new MessageFilter();
 
         // set start/end date
@@ -474,7 +474,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             messageFilter.setEndDate(endCalendar);
         } catch (ParseException e) {
             parent.alertError(parent, "Invalid date.");
-            return;
+            return false;
         }
 
         Calendar startDate = messageFilter.getStartDate();
@@ -482,7 +482,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         if (startDate != null && endDate != null && startDate.getTimeInMillis() > endDate.getTimeInMillis()) {
             parent.alertError(parent, "Start date cannot be after the end date.");
-            return;
+            return false;
         }
 
         // set quick search
@@ -539,30 +539,33 @@ public class MessageBrowser extends javax.swing.JPanel {
             messageFilter.setMaxMessageId(maxMessageId);
         } catch (ClientException e) {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
-            return;
+            return false;
         }
+
+        return true;
     }
 
     public void runSearch() {
-        generateMessageFilter();
-        updateFilterButtonFont(Font.PLAIN);
-        messages = new PaginatedMessageList();
-        messages.setClient(parent.mirthClient);
-        messages.setChannelId(channelId);
-        messages.setMessageFilter(messageFilter);
-
-        try {
-            messages.setPageSize(Integer.parseInt(pageSizeField.getText()));
-        } catch (NumberFormatException e) {
-            parent.alertError(parent, "Invalid page size.");
-            return;
+        if (generateMessageFilter()) {
+            updateFilterButtonFont(Font.PLAIN);
+            messages = new PaginatedMessageList();
+            messages.setClient(parent.mirthClient);
+            messages.setChannelId(channelId);
+            messages.setMessageFilter(messageFilter);
+    
+            try {
+                messages.setPageSize(Integer.parseInt(pageSizeField.getText()));
+            } catch (NumberFormatException e) {
+                parent.alertError(parent, "Invalid page size.");
+                return;
+            }
+    
+            countButton.setVisible(true);
+            clearCache();
+            loadPageNumber(1);
+    
+            updateSearchCriteriaPane();
         }
-
-        countButton.setVisible(true);
-        clearCache();
-        loadPageNumber(1);
-
-        updateSearchCriteriaPane();
     }
 
     private void updateSearchCriteriaPane() {
