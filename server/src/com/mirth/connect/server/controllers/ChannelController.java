@@ -68,18 +68,4 @@ public abstract class ChannelController extends Controller {
     public abstract String getDeployedDestinationName(String connectorId);
 
     public abstract String getDeployedConnectorId(String channelId, String connectorName) throws Exception;
-    
-    @Deprecated
-    // TODO: Remove in 3.0
-    public String getChannelName(String channelId) {
-        logger.error("The getChannelName(channelId) method is deprecated and will soon be removed. Please use getDeployedChannelById(channelId).getName()");
-        return getDeployedChannelById(channelId).getName();
-    }
-
-    @Deprecated
-    // TODO: Remove in 3.0
-    public String getChannelId(String channelName) {
-        logger.error("The getChannelId(channelName) method is deprecated and will soon be removed. Please use getDeployedChannelByName(channelName).getId()");
-        return getDeployedChannelByName(channelName).getId();
-    }
 }

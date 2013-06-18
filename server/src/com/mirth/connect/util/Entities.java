@@ -24,24 +24,6 @@ public class Entities {
     private static Entities instance = null;
     private static Logger logger = Logger.getLogger(Entities.class);
 
-    @Deprecated
-    // TODO: Remove in 3.0
-    public static Entities getInstance() {
-        return getInstance(true);
-    }
-
-    @Deprecated
-    // TODO: Remove in 3.0
-    public static Entities getInstance(boolean logError) {
-        if (logError) {
-            logger.error("The Entities class is deprecated and will soon be removed. Please use XmlUtil. If you are calling ${encoder.encode()} from a template please use ${XmlUtil.encode()}.");
-        }
-        
-        if (instance == null)
-            instance = new Entities();
-        return instance;
-    }
-
     final Hashtable decoder = new Hashtable(300);
     final Hashtable decoderXML = new Hashtable(10);
     final String[] encoder = new String[0x100];
