@@ -209,7 +209,7 @@ public class DataPrunerTest {
         TestUtils.startMirthServer(15000);
 
         DataPruner pruner = new DataPruner();
-        pruner.setBlockSize(10);
+        pruner.setBlockSize(1);
         pruner.setStrategy(Strategy.INCLUDE_LIST);
         pruner.setRetryCount(0);
         

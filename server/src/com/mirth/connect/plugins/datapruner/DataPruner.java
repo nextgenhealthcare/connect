@@ -414,8 +414,25 @@ public class DataPruner implements Runnable {
                         result.numMessagesArchived = ids.messageIds.size();
                     }
                     
-                    result.numContentPruned = pruneChannelByIds(localChannelId, ids.contentMessageIds, true);
-                    result.numMessagesPruned = pruneChannelByIds(localChannelId, ids.messageIds, false);
+                    Integer blockSize = getBlockSize();
+                    
+                    if (blockSize == null) {
+                        result.numContentPruned = pruneChannelByIds(localChannelId, ids.contentMessageIds, true);
+                        result.numMessagesPruned = pruneChannelByIds(localChannelId, ids.messageIds, false);
+                    } else {
+                        int listSize = ids.contentMessageIds.size();
+                        
+                        for (int i = 0; i < listSize; i += blockSize) {
+                            result.numContentPruned = pruneChannelByIds(localChannelId, ids.contentMessageIds.subList(i, Math.min(listSize, i + blockSize)), true);
+                        }
+                        
+                        listSize = ids.messageIds.size();
+                        
+                        for (int i = 0; i < listSize; i += blockSize) {
+                            result.numMessagesPruned = pruneChannelByIds(localChannelId, ids.messageIds.subList(i, Math.min(listSize, i + blockSize)), false);
+                        }
+                    }
+                    
                     return result;
                 }
             } catch (InterruptedException e) {
@@ -431,7 +448,7 @@ public class DataPruner implements Runnable {
     }
     
     private PruneResult pruneChannelByDate(long localChannelId, Calendar messageDateThreshold, Calendar contentDateThreshold) throws InterruptedException {
-        Integer limit = getBlockSize();
+        Integer blockSize = getBlockSize();
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("localChannelId", localChannelId);
@@ -441,8 +458,8 @@ public class DataPruner implements Runnable {
             params.put("skipStatuses", getSkipStatuses());
         }
 
-        if (limit != null) {
-            params.put("limit", limit);
+        if (blockSize != null) {
+            params.put("limit", blockSize);
         }
 
         PruneResult result = new PruneResult();
@@ -451,27 +468,27 @@ public class DataPruner implements Runnable {
         if (contentDateThreshold != null) {
             logger.debug("Pruning content");
             params.put("dateThreshold", contentDateThreshold);
-            result.numContentPruned += runDelete("Message.pruneMessageContent", params, limit);
+            result.numContentPruned += runDelete("Message.pruneMessageContent", params, blockSize);
         }
 
         logger.debug("Pruning messages");
         params.put("dateThreshold", messageDateThreshold);
         
         if (DatabaseUtil.statementExists("Message.pruneAttachments")) {
-            runDelete("Message.pruneAttachments", params, limit);
+            runDelete("Message.pruneAttachments", params, blockSize);
         }
         
         if (DatabaseUtil.statementExists("Message.pruneCustomMetaData")) {
-            runDelete("Message.pruneCustomMetaData", params, limit);
+            runDelete("Message.pruneCustomMetaData", params, blockSize);
         }
         
-        runDelete("Message.pruneMessageContent", params, limit);
+        runDelete("Message.pruneMessageContent", params, blockSize);
         
         if (DatabaseUtil.statementExists("Message.pruneConnectorMessages")) {
-            runDelete("Message.pruneConnectorMessages", params, limit);
+            runDelete("Message.pruneConnectorMessages", params, blockSize);
         }
         
-        result.numMessagesPruned += runDelete("Message.pruneMessages", params, limit);
+        result.numMessagesPruned += runDelete("Message.pruneMessages", params, blockSize);
 
         logger.debug("Pruning completed in " + (System.currentTimeMillis() - startTime) + "ms");
         return result;
@@ -599,10 +616,6 @@ public class DataPruner implements Runnable {
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("localChannelId", localChannelId);
-
-        if (limit != null) {
-            params.put("limit", limit);
-        }
 
         switch (strategy) {
             case INCLUDE_LIST:
