@@ -28,6 +28,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.DatabaseSettings;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.DocumentSerializer;
@@ -71,7 +72,7 @@ public class SqlConfig {
             factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
             Document document = factory.newDocumentBuilder().parse(new InputSource(br));
 
-            addPluginSqlMaps(databaseSettings.getDatabase(), document);
+            addPluginSqlMaps(databaseSettings.getDatabase(), new DonkeyElement(document.getDocumentElement()).getChildElement("mappers"));
 
             DocumentSerializer docSerializer = new DocumentSerializer();
             Reader reader = new StringReader(docSerializer.toXML(document));
@@ -83,8 +84,7 @@ public class SqlConfig {
         }
     }
 
-    private static void addPluginSqlMaps(String database, Document document) throws Exception {
-        Element sqlMapConfigElement = document.getDocumentElement();
+    private static void addPluginSqlMaps(String database, DonkeyElement sqlMapConfigElement) throws Exception {
         ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
         Map<String, PluginMetaData> plugins = extensionController.getPluginMetaData();
 
@@ -109,9 +109,8 @@ public class SqlConfig {
 
                         if (StringUtils.isNotBlank(pluginSqlMapName)) {
                             File sqlMapConfigFile = new File(ExtensionController.getExtensionsPath() + pmd.getPath(), pluginSqlMapName);
-                            Element sqlMapElement = document.createElement("sqlMap");
+                            Element sqlMapElement = sqlMapConfigElement.addChildElement("mapper");
                             sqlMapElement.setAttribute("url", sqlMapConfigFile.toURI().toURL().toString());
-                            sqlMapConfigElement.appendChild(sqlMapElement);
                         } else {
                             throw new RuntimeException("SQL map file not found for database: " + database);
                         }
