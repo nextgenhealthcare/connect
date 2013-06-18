@@ -24,7 +24,7 @@ public class VmDispatcherProperties extends ConnectorProperties implements Dispa
         queueConnectorProperties = new QueueConnectorProperties();
 
         this.channelId = "none";
-        this.responseTimeout = "10000";
+        this.responseTimeout = "0";
         this.channelTemplate = "${message.encodedData}";
     }
 
