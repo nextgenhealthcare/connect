@@ -2545,27 +2545,37 @@ public class Frame extends JXFrame {
             return;
         }
 
-        for (final DashboardStatus status : selectedStatuses) {
-            final String workingId = startWorking("Stopping connector...");
+        boolean warnQueueDisabled = false;
 
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                public Void doInBackground() {
-                    try {
-                        mirthClient.stopConnector(status.getChannelId(), status.getMetaDataId());
-                    } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+        for (final DashboardStatus status : selectedStatuses) {
+            if (status.getMetaDataId() != 0 && !status.isQueueEnabled()) {
+                warnQueueDisabled = true;
+            } else {
+                final String workingId = startWorking("Stopping connector...");
+
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                    public Void doInBackground() {
+                        try {
+                            mirthClient.stopConnector(status.getChannelId(), status.getMetaDataId());
+                        } catch (ClientException e) {
+                            alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        }
+
+                        return null;
                     }
 
-                    return null;
-                }
+                    public void done() {
+                        doRefreshStatuses(true);
+                        stopWorking(workingId);
+                    }
+                };
 
-                public void done() {
-                    doRefreshStatuses(true);
-                    stopWorking(workingId);
-                }
-            };
+                worker.execute();
+            }
+        }
 
-            worker.execute();
+        if (warnQueueDisabled) {
+            alertWarning(this, "<html>One or more destination connectors were not stopped because queueing was not enabled.<br>Queueing must be enabled for a destination connector to be stopped individually.</html>");
         }
     }
 
