@@ -202,7 +202,7 @@ public class HttpDispatcher extends DestinationConnector {
         } catch (Exception e) {
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error connecting to HTTP server.", e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error connecting to HTTP server", e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_403, "Error connecting to HTTP server", e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_404, "Error connecting to HTTP server", e);
 
             // TODO: Handle Exception
             // connector.handleException(e);
