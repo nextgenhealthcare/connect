@@ -153,15 +153,18 @@ public class MessageExportDialog extends JDialog {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        Mirth.initUIManager();
-        PlatformUI.MIRTH_FRAME = new Frame() {
-            public void setSaveEnabled(boolean enabled) {}
-        };
-
-        JDialog dialog = new MessageExportDialog();
-        dialog.setLocationRelativeTo(null);
-        dialog.setVisible(true);
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-    }
+    /**
+     * Launches the dialog in a test frame
+     */
+//    public void main() throws Exception {
+//        Mirth.initUIManager();
+//        PlatformUI.MIRTH_FRAME = new Frame() {
+//            public void setSaveEnabled(boolean enabled) {}
+//        };
+//
+//        JDialog dialog = new MessageExportDialog();
+//        dialog.setLocationRelativeTo(null);
+//        dialog.setVisible(true);
+//        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+//    }
 }

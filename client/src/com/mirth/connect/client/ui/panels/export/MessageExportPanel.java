@@ -13,7 +13,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
@@ -23,24 +22,18 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
-import javax.swing.KeyStroke;
 
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.mirth.connect.client.ui.Frame;
-import com.mirth.connect.client.ui.Mirth;
-import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableList;
 import com.mirth.connect.client.ui.components.MirthButton;
@@ -453,29 +446,29 @@ public class MessageExportPanel extends JPanel {
     /**
      * Launches the panel in a test frame
      */
-    public static void main(String[] args) {
-        Mirth.initUIManager();
-        PlatformUI.MIRTH_FRAME = new Frame() {
-            public void setSaveEnabled(boolean enabled) {}
-        };
-
-        final JFrame frame = new JFrame();
-
-        MessageExportPanel panel = new MessageExportPanel(null, false, true);
-        panel.setBackground(new Color(255, 255, 255));
-
-        frame.setSize(800, 230);
-        frame.getContentPane().setBackground(new Color(255, 255, 255));
-        frame.setLayout(new MigLayout("fill, insets dialog", "", ""));
-        frame.add(panel, "grow");
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getRootPane().registerKeyboardAction(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                frame.dispose();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-    }
+//    public static void main(String[] args) {
+//        Mirth.initUIManager();
+//        PlatformUI.MIRTH_FRAME = new Frame() {
+//            public void setSaveEnabled(boolean enabled) {}
+//        };
+//
+//        final JFrame frame = new JFrame();
+//
+//        MessageExportPanel panel = new MessageExportPanel(null, false, true);
+//        panel.setBackground(new Color(255, 255, 255));
+//
+//        frame.setSize(800, 230);
+//        frame.getContentPane().setBackground(new Color(255, 255, 255));
+//        frame.setLayout(new MigLayout("fill, insets dialog", "", ""));
+//        frame.add(panel, "grow");
+//        frame.setLocationRelativeTo(null);
+//        frame.setVisible(true);
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        frame.getRootPane().registerKeyboardAction(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent event) {
+//                frame.dispose();
+//            }
+//        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+//    }
 }
