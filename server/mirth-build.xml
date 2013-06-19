@@ -144,7 +144,7 @@
 		</taskdef>
 
 		<header headerFile="${server}/license-header.txt">
-			<fileset dir="${server}" includes="**/*.java" excludes="src/org/**/*.java src/com/mirth/connect/util/Entities.java src/com/mirth/connect/server/logging/LogOutputStream.java" />
+			<fileset dir="${server}" includes="**/*.java" excludes="src/org/**/*.java src/com/mirth/connect/server/logging/LogOutputStream.java" />
 		</header>
 
 		<header headerFile="${server}/license-header.txt">
