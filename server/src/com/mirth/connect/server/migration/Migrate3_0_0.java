@@ -19,12 +19,12 @@ import org.w3c.dom.Element;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 
-public class Migrate3_0_0 extends ServerMigrator {
+public class Migrate3_0_0 extends Migrator {
     private Logger logger = Logger.getLogger(getClass());
 
     @Override
-    public void migrate() throws DatabaseSchemaMigrationException {
-        executeDeltaScript(getDatabaseType() + "-9-3.0.0.sql");
+    public void migrate() throws MigrationException {
+        executeScript(getDatabaseType() + "-9-3.0.0.sql");
         migrateChannelTable();
         migrateAlertTable();
         migrateCodeTemplateTable();

@@ -1,8 +1,8 @@
 package com.mirth.connect.server.migration;
 
-import com.mirth.connect.server.migration.ServerMigrator;
+import com.mirth.connect.server.migration.Migrator;
 
-public class LegacyMigrator extends ServerMigrator {
+public class LegacyMigrator extends Migrator {
     private int schemaVersion;
 
     public LegacyMigrator(int schemaVersion) {
@@ -10,7 +10,7 @@ public class LegacyMigrator extends ServerMigrator {
     }
 
     @Override
-    public void migrate() throws DatabaseSchemaMigrationException {
-        executeDeltaScript(getDatabaseType() + "-" + (schemaVersion - 1) + "-" + schemaVersion + ".sql");
+    public void migrate() throws MigrationException {
+        executeScript(getDatabaseType() + "-" + (schemaVersion - 1) + "-" + schemaVersion + ".sql");
     }
 }

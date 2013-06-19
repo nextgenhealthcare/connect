@@ -11,6 +11,7 @@ package com.mirth.connect.model.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -36,17 +37,20 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.DocumentSerializer;
+import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.util.MigrationUtil;
 
 public class ImportConverter3_0_0 {
     private final static String VERSION_ATTRIBUTE_NAME = "version";
     private final static String VERSION_STRING = "3.0.0";
     private final static Pattern STRING_NODE_PATTERN = Pattern.compile("(?<=<(string)>).*(?=</string>)|<null/>");
-
+    private final static String PRIVATE_CONNECTOR_3_0_0_MIGRATE_METHOD = "migrate3_0_0";
+    
     private static Logger logger = Logger.getLogger(ImportConverter3_0_0.class);
 
     /**
@@ -319,6 +323,23 @@ public class ImportConverter3_0_0 {
             migrateWebServiceListenerProperties(properties);
         } else if (connectorName.equals("Web Service Sender")) {
             sendResponseToChannelId = migrateWebServiceSenderProperties(properties);
+        } else {
+            /*
+             * If the connector name is not recognized, assume that it could be a private connector.
+             * Using reflection, attempt to call a method that will migrate the connector properties
+             * to 3.0.0.
+             */
+            ConnectorMetaData metaData = ExtensionController.getInstance().getConnectorMetaDataByTransportName(connectorName);
+            
+            try {
+                Class<?> sharedClass = Class.forName(metaData.getSharedClassName());
+                Method migrateMethod = sharedClass.getMethod(PRIVATE_CONNECTOR_3_0_0_MIGRATE_METHOD, DonkeyElement.class);
+                migrateMethod.invoke(sharedClass.newInstance(), properties);
+            } catch (NoSuchMethodException e) {
+                // do nothing
+            } catch (Exception e) {
+                logger.error(e);
+            }
         }
 
         // convert transformer (no conversion needed for filter since it didn't change at all in 3.0.0)
@@ -1318,114 +1339,6 @@ public class ImportConverter3_0_0 {
         return oldProperties.getProperty("dispatcherReplyChannelId");
     }
 
-    private static void convertList(DonkeyElement properties, String list) {
-        if (StringUtils.isNotEmpty(list)) {
-            Matcher matcher = STRING_NODE_PATTERN.matcher(list);
-            while (matcher.find()) {
-                if (matcher.group(1) != null) {
-                    properties.addChildElement("string").setTextContent(matcher.group());
-                } else {
-                    properties.addChildElement("null");
-                }
-            }
-        }
-    }
-
-    private static void buildPollConnectorProperties(DonkeyElement properties, String type, String time, String freq) {
-        if (type == null) {
-            type = "interval";
-        }
-
-        if (freq == null) {
-            freq = "5000";
-        }
-
-        Calendar timestamp;
-        String hour = "0";
-        String minute = "0";
-
-        if (time != null && !StringUtils.isBlank(time)) {
-            try {
-                timestamp = new DateParser().parse(time);
-                hour = Integer.toString(timestamp.get(Calendar.HOUR_OF_DAY));
-                minute = Integer.toString(timestamp.get(Calendar.MINUTE));
-            } catch (DateParserException e) {
-            }
-        }
-
-        properties.addChildElement("pollingType").setTextContent(type);
-        properties.addChildElement("pollingHour").setTextContent(hour);
-        properties.addChildElement("pollingMinute").setTextContent(minute);
-        properties.addChildElement("pollingFrequency").setTextContent(freq);
-    }
-
-    private static void buildListenerConnectorProperties(DonkeyElement properties, String host, String port, int defaultPort) {
-        if (host == null) {
-            host = "0.0.0.0";
-        }
-
-        if (port == null) {
-            port = Integer.toString(defaultPort);
-        }
-
-        properties.addChildElement("host").setTextContent(host);
-        properties.addChildElement("port").setTextContent(port);
-    }
-
-    private static void buildResponseConnectorProperties(DonkeyElement properties) {
-        buildResponseConnectorProperties(properties, "None", false);
-    }
-
-    private static void buildResponseConnectorProperties(DonkeyElement properties, String responseValue, boolean autoResponseEnabled) {
-        properties.addChildElement("responseVariable").setTextContent(responseValue);
-
-        DonkeyElement defaultQueueOnResponses = properties.addChildElement("defaultQueueOnResponses");
-        defaultQueueOnResponses.addChildElement("string").setTextContent("None");
-
-        DonkeyElement defaultQueueOffResponses = properties.addChildElement("defaultQueueOffResponses");
-        defaultQueueOffResponses.addChildElement("string").setTextContent("None");
-
-        if (autoResponseEnabled) {
-            defaultQueueOnResponses.addChildElement("string").setTextContent("Auto-generate (Before processing)");
-
-            defaultQueueOffResponses.addChildElement("string").setTextContent("Auto-generate (Before processing)");
-            defaultQueueOffResponses.addChildElement("string").setTextContent("Auto-generate (After source transformer)");
-            defaultQueueOffResponses.addChildElement("string").setTextContent("Auto-generate (Destinations completed)");
-            defaultQueueOffResponses.addChildElement("string").setTextContent("Postprocessor");
-        }
-
-        properties.addChildElement("respondAfterProcessing").setTextContent("true");
-    }
-
-    private static void buildQueueConnectorProperties(DonkeyElement queueConnectorProperties) {
-        buildQueueConnectorProperties(queueConnectorProperties, null, null, null, null);
-    }
-
-    private static void buildQueueConnectorProperties(DonkeyElement queueConnectorProperties, String queueEnabled, String rotate, String reconnectInterval, String retryCount) {
-        if (queueEnabled == null) {
-            queueEnabled = "false";
-        }
-
-        if (rotate == null) {
-            rotate = "false";
-        }
-
-        if (reconnectInterval == null) {
-            reconnectInterval = "1000";
-        }
-
-        if (retryCount == null) {
-            retryCount = "0";
-        }
-
-        queueConnectorProperties.addChildElement("queueEnabled").setTextContent(queueEnabled);
-        queueConnectorProperties.addChildElement("sendFirst").setTextContent("false");
-        queueConnectorProperties.addChildElement("retryIntervalMillis").setTextContent(reconnectInterval);
-        queueConnectorProperties.addChildElement("regenerateTemplate").setTextContent("false");
-        queueConnectorProperties.addChildElement("retryCount").setTextContent(retryCount);
-        queueConnectorProperties.addChildElement("rotate").setTextContent(rotate);
-    }
-
     private static void migrateDelimitedProperties(DonkeyElement properties) {
         logger.debug("Migrating DelimitedDataTypeProperties");
         Properties oldProperties = readPropertiesElement(properties);
@@ -1613,19 +1526,110 @@ public class ImportConverter3_0_0 {
         serializationProperties.addChildElement("stripNamespaces").setTextContent(oldProperties.getProperty("stripNamespaces", "true"));
     }
 
-    private static void createDefaultTransformer(DonkeyElement transformer) {
-        transformer.addChildElement("steps");
-        transformer.addChildElement("inboundDataType").setTextContent("HL7V2");
-        transformer.addChildElement("outboundDataType").setTextContent("HL7V2");
 
-        // migrateHL7v2Properties() will use the default 3.0.0 values when given blank Elements to work with
-        migrateHL7v2Properties(transformer.addChildElement("inboundProperties"));
-        migrateHL7v2Properties(transformer.addChildElement("outboundProperties"));
+
+    /*
+     * Utility Methods
+     * 
+     * NOTE: These public utility methods may be referenced by private plugins that have 3.0.0 migration code.
+     */
+
+    public static void buildPollConnectorProperties(DonkeyElement properties, String type, String time, String freq) {
+        if (type == null) {
+            type = "interval";
+        }
+
+        if (freq == null) {
+            freq = "5000";
+        }
+
+        Calendar timestamp;
+        String hour = "0";
+        String minute = "0";
+
+        if (time != null && !StringUtils.isBlank(time)) {
+            try {
+                timestamp = new DateParser().parse(time);
+                hour = Integer.toString(timestamp.get(Calendar.HOUR_OF_DAY));
+                minute = Integer.toString(timestamp.get(Calendar.MINUTE));
+            } catch (DateParserException e) {
+            }
+        }
+
+        properties.addChildElement("pollingType").setTextContent(type);
+        properties.addChildElement("pollingHour").setTextContent(hour);
+        properties.addChildElement("pollingMinute").setTextContent(minute);
+        properties.addChildElement("pollingFrequency").setTextContent(freq);
     }
 
-    // Utility functions
+    public static void buildListenerConnectorProperties(DonkeyElement properties, String host, String port, int defaultPort) {
+        if (host == null) {
+            host = "0.0.0.0";
+        }
 
-    private static Properties readPropertiesElement(DonkeyElement propertiesElement) {
+        if (port == null) {
+            port = Integer.toString(defaultPort);
+        }
+
+        properties.addChildElement("host").setTextContent(host);
+        properties.addChildElement("port").setTextContent(port);
+    }
+
+    public static void buildResponseConnectorProperties(DonkeyElement properties) {
+        buildResponseConnectorProperties(properties, "None", false);
+    }
+
+    public static void buildResponseConnectorProperties(DonkeyElement properties, String responseValue, boolean autoResponseEnabled) {
+        properties.addChildElement("responseVariable").setTextContent(responseValue);
+
+        DonkeyElement defaultQueueOnResponses = properties.addChildElement("defaultQueueOnResponses");
+        defaultQueueOnResponses.addChildElement("string").setTextContent("None");
+
+        DonkeyElement defaultQueueOffResponses = properties.addChildElement("defaultQueueOffResponses");
+        defaultQueueOffResponses.addChildElement("string").setTextContent("None");
+
+        if (autoResponseEnabled) {
+            defaultQueueOnResponses.addChildElement("string").setTextContent("Auto-generate (Before processing)");
+
+            defaultQueueOffResponses.addChildElement("string").setTextContent("Auto-generate (Before processing)");
+            defaultQueueOffResponses.addChildElement("string").setTextContent("Auto-generate (After source transformer)");
+            defaultQueueOffResponses.addChildElement("string").setTextContent("Auto-generate (Destinations completed)");
+            defaultQueueOffResponses.addChildElement("string").setTextContent("Postprocessor");
+        }
+
+        properties.addChildElement("respondAfterProcessing").setTextContent("true");
+    }
+
+    public static void buildQueueConnectorProperties(DonkeyElement queueConnectorProperties) {
+        buildQueueConnectorProperties(queueConnectorProperties, null, null, null, null);
+    }
+
+    public static void buildQueueConnectorProperties(DonkeyElement queueConnectorProperties, String queueEnabled, String rotate, String reconnectInterval, String retryCount) {
+        if (queueEnabled == null) {
+            queueEnabled = "false";
+        }
+
+        if (rotate == null) {
+            rotate = "false";
+        }
+
+        if (reconnectInterval == null) {
+            reconnectInterval = "1000";
+        }
+
+        if (retryCount == null) {
+            retryCount = "0";
+        }
+
+        queueConnectorProperties.addChildElement("queueEnabled").setTextContent(queueEnabled);
+        queueConnectorProperties.addChildElement("sendFirst").setTextContent("false");
+        queueConnectorProperties.addChildElement("retryIntervalMillis").setTextContent(reconnectInterval);
+        queueConnectorProperties.addChildElement("regenerateTemplate").setTextContent("false");
+        queueConnectorProperties.addChildElement("retryCount").setTextContent(retryCount);
+        queueConnectorProperties.addChildElement("rotate").setTextContent(rotate);
+    }
+    
+    public static Properties readPropertiesElement(DonkeyElement propertiesElement) {
         Properties properties = new Properties();
 
         for (DonkeyElement propertyElement : propertiesElement.getChildElements()) {
@@ -1639,7 +1643,7 @@ public class ImportConverter3_0_0 {
      * Writes all the entries in the given properties object to the propertiesElement. Any existing
      * elements in propertiesElement will be removed first.
      */
-    private static void writePropertiesElement(DonkeyElement propertiesElement, Properties properties) {
+    public static void writePropertiesElement(DonkeyElement propertiesElement, Properties properties) {
         propertiesElement.removeChildren();
 
         for (Object key : properties.keySet()) {
@@ -1649,7 +1653,7 @@ public class ImportConverter3_0_0 {
         }
     }
 
-    private static String readBooleanProperty(Properties properties, String name) {
+    public static String readBooleanProperty(Properties properties, String name) {
         String value = properties.getProperty(name);
 
         if (value == null) {
@@ -1659,13 +1663,37 @@ public class ImportConverter3_0_0 {
         }
     }
 
-    private static String readBooleanProperty(Properties properties, String name, boolean defaultValue) {
+    public static String readBooleanProperty(Properties properties, String name, boolean defaultValue) {
         return Boolean.toString(readBooleanValue(properties, name, defaultValue));
     }
 
-    private static boolean readBooleanValue(Properties properties, String name, boolean defaultValue) {
+    public static boolean readBooleanValue(Properties properties, String name, boolean defaultValue) {
         String property = properties.getProperty(name, Boolean.toString(defaultValue));
         return property.equals("1") || Boolean.parseBoolean(property);
+    }
+    
+    public static void convertList(DonkeyElement properties, String list) {
+        if (StringUtils.isNotEmpty(list)) {
+            Matcher matcher = STRING_NODE_PATTERN.matcher(list);
+            
+            while (matcher.find()) {
+                if (matcher.group(1) != null) {
+                    properties.addChildElement("string").setTextContent(matcher.group());
+                } else {
+                    properties.addChildElement("null");
+                }
+            }
+        }
+    }
+    
+    public static void createDefaultTransformer(DonkeyElement transformer) {
+        transformer.addChildElement("steps");
+        transformer.addChildElement("inboundDataType").setTextContent("HL7V2");
+        transformer.addChildElement("outboundDataType").setTextContent("HL7V2");
+
+        // migrateHL7v2Properties() will use the default 3.0.0 values when given blank Elements to work with
+        migrateHL7v2Properties(transformer.addChildElement("inboundProperties"));
+        migrateHL7v2Properties(transformer.addChildElement("outboundProperties"));
     }
 
     private static void dumpElement(DonkeyElement element) {

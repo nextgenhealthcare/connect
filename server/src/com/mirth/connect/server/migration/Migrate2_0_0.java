@@ -16,24 +16,24 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-public class Migrate2_0_0 extends ServerMigrator {
+public class Migrate2_0_0 extends Migrator {
     private Logger logger = Logger.getLogger(getClass());
     
     @Override
-    public void migrate() throws DatabaseSchemaMigrationException {
-        executeDeltaScript(getDatabaseType() + "-6-7.sql");
+    public void migrate() throws MigrationException {
+        executeScript(getDatabaseType() + "-6-7.sql");
         migrateGlobalScripts();
         migrateServerProperties();
     }
 
-    private void migrateGlobalScripts() throws DatabaseSchemaMigrationException {
+    private void migrateGlobalScripts() throws MigrationException {
         migrateGlobalScript("Deploy");
         migrateGlobalScript("Shutdown");
         migrateGlobalScript("Preprocessor");
         migrateGlobalScript("Postprocessor");
     }
     
-    private void migrateGlobalScript(String scriptId) throws DatabaseSchemaMigrationException {
+    private void migrateGlobalScript(String scriptId) throws MigrationException {
         final String globalGroupId = "Global";
         PreparedStatement statement = null;
         ResultSet resultSet = null;
@@ -58,14 +58,14 @@ public class Migrate2_0_0 extends ServerMigrator {
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DatabaseSchemaMigrationException(e);
+            throw new MigrationException(e);
         } finally {
             DbUtils.closeQuietly(resultSet);
             DbUtils.closeQuietly(statement);
         }
     }
     
-    private void migrateServerProperties() throws DatabaseSchemaMigrationException {
+    private void migrateServerProperties() throws MigrationException {
         /*
          * Since we moved the server properties from a file to the database, we need
          * to copy over the previous properties into the database if a file exists
@@ -109,7 +109,7 @@ public class Migrate2_0_0 extends ServerMigrator {
         return null;
     }
     
-    private void updateServerProperty(String name, String value) throws DatabaseSchemaMigrationException {
+    private void updateServerProperty(String name, String value) throws MigrationException {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         
@@ -127,7 +127,7 @@ public class Migrate2_0_0 extends ServerMigrator {
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DatabaseSchemaMigrationException(e);
+            throw new MigrationException(e);
         } finally {
             DbUtils.closeQuietly(resultSet);
             DbUtils.closeQuietly(statement);
