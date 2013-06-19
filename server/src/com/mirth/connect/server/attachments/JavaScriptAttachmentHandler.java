@@ -17,7 +17,7 @@ import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.model.attachments.AttachmentException;
-import com.mirth.connect.server.util.JavaScriptUtil;
+import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 
 public class JavaScriptAttachmentHandler extends AttachmentHandler {
 

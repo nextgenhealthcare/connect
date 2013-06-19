@@ -7,12 +7,16 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.util;
+package com.mirth.connect.server.util.javascript;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -39,22 +43,45 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ScriptCompileException;
 import com.mirth.connect.server.controllers.ScriptController;
-import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
-import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
-import com.mirth.connect.server.util.javascript.JavaScriptTask;
+import com.mirth.connect.server.util.CompiledScriptCache;
+import com.mirth.connect.server.util.UUIDGenerator;
 
 public class JavaScriptUtil {
     private static Logger logger = Logger.getLogger(JavaScriptUtil.class);
     private static CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-    private static JavaScriptExecutor<Object> jsExecutor = new JavaScriptExecutor<Object>();
     private static final int SOURCE_CODE_LINE_WRAPPER = 5;
+    private static ExecutorService executor = Executors.newCachedThreadPool();
+
+    public static <T> T execute(JavaScriptTask<T> task) throws JavaScriptExecutorException, InterruptedException {
+        Future<T> future = executor.submit(task);
+        
+        try {
+            return future.get();
+        } catch (ExecutionException e) {
+            throw new JavaScriptExecutorException(e.getCause());
+        } catch (InterruptedException e) {
+            // synchronize with JavaScriptTask.executeScript() so that it will not initialize the context while we are halting the task
+            synchronized (task) {
+                future.cancel(true);
+                Context context = task.getContext();
+            
+                if (context != null && context instanceof StoppableContext) {
+                    ((StoppableContext) context).setRunning(false);
+                }
+            }
+            
+            // TODO wait for the task thread to complete before exiting?
+            Thread.currentThread().interrupt();
+            throw e;
+        }
+    }
 
     public static String executeAttachmentScript(final String message, final String channelId, final List<Attachment> attachments) throws InterruptedException, JavaScriptExecutorException {
         String processedMessage = message;
         Object result = null;
 
         try {
-            result = jsExecutor.execute(new JavaScriptTask<Object>() {
+            result = execute(new JavaScriptTask<Object>() {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(ScriptController.ATTACHMENT_SCRIPT_KEY.toLowerCase());
@@ -93,7 +120,7 @@ public class JavaScriptUtil {
 
         // Only execute the task if the channel or global scripts exist
         if (compiledScriptCache.getCompiledScript(channelScriptId) != null || compiledScriptCache.getCompiledScript(ScriptController.PREPROCESSOR_SCRIPT_KEY) != null) {
-            return (String) jsExecutor.execute(task);
+            return (String) execute(task);
         } else {
             return null;
         }
@@ -178,7 +205,7 @@ public class JavaScriptUtil {
 
         // Only execute the task if the channel or global scripts exist
         if (compiledScriptCache.getCompiledScript(channelScriptId) != null || compiledScriptCache.getCompiledScript(ScriptController.POSTPROCESSOR_SCRIPT_KEY) != null) {
-            return (Response) jsExecutor.execute(task);
+            return (Response) execute(task);
         } else {
             return null;
         }
@@ -257,7 +284,7 @@ public class JavaScriptUtil {
      */
     public static void executeChannelDeployScript(final String scriptId, final String scriptType, final String channelId) throws InterruptedException, JavaScriptExecutorException {
         try {
-            jsExecutor.execute(new JavaScriptTask<Object>() {
+            execute(new JavaScriptTask<Object>() {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
@@ -283,7 +310,7 @@ public class JavaScriptUtil {
      */
     public static void executeChannelShutdownScript(final String scriptId, final String scriptType, final String channelId) throws InterruptedException, JavaScriptExecutorException {
         try {
-            jsExecutor.execute(new JavaScriptTask<Object>() {
+            execute(new JavaScriptTask<Object>() {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
@@ -307,7 +334,7 @@ public class JavaScriptUtil {
      */
     public static void executeGlobalDeployScript(final String scriptId) throws InterruptedException, JavaScriptExecutorException {
         try {
-            jsExecutor.execute(new JavaScriptTask<Object>() {
+            execute(new JavaScriptTask<Object>() {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptId.toLowerCase());
@@ -331,7 +358,7 @@ public class JavaScriptUtil {
      */
     public static void executeGlobalShutdownScript(final String scriptId) throws InterruptedException, JavaScriptExecutorException {
         try {
-            jsExecutor.execute(new JavaScriptTask<Object>() {
+            execute(new JavaScriptTask<Object>() {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptId.toLowerCase());

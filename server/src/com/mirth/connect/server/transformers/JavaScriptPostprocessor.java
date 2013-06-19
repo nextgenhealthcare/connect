@@ -12,8 +12,8 @@ package com.mirth.connect.server.transformers;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.server.channel.components.PostProcessor;
-import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
+import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 
 public class JavaScriptPostprocessor implements PostProcessor {
 

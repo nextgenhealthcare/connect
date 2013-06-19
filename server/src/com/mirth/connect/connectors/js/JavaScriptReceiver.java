@@ -34,16 +34,14 @@ import com.mirth.connect.donkey.server.channel.PollConnector;
 import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.util.JavaScriptScopeUtil;
-import com.mirth.connect.server.util.JavaScriptUtil;
-import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
+import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
+import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 
 public class JavaScriptReceiver extends PollConnector {
     private String scriptId;
     private JavaScriptReceiverProperties connectorProperties;
-    private JavaScriptExecutor<Object> jsExecutor = new JavaScriptExecutor<Object>();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private Logger logger = Logger.getLogger(getClass());
 
@@ -90,7 +88,7 @@ public class JavaScriptReceiver extends PollConnector {
         eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.READING));
 
         try {
-            result = jsExecutor.execute(new JavaScriptReceiverTask());
+            result = JavaScriptUtil.execute(new JavaScriptReceiverTask());
         } catch (JavaScriptExecutorException e) {
             logger.error("Error executing " + connectorProperties.getName() + " script " + scriptId + ".", e);
         }

@@ -19,8 +19,8 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
-import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 
 public class DefaultScriptController extends ScriptController {
     private Logger logger = Logger.getLogger(this.getClass());

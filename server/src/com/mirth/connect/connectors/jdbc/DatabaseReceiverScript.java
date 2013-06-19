@@ -24,18 +24,16 @@ import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.server.controllers.ChannelController;
-import com.mirth.connect.server.util.JavaScriptScopeUtil;
-import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
+import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
+import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 
 public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     private DatabaseReceiver connector;
     private String selectScriptId;
     private String updateScriptId;
-    private JavaScriptExecutor<Object> javaScriptExecutor = new JavaScriptExecutor<Object>();
     private DatabaseReceiverProperties connectorProperties;
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
     private Logger scriptLogger = Logger.getLogger("db-connector");
@@ -93,7 +91,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
 
         while (!done && !connector.isTerminated()) {
             try {
-                Object result = javaScriptExecutor.execute(new SelectTask());
+                Object result = JavaScriptUtil.execute(new SelectTask());
 
                 if (result instanceof NativeJavaObject) {
                     Object unwrappedResult = ((NativeJavaObject) result).unwrap();
@@ -129,7 +127,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     public void runPostProcess(Map<String, Object> resultMap, ConnectorMessage mergedConnectorMessage) throws DatabaseReceiverException, InterruptedException {
         if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_EACH) {
             try {
-                javaScriptExecutor.execute(new UpdateTask(resultMap, mergedConnectorMessage));
+                JavaScriptUtil.execute(new UpdateTask(resultMap, mergedConnectorMessage));
             } catch (JavaScriptExecutorException e) {
                 throw new DatabaseReceiverException(e);
             }
@@ -140,7 +138,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     public void afterPoll() throws InterruptedException, DatabaseReceiverException {
         if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_ONCE) {
             try {
-                javaScriptExecutor.execute(new UpdateTask(null, null));
+                JavaScriptUtil.execute(new UpdateTask(null, null));
             } catch (JavaScriptExecutorException e) {
                 throw new DatabaseReceiverException(e);
             }

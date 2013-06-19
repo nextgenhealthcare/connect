@@ -84,7 +84,7 @@ import com.mirth.connect.server.transformers.JavaScriptPreprocessor;
 import com.mirth.connect.server.transformers.JavaScriptResponseTransformer;
 import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
 import com.mirth.connect.server.util.GlobalVariableStore;
-import com.mirth.connect.server.util.JavaScriptUtil;
+import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 
 public class DonkeyEngineController implements EngineController {
     private static DonkeyEngineController instance = null;

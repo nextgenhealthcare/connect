@@ -56,8 +56,8 @@ import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ExtensionController;
-import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.util.CharsetUtils;
 
 public class FileReceiver extends PollConnector implements BatchMessageProcessor {

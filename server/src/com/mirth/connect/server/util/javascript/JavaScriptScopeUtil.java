@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.util;
+package com.mirth.connect.server.util.javascript;
 
 import java.util.List;
 import java.util.Map;
@@ -32,7 +32,11 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
-import com.mirth.connect.server.util.javascript.StoppableContextFactory;
+import com.mirth.connect.server.util.AlertSender;
+import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
+import com.mirth.connect.server.util.GlobalVariableStore;
+import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.server.util.VMRouter;
 import com.mirth.connect.util.PropertyLoader;
 
 public class JavaScriptScopeUtil {

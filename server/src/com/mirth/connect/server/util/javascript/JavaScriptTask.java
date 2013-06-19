@@ -16,7 +16,6 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 
 import com.mirth.connect.donkey.util.ThreadUtils;
-import com.mirth.connect.server.util.JavaScriptScopeUtil;
 
 public abstract class JavaScriptTask<T> implements Callable<T> {
     private Context context;

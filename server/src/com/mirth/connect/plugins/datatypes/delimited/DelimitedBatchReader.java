@@ -26,10 +26,10 @@ import com.mirth.connect.model.datatype.BatchProperties;
 import com.mirth.connect.model.datatype.SerializationProperties;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.CompiledScriptCache;
-import com.mirth.connect.server.util.JavaScriptScopeUtil;
-import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
+import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
+import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.util.StringUtil;
 
 public class DelimitedBatchReader {
@@ -39,7 +39,6 @@ public class DelimitedBatchReader {
 	private DelimitedBatchProperties batchProperties;
 	private Integer groupingColumnIndex;
 	private String batchMessageDelimiter = null;
-	private JavaScriptExecutor<String> jsExecutor = new JavaScriptExecutor<String>();
 	
 	public DelimitedBatchReader(SerializationProperties serializationProperties, BatchProperties batchProperties) {
 		reader = new DelimitedReader((DelimitedSerializationProperties) serializationProperties);
@@ -151,7 +150,7 @@ public class DelimitedBatchReader {
         } else if (StringUtils.isNotEmpty(batchProperties.getBatchScript())) {
             try {
                 final int batchSkipRecords = batchProperties.getBatchSkipRecords();
-                String result = jsExecutor.execute(new JavaScriptTask<String>() {
+                String result = JavaScriptUtil.execute(new JavaScriptTask<String>() {
                     @Override
                     public String call() throws Exception {
                         Script compiledScript = CompiledScriptCache.getInstance().getCompiledScript(batchScriptId);

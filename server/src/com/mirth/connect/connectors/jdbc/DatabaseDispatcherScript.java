@@ -27,18 +27,16 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.util.JavaScriptScopeUtil;
-import com.mirth.connect.server.util.JavaScriptUtil;
-import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
+import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
+import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     private String scriptId;
     private DatabaseDispatcher connector;
-    private JavaScriptExecutor<Object> javaScriptExecutor = new JavaScriptExecutor<Object>();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private Logger scriptLogger = Logger.getLogger("db-connector");
     private Logger logger = Logger.getLogger(this.getClass());
@@ -68,7 +66,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     public Response send(DatabaseDispatcherProperties connectorProperties, ConnectorMessage connectorMessage) throws DatabaseDispatcherException, InterruptedException {
         // TODO Attachments will not be re-attached when using JavaScript yet.
         try {
-            return (Response) javaScriptExecutor.execute(new DatabaseDispatcherTask(connectorMessage));
+            return (Response) JavaScriptUtil.execute(new DatabaseDispatcherTask(connectorMessage));
         } catch (JavaScriptExecutorException e) {
             throw new DatabaseDispatcherException("Error executing script " + scriptId, e);
         }

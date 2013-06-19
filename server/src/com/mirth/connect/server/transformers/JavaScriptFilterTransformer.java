@@ -26,19 +26,17 @@ import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.util.CompiledScriptCache;
-import com.mirth.connect.server.util.JavaScriptScopeUtil;
-import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.UUIDGenerator;
-import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
+import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
+import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptFilterTransformer implements FilterTransformer {
     private Logger logger = Logger.getLogger(this.getClass());
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-    private JavaScriptExecutor<FilterTransformerResult> jsExecutor = new JavaScriptExecutor<FilterTransformerResult>();
     private EventDispatcher eventDispatcher = Donkey.getInstance().getEventDispatcher();
 
     private String channelId;
@@ -77,7 +75,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
     @Override
     public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException, InterruptedException {
         try {
-            return jsExecutor.execute(new FilterTransformerTask(message));
+            return JavaScriptUtil.execute(new FilterTransformerTask(message));
         } catch (JavaScriptExecutorException e) {
             Throwable cause = e.getCause();
 

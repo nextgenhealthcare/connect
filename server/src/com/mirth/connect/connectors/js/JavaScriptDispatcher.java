@@ -39,18 +39,16 @@ import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.CompiledScriptCache;
-import com.mirth.connect.server.util.JavaScriptScopeUtil;
-import com.mirth.connect.server.util.JavaScriptUtil;
-import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
+import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
+import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     private Logger scriptLogger = Logger.getLogger("js-connector");
-    private JavaScriptExecutor<Response> jsExecutor = new JavaScriptExecutor<Response>();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private JavaScriptDispatcherProperties connectorProperties;
@@ -95,7 +93,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException {
         try {
             eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.SENDING));
-            return jsExecutor.execute(new JavaScriptDispatcherTask(message));
+            return JavaScriptUtil.execute(new JavaScriptDispatcherTask(message));
         } catch (JavaScriptExecutorException e) {
             logger.error("Error executing script (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error executing script", e));
