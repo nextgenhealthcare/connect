@@ -50,7 +50,7 @@ public class ImportConverter3_0_0 {
     private final static String VERSION_STRING = "3.0.0";
     private final static Pattern STRING_NODE_PATTERN = Pattern.compile("(?<=<(string)>).*(?=</string>)|<null/>");
     private final static String PRIVATE_CONNECTOR_3_0_0_MIGRATE_METHOD = "migrate3_0_0";
-    
+
     private static Logger logger = Logger.getLogger(ImportConverter3_0_0.class);
 
     /**
@@ -330,7 +330,7 @@ public class ImportConverter3_0_0 {
              * to 3.0.0.
              */
             ConnectorMetaData metaData = ExtensionController.getInstance().getConnectorMetaDataByTransportName(connectorName);
-            
+
             try {
                 Class<?> sharedClass = Class.forName(metaData.getSharedClassName());
                 Method migrateMethod = sharedClass.getMethod(PRIVATE_CONNECTOR_3_0_0_MIGRATE_METHOD, DonkeyElement.class);
@@ -970,7 +970,7 @@ public class ImportConverter3_0_0 {
 
         DonkeyElement connectionProperties = properties.addChildElement("connectionProperties");
         connectionProperties.setAttribute("class", "linked-hash-map");
-        
+
         try {
             Properties oldConnectionProperties = readPropertiesElement(new DonkeyElement(oldProperties.getProperty("connectionFactoryProperties")));
 
@@ -1312,7 +1312,6 @@ public class ImportConverter3_0_0 {
 
     private static String migrateWebServiceSenderProperties(DonkeyElement properties) {
         logger.debug("Migrating WebServiceSenderProperties");
-        dumpElement(properties);
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.ws.WebServiceDispatcherProperties");
         properties.removeChildren();
@@ -1526,12 +1525,11 @@ public class ImportConverter3_0_0 {
         serializationProperties.addChildElement("stripNamespaces").setTextContent(oldProperties.getProperty("stripNamespaces", "true"));
     }
 
-
-
     /*
      * Utility Methods
      * 
-     * NOTE: These public utility methods may be referenced by private plugins that have 3.0.0 migration code.
+     * NOTE: These public utility methods may be referenced by private plugins that have 3.0.0
+     * migration code.
      */
 
     public static void buildPollConnectorProperties(DonkeyElement properties, String type, String time, String freq) {
@@ -1628,7 +1626,7 @@ public class ImportConverter3_0_0 {
         queueConnectorProperties.addChildElement("retryCount").setTextContent(retryCount);
         queueConnectorProperties.addChildElement("rotate").setTextContent(rotate);
     }
-    
+
     public static Properties readPropertiesElement(DonkeyElement propertiesElement) {
         Properties properties = new Properties();
 
@@ -1671,11 +1669,11 @@ public class ImportConverter3_0_0 {
         String property = properties.getProperty(name, Boolean.toString(defaultValue));
         return property.equals("1") || Boolean.parseBoolean(property);
     }
-    
+
     public static void convertList(DonkeyElement properties, String list) {
         if (StringUtils.isNotEmpty(list)) {
             Matcher matcher = STRING_NODE_PATTERN.matcher(list);
-            
+
             while (matcher.find()) {
                 if (matcher.group(1) != null) {
                     properties.addChildElement("string").setTextContent(matcher.group());
@@ -1685,7 +1683,7 @@ public class ImportConverter3_0_0 {
             }
         }
     }
-    
+
     public static void createDefaultTransformer(DonkeyElement transformer) {
         transformer.addChildElement("steps");
         transformer.addChildElement("inboundDataType").setTextContent("HL7V2");
