@@ -44,6 +44,7 @@ import com.mirth.connect.connectors.ConnectorService;
 
 public class WebServiceConnectorService implements ConnectorService {
     private static Map<String, WsdlInterface> wsdlInterfaceCache = new HashMap<String, WsdlInterface>();
+    private static ExecutorService executor = Executors.newCachedThreadPool();
 
     public Object invoke(String method, Object object, String sessionsId) throws Exception {
         if (method.equals("cacheWsdlFromUrl")) {
@@ -141,8 +142,6 @@ public class WebServiceConnectorService implements ConnectorService {
     }
 
     private Future<WsdlInterface> importWsdlInterface(final WsdlProject wsdlProject, final URI newWsdlUrl, final WsdlLoader wsdlLoader) {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-
         return executor.submit(new Callable<WsdlInterface>() {
             public WsdlInterface call() throws Exception {
                 WsdlInterface[] wsdlInterfaces = WsdlInterfaceFactory.importWsdl(wsdlProject, newWsdlUrl.toURL().toString(), false, wsdlLoader);

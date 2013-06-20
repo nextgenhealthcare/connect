@@ -19,9 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.io.FileUtils;
@@ -73,7 +70,7 @@ public class DataPruner implements Runnable {
     private Integer maxEventAge;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private AtomicBoolean running = new AtomicBoolean(false);
-    private ExecutorService executor;
+    private Thread pruneThread;
     private MessageExporter messageExporter = new MessageExporter();
     private DataPrunerStatus status = new DataPrunerStatus();
     private DataPrunerStatus lastStatus;
@@ -190,30 +187,31 @@ public class DataPruner implements Runnable {
             logger.warn("The data pruner is already running");
             return false;
         }
-        
+
         status = new DataPrunerStatus();
         status.setStartTime(Calendar.getInstance());
 
         logger.debug("Triggering data pruner task");
-        executor = Executors.newSingleThreadExecutor();
-        executor.submit(this);
-        
+        pruneThread = new Thread(this);
+        pruneThread.start();
+
         return true;
     }
 
     public synchronized void stop() throws InterruptedException {
         if (running.get()) {
             logger.debug("Halting Data Pruner");
-            executor.shutdownNow();
-            
-            while (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+            if (pruneThread != null) {
+                pruneThread.interrupt();
+
                 logger.debug("Waiting for Data Pruner to terminate");
+                pruneThread.join();
             }
-            
+
             logger.debug("Data Pruner halted successfully");
         }
     }
-    
+
     private Queue<PrunerTask> buildTaskQueue() throws Exception {
         List<Channel> channels = com.mirth.connect.server.controllers.ChannelController.getInstance().getChannels(null);
 

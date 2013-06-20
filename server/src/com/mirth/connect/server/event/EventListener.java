@@ -39,6 +39,8 @@ public abstract class EventListener implements Runnable {
                 Event event = queue.take();
 
                 processEvent(event);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             } catch (Throwable t) {
 
             }

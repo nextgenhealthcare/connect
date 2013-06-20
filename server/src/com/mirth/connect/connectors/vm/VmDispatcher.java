@@ -67,16 +67,28 @@ public class VmDispatcher extends DestinationConnector {
     public void onDeploy() throws DeployException {
         this.connectorProperties = (VmDispatcherProperties) getConnectorProperties();
         timeout = NumberUtils.toInt(connectorProperties.getResponseTimeout(), 0);
+
+        if (timeout > 0) {
+            /*
+             * This executor is created on deploy so it can be shutdown on undeploy. If it were
+             * created on start, it would need to be shutdown on stop. However, we don't want to
+             * shutdown the executor on stop because we want to let any lingering messages finish.
+             * 
+             * A cached thread pool is used in case multiple threads are reading from the source queue.
+             */
+            executor = Executors.newCachedThreadPool();
+        }
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {}
+    public void onUndeploy() throws UndeployException {
+        if (executor != null) {
+            executor.shutdown();
+        }
+    }
 
     @Override
     public void onStart() throws StartException {
-        if (timeout > 0) {
-            executor = Executors.newSingleThreadExecutor();
-        }
         eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
     }
 

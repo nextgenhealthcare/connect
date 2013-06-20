@@ -1141,9 +1141,8 @@ public class Frame extends JXFrame {
 
             if (message.indexOf("Forbidden") != -1 || message.indexOf("reset") != -1) {
                 connectionError = true;
-                if (statusUpdaterJob != null) {
-                    statusUpdaterJob.cancel(true);
-                }
+                statusUpdaterExecutor.shutdownNow();
+
                 alertWarning(parentComponent, "Sorry your connection to Mirth has either timed out or there was an error in the connection.  Please login again.");
                 if (!exportChannelOnError()) {
                     return;
@@ -1154,9 +1153,8 @@ public class Frame extends JXFrame {
                 return;
             } else if (message.startsWith("java.net.ConnectException: Connection refused")) {
                 connectionError = true;
-                if (statusUpdaterJob != null) {
-                    statusUpdaterJob.cancel(true);
-                }
+                statusUpdaterExecutor.shutdownNow();
+
                 alertWarning(parentComponent, "The Mirth server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and login again.");
                 if (!exportChannelOnError()) {
                     return;
@@ -1902,9 +1900,7 @@ public class Frame extends JXFrame {
             return false;
         }
 
-        if (statusUpdaterJob != null) {
-            statusUpdaterJob.cancel(true);
-        }
+        statusUpdaterExecutor.shutdownNow();
 
         if (currentContentPage == messageBrowser) {
             mirthClient.getServerConnection().abort(messageBrowser.getAbortOperations());

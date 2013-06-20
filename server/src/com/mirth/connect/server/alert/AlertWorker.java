@@ -7,7 +7,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.EmailException;
@@ -29,7 +31,7 @@ import com.mirth.connect.server.util.VMRouter;
 public abstract class AlertWorker extends EventListener {
 
     protected Logger logger = Logger.getLogger(this.getClass());
-    protected ExecutorService actionExecutor = Executors.newSingleThreadExecutor();
+    protected ExecutorService actionExecutor = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
     protected Map<String, Alert> enabledAlerts = new ConcurrentHashMap<String, Alert>();
     protected EventController eventController = ControllerFactory.getFactory().createEventController();
     

@@ -33,6 +33,7 @@ import com.mirth.connect.util.ErrorMessageBuilder;
 public class VMRouter {
     private static transient Log logger = LogFactory.getLog(VMRouter.class);
     private static final int DEFAULT_TIMEOUT = 10000;
+    private static ExecutorService executor = Executors.newCachedThreadPool();
 
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private EngineController engineController = ControllerFactory.getFactory().createEngineController();
@@ -75,7 +76,6 @@ public class VMRouter {
     public Response routeMessageByChannelId(String channelId, RawMessage rawMessage, int timeout) {
         try {
             if (timeout > 0) {
-                ExecutorService executor = Executors.newSingleThreadExecutor();
                 return executor.submit(new DispatchTask(channelId, rawMessage)).get(timeout, TimeUnit.MILLISECONDS).getSelectedResponse();
             } else {
                 return engineController.dispatchRawMessage(channelId, rawMessage).getSelectedResponse();

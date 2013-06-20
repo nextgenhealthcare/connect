@@ -25,8 +25,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -96,10 +98,11 @@ public class Channel implements Startable, Stoppable, Runnable {
     private List<DestinationChain> destinationChains = new ArrayList<DestinationChain>();
     private ResponseSelector responseSelector;
 
-    private ExecutorService controlExecutor = Executors.newSingleThreadExecutor();
-    private ExecutorService queueExecutor;
-    private ExecutorService destinationChainExecutor;
-    private ExecutorService recoveryExecutor;
+    // A single threaded executor that controls the channel (deploy, start, stop, etc...)
+    private ExecutorService controlExecutor = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+    // A cached thread pool executor that executes recovery tasks and destination chain tasks
+    private ExecutorService channelExecutor;
+    private Thread queueThread;
     private Set<Thread> dispatchThreads = new HashSet<Thread>();
     private boolean shuttingDown = false;
     private Set<Future<?>> controlTasks = new LinkedHashSet<Future<?>>();
@@ -550,14 +553,13 @@ public class Channel implements Startable, Stoppable, Runnable {
                     ((Future<?>) tasks[i]).cancel(true);
                 }
 
-                if (recoveryExecutor != null) {
-                    recoveryExecutor.shutdownNow();
-                }
-
                 // These executors must be shutdown here in order to terminate a stop task.
                 // They are also shutdown in the halt task itself in case a start task started them after this point.
-                destinationChainExecutor.shutdownNow();
-                queueExecutor.shutdownNow();
+                channelExecutor.shutdownNow();
+                
+                if (queueThread != null) {
+                    queueThread.interrupt();
+                }
 
                 // Interrupt any dispatch threads that are currently processing
                 synchronized (dispatchThreads) {
@@ -700,8 +702,6 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         ThreadUtils.checkInterruptedStatus();
 
-        queueExecutor.shutdown();
-
         final int timeout = 10;
 
         while (true) {
@@ -721,10 +721,11 @@ public class Channel implements Startable, Stoppable, Runnable {
             Thread.sleep(timeout);
         }
 
-        while (!queueExecutor.awaitTermination(timeout, TimeUnit.SECONDS))
-            ;
+        if (queueThread != null) {
+            queueThread.join();
+        }
 
-        destinationChainExecutor.shutdown();
+        channelExecutor.shutdown();
 
         if (firstCause != null) {
             updateCurrentState(ChannelState.STOPPED);
@@ -735,8 +736,11 @@ public class Channel implements Startable, Stoppable, Runnable {
     private void halt(List<Integer> metaDataIds) throws HaltException, InterruptedException {
         stopSourceQueue = true;
 
-        destinationChainExecutor.shutdownNow();
-        queueExecutor.shutdownNow();
+        channelExecutor.shutdownNow();
+
+        if (queueThread != null) {
+            queueThread.interrupt();
+        }
 
         // Interrupt any dispatch threads that are currently processing
         synchronized (dispatchThreads) {
@@ -1291,7 +1295,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             for (int i = 0; i <= enabledChains.size() - 2; i++) {
                 try {
-                    destinationChainTasks.add(destinationChainExecutor.submit(enabledChains.get(i)));
+                    destinationChainTasks.add(channelExecutor.submit(enabledChains.get(i)));
                 } catch (RejectedExecutionException e) {
                     Thread.currentThread().interrupt();
                     throw new InterruptedException();
@@ -1384,13 +1388,7 @@ public class Channel implements Startable, Stoppable, Runnable {
      * Process all unfinished messages found in storage
      */
     protected List<Message> processUnfinishedMessages() throws Exception {
-        recoveryExecutor = Executors.newSingleThreadExecutor();
-
-        try {
-            return recoveryExecutor.submit(new RecoveryTask(this)).get();
-        } finally {
-            recoveryExecutor.shutdown();
-        }
+        return channelExecutor.submit(new RecoveryTask(this)).get();
     }
 
     @Override
@@ -1750,8 +1748,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     List<Integer> startedMetaDataIds = new ArrayList<Integer>();
 
                     try {
-                        destinationChainExecutor = Executors.newCachedThreadPool();
-                        queueExecutor = Executors.newSingleThreadExecutor();
+                        channelExecutor = Executors.newCachedThreadPool();
 
                         // start the destination connectors
                         for (DestinationChain chain : destinationChains) {
@@ -1785,7 +1782,8 @@ public class Channel implements Startable, Stoppable, Runnable {
                         ThreadUtils.checkInterruptedStatus();
                         // start up the worker thread that will process queued messages
                         if (!sourceConnector.isRespondAfterProcessing()) {
-                            queueExecutor.execute(Channel.this);
+                            queueThread = new Thread(Channel.this);
+                            queueThread.start();
                         }
 
                         if (startSourceConnector) {
