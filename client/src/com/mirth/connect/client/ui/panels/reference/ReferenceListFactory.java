@@ -164,7 +164,7 @@ public class ReferenceListFactory {
     private ArrayList<CodeTemplate> setupConversionItems() {
         ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
 
-        variablelistItems.add(new CodeTemplate("Get Serializer", "Creates and returns a data type serializer with the specified serialization and deserialization properties. " + getDataTypesToolTipText(), "var dataType = 'HL7V2';\nvar serializationProperties = SerializerFactory.getDefaultSerializationProperties(dataType);\nvar deserializationProperties = SerializerFactory.getDefaultDeserializationProperties(dataType);\nvar serializer = SerializerFactory.getSerializer(dataType);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Serializer", "Creates and returns a data type serializer with the specified serialization and deserialization properties. " + getDataTypesToolTipText(), "var dataType = 'HL7V2';\nvar serializationProperties = SerializerFactory.getDefaultSerializationProperties(dataType);\nvar deserializationProperties = SerializerFactory.getDefaultDeserializationProperties(dataType);\nvar serializer = SerializerFactory.getSerializer(dataType, serializationProperties, deserializationProperties);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
 
         return variablelistItems;
     }
