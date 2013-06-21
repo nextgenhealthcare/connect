@@ -94,6 +94,7 @@
 	<select id="selectMessageIdsForReprocessing" parameterType="map" resultType="long">
 		SELECT DISTINCT m.id
 		<include refid="searchMessagesBody" />
+		ORDER BY m.id ASC
 	</select>
 	
 	<select id="selectMessageForReprocessing" parameterType="map" resultMap="messageContent">
