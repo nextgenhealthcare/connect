@@ -363,19 +363,16 @@ public class DonkeyMessageController extends MessageController {
 
         List<Long> messageIds = SqlConfig.getSqlSessionManager().selectList("Message.selectMessageIdsForReprocessing", params);
 
-        params.clear();
-        params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
-
         for (Long messageId : messageIds) {
             params.put("messageId", messageId);
             MessageContent rawContent = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageForReprocessing", params);
 
-            if (rawContent.isEncrypted()) {
-                rawContent.setContent(encryptor.decrypt(rawContent.getContent()));
-                rawContent.setEncrypted(false);
-            }
-
             if (rawContent != null) {
+                if (rawContent.isEncrypted()) {
+                    rawContent.setContent(encryptor.decrypt(rawContent.getContent()));
+                    rawContent.setEncrypted(false);
+                }
+
                 ConnectorMessage connectorMessage = new ConnectorMessage();
                 connectorMessage.setChannelId(channelId);
                 connectorMessage.setMessageId(messageId);
@@ -401,6 +398,8 @@ public class DonkeyMessageController extends MessageController {
                 } catch (Throwable e) {
                     // Do nothing. An error should have been logged.
                 }
+            } else {
+                logger.error("Could not reprocess message " + messageId + " for channel " + channelId + " because no source raw content was found. The content may have been pruned or the channel may not be configured to store raw content.");
             }
         }
     }

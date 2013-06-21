@@ -1611,6 +1611,21 @@ public class MessageBrowser extends javax.swing.JPanel {
         return null;
     }
 
+    public boolean canReprocessMessage(Long messageId) {
+        Message message = messageCache.get(messageId);
+
+        if (message != null) {
+            ConnectorMessage sourceMessage = message.getConnectorMessages().get(0);
+            if (sourceMessage != null) {
+                if (sourceMessage.getRaw() == null) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     // if we enable multiple row selection in the message browser at some point, then we may want to use this method
 //    public List<Integer> getSelectedMetaDataIds() {
 //        List<Integer> metaDataIds = new ArrayList<Integer>();

@@ -3646,10 +3646,16 @@ public class Frame extends JXFrame {
     }
 
     public void doReprocessMessage() {
-        MessageFilter filter = new MessageFilter();
-        filter.setMessageIdLower(messageBrowser.getSelectedMessageId());
-        filter.setMessageIdUpper(messageBrowser.getSelectedMessageId());
-        doReprocess(filter, messageBrowser.getSelectedMetaDataId());
+        Long messageId = messageBrowser.getSelectedMessageId();
+
+        if (messageBrowser.canReprocessMessage(messageId)) {
+            MessageFilter filter = new MessageFilter();
+            filter.setMessageIdLower(messageId);
+            filter.setMessageIdUpper(messageId);
+            doReprocess(filter, messageBrowser.getSelectedMetaDataId());
+        } else {
+            alertError(this, "Message " + messageId + " cannot be reprocessed because no source raw content was found.");
+        }
     }
 
     private void doReprocess(final MessageFilter filter, final Integer selectedMetaDataId) {
