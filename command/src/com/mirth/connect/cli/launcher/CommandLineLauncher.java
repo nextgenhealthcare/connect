@@ -29,7 +29,7 @@ public class CommandLineLauncher {
 
     public static void main(String[] args) {
         try {
-            ManifestFile mirthCliJar = new ManifestFile("mirth-cli.jar");
+            ManifestFile mirthCliJar = new ManifestFile("cli-lib/mirth-cli.jar");
             ManifestFile mirthClientCoreJar = new ManifestFile("cli-lib/mirth-client-core.jar");
             ManifestDirectory cliLibDir = new ManifestDirectory("cli-lib");
             cliLibDir.setExcludes(new String[] { "mirth-client-core.jar" });

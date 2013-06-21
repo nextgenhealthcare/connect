@@ -24,10 +24,10 @@
 	
 	<target name="create-setup" depends="init">
 		<mkdir dir="${setup}" />
-		<mkdir dir="${setup.licenses}" />
+		<mkdir dir="${setup.docs}" />
 		
-		<copy todir="${setup.licenses}">
-			<fileset dir="${licenses}" />
+		<copy todir="${setup.docs}">
+			<fileset dir="${docs}" />
 		</copy>
 	</target>
 	

@@ -58,12 +58,12 @@ public class MirthLauncher {
                 logger.error("Error creating the appdata directory.", e);
             }
 
-            ManifestFile mirthServerJar = new ManifestFile("mirth-server.jar");
-            ManifestFile mirthClientCoreJar = new ManifestFile("lib/mirth-client-core.jar");
-            ManifestDirectory libDir = new ManifestDirectory("lib");
-            libDir.setExcludes(new String[] { "mirth-client-core.jar" });
+            ManifestFile mirthServerJar = new ManifestFile("server-lib/mirth-server.jar");
+            ManifestFile mirthClientCoreJar = new ManifestFile("server-lib/mirth-client-core.jar");
+            ManifestDirectory serverLibDir = new ManifestDirectory("server-lib");
+            serverLibDir.setExcludes(new String[] { "mirth-client-core.jar" });
             ManifestDirectory customLibDir = new ManifestDirectory("custom-lib");
-            ManifestEntry[] manifest = new ManifestEntry[] { mirthServerJar, mirthClientCoreJar, libDir, customLibDir };
+            ManifestEntry[] manifest = new ManifestEntry[] { mirthServerJar, mirthClientCoreJar, serverLibDir, customLibDir };
 
             List<URL> classpathUrls = new ArrayList<URL>();
             addManifestToClasspath(manifest, classpathUrls);

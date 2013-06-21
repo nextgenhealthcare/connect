@@ -88,7 +88,7 @@
 	</target>
 
 	<target name="create-client-core" depends="compile">
-		<jar destfile="${setup.lib}/${client-core.jar}" basedir="${classes}">
+		<jar destfile="${setup.server.lib}/${client-core.jar}" basedir="${classes}">
 			<include name="com/mirth/connect/client/core/**" />
 			<include name="com/mirth/connect/model/**" />
 			<include name="com/mirth/connect/util/**" />
@@ -97,8 +97,8 @@
 			<include name="version.properties" />
 		</jar>
 
-		<copy file="${lib}/mirth-crypto.jar" todir="${setup.lib}" />
-		<copy file="${lib}/commons/not-yet-commons-ssl-0.3.11.jar" todir="${setup.lib}/commons" />
+		<copy file="${lib}/mirth-crypto.jar" todir="${setup.server.lib}" />
+		<copy file="${lib}/commons/not-yet-commons-ssl-0.3.11.jar" todir="${setup.server.lib}/commons" />
 	</target>
 
 	<target name="create-connectors" depends="create-client-core">
@@ -724,16 +724,15 @@
 		<mkdir dir="${setup.conf}" />
 		<mkdir dir="${setup.extensions}" />
 		<mkdir dir="${setup.public_html}" />
-		<mkdir dir="${setup.lib}" />
+		<mkdir dir="${setup.server.lib}" />
 		<mkdir dir="${setup.client.lib}" />
 		<mkdir dir="${setup.manager.lib}" />
 		<mkdir dir="${setup.cli.lib}" />
 		<mkdir dir="${setup.logs}" />
-		<mkdir dir="${setup.licenses}" />
 		<mkdir dir="${setup.docs}" />
 
 		<!-- copy lib -->
-		<copy todir="${setup.lib}">
+		<copy todir="${setup.server.lib}">
 			<fileset dir="${lib}">
 				<exclude name="extensions/**" />
 			</fileset>
@@ -766,7 +765,7 @@
 		</copy>
 
 		<!-- create the server jar -->
-		<jar destfile="${setup}/${server.jar}" basedir="${classes}">
+		<jar destfile="${setup.server.lib}/${server.jar}" basedir="${classes}">
 			<include name="com/mirth/connect/server/**" />
 			<include name="com/mirth/connect/model/**" />
 			<include name="com/mirth/connect/util/**" />
@@ -781,7 +780,7 @@
 		</jar>
 
 		<!-- create the dbconf jar -->
-		<jar destfile="${setup.lib}/${dbconf.jar}" basedir="${dbconf}" />
+		<jar destfile="${setup.server.lib}/${dbconf.jar}" basedir="${dbconf}" />
 
 		<!-- create the mirth-launcher jar -->
 		<jar destfile="${setup}/${mirth-launcher.jar}" basedir="${classes}">
@@ -789,7 +788,7 @@
 
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.server.launcher.MirthLauncher" />
-				<attribute name="Class-Path" value="lib/log4j-1.2.16.jar lib/commons/commons-io-2.3.jar conf/" />
+				<attribute name="Class-Path" value="server-lib/log4j-1.2.16.jar server-lib/commons/commons-io-2.3.jar conf/" />
 			</manifest>
 		</jar>
 
@@ -797,33 +796,6 @@
 		<delete>
 			<fileset dir="${setup}" includes="**/.svn" />
 		</delete>
-
-		<!-- re-create the embedded database -->
-		<delete dir="mirthdb" />
-		<java classname="com.mirth.connect.server.tools.ScriptRunner" fork="true" dir="${basedir}" failonerror="true">
-			<classpath>
-				<pathelement location="${setup}/mirth-server.jar" />
-				<pathelement location="${setup.conf}" />
-				<fileset dir="${lib}">
-					<include name="log4j-1.2.16.jar" />
-					<include name="database/derby-1414718.jar" />
-					<include name="database/derbytools-1414718.jar" />
-					<include name="commons/commons-io-2.3.jar" />
-				</fileset>
-			</classpath>
-			<arg value="dbconf/derby/derby-database.sql" />
-		</java>
-
-
-		<!-- copy the newly created database over -->
-		<copy todir="${setup}/mirthdb">
-			<fileset dir="${basedir}/mirthdb" />
-		</copy>
-
-		<!-- copy license files -->
-		<copy todir="${setup.licenses}">
-			<fileset dir="${licenses}" />
-		</copy>
 
 		<!-- sign jars for webstart -->
 		<property file="${keystore_property_file}" />
@@ -894,7 +866,7 @@
 		<delete dir="mirthdb" />
 		<java classname="com.mirth.connect.server.tools.ScriptRunner" fork="true" dir="${basedir}" failonerror="true">
 			<classpath>
-				<pathelement location="${setup}/mirth-server.jar" />
+				<pathelement location="${setup.server.lib}/${server.jar}" />
 				<pathelement location="classes" />
 				<pathelement location="${setup.conf}" />
 				<fileset dir="${lib}">

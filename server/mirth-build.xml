@@ -44,7 +44,7 @@
 	<!-- Client -->
 	<target name="build-client" depends="build-server-extensions">
 		<copy file="${donkey.setup}/donkey-model.jar" todir="${client}/lib" />
-		<copy file="${server.setup}/lib/mirth-client-core.jar" todir="${client}/lib" />
+		<copy file="${server.setup}/server-lib/mirth-client-core.jar" todir="${client}/lib" />
 		<copy file="${server}/lib/mirth-vocab.jar" todir="${client}/lib" />
 
 		<ant antfile="${client}/ant-build.xml" dir="${client}" target="build" />
@@ -65,13 +65,13 @@
 
 	<!-- Manager -->
 	<target name="build-manager" depends="build-client">
-		<copy file="${server.setup}/lib/mirth-client-core.jar" todir="${manager}/lib" />
-		<copy file="${server.setup}/lib/mirth-crypto.jar" todir="${manager}/lib" />
-		<copy file="${server.setup}/lib/commons/not-yet-commons-ssl-0.3.11.jar" todir="${manager}/lib" />
+		<copy file="${server.setup}/server-lib/mirth-client-core.jar" todir="${manager}/lib" />
+		<copy file="${server.setup}/server-lib/mirth-crypto.jar" todir="${manager}/lib" />
+		<copy file="${server.setup}/server-lib/commons/not-yet-commons-ssl-0.3.11.jar" todir="${manager}/lib" />
 
 		<ant antfile="${manager}/ant-build.xml" dir="${manager}" target="build" />
 
-		<copy file="${manager}/dist/mirth-manager.jar" todir="${server.setup}" />
+		<copy file="${manager}/dist/mirth-manager-launcher.jar" todir="${server.setup}" />
 
 		<copy todir="${server.setup}/manager-lib">
 			<fileset dir="${manager}/lib">
@@ -83,17 +83,21 @@
 	<!-- CLI -->
 	<target name="build-cli" depends="build-client">
 		<copy file="${donkey.setup}/donkey-model.jar" todir="${cli}/lib" />
-		<copy file="${server.setup}/lib/mirth-client-core.jar" todir="${cli}/lib" />
+		<copy file="${server.setup}/server-lib/mirth-client-core.jar" todir="${cli}/lib" />
 
 		<ant antfile="${cli}/build.xml" dir="${cli}" target="build">
 			<property name="version" value="${version}" />
 		</ant>
+		
+		<copy todir="${server.setup}/cli-lib">
+			<fileset dir="${cli}/build">
+				<include name="mirth-cli.jar" />
+			</fileset>
+		</copy>
 
 		<copy todir="${server.setup}">
 			<fileset dir="${cli}/build">
-				<include name="mirth-cli.jar" />
 				<include name="mirth-cli-launcher.jar" />
-				<include name="mirth-cli-launcher.xml" />
 			</fileset>
 		</copy>
 
