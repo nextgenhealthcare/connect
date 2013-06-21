@@ -26,6 +26,7 @@
 		</fileset>
 		<fileset dir="${server.setup}/client-lib">
 			<include name="mirth-client-core.jar" />
+			<include name="xstream-1.4.4.jar" />
 		</fileset>
 		<fileset dir="${donkey.setup}">
 			<include name="donkey-model.jar" />
