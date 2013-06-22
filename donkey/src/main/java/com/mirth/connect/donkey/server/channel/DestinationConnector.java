@@ -26,6 +26,7 @@ import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
@@ -304,12 +305,26 @@ public abstract class DestinationConnector extends Connector implements Runnable
             Serializer serializer = Donkey.getInstance().getSerializer();
             ConnectorMessage connectorMessage = null;
             int retryIntervalMillis = queueProperties.getRetryIntervalMillis();
-            boolean pauseBeforeNextMessage = false;
+            Long lastMessageId = null;
 
             do {
                 connectorMessage = queue.peek();
 
                 if (connectorMessage != null) {
+                    /*
+                     * If the last message id is equal to the current message id, then the message
+                     * was not successfully send and is being retried, so wait the retry interval.
+                     * 
+                     * If the last message id is greater than the current message id, then some
+                     * message was not successful, message rotation is on, and the queue is back to
+                     * the oldest message, so wait the retry interval.
+                     */
+                    if (lastMessageId != null && lastMessageId >= connectorMessage.getMessageId()) {
+                        Thread.sleep(retryIntervalMillis);
+                    }
+
+                    lastMessageId = connectorMessage.getMessageId();
+
                     try {
                         dao = daoFactory.getDao();
                         Status previousStatus = connectorMessage.getStatus();
@@ -413,19 +428,14 @@ public abstract class DestinationConnector extends Connector implements Runnable
                                     queue.poll();
                                 }
                             }
-                        } else {
-                            if (queueProperties.isRotate()) {
-                                // If the message is still queued and rotation is enabled, notify the queue that the message is to be rotated.
-                                synchronized (queue) {
-                                    ConnectorMessage firstMessage = queue.peek();
-                                    if (connectorMessage.getMessageId() == firstMessage.getMessageId() && connectorMessage.getMetaDataId() == firstMessage.getMetaDataId()) {
-                                        queue.rotate(connectorMessage);
-                                    }
+                        } else if (queueProperties.isRotate()) {
+                            // If the message is still queued and rotation is enabled, notify the queue that the message is to be rotated.
+                            synchronized (queue) {
+                                ConnectorMessage firstMessage = queue.peek();
+                                if (connectorMessage.getMessageId() == firstMessage.getMessageId() && connectorMessage.getMetaDataId() == firstMessage.getMetaDataId()) {
+                                    queue.rotate(connectorMessage);
                                 }
                             }
-
-                            // If the same message is still queued, allow some time before attempting another message.
-                            pauseBeforeNextMessage = true;
                         }
                     } catch (RuntimeException e) {
                         logger.error("Error processing queued " + (connectorMessage != null ? connectorMessage.toString() : "message (null)") + " for channel " + getChannelId() + " (" + destinationName + "). This error is expected if the message was manually removed from the queue.", e);
@@ -438,13 +448,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
                         }
                     }
                 } else {
-                    pauseBeforeNextMessage = true;
-                }
-
-                // Pause at the end of the loop instead of during so we don't keep the connections open longer than they need to be.
-                if (pauseBeforeNextMessage) {
-                    Thread.sleep(retryIntervalMillis);
-                    pauseBeforeNextMessage = false;
+                    /*
+                     * This is necessary because there is no blocking peek. If the queue is empty,
+                     * wait some time to free up the cpu.
+                     */
+                    Thread.sleep(Constants.DESTINATION_QUEUE_EMPTY_SLEEP_TIME);
                 }
             } while (getCurrentState() == ChannelState.STARTED || getCurrentState() == ChannelState.STARTING);
         } catch (InterruptedException e) {

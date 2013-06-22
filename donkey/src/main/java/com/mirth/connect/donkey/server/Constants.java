@@ -39,6 +39,11 @@ public class Constants {
     public static final int SOURCE_QUEUE_POLL_TIMEOUT_MILLIS = 1000;
 
     /**
+     * The number of milliseconds to wait when a destination queue is empty before peeking again
+     */
+    public static final int DESTINATION_QUEUE_EMPTY_SLEEP_TIME = 1000;
+
+    /**
      * Thread priority level for the event handler
      */
     public static final int EVENT_HANDLER_THREAD_PRIORITY = 2;
