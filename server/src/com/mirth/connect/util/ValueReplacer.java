@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ * 
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.mirth.connect.util;
 
 import java.io.StringWriter;
@@ -22,7 +31,8 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.ImmutableMessage;
 import com.mirth.connect.donkey.model.message.Message;
-
+import com.mirth.connect.userutil.ValueReplacerConnectorMessage;
+import com.mirth.connect.userutil.ValueReplacerMessage;
 import com.mirth.connect.userutil.XmlUtil;
 
 public class ValueReplacer {
@@ -133,7 +143,7 @@ public class ValueReplacer {
             return template;
         }
     }
-    
+
     public String replaceValues(String template, Message message) {
         if (hasReplaceableValues(template)) {
             VelocityContext context = getDefaultContext();
@@ -246,7 +256,7 @@ public class ValueReplacer {
      * @return void
      */
     protected void loadContextFromConnectorMessage(VelocityContext context, ConnectorMessage connectorMessage) {
-        context.put("message", new ImmutableConnectorMessage(connectorMessage));
+        context.put("message", new ValueReplacerConnectorMessage(new ImmutableConnectorMessage(connectorMessage)));
 
         // Load maps
         loadContextFromMap(context, connectorMessage.getChannelMap());
@@ -266,7 +276,7 @@ public class ValueReplacer {
      * @return void
      */
     protected void loadContextFromMessage(VelocityContext context, Message message) {
-        context.put("message", new ImmutableMessage(message));
+        context.put("message", new ValueReplacerMessage(new ImmutableMessage(message)));
         ConnectorMessage mergedConnectorMessage = message.getMergedConnectorMessage();
 
         // Load maps
