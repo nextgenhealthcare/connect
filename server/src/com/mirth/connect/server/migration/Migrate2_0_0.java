@@ -25,6 +25,9 @@ public class Migrate2_0_0 extends Migrator {
         migrateGlobalScripts();
         migrateServerProperties();
     }
+    
+    @Override
+    public void migrateSerializedData() throws MigrationException {}
 
     private void migrateGlobalScripts() throws MigrationException {
         migrateGlobalScript("Deploy");

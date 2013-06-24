@@ -1,7 +1,6 @@
 package com.mirth.connect.server.migration;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,13 +10,18 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.alert.AlertModel;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class ServerMigrator extends Migrator {
-    private final static String DELTA_SCRIPT_FOLDER = IOUtils.DIR_SEPARATOR + "deltas";
-    
     private Logger logger = Logger.getLogger(getClass());
 
+    public ServerMigrator() {
+        setDefaultScriptFolder(IOUtils.DIR_SEPARATOR + "deltas");
+    }
+    
     @Override
     public void migrate() throws MigrationException {
         Connection connection = getConnection();
@@ -36,12 +40,19 @@ public class ServerMigrator extends Migrator {
                 logger.info("Migrating server to version " + version);
                 migrator.setConnection(connection);
                 migrator.setDatabaseType(getDatabaseType());
-                migrator.setDefaultScriptFolder(DELTA_SCRIPT_FOLDER);
+                migrator.setDefaultScriptFolder(getDefaultScriptFolder());
                 migrator.migrate();
             }
 
             updateVersion(version);
         }
+    }
+    
+    @Override
+    public void migrateSerializedData() {
+        migrateSerializedData("SELECT ID, CHANNEL FROM CHANNEL", "UPDATE CHANNEL SET CHANNEL = ? WHERE ID = ?", Channel.class);
+        migrateSerializedData("SELECT ID, ALERT FROM ALERT", "UPDATE ALERT SET ALERT = ? WHERE ID = ?", AlertModel.class);
+        migrateSerializedData("SELECT ID, CODE_TEMPLATE FROM CODE_TEMPLATE", "UPDATE CODE_TEMPLATE SET CODE_TEMPLATE = ? WHERE ID = ?", CodeTemplate.class);
     }
     
     private Migrator getMigrator(Version version) {
@@ -61,46 +72,17 @@ public class ServerMigrator extends Migrator {
 
         return null;
     }
-
+    
     /**
      * Builds the database schema on the connected database if it does not exist
      * 
      * @throws MigrationException
      */
     private void initDatabase(Connection connection) throws MigrationException {
-        // Check for one of the tables to see if we should run the create script
-        ResultSet resultSet = null;
-
-        try {
-            // Gets the database metadata
-            DatabaseMetaData dbmd = connection.getMetaData();
-
-            // Specify the type of object; in this case we want tables
-            String[] types = { "TABLE" };
-            // This is a table that has remained unchanged since day 1
-            String tablePattern = "CONFIGURATION";
-
-            resultSet = dbmd.getTables(null, null, tablePattern, types);
-
-            boolean resultFound = resultSet.next();
-
-            // Some databases only accept lowercase table names
-            if (!resultFound) {
-                resultSet = dbmd.getTables(null, null, tablePattern.toLowerCase(), types);
-                resultFound = resultSet.next();
-            }
-
-            // If missing this table we can assume that they don't have the schema installed
-            if (!resultFound) {
-                String databaseType = getDatabaseType();
-                String creationScript = IOUtils.toString(getClass().getResourceAsStream("/" + databaseType + "/" + databaseType + "-database.sql"));
-                DatabaseUtil.executeScript(creationScript, false);
-                updateVersion(Version.getLatest());
-            }
-        } catch (Exception e) {
-            throw new MigrationException(e);
-        } finally {
-            DbUtils.closeQuietly(resultSet);
+        // If missing this table we can assume that they don't have the schema installed
+        if (!tableExists("CONFIGURATION")) {
+            executeScript("/" + getDatabaseType() + "/" + getDatabaseType() + "-database.sql");
+            updateVersion(Version.getLatest());
         }
     }
 
@@ -141,6 +123,48 @@ public class ServerMigrator extends Migrator {
             throw new MigrationException("Failed to update database version information.", e);
         } finally {
             DbUtils.closeQuietly(statement);
+        }
+    }
+    
+    /**
+     * It is assumed that for each migratable class that uses this an "id" column exists in the
+     * database, which is used as the primary key when updating the row. It's also assumed that for
+     * the time being, any additional columns besides the ID and serialized XML (e.g. name,
+     * revision) will not change during migration.
+     */
+    private void migrateSerializedData(String selectSql, String updateSql, Class<?> expectedClass) {
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+        Connection connection = getConnection();
+        Statement selectStatement = null;
+        PreparedStatement updateStatement = null;
+        ResultSet resultSet = null;
+        
+        try {
+            selectStatement = connection.createStatement();
+            resultSet = selectStatement.executeQuery(selectSql);
+            
+            while (resultSet.next()) {
+                try {
+                    String id = resultSet.getString(1);
+                    String serializedData = resultSet.getString(2);
+                    String migratedData = serializer.toXML(serializer.fromXML(serializedData, expectedClass));
+                    
+                    if (!migratedData.equals(serializedData)) {
+                        updateStatement = connection.prepareStatement(updateSql);
+                        updateStatement.setString(1, migratedData);
+                        updateStatement.setString(2, id);
+                        updateStatement.executeUpdate();
+                    }
+                } catch (SQLException e) {
+                    logger.error("Failed to migrate serialized data", e);
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Failed to migrate serialized data", e);
+        } finally {
+            DbUtils.closeQuietly(resultSet);
+            DbUtils.closeQuietly(selectStatement);
+            DbUtils.closeQuietly(updateStatement);
         }
     }
 }

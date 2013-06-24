@@ -13,4 +13,7 @@ public class LegacyMigrator extends Migrator {
     public void migrate() throws MigrationException {
         executeScript(getDatabaseType() + "-" + (schemaVersion - 1) + "-" + schemaVersion + ".sql");
     }
+
+    @Override
+    public void migrateSerializedData() throws MigrationException {}
 }

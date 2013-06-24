@@ -63,6 +63,7 @@ import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.plugins.ServicePlugin;
+import com.mirth.connect.server.migration.Migrator;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.UUIDGenerator;
 
@@ -472,37 +473,22 @@ public class DefaultExtensionController extends ExtensionController {
      */
     @Override
     public void prepareExtensionForUninstallation(String pluginPath) throws ControllerException {
-        try {
-            addExtensionToUninstallFile(pluginPath);
+        addExtensionToUninstallFile(pluginPath);
 
-            for (PluginMetaData plugin : pluginMetaDataMap.values()) {
-                if (plugin.getPath().equals(pluginPath)) {
-                    addExtensionToUninstallPropertiesFile(plugin.getName());
-
-                    if (plugin.getSqlScript() != null) {
-                        String pluginSqlScripts = FileUtils.readFileToString(new File(ExtensionController.getExtensionsPath() + plugin.getPath() + File.separator + plugin.getSqlScript()));
-                        String script = getUninstallScriptForCurrentDatabase(pluginSqlScripts);
-
-                        if (script != null) {
-                            List<String> scriptList = parseUninstallScript(script);
-
-                            /*
-                             * If there was an uninstall script, then save the
-                             * script to run later and remove the schema version
-                             * from the database.
-                             */
-                            if (scriptList.size() > 0) {
-                                List<String> uninstallScripts = readUninstallScript();
-                                uninstallScripts.addAll(scriptList);
-                                writeUninstallScript(uninstallScripts);
-                                configurationController.removeProperty(plugin.getName(), "schema");
-                            }
-                        }
+        for (PluginMetaData plugin : pluginMetaDataMap.values()) {
+            if (plugin.getPath().equals(pluginPath)) {
+                addExtensionToUninstallPropertiesFile(plugin.getName());
+                
+                if (plugin.getMigratorClass() != null) {
+                    try {
+                        Migrator migrator = (Migrator) Class.forName(plugin.getMigratorClass()).newInstance();
+                        migrator.setDatabaseType(ConfigurationController.getInstance().getDatabaseType());
+                        appendToUninstallScript(migrator.getUninstallStatements());
+                    } catch (Exception e) {
+                        logger.error("Failed to retrieve uninstall database statements for plugin: " + pluginPath, e);
                     }
                 }
             }
-        } catch (Exception e) {
-            throw new ControllerException("Error preparing extension \"" + pluginPath + "\" for uninstallation.", e);
         }
     }
 
@@ -640,10 +626,14 @@ public class DefaultExtensionController extends ExtensionController {
         // delete the uninstall scripts file
         FileUtils.deleteQuietly(new File(getExtensionsPath(), EXTENSIONS_UNINSTALL_SCRIPTS_FILE));
     }
-
-    private void writeUninstallScript(List<String> uninstallScripts) throws IOException {
-        File uninstallScriptsFile = new File(getExtensionsPath(), EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
-        FileUtils.writeStringToFile(uninstallScriptsFile, serializer.toXML(uninstallScripts));
+    
+    private void appendToUninstallScript(List<String> uninstallStatements) throws IOException {
+        if (uninstallStatements != null) {
+            List<String> uninstallScripts = readUninstallScript();
+            uninstallScripts.addAll(uninstallStatements);
+            File uninstallScriptsFile = new File(getExtensionsPath(), EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
+            FileUtils.writeStringToFile(uninstallScriptsFile, serializer.toXML(uninstallScripts));
+        }
     }
 
     /*

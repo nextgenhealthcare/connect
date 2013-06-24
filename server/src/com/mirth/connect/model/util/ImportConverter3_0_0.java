@@ -37,19 +37,16 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.DocumentSerializer;
-import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.util.MigrationUtil;
 
 public class ImportConverter3_0_0 {
     private final static String VERSION_ATTRIBUTE_NAME = "version";
     private final static String VERSION_STRING = "3.0.0";
     private final static Pattern STRING_NODE_PATTERN = Pattern.compile("(?<=<(string)>).*(?=</string>)|<null/>");
-    private final static String PRIVATE_CONNECTOR_3_0_0_MIGRATE_METHOD = "migrate3_0_0";
 
     private static Logger logger = Logger.getLogger(ImportConverter3_0_0.class);
 
@@ -323,23 +320,16 @@ public class ImportConverter3_0_0 {
             migrateWebServiceListenerProperties(properties);
         } else if (connectorName.equals("Web Service Sender")) {
             sendResponseToChannelId = migrateWebServiceSenderProperties(properties);
-        } else {
-            /*
-             * If the connector name is not recognized, assume that it could be a private connector.
-             * Using reflection, attempt to call a method that will migrate the connector properties
-             * to 3.0.0.
-             */
-            ConnectorMetaData metaData = ExtensionController.getInstance().getConnectorMetaDataByTransportName(connectorName);
-
+        } else if (connectorName.equals("Email Reader")) {
             try {
-                Class<?> sharedClass = Class.forName(metaData.getSharedClassName());
-                Method migrateMethod = sharedClass.getMethod(PRIVATE_CONNECTOR_3_0_0_MIGRATE_METHOD, DonkeyElement.class);
-                migrateMethod.invoke(sharedClass.newInstance(), properties);
-            } catch (NoSuchMethodException e) {
-                // do nothing
+                Class<?> migratorClass = Class.forName("com.mirth.connect.connectors.email.shared.EmailReceiverMigrate3_0_0");
+                Method migrateMethod = migratorClass.getMethod("migrate", DonkeyElement.class);
+                migrateMethod.invoke(migratorClass.newInstance(), properties);
             } catch (Exception e) {
-                logger.error(e);
+                logger.error("Failed to migrate " + connectorName + " properties", e);
             }
+        } else {
+            logger.error("Failed to migrate properties for unrecognized connector: " + connectorName);
         }
 
         // convert transformer (no conversion needed for filter since it didn't change at all in 3.0.0)

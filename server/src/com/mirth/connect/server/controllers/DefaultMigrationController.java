@@ -10,18 +10,12 @@
 package com.mirth.connect.server.controllers;
 
 import java.sql.Connection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
 
-import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.PluginMetaData;
-import com.mirth.connect.model.alert.AlertModel;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.migration.MigrationException;
 import com.mirth.connect.server.migration.Migrator;
 import com.mirth.connect.server.migration.ServerMigrator;
@@ -42,38 +36,66 @@ public class DefaultMigrationController extends MigrationController {
     
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+    private Migrator serverMigrator;
+    private Collection<Migrator> pluginMigrators;
     private Logger logger = Logger.getLogger(this.getClass());
 
-    private DefaultMigrationController() {}
-
-    @Override
-    public void migrate() throws MigrationException {
-        runMigrator(new ServerMigrator());
+    public DefaultMigrationController() {
+        serverMigrator = new ServerMigrator();
     }
     
-    @Override
-    public void migrateExtensions() {
-        for (PluginMetaData pluginMetaData : extensionController.getPluginMetaData().values()) {
-            String migratorClassName = pluginMetaData.getMigratorClass();
-            
-            if (migratorClassName != null) {
-                try {
-                    runMigrator((Migrator) Class.forName(migratorClassName).newInstance());
-                } catch (Exception e) {
-                    logger.error("Failed to run migration for plugin: " + pluginMetaData.getName());
+    private void initPluginMigrators() {
+        if (pluginMigrators == null) {
+            pluginMigrators = new ArrayList<Migrator>();
+
+            for (PluginMetaData pluginMetaData : extensionController.getPluginMetaData().values()) {
+                String migratorClassName = pluginMetaData.getMigratorClass();
+                
+                if (migratorClassName != null) {
+                    try {
+                        pluginMigrators.add((Migrator) Class.forName(migratorClassName).newInstance());
+                    } catch (Exception e) {
+                        logger.error("Failed to run migration for plugin: " + pluginMetaData.getName());
+                    }
                 }
             }
         }
     }
     
-    private void runMigrator(Migrator migrator) throws MigrationException {
+    @Override
+    public void migrate() throws MigrationException {
         SqlConfig.getSqlSessionManager().startManagedSession();
         Connection connection = SqlConfig.getSqlSessionManager().getConnection();
         
         try {
-            migrator.setConnection(connection);
-            migrator.setDatabaseType(configurationController.getDatabaseType());
-            migrator.migrate();
+            serverMigrator.setConnection(connection);
+            serverMigrator.setDatabaseType(configurationController.getDatabaseType());
+            serverMigrator.migrate();
+        } finally {
+            if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
+                SqlConfig.getSqlSessionManager().close();
+            }
+        }
+    }
+    
+    @Override
+    public void migrateExtensions() {
+        initPluginMigrators();
+        
+        SqlConfig.getSqlSessionManager().startManagedSession();
+        Connection connection = SqlConfig.getSqlSessionManager().getConnection();
+
+        try {
+            for (Migrator migrator : pluginMigrators) {
+                try {
+                    migrator.setConnection(connection);
+                    migrator.setDatabaseType(configurationController.getDatabaseType());
+                    migrator.migrate();
+                } catch (MigrationException e) {
+                    // TODO return a list of the extensions that failed so that they can be automatically disabled?
+                    logger.error(e);
+                }
+            }
         } finally {
             if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
                 SqlConfig.getSqlSessionManager().close();
@@ -83,42 +105,33 @@ public class DefaultMigrationController extends MigrationController {
     
     @Override
     public void migrateSerializedData() {
-        migrateSerializedData("Channel.getSerializedChannelData", "Channel.updateSerializedChannelData", "channel", Channel.class);
-        migrateSerializedData("Alert.getAlert", "Alert.updateAlert", "alert", AlertModel.class);
-        migrateSerializedData("CodeTemplate.getCodeTemplate", "CodeTemplate.updateCodeTemplate", "codeTemplate", CodeTemplate.class);
-    }
-
-    /**
-     * It is assumed that for each migratable class that uses this an "id" column exists in the
-     * database, which is used as the primary key when updating the row. It's also assumed that for
-     * the time being, any additional columns besides the ID and serialized XML (e.g. name,
-     * revision) will not change during migration.
-     */
-    private void migrateSerializedData(String selectQuery, String updateStatement, String serializedColumnName, Class<?> expectedClass) {
-        SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
-        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-
+        SqlConfig.getSqlSessionManager().startManagedSession();
+        Connection connection = SqlConfig.getSqlSessionManager().getConnection();
+        
         try {
-            List<Map<String, String>> serializedDataList = session.selectList(selectQuery);
+            try {
+                serverMigrator.setConnection(connection);
+                serverMigrator.setDatabaseType(configurationController.getDatabaseType());
+                serverMigrator.migrateSerializedData();
+            } catch (MigrationException e) {
+                logger.error(e);
+            }
+            
+            initPluginMigrators();
 
-            for (Map<String, String> serializedData : serializedDataList) {
+            for (Migrator migrator : pluginMigrators) {
                 try {
-                    String migratedData = serializer.toXML(serializer.fromXML(serializedData.get(serializedColumnName), expectedClass));
-    
-                    if (!migratedData.equals(serializedData.get(serializedColumnName))) {
-                        Map<String, String> params = new HashMap<String, String>();
-                        params.put("id", serializedData.get("id"));
-                        params.put(serializedColumnName, migratedData);
-    
-                        session.update(updateStatement, params);
-                        logger.info("Migrated " + serializedColumnName + " " + serializedData.get("id"));
-                    }
-                } catch (Exception e) {
-                    logger.error("Failed to migrate " + serializedColumnName + " " + serializedData.get("id"), e);
+                    migrator.setConnection(connection);
+                    migrator.setDatabaseType(configurationController.getDatabaseType());
+                    migrator.migrateSerializedData();
+                } catch (MigrationException e) {
+                    logger.error(e);
                 }
             }
         } finally {
-            session.close();
+            if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
+                SqlConfig.getSqlSessionManager().close();
+            }
         }
     }
 }

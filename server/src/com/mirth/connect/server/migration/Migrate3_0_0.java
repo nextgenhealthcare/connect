@@ -29,6 +29,9 @@ public class Migrate3_0_0 extends Migrator {
         migrateAlertTable();
         migrateCodeTemplateTable();
     }
+    
+    @Override
+    public void migrateSerializedData() throws MigrationException {}
 
     private void migrateChannelTable() {
         PreparedStatement preparedStatement = null;
