@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.util;
+package com.mirth.connect.server.userutil;
 
 import java.io.File;
 import java.io.IOException;

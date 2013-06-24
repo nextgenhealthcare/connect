@@ -43,8 +43,8 @@ public class JavaScriptBuilder {
         // add #trim() function to JavaScript String prototype
         script.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
 
-        script.append("importPackage(Packages.com.mirth.connect.server.util);\n");
-        script.append("importPackage(Packages.com.mirth.connect.model.converters);\n");
+        script.append("importPackage(Packages.com.mirth.connect.userutil);\n");
+        script.append("importPackage(Packages.com.mirth.connect.server.userutil);\n");
         script.append("regex = new RegExp('');\n");
         script.append("xml = new XML('');\n");
         script.append("xmllist = new XMLList();\n");
@@ -349,11 +349,10 @@ public class JavaScriptBuilder {
         builder.append("return ''; }\n");
     }
 
-    // TODO: Attachments
     private static void appendAttachmentFunctions(StringBuilder builder, Set<String> scriptOptions) {
         // Helper function to access attachments (returns List<Attachment>)
         builder.append("function getAttachments() {");
-        builder.append("return Packages.com.mirth.connect.donkey.server.controllers.MessageController.getInstance().getAttachmentsByMessage(connectorMessage);");
+        builder.append("return Packages.com.mirth.connect.server.controllers.MessageController.getInstance().getMessageAttachment(connectorMessage.getChannelId(), connectorMessage.getMessageId());");
         builder.append("}\n");
 
         // Helper function to set attachment

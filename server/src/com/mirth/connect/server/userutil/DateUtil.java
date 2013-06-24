@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.util;
+package com.mirth.connect.server.userutil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

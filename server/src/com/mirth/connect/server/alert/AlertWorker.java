@@ -15,18 +15,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.alert.AlertAction;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
+import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.event.EventListener;
 import com.mirth.connect.server.util.SMTPConnectionFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.server.util.VMRouter;
 
 public abstract class AlertWorker extends EventListener {
 
@@ -34,6 +37,9 @@ public abstract class AlertWorker extends EventListener {
     protected ExecutorService actionExecutor = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
     protected Map<String, Alert> enabledAlerts = new ConcurrentHashMap<String, Alert>();
     protected EventController eventController = ControllerFactory.getFactory().createEventController();
+
+    private EngineController engineController = ControllerFactory.getFactory().createEngineController();
+    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     
     public AlertWorker() {
         super();
@@ -131,9 +137,11 @@ public abstract class AlertWorker extends EventListener {
             }
 
             // Route the alert message to the specified channels
-            VMRouter router = new VMRouter();
             for (String channelName : channels) {
-                router.routeMessage(channelName, body);
+                Channel channel = channelController.getDeployedChannelByName(channelName);
+                if (channel != null) {
+                    engineController.dispatchRawMessage(channel.getId(), new RawMessage(body));
+                }
             }
             
             // Dispatch a server event to notify that an alert was dispatched

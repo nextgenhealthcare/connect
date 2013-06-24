@@ -1,4 +1,4 @@
-package com.mirth.connect.server.util;
+package com.mirth.connect.server.userutil;
 
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;

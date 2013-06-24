@@ -31,4 +31,8 @@ public class ImmutableMessageContent {
     public int getMetaDataId() {
         return messageContent.getMetaDataId();
     }
+    
+    public String getDataType() {
+        return messageContent.getDataType();
+    }
 }

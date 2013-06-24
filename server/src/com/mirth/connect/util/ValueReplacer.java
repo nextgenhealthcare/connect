@@ -23,6 +23,8 @@ import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.ImmutableMessage;
 import com.mirth.connect.donkey.model.message.Message;
 
+import com.mirth.connect.userutil.XmlUtil;
+
 public class ValueReplacer {
     private Logger logger = Logger.getLogger(this.getClass());
     private long count = 1;

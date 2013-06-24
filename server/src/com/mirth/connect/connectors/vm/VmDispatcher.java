@@ -21,8 +21,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.event.ConnectorEventType;
@@ -47,21 +46,21 @@ import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.server.util.VMRouter;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class VmDispatcher extends DestinationConnector {
+    private static final String SOURCE_CHANNEL_ID = "sourceChannelId";
+    private static final String SOURCE_CHANNEL_IDS = "sourceChannelIds";
+    private static final String SOURCE_MESSAGE_ID = "sourceMessageId";
+    private static final String SOURCE_MESSAGE_IDS = "sourceMessageIds";
+    
     private VmDispatcherProperties connectorProperties;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ExecutorService executor;
     private int timeout;
-    private static final String SOURCE_CHANNEL_ID = "sourceChannelId";
-    private static final String SOURCE_CHANNEL_IDS = "sourceChannelIds";
-    private static final String SOURCE_MESSAGE_ID = "sourceMessageId";
-    private static final String SOURCE_MESSAGE_IDS = "sourceMessageIds";
-    private static transient Log logger = LogFactory.getLog(VMRouter.class);
+    private Logger logger = Logger.getLogger(getClass());
 
     @Override
     public void onDeploy() throws DeployException {

@@ -91,6 +91,7 @@
 		<jar destfile="${setup.server.lib}/${client-core.jar}" basedir="${classes}">
 			<include name="com/mirth/connect/client/core/**" />
 			<include name="com/mirth/connect/model/**" />
+			<include name="com/mirth/connect/userutil/**" />
 			<include name="com/mirth/connect/util/**" />
 			<include name="org/mozilla/**" />
 

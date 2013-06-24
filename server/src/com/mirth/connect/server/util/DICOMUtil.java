@@ -45,7 +45,7 @@ import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.server.controllers.MessageController;
 
 public class DICOMUtil {
-    private static Logger logger = Logger.getLogger(AttachmentUtil.class);
+    private static Logger logger = Logger.getLogger(DICOMUtil.class);
 
     public static String getDICOMRawData(ImmutableConnectorMessage message) {
         String mergedMessage = null;
@@ -157,7 +157,6 @@ public class DICOMUtil {
         return DICOMConverter.dicomObjectToByteArray(dcmObj);
     }
 
-    // commented out until we determine how to handle attachments in 3.0
     public static String convertDICOM(String imageType, ImmutableConnectorMessage message, boolean autoThreshold) {
         return returnOtherImageFormat(message, imageType, autoThreshold);
     }

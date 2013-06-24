@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.util;
+package com.mirth.connect.server.userutil;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -16,9 +16,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
@@ -31,19 +31,15 @@ import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class VMRouter {
-    private static transient Log logger = LogFactory.getLog(VMRouter.class);
-    private static final int DEFAULT_TIMEOUT = 10000;
+    private static final int DEFAULT_TIMEOUT = 0;
     private static ExecutorService executor = Executors.newCachedThreadPool();
-
+    
+    private Logger logger = Logger.getLogger(getClass());
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private EngineController engineController = ControllerFactory.getFactory().createEngineController();
 
     public Response routeMessage(String channelName, String message) {
         return routeMessage(channelName, message, DEFAULT_TIMEOUT);
-    }
-
-    public Response routeMessage(String channelName, RawMessage rawMessage) {
-        return routeMessage(channelName, rawMessage, DEFAULT_TIMEOUT);
     }
 
     public Response routeMessage(String channelName, String message, int timeout) {
@@ -60,13 +56,31 @@ public class VMRouter {
 
         return routeMessageByChannelId(channel.getId(), rawMessage, timeout);
     }
+    
+    @Deprecated
+    // TODO: Remove in 3.1
+    public Response routeMessage(String channelName, String message, boolean useQueue) {
+        logger.error("The routeMessage(channelName, message, useQueue) method is deprecated and will soon be removed. Please use routeMessage(channelName, message) instead. The useQueue parameter will not be used. If you want the downstream channel to queue its message and return immediately upon receipt, enable the source queue on the source connector.");
+        return routeMessage(channelName, message);
+    }
+    
+    @Deprecated
+    // TODO: Remove in 3.1
+    public Response routeMessageByChannelId(String channelId, Object message, boolean useQueue) {
+        if (message instanceof MessageObject) {
+            logger.error("The routeMessageByChannelId(channelId, messageObject, useQueue) method is deprecated and will soon be removed. Please use routeMessageByChannelId(channelId, message) instead. The useQueue parameter will not be used. If you want the downstream channel to queue its message and return immediately upon receipt, enable the source queue on the source connector.");
+            return routeMessageByChannelId(channelId, ((MessageObject) message).getRawData());
+        } else if (message instanceof ImmutableConnectorMessage) {
+            logger.error("The routeMessageByChannelId(channelId, connectorMessage, useQueue) method is deprecated and will soon be removed. Please use routeMessageByChannelId(channelId, message) instead. The useQueue parameter will not be used. If you want the downstream channel to queue its message and return immediately upon receipt, enable the source queue on the source connector.");
+            return routeMessageByChannelId(channelId, ((ImmutableConnectorMessage) message).getRawData());
+        } else {
+            logger.error("The routeMessageByChannelId(channelId, message, useQueue) method is deprecated and will soon be removed. Please use routeMessageByChannelId(channelId, message) instead. The useQueue parameter will not be used. If you want the downstream channel to queue its message and return immediately upon receipt, enable the source queue on the source connector.");
+            return routeMessageByChannelId(channelId, message.toString());
+        }
+    }
 
     public Response routeMessageByChannelId(String channelId, String message) {
         return routeMessageByChannelId(channelId, message, DEFAULT_TIMEOUT);
-    }
-
-    public Response routeMessageByChannelId(String channelId, RawMessage rawMessage) {
-        return routeMessageByChannelId(channelId, rawMessage, DEFAULT_TIMEOUT);
     }
 
     public Response routeMessageByChannelId(String channelId, String message, int timeout) {

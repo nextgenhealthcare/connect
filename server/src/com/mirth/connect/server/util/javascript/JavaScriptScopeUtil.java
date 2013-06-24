@@ -32,11 +32,12 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
-import com.mirth.connect.server.util.AlertSender;
+import com.mirth.connect.server.userutil.AlertSender;
+import com.mirth.connect.server.userutil.MessageObject;
+import com.mirth.connect.server.userutil.VMRouter;
 import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
 import com.mirth.connect.server.util.GlobalVariableStore;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.server.util.VMRouter;
 import com.mirth.connect.util.PropertyLoader;
 
 public class JavaScriptScopeUtil {
@@ -107,6 +108,9 @@ public class JavaScriptScopeUtil {
     private static void addMessage(Scriptable scope, Message message) {
         ImmutableMessage immutableMessage = new ImmutableMessage(message);
         scope.put("message", scope, immutableMessage);
+        
+        // TODO: Deprecated, Remove in 3.1
+        scope.put("messageObject", scope, new MessageObject(immutableMessage.getConnectorMessages().get(0)));
 
         ConnectorMessage mergedConnectorMessage = message.getMergedConnectorMessage();
         ImmutableConnectorMessage immutableConnectorMessage = new ImmutableConnectorMessage(mergedConnectorMessage);
@@ -117,6 +121,9 @@ public class JavaScriptScopeUtil {
 
     // ConnectorMessage Builder
     private static void addConnectorMessage(Scriptable scope, ConnectorMessage message) {
+        // TODO: Deprecated, Remove in 3.1
+        scope.put("messageObject", scope, new MessageObject(new ImmutableConnectorMessage(message)));
+        
         scope.put("connectorMessage", scope, new ImmutableConnectorMessage(message));
         scope.put("connectorMap", scope, message.getConnectorMap());
         scope.put("channelMap", scope, message.getChannelMap());

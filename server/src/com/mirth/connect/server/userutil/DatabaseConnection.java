@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.util;
+package com.mirth.connect.server.userutil;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -32,7 +32,7 @@ public class DatabaseConnection {
     private String address;
 
     /**
-     * Initiliazes a database connection with the server address.
+     * Initilizes a database connection with the server address.
      * 
      * @throws SQLException
      */
@@ -43,7 +43,7 @@ public class DatabaseConnection {
     }
 
     /**
-     * Initiliazes a database connection with the server address and connection
+     * Initilizes a database connection with the server address and connection
      * arguments.
      * 
      * @throws SQLException
