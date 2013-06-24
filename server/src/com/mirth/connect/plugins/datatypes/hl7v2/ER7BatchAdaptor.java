@@ -24,13 +24,13 @@ import com.mirth.connect.util.StringUtil;
 public class ER7BatchAdaptor implements BatchAdaptor {
 	private Logger logger = Logger.getLogger(this.getClass());
 	
-	private String serializationSegmentDelimiter = null;
+	private Pattern segmentDelimiterPattern = null;
 	
-	public ER7BatchAdaptor (SerializerProperties properties) {
+	public ER7BatchAdaptor(SerializerProperties properties) {
 		HL7v2SerializationProperties serializationProperties = (HL7v2SerializationProperties) properties.getSerializationProperties();
         
         if (serializationProperties != null) {
-            serializationSegmentDelimiter = StringUtil.unescape(serializationProperties.getSegmentDelimiter());
+            segmentDelimiterPattern = Pattern.compile(StringUtil.unescape(serializationProperties.getSegmentDelimiter()));
         }
 	}
 
@@ -46,7 +46,7 @@ public class ER7BatchAdaptor implements BatchAdaptor {
         Scanner scanner = null;
         try {
             scanner = new Scanner(src);
-            scanner.useDelimiter(Pattern.compile(serializationSegmentDelimiter));
+            scanner.useDelimiter(segmentDelimiterPattern);
             StringBuilder message = new StringBuilder();
             char data[] = { (char) startOfMessage, (char) endOfMessage };
             boolean errored = false;
