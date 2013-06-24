@@ -34,6 +34,8 @@
 	<target name="build-server" depends="compile">
 		<jar destfile="${setup}/${server.jar}" basedir="${classes}">
 			<include name="com/mirth/connect/donkey/server/**" />
+			<include name="com/mirth/connect/donkey/model/**" />
+			<include name="com/mirth/connect/donkey/util/**" />
 			<fileset dir="${dbconf}" />
 		</jar>
 		<copy todir="${setup.lib}">
