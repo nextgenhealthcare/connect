@@ -191,7 +191,10 @@ public class JavaScriptAttachmentDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_validateScriptButtonActionPerformed
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-        attachmentHandlerProperties.getProperties().put("javascript.script", scriptContent.getText());
+        if (!attachmentHandlerProperties.getProperties().get("javascript.script").equals(scriptContent.getText())) {
+            attachmentHandlerProperties.getProperties().put("javascript.script", scriptContent.getText());
+            parent.setSaveEnabled(true);
+        }
         this.dispose();
     }//GEN-LAST:event_okButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
