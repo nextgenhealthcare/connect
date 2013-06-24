@@ -57,7 +57,7 @@ public class MessageObjectServlet extends MirthServlet {
                 List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-                if (operation.equals(Operations.GET_MAX_MESSAGE_ID)) {
+                if (operation.equals(Operations.MESSAGE_GET_MAX_ID)) {
                     String channelId = request.getParameter("channelId");
 
                     parameterMap.put("channelId", channelId);
@@ -68,7 +68,7 @@ public class MessageObjectServlet extends MirthServlet {
                         response.setContentType(APPLICATION_XML);
                         out.print(messageController.getMaxMessageId(channelId));
                     }
-                } else if (operation.equals(Operations.GET_MESSAGES)) {
+                } else if (operation.equals(Operations.MESSAGE_GET)) {
                     String channelId = request.getParameter("channelId");
                     MessageFilter filter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
 
@@ -94,7 +94,7 @@ public class MessageObjectServlet extends MirthServlet {
                         response.setContentType(APPLICATION_XML);
                         serializer.toXML(messageController.getMessages(filter, channel, includeContent, offset, limit), out);
                     }
-                } else if (operation.equals(Operations.GET_SEARCH_COUNT)) {
+                } else if (operation.equals(Operations.MESSAGE_GET_COUNT)) {
                     String channelId = request.getParameter("channelId");
                     MessageFilter filter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
                     
@@ -108,7 +108,7 @@ public class MessageObjectServlet extends MirthServlet {
                         response.setContentType(APPLICATION_XML);
                         out.print(messageController.getMessageCount(filter, channel));
                     }
-                } else if (operation.equals(Operations.GET_MESSAGE_CONTENT)) {
+                } else if (operation.equals(Operations.MESSAGE_GET_CONTENT)) {
                 	String channelId = request.getParameter("channelId");
                 	Long messageId = (Long) serializer.fromXML(request.getParameter("messageId"));
                 	parameterMap.put("channelId", channelId);

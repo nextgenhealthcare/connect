@@ -712,7 +712,7 @@ public class Client {
     }
 
     public Integer getMaxEventId() throws ClientException {
-        NameValuePair[] params = { new NameValuePair("op", Operations.GET_MAX_EVENT_ID.getName()) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_GET_MAX_ID.getName()) };
         Integer maxEventId = null;
 
         try {
@@ -725,7 +725,7 @@ public class Client {
     }
 
     public List<ServerEvent> getEvents(EventFilter filter, Integer offset, Integer limit) throws ClientException {
-        NameValuePair[] params = { new NameValuePair("op", Operations.GET_EVENTS.getName()),
+        NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_GET.getName()),
                 new NameValuePair("filter", serializer.toXML(filter)),
                 new NameValuePair("offset", (offset == null) ? "" : offset.toString()),
                 new NameValuePair("limit", (limit == null) ? "" : limit.toString()) };
@@ -734,7 +734,7 @@ public class Client {
     }
 
     public Long getEventCount(EventFilter filter) throws ClientException {
-        NameValuePair[] params = { new NameValuePair("op", Operations.GET_EVENT_COUNT.getName()),
+        NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_GET_COUNT.getName()),
                 new NameValuePair("filter", serializer.toXML(filter)) };
         Long count = null;
 
@@ -903,7 +903,7 @@ public class Client {
     }
 
     public Long getMaxMessageId(String channelId) throws ClientException {
-        NameValuePair[] params = { new NameValuePair("op", Operations.GET_MAX_MESSAGE_ID.getName()), new NameValuePair("channelId", channelId)};
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_GET_MAX_ID.getName()), new NameValuePair("channelId", channelId)};
         Long maxMessageId = null;
         
         try {
@@ -916,7 +916,7 @@ public class Client {
     }
     
     public List<Message> getMessages(String channelId, MessageFilter filter, Boolean includeContent, Integer offset, Integer limit) throws ClientException {
-        NameValuePair[] params = { new NameValuePair("op", Operations.GET_MESSAGES.getName()),
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_GET.getName()),
                 new NameValuePair("channelId", channelId),
                 new NameValuePair("filter", serializer.toXML(filter)),
                 new NameValuePair("includeContent", (includeContent) ? "y" : "n"),
@@ -927,7 +927,7 @@ public class Client {
     }
     
     public Long getMessageCount(String channelId, MessageFilter filter) throws ClientException {
-        NameValuePair[] params = { new NameValuePair("op", Operations.GET_SEARCH_COUNT.getName()), new NameValuePair("channelId", channelId), new NameValuePair("filter", serializer.toXML(filter)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_GET_COUNT.getName()), new NameValuePair("channelId", channelId), new NameValuePair("filter", serializer.toXML(filter)) };
         Long count = null;
         
         try {
@@ -940,7 +940,7 @@ public class Client {
     }
     
     public Message getMessageContent(String channelId, Long messageId) throws ClientException {
-        NameValuePair[] params = { new NameValuePair("op", Operations.GET_MESSAGE_CONTENT.getName()), new NameValuePair("channelId", channelId), new NameValuePair("messageId", serializer.toXML(messageId)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_GET_CONTENT.getName()), new NameValuePair("channelId", channelId), new NameValuePair("messageId", serializer.toXML(messageId)) };
         return (Message) serializer.fromXML(serverConnection.executePostMethod(Client.MESSAGE_SERVLET, params));
     }
 

@@ -559,8 +559,8 @@ public class EventBrowser extends javax.swing.JPanel {
     public List<Operation> getAbortOperations() {
         List<Operation> operations = new ArrayList<Operation>();
 
-        operations.add(Operations.GET_EVENTS);
-        operations.add(Operations.GET_EVENT_COUNT);
+        operations.add(Operations.EVENT_GET);
+        operations.add(Operations.EVENT_GET_COUNT);
         operations.add(Operations.EVENT_REMOVE_ALL);
 
         return operations;

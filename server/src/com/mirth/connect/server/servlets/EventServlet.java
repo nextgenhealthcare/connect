@@ -46,14 +46,14 @@ public class EventServlet extends MirthServlet {
                 Operation operation = Operations.getOperation(request.getParameter("op"));
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-                if (operation.equals(Operations.GET_MAX_EVENT_ID)) {
+                if (operation.equals(Operations.EVENT_GET_MAX_ID)) {
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         response.setContentType(APPLICATION_XML);
                         out.print(eventController.getMaxEventId());
                     }
-                } else if (operation.equals(Operations.GET_EVENTS)) {
+                } else if (operation.equals(Operations.EVENT_GET)) {
                     EventFilter eventFilter = (EventFilter) serializer.fromXML(request.getParameter("filter"));
                     parameterMap.put("filter", eventFilter);
 
@@ -65,7 +65,7 @@ public class EventServlet extends MirthServlet {
                         response.setContentType(APPLICATION_XML);
                         serializer.toXML(eventController.getEvents(eventFilter, offset, limit), out);
                     }
-                } else if (operation.equals(Operations.GET_EVENT_COUNT)) {
+                } else if (operation.equals(Operations.EVENT_GET_COUNT)) {
                     EventFilter eventFilter = (EventFilter) serializer.fromXML(request.getParameter("filter"));
                     parameterMap.put("filter", eventFilter);
                     

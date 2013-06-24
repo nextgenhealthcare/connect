@@ -367,9 +367,9 @@ public class MessageBrowser extends javax.swing.JPanel {
     public List<Operation> getAbortOperations() {
         List<Operation> operations = new ArrayList<Operation>();
 
-        operations.add(Operations.GET_MESSAGES);
-        operations.add(Operations.GET_MESSAGE_CONTENT);
-        operations.add(Operations.GET_SEARCH_COUNT);
+        operations.add(Operations.MESSAGE_GET);
+        operations.add(Operations.MESSAGE_GET_CONTENT);
+        operations.add(Operations.MESSAGE_GET_COUNT);
         operations.add(Operations.MESSAGE_REMOVE);
 
         return operations;
