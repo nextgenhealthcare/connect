@@ -556,7 +556,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 // These executors must be shutdown here in order to terminate a stop task.
                 // They are also shutdown in the halt task itself in case a start task started them after this point.
                 channelExecutor.shutdownNow();
-                
+
                 if (queueThread != null) {
                     queueThread.interrupt();
                 }
@@ -695,7 +695,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 }
 
                 if (firstCause == null) {
-                   firstCause = t;
+                    firstCause = t;
                 }
             }
         }
@@ -709,8 +709,10 @@ public class Channel implements Startable, Stoppable, Runnable {
                 if (dispatchThreads.size() == 0) {
                     shuttingDown = true;
                     /*
-                     * Once the thread count reaches zero, we want to make sure that any calls to
-                     * finishDispatch complete (which should release the channel's process lock and
+                     * Once the thread count reaches zero, we want to make sure
+                     * that any calls to
+                     * finishDispatch complete (which should release the
+                     * channel's process lock and
                      * allow us to acquire it here).
                      */
                     obtainProcessLock();
@@ -768,7 +770,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             throw new HaltException("Failed to stop channel " + name + " (" + channelId + "): One or more connectors failed to stop.", firstCause);
         }
     }
-    
+
     public void startConnector(Integer metaDataId) throws StartException {
         Future<?> task = null;
 
@@ -877,7 +879,8 @@ public class Channel implements Startable, Stoppable, Runnable {
 
                 /*
                  * TRANSACTION: Create Raw Message
-                 * - create a source connector message from the raw message and set
+                 * - create a source connector message from the raw message and
+                 * set
                  * the
                  * status as RECEIVED
                  * - store attachments
@@ -1279,8 +1282,10 @@ public class Channel implements Startable, Stoppable, Runnable {
             dao.close();
 
             /*
-             * Construct a list of only the enabled destination chains. This is done because we
-             * don't know beforehand which destination chain will be the "last" one.
+             * Construct a list of only the enabled destination chains. This is
+             * done because we
+             * don't know beforehand which destination chain will be the "last"
+             * one.
              */
             List<DestinationChain> enabledChains = new ArrayList<DestinationChain>();
             for (DestinationChain chain : destinationChains) {
@@ -1345,10 +1350,14 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     private void addConnectorMessages(Message finalMessage, ConnectorMessage sourceMessage, List<ConnectorMessage> connectorMessages) {
         /*
-         * Check for null here in case DestinationChain.call() returned null, which
-         * indicates that the chain did not process and should be skipped. This would only
-         * happen in very rare circumstances, possibly if a message is sent to the chain and
-         * the destination connector that the message belongs to has been removed or
+         * Check for null here in case DestinationChain.call() returned null,
+         * which
+         * indicates that the chain did not process and should be skipped. This
+         * would only
+         * happen in very rare circumstances, possibly if a message is sent to
+         * the chain and
+         * the destination connector that the message belongs to has been
+         * removed or
          * disabled.
          */
         if (connectorMessages != null) {
@@ -1416,16 +1425,20 @@ public class Channel implements Startable, Stoppable, Runnable {
         ThreadUtils.checkInterruptedStatus();
         Response response = null;
         boolean storePostProcessorError = false;
+        ConnectorMessage sourceConnectorMessage = finalMessage.getConnectorMessages().get(0);
 
         try {
             response = postProcessor.doPostProcess(finalMessage);
         } catch (Exception e) {
-            finalMessage.getConnectorMessages().get(0).setPostProcessorError(e.getMessage());
+            sourceConnectorMessage.setPostProcessorError(e.getMessage());
             storePostProcessorError = true;
         }
 
+        // Place all destination and custom responses into the source response map
+        sourceConnectorMessage.getResponseMap().putAll(finalMessage.getMergedConnectorMessage().getResponseMap());
+
         if (response != null) {
-            finalMessage.getConnectorMessages().get(0).getResponseMap().put(ResponseConnectorProperties.RESPONSE_POST_PROCESSOR, response);
+            sourceConnectorMessage.getResponseMap().put(ResponseConnectorProperties.RESPONSE_POST_PROCESSOR, response);
         }
 
         /*
@@ -1438,13 +1451,13 @@ public class Channel implements Startable, Stoppable, Runnable {
         DonkeyDao dao = daoFactory.getDao();
 
         if (storePostProcessorError) {
-            dao.updateErrors(finalMessage.getConnectorMessages().get(0));
+            dao.updateErrors(sourceConnectorMessage);
         }
 
         if (markAsProcessed) {
             if (storageSettings.isStoreMergedResponseMap()) {
                 ThreadUtils.checkInterruptedStatus();
-                dao.updateResponseMap(finalMessage.getConnectorMessages().get(0));
+                dao.updateResponseMap(sourceConnectorMessage);
             }
 
             dao.markAsProcessed(channelId, finalMessage.getMessageId());
@@ -1560,7 +1573,8 @@ public class Channel implements Startable, Stoppable, Runnable {
             ChannelController.getInstance().initChannelStorage(channelId);
 
             /*
-             * Before deploying, make sure the connector is deployable. Verify that if queueing is
+             * Before deploying, make sure the connector is deployable. Verify
+             * that if queueing is
              * enabled, the current storage settings support it.
              */
             if (!sourceConnector.isRespondAfterProcessing() && (!storageSettings.isEnabled() || !storageSettings.isStoreRaw() || !storageSettings.isStoreMaps())) {
@@ -1729,7 +1743,8 @@ public class Channel implements Startable, Stoppable, Runnable {
                     updateCurrentState(ChannelState.STARTING);
 
                     /*
-                     * We can't guarantee the state of the semaphore when the channel was stopped /
+                     * We can't guarantee the state of the semaphore when the
+                     * channel was stopped /
                      * halted, so we just create a new one instead.
                      */
                     processLock = new Semaphore(1, true);
@@ -1919,11 +1934,11 @@ public class Channel implements Startable, Stoppable, Runnable {
             return null;
         }
     }
-    
+
     private class StartDestinationTask implements Callable<Void> {
-        
+
         private Integer metaDataId;
-        
+
         public StartDestinationTask(Integer metaDataId) {
             this.metaDataId = metaDataId;
         }
@@ -1931,7 +1946,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         @Override
         public Void call() throws Exception {
             DestinationConnector destinationConnector = getDestinationConnector(metaDataId);
-            
+
             if (currentState == ChannelState.STARTED || currentState == ChannelState.PAUSED) {
                 if (destinationConnector.getCurrentState() != ChannelState.STARTED) {
                     try {
@@ -1943,25 +1958,24 @@ public class Channel implements Startable, Stoppable, Runnable {
             } else {
                 logger.error("Failed to start connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "): The channel is not started or paused.");
             }
-            
+
             return null;
         }
-        
+
     }
-    
+
     private class StopDestinationTask implements Callable<Void> {
-        
+
         private Integer metaDataId;
-        
+
         public StopDestinationTask(Integer metaDataId) {
             this.metaDataId = metaDataId;
         }
 
-
         @Override
         public Void call() throws Exception {
             DestinationConnector destinationConnector = getDestinationConnector(metaDataId);
-            
+
             if (currentState == ChannelState.STARTED || currentState == ChannelState.PAUSED) {
                 if (destinationConnector.getCurrentState() != ChannelState.STOPPED) {
                     // Destination connectors can only be stopped individually if the queue is enabled.
@@ -1980,9 +1994,9 @@ public class Channel implements Startable, Stoppable, Runnable {
             } else {
                 logger.error("Failed to stop connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "): The channel is not started or paused.");
             }
-            
+
             return null;
         }
-        
+
     }
 }

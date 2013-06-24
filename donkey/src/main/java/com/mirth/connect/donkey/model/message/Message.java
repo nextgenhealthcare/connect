@@ -27,6 +27,7 @@ public class Message implements Serializable {
     private Long importId;
     private String importChannelId;
     private Map<Integer, ConnectorMessage> connectorMessages = new LinkedHashMap<Integer, ConnectorMessage>();
+    private ConnectorMessage mergedConnectorMessage;
 
     public Long getMessageId() {
         return messageId;
@@ -89,33 +90,35 @@ public class Message implements Serializable {
     }
 
     public ConnectorMessage getMergedConnectorMessage() {
-        ConnectorMessage sourceConnectorMessage = connectorMessages.get(0);
+        if (mergedConnectorMessage == null) {
+            ConnectorMessage sourceConnectorMessage = connectorMessages.get(0);
 
-        ConnectorMessage connectorMessage = new ConnectorMessage();
-        connectorMessage.setChannelId(channelId);
-        connectorMessage.setMessageId(messageId);
-        connectorMessage.setServerId(serverId);
-        connectorMessage.setReceivedDate(receivedDate);
-        connectorMessage.setRaw(sourceConnectorMessage.getRaw());
-        connectorMessage.setProcessedRaw(sourceConnectorMessage.getProcessedRaw());
+            mergedConnectorMessage = new ConnectorMessage();
+            mergedConnectorMessage.setChannelId(channelId);
+            mergedConnectorMessage.setMessageId(messageId);
+            mergedConnectorMessage.setServerId(serverId);
+            mergedConnectorMessage.setReceivedDate(receivedDate);
+            mergedConnectorMessage.setRaw(sourceConnectorMessage.getRaw());
+            mergedConnectorMessage.setProcessedRaw(sourceConnectorMessage.getProcessedRaw());
 
-        Map<String, Object> responseMap = new HashMap<String, Object>(sourceConnectorMessage.getResponseMap());
+            Map<String, Object> responseMap = new HashMap<String, Object>(sourceConnectorMessage.getResponseMap());
 
-        for (ConnectorMessage destinationMessage : connectorMessages.values()) {
-            responseMap.putAll(destinationMessage.getResponseMap());
+            for (ConnectorMessage destinationMessage : connectorMessages.values()) {
+                responseMap.putAll(destinationMessage.getResponseMap());
+            }
+
+            mergedConnectorMessage.setResponseMap(responseMap);
+
+            Map<String, Object> channelMap = new HashMap<String, Object>(sourceConnectorMessage.getChannelMap());
+
+            for (ConnectorMessage destinationMessage : connectorMessages.values()) {
+                channelMap.putAll(destinationMessage.getChannelMap());
+            }
+
+            mergedConnectorMessage.setChannelMap(channelMap);
         }
 
-        connectorMessage.setResponseMap(responseMap);
-
-        Map<String, Object> channelMap = new HashMap<String, Object>(sourceConnectorMessage.getChannelMap());
-
-        for (ConnectorMessage destinationMessage : connectorMessages.values()) {
-            channelMap.putAll(destinationMessage.getChannelMap());
-        }
-
-        connectorMessage.setChannelMap(channelMap);
-
-        return connectorMessage;
+        return mergedConnectorMessage;
     }
 
     public String toString() {

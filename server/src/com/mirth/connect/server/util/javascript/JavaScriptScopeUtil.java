@@ -108,9 +108,11 @@ public class JavaScriptScopeUtil {
         ImmutableMessage immutableMessage = new ImmutableMessage(message);
         scope.put("message", scope, immutableMessage);
 
-        ImmutableConnectorMessage immutableConnectorMessage = immutableMessage.getMergedConnectorMessage();
+        ConnectorMessage mergedConnectorMessage = message.getMergedConnectorMessage();
+        ImmutableConnectorMessage immutableConnectorMessage = new ImmutableConnectorMessage(mergedConnectorMessage);
+
         scope.put("channelMap", scope, immutableConnectorMessage.getChannelMap());
-        scope.put("responseMap", scope, immutableConnectorMessage.getResponseMap());
+        scope.put("responseMap", scope, mergedConnectorMessage.getResponseMap());
     }
 
     // ConnectorMessage Builder
@@ -135,7 +137,7 @@ public class JavaScriptScopeUtil {
     private static void addRouter(Scriptable scope) {
         scope.put("router", scope, new VMRouter());
     }
-    
+
     // Replacer
     private static void addReplacer(Scriptable scope) {
         scope.put("replacer", scope, new TemplateValueReplacer());
