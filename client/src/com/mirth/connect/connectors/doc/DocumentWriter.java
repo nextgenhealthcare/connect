@@ -22,12 +22,12 @@ import com.mirth.connect.util.ConnectionTestResponse;
 public class DocumentWriter extends ConnectorSettingsPanel {
 
     private Frame parent;
-    
+
     public DocumentWriter() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
     }
-    
+
     @Override
     public String getConnectorName() {
         return new DocumentDispatcherProperties().getName();
@@ -36,7 +36,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
     @Override
     public ConnectorProperties getProperties() {
         DocumentDispatcherProperties properties = new DocumentDispatcherProperties();
-        
+
         properties.setHost(directoryField.getText().replace('\\', '/'));
         properties.setOutputPattern(fileNameField.getText());
 
@@ -47,7 +47,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
         }
 
         properties.setEncrypt(passwordYes.isSelected());
-        
+
         properties.setPassword(new String(passwordField.getPassword()));
         properties.setTemplate(fileContentsTextPane.getText());
 
@@ -57,7 +57,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
     @Override
     public void setProperties(ConnectorProperties properties) {
         DocumentDispatcherProperties props = (DocumentDispatcherProperties) properties;
-        
+
         directoryField.setText(props.getHost());
         fileNameField.setText(props.getOutputPattern());
 
@@ -71,8 +71,10 @@ public class DocumentWriter extends ConnectorSettingsPanel {
 
         if (props.getDocumentType().equals(DocumentDispatcherProperties.DOCUMENT_TYPE_PDF)) {
             pdf.setSelected(true);
+            pdfActionPerformed(null);
         } else {
             rtf.setSelected(true);
+            rtfActionPerformed(null);
         }
 
         passwordField.setText(props.getPassword());
@@ -88,7 +90,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
     @Override
     public boolean checkProperties(ConnectorProperties properties, boolean highlight) {
         DocumentDispatcherProperties props = (DocumentDispatcherProperties) properties;
-        
+
         boolean valid = true;
 
         if (props.getHost().length() == 0) {
@@ -331,7 +333,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
         };
 
         worker.execute();
-}//GEN-LAST:event_testConnectionActionPerformed
+    }//GEN-LAST:event_testConnectionActionPerformed
 
     private void pdfActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_pdfActionPerformed
     {// GEN-HEADEREND:event_pdfActionPerformed
