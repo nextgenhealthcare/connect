@@ -47,18 +47,18 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         }
     }
 
-    public void doSave() {
+    public boolean doSave() {
         if (dashboardRefreshIntervalField.getText().length() == 0) {
             getFrame().alertWarning(this, "Please enter a valid interval time.");
-            return;
+            return false;
         }
         if (messageBrowserPageSizeField.getText().length() == 0) {
             getFrame().alertWarning(this, "Please enter a valid message browser page size.");
-            return;
+            return false;
         }
         if (eventBrowserPageSizeField.getText().length() == 0) {
             getFrame().alertWarning(this, "Please enter a valid event browser page size.");
-            return;
+            return false;
         }
 
         int interval = Integer.parseInt(dashboardRefreshIntervalField.getText());
@@ -79,6 +79,8 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
             getFrame().setSaveEnabled(false);
         }
+        
+        return true;
     }
 
     /**

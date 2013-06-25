@@ -79,20 +79,20 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         worker.execute();
     }
 
-    public void doSave() {
+    public boolean doSave() {
         final ServerSettings serverSettings = getServerSettings();
         final UpdateSettings updateSettings = getUpdateSettings();
 
         // Integer maxQueueSize will be null if it was invalid
         if (serverSettings.getMaxQueueSize() == null) {
             getFrame().alertWarning(this, "Please enter a valid maximum queue size.");
-            return;
+            return false;
         }
         
         // Integer smtpTimeput will be null if it was invalid
         if (serverSettings.getSmtpTimeout() == null) {
             getFrame().alertWarning(this, "Please enter a valid SMTP timeout.");
-            return;
+            return false;
         }
 
         final String workingId = getFrame().startWorking("Saving " + getTabName() + " settings...");
@@ -118,6 +118,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         };
 
         worker.execute();
+        
+        return true;
     }
 
     /** Loads the current server settings into the Settings form */
@@ -271,7 +273,9 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the settings first?");
 
             if (option == JOptionPane.YES_OPTION) {
-                doSave();
+                if (!doSave()) {
+                    return;
+                }
             } else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
                 return;
             }
@@ -299,7 +303,9 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             if (!getFrame().alertOkCancel(this, "Your new settings will first be saved.  Continue?")) {
                 return;
             }
-            doSave();
+            if (!doSave()) {
+                return;
+            }
         }
 
         String content = getFrame().browseForFileString("XML");

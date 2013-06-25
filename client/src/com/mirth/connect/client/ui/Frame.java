@@ -1309,7 +1309,9 @@ public class Frame extends JXFrame {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the " + settingsPane.getCurrentSettingsPanel().getTabName() + " settings changes?");
 
             if (option == JOptionPane.YES_OPTION) {
-                settingsPane.getCurrentSettingsPanel().doSave();
+                if (!settingsPane.getCurrentSettingsPanel().doSave()) {
+                    return false;
+                }
             } else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
                 return false;
             }

@@ -117,19 +117,19 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
     }
     
     @Override
-    public void doSave() {
+    public boolean doSave() {
         archiverPanel.resetInvalidProperties();
         pruneEventAgeTextField.setBackground(null);
 
         if (!archiverPanel.validate(true)) {
             parent.alertError(this, "Please fill in required fields.");
-            return;
+            return false;
         }
         
         if (pruneEventsYes.isSelected() && StringUtils.isBlank(pruneEventAgeTextField.getText())) {
             pruneEventAgeTextField.setBackground(UIConstants.INVALID_COLOR);
             parent.alertError(this, "Please fill in required fields.");
-            return;
+            return false;
         }
 
         final String workingId = getFrame().startWorking("Saving " + getTabName() + " properties...");
@@ -154,6 +154,8 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         };
 
         worker.execute();
+        
+        return true;
     }
     
     public void doViewEvents() {

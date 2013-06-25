@@ -118,5 +118,5 @@ public abstract class AbstractSettingsPanel extends JPanel {
 
     public abstract void doRefresh();
 
-    public abstract void doSave();
+    public abstract boolean doSave();
 }
