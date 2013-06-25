@@ -1515,7 +1515,10 @@ public class Channel implements Startable, Stoppable, Runnable {
             int metaDataId = connectorMessage.getMetaDataId();
 
             dao.insertConnectorMessage(connectorMessage, true);
-            dao.insertMetaData(connectorMessage, metaDataColumns);
+
+            if (!connectorMessage.getMetaDataMap().isEmpty()) {
+                dao.insertMetaData(connectorMessage, metaDataColumns);
+            }
 
             for (ContentType contentType : ContentType.getMessageTypes()) {
                 MessageContent messageContent = connectorMessage.getMessageContent(contentType);
