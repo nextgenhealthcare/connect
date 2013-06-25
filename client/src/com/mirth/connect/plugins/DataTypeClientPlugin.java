@@ -130,7 +130,7 @@ public abstract class DataTypeClientPlugin extends ClientPlugin {
         }
 
         conversionTemplates.add(new CodeTemplate("Convert XML to " + displayName + " (default parameters)", "Converts an XML string to " + displayName + " with the default serializer parameters.", "SerializerFactory.getSerializer('" + pluginName + "').fromXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        if (!defaultOnly) {
+        if (!defaultOnly && getDataTypeDelegate().getDefaultProperties().getDeserializationProperties() != null) {
             conversionTemplates.add(new CodeTemplate("Convert XML to " + displayName + " (custom parameters)", "Converts an XML string to " + displayName + " with custom serializer parameters. " + getMapKeysToolTipText(), "var deserializationProperties = SerializerFactory.getDefaultDeserializationProperties('" + pluginName + "');\nSerializerFactory.getSerializer('" + pluginName + "', null, deserializationProperties).fromXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         }
     }
