@@ -81,7 +81,7 @@ public class ServerMigrator extends Migrator {
     private void initDatabase(Connection connection) throws MigrationException {
         // If missing this table we can assume that they don't have the schema installed
         if (!tableExists("CONFIGURATION")) {
-            executeScript("/" + getDatabaseType() + "/" + getDatabaseType() + "-database.sql");
+            executeScript(IOUtils.DIR_SEPARATOR + getDatabaseType() + IOUtils.DIR_SEPARATOR + getDatabaseType() + "-database.sql");
             updateVersion(Version.getLatest());
         }
     }
