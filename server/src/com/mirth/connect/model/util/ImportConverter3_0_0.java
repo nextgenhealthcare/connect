@@ -719,7 +719,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("localPort").setTextContent(oldProperties.getProperty("localPort", ""));
         properties.addChildElement("localApplicationEntity").setTextContent(oldProperties.getProperty("localApplicationEntity", ""));
         properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", "${DICOMMESSAGE}"));
-        properties.addChildElement("acceptTo").setTextContent(oldProperties.getProperty("acceptto", "5000"));
+        properties.addChildElement("acceptTo").setTextContent(oldProperties.getProperty("accecptto", "5000"));
         properties.addChildElement("async").setTextContent(oldProperties.getProperty("async", "0"));
         properties.addChildElement("bufSize").setTextContent(oldProperties.getProperty("bufsize", "1"));
         properties.addChildElement("connectTo").setTextContent(oldProperties.getProperty("connectto", "0"));
