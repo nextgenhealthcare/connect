@@ -55,9 +55,6 @@ public class VariableList extends javax.swing.JPanel {
         variables.add("Raw Data");
         variables.add("Transformed Data");
         variables.add("Encoded Data");
-        variables.add("Message Source");
-        variables.add("Message Type");
-        variables.add("Message Version");
         variables.add("Date");
         variables.add("Formatted Date");
         variables.add("Timestamp");

@@ -54,9 +54,6 @@ public class VariableListHandler extends TransferHandler {
         staticVelocityReferences = new HashMap<String, String>();
         staticVelocityReferences.put("Raw Data", "${message.rawData}");
         staticVelocityReferences.put("Transformed Data", "${message.transformedData}");
-        staticVelocityReferences.put("Message Type", "${message.type}");
-        staticVelocityReferences.put("Message Version", "${message.version}");
-        staticVelocityReferences.put("Message Source", "${message.source}");
         staticVelocityReferences.put("Message ID", "${message.messageId}");
         staticVelocityReferences.put("Encoded Data", "${message.encodedData}");
         staticVelocityReferences.put("Timestamp", "${SYSTIME}");
@@ -78,9 +75,6 @@ public class VariableListHandler extends TransferHandler {
         staticJsReferences = new HashMap<String, String>();
         staticJsReferences.put("Raw Data", "connectorMessage.getRawData()");
         staticJsReferences.put("Transformed Data", "connectorMessage.getTransformedData()");
-        staticJsReferences.put("Message Type", "connectorMessage.getType()");
-        staticJsReferences.put("Message Version", "connectorMessage.getVersion()");
-        staticJsReferences.put("Message Source", "connectorMessage.getSource()");
         staticJsReferences.put("Message ID", "connectorMessage.getMessageId()");
         staticJsReferences.put("Encoded Data", "connectorMessage.getEncodedData()");
         staticJsReferences.put("Timestamp", "var dateString = DateUtil.getCurrentDate('yyyyMMddHHmmss');");
