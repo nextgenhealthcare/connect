@@ -53,7 +53,9 @@ public class DefaultMigrationController extends MigrationController {
                 
                 if (migratorClassName != null) {
                     try {
-                        pluginMigrators.add((Migrator) Class.forName(migratorClassName).newInstance());
+                        Migrator migrator = (Migrator) Class.forName(migratorClassName).newInstance();
+                        migrator.setDefaultScriptPath("/extensions/" + pluginMetaData.getPath());
+                        pluginMigrators.add(migrator);
                     } catch (Exception e) {
                         logger.error("Failed to run migration for plugin: " + pluginMetaData.getName());
                     }
@@ -93,7 +95,7 @@ public class DefaultMigrationController extends MigrationController {
                     migrator.migrate();
                 } catch (MigrationException e) {
                     // TODO return a list of the extensions that failed so that they can be automatically disabled?
-                    logger.error(e);
+                    logger.error("Failed to migrate extension", e);
                 }
             }
         } finally {
@@ -114,7 +116,7 @@ public class DefaultMigrationController extends MigrationController {
                 serverMigrator.setDatabaseType(configurationController.getDatabaseType());
                 serverMigrator.migrateSerializedData();
             } catch (MigrationException e) {
-                logger.error(e);
+                logger.error("Failed to migrate serialized data for server", e);
             }
             
             initPluginMigrators();
@@ -125,7 +127,7 @@ public class DefaultMigrationController extends MigrationController {
                     migrator.setDatabaseType(configurationController.getDatabaseType());
                     migrator.migrateSerializedData();
                 } catch (MigrationException e) {
-                    logger.error(e);
+                    logger.error("Failed to migrate serialized data for plugin", e);
                 }
             }
         } finally {
