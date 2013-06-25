@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.Channel;
@@ -19,7 +18,7 @@ public class ServerMigrator extends Migrator {
     private Logger logger = Logger.getLogger(getClass());
 
     public ServerMigrator() {
-        setDefaultScriptFolder(IOUtils.DIR_SEPARATOR + "deltas");
+        setDefaultScriptPath("/deltas");
     }
     
     @Override
@@ -40,7 +39,7 @@ public class ServerMigrator extends Migrator {
                 logger.info("Migrating server to version " + version);
                 migrator.setConnection(connection);
                 migrator.setDatabaseType(getDatabaseType());
-                migrator.setDefaultScriptFolder(getDefaultScriptFolder());
+                migrator.setDefaultScriptPath(getDefaultScriptPath());
                 migrator.migrate();
             }
 
@@ -81,7 +80,7 @@ public class ServerMigrator extends Migrator {
     private void initDatabase(Connection connection) throws MigrationException {
         // If missing this table we can assume that they don't have the schema installed
         if (!tableExists("CONFIGURATION")) {
-            executeScript(IOUtils.DIR_SEPARATOR + getDatabaseType() + IOUtils.DIR_SEPARATOR + getDatabaseType() + "-database.sql");
+            executeScript("/" + getDatabaseType() + "/" + getDatabaseType() + "-database.sql");
             updateVersion(Version.getLatest());
         }
     }

@@ -19,7 +19,7 @@ import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 public abstract class Migrator {
     private Connection connection;
     private String databaseType;
-    private String defaultScriptFolder;
+    private String defaultScriptPath;
     
     public abstract void migrate() throws MigrationException;
     
@@ -41,12 +41,12 @@ public abstract class Migrator {
         this.databaseType = databaseType;
     }
 
-    public String getDefaultScriptFolder() {
-        return defaultScriptFolder;
+    public String getDefaultScriptPath() {
+        return defaultScriptPath;
     }
 
-    public void setDefaultScriptFolder(String defaultScriptFolder) {
-        this.defaultScriptFolder = defaultScriptFolder;
+    public void setDefaultScriptPath(String defaultScriptPath) {
+        this.defaultScriptPath = defaultScriptPath;
     }
     
     public List<String> getUninstallStatements() throws MigrationException {
@@ -84,20 +84,20 @@ public abstract class Migrator {
     /**
      * Read statements from a SQL script
      * 
-     * @param scriptFile
-     *            The script file to execute. If scriptFile does not begin with a directory
-     *            separator ('/'), the defaultScriptFolder is prepended.
+     * @param scriptResourceName
+     *            The resource name of the script file to execute. If scriptResourceName does not
+     *            begin with '/', the defaultScriptPath string is prepended.
      */
-    protected List<String> readStatements(String scriptFile) throws IOException {
+    protected List<String> readStatements(String scriptResourceName) throws IOException {
         List<String> script = new ArrayList<String>();
         Scanner scanner = null;
         
-        if (scriptFile.charAt(0) != IOUtils.DIR_SEPARATOR && defaultScriptFolder != null) {
-            scriptFile = defaultScriptFolder + IOUtils.DIR_SEPARATOR + scriptFile;
+        if (scriptResourceName.charAt(0) != '/' && defaultScriptPath != null) {
+            scriptResourceName = defaultScriptPath + "/" + scriptResourceName;
         }
 
         try {
-            scanner = new Scanner(IOUtils.toString(getClass().getResourceAsStream(scriptFile)));
+            scanner = new Scanner(IOUtils.toString(getClass().getResourceAsStream(scriptResourceName)));
             
             while (scanner.hasNextLine()) {
                 StringBuilder stringBuilder = new StringBuilder();
