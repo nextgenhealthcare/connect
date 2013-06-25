@@ -40,7 +40,8 @@ public class DateParser {
         "HH:mm:ss",
         "yyyyMMddHHmmssSSS",
         "yyyyMMddHHmmss",
-        "yyyyMMddHHmm"};
+        "yyyyMMddHHmm",
+        "hh:mm aa"};
     // @formatter:on
 
     private List<String> patterns = Arrays.asList(DEFAULT_PATTERNS);
