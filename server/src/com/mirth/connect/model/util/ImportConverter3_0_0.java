@@ -1045,13 +1045,12 @@ public class ImportConverter3_0_0 {
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
 
-        properties.addChildElement("attachments").setTextContent(oldProperties.getProperty("attachments", "&lt;list/&gt;"));
         properties.addChildElement("authentication").setTextContent(readBooleanProperty(oldProperties, "authentication", false));
         properties.addChildElement("body").setTextContent(oldProperties.getProperty("body", ""));
         properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
         properties.addChildElement("encryption").setTextContent(oldProperties.getProperty("encryption", "none"));
         properties.addChildElement("from").setTextContent(oldProperties.getProperty("from", ""));
-        properties.addChildElement("headers").setTextContent(oldProperties.getProperty("headers", "&lt;linked-hash-map/&gt;"));
+
         properties.addChildElement("html").setTextContent(readBooleanProperty(oldProperties, "html", false));
         properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", ""));
         properties.addChildElement("smtpHost").setTextContent(oldProperties.getProperty("smtpHost", ""));
@@ -1064,6 +1063,13 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("cc").setTextContent("");
         properties.addChildElement("bcc").setTextContent("");
         properties.addChildElement("replyTo").setTextContent("");
+
+        try {
+            convertEscapedText(properties.addChildElement("headers"), oldProperties.getProperty("headers", ""));
+            convertEscapedText(properties.addChildElement("attachments"), oldProperties.getProperty("attachments", ""));
+        } catch (DonkeyElementException e) {
+            logger.error("Failed to convert SMTP Dispatcher connection properties", e);
+        }
     }
 
     private static void migrateLLPListenerProperties(DonkeyElement properties) {
@@ -1670,6 +1676,16 @@ public class ImportConverter3_0_0 {
                 } else {
                     properties.addChildElement("null");
                 }
+            }
+        }
+    }
+
+    public static void convertEscapedText(DonkeyElement newProperties, String list) throws DonkeyElementException {
+        if (StringUtils.isNotEmpty(list)) {
+            DonkeyElement oldProperties = new DonkeyElement(DonkeyElement.elementFromXml(list));
+
+            for (DonkeyElement oldProperty : oldProperties.getChildElements()) {
+                newProperties.appendChild(newProperties.getOwnerDocument().importNode(oldProperty.getElement(), true));
             }
         }
     }

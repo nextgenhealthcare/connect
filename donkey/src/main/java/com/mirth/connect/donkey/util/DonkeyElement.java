@@ -38,6 +38,10 @@ public class DonkeyElement implements Element {
     public DonkeyElement(String xml) throws DonkeyElementException {
         this.element = elementFromXml(xml);
     }
+    
+    public Element getElement() {
+        return element;
+    }
 
     public DonkeyElement getChildElement(String name) {
         NodeList children = element.getChildNodes();
