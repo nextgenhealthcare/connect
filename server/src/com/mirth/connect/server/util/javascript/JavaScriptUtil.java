@@ -30,6 +30,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
@@ -54,7 +55,7 @@ public class JavaScriptUtil {
 
     public static <T> T execute(JavaScriptTask<T> task) throws JavaScriptExecutorException, InterruptedException {
         Future<T> future = executor.submit(task);
-        
+
         try {
             return future.get();
         } catch (ExecutionException e) {
@@ -64,12 +65,12 @@ public class JavaScriptUtil {
             synchronized (task) {
                 future.cancel(true);
                 Context context = task.getContext();
-            
+
                 if (context != null && context instanceof StoppableContext) {
                     ((StoppableContext) context).setRunning(false);
                 }
             }
-            
+
             // TODO wait for the task thread to complete before exiting?
             Thread.currentThread().interrupt();
             throw e;
@@ -145,7 +146,7 @@ public class JavaScriptUtil {
             Object result = null;
 
             if (compiledScriptCache.getCompiledScript(ScriptController.PREPROCESSOR_SCRIPT_KEY) != null) {
-                Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), message.getRaw().getContent(), message);
+                Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), message.getRaw().getContent(), new ImmutableConnectorMessage(message, true));
                 result = JavaScriptUtil.executeScript(task, ScriptController.PREPROCESSOR_SCRIPT_KEY, scope, null, null);
             }
 
@@ -170,7 +171,7 @@ public class JavaScriptUtil {
 
             if (compiledScriptCache.getCompiledScript(scriptId) != null) {
                 // Update the scope with the result from the global processor
-                Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), globalResult, message);
+                Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), globalResult, new ImmutableConnectorMessage(message, true));
                 result = JavaScriptUtil.executeScript(task, scriptId, scope, null, null);
             }
 

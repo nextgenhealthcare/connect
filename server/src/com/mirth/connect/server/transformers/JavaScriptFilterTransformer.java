@@ -9,6 +9,8 @@
 
 package com.mirth.connect.server.transformers;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
@@ -18,6 +20,7 @@ import org.mozilla.javascript.Scriptable;
 
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.FilterTransformerResult;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
@@ -43,11 +46,13 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
     private String connectorName;
     private String scriptId;
     private String template;
+    private Map<String, String> destinationNameMap;
 
-    public JavaScriptFilterTransformer(String channelId, String connectorName, String script, String template) throws JavaScriptInitializationException {
+    public JavaScriptFilterTransformer(String channelId, String connectorName, String script, String template, Map<String, String> destinationNameMap) throws JavaScriptInitializationException {
         this.channelId = channelId;
         this.connectorName = connectorName;
         this.template = template;
+        this.destinationNameMap = destinationNameMap;
         initialize(script);
     }
 
@@ -106,7 +111,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
 
             try {
                 // TODO: Get rid of template and phase
-                Scriptable scope = JavaScriptScopeUtil.getFilterTransformerScope(scriptLogger, message, template, phase);
+                Scriptable scope = JavaScriptScopeUtil.getFilterTransformerScope(scriptLogger, new ImmutableConnectorMessage(message, true, destinationNameMap), template, phase);
 
                 // get the script from the cache and execute it
                 Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);

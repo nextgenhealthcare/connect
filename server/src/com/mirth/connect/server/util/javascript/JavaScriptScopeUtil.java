@@ -108,7 +108,7 @@ public class JavaScriptScopeUtil {
     private static void addMessage(Scriptable scope, Message message) {
         ImmutableMessage immutableMessage = new ImmutableMessage(message);
         scope.put("message", scope, immutableMessage);
-        
+
         // TODO: Deprecated, Remove in 3.1
         scope.put("messageObject", scope, new MessageObject(immutableMessage.getConnectorMessages().get(0)));
 
@@ -120,11 +120,11 @@ public class JavaScriptScopeUtil {
     }
 
     // ConnectorMessage Builder
-    private static void addConnectorMessage(Scriptable scope, ConnectorMessage message) {
+    private static void addConnectorMessage(Scriptable scope, ImmutableConnectorMessage message) {
         // TODO: Deprecated, Remove in 3.1
-        scope.put("messageObject", scope, new MessageObject(new ImmutableConnectorMessage(message)));
-        
-        scope.put("connectorMessage", scope, new ImmutableConnectorMessage(message));
+        scope.put("messageObject", scope, new MessageObject(message));
+
+        scope.put("connectorMessage", scope, message);
         scope.put("connectorMap", scope, message.getConnectorMap());
         scope.put("channelMap", scope, message.getChannelMap());
         scope.put("responseMap", scope, message.getResponseMap());
@@ -199,7 +199,7 @@ public class JavaScriptScopeUtil {
         return scope;
     }
 
-    private static Scriptable getBasicScope(Context context, Object logger, ConnectorMessage message) {
+    private static Scriptable getBasicScope(Context context, Object logger, ImmutableConnectorMessage message) {
         return getBasicScope(context, logger, message.getChannelId());
     }
 
@@ -215,7 +215,7 @@ public class JavaScriptScopeUtil {
         return scope;
     }
 
-    public static Scriptable getPreprocessorScope(Object logger, String channelId, String message, ConnectorMessage connectorMessage) {
+    public static Scriptable getPreprocessorScope(Object logger, String channelId, String message, ImmutableConnectorMessage connectorMessage) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addRawMessage(scope, message);
         addConnectorMessage(scope, connectorMessage);
@@ -237,7 +237,7 @@ public class JavaScriptScopeUtil {
         return scope;
     }
 
-    public static Scriptable getFilterTransformerScope(Object logger, ConnectorMessage message, String template, String phase) {
+    public static Scriptable getFilterTransformerScope(Object logger, ImmutableConnectorMessage message, String template, String phase) {
         Scriptable scope = getBasicScope(getContext(), logger, message);
         addConnectorMessage(scope, message);
         scope.put("template", scope, template);
@@ -245,7 +245,7 @@ public class JavaScriptScopeUtil {
         return scope;
     }
 
-    public static Scriptable getResponseTransformerScope(Object logger, Response response, ConnectorMessage message, String template) {
+    public static Scriptable getResponseTransformerScope(Object logger, Response response, ImmutableConnectorMessage message, String template) {
         Scriptable scope = getBasicScope(getContext(), logger, message);
         addConnectorMessage(scope, message);
         addResponse(scope, response);
@@ -278,13 +278,13 @@ public class JavaScriptScopeUtil {
         return getBasicScope(getContext(), logger, channelId);
     }
 
-    public static Scriptable getMessageReceiverScope(Object logger, String channelId, ConnectorMessage message) {
+    public static Scriptable getMessageReceiverScope(Object logger, String channelId, ImmutableConnectorMessage message) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addConnectorMessage(scope, message);
         return scope;
     }
 
-    public static Scriptable getMessageDispatcherScope(Object logger, String channelId, ConnectorMessage message) {
+    public static Scriptable getMessageDispatcherScope(Object logger, String channelId, ImmutableConnectorMessage message) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addConnectorMessage(scope, message);
         addStatusValues(scope);

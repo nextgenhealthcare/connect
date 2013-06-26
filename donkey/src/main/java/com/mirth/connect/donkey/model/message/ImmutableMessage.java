@@ -10,6 +10,7 @@
 package com.mirth.connect.donkey.model.message;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -53,13 +54,23 @@ public class ImmutableMessage {
         };
 
         for (Integer key : message.getConnectorMessages().keySet()) {
-            map.put(key, new ImmutableConnectorMessage(message.getConnectorMessages().get(key)));
+            map.put(key, new ImmutableConnectorMessage(message.getConnectorMessages().get(key), false, getDestinationNameMap()));
         }
         return map;
     }
 
     public ImmutableConnectorMessage getMergedConnectorMessage() {
-        return new ImmutableConnectorMessage(message.getMergedConnectorMessage());
+        return new ImmutableConnectorMessage(message.getMergedConnectorMessage(), false, getDestinationNameMap());
+    }
+    
+    private Map<String, String> getDestinationNameMap() {
+        Map<String, String> destinationNameMap = new HashMap<String, String>();
+
+        for (ConnectorMessage destinationMessage : message.getConnectorMessages().values()) {
+            destinationNameMap.put(destinationMessage.getConnectorName(), "d" + String.valueOf(destinationMessage.getMetaDataId()));
+        }
+        
+        return destinationNameMap;
     }
 
     public String toString() {

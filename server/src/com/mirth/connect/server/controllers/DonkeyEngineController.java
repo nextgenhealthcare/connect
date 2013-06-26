@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +31,8 @@ import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterfa
 import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.SerializationType;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.server.DeployException;
@@ -71,7 +72,6 @@ import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.attachments.AttachmentHandlerFactory;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.attachments.JavaScriptAttachmentHandler;
@@ -454,6 +454,8 @@ public class DonkeyEngineController implements EngineController {
         StorageSettings storageSettings = getStorageSettings(channelProperties.getMessageStorageMode(), channelProperties);
 
         com.mirth.connect.donkey.server.channel.Channel channel = new com.mirth.connect.donkey.server.channel.Channel();
+        
+        Map<String, String> destinationNameMap = new HashMap<String, String>();
 
         channel.setChannelId(channelId);
         channel.setServerId(ConfigurationController.getInstance().getServerId());
@@ -466,9 +468,9 @@ public class DonkeyEngineController implements EngineController {
         channel.setAttachmentHandler(createAttachmentHandler(channelId, channelProperties.getAttachmentProperties()));
         channel.setPreProcessor(createPreProcessor(channelId, model.getPreprocessingScript()));
         channel.setPostProcessor(createPostProcessor(channelId, model.getPostprocessingScript()));
-        channel.setSourceConnector(createSourceConnector(channel, model.getSourceConnector(), storageSettings));
+        channel.setSourceConnector(createSourceConnector(channel, model.getSourceConnector(), storageSettings, destinationNameMap));
         channel.setResponseSelector(new ResponseSelector(channel.getSourceConnector().getInboundDataType()));
-        channel.setSourceFilterTransformer(createFilterTransformerExecutor(channelId, model.getSourceConnector()));
+        channel.setSourceFilterTransformer(createFilterTransformerExecutor(channelId, model.getSourceConnector(), destinationNameMap));
 
         if (model.getSourceConnector().getProperties() instanceof ResponseConnectorPropertiesInterface) {
             ResponseConnectorProperties responseConnectorProperties = ((ResponseConnectorPropertiesInterface) model.getSourceConnector().getProperties()).getResponseConnectorProperties();
@@ -496,6 +498,7 @@ public class DonkeyEngineController implements EngineController {
                 }
                 
                 Integer metaDataId = connector.getMetaDataId();
+                destinationNameMap.put(connector.getName(), "d" + String.valueOf(metaDataId));
                 
                 if (metaDataId == null) {
                     metaDataId = model.getNextMetaDataId();
@@ -503,7 +506,7 @@ public class DonkeyEngineController implements EngineController {
                     connector.setMetaDataId(metaDataId);
                 }
 
-                chain.addDestination(connector.getMetaDataId(), createFilterTransformerExecutor(channelId, connector), createDestinationConnector(channelId, connector, storageSettings));
+                chain.addDestination(connector.getMetaDataId(), createFilterTransformerExecutor(channelId, connector, destinationNameMap), createDestinationConnector(channelId, connector, storageSettings, destinationNameMap));
             }
         }
 
@@ -632,13 +635,13 @@ public class DonkeyEngineController implements EngineController {
         return new JavaScriptPostprocessor();
     }
 
-    private SourceConnector createSourceConnector(com.mirth.connect.donkey.server.channel.Channel donkeyChannel, Connector model, StorageSettings storageSettings) throws Exception {
+    private SourceConnector createSourceConnector(com.mirth.connect.donkey.server.channel.Channel donkeyChannel, Connector model, StorageSettings storageSettings, Map<String, String> destinationNameMap) throws Exception {
         ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
         ConnectorProperties connectorProperties = model.getProperties();
         ConnectorMetaData connectorMetaData = extensionController.getConnectorMetaData().get(connectorProperties.getName());
         SourceConnector sourceConnector = (SourceConnector) Class.forName(connectorMetaData.getServerClassName()).newInstance();
 
-        setCommonConnectorProperties(donkeyChannel.getChannelId(), sourceConnector, model);
+        setCommonConnectorProperties(donkeyChannel.getChannelId(), sourceConnector, model, destinationNameMap);
 
         sourceConnector.setMetaDataReplacer(createMetaDataReplacer(model));
         sourceConnector.setChannel(donkeyChannel);
@@ -653,7 +656,7 @@ public class DonkeyEngineController implements EngineController {
         return sourceConnector;
     }
 
-    private FilterTransformerExecutor createFilterTransformerExecutor(String channelId, Connector connector) throws Exception {
+    private FilterTransformerExecutor createFilterTransformerExecutor(String channelId, Connector connector, Map<String, String> destinationNameMap) throws Exception {
         boolean runFilterTransformer = false;
         String template = null;
         Transformer transformer = connector.getTransformer();
@@ -704,13 +707,13 @@ public class DonkeyEngineController implements EngineController {
 
         if (runFilterTransformer) {
             String script = JavaScriptBuilder.generateFilterTransformerScript(filter, transformer);
-            filterTransformerExecutor.setFilterTransformer(new JavaScriptFilterTransformer(channelId, connector.getName(), script, template));
+            filterTransformerExecutor.setFilterTransformer(new JavaScriptFilterTransformer(channelId, connector.getName(), script, template, destinationNameMap));
         }
 
         return filterTransformerExecutor;
     }
 
-    private ResponseTransformerExecutor createResponseTransformerExecutor(String channelId, Connector connector) throws Exception {
+    private ResponseTransformerExecutor createResponseTransformerExecutor(String channelId, Connector connector, Map<String, String> destinationNameMap) throws Exception {
         boolean runResponseTransformer = false;
         String template = null;
         Transformer transformer = connector.getResponseTransformer();
@@ -760,7 +763,7 @@ public class DonkeyEngineController implements EngineController {
 
         if (runResponseTransformer) {
             String script = JavaScriptBuilder.generateResponseTransformerScript(transformer);
-            responseTransformerExecutor.setResponseTransformer(new JavaScriptResponseTransformer(channelId, connector.getName(), script, template));
+            responseTransformerExecutor.setResponseTransformer(new JavaScriptResponseTransformer(channelId, connector.getName(), script, template, destinationNameMap));
         }
 
         return responseTransformerExecutor;
@@ -775,25 +778,26 @@ public class DonkeyEngineController implements EngineController {
         return chain;
     }
 
-    private DestinationConnector createDestinationConnector(String channelId, Connector model, StorageSettings storageSettings) throws Exception {
+    private DestinationConnector createDestinationConnector(String channelId, Connector model, StorageSettings storageSettings, Map<String, String> destinationNameMap) throws Exception {
         ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
         ConnectorProperties connectorProperties = model.getProperties();
         ConnectorMetaData connectorMetaData = extensionController.getConnectorMetaData().get(connectorProperties.getName());
         String className = connectorMetaData.getServerClassName();
         DestinationConnector destinationConnector = (DestinationConnector) Class.forName(className).newInstance();
 
-        setCommonConnectorProperties(channelId, destinationConnector, model);
+        setCommonConnectorProperties(channelId, destinationConnector, model, destinationNameMap);
 
         destinationConnector.setDestinationName(model.getName());
-        destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(channelId, model));
+        destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(channelId, model, destinationNameMap));
 
         return destinationConnector;
     }
 
-    private void setCommonConnectorProperties(String channelId, com.mirth.connect.donkey.server.channel.Connector connector, Connector model) {
+    private void setCommonConnectorProperties(String channelId, com.mirth.connect.donkey.server.channel.Connector connector, Connector model, Map<String, String> destinationNameMap) {
         connector.setChannelId(channelId);
         connector.setMetaDataId(model.getMetaDataId());
         connector.setConnectorProperties(model.getProperties());
+        connector.setDestinationNameMap(destinationNameMap);
 
         Transformer transformerModel = model.getTransformer();
 

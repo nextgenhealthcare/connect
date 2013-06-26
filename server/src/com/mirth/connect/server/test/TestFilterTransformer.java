@@ -23,8 +23,8 @@ import org.junit.Test;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
 import com.mirth.connect.plugins.datatypes.xml.DefaultXMLSerializer;
 import com.mirth.connect.server.Mirth;
@@ -79,8 +79,8 @@ public class TestFilterTransformer {
     }
     
     private static void initJavaScriptFilterTransformer() throws Exception {
-        filterTransformer = new JavaScriptFilterTransformer(CHANNEL_ID, CONNECTOR_NAME, TEST_SCRIPT_ID, null);
-        filterTransformerPerformance = new JavaScriptFilterTransformer(CHANNEL_ID, CONNECTOR_NAME, PERFORMANCE_SCRIPT_ID, null);
+        filterTransformer = new JavaScriptFilterTransformer(CHANNEL_ID, CONNECTOR_NAME, TEST_SCRIPT_ID, null, null);
+        filterTransformerPerformance = new JavaScriptFilterTransformer(CHANNEL_ID, CONNECTOR_NAME, PERFORMANCE_SCRIPT_ID, null, null);
     }
     
     @Test

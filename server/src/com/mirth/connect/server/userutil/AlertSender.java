@@ -10,7 +10,7 @@
 package com.mirth.connect.server.userutil;
 
 import com.mirth.connect.donkey.model.event.ErrorEventType;
-import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -25,7 +25,7 @@ public class AlertSender {
         this.channelId = channelId;
     }
 
-    public AlertSender(ConnectorMessage connectorMessage) {
+    public AlertSender(ImmutableConnectorMessage connectorMessage) {
         channelId = connectorMessage.getChannelId();
         metaDataId = connectorMessage.getMetaDataId();
         connectorName = connectorMessage.getConnectorName();

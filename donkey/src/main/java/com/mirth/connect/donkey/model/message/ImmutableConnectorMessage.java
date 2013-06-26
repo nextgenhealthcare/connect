@@ -17,9 +17,21 @@ import com.mirth.connect.donkey.server.Donkey;
 
 public class ImmutableConnectorMessage {
     private ConnectorMessage connectorMessage;
-
+    private boolean modifiableMaps;
+    private Map<String, String> destinationNameMap;
+    
     public ImmutableConnectorMessage(ConnectorMessage connectorMessage) {
+        this(connectorMessage, false);
+    }
+    
+    public ImmutableConnectorMessage(ConnectorMessage connectorMessage, boolean modifiableMaps) {
+        this(connectorMessage, modifiableMaps, null);
+    }
+
+    public ImmutableConnectorMessage(ConnectorMessage connectorMessage, boolean modifiableMaps, Map<String, String> destinationNameMap) {
         this.connectorMessage = connectorMessage;
+        this.modifiableMaps = modifiableMaps;
+        this.destinationNameMap = destinationNameMap;
     }
 
     public int getMetaDataId() {
@@ -187,15 +199,27 @@ public class ImmutableConnectorMessage {
     }
 
     public Map<String, Object> getConnectorMap() {
-        return Collections.unmodifiableMap(connectorMessage.getConnectorMap());
+        if (modifiableMaps) {
+            return connectorMessage.getConnectorMap();
+        } else {
+            return Collections.unmodifiableMap(connectorMessage.getConnectorMap());
+        }
     }
 
     public Map<String, Object> getChannelMap() {
-        return Collections.unmodifiableMap(connectorMessage.getChannelMap());
+        if (modifiableMaps) {
+            return connectorMessage.getChannelMap();
+        } else {
+            return Collections.unmodifiableMap(connectorMessage.getChannelMap());
+        }
     }
 
     public Map<String, Object> getResponseMap() {
-        return Collections.unmodifiableMap(connectorMessage.getResponseMap());
+        if (modifiableMaps) {
+            return new ResponseMap(connectorMessage.getResponseMap(), destinationNameMap);
+        } else {
+            return new ResponseMap(Collections.unmodifiableMap(connectorMessage.getResponseMap()), destinationNameMap);
+        }
     }
 
     public String getProcessingError() {

@@ -100,11 +100,14 @@ public class Message implements Serializable {
             mergedConnectorMessage.setReceivedDate(receivedDate);
             mergedConnectorMessage.setRaw(sourceConnectorMessage.getRaw());
             mergedConnectorMessage.setProcessedRaw(sourceConnectorMessage.getProcessedRaw());
-
-            Map<String, Object> responseMap = new HashMap<String, Object>(sourceConnectorMessage.getResponseMap());
+            
+            Map<String, String> destinationNameMap = new HashMap<String, String>();
+            
+            ResponseMap responseMap = new ResponseMap(sourceConnectorMessage.getResponseMap(), destinationNameMap);
 
             for (ConnectorMessage destinationMessage : connectorMessages.values()) {
                 responseMap.putAll(destinationMessage.getResponseMap());
+                destinationNameMap.put(destinationMessage.getConnectorName(), "d" + String.valueOf(destinationMessage.getMetaDataId()));
             }
 
             mergedConnectorMessage.setResponseMap(responseMap);

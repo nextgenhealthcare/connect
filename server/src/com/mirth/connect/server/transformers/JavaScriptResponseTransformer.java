@@ -9,6 +9,8 @@
 
 package com.mirth.connect.server.transformers;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
@@ -18,6 +20,7 @@ import org.mozilla.javascript.Scriptable;
 
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
@@ -43,11 +46,13 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
     private String connectorName;
     private String scriptId;
     private String template;
+    private Map<String, String> destinationNameMap;
 
-    public JavaScriptResponseTransformer(String channelId, String connectorName, String script, String template) throws JavaScriptInitializationException {
+    public JavaScriptResponseTransformer(String channelId, String connectorName, String script, String template, Map<String, String> destinationNameMap) throws JavaScriptInitializationException {
         this.channelId = channelId;
         this.connectorName = connectorName;
         this.template = template;
+        this.destinationNameMap = destinationNameMap;
         initialize(script);
     }
 
@@ -114,7 +119,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
             Logger scriptLogger = Logger.getLogger("response");
 
             try {
-                Scriptable scope = JavaScriptScopeUtil.getResponseTransformerScope(scriptLogger, response, connectorMessage, template);
+                Scriptable scope = JavaScriptScopeUtil.getResponseTransformerScope(scriptLogger, response, new ImmutableConnectorMessage(connectorMessage, true, destinationNameMap), template);
 
                 // Get the script from the cache
                 Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);

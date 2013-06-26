@@ -30,9 +30,9 @@ import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.plugins.datatypes.xml.DefaultXMLSerializer;
 import com.mirth.connect.server.Mirth;
@@ -125,7 +125,7 @@ public class TestPreProcessor {
     @Test
     public final void testFilterTransformer() throws Exception {
         final String scriptId = "testScriptId";
-        final JavaScriptFilterTransformer filterTransformer = new JavaScriptFilterTransformer(CHANNEL_ID, "test connector", scriptId, null);
+        final JavaScriptFilterTransformer filterTransformer = new JavaScriptFilterTransformer(CHANNEL_ID, "test connector", scriptId, null, null);
         final int testSize = 100000;
 
         StringBuilder script = new StringBuilder();

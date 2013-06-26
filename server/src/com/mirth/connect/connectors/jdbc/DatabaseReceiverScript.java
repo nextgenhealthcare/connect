@@ -20,6 +20,7 @@ import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
@@ -169,7 +170,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
             if (mergedConnectorMessage == null) {
                 scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, connector.getChannelId());
             } else {
-                scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, connector.getChannelId(), mergedConnectorMessage);
+                scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, connector.getChannelId(), new ImmutableConnectorMessage(mergedConnectorMessage, true, connector.getDestinationNameMap()));
             }
 
             if (resultMap != null) {

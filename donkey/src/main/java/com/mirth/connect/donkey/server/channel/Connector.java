@@ -9,6 +9,8 @@
 
 package com.mirth.connect.donkey.server.channel;
 
+import java.util.Map;
+
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.server.DeployException;
@@ -27,6 +29,7 @@ public abstract class Connector implements Startable, Stoppable {
     private DataType outboundDataType;
     private ChannelState currentState = ChannelState.STOPPED;
     private ConnectorProperties connectorProperties;
+    private Map<String, String> destinationNameMap;
 
     public abstract void onDeploy() throws DeployException;
 
@@ -84,5 +87,13 @@ public abstract class Connector implements Startable, Stoppable {
 
     public void setConnectorProperties(ConnectorProperties connectorProperties) {
         this.connectorProperties = connectorProperties;
+    }
+    
+    public Map<String, String> getDestinationNameMap() {
+        return destinationNameMap;
+    }
+
+    public void setDestinationNameMap(Map<String, String> destinationNameMap) {
+        this.destinationNameMap = destinationNameMap;
     }
 }
