@@ -173,6 +173,7 @@ public class ImportConverter3_0_0 {
         addChildAndSetName(properties, "synchronised").setTextContent("0");
         // Sends the response data from the previous destination
         addChildAndSetName(properties, "template").setTextContent("${" + responseMapKey + ".message}");
+        addChildAndSetName(properties, "usePersistentQueues").setTextContent("1");
 
         // Remove all transformer steps
         DonkeyElement transformer = connector.getChildElement("transformer");
@@ -650,7 +651,7 @@ public class ImportConverter3_0_0 {
         properties.setAttribute("class", "com.mirth.connect.connectors.vm.VmDispatcherProperties");
         properties.removeChildren();
 
-        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), readBooleanProperty(oldProperties, "usePersistentQueues"), null, null, null);
 
         String host = oldProperties.getProperty("host", "none");
 
@@ -659,7 +660,7 @@ public class ImportConverter3_0_0 {
         }
 
         properties.addChildElement("channelId").setTextContent(host);
-        properties.addChildElement("responseTimeout").setTextContent("10000");
+        properties.addChildElement("responseTimeout").setTextContent("0");
         properties.addChildElement("channelTemplate").setTextContent(oldProperties.getProperty("template", "${message.encodedData}"));
     }
 
