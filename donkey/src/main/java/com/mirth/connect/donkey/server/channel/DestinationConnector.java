@@ -216,26 +216,26 @@ public abstract class DestinationConnector extends Connector implements Runnable
         ConnectorProperties connectorProperties = null;
         boolean attemptSend = !isQueueEnabled() || (queueProperties.isSendFirst() && queue.size() == 0 && !isForceQueue());
 
-        // we need to get the connector envelope if we will be attempting to send the message     
-        if (attemptSend) {
+        ThreadUtils.checkInterruptedStatus();
+
+        // have the connector generate the connector envelope and store it in the message
+        connectorProperties = ((DispatcherConnectorPropertiesInterface) getConnectorProperties()).clone();
+        replaceConnectorProperties(connectorProperties, message);
+
+        if (storageSettings.isStoreSent()) {
             ThreadUtils.checkInterruptedStatus();
 
-            // have the connector generate the connector envelope and store it in the message
-            connectorProperties = ((DispatcherConnectorPropertiesInterface) getConnectorProperties()).clone();
-            replaceConnectorProperties(connectorProperties, message);
+            MessageContent sentContent = getSentContent(message, connectorProperties);
+            message.setSent(sentContent);
 
-            if (storageSettings.isStoreSent()) {
+            if (sentContent != null) {
                 ThreadUtils.checkInterruptedStatus();
-
-                MessageContent sentContent = getSentContent(message, connectorProperties);
-                message.setSent(sentContent);
-
-                if (sentContent != null) {
-                    ThreadUtils.checkInterruptedStatus();
-                    dao.insertMessageContent(sentContent);
-                }
+                dao.insertMessageContent(sentContent);
             }
+        }
 
+        // we need to get the connector envelope if we will be attempting to send the message     
+        if (attemptSend) {
             int retryCount = (queueProperties == null) ? 0 : queueProperties.getRetryCount();
             int sendAttempts = 0;
             Response response = null;
@@ -334,22 +334,15 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
                         ConnectorProperties connectorProperties = null;
 
-                        // Generate the template if we are regenerating, or if this is the first send attempt (in which case the sent content should be null).
-                        if (queueProperties.isRegenerateTemplate() || connectorMessage.getSent() == null) {
+                        // Generate the template if necessary
+                        if (queueProperties.isRegenerateTemplate()) {
                             ThreadUtils.checkInterruptedStatus();
                             connectorProperties = ((DispatcherConnectorPropertiesInterface) getConnectorProperties()).clone();
 
-                            boolean updateProperties = true;
-                            if (connectorMessage.getSent() == null) {
-                                serializedPropertiesClass = connectorProperties.getClass();
-                            } else {
-                                serializedPropertiesClass = serializer.getClass(connectorMessage.getSent().getContent());
+                            serializedPropertiesClass = serializer.getClass(connectorMessage.getSent().getContent());
 
-                                // If the serialized properties do not match, don't update the properties.
-                                updateProperties = (serializedPropertiesClass == connectorPropertiesClass);
-                            }
-
-                            if (updateProperties) {
+                            // If the serialized properties do not match, don't update the properties.
+                            if (serializedPropertiesClass == connectorPropertiesClass) {
                                 replaceConnectorProperties(connectorProperties, connectorMessage);
                                 MessageContent sentContent = getSentContent(connectorMessage, connectorProperties);
                                 connectorMessage.setSent(sentContent);
