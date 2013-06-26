@@ -367,8 +367,8 @@ public class ImportConverter3_0_0 {
         }
 
         properties.addChildElement("encryptData").setTextContent(oldProperties.getProperty("encryptData", "false"));
-        properties.addChildElement("removeContentOnCompletion").setTextContent("false");
-        properties.addChildElement("removeAttachmentsOnCompletion").setTextContent("false");
+        properties.addChildElement("removeContentOnCompletion").setTextContent(readBooleanProperty(oldProperties, "error_messages_only", false));
+        properties.addChildElement("removeAttachmentsOnCompletion").setTextContent(readBooleanProperty(oldProperties, "error_messages_only", false));
         properties.addChildElement("initialStateStarted").setTextContent((oldProperties.getProperty("initialState", "started").equals("started") ? "true" : "false"));
         properties.addChildElement("storeAttachments").setTextContent("false");
         properties.addChildElement("tags").setAttribute("class", "linked-hash-set");
