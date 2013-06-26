@@ -862,10 +862,15 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("bodyOnly").setTextContent(readBooleanProperty(oldProperties, "receiverBodyOnly", true));
         properties.addChildElement("responseContentType").setTextContent(oldProperties.getProperty("receiverResponseContentType", "text/plain"));
         properties.addChildElement("responseStatusCode").setTextContent(oldProperties.getProperty("receiverResponseStatusCode", ""));
-        properties.addChildElement("responseHeaders").setTextContent(oldProperties.getProperty("receiverResponseHeaders", "&lt;linked-hash-map/&gt;"));
         properties.addChildElement("charset").setTextContent(oldProperties.getProperty("receiverCharset", "UTF-8"));
         properties.addChildElement("contextPath").setTextContent(oldProperties.getProperty("receiverContextPath", ""));
         properties.addChildElement("timeout").setTextContent(oldProperties.getProperty("receiverTimeout", "0"));
+
+        try {
+            convertEscapedText(properties.addChildElement("responseHeaders"), oldProperties.getProperty("receiverResponseHeaders", "&lt;linked-hash-map/&gt;"));
+        } catch (DonkeyElementException e) {
+            logger.error("Failed to convert HTTP Receiver connection properties", e);
+        }
     }
 
     private static String migrateHttpDispatcherProperties(DonkeyElement properties) {
@@ -878,8 +883,6 @@ public class ImportConverter3_0_0 {
 
         properties.addChildElement("host").setTextContent(oldProperties.getProperty("host", ""));
         properties.addChildElement("method").setTextContent(oldProperties.getProperty("dispatcherMethod", "post"));
-        properties.addChildElement("headers").setTextContent(oldProperties.getProperty("dispatcherHeaders", "&lt;linked-hash-map/&gt;"));
-        properties.addChildElement("parameters").setTextContent(oldProperties.getProperty("dispatcherParameters", "&lt;linked-hash-map/&gt;"));
         properties.addChildElement("includeHeadersInResponse").setTextContent(readBooleanProperty(oldProperties, "dispatcherIncludeHeadersInResponse", false));
         properties.addChildElement("multipart").setTextContent(readBooleanProperty(oldProperties, "dispatcherMultipart", false));
         properties.addChildElement("useAuthentication").setTextContent(readBooleanProperty(oldProperties, "dispatcherUseAuthentication", false));
@@ -891,6 +894,32 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("charset").setTextContent(oldProperties.getProperty("dispatcherCharset", "UTF-8"));
         properties.addChildElement("socketTimeout").setTextContent(oldProperties.getProperty("dispatcherSocketTimeout", "30000"));
 
+        Properties oldHeaderProperties = readPropertiesElement(new DonkeyElement(MigrationUtil.elementFromXml(oldProperties.getProperty("dispatcherHeaders"))));
+
+        DonkeyElement headerProperties = properties.addChildElement("headers");
+        headerProperties.setAttribute("class", "linked-hash-map");
+
+        for (Object key : oldHeaderProperties.keySet()) {
+            String value = oldHeaderProperties.getProperty((String) key);
+
+            DonkeyElement entry = headerProperties.addChildElement("entry");
+            entry.addChildElement("string", (String) key);
+            entry.addChildElement("string", value);
+        }
+    
+        Properties oldParameterProperties = readPropertiesElement(new DonkeyElement(MigrationUtil.elementFromXml(oldProperties.getProperty("dispatcherParameters"))));
+
+        DonkeyElement parameterProperties = properties.addChildElement("parameters");
+        parameterProperties.setAttribute("class", "linked-hash-map");
+
+        for (Object key : oldParameterProperties.keySet()) {
+            String value = oldParameterProperties.getProperty((String) key);
+
+            DonkeyElement entry = parameterProperties.addChildElement("entry");
+            entry.addChildElement("string", (String) key);
+            entry.addChildElement("string", value);
+        }
+    
         return oldProperties.getProperty("dispatcherReplyChannelId");
     }
 
