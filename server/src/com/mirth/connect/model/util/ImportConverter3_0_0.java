@@ -534,6 +534,22 @@ public class ImportConverter3_0_0 {
         DonkeyElement inboundProperties = transformer.getChildElement("inboundProperties");
         DonkeyElement outboundProperties = transformer.getChildElement("outboundProperties");
 
+        /*
+         * If both inbound and outbound data types are HL7V2, then the inbound convertLineBreaks
+         * needs to be set to true if convertLFtoCR is true on the outbound.
+         */
+        if (inboundDataType.getTextContent().equals("HL7V2") && outboundDataType.getTextContent().equals("HL7V2")) {
+            boolean convertLFtoCROutbound = (outboundProperties == null) ? true : readBooleanValue(readPropertiesElement(outboundProperties), "convertLFtoCR", true);
+
+            if (inboundProperties != null && convertLFtoCROutbound) {
+                for (DonkeyElement propertyElement : inboundProperties.getChildElements()) {
+                    if (propertyElement.getAttribute("name").equals("convertLFtoCR")) {
+                        propertyElement.setTextContent("true");
+                    }
+                }
+            }
+        }
+
         if (inboundProperties == null) {
             inboundProperties = transformer.addChildElement("inboundProperties");
         }
