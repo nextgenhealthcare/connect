@@ -28,11 +28,18 @@ public class ER7BatchAdaptor implements BatchAdaptor {
     private String segmentDelimiter;
 
     public ER7BatchAdaptor(SerializerProperties properties) {
-        String pattern = "\r\n|\r|\n";
-        segmentDelimiter = ((HL7v2SerializationProperties) properties.getSerializationProperties()).getSegmentDelimiter();
+        HL7v2SerializationProperties serializationProperties = (HL7v2SerializationProperties) properties.getSerializationProperties();
+        segmentDelimiter = serializationProperties.getSegmentDelimiter();
 
-        if (!(segmentDelimiter.equals("\r") || segmentDelimiter.equals("\n") || segmentDelimiter.equals("\r\n"))) {
-            pattern += "|" + Pattern.quote(segmentDelimiter);
+        String pattern;
+        if (serializationProperties.isConvertLineBreaks()) {
+            pattern = "\r\n|\r|\n";
+
+            if (!(segmentDelimiter.equals("\r") || segmentDelimiter.equals("\n") || segmentDelimiter.equals("\r\n"))) {
+                pattern += "|" + Pattern.quote(segmentDelimiter);
+            }
+        } else {
+            pattern = Pattern.quote(segmentDelimiter);
         }
 
         lineBreakPattern = Pattern.compile(pattern);
