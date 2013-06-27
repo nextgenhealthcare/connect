@@ -14,7 +14,7 @@ import java.io.CharArrayReader;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -33,13 +33,13 @@ public class HL7v2ResponseValidator implements ResponseValidator {
 
     private HL7v2SerializationProperties serializationProperties;
     private HL7v2ResponseValidationProperties responseValidationProperties;
-    private String[] segmentDelimiters;
+    private String serializationSegmentDelimiter;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     public HL7v2ResponseValidator(SerializationProperties serializationProperties, ResponseValidationProperties responseValidationProperties) {
         this.serializationProperties = (HL7v2SerializationProperties) serializationProperties;
         this.responseValidationProperties = (HL7v2ResponseValidationProperties) responseValidationProperties;
-        segmentDelimiters = StringUtil.unescape(this.serializationProperties.getSegmentDelimiter()).split("\\|");
+        serializationSegmentDelimiter = StringUtil.unescape(this.serializationProperties.getSegmentDelimiter());
     }
 
     @Override
@@ -64,20 +64,22 @@ public class HL7v2ResponseValidator implements ResponseValidator {
                     response.setError(ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_600, response.getStatusMessage(), e));
                 }
             } else {
+                if (serializationProperties.isConvertLineBreaks()) {
+                    responseData = StringUtil.convertLineBreaks(responseData, serializationSegmentDelimiter);
+                }
+
                 // ER7 response received
                 int index = -1;
 
                 // Attempt to find the MSA segment using the segment delimiters in the serialization properties
-                for (String delimiter : segmentDelimiters) {
-                    if ((index = responseData.indexOf(delimiter + "MSA")) >= 0) {
-                        // MSA found; add the length of the segment delimiter, MSA, and field separator to get to the index of MSA.1
-                        index += delimiter.length() + 4;
+                if ((index = responseData.indexOf(serializationSegmentDelimiter + "MSA")) >= 0) {
+                    // MSA found; add the length of the segment delimiter, MSA, and field separator to get to the index of MSA.1
+                    index += serializationSegmentDelimiter.length() + 4;
 
-                        if (responseData.startsWith(responseValidationProperties.getErrorACKCode(), index) || responseData.startsWith(responseValidationProperties.getRejectedACKCode(), index)) {
-                            handleNACK(response);
-                        } else if (responseData.startsWith(responseValidationProperties.getSuccessfulACKCode(), index)) {
-                            response.setStatus(Status.SENT);
-                        }
+                    if (responseData.startsWith(responseValidationProperties.getErrorACKCode(), index) || responseData.startsWith(responseValidationProperties.getRejectedACKCode(), index)) {
+                        handleNACK(response);
+                    } else if (responseData.startsWith(responseValidationProperties.getSuccessfulACKCode(), index)) {
+                        response.setStatus(Status.SENT);
                     }
                 }
             }

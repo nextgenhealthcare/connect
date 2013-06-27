@@ -295,8 +295,6 @@ public class ImportConverter3_0_0 {
                     inboundProperties = transformer.addChildElement("inboundProperties");
                 }
 
-                boolean frameEncodingHex = connectorProperties.getProperty("charEncoding", "hex").equals("hex");
-                addChildAndSetName(inboundProperties, "segmentDelimiter").setTextContent(convertToEscapedString(connectorProperties.getProperty("segmentEnd", "0D"), frameEncodingHex));
                 addChildAndSetName(inboundProperties, "successfulACKCode").setTextContent(connectorProperties.getProperty("ackCodeSuccessful", "AA"));
                 addChildAndSetName(inboundProperties, "successfulACKMessage").setTextContent(connectorProperties.getProperty("ackMsgSuccessful", ""));
                 addChildAndSetName(inboundProperties, "errorACKCode").setTextContent(connectorProperties.getProperty("ackCodeError", "AE"));
@@ -536,24 +534,6 @@ public class ImportConverter3_0_0 {
         DonkeyElement inboundProperties = transformer.getChildElement("inboundProperties");
         DonkeyElement outboundProperties = transformer.getChildElement("outboundProperties");
 
-        /*
-         * We set the inbound and outbound HL7v2 segment delimiters here because each property set
-         * is dependent on the other. If at least one of them has "Convert LF to CR" enabled, then
-         * it can affect the value of the segment delimiters set on both elements.
-         */
-        if (inboundDataType.getTextContent().equals("HL7V2") || outboundDataType.getTextContent().equals("HL7V2")) {
-            boolean convertLFtoCRInbound = (inboundProperties == null) ? false : readBooleanValue(readPropertiesElement(inboundProperties), "convertLFtoCR", false);
-            boolean convertLFtoCROutbound = (outboundProperties == null) ? false : readBooleanValue(readPropertiesElement(outboundProperties), "convertLFtoCR", false);
-
-            if (inboundDataType.getTextContent().equals("HL7V2") && inboundProperties != null) {
-                setHL7v2SegmentDelimiters(inboundProperties, convertLFtoCRInbound, convertLFtoCROutbound);
-            }
-
-            if (outboundDataType.getTextContent().equals("HL7V2") && outboundProperties != null) {
-                setHL7v2SegmentDelimiters(outboundProperties, convertLFtoCRInbound, convertLFtoCROutbound);
-            }
-        }
-
         if (inboundProperties == null) {
             inboundProperties = transformer.addChildElement("inboundProperties");
         }
@@ -572,46 +552,6 @@ public class ImportConverter3_0_0 {
         if (outboundDataType.getTextContent().equals("EDI") || outboundDataType.getTextContent().equals("X12")) {
             outboundDataType.setTextContent("EDI/X12");
         }
-    }
-
-    private static void setHL7v2SegmentDelimiters(DonkeyElement properties, boolean convertLFtoCRInbound, boolean convertLFtoCROutbound) {
-        String segmentDelimiter;
-        String inboundSegmentDelimiter;
-        String outboundSegmentDelimiter;
-
-        // If we've manually set a segment delimiter (i.e. with an LLP Listener), retrieve that here
-        if (properties.getChildElement("segmentDelimiter") != null) {
-            segmentDelimiter = properties.getChildElement("segmentDelimiter").getTextContent();
-        } else {
-            segmentDelimiter = "\\r";
-        }
-
-        if (!convertLFtoCRInbound && !convertLFtoCROutbound) {
-            /*
-             * If "Convert LF to CR" is disabled on both the inbound and outbound side, then no
-             * replacement will be done. Therefore, the expected inbound and outbound delimiters
-             * will be the same.
-             */
-            inboundSegmentDelimiter = outboundSegmentDelimiter = segmentDelimiter;
-        } else {
-            /*
-             * If "Convert LF to CR" is enabled on at least one side, then there may be more than
-             * one accepted inbound delimiter, and the outbound delimiter will always be a carriage
-             * return.
-             */
-            if (segmentDelimiter.equals("\\r")) {
-                inboundSegmentDelimiter = "\\r\\n|\\r|\\n";
-            } else if (segmentDelimiter.equals("\\n")) {
-                inboundSegmentDelimiter = "\\r\\n|\\n";
-            } else {
-                inboundSegmentDelimiter = "\\r\\n|\\n|" + segmentDelimiter;
-            }
-
-            outboundSegmentDelimiter = "\\r";
-        }
-
-        addChildAndSetName(properties, "inboundSegmentDelimiter").setTextContent(inboundSegmentDelimiter);
-        addChildAndSetName(properties, "outboundSegmentDelimiter").setTextContent(outboundSegmentDelimiter);
     }
 
     private static void migrateDataTypeProperties(DonkeyElement properties, String dataType) {
@@ -1453,10 +1393,6 @@ public class ImportConverter3_0_0 {
         properties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v2.HL7v2DataTypeProperties");
         properties.removeChildren();
 
-        // If the data type was HL7 v2.x we set these two properties earlier, so retrieve them now
-        String inboundSegmentDelimiter = oldProperties.getProperty("inboundSegmentDelimiter", "\\r\\n|\\r|\\n");
-        String outboundSegmentDelimiter = oldProperties.getProperty("outboundSegmentDelimiter", "\\r");
-
         DonkeyElement serializationProperties = properties.addChildElement("serializationProperties");
         serializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v2.HL7v2SerializationProperties");
         serializationProperties.addChildElement("handleRepetitions").setTextContent(oldProperties.getProperty("handleRepetitions", "false"));
@@ -1464,17 +1400,18 @@ public class ImportConverter3_0_0 {
         serializationProperties.addChildElement("useStrictParser").setTextContent(oldProperties.getProperty("useStrictParser", "false"));
         serializationProperties.addChildElement("useStrictValidation").setTextContent(oldProperties.getProperty("useStrictValidation", "false"));
         serializationProperties.addChildElement("stripNamespaces").setTextContent(oldProperties.getProperty("stripNamespaces", "true"));
-        serializationProperties.addChildElement("segmentDelimiter").setTextContent(inboundSegmentDelimiter);
+        serializationProperties.addChildElement("segmentDelimiter").setTextContent("\\r");
+        serializationProperties.addChildElement("convertLineBreaks").setTextContent(oldProperties.getProperty("convertLFtoCR", "true"));
 
         DonkeyElement deserializationProperties = properties.addChildElement("deserializationProperties");
         deserializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v2.HL7v2DeserializationProperties");
         deserializationProperties.addChildElement("useStrictParser").setTextContent(oldProperties.getProperty("useStrictParser", "false"));
         deserializationProperties.addChildElement("useStrictValidation").setTextContent(oldProperties.getProperty("useStrictValidation", "false"));
-        deserializationProperties.addChildElement("segmentDelimiter").setTextContent(outboundSegmentDelimiter);
+        deserializationProperties.addChildElement("segmentDelimiter").setTextContent("\\r");
 
         DonkeyElement responseGenerationProperties = properties.addChildElement("responseGenerationProperties");
         responseGenerationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v2.HL7v2ResponseGenerationProperties");
-        responseGenerationProperties.addChildElement("segmentDelimiter").setTextContent(outboundSegmentDelimiter);
+        responseGenerationProperties.addChildElement("segmentDelimiter").setTextContent("\\r");
 
         /*
          * These properties would have been set manually in migrateConnector if the source connector

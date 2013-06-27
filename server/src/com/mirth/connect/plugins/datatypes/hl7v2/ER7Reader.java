@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xerces.parsers.SAXParser;
 import org.xml.sax.ContentHandler;
@@ -110,7 +111,7 @@ public class ER7Reader extends SAXParser {
         }
 
         // tokenize the segments first
-        String[] segments = message.split(segmentDelimiter);
+        String[] segments = StringUtils.split(message, segmentDelimiter);
         String documentHead = handleSegments("", contentHandler, fieldSeparator, componentSeparator, subcomponentSeparator, repetitionSeparator, escapeCharacter, segments);
         contentHandler.endElement("", documentHead, "");
         contentHandler.endDocument();

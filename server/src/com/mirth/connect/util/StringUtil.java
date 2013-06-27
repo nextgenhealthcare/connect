@@ -16,7 +16,55 @@ import org.apache.commons.lang3.StringUtils;
 public class StringUtil {
     
     private static final Pattern pattern = Pattern.compile("xmlns:?[^=]*=[\\\"\\\"][^\\\"\\\"]*[\\\"\\\"]");
-    
+
+    public static String convertLineBreaks(String text, String replacement) {
+        int start = 0;
+        int end = -1;
+
+        StringBuilder builder = new StringBuilder(text.length());
+
+        for (int i = 0; i < text.length(); i++) {
+            boolean append = false;
+
+            /*
+             * When encountering a CR or LF, append the segment since the last start index to the
+             * buffer. Then append the replacement string.
+             */
+            if (text.charAt(i) == '\r') {
+                end = i;
+                append = true;
+
+                /*
+                 * After a CR, check if the next immediate character is an LF. If so, skip that
+                 * character.
+                 */
+                if (i + 1 < text.length() && text.charAt(i + 1) == '\n') {
+                    i++;
+                }
+            } else if (text.charAt(i) == '\n') {
+                end = i;
+                append = true;
+            }
+
+            if (append) {
+                builder.append(text.substring(start, end));
+                builder.append(replacement);
+
+                start = i + 1;
+            }
+        }
+
+        if (start == 0) {
+            // If no replacements were made, just return the original text.
+            return text;
+        } else {
+            // Append the remainder of the message to the buffer.
+            builder.append(text.substring(start, text.length()));
+
+            return builder.toString();
+        }
+    }
+
     public static String stripNamespaces(String string) {
         return pattern.matcher(string).replaceAll("");
     }

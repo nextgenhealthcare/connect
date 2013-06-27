@@ -20,6 +20,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -126,7 +127,11 @@ public class HL7v2AutoResponder implements AutoResponder {
                     Pattern fieldPattern = Pattern.compile(Pattern.quote(String.valueOf(fieldDelim)));
                     Pattern componentPattern = Pattern.compile(Pattern.quote(String.valueOf(componentDelim)));
 
-                    String mshString = hl7Message.split(serializationSegmentDelimiter)[0];
+                    if (serializationProperties.isConvertLineBreaks()) {
+                        hl7Message = StringUtil.convertLineBreaks(hl7Message, serializationSegmentDelimiter);
+                    }
+
+                    String mshString = StringUtils.split(hl7Message, serializationSegmentDelimiter)[0];
                     String[] mshFields = fieldPattern.split(mshString);
 
                     if (mshFields.length > 14) {

@@ -22,7 +22,8 @@ public class HL7v2SerializationProperties extends SerializationProperties {
     private boolean useStrictParser = false;
     private boolean useStrictValidation = false;
     private boolean stripNamespaces = true; // Used in JST for strict parser
-    private String segmentDelimiter = "\\r\\n|\\r|\\n";
+    private String segmentDelimiter = "\\r";
+    private boolean convertLineBreaks = true;
 
     @Override
     public Map<String, DataTypePropertyDescriptor> getPropertyDescriptors() {
@@ -33,8 +34,9 @@ public class HL7v2SerializationProperties extends SerializationProperties {
         properties.put("useStrictParser", new DataTypePropertyDescriptor(useStrictParser, "Use Strict Parser", "Parse messages based upon strict HL7 specifications.", PropertyEditorType.BOOLEAN));
         properties.put("useStrictValidation", new DataTypePropertyDescriptor(useStrictValidation, "Validate in Strict Parser", "Validate messages using HL7 specifications (applies to Strict Parser only).", PropertyEditorType.BOOLEAN));
         properties.put("stripNamespaces", new DataTypePropertyDescriptor(stripNamespaces, "Strip Namespaces", "Strips namespace definitions from the transformed XML message (applies to Strict Parser only).", PropertyEditorType.BOOLEAN));
-        properties.put("segmentDelimiter", new DataTypePropertyDescriptor(segmentDelimiter, "Segment Delimiter", "This is the input delimiter character(s) expected to occur after each segment. Separate multiple possible values with the pipe (|) character.", PropertyEditorType.STRING));
-
+        properties.put("segmentDelimiter", new DataTypePropertyDescriptor(segmentDelimiter, "Segment Delimiter", "This is the input delimiter character(s) expected to occur after each segment.", PropertyEditorType.STRING));
+        properties.put("convertLineBreaks", new DataTypePropertyDescriptor(convertLineBreaks, "Convert Line Breaks", "Convert all styles of line breaks (CRLF, CR, LF) in the raw message to the segment delimiter. ", PropertyEditorType.BOOLEAN));
+        
         return properties;
     }
 
@@ -63,6 +65,10 @@ public class HL7v2SerializationProperties extends SerializationProperties {
 
             if (properties.get("segmentDelimiter") != null) {
                 this.segmentDelimiter = (String) properties.get("segmentDelimiter");
+            }
+
+            if (properties.get("convertLineBreaks") != null) {
+                this.convertLineBreaks = (Boolean) properties.get("convertLineBreaks");
             }
         }
     }
@@ -113,5 +119,13 @@ public class HL7v2SerializationProperties extends SerializationProperties {
 
     public void setSegmentDelimiter(String segmentDelimiter) {
         this.segmentDelimiter = segmentDelimiter;
+    }
+
+    public boolean isConvertLineBreaks() {
+        return convertLineBreaks;
+    }
+
+    public void setConvertLineBreaks(boolean convertLineBreaks) {
+        this.convertLineBreaks = convertLineBreaks;
     }
 }

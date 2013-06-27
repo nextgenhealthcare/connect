@@ -47,9 +47,8 @@ public class ER7Serializer implements IXMLSerializer {
     private PipeParser deserializationPipeParser = null;
     private XMLParser deserializationXmlParser = null;
 
-    private Pattern serializationSegmentDelimiterPattern = null;
+    private boolean skipIntermediateDelimiter = false;
     private String serializationSegmentDelimiter = null;
-    private String[] serializationSegmentDelimiters = null;
     private String deserializationSegmentDelimiter = null;
     private HL7v2SerializationProperties serializationProperties;
     private HL7v2DeserializationProperties deserializationProperties;
@@ -64,8 +63,10 @@ public class ER7Serializer implements IXMLSerializer {
 
         if (serializationProperties != null) {
             serializationSegmentDelimiter = StringUtil.unescape(serializationProperties.getSegmentDelimiter());
-            serializationSegmentDelimiters = serializationSegmentDelimiter.split("\\|");
-            serializationSegmentDelimiterPattern = Pattern.compile(serializationSegmentDelimiter);
+
+            if (serializationSegmentDelimiter.equals("\r") || serializationSegmentDelimiter.equals("\n") || serializationSegmentDelimiter.equals("\r\n")) {
+                skipIntermediateDelimiter = true;
+            }
         }
         if (deserializationProperties != null) {
             deserializationSegmentDelimiter = StringUtil.unescape(deserializationProperties.getSegmentDelimiter());
@@ -100,13 +101,33 @@ public class ER7Serializer implements IXMLSerializer {
 
     @Override
     public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
+        boolean transformed = false;
         ER7Serializer serializer = (ER7Serializer) outboundSerializer;
         String outputSegmentDelimiter = serializer.getDeserializationSegmentDelimiter();
 
-        for (String delimiter : serializationSegmentDelimiters) {
-            if (!delimiter.equals(outputSegmentDelimiter) && message.contains(delimiter)) {
-                return serializationSegmentDelimiterPattern.matcher(message).replaceAll(outputSegmentDelimiter);
+        if (serializationProperties.isConvertLineBreaks()) {
+            if (skipIntermediateDelimiter) {
+                /*
+                 * When convert line breaks is on and transform without serializing is called,
+                 * ordinarily line breaks would be converted to the serialization delimiter, then the
+                 * serialization delimiter would be converted to the deserialization delimiter. In this
+                 * case, we can skip a step by simply converting line breaks to the deserialization
+                 * delimiter if the serialization delimiter is also a line break.
+                 */
+                return StringUtil.convertLineBreaks(message, outputSegmentDelimiter);
             }
+
+            message = StringUtil.convertLineBreaks(message, serializationSegmentDelimiter);
+            transformed = true;
+        }
+
+        if (!serializationSegmentDelimiter.equals(outputSegmentDelimiter)) {
+            message = StringUtils.replace(message, serializationSegmentDelimiter, outputSegmentDelimiter);
+            transformed = true;
+        }
+
+        if (transformed) {
+            return message;
         }
 
         return null;
@@ -122,6 +143,10 @@ public class ER7Serializer implements IXMLSerializer {
     @Override
     public String toXML(String source) throws XmlSerializerException {
         try {
+            if (serializationProperties.isConvertLineBreaks()) {
+                source = StringUtil.convertLineBreaks(source, serializationSegmentDelimiter);
+            }
+            
             if (serializationProperties.isUseStrictParser()) {
                 if (serializationPipeParser == null || serializationXmlParser == null) {
                     serializationPipeParser = new PipeParser();
@@ -147,11 +172,6 @@ public class ER7Serializer implements IXMLSerializer {
                         // If the message is XML and strict validation is not needed, we can use the source directly.
                     }
                 } else {
-                    //TODO need to update how data type properties work after the beta. This may or may not be wrong.
-                    // Right now, if strict parser is used on the source, it will need to be used for the destinations as well.
-                    if (!serializationSegmentDelimiter.equals("\r")) {
-                        source = serializationSegmentDelimiterPattern.matcher(source).replaceAll("\r");
-                    }
                     message = serializationPipeParser.parse(source);
                 }
 
