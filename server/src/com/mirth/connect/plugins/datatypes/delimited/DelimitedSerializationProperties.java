@@ -21,7 +21,7 @@ import com.mirth.connect.model.datatype.SerializationProperties;
 
 public class DelimitedSerializationProperties extends SerializationProperties {
 
-    private transient Logger logger = Logger.getLogger(this.getClass());
+    private transient Logger logger;
 
     private String columnDelimiter = ",";
     private String recordDelimiter = "\\n";
@@ -61,26 +61,31 @@ public class DelimitedSerializationProperties extends SerializationProperties {
                 recordDelimiter = (String) properties.get("recordDelimiter");
             }
 
-            if (properties.get("columnWidths") != null) {
-                if (StringUtils.isEmpty((String) properties.get("columnWidths"))) {
-                    columnWidths = null;
-                } else {
-                    // Split the comma delimited list of column widths and store as int[]
-                    String[] temp = ((String) properties.get("columnWidths")).split(",");
-                    columnWidths = new Integer[temp.length];
-                    for (int i = 0; i < temp.length; i++) {
-                        try {
-                            columnWidths[i] = Integer.parseInt(temp[i]);
+            if (StringUtils.isNotEmpty((String) properties.get("columnWidths"))) {
+                // Split the comma delimited list of column widths and store as int[]
+                String[] temp = ((String) properties.get("columnWidths")).split(",");
+                Integer[] columnWidths = new Integer[temp.length];
+                boolean error = false;
 
-                            if (columnWidths[i] <= 0) {
-                                logger.error("Fixed column width must be positive integer: " + columnWidths[i]);
-                            }
-                        } catch (NumberFormatException e) {
-                            columnWidths[i] = 0;
-                            logger.warn("Invalid number format in Column Widths: " + temp[i]);
+                for (int i = 0; i < temp.length; i++) {
+                    try {
+                        columnWidths[i] = Integer.parseInt(temp[i]);
+
+                        if (columnWidths[i] <= 0) {
+                            error = true;
+                            logError("Fixed column width must be positive integer: " + columnWidths[i]);
                         }
+                    } catch (NumberFormatException e) {
+                        error = true;
+                        logError("Invalid number format in Column Widths: " + temp[i]);
                     }
                 }
+
+                if (!error) {
+                    this.columnWidths = columnWidths;
+                }
+            } else {
+                columnWidths = null;
             }
 
             if (StringUtils.isNotEmpty((String) properties.get("quoteChar"))) {
@@ -95,15 +100,24 @@ public class DelimitedSerializationProperties extends SerializationProperties {
                 quoteEscapeChar = (String) properties.get("quoteEscapeChar");
             }
 
-            if (properties.get("columnNames") != null) {
+            if (StringUtils.isNotEmpty((String) properties.get("columnNames"))) {
                 // Split the comma delimited list of column names and store as String[]
-                columnNames = ((String) properties.get("columnNames")).split(",");
+                String[] columnNames = ((String) properties.get("columnNames")).split(",");
+
+                boolean error = false;
 
                 for (int i = 0; i < columnNames.length; i++) {
                     if (!validXMLElementName(columnNames[i])) {
-                        logger.error("Invalid column name: " + columnNames[i] + " (must be a combination of letters, digits, periods, dashes, underscores and colons that begins with a letter, underscore or colon)");
+                        error = true;
+                        logError("Invalid column name: " + columnNames[i] + " (must be a combination of letters, digits, periods, dashes, underscores and colons that begins with a letter, underscore or colon)");
                     }
                 }
+
+                if (!error) {
+                    this.columnNames = columnNames;
+                }
+            } else {
+                columnNames = null;
             }
 
             if (properties.get("numberedRows") != null) {
@@ -114,6 +128,14 @@ public class DelimitedSerializationProperties extends SerializationProperties {
                 ignoreCR = (Boolean) properties.get("ignoreCR");
             }
         }
+    }
+
+    private void logError(String error) {
+        if (logger == null) {
+            logger = Logger.getLogger(this.getClass());
+        }
+
+        logger.error(error);
     }
 
     private String toCommaSeparatedString(Object[] objects) {

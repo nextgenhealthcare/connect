@@ -21,7 +21,7 @@ import com.mirth.connect.model.datatype.PropertyEditorType;
 
 public class DelimitedDeserializationProperties extends DeserializationProperties {
 
-    private transient Logger logger = Logger.getLogger(this.getClass());
+    private transient Logger logger;
 
     private String columnDelimiter = ",";
     private String recordDelimiter = "\\n";
@@ -55,26 +55,31 @@ public class DelimitedDeserializationProperties extends DeserializationPropertie
                 recordDelimiter = (String) properties.get("recordDelimiter");
             }
 
-            if (properties.get("columnWidths") != null) {
-                if (StringUtils.isEmpty((String) properties.get("columnWidths"))) {
-                    columnWidths = null;
-                } else {
-                    // Split the comma delimited list of column widths and store as int[]
-                    String[] temp = ((String) properties.get("columnWidths")).split(",");
-                    columnWidths = new Integer[temp.length];
-                    for (int i = 0; i < temp.length; i++) {
-                        try {
-                            columnWidths[i] = Integer.parseInt(temp[i]);
+            if (StringUtils.isNotEmpty((String) properties.get("columnWidths"))) {
+                // Split the comma delimited list of column widths and store as int[]
+                String[] temp = ((String) properties.get("columnWidths")).split(",");
+                Integer[] columnWidths = new Integer[temp.length];
+                boolean error = false;
 
-                            if (columnWidths[i] <= 0) {
-                                logger.error("Fixed column width must be positive integer: " + columnWidths[i]);
-                            }
-                        } catch (NumberFormatException e) {
-                            columnWidths[i] = 0;
-                            logger.warn("Invalid number format in Column Widths: " + temp[i]);
+                for (int i = 0; i < temp.length; i++) {
+                    try {
+                        columnWidths[i] = Integer.parseInt(temp[i]);
+
+                        if (columnWidths[i] <= 0) {
+                            error = true;
+                            logError("Fixed column width must be positive integer: " + columnWidths[i]);
                         }
+                    } catch (NumberFormatException e) {
+                        error = true;
+                        logError("Invalid number format in Column Widths: " + temp[i]);
                     }
                 }
+
+                if (!error) {
+                    this.columnWidths = columnWidths;
+                }
+            } else {
+                columnWidths = null;
             }
 
             if (StringUtils.isNotEmpty((String) properties.get("quoteChar"))) {
@@ -89,6 +94,14 @@ public class DelimitedDeserializationProperties extends DeserializationPropertie
                 quoteEscapeChar = (String) properties.get("quoteEscapeChar");
             }
         }
+    }
+
+    private void logError(String error) {
+        if (logger == null) {
+            logger = Logger.getLogger(this.getClass());
+        }
+
+        logger.error(error);
     }
 
     private String toCommaSeparatedString(Object[] objects) {
