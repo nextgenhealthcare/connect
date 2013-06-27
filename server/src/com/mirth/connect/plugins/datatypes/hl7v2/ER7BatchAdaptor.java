@@ -13,6 +13,7 @@ import java.io.Reader;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.server.message.BatchAdaptor;
@@ -23,9 +24,19 @@ import com.mirth.connect.model.datatype.SerializerProperties;
 public class ER7BatchAdaptor implements BatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());
 
-    private Pattern lineBreakPattern = Pattern.compile("\r\n|\r|\n");
+    private Pattern lineBreakPattern;
+    private String segmentDelimiter;
 
-    public ER7BatchAdaptor(SerializerProperties properties) {}
+    public ER7BatchAdaptor(SerializerProperties properties) {
+        String pattern = "\r\n|\r|\n";
+        segmentDelimiter = ((HL7v2SerializationProperties) properties.getSerializationProperties()).getSegmentDelimiter();
+
+        if (!(segmentDelimiter.equals("\r") || segmentDelimiter.equals("\n") || segmentDelimiter.equals("\r\n"))) {
+            pattern += "|" + Pattern.quote(segmentDelimiter);
+        }
+
+        lineBreakPattern = Pattern.compile(pattern);
+    }
 
     @Override
     public void processBatch(Reader src, BatchMessageProcessor dest) throws Exception {
@@ -34,18 +45,16 @@ public class ER7BatchAdaptor implements BatchAdaptor {
         // TODO: src is a character stream, not a byte stream
         byte startOfMessage = (byte) 0x0B;
         byte endOfMessage = (byte) 0x1C;
-        byte endOfRecord = (byte) 0x0D;
 
         Scanner scanner = null;
         try {
             scanner = new Scanner(src);
             scanner.useDelimiter(lineBreakPattern);
             StringBuilder message = new StringBuilder();
-            char data[] = { (char) startOfMessage, (char) endOfMessage };
             boolean errored = false;
 
             while (scanner.hasNext()) {
-                String line = scanner.next().replaceAll(new String(data, 0, 1), "").replaceAll(new String(data, 1, 1), "").trim();
+                String line = StringUtils.remove(StringUtils.remove(scanner.next(), (char) startOfMessage), (char) endOfMessage).trim();
 
                 if ((line.length() == 0) || line.equals((char) endOfMessage) || line.startsWith("MSH")) {
                     if (message.length() > 0) {
@@ -68,13 +77,13 @@ public class ER7BatchAdaptor implements BatchAdaptor {
 
                     if (line.length() > 0) {
                         message.append(line);
-                        message.append((char) endOfRecord);
+                        message.append(segmentDelimiter);
                     }
                 } else if (line.startsWith("FHS") || line.startsWith("BHS") || line.startsWith("BTS") || line.startsWith("FTS")) {
                     // ignore batch headers
                 } else {
                     message.append(line);
-                    message.append((char) endOfRecord);
+                    message.append(segmentDelimiter);
                 }
             }
 
