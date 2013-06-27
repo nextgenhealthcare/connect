@@ -94,25 +94,22 @@ public class NCPDPSerializer implements IXMLSerializer {
 
         NCPDPSerializer serializer = (NCPDPSerializer) outboundSerializer;
 
-        String inputSegmentDelimiter = serializationSegmentDelimiter;
         String outputSegmentDelimiter = serializer.getDeserializationSegmentDelimiter();
-        String inputGroupDelimiter = serializationGroupDelimiter;
         String outputGroupDelimiter = serializer.getDeserializationGroupDelimiter();
-        String inputFieldDelimiter = serializationFieldDelimiter;
         String outputFieldDelimiter = serializer.getDeserializationFieldDelimiter();
 
-        if (!inputSegmentDelimiter.equals(outputSegmentDelimiter)) {
-            message = message.replace(inputSegmentDelimiter, outputSegmentDelimiter);
+        if (!serializationSegmentDelimiter.equals(outputSegmentDelimiter)) {
+            message = StringUtils.replace(message, serializationSegmentDelimiter, outputSegmentDelimiter);
             transformed = true;
         }
 
-        if (!inputGroupDelimiter.equals(outputGroupDelimiter)) {
-            message = message.replace(inputGroupDelimiter, outputGroupDelimiter);
+        if (!serializationGroupDelimiter.equals(outputGroupDelimiter)) {
+            message = StringUtils.replace(message, serializationGroupDelimiter, outputGroupDelimiter);
             transformed = true;
         }
 
-        if (!inputFieldDelimiter.equals(outputFieldDelimiter)) {
-            message = message.replace(inputFieldDelimiter, outputFieldDelimiter);
+        if (!serializationFieldDelimiter.equals(outputFieldDelimiter)) {
+            message = StringUtils.replace(message, serializationFieldDelimiter, outputFieldDelimiter);
             transformed = true;
         }
 
