@@ -661,7 +661,7 @@ public class ImportConverter3_0_0 {
 
         properties.addChildElement("channelId").setTextContent(host);
         properties.addChildElement("responseTimeout").setTextContent("0");
-        properties.addChildElement("channelTemplate").setTextContent(oldProperties.getProperty("template", "${message.encodedData}"));
+        properties.addChildElement("channelTemplate").setTextContent(convertReferences(oldProperties.getProperty("template", "${message.encodedData}")));
     }
 
     private static void migrateDICOMReceiverProperties(DonkeyElement properties) {
@@ -719,7 +719,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("localHost").setTextContent(oldProperties.getProperty("localHost", ""));
         properties.addChildElement("localPort").setTextContent(oldProperties.getProperty("localPort", ""));
         properties.addChildElement("localApplicationEntity").setTextContent(oldProperties.getProperty("localApplicationEntity", ""));
-        properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", "${DICOMMESSAGE}"));
+        properties.addChildElement("template").setTextContent(convertReferences(oldProperties.getProperty("template", "${DICOMMESSAGE}")));
         properties.addChildElement("acceptTo").setTextContent(oldProperties.getProperty("accecptto", "5000"));
         properties.addChildElement("async").setTextContent(oldProperties.getProperty("async", "0"));
         properties.addChildElement("bufSize").setTextContent(oldProperties.getProperty("bufsize", "1"));
@@ -758,12 +758,12 @@ public class ImportConverter3_0_0 {
         properties.removeChildren();
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
-        properties.addChildElement("host").setTextContent(oldProperties.getProperty("host", ""));
-        properties.addChildElement("outputPattern").setTextContent(oldProperties.getProperty("outputPattern", ""));
+        properties.addChildElement("host").setTextContent(convertReferences(oldProperties.getProperty("host", "")));
+        properties.addChildElement("outputPattern").setTextContent(convertReferences(oldProperties.getProperty("outputPattern", "")));
         properties.addChildElement("documentType").setTextContent(oldProperties.getProperty("documentType", "pdf"));
         properties.addChildElement("encrypt").setTextContent(readBooleanProperty(oldProperties, "encrypt", false));
-        properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", ""));
-        properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", ""));
+        properties.addChildElement("password").setTextContent(convertReferences(oldProperties.getProperty("password", "")));
+        properties.addChildElement("template").setTextContent(convertReferences(oldProperties.getProperty("template", "")));
     }
 
     private static void migrateFileReceiverProperties(DonkeyElement properties) {
@@ -795,8 +795,8 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
         properties.addChildElement("processBatch").setTextContent(readBooleanProperty(oldProperties, "processBatchFiles", false));
 
-        String moveToDirectory = oldProperties.getProperty("moveToDirectory");
-        String moveToFileName = oldProperties.getProperty("moveToPattern");
+        String moveToDirectory = convertReferences(oldProperties.getProperty("moveToDirectory"));
+        String moveToFileName = convertReferences(oldProperties.getProperty("moveToPattern"));
 
         properties.addChildElement("moveToDirectory").setTextContent(moveToDirectory);
         properties.addChildElement("moveToFileName").setTextContent(moveToFileName);
@@ -811,7 +811,7 @@ public class ImportConverter3_0_0 {
 
         properties.addChildElement("afterProcessingAction").setTextContent(afterProcessingAction);
 
-        String errorMoveToDirectory = oldProperties.getProperty("moveToErrorDirectory");
+        String errorMoveToDirectory = convertReferences(oldProperties.getProperty("moveToErrorDirectory"));
         String errorReadingAction = "NONE";
 
         if (!StringUtils.isBlank(errorMoveToDirectory)) {
@@ -833,11 +833,11 @@ public class ImportConverter3_0_0 {
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
 
         properties.addChildElement("scheme").setTextContent(oldProperties.getProperty("scheme", "file").toUpperCase());
-        properties.addChildElement("host").setTextContent(oldProperties.getProperty("host", ""));
-        properties.addChildElement("outputPattern").setTextContent(oldProperties.getProperty("outputPattern", ""));
+        properties.addChildElement("host").setTextContent(convertReferences(oldProperties.getProperty("host", "")));
+        properties.addChildElement("outputPattern").setTextContent(convertReferences(oldProperties.getProperty("outputPattern", "")));
         properties.addChildElement("anonymous").setTextContent(readBooleanProperty(oldProperties, "FTPAnonymous", true));
-        properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", "anonymous"));
-        properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", "anonymous"));
+        properties.addChildElement("username").setTextContent(convertReferences(oldProperties.getProperty("username", "anonymous")));
+        properties.addChildElement("password").setTextContent(convertReferences(oldProperties.getProperty("password", "anonymous")));
         properties.addChildElement("timeout").setTextContent(oldProperties.getProperty("timeout", "10000"));
         properties.addChildElement("secure").setTextContent(readBooleanProperty(oldProperties, "secure", true));
         properties.addChildElement("passive").setTextContent(readBooleanProperty(oldProperties, "passive", true));
@@ -847,7 +847,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("temporary").setTextContent(readBooleanProperty(oldProperties, "temporary", false));
         properties.addChildElement("binary").setTextContent(readBooleanProperty(oldProperties, "binary", false));
         properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
-        properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", ""));
+        properties.addChildElement("template").setTextContent(convertReferences(oldProperties.getProperty("template", "")));
     }
 
     private static void migrateHttpReceiverProperties(DonkeyElement properties) {
@@ -867,7 +867,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("timeout").setTextContent(oldProperties.getProperty("receiverTimeout", "0"));
 
         try {
-            convertEscapedText(properties.addChildElement("responseHeaders"), oldProperties.getProperty("receiverResponseHeaders", "&lt;linked-hash-map/&gt;"));
+            convertEscapedText(properties.addChildElement("responseHeaders"), convertReferences(oldProperties.getProperty("receiverResponseHeaders", "&lt;linked-hash-map/&gt;")));
         } catch (DonkeyElementException e) {
             logger.error("Failed to convert HTTP Receiver connection properties", e);
         }
@@ -881,20 +881,20 @@ public class ImportConverter3_0_0 {
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), readBooleanProperty(oldProperties, "usePersistentQueues"), readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), null);
 
-        properties.addChildElement("host").setTextContent(oldProperties.getProperty("host", ""));
+        properties.addChildElement("host").setTextContent(convertReferences(oldProperties.getProperty("host", "")));
         properties.addChildElement("method").setTextContent(oldProperties.getProperty("dispatcherMethod", "post"));
         properties.addChildElement("includeHeadersInResponse").setTextContent(readBooleanProperty(oldProperties, "dispatcherIncludeHeadersInResponse", false));
         properties.addChildElement("multipart").setTextContent(readBooleanProperty(oldProperties, "dispatcherMultipart", false));
         properties.addChildElement("useAuthentication").setTextContent(readBooleanProperty(oldProperties, "dispatcherUseAuthentication", false));
         properties.addChildElement("authenticationType").setTextContent(oldProperties.getProperty("dispatcherAuthenticationType", "Basic"));
-        properties.addChildElement("username").setTextContent(oldProperties.getProperty("dispatcherUsername", ""));
-        properties.addChildElement("password").setTextContent(oldProperties.getProperty("dispatcherPassword", ""));
-        properties.addChildElement("content").setTextContent(oldProperties.getProperty("dispatcherContent", ""));
+        properties.addChildElement("username").setTextContent(convertReferences(oldProperties.getProperty("dispatcherUsername", "")));
+        properties.addChildElement("password").setTextContent(convertReferences(oldProperties.getProperty("dispatcherPassword", "")));
+        properties.addChildElement("content").setTextContent(convertReferences(oldProperties.getProperty("dispatcherContent", "")));
         properties.addChildElement("contentType").setTextContent(oldProperties.getProperty("dispatcherContentType", "text/plain"));
         properties.addChildElement("charset").setTextContent(oldProperties.getProperty("dispatcherCharset", "UTF-8"));
-        properties.addChildElement("socketTimeout").setTextContent(oldProperties.getProperty("dispatcherSocketTimeout", "30000"));
+        properties.addChildElement("socketTimeout").setTextContent(convertReferences(oldProperties.getProperty("dispatcherSocketTimeout", "30000")));
 
-        Properties oldHeaderProperties = readPropertiesElement(new DonkeyElement(MigrationUtil.elementFromXml(oldProperties.getProperty("dispatcherHeaders"))));
+        Properties oldHeaderProperties = readPropertiesElement(new DonkeyElement(MigrationUtil.elementFromXml(convertReferences(oldProperties.getProperty("dispatcherHeaders")))));
 
         DonkeyElement headerProperties = properties.addChildElement("headers");
         headerProperties.setAttribute("class", "linked-hash-map");
@@ -907,7 +907,7 @@ public class ImportConverter3_0_0 {
             entry.addChildElement("string", value);
         }
     
-        Properties oldParameterProperties = readPropertiesElement(new DonkeyElement(MigrationUtil.elementFromXml(oldProperties.getProperty("dispatcherParameters"))));
+        Properties oldParameterProperties = readPropertiesElement(new DonkeyElement(MigrationUtil.elementFromXml(convertReferences(oldProperties.getProperty("dispatcherParameters")))));
 
         DonkeyElement parameterProperties = properties.addChildElement("parameters");
         parameterProperties.setAttribute("class", "linked-hash-map");
@@ -919,7 +919,7 @@ public class ImportConverter3_0_0 {
             entry.addChildElement("string", (String) key);
             entry.addChildElement("string", value);
         }
-    
+
         return oldProperties.getProperty("dispatcherReplyChannelId");
     }
 
@@ -940,7 +940,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", ""));
         properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", ""));
         properties.addChildElement("select").setTextContent(oldProperties.getProperty(useScript ? "script" : "query", ""));
-        properties.addChildElement("update").setTextContent(oldProperties.getProperty(useScript ? "ackScript" : "ack", ""));
+        properties.addChildElement("update").setTextContent(useScript ? oldProperties.getProperty("ackScript", "") : convertReferences(oldProperties.getProperty("ack", "")));
         properties.addChildElement("useScript").setTextContent(Boolean.toString(useScript));
         properties.addChildElement("cacheResults").setTextContent("true");
         properties.addChildElement("keepConnectionOpen").setTextContent("true");
@@ -961,10 +961,10 @@ public class ImportConverter3_0_0 {
         boolean useScript = readBooleanValue(oldProperties, "useScript", false);
 
         properties.addChildElement("driver").setTextContent(oldProperties.getProperty("driver", "Please Select One"));
-        properties.addChildElement("url").setTextContent(oldProperties.getProperty("URL", ""));
-        properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", ""));
-        properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", ""));
-        properties.addChildElement("query").setTextContent(oldProperties.getProperty(useScript ? "script" : "query", ""));
+        properties.addChildElement("url").setTextContent(convertReferences(oldProperties.getProperty("URL", "")));
+        properties.addChildElement("username").setTextContent(convertReferences(oldProperties.getProperty("username", "")));
+        properties.addChildElement("password").setTextContent(convertReferences(oldProperties.getProperty("password", "")));
+        properties.addChildElement("query").setTextContent(useScript ? oldProperties.getProperty("script", "") : convertReferences(oldProperties.getProperty("query", "")));
         properties.addChildElement("useScript").setTextContent(Boolean.toString(useScript));
     }
 
@@ -1015,17 +1015,17 @@ public class ImportConverter3_0_0 {
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
 
         properties.addChildElement("useJndi").setTextContent(readBooleanProperty(oldProperties, "useJndi", false));
-        properties.addChildElement("jndiProviderUrl").setTextContent(oldProperties.getProperty("jndiProviderUrl", ""));
+        properties.addChildElement("jndiProviderUrl").setTextContent(convertReferences(oldProperties.getProperty("jndiProviderUrl", "")));
         properties.addChildElement("jndiInitialContextFactory").setTextContent(oldProperties.getProperty("jndiInitialFactory", ""));
         properties.addChildElement("jndiConnectionFactoryName").setTextContent(oldProperties.getProperty("connectionFactoryJndiName", ""));
         properties.addChildElement("connectionFactoryClass").setTextContent(oldProperties.getProperty("connectionFactoryClass", ""));
-        properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", ""));
-        properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", ""));
-        properties.addChildElement("destinationName").setTextContent(oldProperties.getProperty("host", ""));
+        properties.addChildElement("username").setTextContent(convertReferences(oldProperties.getProperty("username", "")));
+        properties.addChildElement("password").setTextContent(convertReferences(oldProperties.getProperty("password", "")));
+        properties.addChildElement("destinationName").setTextContent(convertReferences(oldProperties.getProperty("host", "")));
         properties.addChildElement("reconnectIntervalMillis").setTextContent("10000");
         properties.addChildElement("clientId").setTextContent("");
         properties.addChildElement("topic").setTextContent("false");
-        properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", "${message.encodedData}"));
+        properties.addChildElement("template").setTextContent(convertReferences(oldProperties.getProperty("template", "${message.encodedData}")));
 
         Properties oldConnectionProperties = readPropertiesElement(new DonkeyElement(MigrationUtil.elementFromXml(oldProperties.getProperty("connectionFactoryProperties"))));
 
@@ -1033,7 +1033,7 @@ public class ImportConverter3_0_0 {
         connectionProperties.setAttribute("class", "linked-hash-map");
 
         for (Object key : oldConnectionProperties.keySet()) {
-            String value = oldConnectionProperties.getProperty((String) key);
+            String value = convertReferences(oldConnectionProperties.getProperty((String) key));
 
             DonkeyElement entry = connectionProperties.addChildElement("entry");
             entry.addChildElement("string", (String) key);
@@ -1076,27 +1076,27 @@ public class ImportConverter3_0_0 {
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"));
 
         properties.addChildElement("authentication").setTextContent(readBooleanProperty(oldProperties, "authentication", false));
-        properties.addChildElement("body").setTextContent(oldProperties.getProperty("body", ""));
+        properties.addChildElement("body").setTextContent(convertReferences(oldProperties.getProperty("body", "")));
         properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
         properties.addChildElement("encryption").setTextContent(oldProperties.getProperty("encryption", "none"));
         properties.addChildElement("from").setTextContent(oldProperties.getProperty("from", ""));
 
         properties.addChildElement("html").setTextContent(readBooleanProperty(oldProperties, "html", false));
-        properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", ""));
-        properties.addChildElement("smtpHost").setTextContent(oldProperties.getProperty("smtpHost", ""));
-        properties.addChildElement("smtpPort").setTextContent(oldProperties.getProperty("smtpPort", "25"));
-        properties.addChildElement("subject").setTextContent(oldProperties.getProperty("subject", "25"));
+        properties.addChildElement("password").setTextContent(convertReferences(oldProperties.getProperty("password", "")));
+        properties.addChildElement("smtpHost").setTextContent(convertReferences(oldProperties.getProperty("smtpHost", "")));
+        properties.addChildElement("smtpPort").setTextContent(convertReferences(oldProperties.getProperty("smtpPort", "25")));
+        properties.addChildElement("subject").setTextContent(convertReferences(oldProperties.getProperty("subject", "25")));
         properties.addChildElement("timeout").setTextContent(oldProperties.getProperty("timeout", "5000"));
         properties.addChildElement("to").setTextContent(oldProperties.getProperty("to", ""));
-        properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", ""));
+        properties.addChildElement("username").setTextContent(convertReferences(oldProperties.getProperty("username", "")));
 
         properties.addChildElement("cc").setTextContent("");
         properties.addChildElement("bcc").setTextContent("");
         properties.addChildElement("replyTo").setTextContent("");
 
         try {
-            convertEscapedText(properties.addChildElement("headers"), oldProperties.getProperty("headers", ""));
-            convertEscapedText(properties.addChildElement("attachments"), oldProperties.getProperty("attachments", ""));
+            convertEscapedText(properties.addChildElement("headers"), convertReferences(oldProperties.getProperty("headers", "")));
+            convertEscapedText(properties.addChildElement("attachments"), convertReferences(oldProperties.getProperty("attachments", "")));
         } catch (DonkeyElementException e) {
             logger.error("Failed to convert SMTP Dispatcher connection properties", e);
         }
@@ -1228,7 +1228,7 @@ public class ImportConverter3_0_0 {
         transmissionModeProperties.addChildElement("startOfMessageBytes").setTextContent(startOfMessageBytes);
         transmissionModeProperties.addChildElement("endOfMessageBytes").setTextContent(endOfMessageBytes);
 
-        properties.addChildElement("remoteAddress").setTextContent(oldProperties.getProperty("host", "127.0.0.1"));
+        properties.addChildElement("remoteAddress").setTextContent(convertReferences(oldProperties.getProperty("host", "127.0.0.1")));
         properties.addChildElement("remotePort").setTextContent(oldProperties.getProperty("port", "6660"));
         properties.addChildElement("overrideLocalBinding").setTextContent("false");
         properties.addChildElement("localAddress").setTextContent("0.0.0.0");
@@ -1245,7 +1245,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("processHL7ACK").setTextContent(readBooleanProperty(oldProperties, "processHl7AckResponse", true));
         properties.addChildElement("dataTypeBinary").setTextContent("false");
         properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
-        properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", "${message.encodedData}"));
+        properties.addChildElement("template").setTextContent(convertReferences(oldProperties.getProperty("template", "${message.encodedData}")));
 
         return oldProperties.getProperty("replyChannelId");
     }
@@ -1296,7 +1296,7 @@ public class ImportConverter3_0_0 {
         transmissionModeProperties.addChildElement("startOfMessageBytes").setTextContent("");
         transmissionModeProperties.addChildElement("endOfMessageBytes").setTextContent("");
 
-        properties.addChildElement("remoteAddress").setTextContent(oldProperties.getProperty("host", "127.0.0.1"));
+        properties.addChildElement("remoteAddress").setTextContent(convertReferences(oldProperties.getProperty("host", "127.0.0.1")));
         properties.addChildElement("remotePort").setTextContent(oldProperties.getProperty("port", "6660"));
         properties.addChildElement("overrideLocalBinding").setTextContent("false");
         properties.addChildElement("localAddress").setTextContent("0.0.0.0");
@@ -1313,7 +1313,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("processHL7ACK").setTextContent("false");
         properties.addChildElement("dataTypeBinary").setTextContent(readBooleanProperty(oldProperties, "binary", false));
         properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
-        properties.addChildElement("template").setTextContent(oldProperties.getProperty("template", "${message.encodedData}"));
+        properties.addChildElement("template").setTextContent(convertReferences(oldProperties.getProperty("template", "${message.encodedData}")));
 
         return oldProperties.getProperty("replyChannelId");
     }
@@ -1344,20 +1344,20 @@ public class ImportConverter3_0_0 {
 
         buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), readBooleanProperty(oldProperties, "usePersistentQueues"), readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), null);
 
-        properties.addChildElement("wsdlUrl").setTextContent(oldProperties.getProperty("dispatcherWsdlUrl", ""));
-        properties.addChildElement("service").setTextContent(oldProperties.getProperty("dispatcherService", ""));
-        properties.addChildElement("port").setTextContent(oldProperties.getProperty("dispatcherPort", ""));
+        properties.addChildElement("wsdlUrl").setTextContent(convertReferences(oldProperties.getProperty("dispatcherWsdlUrl", "")));
+        properties.addChildElement("service").setTextContent(convertReferences(oldProperties.getProperty("dispatcherService", "")));
+        properties.addChildElement("port").setTextContent(convertReferences(oldProperties.getProperty("dispatcherPort", "")));
         properties.addChildElement("operation").setTextContent(oldProperties.getProperty("dispatcherOperation", "Press Get Operations"));
         properties.addChildElement("useAuthentication").setTextContent(readBooleanProperty(oldProperties, "dispatcherUseAuthentication", false));
-        properties.addChildElement("username").setTextContent(oldProperties.getProperty("dispatcherUsername", ""));
-        properties.addChildElement("password").setTextContent(oldProperties.getProperty("dispatcherPassword", ""));
-        properties.addChildElement("envelope").setTextContent(oldProperties.getProperty("dispatcherEnvelope", ""));
+        properties.addChildElement("username").setTextContent(convertReferences(oldProperties.getProperty("dispatcherUsername", "")));
+        properties.addChildElement("password").setTextContent(convertReferences(oldProperties.getProperty("dispatcherPassword", "")));
+        properties.addChildElement("envelope").setTextContent(convertReferences(oldProperties.getProperty("dispatcherEnvelope", "")));
         properties.addChildElement("oneWay").setTextContent(readBooleanProperty(oldProperties, "dispatcherOneWay", false));
         properties.addChildElement("useMtom").setTextContent(readBooleanProperty(oldProperties, "dispatcherUseMtom", false));
-        convertList(properties.addChildElement("attachmentNames"), oldProperties.getProperty("dispatcherAttachmentNames", ""));
-        convertList(properties.addChildElement("attachmentContents"), oldProperties.getProperty("dispatcherAttachmentContents", ""));
-        convertList(properties.addChildElement("attachmentTypes"), oldProperties.getProperty("dispatcherAttachmentTypes", ""));
-        properties.addChildElement("soapAction").setTextContent(oldProperties.getProperty("dispatcherSoapAction", ""));
+        convertList(properties.addChildElement("attachmentNames"), convertReferences(oldProperties.getProperty("dispatcherAttachmentNames", "")));
+        convertList(properties.addChildElement("attachmentContents"), convertReferences(oldProperties.getProperty("dispatcherAttachmentContents", "")));
+        convertList(properties.addChildElement("attachmentTypes"), convertReferences(oldProperties.getProperty("dispatcherAttachmentTypes", "")));
+        properties.addChildElement("soapAction").setTextContent(convertReferences(oldProperties.getProperty("dispatcherSoapAction", "")));
         properties.addChildElement("wsdlCacheId").setTextContent("");
         convertList(properties.addChildElement("wsdlOperations"), oldProperties.getProperty("dispatcherWsdlOperations", "<list><string>Press Get Operations</string></list>"));
 
@@ -1718,6 +1718,16 @@ public class ImportConverter3_0_0 {
                 newProperties.appendChild(newProperties.getOwnerDocument().importNode(oldProperty.getElement(), true));
             }
         }
+    }
+
+    public static String convertReferences(String reference) {
+        reference = reference.replace("${MESSAGEATTACH}", "${message.encodedData}");
+        reference = reference.replace("$!{MESSAGEATTACH}", "$!{message.encodedData}");
+        
+        reference = reference.replace("${ORIGINALNAME}", "${originalFilename}");
+        reference = reference.replace("$!{ORIGINALNAME}", "$!{originalFilename}");
+
+        return reference;
     }
 
     public static void createDefaultTransformer(DonkeyElement transformer) {
