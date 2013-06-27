@@ -2997,6 +2997,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         if ((channelView.getSelectedIndex() == SOURCE_TAB_INDEX) && (connector.getMode().equals(Mode.SOURCE))) {
             currentChannel.setSourceConnector(connector);
             sourceSourceDropdown.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
+
+            updateAttachmentHandler(connector.getTransformer().getInboundDataType());
         } // If the connector is a destination, then check/generate its name, add it, and re-make the destination table.
         else if ((channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) && (connector.getMode().equals(Mode.DESTINATION))) {
             List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
@@ -3022,6 +3024,20 @@ public class ChannelSetup extends javax.swing.JPanel {
         loadingChannel = false;
 
         parent.setSaveEnabled(true);
+    }
+
+    public void updateAttachmentHandler(String dataType) {
+        if (LoadedExtensions.getInstance().getDataTypePlugins().containsKey(dataType)) {
+            AttachmentHandlerType oldType = (AttachmentHandlerType) attachmentComboBox.getSelectedItem();
+            AttachmentHandlerType newType = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultAttachmentHandlerType();
+            if (newType == null) {
+                newType = AttachmentHandlerType.NONE;
+            }
+
+            if ((oldType == AttachmentHandlerType.NONE && newType != AttachmentHandlerType.NONE) || (oldType == AttachmentHandlerType.DICOM && newType == AttachmentHandlerType.NONE)) {
+                attachmentComboBox.setSelectedItem(newType);
+            }
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

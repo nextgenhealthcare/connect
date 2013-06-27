@@ -904,6 +904,10 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 connector.setResponseTransformer(importTransformer);
             } else {
                 connector.setTransformer(importTransformer);
+
+                if (connector.getMetaDataId() == 0) {
+                    PlatformUI.MIRTH_FRAME.channelEditPanel.updateAttachmentHandler(importTransformer.getInboundDataType());
+                }
             }
 
             if (!load(connector, importTransformer, modified, isResponse)) {

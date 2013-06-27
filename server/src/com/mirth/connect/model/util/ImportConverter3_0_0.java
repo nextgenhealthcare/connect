@@ -97,7 +97,7 @@ public class ImportConverter3_0_0 {
         } else if (expectedClass == AlertModel.class) {
             migrateAlert(root);
         } else if (expectedClass == ChannelProperties.class) {
-            migrateChannelProperties(root);
+            migrateChannelProperties(root, false);
             root.setNodeName("channelProperties");
         } else if (expectedClass == CodeTemplate.class) {
             document = ImportConverter.convertCodeTemplates(objectXml);
@@ -117,15 +117,15 @@ public class ImportConverter3_0_0 {
         logger.debug("Migrating channel to version " + VERSION_STRING);
         channel.removeChild("version"); // TODO is it safe to remove the version property from the Channel class and other classes?
 
+        // migrate source connector
+        DonkeyElement sourceConnector = channel.getChildElement("sourceConnector");
+        boolean isDataTypeDICOM = (migrateConnector(sourceConnector, 0).equals("DICOM"));
+        DonkeyElement responseConnectorProperties = sourceConnector.getChildElement("properties").getChildElement("responseConnectorProperties");
+
         // migrate channel properties
         Properties oldProperties = readPropertiesElement(channel.getChildElement("properties"));
         String synchronous = oldProperties.getProperty("synchronous", "true"); // use this later to set "waitForPrevious" on destination connectors
-        migrateChannelProperties(channel.getChildElement("properties"));
-
-        // migrate source connector
-        DonkeyElement sourceConnector = channel.getChildElement("sourceConnector");
-        migrateConnector(sourceConnector, 0);
-        DonkeyElement responseConnectorProperties = sourceConnector.getChildElement("properties").getChildElement("responseConnectorProperties");
+        migrateChannelProperties(channel.getChildElement("properties"), isDataTypeDICOM);
 
         // migrate destination connectors
         int metaDataId = 1;
@@ -331,12 +331,20 @@ public class ImportConverter3_0_0 {
         }
 
         // convert transformer (no conversion needed for filter since it didn't change at all in 3.0.0)
-        migrateTransformer(connector.getChildElement("transformer"));
+        String inboundDataType = migrateTransformer(connector.getChildElement("transformer"));
 
         // default waitForPrevious to true
         connector.addChildElement("waitForPrevious").setTextContent("true");
 
-        return sendResponseToChannelId;
+        /*
+         * Return the inbound data type if source connector, otherwise return the channel id to send
+         * the response to.
+         */
+        if (metaDataId == 0) {
+            return inboundDataType;
+        } else {
+            return sendResponseToChannelId;
+        }
     }
 
     /*
@@ -350,7 +358,7 @@ public class ImportConverter3_0_0 {
         return child;
     }
 
-    private static void migrateChannelProperties(DonkeyElement properties) {
+    private static void migrateChannelProperties(DonkeyElement properties, boolean useDICOMAttachmentHandler) {
         logger.debug("Migrating channel properties");
 
         Properties oldProperties = readPropertiesElement(properties);
@@ -368,14 +376,24 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("removeContentOnCompletion").setTextContent(readBooleanProperty(oldProperties, "error_messages_only", false));
         properties.addChildElement("removeAttachmentsOnCompletion").setTextContent(readBooleanProperty(oldProperties, "error_messages_only", false));
         properties.addChildElement("initialStateStarted").setTextContent((oldProperties.getProperty("initialState", "started").equals("started") ? "true" : "false"));
-        properties.addChildElement("storeAttachments").setTextContent("false");
         properties.addChildElement("tags").setAttribute("class", "linked-hash-set");
         properties.addChildElement("metaDataColumns");
         properties.addChildElement("archiveEnabled").setTextContent("true");
 
-        DonkeyElement attachmentProperties = properties.addChildElement("attachmentProperties");
-        attachmentProperties.addChildElement("type").setTextContent("None");
-        attachmentProperties.addChildElement("properties");
+        if (useDICOMAttachmentHandler) {
+            DonkeyElement attachmentProperties = properties.addChildElement("attachmentProperties");
+            attachmentProperties.addChildElement("className").setTextContent("com.mirth.connect.server.attachments.DICOMAttachmentHandler");
+            attachmentProperties.addChildElement("type").setTextContent("DICOM");
+            attachmentProperties.addChildElement("properties");
+
+            properties.addChildElement("storeAttachments").setTextContent("true");
+        } else {
+            DonkeyElement attachmentProperties = properties.addChildElement("attachmentProperties");
+            attachmentProperties.addChildElement("type").setTextContent("None");
+            attachmentProperties.addChildElement("properties");
+
+            properties.addChildElement("storeAttachments").setTextContent("false");
+        }
 
         String maxMessageAge = oldProperties.getProperty("max_message_age");
 
@@ -522,7 +540,7 @@ public class ImportConverter3_0_0 {
         writePropertiesElement(propertiesElement, properties);
     }
 
-    private static void migrateTransformer(DonkeyElement transformer) {
+    private static String migrateTransformer(DonkeyElement transformer) {
         logger.debug("Migrating Transformer");
 
         // TODO make sure that protocol/data type names haven't changed in 3.0.0
@@ -568,11 +586,15 @@ public class ImportConverter3_0_0 {
         if (outboundDataType.getTextContent().equals("EDI") || outboundDataType.getTextContent().equals("X12")) {
             outboundDataType.setTextContent("EDI/X12");
         }
+
+        return inboundDataType.getTextContent();
     }
 
     private static void migrateDataTypeProperties(DonkeyElement properties, String dataType) {
         if (dataType.equals("DELIMITED")) {
             migrateDelimitedProperties(properties);
+        } else if (dataType.equals("DICOM")) {
+            migrateDICOMProperties(properties);
         } else if (dataType.equals("EDI")) {
             migrateEDIProperties(properties);
         } else if (dataType.equals("HL7V2")) {
@@ -1382,6 +1404,12 @@ public class ImportConverter3_0_0 {
 
     private static String escapeString(String str) {
         return str.replace("\b", "\\b").replace("\t", "\\t").replace("\n", "\\n").replace("\f", "\\f").replace("\r", "\\r");
+    }
+
+    private static void migrateDICOMProperties(DonkeyElement properties) {
+        logger.debug("Migrating DICOMDataTypeProperties");
+        properties.setAttribute("class", "com.mirth.connect.plugins.datatypes.dicom.DICOMDataTypeProperties");
+        properties.removeChildren();
     }
 
     private static void migrateEDIProperties(DonkeyElement properties) {
