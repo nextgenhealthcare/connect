@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,9 +20,9 @@ import org.w3c.dom.Element;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 
-public class Migrate3_0_0 extends Migrator {
+public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
     private Logger logger = Logger.getLogger(getClass());
-
+    
     @Override
     public void migrate() throws MigrationException {
         executeScript(getDatabaseType() + "-9-3.0.0.sql");
@@ -33,6 +34,18 @@ public class Migrate3_0_0 extends Migrator {
     @Override
     public void migrateSerializedData() throws MigrationException {}
 
+    @Override
+    public Map<String, Object> getConfigurationPropertiesToAdd() {
+        Map<String, Object> propertiesToAdd = new LinkedHashMap<String, Object>();
+        propertiesToAdd.put("database.max-connections", 10);
+        return propertiesToAdd;
+    }
+
+    @Override
+    public String[] getConfigurationPropertiesToRemove() {
+        return new String[] { "jmx.password", "jmx.host" };
+    }
+    
     private void migrateChannelTable() {
         PreparedStatement preparedStatement = null;
         ResultSet results = null;

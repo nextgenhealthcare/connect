@@ -22,28 +22,39 @@ public enum Version {
     V6("6"),
     V7("7"),
     V8("8"),
-    V9("9"),
+    V9("9", "2.2.0"),
     V3_0_0("3.0.0");
     
     // @formatter:on
 
+    private String schemaVersion;
     private String versionString;
 
-    private Version(String value) {
-        this.versionString = value;
+    private Version(String schemaVersion) {
+        this.schemaVersion = schemaVersion;
+        this.versionString = schemaVersion;
     }
-
-    public boolean nextVersionExists() {
-        return ordinal() < getLatest().ordinal();
+    
+    private Version(String schemaVersion, String versionString) {
+        this.schemaVersion = schemaVersion;
+        this.versionString = versionString;
     }
 
     public Version getNextVersion() {
-        return values()[ordinal() + 1];
+        if (ordinal() < getLatest().ordinal()) {
+            return values()[ordinal() + 1];
+        } else {
+            return null;
+        }
     }
 
     @Override
     public String toString() {
         return versionString;
+    }
+    
+    public String getSchemaVersion() {
+        return schemaVersion;
     }
 
     public static Version getLatest() {
@@ -53,7 +64,7 @@ public enum Version {
 
     public static Version fromString(String value) {
         for (Version version : values()) {
-            if (version.toString().equals(value)) {
+            if (version.getSchemaVersion().equals(value)) {
                 return version;
             }
         }

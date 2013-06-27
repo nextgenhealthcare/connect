@@ -9,6 +9,8 @@
 
 package com.mirth.connect.server.controllers;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
+
 import com.mirth.connect.server.migration.MigrationException;
 
 /**
@@ -30,4 +32,6 @@ public abstract class MigrationController extends Controller {
     public abstract void migrateSerializedData();
 
     public abstract void migrateExtensions();
+    
+    public abstract void migrateConfiguration(PropertiesConfiguration configuration) throws MigrationException;
 }

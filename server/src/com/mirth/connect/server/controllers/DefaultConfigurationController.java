@@ -27,7 +27,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -45,7 +44,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.configuration.ConfigurationConverter;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
@@ -141,7 +139,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             mirthConfig.setFile(new File(ClassPathResource.getResourceURI("mirth.properties")));
             mirthConfig.load();
 
-            checkMirthConfigProperties();
+            MigrationController.getInstance().migrateConfiguration(mirthConfig);
 
             // load the server version
             versionConfig.setDelimiterParsingDisabled(true);
@@ -204,7 +202,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             passwordRequirements = PasswordRequirementsChecker.getInstance().loadPasswordRequirements(mirthConfig);
         } catch (Exception e) {
-            logger.warn(e);
+            logger.error("Failed to initialize configuration controller", e);
         }
     }
 
@@ -890,64 +888,6 @@ public class DefaultConfigurationController extends ConfigurationController {
             logger.debug("truststore file not found, creating new one");
         } else {
             logger.debug("truststore file found: " + trustStoreFile.getAbsolutePath());
-        }
-    }
-
-    /**
-     * Check for required properties that have been added since 2.1.1 and add
-     * them with their default value if they don't already exist. Also remove
-     * properties that are no longer used after 2.1.1.
-     */
-    private void checkMirthConfigProperties() {
-        // Add new required properties if they don't exist
-        HashMap<String, Object> propertiesToAdd = new LinkedHashMap<String, Object>();
-        propertiesToAdd.put("password.retrylimit", 0);
-        propertiesToAdd.put("password.lockoutperiod", 0);
-        propertiesToAdd.put("password.expiration", 0);
-        propertiesToAdd.put("password.graceperiod", 0);
-        propertiesToAdd.put("password.reuseperiod", 0);
-        propertiesToAdd.put("password.reuselimit", 0);
-
-        HashMap<String, Object> addedProperties = new LinkedHashMap<String, Object>();
-
-        for (Entry<String, Object> propertyToAdd : propertiesToAdd.entrySet()) {
-            if (!mirthConfig.containsKey(propertyToAdd.getKey())) {
-                mirthConfig.setProperty(propertyToAdd.getKey(), propertyToAdd.getValue());
-
-                // If this is the first added property, add a blank line and
-                // comment before it
-                if (addedProperties.isEmpty()) {
-                    mirthConfig.getLayout().setBlancLinesBefore(propertyToAdd.getKey(), 1);
-                    mirthConfig.getLayout().setComment(propertyToAdd.getKey(), "The following properties were automatically added on startup because they are required.\nIf you recently upgraded Mirth Connect, they may have been added in this version.");
-                }
-
-                addedProperties.put(propertyToAdd.getKey(), propertyToAdd.getValue());
-            }
-        }
-
-        // Remove properties that are no longer used if they exist
-        String[] propertiesToRemove = new String[] { "keystore.storetype", "keystore.algorithm",
-                "keystore.alias", "truststore.storetype", "truststore.algorithm" };
-        List<String> removedProperties = new ArrayList<String>();
-
-        for (String propertyToRemove : propertiesToRemove) {
-            if (mirthConfig.containsKey(propertyToRemove)) {
-                mirthConfig.clearProperty(propertyToRemove);
-                removedProperties.add(propertyToRemove);
-            }
-        }
-
-        if (!addedProperties.isEmpty() || !removedProperties.isEmpty()) {
-            logger.info("Adding properties in mirth.properties: " + addedProperties);
-            logger.info("Removing properties in mirth.properties: " + removedProperties);
-
-            try {
-                mirthConfig.save();
-            } catch (ConfigurationException e) {
-                logger.error("There was an error updating mirth.properties.");
-                logger.error("The following properties should be added to mirth.properties manually: " + addedProperties.toString());
-                logger.error("The following properties should be removed from mirth.properties manually: " + removedProperties.toString());
-            }
         }
     }
 

@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.PluginMetaData;
@@ -36,12 +37,17 @@ public class DefaultMigrationController extends MigrationController {
     
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-    private Migrator serverMigrator;
+    private ServerMigrator serverMigrator;
     private Collection<Migrator> pluginMigrators;
     private Logger logger = Logger.getLogger(this.getClass());
 
     public DefaultMigrationController() {
         serverMigrator = new ServerMigrator();
+    }
+    
+    @Override
+    public void migrateConfiguration(PropertiesConfiguration configuration) throws MigrationException {
+        serverMigrator.migrateConfiguration(configuration);
     }
     
     private void initPluginMigrators() {
@@ -111,13 +117,9 @@ public class DefaultMigrationController extends MigrationController {
         Connection connection = SqlConfig.getSqlSessionManager().getConnection();
         
         try {
-            try {
-                serverMigrator.setConnection(connection);
-                serverMigrator.setDatabaseType(configurationController.getDatabaseType());
-                serverMigrator.migrateSerializedData();
-            } catch (MigrationException e) {
-                logger.error("Failed to migrate serialized data for server", e);
-            }
+            serverMigrator.setConnection(connection);
+            serverMigrator.setDatabaseType(configurationController.getDatabaseType());
+            serverMigrator.migrateSerializedData();
             
             initPluginMigrators();
 

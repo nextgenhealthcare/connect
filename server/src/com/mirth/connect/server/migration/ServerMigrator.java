@@ -5,7 +5,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.log4j.Logger;
 
@@ -28,11 +36,12 @@ public class ServerMigrator extends Migrator {
         Version version = getCurrentVersion();
 
         if (version == null) {
-            version = Version.V0;
-        }
-
-        while (version.nextVersionExists()) {
+            version = Version.values()[1];
+        } else {
             version = version.getNextVersion();
+        }
+        
+        while (version != null) {
             Migrator migrator = getMigrator(version);
 
             if (migrator != null) {
@@ -44,6 +53,7 @@ public class ServerMigrator extends Migrator {
             }
 
             updateVersion(version);
+            version = version.getNextVersion();
         }
     }
     
@@ -52,6 +62,78 @@ public class ServerMigrator extends Migrator {
         migrateSerializedData("SELECT ID, CHANNEL FROM CHANNEL", "UPDATE CHANNEL SET CHANNEL = ? WHERE ID = ?", Channel.class);
         migrateSerializedData("SELECT ID, ALERT FROM ALERT", "UPDATE ALERT SET ALERT = ? WHERE ID = ?", AlertModel.class);
         migrateSerializedData("SELECT ID, CODE_TEMPLATE FROM CODE_TEMPLATE", "UPDATE CODE_TEMPLATE SET CODE_TEMPLATE = ? WHERE ID = ?", CodeTemplate.class);
+    }
+    
+    public void migrateConfiguration(PropertiesConfiguration mirthConfig) throws MigrationException {
+        Version version = Version.values()[1];
+
+        while (version != null) {
+            Migrator migrator = getMigrator(version);
+
+            if (migrator != null && migrator instanceof ConfigurationMigrator) {
+                runConfigurationMigrator((ConfigurationMigrator) migrator, mirthConfig, version);
+            }
+
+            version = version.getNextVersion();
+        }
+    }
+    
+    private void runConfigurationMigrator(ConfigurationMigrator configurationMigrator, PropertiesConfiguration mirthConfig, Version version) {
+        HashMap<String, Object> addedProperties = new LinkedHashMap<String, Object>();
+        Map<String, Object> propertiesToAdd = configurationMigrator.getConfigurationPropertiesToAdd();
+
+        if (propertiesToAdd != null) {
+            for (Entry<String, Object> propertyToAdd : propertiesToAdd.entrySet()) {
+                if (!mirthConfig.containsKey(propertyToAdd.getKey())) {
+                    mirthConfig.setProperty(propertyToAdd.getKey(), propertyToAdd.getValue());
+    
+                    // If this is the first added property, add a blank line and
+                    // comment before it
+                    if (addedProperties.isEmpty()) {
+                        mirthConfig.getLayout().setBlancLinesBefore(propertyToAdd.getKey(), 1);
+                        mirthConfig.getLayout().setComment(propertyToAdd.getKey(), "The following properties were automatically added on startup - they are required beginning in version " + version);
+                    }
+    
+                    addedProperties.put(propertyToAdd.getKey(), propertyToAdd.getValue());
+                }
+            }
+        }
+
+        List<String> removedProperties = new ArrayList<String>();
+        String[] propertiesToRemove = configurationMigrator.getConfigurationPropertiesToRemove();
+        
+        if (propertiesToRemove != null) {
+            for (String propertyToRemove : propertiesToRemove) {
+                if (mirthConfig.containsKey(propertyToRemove)) {
+                    mirthConfig.clearProperty(propertyToRemove);
+                    removedProperties.add(propertyToRemove);
+                }
+            }
+        }
+
+        if (!addedProperties.isEmpty() || !removedProperties.isEmpty()) {
+            if (!addedProperties.isEmpty()) {
+                logger.info("Adding properties in mirth.properties: " + addedProperties);
+            }
+            
+            if (!removedProperties.isEmpty()) {
+                logger.info("Removing properties in mirth.properties: " + removedProperties);
+            }
+            
+            try {
+                mirthConfig.save();
+            } catch (ConfigurationException e) {
+                logger.error("There was an error updating mirth.properties.", e);
+
+                if (!addedProperties.isEmpty()) {
+                    logger.error("The following properties should be added to mirth.properties manually: " + addedProperties.toString());
+                }
+
+                if (!removedProperties.isEmpty()) {
+                    logger.error("The following properties should be removed from mirth.properties manually: " + removedProperties.toString());
+                }
+            }
+        }
     }
     
     private Migrator getMigrator(Version version) {
@@ -65,7 +147,7 @@ public class ServerMigrator extends Migrator {
             case V6: return new LegacyMigrator(6);
             case V7: return new Migrate2_0_0();
             case V8: return new LegacyMigrator(8);
-            case V9: return new LegacyMigrator(9);
+            case V9: return new Migrate2_2_0();
             case V3_0_0: return new Migrate3_0_0();
         } // @formatter:on
 
@@ -116,7 +198,7 @@ public class ServerMigrator extends Migrator {
                 statement = getConnection().prepareStatement("UPDATE SCHEMA_INFO SET VERSION = ?");
             }
 
-            statement.setString(1, version.toString());
+            statement.setString(1, version.getSchemaVersion());
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new MigrationException("Failed to update database version information.", e);
