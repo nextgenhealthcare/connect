@@ -340,7 +340,9 @@ public class ImportConverter3_0_0 {
          * Return the inbound data type if source connector, otherwise return the channel id to send
          * the response to.
          */
-        if (metaDataId == 0) {
+        if (metaDataId == null) {
+            return null;
+        } else if (metaDataId == 0) {
             return inboundDataType;
         } else {
             return sendResponseToChannelId;
@@ -884,7 +886,7 @@ public class ImportConverter3_0_0 {
             entry.addChildElement("string", (String) key);
             entry.addChildElement("string", value);
         }
-    
+
         Properties oldParameterProperties = readPropertiesElement(new DonkeyElement(MigrationUtil.elementFromXml(convertReferences(oldProperties.getProperty("dispatcherParameters")))));
 
         DonkeyElement parameterProperties = properties.addChildElement("parameters");
@@ -1704,7 +1706,7 @@ public class ImportConverter3_0_0 {
     public static String convertReferences(String reference) {
         reference = reference.replace("${MESSAGEATTACH}", "${message.encodedData}");
         reference = reference.replace("$!{MESSAGEATTACH}", "$!{message.encodedData}");
-        
+
         reference = reference.replace("${ORIGINALNAME}", "${originalFilename}");
         reference = reference.replace("$!{ORIGINALNAME}", "$!{originalFilename}");
 
