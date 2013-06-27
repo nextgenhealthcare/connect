@@ -19,24 +19,17 @@ import com.mirth.connect.donkey.server.message.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.BatchMessageProcessor;
 import com.mirth.connect.donkey.server.message.BatchMessageProcessorException;
 import com.mirth.connect.model.datatype.SerializerProperties;
-import com.mirth.connect.util.StringUtil;
 
 public class ER7BatchAdaptor implements BatchAdaptor {
-	private Logger logger = Logger.getLogger(this.getClass());
-	
-	private Pattern segmentDelimiterPattern = null;
-	
-	public ER7BatchAdaptor(SerializerProperties properties) {
-		HL7v2SerializationProperties serializationProperties = (HL7v2SerializationProperties) properties.getSerializationProperties();
-        
-        if (serializationProperties != null) {
-            segmentDelimiterPattern = Pattern.compile(StringUtil.unescape(serializationProperties.getSegmentDelimiter()));
-        }
-	}
+    private Logger logger = Logger.getLogger(this.getClass());
 
-	@Override
-	public void processBatch(Reader src, BatchMessageProcessor dest) throws Exception {
-		// TODO: The values of these parameters should come from the protocol
+    private Pattern lineBreakPattern = Pattern.compile("\r\n|\r|\n");
+
+    public ER7BatchAdaptor(SerializerProperties properties) {}
+
+    @Override
+    public void processBatch(Reader src, BatchMessageProcessor dest) throws Exception {
+        // TODO: The values of these parameters should come from the protocol
         // properties passed to processBatch
         // TODO: src is a character stream, not a byte stream
         byte startOfMessage = (byte) 0x0B;
@@ -46,14 +39,14 @@ public class ER7BatchAdaptor implements BatchAdaptor {
         Scanner scanner = null;
         try {
             scanner = new Scanner(src);
-            scanner.useDelimiter(segmentDelimiterPattern);
+            scanner.useDelimiter(lineBreakPattern);
             StringBuilder message = new StringBuilder();
             char data[] = { (char) startOfMessage, (char) endOfMessage };
             boolean errored = false;
-    
+
             while (scanner.hasNext()) {
                 String line = scanner.next().replaceAll(new String(data, 0, 1), "").replaceAll(new String(data, 1, 1), "").trim();
-    
+
                 if ((line.length() == 0) || line.equals((char) endOfMessage) || line.startsWith("MSH")) {
                     if (message.length() > 0) {
                         try {
@@ -65,14 +58,14 @@ public class ER7BatchAdaptor implements BatchAdaptor {
                             errored = true;
                             logger.error("Error processing message in batch.", e);
                         }
-    
+
                         message = new StringBuilder();
                     }
-    
+
                     while ((line.length() == 0) && scanner.hasNext()) {
                         line = scanner.next();
                     }
-    
+
                     if (line.length() > 0) {
                         message.append(line);
                         message.append((char) endOfRecord);
@@ -84,7 +77,7 @@ public class ER7BatchAdaptor implements BatchAdaptor {
                     message.append((char) endOfRecord);
                 }
             }
-    
+
             /*
              * MIRTH-2058: Now that the file has been completely read, make sure to
              * process
@@ -99,7 +92,7 @@ public class ER7BatchAdaptor implements BatchAdaptor {
                     logger.error("Error processing message in batch.", e);
                 }
             }
-    
+
             if (errored) {
                 throw new BatchMessageProcessorException("Error processing message in batch.");
             }
@@ -108,6 +101,6 @@ public class ER7BatchAdaptor implements BatchAdaptor {
                 scanner.close();
             }
         }
-	}
+    }
 
 }
