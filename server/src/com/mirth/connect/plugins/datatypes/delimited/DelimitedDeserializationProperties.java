@@ -55,31 +55,34 @@ public class DelimitedDeserializationProperties extends DeserializationPropertie
                 recordDelimiter = (String) properties.get("recordDelimiter");
             }
 
-            if (StringUtils.isNotEmpty((String) properties.get("columnWidths"))) {
-                // Split the comma delimited list of column widths and store as int[]
-                String[] temp = ((String) properties.get("columnWidths")).split(",");
-                Integer[] columnWidths = new Integer[temp.length];
-                boolean error = false;
+            if (properties.get("columnWidths") != null) {
+                String widths = (String) properties.get("columnWidths");
+                if (widths.isEmpty()) {
+                    columnWidths = null;
+                } else {
+                    // Split the comma delimited list of column widths and store as int[]
+                    String[] temp = widths.split(",");
+                    Integer[] columnWidths = new Integer[temp.length];
+                    boolean error = false;
 
-                for (int i = 0; i < temp.length; i++) {
-                    try {
-                        columnWidths[i] = Integer.parseInt(temp[i]);
+                    for (int i = 0; i < temp.length; i++) {
+                        try {
+                            columnWidths[i] = Integer.parseInt(temp[i]);
 
-                        if (columnWidths[i] <= 0) {
+                            if (columnWidths[i] <= 0) {
+                                error = true;
+                                logError("Fixed column width must be positive integer: " + columnWidths[i]);
+                            }
+                        } catch (NumberFormatException e) {
                             error = true;
-                            logError("Fixed column width must be positive integer: " + columnWidths[i]);
+                            logError("Invalid number format in Column Widths: " + temp[i]);
                         }
-                    } catch (NumberFormatException e) {
-                        error = true;
-                        logError("Invalid number format in Column Widths: " + temp[i]);
+                    }
+
+                    if (!error) {
+                        this.columnWidths = columnWidths;
                     }
                 }
-
-                if (!error) {
-                    this.columnWidths = columnWidths;
-                }
-            } else {
-                columnWidths = null;
             }
 
             if (StringUtils.isNotEmpty((String) properties.get("quoteChar"))) {
