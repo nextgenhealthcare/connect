@@ -66,6 +66,6 @@
 	</insert>
 	
 	<delete id='deleteAllEvents'>
-		TRUNCATE TABLE EVENT
+		DELETE FROM EVENT
 	</delete>
 </mapper>
