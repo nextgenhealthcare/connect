@@ -35,8 +35,12 @@ public class DefaultMigrationController extends MigrationController {
         }
     }
 
+    /*
+     * Don't create the ExtensionController here as a class variable, because its dependencies have
+     * not all been initialized at this point. Specifically appDataDir in the
+     * DefaultConfigurationController
+     */
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-    private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private ServerMigrator serverMigrator;
     private Collection<Migrator> pluginMigrators;
     private Logger logger = Logger.getLogger(this.getClass());
@@ -54,7 +58,7 @@ public class DefaultMigrationController extends MigrationController {
         if (pluginMigrators == null) {
             pluginMigrators = new ArrayList<Migrator>();
 
-            for (PluginMetaData pluginMetaData : extensionController.getPluginMetaData().values()) {
+            for (PluginMetaData pluginMetaData : ControllerFactory.getFactory().createExtensionController().getPluginMetaData().values()) {
                 String migratorClassName = pluginMetaData.getMigratorClass();
 
                 if (migratorClassName != null) {
