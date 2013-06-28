@@ -225,7 +225,16 @@ public class DonkeyEngineController implements EngineController {
 
         donkeyChannel.setRevision(channel.getRevision());
 
-        donkey.deployChannel(donkeyChannel);
+        try {
+            donkey.deployChannel(donkeyChannel);
+        } catch (DeployException e) {
+            // Remove the channel from the deployed channel cache if an exception occurred on deploy.
+            channelController.removeDeployedChannelFromCache(channelId);
+            // Remove the channel scripts from the script cache if an exception occurred on deploy.
+            scriptController.removeChannelScriptsFromCache(channelId);
+
+            throw e;
+        }
     }
 
     @Override
