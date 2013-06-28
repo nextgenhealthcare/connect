@@ -17,21 +17,6 @@ public class Constants {
     public static final String DESTINATION_META_DATA_IDS_KEY = "donkey.destinations";
 
     /**
-     * Reserved channel map key for attachments?
-     */
-    public static final String ATTACHMENTS_KEY = "donkey.attachments"; // TODO: is this still used? can it be removed?
-
-    /**
-     * Path to Donkey
-     */
-    public static final String DIR_DONKEY = ".donkey";
-
-    /**
-     * Path to attachments
-     */
-    public static final String DIR_ATTACHMENTS = "attachments";
-
-    /**
      * The number of milliseconds to wait for incoming messages on the source
      * queue before timing
      * out and checking the channel state

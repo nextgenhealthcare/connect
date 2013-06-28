@@ -9,7 +9,6 @@
 
 package com.mirth.connect.donkey.server;
 
-import java.io.File;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -55,9 +54,7 @@ public class Donkey {
     }
 
     private Map<String, Channel> deployedChannels = new ConcurrentHashMap<String, Channel>();
-    private String donkeyDir;
     private DonkeyConfiguration donkeyConfiguration;
-    private String attachmentsDir;
     private ExecutorService donkeyExecutor = Executors.newCachedThreadPool();
     private DonkeyDaoFactory daoFactory;
     private Serializer serializer = new XStreamSerializer();
@@ -68,14 +65,6 @@ public class Donkey {
 
     public void startEngine(DonkeyConfiguration donkeyConfiguration) throws StartException {
         this.donkeyConfiguration = donkeyConfiguration;
-
-        File donkeyDir = new File(donkeyConfiguration.getAppData(), Constants.DIR_DONKEY);
-        File attachmentsDir = new File(donkeyDir, Constants.DIR_ATTACHMENTS);
-
-        attachmentsDir.mkdirs();
-
-        this.donkeyDir = donkeyDir.getAbsolutePath();
-        this.attachmentsDir = attachmentsDir.getAbsolutePath();
 
         initDaoFactory();
 
@@ -339,14 +328,6 @@ public class Donkey {
         }
 
         return new LinkedHashSet<String>(treeMap.values());
-    }
-
-    public String getDonkeyDir() {
-        return donkeyDir;
-    }
-
-    public String getAttachmentsDir() {
-        return attachmentsDir;
     }
 
     public boolean isRunning() {
