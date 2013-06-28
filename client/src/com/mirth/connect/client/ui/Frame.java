@@ -186,7 +186,7 @@ public class Frame extends JXFrame {
     public JPopupMenu extensionsPopupMenu;
 
     public JXTitledPanel rightContainer;
-    private static ExecutorService statusUpdaterExecutor = Executors.newSingleThreadExecutor();
+    private ExecutorService statusUpdaterExecutor = Executors.newSingleThreadExecutor();
     private Future<?> statusUpdaterJob = null;
     public static Preferences userPreferences;
     private boolean connectionError;
