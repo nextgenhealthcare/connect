@@ -32,7 +32,7 @@ public class DataPrunerMessageList extends PaginatedList<Message> {
     private String channelId;
     private List<Long> messageIds = new ArrayList<Long>();
     private List<Long> contentMessageIds = new ArrayList<Long>();
-    private long messageDateMillis;
+    private Calendar messageDateThreshold;
 
     public DataPrunerMessageList(String channelId, int pageSize, Map<String, Object> params, Calendar messageDateThreshold) {
         this.channelId = channelId;
@@ -44,13 +44,13 @@ public class DataPrunerMessageList extends PaginatedList<Message> {
         }
 
         setPageSize(pageSize);
-        messageDateMillis = messageDateThreshold.getTimeInMillis();
+        this.messageDateThreshold = messageDateThreshold;
     }
-    
+
     public List<Long> getMessageIds() {
         return messageIds;
     }
-    
+
     public List<Long> getContentMessageIds() {
         return contentMessageIds;
     }
@@ -64,7 +64,7 @@ public class DataPrunerMessageList extends PaginatedList<Message> {
     protected List<Message> getItems(int offset, int limit) throws Exception {
         messageIds.clear();
         contentMessageIds.clear();
-        
+
         List<Map<String, Object>> maps;
         SqlSession session = SqlConfig.getSqlSessionManager().openSession();
         params.put("offset", offset);
@@ -97,10 +97,10 @@ public class DataPrunerMessageList extends PaginatedList<Message> {
                 message.getConnectorMessages().putAll(connectorMessages);
 
                 messages.add(message);
-                
+
                 contentMessageIds.add(messageId);
-                
-                if (connectorReceivedDateMillis < messageDateMillis) {
+
+                if (messageDateThreshold != null && connectorReceivedDateMillis < messageDateThreshold.getTimeInMillis()) {
                     messageIds.add(messageId);
                 }
             }
