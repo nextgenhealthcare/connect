@@ -643,7 +643,7 @@ public class CommandLineInterface {
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
         try {
-            client.setServerConfiguration((ServerConfiguration) serializer.fromXML(FileUtils.readFileToString(fXml)));
+            client.setServerConfiguration(serializer.fromXML(FileUtils.readFileToString(fXml), ServerConfiguration.class));
         } catch (IOException e) {
             error("cannot read " + path, e);
             return;
