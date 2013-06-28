@@ -34,7 +34,7 @@ public class DefaultMigrationController extends MigrationController {
             return instance;
         }
     }
-    
+
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private ServerMigrator serverMigrator;
@@ -44,23 +44,23 @@ public class DefaultMigrationController extends MigrationController {
     public DefaultMigrationController() {
         serverMigrator = new ServerMigrator();
     }
-    
+
     @Override
     public void migrateConfiguration(PropertiesConfiguration configuration) throws MigrationException {
         serverMigrator.migrateConfiguration(configuration);
     }
-    
+
     private void initPluginMigrators() {
         if (pluginMigrators == null) {
             pluginMigrators = new ArrayList<Migrator>();
 
             for (PluginMetaData pluginMetaData : extensionController.getPluginMetaData().values()) {
                 String migratorClassName = pluginMetaData.getMigratorClass();
-                
+
                 if (migratorClassName != null) {
                     try {
                         Migrator migrator = (Migrator) Class.forName(migratorClassName).newInstance();
-                        migrator.setDefaultScriptPath("/extensions/" + pluginMetaData.getPath());
+                        migrator.setDefaultScriptPath("extensions/" + pluginMetaData.getPath());
                         pluginMigrators.add(migrator);
                     } catch (Exception e) {
                         logger.error("Failed to run migration for plugin: " + pluginMetaData.getName());
@@ -69,12 +69,12 @@ public class DefaultMigrationController extends MigrationController {
             }
         }
     }
-    
+
     @Override
     public void migrate() throws MigrationException {
         SqlConfig.getSqlSessionManager().startManagedSession();
         Connection connection = SqlConfig.getSqlSessionManager().getConnection();
-        
+
         try {
             serverMigrator.setConnection(connection);
             serverMigrator.setDatabaseType(configurationController.getDatabaseType());
@@ -85,11 +85,11 @@ public class DefaultMigrationController extends MigrationController {
             }
         }
     }
-    
+
     @Override
     public void migrateExtensions() {
         initPluginMigrators();
-        
+
         SqlConfig.getSqlSessionManager().startManagedSession();
         Connection connection = SqlConfig.getSqlSessionManager().getConnection();
 
@@ -110,17 +110,17 @@ public class DefaultMigrationController extends MigrationController {
             }
         }
     }
-    
+
     @Override
     public void migrateSerializedData() {
         SqlConfig.getSqlSessionManager().startManagedSession();
         Connection connection = SqlConfig.getSqlSessionManager().getConnection();
-        
+
         try {
             serverMigrator.setConnection(connection);
             serverMigrator.setDatabaseType(configurationController.getDatabaseType());
             serverMigrator.migrateSerializedData();
-            
+
             initPluginMigrators();
 
             for (Migrator migrator : pluginMigrators) {

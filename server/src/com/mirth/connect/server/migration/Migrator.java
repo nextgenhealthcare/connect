@@ -20,11 +20,11 @@ public abstract class Migrator {
     private Connection connection;
     private String databaseType;
     private String defaultScriptPath;
-    
+
     public abstract void migrate() throws MigrationException;
-    
+
     public abstract void migrateSerializedData() throws MigrationException;
-    
+
     public Connection getConnection() {
         return connection;
     }
@@ -48,11 +48,11 @@ public abstract class Migrator {
     public void setDefaultScriptPath(String defaultScriptPath) {
         this.defaultScriptPath = defaultScriptPath;
     }
-    
+
     public List<String> getUninstallStatements() throws MigrationException {
         return null;
     }
-    
+
     /**
      * Executes a SQL script
      * 
@@ -66,7 +66,7 @@ public abstract class Migrator {
 
         try {
             List<String> statements = readStatements(scriptFile);
-            
+
             connection.setAutoCommit(true);
             statement = connection.createStatement();
 
@@ -80,7 +80,7 @@ public abstract class Migrator {
             DbUtils.closeQuietly(resultSet);
         }
     }
-    
+
     /**
      * Read statements from a SQL script
      * 
@@ -91,37 +91,37 @@ public abstract class Migrator {
     protected List<String> readStatements(String scriptResourceName) throws IOException {
         List<String> script = new ArrayList<String>();
         Scanner scanner = null;
-        
+
         if (scriptResourceName.charAt(0) != '/' && defaultScriptPath != null) {
             scriptResourceName = defaultScriptPath + "/" + scriptResourceName;
         }
 
         try {
-            scanner = new Scanner(IOUtils.toString(getClass().getResourceAsStream(scriptResourceName)));
-            
+            scanner = new Scanner(IOUtils.toString(ResourceUtil.getResourceStream(getClass(), scriptResourceName)));
+
             while (scanner.hasNextLine()) {
                 StringBuilder stringBuilder = new StringBuilder();
                 boolean blankLine = false;
-    
+
                 while (scanner.hasNextLine() && !blankLine) {
                     String temp = scanner.nextLine();
-    
+
                     if (temp.trim().length() > 0) {
                         stringBuilder.append(temp + " ");
                     } else {
                         blankLine = true;
                     }
                 }
-    
+
                 // Trim ending semicolons so Oracle doesn't throw
                 // "java.sql.SQLException: ORA-00911: invalid character"
                 String statementString = StringUtils.removeEnd(stringBuilder.toString().trim(), ";");
-    
+
                 if (statementString.length() > 0) {
                     script.add(statementString);
                 }
             }
-            
+
             return script;
         } finally {
             if (scanner != null) {
@@ -129,7 +129,7 @@ public abstract class Migrator {
             }
         }
     }
-    
+
     /**
      * Tell whether or not the given table exists in the database
      */
