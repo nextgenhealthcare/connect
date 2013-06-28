@@ -240,11 +240,6 @@ public class ImportConverter3_0_0 {
             connector.addChildElement("metaDataId").setTextContent("0");
         }
 
-        // add a response transformer
-        if (mode.equals("DESTINATION")) {
-            createDefaultTransformer(connector.addChildElement("responseTransformer"));
-        }
-
         // convert connector properties
         DonkeyElement transportName = connector.getChildElement("transportName");
         String connectorName = transportName.getTextContent();
@@ -331,7 +326,29 @@ public class ImportConverter3_0_0 {
         }
 
         // convert transformer (no conversion needed for filter since it didn't change at all in 3.0.0)
-        String inboundDataType = migrateTransformer(connector.getChildElement("transformer"));
+        String[] dataTypes = migrateTransformer(connector.getChildElement("transformer"));
+
+        // if this is a destination connector, set its response transformer data types to the connector outbound data type.
+        if (mode.equals("DESTINATION")) {
+            String outboundDataType = dataTypes[1];
+            String convertedOutboundDataType;
+
+            if (outboundDataType.equals("EDI") || outboundDataType.equals("X12")) {
+                convertedOutboundDataType = "EDI/X12";
+            } else {
+                convertedOutboundDataType = outboundDataType;
+            }
+
+            DonkeyElement responseTransformer = connector.addChildElement("responseTransformer");
+            responseTransformer.addChildElement("steps");
+
+            responseTransformer.addChildElement("inboundDataType").setTextContent(convertedOutboundDataType);
+            responseTransformer.addChildElement("outboundDataType").setTextContent(convertedOutboundDataType);
+
+            // use the default data type properties.
+            migrateDataTypeProperties(responseTransformer.addChildElement("inboundProperties"), outboundDataType);
+            migrateDataTypeProperties(responseTransformer.addChildElement("outboundProperties"), outboundDataType);
+        }
 
         // default waitForPrevious to true
         connector.addChildElement("waitForPrevious").setTextContent("true");
@@ -343,7 +360,7 @@ public class ImportConverter3_0_0 {
         if (metaDataId == null) {
             return null;
         } else if (metaDataId == 0) {
-            return inboundDataType;
+            return dataTypes[0];
         } else {
             return sendResponseToChannelId;
         }
@@ -542,14 +559,16 @@ public class ImportConverter3_0_0 {
         writePropertiesElement(propertiesElement, properties);
     }
 
-    private static String migrateTransformer(DonkeyElement transformer) {
+    private static String[] migrateTransformer(DonkeyElement transformer) {
         logger.debug("Migrating Transformer");
 
         // TODO make sure that protocol/data type names haven't changed in 3.0.0
-        DonkeyElement inboundDataType = transformer.getChildElement("inboundProtocol");
-        DonkeyElement outboundDataType = transformer.getChildElement("outboundProtocol");
-        inboundDataType.setNodeName("inboundDataType");
-        outboundDataType.setNodeName("outboundDataType");
+        DonkeyElement inboundDataTypeElement = transformer.getChildElement("inboundProtocol");
+        DonkeyElement outboundDataTypeElement = transformer.getChildElement("outboundProtocol");
+        inboundDataTypeElement.setNodeName("inboundDataType");
+        outboundDataTypeElement.setNodeName("outboundDataType");
+        String inboundDataType = inboundDataTypeElement.getTextContent();
+        String outboundDataType = outboundDataTypeElement.getTextContent();
 
         DonkeyElement inboundProperties = transformer.getChildElement("inboundProperties");
         DonkeyElement outboundProperties = transformer.getChildElement("outboundProperties");
@@ -558,7 +577,7 @@ public class ImportConverter3_0_0 {
          * If both inbound and outbound data types are HL7V2, then the inbound convertLineBreaks
          * needs to be set to true if convertLFtoCR is true on the outbound.
          */
-        if (inboundDataType.getTextContent().equals("HL7V2") && outboundDataType.getTextContent().equals("HL7V2")) {
+        if (inboundDataType.equals("HL7V2") && outboundDataType.equals("HL7V2")) {
             boolean convertLFtoCROutbound = (outboundProperties == null) ? true : readBooleanValue(readPropertiesElement(outboundProperties), "convertLFtoCR", true);
 
             if (inboundProperties != null && convertLFtoCROutbound) {
@@ -578,18 +597,18 @@ public class ImportConverter3_0_0 {
             outboundProperties = transformer.addChildElement("outboundProperties");
         }
 
-        migrateDataTypeProperties(inboundProperties, inboundDataType.getTextContent());
-        migrateDataTypeProperties(outboundProperties, outboundDataType.getTextContent());
+        migrateDataTypeProperties(inboundProperties, inboundDataType);
+        migrateDataTypeProperties(outboundProperties, outboundDataType);
 
         // Rename EDI and X12 data types to "EDI/X12"
-        if (inboundDataType.getTextContent().equals("EDI") || inboundDataType.getTextContent().equals("X12")) {
-            inboundDataType.setTextContent("EDI/X12");
+        if (inboundDataType.equals("EDI") || inboundDataType.equals("X12")) {
+            inboundDataTypeElement.setTextContent("EDI/X12");
         }
-        if (outboundDataType.getTextContent().equals("EDI") || outboundDataType.getTextContent().equals("X12")) {
-            outboundDataType.setTextContent("EDI/X12");
+        if (outboundDataType.equals("EDI") || outboundDataType.equals("X12")) {
+            outboundDataTypeElement.setTextContent("EDI/X12");
         }
 
-        return inboundDataType.getTextContent();
+        return new String[] { inboundDataType, outboundDataType };
     }
 
     private static void migrateDataTypeProperties(DonkeyElement properties, String dataType) {
@@ -1711,16 +1730,6 @@ public class ImportConverter3_0_0 {
         reference = reference.replace("$!{ORIGINALNAME}", "$!{originalFilename}");
 
         return reference;
-    }
-
-    public static void createDefaultTransformer(DonkeyElement transformer) {
-        transformer.addChildElement("steps");
-        transformer.addChildElement("inboundDataType").setTextContent("HL7V2");
-        transformer.addChildElement("outboundDataType").setTextContent("HL7V2");
-
-        // migrateHL7v2Properties() will use the default 3.0.0 values when given blank Elements to work with
-        migrateHL7v2Properties(transformer.addChildElement("inboundProperties"));
-        migrateHL7v2Properties(transformer.addChildElement("outboundProperties"));
     }
 
     private static void dumpElement(DonkeyElement element) {
