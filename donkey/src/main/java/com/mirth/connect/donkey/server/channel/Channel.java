@@ -1784,7 +1784,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                         try {
                             processUnfinishedMessages();
                         } catch (InterruptedException e) {
-                            logger.error("Startup recovery interrupted", e);
+                            logger.error("Startup recovery interrupted for channel " + name + "(" + channelId + ")", e);
                             Thread.currentThread().interrupt();
                         } catch (Exception e) {
                             Throwable cause;
@@ -1794,7 +1794,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                                 cause = e;
                             }
 
-                            logger.error("Startup recovery failed: " + cause.getMessage(), cause);
+                            logger.error("Startup recovery failed for channel " + name + "(" + channelId + "): " + cause.getMessage(), cause);
                         }
 
                         ThreadUtils.checkInterruptedStatus();
