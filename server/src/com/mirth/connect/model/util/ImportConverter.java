@@ -331,13 +331,13 @@ public class ImportConverter {
 
                 if (!nodeChildrenContains(channelRoot, "deployScript")) {
                     Element deployScript = document.createElement("deployScript");
-                    deployScript.setTextContent("// This script executes once when the mule engine is started\n// You only have access to the globalMap here to persist data\nreturn;");
+                    deployScript.setTextContent("// This script executes once when the channel is deployed\n// You only have access to the globalMap and globalChannelMap here to persist data\nreturn;");
                     channelRoot.appendChild(deployScript);
                 }
 
                 if (!nodeChildrenContains(channelRoot, "shutdownScript")) {
                     Element shutdownScript = document.createElement("shutdownScript");
-                    shutdownScript.setTextContent("// This script executes once when the mule engine is stopped\n// You only have access to the globalMap here to persist data\nreturn;");
+                    shutdownScript.setTextContent("// This script executes once when the channel is undeployed\n// You only have access to the globalMap and globalChannelMap here to persist data\nreturn;");
                     channelRoot.appendChild(shutdownScript);
                 }
 
