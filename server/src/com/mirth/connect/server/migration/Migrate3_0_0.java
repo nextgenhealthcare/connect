@@ -44,7 +44,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
 
     @Override
     public String[] getConfigurationPropertiesToRemove() {
-        return new String[] { "jmx.password", "jmx.host" };
+        return new String[] { "jmx.port", "jmx.password", "jmx.host" };
     }
     
     private void migrateDataPrunerConfiguration() {
