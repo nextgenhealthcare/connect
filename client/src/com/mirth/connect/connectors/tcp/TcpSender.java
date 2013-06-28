@@ -361,7 +361,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
         remotePortField.setToolTipText("<html>The port on which to connect.</html>");
 
-        sendTimeoutField.setToolTipText("<html>The number of milliseconds to keep the connection to the host open,<br/>if Keep Connection Open is enabled.</html>");
+        sendTimeoutField.setToolTipText("<html>The number of milliseconds to keep the connection<br/>to the host open, if Keep Connection Open is enabled.<br/>If zero, the connection will be kept open indefinitely.</html>");
 
         bufferSizeField.setToolTipText("<html>The size, in bytes, of the buffer to be used to hold messages waiting to be sent. Generally, the default value is fine.<html>");
 

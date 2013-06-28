@@ -59,6 +59,7 @@ public class TcpDispatcher extends DestinationConnector {
     private StateAwareSocket socket;
     private Thread thread;
     private AtomicBoolean sending;
+    private int sendTimeout;
 
     TransmissionModeProvider transmissionModeProvider;
 
@@ -89,6 +90,7 @@ public class TcpDispatcher extends DestinationConnector {
         }
 
         sending = new AtomicBoolean(false);
+        sendTimeout = parseInt(connectorProperties.getSendTimeout());
 
         eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
     }
@@ -249,8 +251,10 @@ public class TcpDispatcher extends DestinationConnector {
             }
 
             if (tcpDispatcherProperties.isKeepConnectionOpen()) {
-                // Close the connection after the send timeout has been reached
-                startThread();
+                if (sendTimeout > 0) {
+                    // Close the connection after the send timeout has been reached
+                    startThread();
+                }
             } else {
                 // If keep connection open is false, then close the socket right now
                 closeSocketQuietly();
@@ -318,7 +322,7 @@ public class TcpDispatcher extends DestinationConnector {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(parseInt(connectorProperties.getSendTimeout()));
+                    Thread.sleep(sendTimeout);
                     closeSocketQuietly();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();

@@ -250,7 +250,7 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="sendTimeoutField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The number of milliseconds to keep the connection to the host open,&lt;br/&gt;if Keep Connection Open is enabled.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The number of milliseconds to keep the connection&lt;br/&gt;to the host open, if Keep Connection Open is enabled.&lt;br/&gt;If zero, the connection will be kept open indefinitely.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="bufferSizeField">
