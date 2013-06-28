@@ -17,9 +17,11 @@ import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 import com.mirth.connect.model.ArchiveMetaData;
@@ -185,8 +187,14 @@ public class ObjectXMLSerializer extends XStreamSerializer {
     @Override
     public Object deserialize(Reader reader) {
         try {
-            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(reader));
-            return getXStream().unmarshal(new DomReader(document));
+            Class<?> clazz = getClass(reader);
+
+            if (ArrayUtils.contains(clazz.getInterfaces(), Migratable.class)) {
+                Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(reader));
+                return getXStream().unmarshal(new DomReader(document));
+            } else {
+                return super.deserialize(reader);
+            }
         } catch (Exception e) {
             throw new SerializerException(e);
         }

@@ -42,24 +42,26 @@ public class MigratableConverter extends ReflectionConverter {
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        DonkeyElement element = new DonkeyElement((org.w3c.dom.Element) ((DocumentReader) reader).getCurrent());
-        logger.debug("Unmarshalling element: " + element.getNodeName());
-
-        /*
-         * The first element to be unmarshalled should have the "version" attribute. Once the
-         * version is read from the attribute, it will be stored in the context since Migratable
-         * child nodes will not have the "version" attribute.
-         */
-        if (context.get("readDocumentElement") == null) {
-            String version = element.hasAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME) ? element.getAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME) : null;
-            context.put(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, version);
-            context.put("readDocumentElement", true);
-        }
-
-        String version = (String) context.get(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME);
-
-        if (version != null && MigrationUtil.compareVersions(version, currentVersion) < 0 && context.getRequiredType() != null) {
-            migrateElement(element, version, context.getRequiredType());
+        if (reader instanceof DocumentReader) {
+            DonkeyElement element = new DonkeyElement((org.w3c.dom.Element) ((DocumentReader) reader).getCurrent());
+            logger.debug("Unmarshalling element: " + element.getNodeName());
+    
+            /*
+             * The first element to be unmarshalled should have the "version" attribute. Once the
+             * version is read from the attribute, it will be stored in the context since Migratable
+             * child nodes will not have the "version" attribute.
+             */
+            if (context.get("readDocumentElement") == null) {
+                String version = element.hasAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME) ? element.getAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME) : null;
+                context.put(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, version);
+                context.put("readDocumentElement", true);
+            }
+    
+            String version = (String) context.get(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME);
+    
+            if (version != null && MigrationUtil.compareVersions(version, currentVersion) < 0 && context.getRequiredType() != null) {
+                migrateElement(element, version, context.getRequiredType());
+            }
         }
 
         return super.unmarshal(reader, context);

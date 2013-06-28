@@ -95,7 +95,9 @@ public class XStreamSerializer implements Serializer {
     @Override
     public Class<?> getClass(Reader reader) {
         try {
-            return HierarchicalStreams.readClassType(new XppReader(reader, new MXParser()), getXStream().getMapper());
+            Class<?> clazz = HierarchicalStreams.readClassType(new XppReader(reader, new MXParser()), getXStream().getMapper());
+            reader.reset();
+            return clazz;
         } catch (Exception e) {
             throw new SerializerException(e);
         }
