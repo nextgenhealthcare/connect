@@ -11,6 +11,7 @@ package com.mirth.connect.donkey.server.channel;
 
 import java.util.Calendar;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
@@ -173,9 +174,30 @@ public abstract class DestinationConnector extends Connector implements Runnable
             }
         }
 
-        onStop();
+        try {
+            onStop();
+            setCurrentState(ChannelState.STOPPED);
+        } catch (Throwable t) {
+            Throwable cause = t;
 
-        setCurrentState(ChannelState.STOPPED);
+            if (cause instanceof StopException) {
+                cause = cause.getCause();
+            }
+            if (cause instanceof ExecutionException) {
+                cause = cause.getCause();
+            }
+
+            // If the thread has been interrupted, we don't want to set the state here because halt() will do it
+            if (!(cause instanceof InterruptedException)) {
+                setCurrentState(ChannelState.STOPPED);
+            }
+
+            if (t instanceof StopException) {
+                throw (StopException) t;
+            } else {
+                throw new StopException(t);
+            }
+        }
     }
 
     @Override
@@ -192,9 +214,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
             }
         }
 
-        onHalt();
-
-        setCurrentState(ChannelState.STOPPED);
+        try {
+            onHalt();
+        } finally {
+            setCurrentState(ChannelState.STOPPED);
+        }
     }
 
     private MessageContent getSentContent(ConnectorMessage message, ConnectorProperties connectorProperties) {

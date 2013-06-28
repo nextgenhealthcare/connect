@@ -1820,8 +1820,12 @@ public class Channel implements Startable, Stoppable, Runnable {
                         // If an exception occurred, then attempt to rollback by stopping all the connectors that were started
                         try {
                             stop(startedMetaDataIds);
-                            updateCurrentState(ChannelState.STOPPED);
                         } catch (Throwable t2) {
+                            try {
+                                halt(startedMetaDataIds);
+                            } catch (Throwable t3) {
+                            }
+                        } finally {
                             updateCurrentState(ChannelState.STOPPED);
                         }
 

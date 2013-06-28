@@ -11,6 +11,7 @@ package com.mirth.connect.donkey.server.channel;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 
@@ -89,9 +90,30 @@ public abstract class SourceConnector extends Connector {
         //TODO make this happen before the poll connector's stop method
         setCurrentState(ChannelState.STOPPING);
 
-        onStop();
+        try {
+            onStop();
+            setCurrentState(ChannelState.STOPPED);
+        } catch (Throwable t) {
+            Throwable cause = t;
 
-        setCurrentState(ChannelState.STOPPED);
+            if (cause instanceof StopException) {
+                cause = cause.getCause();
+            }
+            if (cause instanceof ExecutionException) {
+                cause = cause.getCause();
+            }
+
+            // If the thread has been interrupted, we don't want to set the state here because halt() will do it
+            if (!(cause instanceof InterruptedException)) {
+                setCurrentState(ChannelState.STOPPED);
+            }
+
+            if (t instanceof StopException) {
+                throw (StopException) t;
+            } else {
+                throw new StopException(t);
+            }
+        }
     }
 
     /**
@@ -102,9 +124,11 @@ public abstract class SourceConnector extends Connector {
         //TODO make this happen before the poll connector's stop method
         setCurrentState(ChannelState.STOPPING);
 
-        onHalt();
-
-        setCurrentState(ChannelState.STOPPED);
+        try {
+            onHalt();
+        } finally {
+            setCurrentState(ChannelState.STOPPED);
+        }
     }
 
     /**
