@@ -2999,6 +2999,8 @@ public class ChannelSetup extends javax.swing.JPanel {
             sourceSourceDropdown.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
 
             updateAttachmentHandler(connector.getTransformer().getInboundDataType());
+
+            sourceComponentShown(null);
         } // If the connector is a destination, then check/generate its name, add it, and re-make the destination table.
         else if ((channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) && (connector.getMode().equals(Mode.DESTINATION))) {
             List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
