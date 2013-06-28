@@ -70,7 +70,7 @@ public class WebServiceReceiver extends SourceConnector {
         try {
             server = HttpServer.create(new InetSocketAddress(host, port), 5);
         } catch (IOException e) {
-            throw new StartException("Error creating HTTP Server.", e.getCause());
+            throw new StartException("Error creating HTTP Server.", e);
         }
 
         executor = Executors.newFixedThreadPool(5);
@@ -111,7 +111,7 @@ public class WebServiceReceiver extends SourceConnector {
         List<Handler> handlerChain = new LinkedList<Handler>();
         handlerChain.add(new LoggingSOAPHandler(this));
         binding.setHandlerChain(handlerChain);
-        
+
         String serviceName = replacer.replaceValues(connectorProperties.getServiceName(), getChannelId());
         HttpContext context = server.createContext("/services/" + serviceName);
 
@@ -139,11 +139,20 @@ public class WebServiceReceiver extends SourceConnector {
     public void onStop() throws StopException {
         try {
             logger.debug("stopping Web Service HTTP server");
-            webServiceEndpoint.stop();
-            server.stop(1);
-            executor.shutdown();
+
+            if (webServiceEndpoint != null) {
+                webServiceEndpoint.stop();
+            }
+
+            if (server != null) {
+                server.stop(1);
+            }
+
+            if (executor != null) {
+                executor.shutdown();
+            }
         } catch (Exception e) {
-            throw new StopException("Failed to stop Web Service Listener", e.getCause());
+            throw new StopException("Failed to stop Web Service Listener", e);
         }
     }
 
@@ -167,10 +176,10 @@ public class WebServiceReceiver extends SourceConnector {
         RawMessage rawMessage = new RawMessage(message);
         DispatchResult dispatchResult = null;
         String response = null;
-        
+
         try {
             dispatchResult = dispatchRawMessage(rawMessage);
-            
+
             if (dispatchResult.getSelectedResponse() != null) {
                 response = dispatchResult.getSelectedResponse().getMessage();
             }
