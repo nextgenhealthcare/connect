@@ -29,6 +29,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
         migrateChannelTable();
         migrateAlertTable();
         migrateCodeTemplateTable();
+        migrateDataPrunerConfiguration();
     }
     
     @Override
@@ -44,6 +45,23 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
     @Override
     public String[] getConfigurationPropertiesToRemove() {
         return new String[] { "jmx.password", "jmx.host" };
+    }
+    
+    private void migrateDataPrunerConfiguration() {
+        PreparedStatement statement = null;
+        
+        try {
+            statement = getConnection().prepareStatement("UPDATE CONFIGURATION SET CATEGORY = ? WHERE CATEGORY = ?");
+            
+            // Message Pruner was renamed to Data Pruner
+            statement.setString(1, "Data Pruner");
+            statement.setString(2, "Message Pruner");
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("Failed to migrate Data Pruner configuration category", e);
+        } finally {
+            DbUtils.closeQuietly(statement);
+        }
     }
     
     private void migrateChannelTable() {
