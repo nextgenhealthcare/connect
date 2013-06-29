@@ -221,31 +221,36 @@ public class JavaScriptUtil {
      * @throws Exception
      */
     public static Response executePostprocessorScripts(JavaScriptTask<Object> task, Message message) throws Exception {
-        Object result = null;
         Logger scriptLogger = Logger.getLogger(ScriptController.POSTPROCESSOR_SCRIPT_KEY.toLowerCase());
 
+        Response channelResponse = null;
         try {
             String scriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, message.getChannelId());
             if (compiledScriptCache.getCompiledScript(scriptId) != null) {
                 Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message);
-                result = JavaScriptUtil.executeScript(task, scriptId, scope, null, null);
+                channelResponse = getPostprocessorResponse(JavaScriptUtil.executeScript(task, scriptId, scope, null, null));
             }
         } catch (Exception e) {
             logScriptError(ScriptController.POSTPROCESSOR_SCRIPT_KEY, message.getChannelId(), e);
             throw e;
         }
 
+        Response response = channelResponse;
         try {
             if (compiledScriptCache.getCompiledScript(ScriptController.POSTPROCESSOR_SCRIPT_KEY) != null) {
-                Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message, getPostprocessorResponse(result));
-                result = JavaScriptUtil.executeScript(task, ScriptController.POSTPROCESSOR_SCRIPT_KEY, scope, null, null);
+                Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message, channelResponse);
+                Response globalResponse = getPostprocessorResponse(JavaScriptUtil.executeScript(task, ScriptController.POSTPROCESSOR_SCRIPT_KEY, scope, null, null));
+
+                if (globalResponse != null) {
+                    response = globalResponse;
+                }
             }
         } catch (Exception e) {
             logScriptError(ScriptController.POSTPROCESSOR_SCRIPT_KEY, message.getChannelId(), e);
             throw e;
         }
 
-        return getPostprocessorResponse(result);
+        return response;
     }
 
     private static Response getPostprocessorResponse(Object result) {
