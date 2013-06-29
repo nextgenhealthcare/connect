@@ -212,10 +212,24 @@
 				
 				<choose>
 					<when test="element.operator == 'EQUAL'">
-						<![CDATA[ = ]]> 
+						<choose>
+							<when test="element.ignoreCase">
+								ILIKE
+							</when>
+							<otherwise>
+								<![CDATA[ = ]]>
+							</otherwise>
+						</choose>
 					</when>
 					<when test="element.operator == 'NOT_EQUAL'">
-						<![CDATA[ != ]]> 
+						<choose>
+							<when test="element.ignoreCase">
+								NOT ILIKE
+							</when>
+							<otherwise>
+								<![CDATA[ != ]]>
+							</otherwise>
+						</choose>
 					</when>
 					<when test="element.operator == 'LESS_THAN'">
 						<![CDATA[ < ]]> 

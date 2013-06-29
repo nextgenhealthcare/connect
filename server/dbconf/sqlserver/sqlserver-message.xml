@@ -202,37 +202,57 @@
 			</if>
 			<if test="metaDataSearch != null">
 				<foreach item="element" collection="metaDataSearch">
-					AND mcm.${element.columnName}
+					AND 
+					
+					<choose>
+						<when test="element.ignoreCase">
+							UPPER(mcm.${element.columnName})
+						</when>
+						<otherwise>
+							mcm.${element.columnName}
+						</otherwise>
+					</choose>
 
 					<choose>
 						<when test="element.operator == 'EQUAL'">
-							<![CDATA[ = ]]> #{element.value}
+							<![CDATA[ = ]]> 
 						</when>
 						<when test="element.operator == 'NOT_EQUAL'">
-							<![CDATA[ != ]]> #{element.value}
+							<![CDATA[ != ]]> 
 						</when>
 						<when test="element.operator == 'LESS_THAN'">
-							<![CDATA[ < ]]> #{element.value}
+							<![CDATA[ < ]]> 
 						</when>
 						<when test="element.operator == 'LESS_THAN_OR_EQUAL'">
-							<![CDATA[ <= ]]> #{element.value}
+							<![CDATA[ <= ]]> 
 						</when>
 						<when test="element.operator == 'GREATER_THAN'">
-							<![CDATA[ > ]]> #{element.value}
+							<![CDATA[ > ]]> 
 						</when>
 						<when test="element.operator == 'GREATER_THAN_OR_EQUAL'">
-							<![CDATA[ >= ]]> #{element.value}
+							<![CDATA[ >= ]]> 
 						</when>
-						<when test="element.operator == 'CONTAINS'">
-							LIKE '%' + #{element.value} + '%'
-						</when>
-						<when test="element.operator == 'STARTS_WITH'">
-							LIKE #{element.value} + '%'
-						</when>
-						<when test="element.operator == 'ENDS_WITH'">
-							LIKE '%' + #{element.value}
+						<when test="element.operator == 'CONTAINS' || element.operator == 'STARTS_WITH' || element.operator == 'ENDS_WITH'">
+							LIKE 
 						</when>
 					</choose>
+					
+					<if test="element.operator == 'CONTAINS' || element.operator == 'ENDS_WITH'">
+						'%' + 
+					</if>
+					
+					<choose>
+						<when test="element.ignoreCase">
+							UPPER(#{element.value})
+						</when>
+						<otherwise>
+							#{element.value}
+						</otherwise>
+					</choose>
+					
+					<if test="element.operator == 'CONTAINS' || element.operator == 'STARTS_WITH'">
+						+ '%'
+					</if>
 				</foreach>
 			</if>
 		</where>

@@ -210,7 +210,16 @@
 			</if>
 			<if test="metaDataSearch != null">
 				<foreach item="element" collection="metaDataSearch">
-					AND mcm."${element.columnName}"
+					AND 
+					
+					<choose>
+						<when test="element.ignoreCase">
+							UPPER(mcm."${element.columnName}")
+						</when>
+						<otherwise>
+							mcm."${element.columnName}"
+						</otherwise>
+					</choose>
 					
 					<choose>
 						<when test="element.operator == 'EQUAL'">
@@ -239,7 +248,16 @@
 					<if test="element.operator == 'CONTAINS' || element.operator == 'ENDS_WITH'">
 						'%' ||
 					</if>
-						#{element.value}
+					
+					<choose>
+						<when test="element.ignoreCase">
+							UPPER(#{element.value})
+						</when>
+						<otherwise>
+							#{element.value}
+						</otherwise>
+					</choose>
+					
 					<if test="element.operator == 'CONTAINS' || element.operator == 'STARTS_WITH'">
 						|| '%'
 					</if>

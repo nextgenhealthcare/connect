@@ -129,6 +129,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                 int metaDataColumnIndex = findColumn("Metadata");
                 int operatorColumnIndex = findColumn("Operator");
                 int valueColumnIndex = findColumn("Value");
+                int ignoreCaseColumnIndex = findColumn("Ignore Case");
 
                 if (column == valueColumnIndex) {
                     MetaDataColumn metaDataColumn = cachedMetaDataColumns.get(getValueAt(row, metaDataColumnIndex));
@@ -146,6 +147,11 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                         MetaDataSearchOperator operator = MetaDataSearchOperator.EQUAL;
 
                         super.setValueAt(operator, row, operatorColumnIndex);
+
+                        MetaDataColumn metaDataColumn = cachedMetaDataColumns.get(value);
+                        if (metaDataColumn.getType() != MetaDataColumnType.STRING) {
+                            super.setValueAt(Boolean.FALSE, row, ignoreCaseColumnIndex);
+                        }
                     }
 
                     super.setValueAt("", row, valueColumnIndex);
