@@ -92,7 +92,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
             Connection connection = getConnection();
             connection.setAutoCommit(false);
 
-            preparedStatement = connection.prepareStatement("SELECT ID, NAME, DESCRIPTION, IS_ENABLED, VERSION, REVISION, LAST_MODIFIED, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT, POSTPROCESSING_SCRIPT, DEPLOY_SCRIPT, SHUTDOWN_SCRIPT FROM \"__CHANNEL\"");
+            preparedStatement = connection.prepareStatement("SELECT ID, NAME, DESCRIPTION, IS_ENABLED, VERSION, REVISION, LAST_MODIFIED, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT, POSTPROCESSING_SCRIPT, DEPLOY_SCRIPT, SHUTDOWN_SCRIPT FROM OLD_CHANNEL");
             results = preparedStatement.executeQuery();
 
             while (results.next()) {
@@ -190,7 +190,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
             connection.setAutoCommit(false);
 
             // Build a list of emails for each alert
-            statement = connection.prepareStatement("SELECT ALERT_ID, EMAIL FROM \"__ALERT_EMAIL\"");
+            statement = connection.prepareStatement("SELECT ALERT_ID, EMAIL FROM OLD_ALERT_EMAIL");
             results = statement.executeQuery();
 
             while (results.next()) {
@@ -210,7 +210,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
             DbUtils.closeQuietly(results);
 
             // Build a list of applied channels for each alert
-            statement = connection.prepareStatement("SELECT CHANNEL_ID, ALERT_ID FROM \"__CHANNEL_ALERT\"");
+            statement = connection.prepareStatement("SELECT CHANNEL_ID, ALERT_ID FROM OLD_CHANNEL_ALERT");
             results = statement.executeQuery();
 
             while (results.next()) {
@@ -229,7 +229,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
 
             DbUtils.closeQuietly(results);
 
-            statement = connection.prepareStatement("SELECT ID, NAME, IS_ENABLED, EXPRESSION, TEMPLATE, SUBJECT FROM \"__ALERT\"");
+            statement = connection.prepareStatement("SELECT ID, NAME, IS_ENABLED, EXPRESSION, TEMPLATE, SUBJECT FROM OLD_ALERT");
             results = statement.executeQuery();
 
             while (results.next()) {
@@ -340,7 +340,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
             Connection connection = getConnection();
             connection.setAutoCommit(false);
 
-            preparedStatement = connection.prepareStatement("SELECT ID, NAME, CODE_SCOPE, CODE_TYPE, TOOLTIP, CODE FROM \"__CODE_TEMPLATE\"");
+            preparedStatement = connection.prepareStatement("SELECT ID, NAME, CODE_SCOPE, CODE_TYPE, TOOLTIP, CODE FROM OLD_CODE_TEMPLATE");
             results = preparedStatement.executeQuery();
 
             while (results.next()) {
