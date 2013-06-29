@@ -3,6 +3,8 @@ package com.mirth.connect.server.migration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
+
 public class Migrate2_2_0 extends Migrator implements ConfigurationMigrator {
     @Override
     public void migrate() throws MigrationException {
@@ -29,4 +31,7 @@ public class Migrate2_2_0 extends Migrator implements ConfigurationMigrator {
         return new String[] { "keystore.storetype", "keystore.algorithm", "keystore.alias",
                 "truststore.storetype", "truststore.algorithm" };
     }
+
+    @Override
+    public void updateConfiguration(PropertiesConfiguration configuration) {}
 }

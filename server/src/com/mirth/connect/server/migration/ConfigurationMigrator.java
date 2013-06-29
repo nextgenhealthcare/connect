@@ -2,6 +2,8 @@ package com.mirth.connect.server.migration;
 
 import java.util.Map;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
+
 public interface ConfigurationMigrator {
     /**
      * Returns a map of property names and default values to add to the configuration. Returns null
@@ -14,4 +16,9 @@ public interface ConfigurationMigrator {
      * nothing to remove.
      */
     public String[] getConfigurationPropertiesToRemove();
+    
+    /**
+     * Migrates existing configuration settings
+     */
+    public void updateConfiguration(PropertiesConfiguration configuration);
 }

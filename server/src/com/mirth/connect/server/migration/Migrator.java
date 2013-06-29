@@ -74,7 +74,7 @@ public abstract class Migrator {
                 statement.execute(statementString);
             }
         } catch (Exception e) {
-            throw new MigrationException(e);
+            throw new MigrationException("Failed to execute script: " + scriptFile, e);
         } finally {
             DbUtils.closeQuietly(statement);
             DbUtils.closeQuietly(resultSet);

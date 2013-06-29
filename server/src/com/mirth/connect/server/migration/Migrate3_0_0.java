@@ -13,7 +13,9 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,6 +49,19 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
         return new String[] { "jmx.port", "jmx.password", "jmx.host" };
     }
     
+    @Override
+    public void updateConfiguration(PropertiesConfiguration configuration) {
+        if (configuration.getProperty("database").equals("derby")) {
+            String url = (String) configuration.getProperty("database.url");
+
+            if (!StringUtils.contains(url, ";upgrade=")) {
+                url += ";upgrade=true";
+            }
+
+            configuration.setProperty("database.url", url);
+        }
+    }
+    
     private void migrateDataPrunerConfiguration() {
         PreparedStatement statement = null;
         
@@ -77,7 +92,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
             Connection connection = getConnection();
             connection.setAutoCommit(false);
 
-            preparedStatement = connection.prepareStatement("SELECT ID, NAME, DESCRIPTION, IS_ENABLED, VERSION, REVISION, LAST_MODIFIED, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT, POSTPROCESSING_SCRIPT, DEPLOY_SCRIPT, SHUTDOWN_SCRIPT FROM __CHANNEL");
+            preparedStatement = connection.prepareStatement("SELECT ID, NAME, DESCRIPTION, IS_ENABLED, VERSION, REVISION, LAST_MODIFIED, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT, POSTPROCESSING_SCRIPT, DEPLOY_SCRIPT, SHUTDOWN_SCRIPT FROM \"__CHANNEL\"");
             results = preparedStatement.executeQuery();
 
             while (results.next()) {
@@ -175,7 +190,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
             connection.setAutoCommit(false);
 
             // Build a list of emails for each alert
-            statement = connection.prepareStatement("SELECT ALERT_ID, EMAIL FROM __ALERT_EMAIL");
+            statement = connection.prepareStatement("SELECT ALERT_ID, EMAIL FROM \"__ALERT_EMAIL\"");
             results = statement.executeQuery();
 
             while (results.next()) {
@@ -195,7 +210,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
             DbUtils.closeQuietly(results);
 
             // Build a list of applied channels for each alert
-            statement = connection.prepareStatement("SELECT CHANNEL_ID, ALERT_ID FROM __CHANNEL_ALERT");
+            statement = connection.prepareStatement("SELECT CHANNEL_ID, ALERT_ID FROM \"__CHANNEL_ALERT\"");
             results = statement.executeQuery();
 
             while (results.next()) {
@@ -214,7 +229,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
 
             DbUtils.closeQuietly(results);
 
-            statement = connection.prepareStatement("SELECT ID, NAME, IS_ENABLED, EXPRESSION, TEMPLATE, SUBJECT FROM __ALERT");
+            statement = connection.prepareStatement("SELECT ID, NAME, IS_ENABLED, EXPRESSION, TEMPLATE, SUBJECT FROM \"__ALERT\"");
             results = statement.executeQuery();
 
             while (results.next()) {
@@ -325,7 +340,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
             Connection connection = getConnection();
             connection.setAutoCommit(false);
 
-            preparedStatement = connection.prepareStatement("SELECT ID, NAME, CODE_SCOPE, CODE_TYPE, TOOLTIP, CODE FROM __CODE_TEMPLATE");
+            preparedStatement = connection.prepareStatement("SELECT ID, NAME, CODE_SCOPE, CODE_TYPE, TOOLTIP, CODE FROM \"__CODE_TEMPLATE\"");
             results = preparedStatement.executeQuery();
 
             while (results.next()) {

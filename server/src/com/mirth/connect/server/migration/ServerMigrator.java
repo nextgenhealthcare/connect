@@ -79,6 +79,8 @@ public class ServerMigrator extends Migrator {
     }
     
     private void runConfigurationMigrator(ConfigurationMigrator configurationMigrator, PropertiesConfiguration mirthConfig, Version version) {
+        configurationMigrator.updateConfiguration(mirthConfig);
+        
         HashMap<String, Object> addedProperties = new LinkedHashMap<String, Object>();
         Map<String, Object> propertiesToAdd = configurationMigrator.getConfigurationPropertiesToAdd();
 
