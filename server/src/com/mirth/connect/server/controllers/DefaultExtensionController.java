@@ -172,7 +172,7 @@ public class DefaultExtensionController extends ExtensionController {
                             pluginMetaDataMap.put(metaData.getName(), (PluginMetaData) metaData);
                         }
                     } else {
-                        logger.error("Extension \"" + metaData.getName() + "\" is not compatible with this version of Mirth Connect.");
+                        logger.error("Extension \"" + metaData.getName() + "\" is not compatible with this version of Mirth Connect and was not loaded. Please install a compatible version.");
                     }
                 } catch (Exception e) {
                     logger.error("Error reading or parsing extension metadata file: " + extensionFile.getName(), e);
