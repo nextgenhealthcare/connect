@@ -34,6 +34,8 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
             return new OracleDaoFactory();
         } else if (database.equals("mysql")) {
             return new MysqlDaoFactory();
+        } else if (database.equals("sqlserver")) {
+            return new SqlServerDaoFactory();
         }
 
         return new JdbcDaoFactory();

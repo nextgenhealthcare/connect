@@ -690,6 +690,10 @@ public class DataPruner implements Runnable {
         SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
         ThreadUtils.checkInterruptedStatus();
 
+        if (DatabaseUtil.statementExists("initDataPruner", session)) {
+            session.update("initDataPruner");
+        }
+
         try {
             status.setPruning(true);
 

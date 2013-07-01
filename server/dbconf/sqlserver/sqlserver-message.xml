@@ -292,6 +292,10 @@
 	
 	<!-- Data Pruner/Archiver -->
 	
+	<update id="initDataPruner" parameterType="map">
+		SET DEADLOCK_PRIORITY LOW
+	</update>
+
 	<delete id="pruneMessages" parameterType="map">
 		DELETE
 		
