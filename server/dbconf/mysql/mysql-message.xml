@@ -460,8 +460,13 @@
 		
 		ORDER BY m.id
 		
-		LIMIT #{limit}
-		OFFSET #{offset}
+		<if test="limit != null">
+			LIMIT #{limit}
+		</if>
+
+		<if test="offset != null">
+			OFFSET #{offset}
+		</if>
 	</select>
 	
 	<update id="pruneEvents" parameterType="map">

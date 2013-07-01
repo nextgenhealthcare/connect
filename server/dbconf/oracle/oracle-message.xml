@@ -396,8 +396,10 @@
 	</sql>
 	
 	<select id="getMessagesToPrune" parameterType="map" resultMap="pruner-message-map">
-		SELECT a.* FROM (SELECT b.*, rownum b_rownum FROM (
-	
+		<if test="offset != null and limit != null">
+			SELECT a.* FROM (SELECT b.*, rownum b_rownum FROM (
+		</if>
+
 			SELECT
 				m.id,
 				m.server_id,
@@ -429,7 +431,9 @@
 			
 			ORDER BY m.id
 		
-		) b WHERE rownum <![CDATA[ <= ]]> (${offset} + ${limit})) a WHERE b_rownum > ${offset}
+		<if test="offset != null and limit != null">
+			) b WHERE rownum <![CDATA[ <= ]]> (${offset} + ${limit})) a WHERE b_rownum > ${offset}
+		</if>
 	</select>
 	
 	<update id="pruneEvents" parameterType="map">
