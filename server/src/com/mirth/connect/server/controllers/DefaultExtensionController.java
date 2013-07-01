@@ -171,6 +171,8 @@ public class DefaultExtensionController extends ExtensionController {
                         } else if (metaData instanceof PluginMetaData) {
                             pluginMetaDataMap.put(metaData.getName(), (PluginMetaData) metaData);
                         }
+                    } else {
+                        logger.error("Extension \"" + metaData.getName() + "\" is not compatible with this version of Mirth Connect.");
                     }
                 } catch (Exception e) {
                     logger.error("Error reading or parsing extension metadata file: " + extensionFile.getName(), e);
@@ -227,7 +229,7 @@ public class DefaultExtensionController extends ExtensionController {
     @Override
     public void initPlugins() {
         for (PluginMetaData pmd : pluginMetaDataMap.values()) {
-            if (isExtensionEnabled(pmd.getName()) && isExtensionCompatible(pmd)) {
+            if (isExtensionEnabled(pmd.getName())) {
                 if (pmd.getServerClasses() != null) {
                     for (String clazzName : pmd.getServerClasses()) {
                         try {
@@ -285,7 +287,7 @@ public class DefaultExtensionController extends ExtensionController {
                     }
                 }
             } else {
-                logger.warn("Plugin \"" + pmd.getName() + "\" is not enabled or is not compatible with this version of Mirth Connect.");
+                logger.warn("Plugin \"" + pmd.getName() + "\" is not enabled.");
             }
         }
     }
