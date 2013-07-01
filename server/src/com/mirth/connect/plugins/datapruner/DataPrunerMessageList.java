@@ -62,9 +62,6 @@ public class DataPrunerMessageList extends PaginatedList<Message> {
 
     @Override
     protected List<Message> getItems(int offset, int limit) throws Exception {
-        messageIds.clear();
-        contentMessageIds.clear();
-
         List<Map<String, Object>> maps;
         SqlSession session = SqlConfig.getSqlSessionManager().openSession();
         params.put("offset", offset);
