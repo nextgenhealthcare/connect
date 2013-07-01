@@ -400,43 +400,47 @@ public class JdbcDao implements DonkeyDao {
 
         try {
             List<String> metaDataColumnNames = new ArrayList<String>();
-
-            for (MetaDataColumn metaDataColumn : metaDataColumns) {
-                metaDataColumnNames.add(metaDataColumn.getName());
-            }
-
-            Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", getLocalChannelId(connectorMessage.getChannelId()));
-            values.put("metaDataColumnNames", quoteChar + StringUtils.join(metaDataColumnNames, quoteChar + "," + quoteChar) + quoteChar);
-            values.put("metaDataColumnPlaceholders", "?" + StringUtils.repeat(", ?", metaDataColumnNames.size() - 1));
-
-            statement = connection.prepareStatement(querySource.getQuery("insertMetaData", values));
-            statement.setInt(1, connectorMessage.getMetaDataId());
-            statement.setLong(2, connectorMessage.getMessageId());
-            int n = 3;
-
             Map<String, Object> metaDataMap = connectorMessage.getMetaDataMap();
 
             for (MetaDataColumn metaDataColumn : metaDataColumns) {
                 Object value = metaDataMap.get(metaDataColumn.getName());
 
-                // @formatter:off
-                if (value == null) {
-                    statement.setNull(n, Types.NULL);
-                } else {
-                    switch (metaDataColumn.getType()) {
-                        case STRING: statement.setString(n, (String) value); break;
-                        case NUMBER: statement.setBigDecimal(n, (BigDecimal) value); break;
-                        case BOOLEAN: statement.setBoolean(n, (Boolean) value); break;
-                        case TIMESTAMP: statement.setTimestamp(n, new Timestamp(((Calendar) value).getTimeInMillis())); break;
-                    }
+                if (value != null) {
+                    metaDataColumnNames.add(metaDataColumn.getName());
                 }
-                // @formatter:on
-
-                n++;
             }
 
-            statement.executeUpdate();
+            // Don't do anything if all values were null
+            if (!metaDataColumnNames.isEmpty()) {
+                Map<String, Object> values = new HashMap<String, Object>();
+                values.put("localChannelId", getLocalChannelId(connectorMessage.getChannelId()));
+                values.put("metaDataColumnNames", quoteChar + StringUtils.join(metaDataColumnNames, quoteChar + "," + quoteChar) + quoteChar);
+                values.put("metaDataColumnPlaceholders", "?" + StringUtils.repeat(", ?", metaDataColumnNames.size() - 1));
+
+                statement = connection.prepareStatement(querySource.getQuery("insertMetaData", values));
+                statement.setInt(1, connectorMessage.getMetaDataId());
+                statement.setLong(2, connectorMessage.getMessageId());
+                int n = 3;
+
+                for (MetaDataColumn metaDataColumn : metaDataColumns) {
+                    Object value = metaDataMap.get(metaDataColumn.getName());
+
+                    if (value != null) {
+                        // @formatter:off
+                        switch (metaDataColumn.getType()) {
+                            case STRING: statement.setString(n, (String) value); break;
+                            case NUMBER: statement.setBigDecimal(n, (BigDecimal) value); break;
+                            case BOOLEAN: statement.setBoolean(n, (Boolean) value); break;
+                            case TIMESTAMP: statement.setTimestamp(n, new Timestamp(((Calendar) value).getTimeInMillis())); break;
+                        }
+                        // @formatter:on
+
+                        n++;
+                    }
+                }
+
+                statement.executeUpdate();
+            }
         } catch (Exception e) {
             throw new DonkeyDaoException("Failed to insert connector message meta data", e);
         } finally {
@@ -454,27 +458,27 @@ public class JdbcDao implements DonkeyDao {
             statement.setLong(2, connectorMessage.getMessageId());
             statement.setTimestamp(3, new Timestamp(connectorMessage.getReceivedDate().getTimeInMillis()));
             statement.setString(4, Character.toString(connectorMessage.getStatus().getStatusCode()));
-            
+
             if (connectorMessage.getConnectorName() == null) {
                 statement.setNull(5, Types.VARCHAR);
             } else {
                 statement.setString(5, connectorMessage.getConnectorName());
             }
-            
+
             statement.setInt(6, connectorMessage.getSendAttempts());
-            
+
             if (connectorMessage.getSendDate() == null) {
                 statement.setNull(7, Types.TIMESTAMP);
             } else {
                 statement.setTimestamp(7, new Timestamp(connectorMessage.getSendDate().getTimeInMillis()));
             }
-            
+
             if (connectorMessage.getResponseDate() == null) {
                 statement.setNull(8, Types.TIMESTAMP);
             } else {
                 statement.setTimestamp(8, new Timestamp(connectorMessage.getResponseDate().getTimeInMillis()));
             }
-            
+
             statement.setInt(9, connectorMessage.getErrorCode());
             statement.setInt(10, connectorMessage.getChainId());
             statement.setInt(11, connectorMessage.getOrderId());
@@ -603,7 +607,7 @@ public class JdbcDao implements DonkeyDao {
         if (updateError(connectorMessage.getProcessingErrorContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSING_ERROR)) {
             errorsUpdated = true;
         }
-        
+
         if (updateError(connectorMessage.getPostProcessorErrorContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.POSTPROCESSOR_ERROR)) {
             errorsUpdated = true;
         }
@@ -887,11 +891,11 @@ public class JdbcDao implements DonkeyDao {
             values.put("columnName", columnName);
 
             statement = connection.createStatement();
-            
+
             if (querySource.queryExists("removeMetaDataColumnIndex")) {
                 statement.executeUpdate(querySource.getQuery("removeMetaDataColumnIndex", values));
             }
-            
+
             statement.executeUpdate(querySource.getQuery("removeMetaDataColumn", values));
         } catch (SQLException e) {
             throw new DonkeyDaoException("Failed to remove meta-data column", e);
@@ -1316,7 +1320,7 @@ public class JdbcDao implements DonkeyDao {
             statement.setString(1, channelId);
             statement.setLong(2, localChannelId);
             statement.executeUpdate();
-            
+
             Map<String, Object> values = new HashMap<String, Object>();
             values.put("localChannelId", localChannelId);
 
@@ -1338,19 +1342,19 @@ public class JdbcDao implements DonkeyDao {
         if (querySource.queryExists(query)) {
             Statement statement = null;
             int n = 1;
-    
+
             try {
                 statement = connection.createStatement();
                 statement.executeUpdate(querySource.getQuery(query, values));
-    
+
                 String sequenceQuery = querySource.getQuery(query + "Sequence", values);
-                
+
                 if (sequenceQuery != null) {
                     statement.executeUpdate(sequenceQuery);
                 }
-                
+
                 String indexQuery = querySource.getQuery(query + "Index" + n, values);
-    
+
                 while (indexQuery != null) {
                     statement.executeUpdate(indexQuery);
                     indexQuery = querySource.getQuery(query + "Index" + (++n), values);
@@ -1512,11 +1516,11 @@ public class JdbcDao implements DonkeyDao {
                 for (Entry<Integer, Set<Status>> metaDataEntry : metaDataIds.entrySet()) {
                     Integer metaDataId = metaDataEntry.getKey();
                     Set<Status> statuses = metaDataEntry.getValue();
-                    
+
                     currentStats.resetStats(channelId, metaDataId, statuses);
                 }
             }
-            
+
             // Clear the reset stats map because we've just reset the stats
             resetStats.clear();
 
@@ -1763,8 +1767,10 @@ public class JdbcDao implements DonkeyDao {
 
     private String serializeMap(Map<String, Object> map) {
         /*
-         * Try to serialize the entire map and if it fails, then find the map values that failed to
-         * serialize and convert them into their string representation before attempting to
+         * Try to serialize the entire map and if it fails, then find the map
+         * values that failed to
+         * serialize and convert them into their string representation before
+         * attempting to
          * serialize again.
          */
         try {
@@ -1868,9 +1874,12 @@ public class JdbcDao implements DonkeyDao {
     }
 
     /**
-     * When using Derby, we manually cascade the deletion of records from dependent tables
-     * rather than relying on ON DELETE CASCADE behavior. Derby uses a table-level lock when
-     * cascading deletes, which hinders concurrency and can increase the risk of deadlocks.
+     * When using Derby, we manually cascade the deletion of records from
+     * dependent tables
+     * rather than relying on ON DELETE CASCADE behavior. Derby uses a
+     * table-level lock when
+     * cascading deletes, which hinders concurrency and can increase the risk of
+     * deadlocks.
      */
     private void cascadeMessageDelete(String queryId, String channelId) throws SQLException {
         PreparedStatement statement = prepareStatement(queryId, channelId);
@@ -1881,9 +1890,12 @@ public class JdbcDao implements DonkeyDao {
     }
 
     /**
-     * When using Derby, we manually cascade the deletion of records from dependent tables
-     * rather than relying on ON DELETE CASCADE behavior. Derby uses a table-level lock when
-     * cascading deletes, which hinders concurrency and can increase the risk of deadlocks.
+     * When using Derby, we manually cascade the deletion of records from
+     * dependent tables
+     * rather than relying on ON DELETE CASCADE behavior. Derby uses a
+     * table-level lock when
+     * cascading deletes, which hinders concurrency and can increase the risk of
+     * deadlocks.
      */
     private void cascadeMessageDelete(String queryId, long messageId, String channelId) throws SQLException {
         PreparedStatement statement = prepareStatement(queryId, channelId);
@@ -1895,9 +1907,12 @@ public class JdbcDao implements DonkeyDao {
     }
 
     /**
-     * When using Derby, we manually cascade the deletion of records from dependent tables
-     * rather than relying on ON DELETE CASCADE behavior. Derby uses a table-level lock when
-     * cascading deletes, which hinders concurrency and can increase the risk of deadlocks.
+     * When using Derby, we manually cascade the deletion of records from
+     * dependent tables
+     * rather than relying on ON DELETE CASCADE behavior. Derby uses a
+     * table-level lock when
+     * cascading deletes, which hinders concurrency and can increase the risk of
+     * deadlocks.
      */
     private void cascadeMessageDelete(String queryId, long messageId, Map<String, Object> values) throws SQLException {
         String query = querySource.getQuery(queryId, values);
@@ -1916,7 +1931,8 @@ public class JdbcDao implements DonkeyDao {
     }
 
     /**
-     * Returns a prepared statement from the statementSource for the given channelId.
+     * Returns a prepared statement from the statementSource for the given
+     * channelId.
      */
     private PreparedStatement prepareStatement(String queryId, String channelId) throws SQLException {
         Long localChannelId = null;
@@ -1943,46 +1959,83 @@ public class JdbcDao implements DonkeyDao {
             logger.error("Failed to close JDBC result set", e);
         }
     }
-    
+
     private static String sqlTypeToString(int sqlType) {
         switch (sqlType) {
-            case Types.ARRAY: return "ARRAY";
-            case Types.BIGINT: return "BIGINT";
-            case Types.BINARY: return "BINARY";
-            case Types.BIT: return "BIT";
-            case Types.BLOB: return "BLOB";
-            case Types.BOOLEAN: return "BOOLEAN";
-            case Types.CHAR: return "CHAR";
-            case Types.CLOB: return "CLOB";
-            case Types.DATALINK: return "DATALINK";
-            case Types.DATE: return "DATE";
-            case Types.DECIMAL: return "DECIMAL";
-            case Types.DISTINCT: return "DISTINCT";
-            case Types.DOUBLE: return "DOUBLE";
-            case Types.FLOAT: return "FLOAT";
-            case Types.INTEGER: return "INTEGER";
-            case Types.JAVA_OBJECT: return "JAVA_OBJECT";
-            case Types.LONGNVARCHAR: return "LONGNVARCHAR";
-            case Types.LONGVARBINARY: return "LONGVARBINARY";
-            case Types.LONGVARCHAR: return "LONGVARCHAR";
-            case Types.NCHAR: return "NCHAR";
-            case Types.NCLOB: return "NCLOB";
-            case Types.NULL: return "NULL";
-            case Types.NUMERIC: return "NUMERIC";
-            case Types.NVARCHAR: return "NVARCHAR";
-            case Types.OTHER: return "OTHER";
-            case Types.REAL: return "REAL";
-            case Types.REF: return "REF";
-            case Types.ROWID: return "ROWID";
-            case Types.SMALLINT: return "SMALLINT";
-            case Types.SQLXML: return "SQLXML";
-            case Types.STRUCT: return "STRUCT";
-            case Types.TIME: return "TIME";
-            case Types.TIMESTAMP: return "TIMESTAMP";
-            case Types.TINYINT: return "TINYINT";
-            case Types.VARBINARY: return "VARBINARY";
-            case Types.VARCHAR: return "VARCHAR";
-            default: return "UNKNOWN";
+            case Types.ARRAY:
+                return "ARRAY";
+            case Types.BIGINT:
+                return "BIGINT";
+            case Types.BINARY:
+                return "BINARY";
+            case Types.BIT:
+                return "BIT";
+            case Types.BLOB:
+                return "BLOB";
+            case Types.BOOLEAN:
+                return "BOOLEAN";
+            case Types.CHAR:
+                return "CHAR";
+            case Types.CLOB:
+                return "CLOB";
+            case Types.DATALINK:
+                return "DATALINK";
+            case Types.DATE:
+                return "DATE";
+            case Types.DECIMAL:
+                return "DECIMAL";
+            case Types.DISTINCT:
+                return "DISTINCT";
+            case Types.DOUBLE:
+                return "DOUBLE";
+            case Types.FLOAT:
+                return "FLOAT";
+            case Types.INTEGER:
+                return "INTEGER";
+            case Types.JAVA_OBJECT:
+                return "JAVA_OBJECT";
+            case Types.LONGNVARCHAR:
+                return "LONGNVARCHAR";
+            case Types.LONGVARBINARY:
+                return "LONGVARBINARY";
+            case Types.LONGVARCHAR:
+                return "LONGVARCHAR";
+            case Types.NCHAR:
+                return "NCHAR";
+            case Types.NCLOB:
+                return "NCLOB";
+            case Types.NULL:
+                return "NULL";
+            case Types.NUMERIC:
+                return "NUMERIC";
+            case Types.NVARCHAR:
+                return "NVARCHAR";
+            case Types.OTHER:
+                return "OTHER";
+            case Types.REAL:
+                return "REAL";
+            case Types.REF:
+                return "REF";
+            case Types.ROWID:
+                return "ROWID";
+            case Types.SMALLINT:
+                return "SMALLINT";
+            case Types.SQLXML:
+                return "SQLXML";
+            case Types.STRUCT:
+                return "STRUCT";
+            case Types.TIME:
+                return "TIME";
+            case Types.TIMESTAMP:
+                return "TIMESTAMP";
+            case Types.TINYINT:
+                return "TINYINT";
+            case Types.VARBINARY:
+                return "VARBINARY";
+            case Types.VARCHAR:
+                return "VARCHAR";
+            default:
+                return "UNKNOWN";
         }
     }
 
