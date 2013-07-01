@@ -308,10 +308,14 @@ public class JavaScriptBuilder {
 
     private static void appendMiscFunctions(StringBuilder builder) {
         // Script used to check for existence of segment
-        builder.append("function validate(mapping, defaultValue, replacements) { ");
-        builder.append("var result = new java.lang.String((mapping || defaultValue) + ''); ");
-        builder.append("if (replacements) { for each (entry in replacements) { result = result.replaceAll(entry[0], entry[1]); } } ");
-        builder.append("return result; }\n");
+        builder.append("function validate(mapping, defaultValue, replacement) {");
+        builder.append("var result = mapping;");
+        builder.append("if ((result == undefined) || (result.toString().length == 0)) { ");
+        builder.append("if (defaultValue == undefined) { defaultValue = ''} result = defaultValue; } ");
+        builder.append("result = new java.lang.String(result.toString()); ");
+        builder.append("if (replacement != undefined) {");
+        builder.append("for (i = 0; i < replacement.length; i++) { ");
+        builder.append("var entry = replacement[i]; result = result.replaceAll(entry[0], entry[1]); } } return result; }");
 
         // Helper function to create segments
         builder.append("function createSegment(name, msgObj, index) {");
