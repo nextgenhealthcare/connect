@@ -208,6 +208,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
             }
 
             DbUtils.closeQuietly(results);
+            DbUtils.closeQuietly(statement);
 
             // Build a list of applied channels for each alert
             statement = connection.prepareStatement("SELECT CHANNEL_ID, ALERT_ID FROM OLD_CHANNEL_ALERT");
@@ -228,6 +229,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
             }
 
             DbUtils.closeQuietly(results);
+            DbUtils.closeQuietly(statement);
 
             statement = connection.prepareStatement("SELECT ID, NAME, IS_ENABLED, EXPRESSION, TEMPLATE, SUBJECT FROM OLD_ALERT");
             results = statement.executeQuery();
