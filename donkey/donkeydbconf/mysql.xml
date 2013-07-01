@@ -226,7 +226,7 @@
 	</query>
 	
 	<query id="addMetaDataColumnTimestamp">
-		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` timestamp;
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` timestamp NULL DEFAULT NULL;
 	</query>
 	
 	<query id="addMetaDataColumnTimestampIndex">
