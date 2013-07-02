@@ -9,7 +9,6 @@
 
 package com.mirth.connect.server.migration;
 
-import com.mirth.connect.server.migration.Migrator;
 
 public class LegacyMigrator extends Migrator {
     private int schemaVersion;

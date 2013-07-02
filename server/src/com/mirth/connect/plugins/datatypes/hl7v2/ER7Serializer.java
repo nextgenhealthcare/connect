@@ -30,8 +30,8 @@ import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;

@@ -10,13 +10,9 @@
 package com.mirth.connect.server.controllers.tests;
 
 import java.io.File;
-import java.util.Map;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.mirth.connect.model.ConnectorMetaData;
-import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.tools.ScriptRunner;

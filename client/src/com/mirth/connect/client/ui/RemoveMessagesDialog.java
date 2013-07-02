@@ -12,7 +12,6 @@ package com.mirth.connect.client.ui;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.swing.JDialog;
 import javax.swing.SwingWorker;
 
 import com.mirth.connect.client.core.ClientException;

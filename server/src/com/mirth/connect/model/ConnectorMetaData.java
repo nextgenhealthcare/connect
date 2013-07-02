@@ -10,7 +10,6 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
-import java.util.Properties;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;

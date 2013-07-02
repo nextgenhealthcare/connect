@@ -23,8 +23,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.model.datatype.SerializerProperties;

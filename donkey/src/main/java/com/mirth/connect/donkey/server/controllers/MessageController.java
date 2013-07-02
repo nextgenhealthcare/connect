@@ -10,7 +10,6 @@
 package com.mirth.connect.donkey.server.controllers;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;

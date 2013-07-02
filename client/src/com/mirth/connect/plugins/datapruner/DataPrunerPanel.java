@@ -18,9 +18,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
 
-import org.apache.commons.lang3.StringUtils;
-
 import net.miginfocom.swing.MigLayout;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.AbstractSettingsPanel;

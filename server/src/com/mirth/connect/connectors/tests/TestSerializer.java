@@ -9,8 +9,8 @@
 
 package com.mirth.connect.connectors.tests;
 
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 
 public class TestSerializer implements XmlSerializer {
 	

@@ -15,8 +15,8 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.SerializerProperties;
 

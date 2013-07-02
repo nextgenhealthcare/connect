@@ -41,8 +41,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.model.converters.DocumentSerializer;
