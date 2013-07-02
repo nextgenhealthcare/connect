@@ -22,5 +22,13 @@
 	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Donkey">
+		<accessrules>
+			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/model/**"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/util/**"/>
+			<accessrule kind="nonaccessible" pattern="*/**"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/xpp3_min-1.1.4c.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
