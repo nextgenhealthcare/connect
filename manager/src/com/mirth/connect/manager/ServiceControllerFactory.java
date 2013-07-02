@@ -9,6 +9,8 @@
 
 package com.mirth.connect.manager;
 
+import org.apache.commons.lang3.SystemUtils;
+
 public class ServiceControllerFactory {
 
     private static ServiceController serviceController;
@@ -16,12 +18,11 @@ public class ServiceControllerFactory {
     public static ServiceController getServiceController() throws Exception {
         synchronized (ServiceController.class) {
             if (serviceController == null) {
-                String os = System.getProperty("os.name").toLowerCase();
-                if (os.indexOf("win") >= 0) {
+                if (SystemUtils.IS_OS_WINDOWS) {
                     serviceController = new WindowsServiceController();
-                } else if (os.indexOf("mac") >= 0) {
+                } else if (SystemUtils.IS_OS_MAC) {
                     serviceController = new MacServiceController();
-                } else if ((os.indexOf("nix") >= 0) || (os.indexOf("nux") >= 0)) {
+                } else if (SystemUtils.IS_OS_UNIX) {
                     serviceController = new LinuxServiceController();
                 } else {
                     throw new Exception("Operating system must be Windows, Mac, or Unix/Linux.");

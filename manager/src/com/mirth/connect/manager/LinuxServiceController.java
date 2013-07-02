@@ -91,4 +91,8 @@ public class LinuxServiceController implements ServiceController {
         return true;
     }
 
+    @Override
+    public void migrate() {
+    }
+
 }
