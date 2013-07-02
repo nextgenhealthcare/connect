@@ -27,7 +27,7 @@ public class WindowsServiceController implements ServiceController {
     private final String WINDOWS_CMD_REG_QUERY = "REG QUERY HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v \"Mirth Connect Server Manager\"";
     private final String WINDOWS_CMD_REG_DELETE = "REG DELETE HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /f /v \"Mirth Connect Server Manager\"";
     private final String WINDOWS_CMD_REG_ADD = "REG ADD HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /f /v \"Mirth Connect Server Manager\" /d ";
-   
+
     @Override
     public int checkService() {
         Pattern pattern = Pattern.compile(WINDOWS_CMD_QUERY_REGEX);
@@ -134,6 +134,21 @@ public class WindowsServiceController implements ServiceController {
     @Override
     public boolean isShowServiceTab() {
         return true;
+    }
+    
+    @Override
+    public void migrate() {
+        // If the old value exists in the registry, then we should remove and re-add it
+        try {
+            String output = CmdUtil.execCmdWithOutput(WINDOWS_CMD_REG_QUERY);
+            if (output.indexOf("Mirth Connect Server Manager.exe") != -1) {
+                setStartup(false);
+                setStartup(true);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

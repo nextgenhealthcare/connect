@@ -91,4 +91,8 @@ public class MacServiceController implements ServiceController {
         return false;
     }
 
+    @Override
+    public void migrate() {
+    }
+
 }

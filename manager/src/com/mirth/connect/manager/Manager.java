@@ -35,6 +35,12 @@ public class Manager {
 
         manager.setupDialog();
         manager.setupTray();
+        
+        try {
+            ServiceControllerFactory.getServiceController().migrate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         ManagerController.getInstance().updateMirthServiceStatus();
     }

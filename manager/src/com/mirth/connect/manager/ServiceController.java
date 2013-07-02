@@ -20,4 +20,5 @@ public interface ServiceController {
     public String getCommand();
     public boolean isShowTrayIcon();
     public boolean isShowServiceTab();
+    public void migrate();
 }
