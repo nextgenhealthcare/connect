@@ -296,94 +296,82 @@
 		SET DEADLOCK_PRIORITY LOW
 	</update>
 
-	<delete id="pruneMessages" parameterType="map">
-		DELETE
-		
-		<if test="limit != null">
-			TOP (#{limit})
-		</if>
-		
-		m
-		
-		FROM d_m${localChannelId} m
-			
-		<if test="dateThreshold != null">
-			JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
-		</if>
-		
+	<delete id="pruneMessagesByIds" parameterType="map">
+		DELETE FROM d_m${localChannelId}
 		<where>
-			<include refid="pruneWhere" />
+			<if test="includeMessageList != null">
+				id IN (${includeMessageList})
+			</if>
+			
+			<if test="excludeMessageList != null">
+				AND id NOT IN (${excludeMessageList})
+			</if>
+			
+			<if test="includeMessageRanges != null">
+				AND
+				<foreach item="range" collection="includeMessageRanges" open="(" separator="OR" close=")">
+					id BETWEEN #{range[0]} AND #{range[1]}
+				</foreach>
+			</if>
+			
+			<if test="excludeMessageRanges != null">
+				AND
+				<foreach item="range" collection="excludeMessageRanges" open="(" separator="AND" close=")">
+					id NOT BETWEEN #{range[0]} AND #{range[1]}
+				</foreach>
+			</if>
+	
+			<if test="minMessageId != null and maxMessageId != null">
+				AND id BETWEEN #{minMessageId} AND #{maxMessageId}
+			</if>
 		</where>
+	</delete>
+	
+	<delete id="pruneConnectorMessages" parameterType="map">
+		DELETE FROM d_mm${localChannelId}
+		<where><include refid="pruneWhere" /></where>
 	</delete>
 	
 	<delete id="pruneMessageContent" parameterType="map">
-		DELETE
-		
-		<if test="limit != null">
-			TOP (#{limit})
-		</if>
-		
-		mc
-		
-		FROM d_mc${localChannelId} mc
-		JOIN d_m${localChannelId} m ON mc.message_id = m.id
-		
-		<if test="dateThreshold != null">
-			JOIN d_mm${localChannelId} mm ON mm.message_id = mc.message_id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
-		</if>
-		
-		<where>
-			<include refid="pruneWhere" />
-		</where>
+		DELETE FROM d_mc${localChannelId}
+		<where><include refid="pruneWhere" /></where>
+	</delete>
+	
+	<delete id="pruneCustomMetaData" parameterType="map">
+		DELETE FROM d_mcm${localChannelId}
+		<where><include refid="pruneWhere" /></where>
+	</delete>
+	
+	<delete id="pruneAttachments" parameterType="map">
+		DELETE FROM d_ma${localChannelId}
+		<where><include refid="pruneWhere" /></where>
 	</delete>
 	
 	<sql id="pruneWhere">
-	
-		<!-- Criteria used when pruning without an archiver -->
-		
-		<if test="skipIncomplete == true">
-			m.processed = 1
-		</if>
-		
-		<if test="skipStatuses != null">
-			AND NOT EXISTS (
-				SELECT 1
-				FROM d_mm${localChannelId} mm
-				WHERE mm.message_id = m.id
-				AND mm.status IN
-				<foreach item="status" collection="skipStatuses" open="(" separator="," close=")">
-					#{status}
-				</foreach>
-			)
-		</if>
-		
-				
-		<!-- Criteria used when pruning with an archiver -->
-		
 		<if test="includeMessageList != null">
-			AND m.id IN (${includeMessageList})
+			message_id IN (${includeMessageList})
 		</if>
 		
 		<if test="excludeMessageList != null">
-			AND m.id NOT IN (${excludeMessageList})
+			AND message_id NOT IN (${excludeMessageList})
 		</if>
 		
 		<if test="includeMessageRanges != null">
 			AND
 			<foreach item="range" collection="includeMessageRanges" open="(" separator="OR" close=")">
-				m.id BETWEEN #{range[0]} AND #{range[1]}
+				message_id BETWEEN #{range[0]} AND #{range[1]}
 			</foreach>
 		</if>
 		
 		<if test="excludeMessageRanges != null">
 			AND
 			<foreach item="range" collection="excludeMessageRanges" open="(" separator="AND" close=")">
-				m.id NOT BETWEEN #{range[0]} AND #{range[1]}
+				message_id NOT BETWEEN #{range[0]} AND #{range[1]}
 			</foreach>
 		</if>
 
 		<if test="minMessageId != null and maxMessageId != null">
-			AND m.id BETWEEN #{minMessageId} AND #{maxMessageId}
+			AND message_id BETWEEN #{minMessageId} AND #{maxMessageId}
 		</if>
 	</sql>
 	
