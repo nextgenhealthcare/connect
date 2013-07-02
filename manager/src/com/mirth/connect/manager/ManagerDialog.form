@@ -614,13 +614,12 @@
                 <Component class="com.mirth.connect.manager.components.MirthComboBox" name="databaseType">
                   <Properties>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                      <StringArray count="6">
+                      <StringArray count="5">
                         <StringItem index="0" value="derby"/>
                         <StringItem index="1" value="postgres"/>
                         <StringItem index="2" value="mysql"/>
                         <StringItem index="3" value="oracle"/>
-                        <StringItem index="4" value="sqlserver2000"/>
-                        <StringItem index="5" value="sqlserver"/>
+                        <StringItem index="4" value="sqlserver"/>
                       </StringArray>
                     </Property>
                   </Properties>

@@ -44,7 +44,6 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
         databaseDriverMap.put("mysql", "com.mysql.jdbc.Driver");
         databaseDriverMap.put("oracle", "oracle.jdbc.OracleDriver");
         databaseDriverMap.put("postgres", "org.postgresql.Driver");
-        databaseDriverMap.put("sqlserver2000", "net.sourceforge.jtds.jdbc.Driver");
         databaseDriverMap.put("sqlserver", "net.sourceforge.jtds.jdbc.Driver");
     }
 
