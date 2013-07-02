@@ -65,6 +65,7 @@
 
 	<!-- Manager -->
 	<target name="build-manager" depends="build-client">
+		<copy file="${donkey.setup}/donkey-model.jar" todir="${manager}/lib" />
 		<copy file="${server.setup}/server-lib/mirth-client-core.jar" todir="${manager}/lib" />
 		<copy file="${server.setup}/server-lib/mirth-crypto.jar" todir="${manager}/lib" />
 		<copy file="${server.setup}/server-lib/commons/not-yet-commons-ssl-0.3.11.jar" todir="${manager}/lib" />
