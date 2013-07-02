@@ -28,7 +28,7 @@ public class ServerMigrator extends Migrator {
     public ServerMigrator() {
         setDefaultScriptPath("/deltas");
     }
-    
+
     @Override
     public void migrate() throws MigrationException {
         Connection connection = getConnection();
@@ -40,7 +40,7 @@ public class ServerMigrator extends Migrator {
         } else {
             version = version.getNextVersion();
         }
-        
+
         while (version != null) {
             Migrator migrator = getMigrator(version);
 
@@ -56,14 +56,14 @@ public class ServerMigrator extends Migrator {
             version = version.getNextVersion();
         }
     }
-    
+
     @Override
     public void migrateSerializedData() {
         migrateSerializedData("SELECT ID, CHANNEL FROM CHANNEL", "UPDATE CHANNEL SET CHANNEL = ? WHERE ID = ?", Channel.class);
         migrateSerializedData("SELECT ID, ALERT FROM ALERT", "UPDATE ALERT SET ALERT = ? WHERE ID = ?", AlertModel.class);
         migrateSerializedData("SELECT ID, CODE_TEMPLATE FROM CODE_TEMPLATE", "UPDATE CODE_TEMPLATE SET CODE_TEMPLATE = ? WHERE ID = ?", CodeTemplate.class);
     }
-    
+
     public void migrateConfiguration(PropertiesConfiguration mirthConfig) throws MigrationException {
         Version version = Version.values()[1];
 
@@ -77,10 +77,10 @@ public class ServerMigrator extends Migrator {
             version = version.getNextVersion();
         }
     }
-    
+
     private void runConfigurationMigrator(ConfigurationMigrator configurationMigrator, PropertiesConfiguration mirthConfig, Version version) {
         configurationMigrator.updateConfiguration(mirthConfig);
-        
+
         HashMap<String, Object> addedProperties = new LinkedHashMap<String, Object>();
         Map<String, Object> propertiesToAdd = configurationMigrator.getConfigurationPropertiesToAdd();
 
@@ -88,14 +88,14 @@ public class ServerMigrator extends Migrator {
             for (Entry<String, Object> propertyToAdd : propertiesToAdd.entrySet()) {
                 if (!mirthConfig.containsKey(propertyToAdd.getKey())) {
                     mirthConfig.setProperty(propertyToAdd.getKey(), propertyToAdd.getValue());
-    
+
                     // If this is the first added property, add a blank line and
                     // comment before it
                     if (addedProperties.isEmpty()) {
                         mirthConfig.getLayout().setBlancLinesBefore(propertyToAdd.getKey(), 1);
                         mirthConfig.getLayout().setComment(propertyToAdd.getKey(), "The following properties were automatically added on startup - they are required beginning in version " + version);
                     }
-    
+
                     addedProperties.put(propertyToAdd.getKey(), propertyToAdd.getValue());
                 }
             }
@@ -103,7 +103,7 @@ public class ServerMigrator extends Migrator {
 
         List<String> removedProperties = new ArrayList<String>();
         String[] propertiesToRemove = configurationMigrator.getConfigurationPropertiesToRemove();
-        
+
         if (propertiesToRemove != null) {
             for (String propertyToRemove : propertiesToRemove) {
                 if (mirthConfig.containsKey(propertyToRemove)) {
@@ -117,11 +117,11 @@ public class ServerMigrator extends Migrator {
             if (!addedProperties.isEmpty()) {
                 logger.info("Adding properties in mirth.properties: " + addedProperties);
             }
-            
+
             if (!removedProperties.isEmpty()) {
                 logger.info("Removing properties in mirth.properties: " + removedProperties);
             }
-            
+
             try {
                 mirthConfig.save();
             } catch (ConfigurationException e) {
@@ -137,7 +137,7 @@ public class ServerMigrator extends Migrator {
             }
         }
     }
-    
+
     private Migrator getMigrator(Version version) {
         switch (version) {// @formatter:off
             case V0: return new LegacyMigrator(0);
@@ -155,7 +155,7 @@ public class ServerMigrator extends Migrator {
 
         return null;
     }
-    
+
     /**
      * Builds the database schema on the connected database if it does not exist
      * 
@@ -208,11 +208,12 @@ public class ServerMigrator extends Migrator {
             DbUtils.closeQuietly(statement);
         }
     }
-    
+
     /**
-     * It is assumed that for each migratable class that uses this an "id" column exists in the
-     * database, which is used as the primary key when updating the row. It's also assumed that for
-     * the time being, any additional columns besides the ID and serialized XML (e.g. name,
+     * It is assumed that for each migratable class that uses this an "id"
+     * column exists in the database, which is used as the primary key when
+     * updating the row. It's also assumed that for the time being, any
+     * additional columns besides the ID and serialized XML (e.g. name,
      * revision) will not change during migration.
      */
     private void migrateSerializedData(String selectSql, String updateSql, Class<?> expectedClass) {
@@ -221,23 +222,25 @@ public class ServerMigrator extends Migrator {
         Statement selectStatement = null;
         PreparedStatement updateStatement = null;
         ResultSet resultSet = null;
-        
+
         try {
             selectStatement = connection.createStatement();
             resultSet = selectStatement.executeQuery(selectSql);
-            
+
             while (resultSet.next()) {
                 try {
                     String id = resultSet.getString(1);
                     String serializedData = resultSet.getString(2);
                     String migratedData = serializer.toXML(serializer.fromXML(serializedData, expectedClass));
-                    
+
                     if (!migratedData.equals(serializedData)) {
                         updateStatement = connection.prepareStatement(updateSql);
                         updateStatement.setString(1, migratedData);
                         updateStatement.setString(2, id);
                         updateStatement.executeUpdate();
                     }
+                } catch (LinkageError e) {
+                    logger.error("Failed to migrate serialized data", e);
                 } catch (SQLException e) {
                     logger.error("Failed to migrate serialized data", e);
                 }
