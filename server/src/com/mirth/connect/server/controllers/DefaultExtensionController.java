@@ -142,8 +142,7 @@ public class DefaultExtensionController extends ExtensionController {
     public void loadExtensions() {
         try {
             // match all of the file names for the extension
-            IOFileFilter nameFileFilter = new NameFileFilter(new String[] { "plugin.xml",
-                    "source.xml", "destination.xml" });
+            IOFileFilter nameFileFilter = new NameFileFilter(new String[] { "plugin.xml", "source.xml", "destination.xml" });
             // this is probably not needed, but we dont want to pick up directories,
             // so we AND the two filters
             IOFileFilter andFileFilter = new AndFileFilter(nameFileFilter, FileFilterUtils.fileFileFilter());
@@ -154,7 +153,7 @@ public class DefaultExtensionController extends ExtensionController {
 
             for (File extensionFile : extensionFiles) {
                 try {
-                    MetaData metaData = (MetaData) serializer.fromXML(FileUtils.readFileToString(extensionFile));
+                    MetaData metaData = (MetaData) serializer.fromXML(FileUtils.readFileToString(extensionFile), MetaData.class);
 
                     if (isExtensionCompatible(metaData)) {
                         if (metaData instanceof ConnectorMetaData) {
@@ -238,16 +237,14 @@ public class DefaultExtensionController extends ExtensionController {
                             if (serverPlugin instanceof ServicePlugin) {
                                 ServicePlugin servicePlugin = (ServicePlugin) serverPlugin;
                                 /*
-                                 * load any properties that may currently be in the
-                                 * database
+                                 * load any properties that may currently be in the database
                                  */
                                 Properties currentProperties = getPluginProperties(pmd.getName());
                                 /* get the default properties for the plugin */
                                 Properties defaultProperties = servicePlugin.getDefaultProperties();
 
                                 /*
-                                 * if there are any properties that not currently
-                                 * set, set them to the the default
+                                 * if there are any properties that not currently set, set them to the the default
                                  */
                                 for (Object key : defaultProperties.keySet()) {
                                     if (!currentProperties.containsKey(key)) {
@@ -259,8 +256,7 @@ public class DefaultExtensionController extends ExtensionController {
                                 setPluginProperties(pmd.getName(), currentProperties);
 
                                 /*
-                                 * initialize the plugin with those properties and
-                                 * add it to the list of loaded plugins
+                                 * initialize the plugin with those properties and add it to the list of loaded plugins
                                  */
                                 servicePlugin.init(currentProperties);
                                 servicePlugins.put(servicePlugin.getPluginPointName(), servicePlugin);
@@ -480,7 +476,7 @@ public class DefaultExtensionController extends ExtensionController {
         for (PluginMetaData plugin : pluginMetaDataMap.values()) {
             if (plugin.getPath().equals(pluginPath)) {
                 addExtensionToUninstallPropertiesFile(plugin.getName());
-                
+
                 if (plugin.getMigratorClass() != null) {
                     try {
                         Migrator migrator = (Migrator) Class.forName(plugin.getMigratorClass()).newInstance();
@@ -628,7 +624,7 @@ public class DefaultExtensionController extends ExtensionController {
         // delete the uninstall scripts file
         FileUtils.deleteQuietly(new File(getExtensionsPath(), EXTENSIONS_UNINSTALL_SCRIPTS_FILE));
     }
-    
+
     private void appendToUninstallScript(List<String> uninstallStatements) throws IOException {
         if (uninstallStatements != null) {
             List<String> uninstallScripts = readUninstallScript();
