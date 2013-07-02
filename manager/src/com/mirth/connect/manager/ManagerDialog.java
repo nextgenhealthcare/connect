@@ -43,7 +43,7 @@ public class ManagerDialog extends javax.swing.JDialog {
     public void setupDialog() {
         initComponents();
 
-        databaseUrls.put("derby", "jdbc:derby:${dir.base}/mirthdb;create=true");
+        databaseUrls.put("derby", "jdbc:derby:${dir.appdata}/mirthdb;create=true");
         databaseUrls.put("postgres", "jdbc:postgresql://localhost:5432/mirthdb");
         databaseUrls.put("mysql", "jdbc:mysql://localhost:3306/mirthdb");
         databaseUrls.put("oracle", "jdbc:oracle:thin:@localhost:1521:DB");
@@ -768,7 +768,7 @@ private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         boolean applyEnabled = isApplyEnabled();
 
         databaseType.setSelectedItem(managerController.getServerProperties().getString(ManagerConstants.DATABASE_TYPE));
-        databaseUrl.setText(managerController.getServerProperties().getString(ManagerConstants.DATABASE_URL));
+        databaseUrl.setText((String) managerController.getServerProperties().getProperty(ManagerConstants.DATABASE_URL));
         databaseUsername.setText(managerController.getServerProperties().getString(ManagerConstants.DATABASE_USERNAME));
         databasePassword.setText(managerController.getServerProperties().getString(ManagerConstants.DATABASE_PASSWORD));
 
