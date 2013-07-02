@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 
 public class WindowsServiceController implements ServiceController {
     
-    private final String WINDOWS_PATH_SERVER_MANAGER_EXE = "Mirth Connect Server Manager.exe";
+    private final String WINDOWS_PATH_SERVER_MANAGER_EXE = "mcmanager.exe";
     private final String WINDOWS_SERVICE_NAME = "Mirth Connect Service";
     private final String WINDOWS_CMD_START = "net start \"";
     private final String WINDOWS_CMD_STOP = "net stop \"";
