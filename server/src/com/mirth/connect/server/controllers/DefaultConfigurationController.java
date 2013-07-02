@@ -899,7 +899,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         try {
             connection = SqlConfig.getSqlSessionManager().getConnection();
             statement = connection.createStatement();
-            statement.execute("SELECT 1 FROM channels");
+            statement.execute("SELECT 1 FROM channel");
             return true;
         } catch (Exception e) {
             logger.warn("could not retrieve status of database", e);
