@@ -2080,11 +2080,11 @@ public class Frame extends JXFrame {
             try {
                 ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 Map<String, String> importScripts = (Map<String, String>) serializer.fromXML(content);
-                
+
                 for (Entry<String, String> globalScriptEntry : importScripts.entrySet()) {
                     importScripts.put(globalScriptEntry.getKey(), globalScriptEntry.getValue().replaceAll("com.webreach.mirth", "com.mirth.connect"));
                 }
-                
+
                 globalScriptsPanel.importAllScripts(importScripts);
             } catch (Exception e) {
                 alertException(this, e.getStackTrace(), "Invalid scripts file. " + e.getMessage());
@@ -2283,7 +2283,7 @@ public class Frame extends JXFrame {
     public synchronized boolean isRefreshingStatuses() {
         return refreshingStatuses;
     }
-    
+
     public synchronized void setRefreshingAlerts(boolean refreshingAlerts) {
         this.refreshingAlerts = refreshingAlerts;
     }
@@ -3067,7 +3067,7 @@ public class Frame extends JXFrame {
         if (showAlerts && !promptObjectMigration(content, "channel")) {
             return;
         }
-        
+
         boolean overwrite = false;
         Channel importChannel = null;
 
@@ -3077,7 +3077,7 @@ public class Frame extends JXFrame {
             if (showAlerts) {
                 alertException(this, e.getStackTrace(), "Invalid channel file:\n" + e.getMessage());
             }
-            
+
             return;
         }
 
@@ -3823,7 +3823,7 @@ public class Frame extends JXFrame {
             worker.execute();
         }
     }
-    
+
     public void doRefreshAlerts() {
         doRefreshAlerts(true);
     }
@@ -3841,7 +3841,7 @@ public class Frame extends JXFrame {
 
             setRefreshingAlerts(true);
         }
-        
+
         final String workingId = startWorking("Loading alerts...");
 
         final List<String> selectedAlertIds = alertPanel.getSelectedAlertIds();
@@ -3863,7 +3863,7 @@ public class Frame extends JXFrame {
                 alertPanel.updateAlertTable(alertStatusList);
                 alertPanel.setSelectedAlertIds(selectedAlertIds);
                 stopWorking(workingId);
-                
+
                 setRefreshingAlerts(false);
 
                 // Perform another refresh if any were queued up to ensure the alert dashboard is up to date.
@@ -4330,7 +4330,7 @@ public class Frame extends JXFrame {
                 boolean append = false;
 
                 List<CodeTemplate> newCodeTemplates = serializer.listFromXML(content, CodeTemplate.class);
-                
+
                 if (codeTemplates != null && codeTemplates.size() > 0) {
                     if (alertOption(this, "Would you like to append these code templates to the existing code templates?")) {
                         append = true;
@@ -4387,7 +4387,7 @@ public class Frame extends JXFrame {
 
                 codeTemplatePanel.updateCodeTemplateTable();
             } catch (Exception e) {
-                alertError(this, "Invalid code template file.");
+                alertException(this, e.getStackTrace(), "Invalid code template file: " + e.getMessage());
             }
         }
     }
@@ -4685,9 +4685,10 @@ public class Frame extends JXFrame {
     public Set<String> getAllChannelTags() {
         return allChannelTags;
     }
-    
+
     /**
-     * Checks to see if the serialized object version is current, and prompts the user if it is not.
+     * Checks to see if the serialized object version is current, and prompts
+     * the user if it is not.
      */
     private boolean promptObjectMigration(String content, String objectName) {
         String version = MigrationUtil.normalizeVersion(MigrationUtil.getSerializedObjectVersion(content), 3);
@@ -4697,7 +4698,7 @@ public class Frame extends JXFrame {
             message.append("The " + objectName + " being imported is from an unknown version of Mirth Connect.\n");
         } else {
             int comparison = MigrationUtil.compareVersions(version, PlatformUI.SERVER_VERSION);
-            
+
             if (comparison == 0) {
                 return true;
             }

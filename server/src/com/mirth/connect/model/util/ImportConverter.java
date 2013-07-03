@@ -133,6 +133,7 @@ public class ImportConverter {
 
         for (int i = 0; i < length; i++) {
             Element codeTemplate = (Element) codeTemplates.item(i);
+            codeTemplate.getOwnerDocument().renameNode(codeTemplate, codeTemplate.getNamespaceURI(), "codeTemplate");
             NodeList versions = codeTemplate.getElementsByTagName("version");
 
             // If there is no version, then this is a migration to 2.0 and the

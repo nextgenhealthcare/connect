@@ -71,7 +71,7 @@ public class ImportConverter3_0_0 {
 
         DonkeyElement root = new DonkeyElement(document.getDocumentElement());
 
-        if (root.getNodeName().equals("list") && (expectedClass == Connector.class || expectedClass == AlertModel.class)) {
+        if (root.getNodeName().equals("list") && (expectedClass == Connector.class || expectedClass == AlertModel.class || expectedClass == CodeTemplate.class)) {
             NodeList childNodes = root.getChildNodes();
             int childCount = childNodes.getLength();
 
@@ -87,6 +87,10 @@ public class ImportConverter3_0_0 {
                         root.replaceChild(document.importNode(convertedConnector, true), child);
                     } else if (expectedClass == AlertModel.class) {
                         migrateAlert(new DonkeyElement(child));
+                    } else if (expectedClass == CodeTemplate.class) {
+                        Element convertedCodeTemplate = ImportConverter.convertCodeTemplates(MigrationUtil.elementToXml(child)).getDocumentElement();
+                        migrateCodeTemplate(new DonkeyElement(convertedCodeTemplate));
+                        root.replaceChild(document.importNode(convertedCodeTemplate, true), child);
                     }
                 }
             }
