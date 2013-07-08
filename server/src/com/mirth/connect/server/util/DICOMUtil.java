@@ -59,7 +59,7 @@ public class DICOMUtil {
 
                     // Replace the raw binary with the encoded binary to free up the memory
                     mergedMessageBytes = Base64Util.encodeBase64(mergedMessageBytes);
-                    
+
                     mergedMessage = StringUtils.newStringUsAscii(mergedMessageBytes);
                 } else {
                     mergedMessage = message.getRaw().getContent();
@@ -74,7 +74,7 @@ public class DICOMUtil {
 
         return mergedMessage;
     }
-    
+
     public static String getDICOMRawData(ConnectorMessage message) {
         return getDICOMRawData(new ImmutableConnectorMessage(message));
     }
@@ -101,7 +101,7 @@ public class DICOMUtil {
 
         return mergedMessage;
     }
-    
+
     public static byte[] getDICOMRawBytes(ConnectorMessage message) {
         return getDICOMRawBytes(new ImmutableConnectorMessage(message));
     }
@@ -150,7 +150,7 @@ public class DICOMUtil {
                 dcmObj.putBytes(Tag.PixelData, VR.OB, attachments.get(0).getContent());
             }
         }
-        
+
         // Memory Optimization. Free the references to the data in the attachments list.
         attachments.clear();
 
@@ -168,7 +168,13 @@ public class DICOMUtil {
     private static String returnOtherImageFormat(ImmutableConnectorMessage message, String format, boolean autoThreshold) {
         // use new method for jpegs
         if (format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg")) {
-            return new String(Base64.encodeBase64Chunked(dicomToJpg(1, message, autoThreshold)));
+            byte[] bytes = dicomToJpg(1, message, autoThreshold);
+            if (bytes != null) {
+                return new String(Base64.encodeBase64Chunked(bytes));
+            } else {
+                logger.error("Could not convert DICOM image to JPEG format.");
+                return null;
+            }
         }
 
         byte[] rawImage = getDICOMRawBytes(message);
