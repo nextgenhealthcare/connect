@@ -19,7 +19,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
+import org.xmlpull.v1.dom2_builder.DOM2XmlPullBuilder;
 
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
@@ -162,7 +162,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
 
     private Object doFromXML(String source, Class<?> expectedClass) {
         try {
-            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(source)));
+            Document document = buildXmlDocument(source);
 
             /*
              * Have the ImportConverter migrate the serialized object to the version 3.0.0
@@ -190,7 +190,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
             Class<?> clazz = getClass(reader);
 
             if (ArrayUtils.contains(clazz.getInterfaces(), Migratable.class)) {
-                Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(reader));
+                Document document = buildXmlDocument(reader);
                 return getXStream().unmarshal(new DomReader(document));
             } else {
                 return super.deserialize(reader);
@@ -202,5 +202,15 @@ public class ObjectXMLSerializer extends XStreamSerializer {
     
     public void processAnnotations(Class<?>[] classes) {
         getXStream().processAnnotations(classes);
+    }
+
+    private Document buildXmlDocument(String xml) throws Exception {
+        return buildXmlDocument(new StringReader(xml));
+    }
+
+    private Document buildXmlDocument(Reader reader) throws Exception {
+        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        document.appendChild(new DOM2XmlPullBuilder().parse(reader, document));
+        return document;
     }
 }

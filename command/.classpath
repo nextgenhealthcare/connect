@@ -73,7 +73,7 @@
 			<attribute name="javadoc_location" value="http://logging.apache.org/log4j/1.2/apidocs/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/xpp3_min-1.1.4c.jar"/>
+	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-crypto.jar"/>
 	<classpathentry kind="lib" path="lib/not-yet-commons-ssl-0.3.11.jar"/>

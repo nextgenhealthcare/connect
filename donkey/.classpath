@@ -57,7 +57,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/xstream/xstream-1.4.4.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/xpp3_min-1.1.4c.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.1.24-bin.jar"/>
 	<classpathentry kind="lib" path="lib/database/ojdbc6.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-beanutils-1.8.3.jar"/>
