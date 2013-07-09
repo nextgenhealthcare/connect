@@ -90,6 +90,10 @@ public class SMTPConnection {
         smtpConnection.setSocketTimeout(socketTimeout);
     }
 
+    public void send(String toList, String ccList, String from, String subject, String body, String charset) throws EmailException {
+        smtpConnection.send(toList, ccList, from, subject, body, charset);
+    }
+
     public void send(String toList, String ccList, String from, String subject, String body) throws EmailException {
         smtpConnection.send(toList, ccList, from, subject, body);
     }

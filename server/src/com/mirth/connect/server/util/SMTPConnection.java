@@ -103,8 +103,14 @@ public class SMTPConnection {
         this.socketTimeout = socketTimeout;
     }
 
-    public void send(String toList, String ccList, String from, String subject, String body) throws EmailException {
+    public void send(String toList, String ccList, String from, String subject, String body, String charset) throws EmailException {
         Email email = new SimpleEmail();
+
+        // Set the charset if it was specified. Otherwise use the system's default.
+        if (StringUtils.isNotBlank(charset)) {
+            email.setCharset(charset);
+        }
+
         email.setHostName(host);
         email.setSmtpPort(Integer.parseInt(port));
         email.setSocketConnectionTimeout(socketTimeout);
@@ -134,6 +140,10 @@ public class SMTPConnection {
         email.setSubject(subject);
         email.setMsg(body);
         email.send();
+    }
+
+    public void send(String toList, String ccList, String from, String subject, String body) throws EmailException {
+        send(toList, ccList, from, subject, body, null);
     }
 
     public void send(String toList, String ccList, String subject, String body) throws EmailException {
