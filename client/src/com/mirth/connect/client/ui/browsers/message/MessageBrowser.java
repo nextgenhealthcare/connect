@@ -33,7 +33,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,19 +122,19 @@ import com.mirth.connect.util.XmlUtil;
  * The message browser panel.
  */
 public class MessageBrowser extends javax.swing.JPanel {
-    public static final int ID_COLUMN = 0;
-    public static final int CONNECTOR_COLUMN = 1;
-    public static final int STATUS_COLUMN = 2;
-    public static final int ORIGINAL_RECEIVED_DATE_COLUMN = 3;
-    public static final int RECEIVED_DATE_COLUMN = 4;
-    public static final int SEND_ATTEMPTS_COLUMN = 5;
-    public static final int SEND_DATE_COLUMN = 6;
-    public static final int RESPONSE_DATE_COLUMN = 7;
-    public static final int ERRORS_COLUMN = 8;
-    public static final int SERVER_ID_COLUMN = 9;
-    public static final int IMPORT_ID_COLUMN = 10;
-
+    protected static final int ID_COLUMN = 0;
+    protected static final int CONNECTOR_COLUMN = 1;
+    protected static final int STATUS_COLUMN = 2;
+    protected static final int ORIGINAL_RECEIVED_DATE_COLUMN = 3;
+    protected static final int RECEIVED_DATE_COLUMN = 4;
+    protected static final int SEND_ATTEMPTS_COLUMN = 5;
+    protected static final int SEND_DATE_COLUMN = 6;
+    protected static final int RESPONSE_DATE_COLUMN = 7;
+    protected static final int ERRORS_COLUMN = 8;
+    protected static final int SERVER_ID_COLUMN = 9;
+    protected static final int IMPORT_ID_COLUMN = 10;
     protected final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
+    private static Map<String, Set<String>> customHiddenColumnMap = new HashMap<String, Set<String>>();
 
     private final String SCOPE_COLUMN_NAME = "Scope";
     private final String KEY_COLUMN_NAME = "Variable";
@@ -264,6 +266,13 @@ public class MessageBrowser extends javax.swing.JPanel {
                 parent.mirthClient.getServerConnection().abort(getAbortOperations());
                 // Clear the message cache when leaving the message browser.
                 parent.messageBrowser.clearCache();
+                // Clear the records in the table
+                tableModel.clear();
+
+                // Remove all columns
+                for (TableColumn tableColumn : messageTreeTable.getColumns(true)) {
+                    messageTreeTable.removeColumn(tableColumn);
+                }
             }
 
         });
@@ -301,6 +310,20 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         for (MetaDataColumn column : metaDataColumns) {
             metaDataColumnNames.add(column.getName());
+        }
+
+        Set<String> hiddenCustomColumns = customHiddenColumnMap.get(channelId);
+        if (hiddenCustomColumns == null) {
+            hiddenCustomColumns = new HashSet<String>();
+            customHiddenColumnMap.put(channelId, hiddenCustomColumns);
+        } else {
+            // If this channel was viewed before, remove any hidden custom columns that no longer exist
+            Iterator<String> iterator = hiddenCustomColumns.iterator();
+            while (iterator.hasNext()) {
+                if (!metaDataColumnNames.contains(iterator.next())) {
+                    iterator.remove();
+                }
+            }
         }
 
         columnList.addAll(metaDataColumnNames);
@@ -356,6 +379,8 @@ public class MessageBrowser extends javax.swing.JPanel {
                         column.setMinWidth(140);
                         break;
                 }
+
+                column.setVisible(!hiddenCustomColumns.contains(columnName));
             }
 
             messageTreeTable.addColumn(column);
@@ -1208,7 +1233,18 @@ public class MessageBrowser extends javax.swing.JPanel {
                     // Do not hide a column if it is the last remaining visible column              
                     if (enable || messageTreeTable.getColumnCount() > 1) {
                         column.setVisible(enable);
-                        Preferences.userNodeForPackage(Mirth.class).putBoolean("messageBrowserVisibleColumn" + columnName, enable);
+
+                        if (columnMap.values().contains(columnName)) {
+                            Preferences.userNodeForPackage(Mirth.class).putBoolean("messageBrowserVisibleColumn" + columnName, enable);
+                        } else {
+                            Set<String> customHiddenColumns = customHiddenColumnMap.get(channelId);
+
+                            if (enable) {
+                                customHiddenColumns.remove(columnName);
+                            } else {
+                                customHiddenColumns.add(columnName);
+                            }
+                        }
                     }
                 }
             });
