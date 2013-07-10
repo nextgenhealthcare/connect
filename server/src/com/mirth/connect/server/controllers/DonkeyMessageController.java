@@ -34,6 +34,8 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.Channel;
+import com.mirth.connect.donkey.server.channel.DestinationChain;
+import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.message.DataType;
@@ -297,7 +299,20 @@ public class DonkeyMessageController extends MessageController {
                 Channel channel = engineController.getDeployedChannel(channelId);
 
                 if (channel != null) {
+                    Set<Integer> connectorsToStart = new HashSet<Integer>();
                     ChannelState priorState = channel.getCurrentState();
+                    if (priorState != ChannelState.PAUSED && priorState != ChannelState.PAUSING) {
+                        connectorsToStart.add(0);
+                    }
+
+                    for (DestinationChain chain : channel.getDestinationChains()) {
+                        for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
+                            if (destinationConnector.getCurrentState() != ChannelState.STOPPED && destinationConnector.getCurrentState() != ChannelState.STOPPING) {
+                                connectorsToStart.add(destinationConnector.getMetaDataId());
+                            }
+                        }
+                    }
+
                     boolean startChannelAfter = false;
 
                     if (priorState != ChannelState.STOPPED && restartRunningChannels) {
@@ -340,7 +355,7 @@ public class DonkeyMessageController extends MessageController {
                         try {
                             logger.debug("Restarting channel \"" + channel.getName() + "\"");
                             // Only start the source connector if the channel wasn't paused or pausing before
-                            channel.start(priorState != ChannelState.PAUSED && priorState != ChannelState.PAUSING);
+                            channel.start(connectorsToStart);
                         } catch (StartException e) {
                             logger.error("Failed to start channel id " + channelId, e);
                         }

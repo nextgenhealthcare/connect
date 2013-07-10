@@ -473,19 +473,19 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     @Override
     public void start() throws StartException {
-        start(true);
+        start(null);
     }
 
     /**
      * Start the channel and all of the channel's connectors.
      */
-    public void start(boolean startSourceConnector) throws StartException {
+    public void start(Set<Integer> connectorsToStart) throws StartException {
         Future<?> task = null;
 
         try {
             synchronized (controlExecutor) {
                 if (lock == ChannelLock.UNLOCKED || lock == ChannelLock.DEPLOY || lock == ChannelLock.DEBUG) {
-                    task = controlExecutor.submit(new StartTask(startSourceConnector));
+                    task = controlExecutor.submit(new StartTask(connectorsToStart));
                     controlTasks.add(task);
                 }
             }
@@ -1732,10 +1732,10 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     private class StartTask implements Callable<Void> {
 
-        private boolean startSourceConnector;
+        private Set<Integer> connectorsToStart;
 
-        public StartTask(boolean startSourceConnector) {
-            this.startSourceConnector = startSourceConnector;
+        public StartTask(Set<Integer> connectorsToStart) {
+            this.connectorsToStart = connectorsToStart;
         }
 
         @Override
@@ -1773,7 +1773,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                             for (Integer metaDataId : chain.getMetaDataIds()) {
                                 DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
 
-                                if (destinationConnector.getCurrentState() == ChannelState.STOPPED) {
+                                if (destinationConnector.getCurrentState() == ChannelState.STOPPED && (connectorsToStart == null || connectorsToStart.contains(metaDataId))) {
                                     startedMetaDataIds.add(metaDataId);
                                     destinationConnector.start();
                                 }
@@ -1804,7 +1804,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                             queueThread.start();
                         }
 
-                        if (startSourceConnector) {
+                        if (connectorsToStart == null || connectorsToStart.contains(0)) {
                             ThreadUtils.checkInterruptedStatus();
                             // start up the source connector
                             if (sourceConnector.getCurrentState() == ChannelState.STOPPED) {
