@@ -1225,7 +1225,7 @@ public class CommandLineInterface {
         }
 
         for (DashboardStatus channelStatus : channelStatuses) {
-            client.clearStatistics(channelConnectorMap, true, true, true, true, true);
+            client.clearStatistics(channelConnectorMap, true, true, true, true);
         }
     }
 

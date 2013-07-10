@@ -3531,7 +3531,7 @@ public class Frame extends JXFrame {
         }
     }
 
-    public void clearStats(List<DashboardStatus> statusesToClear, final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteSent, final boolean deleteErrored, final boolean deleteAlerted) {
+    public void clearStats(List<DashboardStatus> statusesToClear, final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteSent, final boolean deleteErrored) {
         final String workingId = startWorking("Clearing statistics...");
         Map<String, List<Integer>> channelConnectorMap = new HashMap<String, List<Integer>>();
 
@@ -3555,7 +3555,7 @@ public class Frame extends JXFrame {
 
             public Void doInBackground() {
                 try {
-                    mirthClient.clearStatistics(channelConnectorMapFinal, deleteReceived, deleteFiltered, deleteSent, deleteErrored, deleteAlerted);
+                    mirthClient.clearStatistics(channelConnectorMapFinal, deleteReceived, deleteFiltered, deleteSent, deleteErrored);
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }

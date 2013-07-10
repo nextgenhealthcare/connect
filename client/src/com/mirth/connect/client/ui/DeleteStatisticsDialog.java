@@ -63,7 +63,6 @@ public class DeleteStatisticsDialog extends javax.swing.JDialog {
         deleteErrored = new javax.swing.JCheckBox();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
-        deleteAlerted = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Clear Statistics");
@@ -113,10 +112,6 @@ public class DeleteStatisticsDialog extends javax.swing.JDialog {
         jTextPane1.setOpaque(false);
         jScrollPane1.setViewportView(jTextPane1);
 
-        deleteAlerted.setText("Alerted");
-        deleteAlerted.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        deleteAlerted.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -131,19 +126,18 @@ public class DeleteStatisticsDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(invertButton)
-                        .addGap(40, 40, 40)
-                        .addComponent(okButton)
-                        .addContainerGap())
-                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(9, 9, 9)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(deleteSent)
-                            .addComponent(deleteErrored)
-                            .addComponent(deleteAlerted))
+                            .addComponent(deleteErrored))
                         .addGap(108, 108, 108))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(invertButton)
+                                .addGap(40, 40, 40)
+                                .addComponent(okButton)
+                                .addGap(0, 0, Short.MAX_VALUE))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                             .addComponent(jSeparator1))
                         .addContainerGap())))
@@ -161,8 +155,6 @@ public class DeleteStatisticsDialog extends javax.swing.JDialog {
                 .addComponent(deleteSent)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(deleteErrored)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(deleteAlerted)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -192,18 +184,16 @@ public class DeleteStatisticsDialog extends javax.swing.JDialog {
         deleteFiltered.setSelected(!deleteFiltered.isSelected());
         deleteSent.setSelected(!deleteSent.isSelected());
         deleteErrored.setSelected(!deleteErrored.isSelected());
-        deleteAlerted.setSelected(!deleteAlerted.isSelected());
     }//GEN-LAST:event_invertButtonActionPerformed
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_okButtonActionPerformed
     {//GEN-HEADEREND:event_okButtonActionPerformed
-        if (deleteReceived.isSelected() || deleteFiltered.isSelected() || deleteSent.isSelected() || deleteErrored.isSelected() || deleteAlerted.isSelected()) {
-            parent.clearStats(statusToClear, deleteReceived.isSelected(), deleteFiltered.isSelected(), deleteSent.isSelected(), deleteErrored.isSelected(), deleteAlerted.isSelected());
+        if (deleteReceived.isSelected() || deleteFiltered.isSelected() || deleteSent.isSelected() || deleteErrored.isSelected()) {
+            parent.clearStats(statusToClear, deleteReceived.isSelected(), deleteFiltered.isSelected(), deleteSent.isSelected(), deleteErrored.isSelected());
         }
         this.dispose();
     }//GEN-LAST:event_okButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox deleteAlerted;
     private javax.swing.JCheckBox deleteErrored;
     private javax.swing.JCheckBox deleteFiltered;
     private javax.swing.JCheckBox deleteReceived;

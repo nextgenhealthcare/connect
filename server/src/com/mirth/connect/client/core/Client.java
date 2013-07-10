@@ -705,9 +705,9 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    public void clearStatistics(Map<String, List<Integer>> channelConnectorMap, boolean received, boolean filtered, boolean sent, boolean error, boolean alerted) throws ClientException {
+    public void clearStatistics(Map<String, List<Integer>> channelConnectorMap, boolean received, boolean filtered, boolean sent, boolean error) throws ClientException {
         logger.debug("clearing statistics");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STATS_CLEAR.getName()), new NameValuePair("channelConnectorMap", serializer.toXML(channelConnectorMap)), new NameValuePair("deleteReceived", new Boolean(received).toString()), new NameValuePair("deleteFiltered", new Boolean(filtered).toString()), new NameValuePair("deleteSent", new Boolean(sent).toString()), new NameValuePair("deleteErrored", new Boolean(error).toString()), new NameValuePair("deleteAlerted", new Boolean(alerted).toString()) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STATS_CLEAR.getName()), new NameValuePair("channelConnectorMap", serializer.toXML(channelConnectorMap)), new NameValuePair("deleteReceived", new Boolean(received).toString()), new NameValuePair("deleteFiltered", new Boolean(filtered).toString()), new NameValuePair("deleteSent", new Boolean(sent).toString()), new NameValuePair("deleteErrored", new Boolean(error).toString()) };
         serverConnection.executePostMethod(CHANNEL_STATISTICS_SERVLET, params);
     }
 
