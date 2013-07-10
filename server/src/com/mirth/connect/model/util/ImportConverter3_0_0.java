@@ -808,6 +808,9 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("validateConnection").setTextContent(readBooleanProperty(oldProperties, "validateConnections", true));
         properties.addChildElement("checkFileAge").setTextContent(readBooleanProperty(oldProperties, "checkFileAge", true));
         properties.addChildElement("fileAge").setTextContent(oldProperties.getProperty("fileAge", "1000"));
+        properties.addChildElement("fileSizeMinimum").setTextContent("0");
+        properties.addChildElement("fileSizeMaximum").setTextContent("");
+        properties.addChildElement("ignoreFileSizeMaximum").setTextContent("true");
         properties.addChildElement("sortBy").setTextContent(oldProperties.getProperty("sortAttribute", "date"));
         properties.addChildElement("binary").setTextContent(readBooleanProperty(oldProperties, "binary", false));
         properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
