@@ -305,9 +305,9 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    public Object invokeConnectorService(String connectorName, String method, Object object) throws ClientException {
+    public Object invokeConnectorService(String channelId, String connectorName, String method, Object object) throws ClientException {
         logger.debug("invoking connector service " + method + " on " + connectorName);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONNECTOR_SERVICE_INVOKE.getName()), new NameValuePair("name", connectorName), new NameValuePair("method", method), new NameValuePair("object", serializer.toXML(object)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONNECTOR_SERVICE_INVOKE.getName()), new NameValuePair("channelId", channelId), new NameValuePair("name", connectorName), new NameValuePair("method", method), new NameValuePair("object", serializer.toXML(object)) };
         return serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
     }
 

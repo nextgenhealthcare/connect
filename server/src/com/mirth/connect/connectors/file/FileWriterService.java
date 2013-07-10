@@ -14,20 +14,26 @@ import java.net.URI;
 import com.mirth.connect.connectors.ConnectorService;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnectionFactory;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class FileWriterService implements ConnectorService {
-    public Object invoke(String method, Object object, String sessionsId) throws Exception {
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
+
+    public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
         if (method.equals("testWrite")) {
             FileDispatcherProperties connectorProperties = (FileDispatcherProperties) object;
+
+            String host = replacer.replaceValues(connectorProperties.getHost(), channelId);
+            String username = replacer.replaceValues(connectorProperties.getUsername(), channelId);
+            String password = replacer.replaceValues(connectorProperties.getPassword(), channelId);
+
             String fileHost = null;
             FileScheme scheme = connectorProperties.getScheme();
-            String host = null;
+            String addressHost = null;
             int port = 0;
             String dir = null;
 
-            String username = connectorProperties.getUsername();
-            String password = connectorProperties.getPassword();
             boolean secure = false;
             boolean passive = false;
             int timeout = Integer.parseInt(connectorProperties.getTimeout());
@@ -37,28 +43,28 @@ public class FileWriterService implements ConnectorService {
             }
 
             if (scheme.equals(FileScheme.FILE)) {
-                fileHost = connectorProperties.getHost();
-                dir = connectorProperties.getHost();
+                fileHost = host;
+                dir = host;
             } else {
                 URI address;
                 if (scheme.equals(FileScheme.WEBDAV)) {
                     if (connectorProperties.isSecure()) {
                         secure = true;
-                        address = new URI("https://" + connectorProperties.getHost());
+                        address = new URI("https://" + host);
                     } else {
-                        address = new URI("http://" + connectorProperties.getHost());
+                        address = new URI("http://" + host);
                     }
                 } else {
-                    address = new URI(scheme.getDisplayName(), "//" + connectorProperties.getHost(), null);
+                    address = new URI(scheme.getDisplayName(), "//" + host, null);
                 }
 
                 fileHost = address.toString();
-                host = address.getHost();
+                addressHost = address.getHost();
                 port = address.getPort();
                 dir = address.getPath();
             }
 
-            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, username, password, host, port, passive, secure, timeout);
+            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, username, password, addressHost, port, passive, secure, timeout);
 
             try {
                 FileSystemConnection connection = (FileSystemConnection) factory.makeObject();

@@ -10,5 +10,5 @@
 package com.mirth.connect.connectors;
 
 public interface ConnectorService {
-    public Object invoke(String method, Object object, String sessionId) throws Exception;
+    public Object invoke(String channelId, String method, Object object, String sessionId) throws Exception;
 }

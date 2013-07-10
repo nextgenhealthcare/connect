@@ -136,7 +136,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         }
 
         boolean enabled = parent.isSaveEnabled();
-        
+
         List<String> operations = props.getWsdlOperations();
 
         operationComboBox.setModel(new javax.swing.DefaultComboBoxModel(operations.toArray()));
@@ -227,7 +227,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         boolean isWsdlCached = false;
 
         try {
-            isWsdlCached = (Boolean) parent.mirthClient.invokeConnectorService(getConnectorName(), "isWsdlCached", wsdlUrl);
+            isWsdlCached = (Boolean) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), "isWsdlCached", wsdlUrl);
         } catch (ClientException e) {
             parent.alertError(parent, "Error checking if the wsdl is cached.");
         }
@@ -247,7 +247,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                 cacheWsdlMap.put("password", new String(passwordField.getPassword()));
             }
 
-            parent.mirthClient.invokeConnectorService(getConnectorName(), "cacheWsdlFromUrl", cacheWsdlMap);
+            parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), "cacheWsdlFromUrl", cacheWsdlMap);
 
             return true;
         } catch (ClientException e) {
@@ -276,7 +276,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         }
 
         try {
-            returnObject = parent.mirthClient.invokeConnectorService(getConnectorName(), method, params);
+            returnObject = parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), method, params);
         } catch (ClientException e) {
             if (method.equals("generateEnvelope")) {
                 parent.alertError(parent, "There was an error generating the envelope.");
@@ -314,9 +314,10 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             tableData[i][MIME_TYPE_COLUMN_NUMBER] = attachmentTypes.get(i);
         }
 
-        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{ID_COLUMN_NAME, CONTENT_COLUMN_NAME, MIME_TYPE_COLUMN_NAME}) {
+        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
+                ID_COLUMN_NAME, CONTENT_COLUMN_NAME, MIME_TYPE_COLUMN_NAME }) {
 
-            boolean[] canEdit = new boolean[]{true, true, true};
+            boolean[] canEdit = new boolean[] { true, true, true };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit[columnIndex];
@@ -807,186 +808,187 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
-    stopCellEditing();
-    ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[]{getNewAttachmentId(attachmentsTable.getModel().getRowCount() + 1), ""});
-    int newViewIndex = attachmentsTable.convertRowIndexToView(attachmentsTable.getModel().getRowCount() - 1);
-    attachmentsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
-
-    attachmentsPane.getViewport().setViewPosition(new Point(0, attachmentsTable.getRowHeight() * attachmentsTable.getModel().getRowCount()));
-    parent.setSaveEnabled(true);
-}//GEN-LAST:event_newButtonActionPerformed
-
-private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-    stopCellEditing();
-
-    int selectedModelIndex = attachmentsTable.getSelectedModelIndex();
-    int newViewIndex = attachmentsTable.convertRowIndexToView(selectedModelIndex);
-    if (newViewIndex == (attachmentsTable.getModel().getRowCount() - 1)) {
-        newViewIndex--;
-    }
-
-    ((DefaultTableModel) attachmentsTable.getModel()).removeRow(selectedModelIndex);
-
-    parent.setSaveEnabled(true);
-
-    if (attachmentsTable.getModel().getRowCount() == 0) {
-        attachmentsTable.clearSelection();
-        deleteButton.setEnabled(false);
-    } else {
+    private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
+        stopCellEditing();
+        ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[] {
+                getNewAttachmentId(attachmentsTable.getModel().getRowCount() + 1), "" });
+        int newViewIndex = attachmentsTable.convertRowIndexToView(attachmentsTable.getModel().getRowCount() - 1);
         attachmentsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
-    }
 
-    parent.setSaveEnabled(true);
-}//GEN-LAST:event_deleteButtonActionPerformed
+        attachmentsPane.getViewport().setViewPosition(new Point(0, attachmentsTable.getRowHeight() * attachmentsTable.getModel().getRowCount()));
+        parent.setSaveEnabled(true);
+    }//GEN-LAST:event_newButtonActionPerformed
 
-private void getOperationsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getOperationsButtonActionPerformed
-    if (serviceField.getText().length() > 0 || portField.getText().length() > 0 || !isDefaultOperations()) {
-        if (!parent.alertOkCancel(parent, "This will replace your current service, port, and operation list. Press OK to continue.")) {
-            return;
+    private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
+        stopCellEditing();
+
+        int selectedModelIndex = attachmentsTable.getSelectedModelIndex();
+        int newViewIndex = attachmentsTable.convertRowIndexToView(selectedModelIndex);
+        if (newViewIndex == (attachmentsTable.getModel().getRowCount() - 1)) {
+            newViewIndex--;
         }
-    }
 
-    // Reset all of the fields
-    serviceField.setText("");
-    portField.setText("");
-    operationComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[]{WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN}));
-    operationComboBox.setSelectedIndex(0);
-    generateEnvelope.setEnabled(false);
+        ((DefaultTableModel) attachmentsTable.getModel()).removeRow(selectedModelIndex);
 
-    // Get the new operations
-    final String workingId = parent.startWorking("Getting operations...");
+        parent.setSaveEnabled(true);
 
-    SwingWorker worker = new SwingWorker<Void, Void>() {
+        if (attachmentsTable.getModel().getRowCount() == 0) {
+            attachmentsTable.clearSelection();
+            deleteButton.setEnabled(false);
+        } else {
+            attachmentsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
+        }
 
-        private List<String> loadedMethods = null;
-        private String serviceName = null;
-        private String portName = null;
+        parent.setSaveEnabled(true);
+    }//GEN-LAST:event_deleteButtonActionPerformed
 
-        public Void doInBackground() {
-            if (cacheWsdl()) {
-                loadedMethods = (List<String>) invokeConnectorService("getOperations");
-                serviceName = (String) invokeConnectorService("getService");
-                portName = (String) invokeConnectorService("getPort");
+    private void getOperationsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getOperationsButtonActionPerformed
+        if (serviceField.getText().length() > 0 || portField.getText().length() > 0 || !isDefaultOperations()) {
+            if (!parent.alertOkCancel(parent, "This will replace your current service, port, and operation list. Press OK to continue.")) {
+                return;
             }
-
-            return null;
         }
 
-        public void done() {
-            if (loadedMethods != null) {
-                String[] methodNames = new String[loadedMethods.size()];
-                loadedMethods.toArray(methodNames);
+        // Reset all of the fields
+        serviceField.setText("");
+        portField.setText("");
+        operationComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN }));
+        operationComboBox.setSelectedIndex(0);
+        generateEnvelope.setEnabled(false);
 
-                operationComboBox.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
-                generateEnvelope.setEnabled(!isDefaultOperations());
+        // Get the new operations
+        final String workingId = parent.startWorking("Getting operations...");
 
-                if (methodNames.length > 0) {
-                    operationComboBox.setSelectedIndex(0);
+        SwingWorker worker = new SwingWorker<Void, Void>() {
+
+            private List<String> loadedMethods = null;
+            private String serviceName = null;
+            private String portName = null;
+
+            public Void doInBackground() {
+                if (cacheWsdl()) {
+                    loadedMethods = (List<String>) invokeConnectorService("getOperations");
+                    serviceName = (String) invokeConnectorService("getService");
+                    portName = (String) invokeConnectorService("getPort");
                 }
+
+                return null;
             }
 
-            if (serviceName != null) {
-                serviceField.setText(serviceName);
-            }
+            public void done() {
+                if (loadedMethods != null) {
+                    String[] methodNames = new String[loadedMethods.size()];
+                    loadedMethods.toArray(methodNames);
 
-            if (portName != null) {
-                portField.setText(portName);
-            }
+                    operationComboBox.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
+                    generateEnvelope.setEnabled(!isDefaultOperations());
 
-            parent.setSaveEnabled(true);
+                    if (methodNames.length > 0) {
+                        operationComboBox.setSelectedIndex(0);
+                    }
+                }
 
-            parent.stopWorking(workingId);
-        }
-    };
-    worker.execute();
-}//GEN-LAST:event_getOperationsButtonActionPerformed
+                if (serviceName != null) {
+                    serviceField.setText(serviceName);
+                }
 
-private void authenticationYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authenticationYesRadioActionPerformed
-    usernameLabel.setEnabled(true);
-    usernameField.setEnabled(true);
+                if (portName != null) {
+                    portField.setText(portName);
+                }
 
-    passwordLabel.setEnabled(true);
-    passwordField.setEnabled(true);
-}//GEN-LAST:event_authenticationYesRadioActionPerformed
-
-private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authenticationNoRadioActionPerformed
-    usernameLabel.setEnabled(false);
-    usernameField.setEnabled(false);
-    usernameField.setText("");
-
-    passwordLabel.setEnabled(false);
-    passwordField.setEnabled(false);
-    passwordField.setText("");
-}//GEN-LAST:event_authenticationNoRadioActionPerformed
-
-private void useMtomYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useMtomYesRadioActionPerformed
-    attachmentsLabel.setEnabled(true);
-    attachmentsPane.setEnabled(true);
-    attachmentsTable.setEnabled(true);
-    newButton.setEnabled(true);
-
-    attachmentsTable.setRowSelectionAllowed(true);
-    if (attachmentsTable.getModel().getRowCount() > 0) {
-        attachmentsTable.setRowSelectionInterval(0, 0);
-        deleteButton.setEnabled(true);
-    }
-
-}//GEN-LAST:event_useMtomYesRadioActionPerformed
-
-private void useMtomNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useMtomNoRadioActionPerformed
-    attachmentsLabel.setEnabled(false);
-    attachmentsPane.setEnabled(false);
-    attachmentsTable.setEnabled(false);
-    newButton.setEnabled(false);
-    deleteButton.setEnabled(false);
-
-    stopCellEditing();
-    attachmentsTable.setRowSelectionAllowed(false);
-    attachmentsTable.clearSelection();
-}//GEN-LAST:event_useMtomNoRadioActionPerformed
-
-private void generateEnvelopeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateEnvelopeActionPerformed
-    if (soapEnvelope.getText().length() > 0 || soapActionField.getText().length() > 0) {
-        if (!parent.alertOkCancel(parent, "This will replace your current SOAP envelope and SOAP action. Press OK to continue.")) {
-            return;
-        }
-    }
-
-    final String workingId = parent.startWorking("Generating envelope...");
-
-    SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-        private String soapAction = null;
-        private String generatedEnvelope = null;
-
-        public Void doInBackground() {
-            if (!isWsdlCached()) {
-                parent.alertInformation(parent, "The WSDL is no longer cached on the server. Press \"Get Operations\" to fetch the latest WSDL.");
-            } else {
-                generatedEnvelope = (String) invokeConnectorService("generateEnvelope", "operation", (String) operationComboBox.getSelectedItem());
-                soapAction = (String) invokeConnectorService("getSoapAction", "operation", (String) operationComboBox.getSelectedItem());
-            }
-
-            return null;
-        }
-
-        public void done() {
-            if (generatedEnvelope != null) {
-                soapEnvelope.setText(generatedEnvelope);
                 parent.setSaveEnabled(true);
-            }
 
-            if (soapAction != null) {
-                soapActionField.setText(soapAction);
-                parent.setSaveEnabled(true);
+                parent.stopWorking(workingId);
             }
+        };
+        worker.execute();
+    }//GEN-LAST:event_getOperationsButtonActionPerformed
 
-            parent.stopWorking(workingId);
+    private void authenticationYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authenticationYesRadioActionPerformed
+        usernameLabel.setEnabled(true);
+        usernameField.setEnabled(true);
+
+        passwordLabel.setEnabled(true);
+        passwordField.setEnabled(true);
+    }//GEN-LAST:event_authenticationYesRadioActionPerformed
+
+    private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authenticationNoRadioActionPerformed
+        usernameLabel.setEnabled(false);
+        usernameField.setEnabled(false);
+        usernameField.setText("");
+
+        passwordLabel.setEnabled(false);
+        passwordField.setEnabled(false);
+        passwordField.setText("");
+    }//GEN-LAST:event_authenticationNoRadioActionPerformed
+
+    private void useMtomYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useMtomYesRadioActionPerformed
+        attachmentsLabel.setEnabled(true);
+        attachmentsPane.setEnabled(true);
+        attachmentsTable.setEnabled(true);
+        newButton.setEnabled(true);
+
+        attachmentsTable.setRowSelectionAllowed(true);
+        if (attachmentsTable.getModel().getRowCount() > 0) {
+            attachmentsTable.setRowSelectionInterval(0, 0);
+            deleteButton.setEnabled(true);
         }
-    };
-    worker.execute();
-}//GEN-LAST:event_generateEnvelopeActionPerformed
+
+    }//GEN-LAST:event_useMtomYesRadioActionPerformed
+
+    private void useMtomNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useMtomNoRadioActionPerformed
+        attachmentsLabel.setEnabled(false);
+        attachmentsPane.setEnabled(false);
+        attachmentsTable.setEnabled(false);
+        newButton.setEnabled(false);
+        deleteButton.setEnabled(false);
+
+        stopCellEditing();
+        attachmentsTable.setRowSelectionAllowed(false);
+        attachmentsTable.clearSelection();
+    }//GEN-LAST:event_useMtomNoRadioActionPerformed
+
+    private void generateEnvelopeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateEnvelopeActionPerformed
+        if (soapEnvelope.getText().length() > 0 || soapActionField.getText().length() > 0) {
+            if (!parent.alertOkCancel(parent, "This will replace your current SOAP envelope and SOAP action. Press OK to continue.")) {
+                return;
+            }
+        }
+
+        final String workingId = parent.startWorking("Generating envelope...");
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+            private String soapAction = null;
+            private String generatedEnvelope = null;
+
+            public Void doInBackground() {
+                if (!isWsdlCached()) {
+                    parent.alertInformation(parent, "The WSDL is no longer cached on the server. Press \"Get Operations\" to fetch the latest WSDL.");
+                } else {
+                    generatedEnvelope = (String) invokeConnectorService("generateEnvelope", "operation", (String) operationComboBox.getSelectedItem());
+                    soapAction = (String) invokeConnectorService("getSoapAction", "operation", (String) operationComboBox.getSelectedItem());
+                }
+
+                return null;
+            }
+
+            public void done() {
+                if (generatedEnvelope != null) {
+                    soapEnvelope.setText(generatedEnvelope);
+                    parent.setSaveEnabled(true);
+                }
+
+                if (soapAction != null) {
+                    soapActionField.setText(soapAction);
+                    parent.setSaveEnabled(true);
+                }
+
+                parent.stopWorking(workingId);
+            }
+        };
+        worker.execute();
+    }//GEN-LAST:event_generateEnvelopeActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel attachmentsLabel;
     private javax.swing.JScrollPane attachmentsPane;

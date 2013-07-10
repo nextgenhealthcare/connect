@@ -41,18 +41,20 @@ import com.eviware.soapui.impl.wsdl.support.wsdl.WsdlLoader;
 import com.eviware.soapui.model.iface.Operation;
 import com.eviware.soapui.model.settings.Settings;
 import com.mirth.connect.connectors.ConnectorService;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class WebServiceConnectorService implements ConnectorService {
     private static Map<String, WsdlInterface> wsdlInterfaceCache = new HashMap<String, WsdlInterface>();
     private static ExecutorService executor = Executors.newCachedThreadPool();
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-    public Object invoke(String method, Object object, String sessionsId) throws Exception {
+    public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
         if (method.equals("cacheWsdlFromUrl")) {
             Map<String, String> params = (Map<String, String>) object;
-            String wsdlUrl = params.get("wsdlUrl");
+            String wsdlUrl = replacer.replaceValues(params.get("wsdlUrl"), channelId);
             URI wsdlUri = new URI(wsdlUrl);
-            String username = params.get("username");
-            String password = params.get("password");
+            String username = replacer.replaceValues(params.get("username"), channelId);
+            String password = replacer.replaceValues(params.get("password"), channelId);
             wsdlInterfaceCache.put(wsdlUrl, getWsdlInterface(wsdlUri, username, password));
         } else if (method.equals("isWsdlCached")) {
             String id = (String) object;

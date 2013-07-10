@@ -1169,7 +1169,7 @@ public class FileReader extends ConnectorSettingsPanel {
             public Void doInBackground() {
 
                 try {
-                    ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(getConnectorName(), "testRead", getProperties());
+                    ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), "testRead", getProperties());
 
                     if (response == null) {
                         throw new ClientException("Failed to invoke service.");

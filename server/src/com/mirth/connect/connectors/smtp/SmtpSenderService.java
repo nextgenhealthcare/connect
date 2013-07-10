@@ -15,32 +15,36 @@ import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 
 import com.mirth.connect.connectors.ConnectorService;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class SmtpSenderService implements ConnectorService {
 
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
+
     @Override
-    public Object invoke(String method, Object object, String sessionId) throws Exception {
+    public Object invoke(String channelId, String method, Object object, String sessionId) throws Exception {
         if (method.equals("sendTestEmail")) {
             SmtpDispatcherProperties props = (SmtpDispatcherProperties) object;
 
-            String host = props.getSmtpHost();
+            String host = replacer.replaceValues(props.getSmtpHost(), channelId);
+            String portString = replacer.replaceValues(props.getSmtpPort(), channelId);
 
             int port = -1;
             try {
-                port = Integer.parseInt(props.getSmtpPort());
+                port = Integer.parseInt(portString);
             } catch (NumberFormatException e) {
-                return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Invalid port: \"" + props.getSmtpPort() + "\"");
+                return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Invalid port: \"" + portString + "\"");
             }
 
             String secure = props.getEncryption();
 
             boolean authentication = props.isAuthentication();
 
-            String username = props.getUsername();
-            String password = props.getPassword();
-            String to = props.getTo();
-            String from = props.getFrom();
+            String username = replacer.replaceValues(props.getUsername(), channelId);
+            String password = replacer.replaceValues(props.getPassword(), channelId);
+            String to = replacer.replaceValues(props.getTo(), channelId);
+            String from = replacer.replaceValues(props.getFrom(), channelId);
 
             Email email = new SimpleEmail();
             email.setDebug(true);

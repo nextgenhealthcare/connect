@@ -25,13 +25,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.connectors.ConnectorService;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class DatabaseConnectorService implements ConnectorService {
 
     private final String[] TABLE_TYPES = { "TABLE", "VIEW" };
     private Logger logger = Logger.getLogger(this.getClass());
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-    public Object invoke(String method, Object object, String sessionsId) throws Exception {
+    public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
         if (method.equals("getInformationSchema")) {
             // method 'getInformationSchema' will return Set<Table>
 
@@ -39,9 +41,9 @@ public class DatabaseConnectorService implements ConnectorService {
             try {
                 DatabaseConnectionInfo databaseConnectionInfo = (DatabaseConnectionInfo) object;
                 String driver = databaseConnectionInfo.getDriver();
-                String address = databaseConnectionInfo.getUrl();
-                String user = databaseConnectionInfo.getUsername();
-                String password = databaseConnectionInfo.getPassword();
+                String address = replacer.replaceValues(databaseConnectionInfo.getUrl(), channelId);
+                String user = replacer.replaceValues(databaseConnectionInfo.getUsername(), channelId);
+                String password = replacer.replaceValues(databaseConnectionInfo.getPassword(), channelId);
 
                 // Although these properties are not persisted, they used by the JdbcConnectorService
                 String tableNamePatternExp = databaseConnectionInfo.getTableNamePatternExpression();
@@ -199,14 +201,13 @@ public class DatabaseConnectorService implements ConnectorService {
      * This interpret and translate to the following:
      * <p>
      * <ul>
-     * <li>"*" = wild card for more than one character, will be converted to be
-     * used as '%'</li>
+     * <li>"*" = wild card for more than one character, will be converted to be used as '%'</li>
      * <li>"_" = one character wild card</li>
      * <li>"" = empty string will retrieve all tables
      * </ul>
      * <p>
-     * <i>Eg. rad*,table*test => Find all tables starts with 'rad' AND tables
-     * prefix with 'table' and postfix with 'test'</i>
+     * <i>Eg. rad*,table*test => Find all tables starts with 'rad' AND tables prefix with 'table'
+     * and postfix with 'test'</i>
      * 
      * @param tableNamePatternExpression
      *            pattern expression to translate, cannot be NULL.

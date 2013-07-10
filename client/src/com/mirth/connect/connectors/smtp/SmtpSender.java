@@ -50,16 +50,16 @@ public class SmtpSender extends ConnectorSettingsPanel {
     private final String ATTACHMENTS_MIME_TYPE_COLUMN_NAME = "MIME type";
     private int headersLastIndex = -1;
     private int attachmentsLastIndex = -1;
-    
+
     private Frame parent;
-   
+
     public SmtpSender() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
-        
+
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
-    
+
     @Override
     public String getConnectorName() {
         return new SmtpDispatcherProperties().getName();
@@ -88,7 +88,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
         properties.setTo(toField.getText());
         properties.setFrom(fromField.getText());
         properties.setSubject(subjectField.getText());
-        
+
         properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
         properties.setHtml(htmlYes.isSelected());
@@ -96,7 +96,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
         properties.setBody(bodyTextPane.getText());
         properties.setHeaders(getHeaders());
         properties.setAttachments(getAttachments());
-        
+
         return properties;
     }
 
@@ -131,7 +131,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
         subjectField.setText(props.getSubject());
 
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, props.getCharsetEncoding());
-        
+
         if (props.isHtml()) {
             htmlYes.setSelected(true);
         } else {
@@ -139,9 +139,9 @@ public class SmtpSender extends ConnectorSettingsPanel {
         }
 
         bodyTextPane.setText(props.getBody());
-        
+
         setHeaders(props.getHeaders());
-        
+
         setAttachments(props.getAttachments());
     }
 
@@ -162,21 +162,21 @@ public class SmtpSender extends ConnectorSettingsPanel {
                 smtpHostField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        
+
         if (props.getSmtpPort().length() == 0) {
             valid = false;
             if (highlight) {
                 smtpPortField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        
+
         if (props.getTimeout().length() == 0) {
             valid = false;
             if (highlight) {
                 sendTimeoutField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        
+
         if (props.getTo().length() == 0) {
             valid = false;
             if (highlight) {
@@ -207,9 +207,10 @@ public class SmtpSender extends ConnectorSettingsPanel {
             i++;
         }
 
-        headersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{HEADERS_NAME_COLUMN_NAME, HEADERS_VALUE_COLUMN_NAME}) {
+        headersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
+                HEADERS_NAME_COLUMN_NAME, HEADERS_VALUE_COLUMN_NAME }) {
 
-            boolean[] canEdit = new boolean[]{true, true};
+            boolean[] canEdit = new boolean[] { true, true };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit[columnIndex];
@@ -252,18 +253,18 @@ public class SmtpSender extends ConnectorSettingsPanel {
             @Override
             public boolean isCellEditable(EventObject evt) {
                 boolean editable = super.isCellEditable(evt);
-                
+
                 if (editable) {
                     deleteHeaderButton.setEnabled(false);
                 }
 
-                return editable; 
+                return editable;
             }
 
             @Override
             protected boolean valueChanged(String value) {
                 deleteHeaderButton.setEnabled(true);
-                
+
                 if (checkHeaders && (value.length() == 0 || checkUniqueHeader(value))) {
                     return false;
                 }
@@ -276,7 +277,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
         headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(HEADERS_NAME_COLUMN_NAME)).setCellEditor(new HeadersTableCellEditor(true));
         headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(HEADERS_VALUE_COLUMN_NAME)).setCellEditor(new HeadersTableCellEditor(false));
         headersTable.setCustomEditorControls(true);
-        
+
         headersTable.setSelectionMode(0);
         headersTable.setRowSelectionAllowed(true);
         headersTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -304,7 +305,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
 
         return headers;
     }
-    
+
     private void setAttachments(List<Attachment> attachments) {
         Object[][] tableData = new Object[attachments.size()][3];
 
@@ -316,9 +317,11 @@ public class SmtpSender extends ConnectorSettingsPanel {
             tableData[i][ATTACHMENTS_MIME_TYPE_COLUMN] = attachments.get(i).getMimeType();
         }
 
-        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{ATTACHMENTS_NAME_COLUMN_NAME, ATTACHMENTS_CONTENT_COLUMN_NAME, ATTACHMENTS_MIME_TYPE_COLUMN_NAME}) {
+        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
+                ATTACHMENTS_NAME_COLUMN_NAME, ATTACHMENTS_CONTENT_COLUMN_NAME,
+                ATTACHMENTS_MIME_TYPE_COLUMN_NAME }) {
 
-            boolean[] canEdit = new boolean[]{true, true, true};
+            boolean[] canEdit = new boolean[] { true, true, true };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit[columnIndex];
@@ -361,18 +364,18 @@ public class SmtpSender extends ConnectorSettingsPanel {
             @Override
             public boolean isCellEditable(EventObject evt) {
                 boolean editable = super.isCellEditable(evt);
-                
+
                 if (editable) {
                     deleteAttachmentButton.setEnabled(false);
                 }
 
-                return editable; 
+                return editable;
             }
 
             @Override
             protected boolean valueChanged(String value) {
                 deleteAttachmentButton.setEnabled(true);
-                
+
                 if (checkAttachments && (value.length() == 0 || checkUniqueAttachment(value))) {
                     return false;
                 }
@@ -440,7 +443,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
     private String getNewUniqueName(MirthTable table) {
         String tempName;
         int nameColumn;
-        
+
         if (table == attachmentsTable) {
             tempName = "Attachment ";
             nameColumn = ATTACHMENTS_NAME_COLUMN;
@@ -849,102 +852,104 @@ public class SmtpSender extends ConnectorSettingsPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-private void newAttachmentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newAttachmentButtonActionPerformed
-    ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[]{getNewUniqueName(attachmentsTable), ""});
-    attachmentsTable.setRowSelectionInterval(attachmentsTable.getRowCount() - 1, attachmentsTable.getRowCount() - 1);
-    parent.setSaveEnabled(true);
-}//GEN-LAST:event_newAttachmentButtonActionPerformed
-
-private void deleteAttachmentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteAttachmentButtonActionPerformed
-    if (getSelectedRow(attachmentsTable) != -1 && !attachmentsTable.isEditing()) {
-        ((DefaultTableModel) attachmentsTable.getModel()).removeRow(getSelectedRow(attachmentsTable));
-
-        if (attachmentsTable.getRowCount() != 0) {
-            if (attachmentsLastIndex == 0) {
-                attachmentsTable.setRowSelectionInterval(0, 0);
-            } else if (attachmentsLastIndex == attachmentsTable.getRowCount()) {
-                attachmentsTable.setRowSelectionInterval(attachmentsLastIndex - 1, attachmentsLastIndex - 1);
-            } else {
-                attachmentsTable.setRowSelectionInterval(attachmentsLastIndex, attachmentsLastIndex);
-            }
-        }
-
+    private void newAttachmentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newAttachmentButtonActionPerformed
+        ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[] {
+                getNewUniqueName(attachmentsTable), "" });
+        attachmentsTable.setRowSelectionInterval(attachmentsTable.getRowCount() - 1, attachmentsTable.getRowCount() - 1);
         parent.setSaveEnabled(true);
-    }
-}//GEN-LAST:event_deleteAttachmentButtonActionPerformed
+    }//GEN-LAST:event_newAttachmentButtonActionPerformed
 
-private void useAuthenticationYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useAuthenticationYesActionPerformed
-    usernameLabel.setEnabled(true);
-    usernameField.setEnabled(true);
+    private void deleteAttachmentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteAttachmentButtonActionPerformed
+        if (getSelectedRow(attachmentsTable) != -1 && !attachmentsTable.isEditing()) {
+            ((DefaultTableModel) attachmentsTable.getModel()).removeRow(getSelectedRow(attachmentsTable));
 
-    passwordLabel.setEnabled(true);
-    passwordField.setEnabled(true);
-}//GEN-LAST:event_useAuthenticationYesActionPerformed
-
-private void useAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useAuthenticationNoActionPerformed
-    usernameLabel.setEnabled(false);
-    usernameField.setEnabled(false);
-
-    passwordLabel.setEnabled(false);
-    passwordField.setEnabled(false);
-}//GEN-LAST:event_useAuthenticationNoActionPerformed
-
-private void sendTestEmailButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendTestEmailButtonActionPerformed
-    final String workingId = parent.startWorking("Sending test email...");
-    
-    SwingWorker worker = new SwingWorker<Void, Void>() {
-        
-        public Void doInBackground() {
-            
-            try {
-                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(getConnectorName(), "sendTestEmail", getProperties());
-                
-                if (response == null) {
-                    parent.alertError(parent, "Failed to send email.");
-                } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
-                    parent.alertInformation(parent, response.getMessage());
+            if (attachmentsTable.getRowCount() != 0) {
+                if (attachmentsLastIndex == 0) {
+                    attachmentsTable.setRowSelectionInterval(0, 0);
+                } else if (attachmentsLastIndex == attachmentsTable.getRowCount()) {
+                    attachmentsTable.setRowSelectionInterval(attachmentsLastIndex - 1, attachmentsLastIndex - 1);
                 } else {
-                    parent.alertWarning(parent, response.getMessage());
+                    attachmentsTable.setRowSelectionInterval(attachmentsLastIndex, attachmentsLastIndex);
                 }
-                
-                return null;
-            } catch (Exception e) {
-                parent.alertException(parent, e.getStackTrace(), e.getMessage());
-                return null;
             }
+
+            parent.setSaveEnabled(true);
         }
-        
-        public void done() {
-            parent.stopWorking(workingId);
-        }
-    };
-    
-    worker.execute();
-}//GEN-LAST:event_sendTestEmailButtonActionPerformed
+    }//GEN-LAST:event_deleteAttachmentButtonActionPerformed
 
-private void newHeaderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newHeaderButtonActionPerformed
-    ((DefaultTableModel) headersTable.getModel()).addRow(new Object[]{getNewUniqueName(headersTable), ""});
-    headersTable.setRowSelectionInterval(headersTable.getRowCount() - 1, headersTable.getRowCount() - 1);
-    parent.setSaveEnabled(true);
-}//GEN-LAST:event_newHeaderButtonActionPerformed
+    private void useAuthenticationYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useAuthenticationYesActionPerformed
+        usernameLabel.setEnabled(true);
+        usernameField.setEnabled(true);
 
-private void deleteHeaderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteHeaderButtonActionPerformed
-    if (getSelectedRow(headersTable) != -1 && !headersTable.isEditing()) {
-        ((DefaultTableModel) headersTable.getModel()).removeRow(getSelectedRow(headersTable));
+        passwordLabel.setEnabled(true);
+        passwordField.setEnabled(true);
+    }//GEN-LAST:event_useAuthenticationYesActionPerformed
 
-        if (headersTable.getRowCount() != 0) {
-            if (headersLastIndex == 0) {
-                headersTable.setRowSelectionInterval(0, 0);
-            } else if (headersLastIndex == headersTable.getRowCount()) {
-                headersTable.setRowSelectionInterval(headersLastIndex - 1, headersLastIndex - 1);
-            } else {
-                headersTable.setRowSelectionInterval(headersLastIndex, headersLastIndex);
+    private void useAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useAuthenticationNoActionPerformed
+        usernameLabel.setEnabled(false);
+        usernameField.setEnabled(false);
+
+        passwordLabel.setEnabled(false);
+        passwordField.setEnabled(false);
+    }//GEN-LAST:event_useAuthenticationNoActionPerformed
+
+    private void sendTestEmailButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendTestEmailButtonActionPerformed
+        final String workingId = parent.startWorking("Sending test email...");
+
+        SwingWorker worker = new SwingWorker<Void, Void>() {
+
+            public Void doInBackground() {
+
+                try {
+                    ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), "sendTestEmail", getProperties());
+
+                    if (response == null) {
+                        parent.alertError(parent, "Failed to send email.");
+                    } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
+                        parent.alertInformation(parent, response.getMessage());
+                    } else {
+                        parent.alertWarning(parent, response.getMessage());
+                    }
+
+                    return null;
+                } catch (Exception e) {
+                    parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                    return null;
+                }
             }
-        }
 
+            public void done() {
+                parent.stopWorking(workingId);
+            }
+        };
+
+        worker.execute();
+    }//GEN-LAST:event_sendTestEmailButtonActionPerformed
+
+    private void newHeaderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newHeaderButtonActionPerformed
+        ((DefaultTableModel) headersTable.getModel()).addRow(new Object[] {
+                getNewUniqueName(headersTable), "" });
+        headersTable.setRowSelectionInterval(headersTable.getRowCount() - 1, headersTable.getRowCount() - 1);
         parent.setSaveEnabled(true);
-    }
-}//GEN-LAST:event_deleteHeaderButtonActionPerformed
+    }//GEN-LAST:event_newHeaderButtonActionPerformed
+
+    private void deleteHeaderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteHeaderButtonActionPerformed
+        if (getSelectedRow(headersTable) != -1 && !headersTable.isEditing()) {
+            ((DefaultTableModel) headersTable.getModel()).removeRow(getSelectedRow(headersTable));
+
+            if (headersTable.getRowCount() != 0) {
+                if (headersLastIndex == 0) {
+                    headersTable.setRowSelectionInterval(0, 0);
+                } else if (headersLastIndex == headersTable.getRowCount()) {
+                    headersTable.setRowSelectionInterval(headersLastIndex - 1, headersLastIndex - 1);
+                } else {
+                    headersTable.setRowSelectionInterval(headersLastIndex, headersLastIndex);
+                }
+            }
+
+            parent.setSaveEnabled(true);
+        }
+    }//GEN-LAST:event_deleteHeaderButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel attachmentsLabel;

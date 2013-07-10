@@ -50,7 +50,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
     private final String INCLUDED_COLUMN_TYPE_NAME = "Column Type";
     private final String TABLE_TYPE_COLUMN = "table";
     private final String COLUMN_TYPE_COLUMN = "column";
-    
+
     private SwingWorker<Void, Void> metaDataWorker = null;
 
     public enum STATEMENT_TYPE {
@@ -66,13 +66,13 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         initComponents();
         this.databaseConnectionInfo = databaseConnectionInfo;
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        
+
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 cancelButtonActionPerformed(null);
             }
         });
-        
+
         setModal(true);
         pack();
         Dimension dlgSize = getPreferredSize();
@@ -117,8 +117,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
 
         includedMetaDataTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
-            public void valueChanged(ListSelectionEvent e) {
-            }
+            public void valueChanged(ListSelectionEvent e) {}
         });
 
         includedMetaDataPane.setViewportView(includedMetaDataTable);
@@ -126,8 +125,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         // Mouse listener for trigger-button popup on the table.
         includedMetaDataTable.addMouseListener(new java.awt.event.MouseAdapter() {
 
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {}
 
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 checkTableNameSelected(evt);
@@ -175,16 +173,16 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
     public void updateIncludedMetaDataTable(Set<Table> metaData) {
         Object[][] tableData = null;
         int tableSize = 0;
-        
+
         if (metaData != null) {
             for (Table table : metaData) {
-            	int numOfColumns = table.getColumns() != null ? table.getColumns().size() : 0;
+                int numOfColumns = table.getColumns() != null ? table.getColumns().size() : 0;
                 tableSize += 1 + numOfColumns;
             }
 
             tableData = new Object[tableSize][4];
             int i = 0;
-            for (Table table : metaData) {                
+            for (Table table : metaData) {
                 tableData[i][0] = Boolean.FALSE;
                 tableData[i][1] = "<html><b>" + table.getName() + "</b></html>";
                 tableData[i][2] = TABLE_TYPE_COLUMN;
@@ -208,9 +206,11 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
             model.refreshDataVector(tableData);
         } else {
             includedMetaDataTable = new MirthTable();
-            includedMetaDataTable.setModel(new RefreshTableModel(tableData, new String[]{INCLUDED_STATUS_COLUMN_NAME, INCLUDED_COLUMN_NAME_COLUMN_NAME, INCLUDED_TYPE_COLUMN_NAME, INCLUDED_COLUMN_TYPE_NAME}) {
+            includedMetaDataTable.setModel(new RefreshTableModel(tableData, new String[] {
+                    INCLUDED_STATUS_COLUMN_NAME, INCLUDED_COLUMN_NAME_COLUMN_NAME,
+                    INCLUDED_TYPE_COLUMN_NAME, INCLUDED_COLUMN_TYPE_NAME }) {
 
-                boolean[] canEdit = new boolean[]{true, false, false, false};
+                boolean[] canEdit = new boolean[] { true, false, false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -466,50 +466,52 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-	private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_cancelButtonActionPerformed
-	    if (metaDataWorker != null) {
-	        metaDataWorker.cancel(true);
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_cancelButtonActionPerformed
+        if (metaDataWorker != null) {
+            metaDataWorker.cancel(true);
         }
-	    this.dispose();
-	}// GEN-LAST:event_cancelButtonActionPerformed
+        this.dispose();
+    }// GEN-LAST:event_cancelButtonActionPerformed
 
-	private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_generateButtonActionPerformed
-		if (parentConnector instanceof DatabaseReader) {
-			if (type == STATEMENT_TYPE.SELECT_TYPE) {
-				((DatabaseReader) parentConnector).setSelectText(createQueryFromMetaData(getSelectedMetaData()));
-			} else {
-				((DatabaseReader) parentConnector).setUpdateText(createUpdateFromMetaData(getSelectedMetaData()));
-			}
-		} else if (parentConnector instanceof DatabaseWriter) {
-			((DatabaseWriter) parentConnector).setInsertText(createInsertFromMetaData(getSelectedMetaData()));
-		}
+    private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_generateButtonActionPerformed
+        if (parentConnector instanceof DatabaseReader) {
+            if (type == STATEMENT_TYPE.SELECT_TYPE) {
+                ((DatabaseReader) parentConnector).setSelectText(createQueryFromMetaData(getSelectedMetaData()));
+            } else {
+                ((DatabaseReader) parentConnector).setUpdateText(createUpdateFromMetaData(getSelectedMetaData()));
+            }
+        } else if (parentConnector instanceof DatabaseWriter) {
+            ((DatabaseWriter) parentConnector).setInsertText(createInsertFromMetaData(getSelectedMetaData()));
+        }
 
-		this.dispose();
-	}// GEN-LAST:event_generateButtonActionPerformed
+        this.dispose();
+    }// GEN-LAST:event_generateButtonActionPerformed
 
-	/**
-	 * Action to send request to server and attempt to retrieve the tables based on the filter criteria.
-	 * 
-	 * @param evt Action event triggered
-	 */
-	private void filterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterButtonActionPerformed
-		// retrieve the table pattern filter
-	    databaseConnectionInfo.setTableNamePatternExpression(filterTableTextField.getText());
-		
-		final String workingId = parent.startWorking("Retrieving tables...");
-		
-		// Cancel any previous workers that had been called.
-		if (metaDataWorker != null) {
-		    metaDataWorker.cancel(true);
-		}
-		
-		metaDataWorker = new SwingWorker<Void, Void>() {
-		    Set<Table> metaData;
+    /**
+     * Action to send request to server and attempt to retrieve the tables based on the filter
+     * criteria.
+     * 
+     * @param evt
+     *            Action event triggered
+     */
+    private void filterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterButtonActionPerformed
+        // retrieve the table pattern filter
+        databaseConnectionInfo.setTableNamePatternExpression(filterTableTextField.getText());
+
+        final String workingId = parent.startWorking("Retrieving tables...");
+
+        // Cancel any previous workers that had been called.
+        if (metaDataWorker != null) {
+            metaDataWorker.cancel(true);
+        }
+
+        metaDataWorker = new SwingWorker<Void, Void>() {
+            Set<Table> metaData;
 
             public Void doInBackground() {
                 try {
                     // method "getInformationSchema" will return Set<Table>
-                    metaData = (Set<Table>) parent.mirthClient.invokeConnectorService("Database Reader", "getInformationSchema", databaseConnectionInfo);
+                    metaData = (Set<Table>) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), "Database Reader", "getInformationSchema", databaseConnectionInfo);
                 } catch (ClientException e) {
                     // Handle in the done method
                 }
@@ -519,20 +521,20 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
             public void done() {
                 // If the worker was canceled, don't display an error
                 if (!isCancelled()) {
-	                if (metaData == null) {
-	                    parent.alertError(parent, "Could not retrieve database metadata.  Please ensure that your driver, URL, username, and password are correct.");
-	                } else {
-	                    // format table information into presentation
-	                    makeIncludedMetaDataTable(metaData);
-	                }
+                    if (metaData == null) {
+                        parent.alertError(parent, "Could not retrieve database metadata.  Please ensure that your driver, URL, username, and password are correct.");
+                    } else {
+                        // format table information into presentation
+                        makeIncludedMetaDataTable(metaData);
+                    }
                 }
-                
+
                 parent.stopWorking(workingId);
             }
         };
 
         metaDataWorker.execute();
-	}//GEN-LAST:event_filterButtonActionPerformed
+    }//GEN-LAST:event_filterButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;

@@ -99,7 +99,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         } else {
             properties.setAuthenticationType("Digest");
         }
-        
+
         properties.setUsername(usernameField.getText());
         properties.setPassword(new String(passwordField.getPassword()));
 
@@ -192,7 +192,7 @@ public class HttpSender extends ConnectorSettingsPanel {
     public ConnectorProperties getDefaults() {
         return new HttpDispatcherProperties();
     }
-    
+
     public void setAdditionalProperties(Map<String, String> properties) {
         Object[][] tableData = new Object[properties.size()][2];
 
@@ -207,9 +207,10 @@ public class HttpSender extends ConnectorSettingsPanel {
             j++;
         }
 
-        queryParametersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{NAME_COLUMN_NAME, VALUE_COLUMN_NAME}) {
+        queryParametersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
+                NAME_COLUMN_NAME, VALUE_COLUMN_NAME }) {
 
-            boolean[] canEdit = new boolean[]{true, true};
+            boolean[] canEdit = new boolean[] { true, true };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit[columnIndex];
@@ -251,18 +252,18 @@ public class HttpSender extends ConnectorSettingsPanel {
             @Override
             public boolean isCellEditable(EventObject evt) {
                 boolean editable = super.isCellEditable(evt);
-                
+
                 if (editable) {
                     queryParametersDeleteButton.setEnabled(false);
                 }
 
-                return editable; 
+                return editable;
             }
 
             @Override
             protected boolean valueChanged(String value) {
                 queryParametersDeleteButton.setEnabled(true);
-                
+
                 if (checkProperties && (value.length() == 0 || checkUniqueProperty(value))) {
                     return false;
                 }
@@ -275,7 +276,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         queryParametersTable.getColumnModel().getColumn(queryParametersTable.getColumnModel().getColumnIndex(NAME_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(true));
         queryParametersTable.getColumnModel().getColumn(queryParametersTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(false));
         queryParametersTable.setCustomEditorControls(true);
-        
+
         queryParametersTable.setSelectionMode(0);
         queryParametersTable.setRowSelectionAllowed(true);
         queryParametersTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -306,9 +307,10 @@ public class HttpSender extends ConnectorSettingsPanel {
             j++;
         }
 
-        headersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{NAME_COLUMN_NAME, VALUE_COLUMN_NAME}) {
+        headersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
+                NAME_COLUMN_NAME, VALUE_COLUMN_NAME }) {
 
-            boolean[] canEdit = new boolean[]{true, true};
+            boolean[] canEdit = new boolean[] { true, true };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit[columnIndex];
@@ -350,22 +352,22 @@ public class HttpSender extends ConnectorSettingsPanel {
             @Override
             public boolean isCellEditable(EventObject evt) {
                 boolean editable = super.isCellEditable(evt);
-                
+
                 if (editable) {
                     headersDeleteButton.setEnabled(false);
                 }
 
-                return editable; 
+                return editable;
             }
 
             @Override
             protected boolean valueChanged(String value) {
                 headersDeleteButton.setEnabled(true);
-                
+
                 if (checkProperties && (value.length() == 0 || checkUniqueProperty(value))) {
                     return false;
                 }
-                
+
                 parent.setSaveEnabled(true);
                 return true;
             }
@@ -374,7 +376,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(NAME_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(true));
         headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(false));
         headersTable.setCustomEditorControls(true);
-        
+
         headersTable.setSelectionMode(0);
         headersTable.setRowSelectionAllowed(true);
         headersTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -405,7 +407,7 @@ public class HttpSender extends ConnectorSettingsPanel {
 
     public Map<String, String> getHeaderProperties() {
         Map<String, String> properties = new LinkedHashMap<String, String>();
-        
+
         for (int i = 0; i < headersTable.getRowCount(); i++) {
             if (((String) headersTable.getValueAt(i, NAME_COLUMN)).length() > 0) {
                 properties.put(((String) headersTable.getValueAt(i, NAME_COLUMN)), ((String) headersTable.getValueAt(i, VALUE_COLUMN)));
@@ -453,7 +455,7 @@ public class HttpSender extends ConnectorSettingsPanel {
     @Override
     public boolean checkProperties(ConnectorProperties properties, boolean highlight) {
         HttpDispatcherProperties props = (HttpDispatcherProperties) properties;
-        
+
         boolean valid = true;
 
         if (props.getHost().length() == 0) {
@@ -516,13 +518,13 @@ public class HttpSender extends ConnectorSettingsPanel {
         contentLabel.setEnabled(enabled);
         contentTextArea.setEnabled(enabled);
     }
-    
+
     private void setQueryParametersEnabled(boolean enabled) {
         queryParametersLabel.setEnabled(enabled);
         queryParametersPane.setEnabled(enabled);
         queryParametersTable.setEnabled(enabled);
         queryParametersNewButton.setEnabled(enabled);
-        
+
         deselectRows(queryParametersTable, queryParametersDeleteButton);
     }
 
@@ -1001,99 +1003,101 @@ public class HttpSender extends ConnectorSettingsPanel {
 
     private void headersNewButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_headersNewButtonActionPerformed
     {//GEN-HEADEREND:event_headersNewButtonActionPerformed
-        ((DefaultTableModel) headersTable.getModel()).addRow(new Object[]{getNewPropertyName(headersTable), ""});
+        ((DefaultTableModel) headersTable.getModel()).addRow(new Object[] {
+                getNewPropertyName(headersTable), "" });
         headersTable.setRowSelectionInterval(headersTable.getRowCount() - 1, headersTable.getRowCount() - 1);
         parent.setSaveEnabled(true);
     }//GEN-LAST:event_headersNewButtonActionPerformed
 
-private void postButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_postButtonActionPerformed
-    setContentEnabled(true);
-    checkMultipartEnabled();
-    setQueryParametersEnabled(true);
-}//GEN-LAST:event_postButtonActionPerformed
+    private void postButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_postButtonActionPerformed
+        setContentEnabled(true);
+        checkMultipartEnabled();
+        setQueryParametersEnabled(true);
+    }//GEN-LAST:event_postButtonActionPerformed
 
-private void getButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getButtonActionPerformed
-    setContentEnabled(false);
-    checkMultipartEnabled();
-    setQueryParametersEnabled(true);
-}//GEN-LAST:event_getButtonActionPerformed
+    private void getButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getButtonActionPerformed
+        setContentEnabled(false);
+        checkMultipartEnabled();
+        setQueryParametersEnabled(true);
+    }//GEN-LAST:event_getButtonActionPerformed
 
-private void putButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_putButtonActionPerformed
-    setContentEnabled(true);
-    checkMultipartEnabled();
-    setQueryParametersEnabled(true);
-}//GEN-LAST:event_putButtonActionPerformed
+    private void putButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_putButtonActionPerformed
+        setContentEnabled(true);
+        checkMultipartEnabled();
+        setQueryParametersEnabled(true);
+    }//GEN-LAST:event_putButtonActionPerformed
 
-private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-    setContentEnabled(false);
-    checkMultipartEnabled();
-    setQueryParametersEnabled(true);
-}//GEN-LAST:event_deleteButtonActionPerformed
+    private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
+        setContentEnabled(false);
+        checkMultipartEnabled();
+        setQueryParametersEnabled(true);
+    }//GEN-LAST:event_deleteButtonActionPerformed
 
-private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
-    final String workingId = parent.startWorking("Testing connection...");
+    private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
+        final String workingId = parent.startWorking("Testing connection...");
 
-    SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker worker = new SwingWorker<Void, Void>() {
 
-        public Void doInBackground() {
+            public Void doInBackground() {
 
-            try {
-                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(getConnectorName(), "testConnection", getProperties());
+                try {
+                    ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), "testConnection", getProperties());
 
-                if (response == null) {
-                    throw new ClientException("Failed to invoke service.");
-                } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
-                    parent.alertInformation(parent, response.getMessage());
-                } else {
-                    parent.alertWarning(parent, response.getMessage());
+                    if (response == null) {
+                        throw new ClientException("Failed to invoke service.");
+                    } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
+                        parent.alertInformation(parent, response.getMessage());
+                    } else {
+                        parent.alertWarning(parent, response.getMessage());
+                    }
+
+                    return null;
+                } catch (ClientException e) {
+                    parent.alertError(parent, e.getMessage());
+                    return null;
                 }
-
-                return null;
-            } catch (ClientException e) {
-                parent.alertError(parent, e.getMessage());
-                return null;
             }
-        }
 
-        public void done() {
-            parent.stopWorking(workingId);
-        }
-    };
-
-    worker.execute();
-}//GEN-LAST:event_testConnectionActionPerformed
-
-private void queryParametersDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queryParametersDeleteButtonActionPerformed
-    if (getSelectedRow(queryParametersTable) != -1 && !queryParametersTable.isEditing()) {
-        ((DefaultTableModel) queryParametersTable.getModel()).removeRow(getSelectedRow(queryParametersTable));
-
-        if (queryParametersTable.getRowCount() != 0) {
-            if (propertiesLastIndex == 0) {
-                queryParametersTable.setRowSelectionInterval(0, 0);
-            } else if (propertiesLastIndex == queryParametersTable.getRowCount()) {
-                queryParametersTable.setRowSelectionInterval(propertiesLastIndex - 1, propertiesLastIndex - 1);
-            } else {
-                queryParametersTable.setRowSelectionInterval(propertiesLastIndex, propertiesLastIndex);
+            public void done() {
+                parent.stopWorking(workingId);
             }
-        }
+        };
 
+        worker.execute();
+    }//GEN-LAST:event_testConnectionActionPerformed
+
+    private void queryParametersDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queryParametersDeleteButtonActionPerformed
+        if (getSelectedRow(queryParametersTable) != -1 && !queryParametersTable.isEditing()) {
+            ((DefaultTableModel) queryParametersTable.getModel()).removeRow(getSelectedRow(queryParametersTable));
+
+            if (queryParametersTable.getRowCount() != 0) {
+                if (propertiesLastIndex == 0) {
+                    queryParametersTable.setRowSelectionInterval(0, 0);
+                } else if (propertiesLastIndex == queryParametersTable.getRowCount()) {
+                    queryParametersTable.setRowSelectionInterval(propertiesLastIndex - 1, propertiesLastIndex - 1);
+                } else {
+                    queryParametersTable.setRowSelectionInterval(propertiesLastIndex, propertiesLastIndex);
+                }
+            }
+
+            parent.setSaveEnabled(true);
+        }
+    }//GEN-LAST:event_queryParametersDeleteButtonActionPerformed
+
+    private void queryParametersNewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queryParametersNewButtonActionPerformed
+        ((DefaultTableModel) queryParametersTable.getModel()).addRow(new Object[] {
+                getNewPropertyName(queryParametersTable), "" });
+        queryParametersTable.setRowSelectionInterval(queryParametersTable.getRowCount() - 1, queryParametersTable.getRowCount() - 1);
         parent.setSaveEnabled(true);
-    }
-}//GEN-LAST:event_queryParametersDeleteButtonActionPerformed
+    }//GEN-LAST:event_queryParametersNewButtonActionPerformed
 
-private void queryParametersNewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queryParametersNewButtonActionPerformed
-    ((DefaultTableModel) queryParametersTable.getModel()).addRow(new Object[]{getNewPropertyName(queryParametersTable), ""});
-    queryParametersTable.setRowSelectionInterval(queryParametersTable.getRowCount() - 1, queryParametersTable.getRowCount() - 1);
-    parent.setSaveEnabled(true);
-}//GEN-LAST:event_queryParametersNewButtonActionPerformed
+    private void authenticationYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authenticationYesRadioActionPerformed
+        setAuthenticationEnabled(true);
+    }//GEN-LAST:event_authenticationYesRadioActionPerformed
 
-private void authenticationYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authenticationYesRadioActionPerformed
-    setAuthenticationEnabled(true);
-}//GEN-LAST:event_authenticationYesRadioActionPerformed
-
-private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authenticationNoRadioActionPerformed
-    setAuthenticationEnabled(false);
-}//GEN-LAST:event_authenticationNoRadioActionPerformed
+    private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authenticationNoRadioActionPerformed
+        setAuthenticationEnabled(false);
+    }//GEN-LAST:event_authenticationNoRadioActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup authenticationButtonGroup;
     private javax.swing.JLabel authenticationLabel;

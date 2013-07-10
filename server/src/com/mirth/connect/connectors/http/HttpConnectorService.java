@@ -13,14 +13,16 @@ import java.net.URL;
 
 import com.mirth.connect.connectors.ConnectorService;
 import com.mirth.connect.server.util.ConnectorUtil;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class HttpConnectorService implements ConnectorService {
     private static final int TIMEOUT = 5000;
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-    public Object invoke(String method, Object object, String sessionsId) throws Exception {
+    public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
         if (method.equals("testConnection")) {
             HttpDispatcherProperties props = (HttpDispatcherProperties) object;
-            URL url = new URL(props.getHost());
+            URL url = new URL(replacer.replaceValues(props.getHost(), channelId));
             return ConnectorUtil.testConnection(url.getHost(), url.getPort(), TIMEOUT);
         }
 

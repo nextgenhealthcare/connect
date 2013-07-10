@@ -30,7 +30,7 @@ public class JmsConnectorService implements ConnectorService {
     private Logger logger = Logger.getLogger(getClass());
 
     @Override
-    public synchronized Object invoke(String method, Object object, String sessionId) throws Exception {
+    public synchronized Object invoke(String channelId, String method, Object object, String sessionId) throws Exception {
         try {
             if (method.equals("getTemplates")) {
                 load();

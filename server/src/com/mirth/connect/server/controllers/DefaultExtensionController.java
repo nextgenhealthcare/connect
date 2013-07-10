@@ -142,7 +142,8 @@ public class DefaultExtensionController extends ExtensionController {
     public void loadExtensions() {
         try {
             // match all of the file names for the extension
-            IOFileFilter nameFileFilter = new NameFileFilter(new String[] { "plugin.xml", "source.xml", "destination.xml" });
+            IOFileFilter nameFileFilter = new NameFileFilter(new String[] { "plugin.xml",
+                    "source.xml", "destination.xml" });
             // this is probably not needed, but we dont want to pick up directories,
             // so we AND the two filters
             IOFileFilter andFileFilter = new AndFileFilter(nameFileFilter, FileFilterUtils.fileFileFilter());
@@ -244,7 +245,8 @@ public class DefaultExtensionController extends ExtensionController {
                                 Properties defaultProperties = servicePlugin.getDefaultProperties();
 
                                 /*
-                                 * if there are any properties that not currently set, set them to the the default
+                                 * if there are any properties that not currently set, set them to
+                                 * the the default
                                  */
                                 for (Object key : defaultProperties.keySet()) {
                                     if (!currentProperties.containsKey(key)) {
@@ -256,7 +258,8 @@ public class DefaultExtensionController extends ExtensionController {
                                 setPluginProperties(pmd.getName(), currentProperties);
 
                                 /*
-                                 * initialize the plugin with those properties and add it to the list of loaded plugins
+                                 * initialize the plugin with those properties and add it to the
+                                 * list of loaded plugins
                                  */
                                 servicePlugin.init(currentProperties);
                                 servicePlugins.put(servicePlugin.getPluginPointName(), servicePlugin);
@@ -373,12 +376,12 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     @Override
-    public Object invokeConnectorService(String name, String method, Object object, String sessionsId) throws Exception {
+    public Object invokeConnectorService(String channelId, String name, String method, Object object, String sessionsId) throws Exception {
         ConnectorMetaData connectorMetaData = connectorMetaDataMap.get(name);
 
         if (StringUtils.isNotBlank(connectorMetaData.getServiceClassName())) {
             ConnectorService connectorService = (ConnectorService) Class.forName(connectorMetaData.getServiceClassName()).newInstance();
-            return connectorService.invoke(method, object, sessionsId);
+            return connectorService.invoke(channelId, method, object, sessionsId);
         }
 
         return null;

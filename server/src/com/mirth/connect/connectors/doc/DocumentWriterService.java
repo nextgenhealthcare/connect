@@ -13,13 +13,16 @@ import com.mirth.connect.connectors.ConnectorService;
 import com.mirth.connect.connectors.file.FileScheme;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnectionFactory;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class DocumentWriterService implements ConnectorService {
-    public Object invoke(String method, Object object, String sessionsId) throws Exception {
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
+
+    public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
         if (method.equals("testWrite")) {
             DocumentDispatcherProperties props = (DocumentDispatcherProperties) object;
-            String directory = props.getHost();
+            String directory = replacer.replaceValues(props.getHost(), channelId);
 
             FileSystemConnectionFactory factory = new FileSystemConnectionFactory(FileScheme.FILE, null, null, directory, 0, false, false, 0);
             FileSystemConnection connection = (FileSystemConnection) factory.makeObject();

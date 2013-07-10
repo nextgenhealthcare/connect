@@ -90,12 +90,15 @@ public class FileWriter extends ConnectorSettingsPanel {
      * Parses the scheme and URL to determine the values for the directory, host
      * and path fields, optionally storing them to the fields, highlighting
      * field errors, or just testing for valid values.
-     *
-     * @param props The connector properties from which to take the values.
-     * @param store If true, the parsed values are stored to the corresponding
-     * form controls.
-     * @param highlight If true, fields for which the parsed values are invalid
-     * are highlighted.
+     * 
+     * @param props
+     *            The connector properties from which to take the values.
+     * @param store
+     *            If true, the parsed values are stored to the corresponding
+     *            form controls.
+     * @param highlight
+     *            If true, fields for which the parsed values are invalid
+     *            are highlighted.
      */
     public boolean setDirHostPath(FileDispatcherProperties props, boolean store, boolean highlight) {
 
@@ -874,80 +877,80 @@ public class FileWriter extends ConnectorSettingsPanel {
         }
     }//GEN-LAST:event_schemeComboBoxActionPerformed
 
-private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
-    final String workingId = parent.startWorking("Testing connection...");
+    private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
+        final String workingId = parent.startWorking("Testing connection...");
 
-    SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker worker = new SwingWorker<Void, Void>() {
 
-        public Void doInBackground() {
+            public Void doInBackground() {
 
-            try {
-                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(getConnectorName(), "testWrite", getProperties());
+                try {
+                    ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), "testWrite", getProperties());
 
-                if (response == null) {
-                    throw new ClientException("Failed to invoke service.");
-                } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
-                    parent.alertInformation(parent, response.getMessage());
-                } else {
-                    parent.alertWarning(parent, response.getMessage());
+                    if (response == null) {
+                        throw new ClientException("Failed to invoke service.");
+                    } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
+                        parent.alertInformation(parent, response.getMessage());
+                    } else {
+                        parent.alertWarning(parent, response.getMessage());
+                    }
+
+                    return null;
+                } catch (ClientException e) {
+                    parent.alertError(parent, e.getMessage());
+                    return null;
                 }
-
-                return null;
-            } catch (ClientException e) {
-                parent.alertError(parent, e.getMessage());
-                return null;
             }
-        }
 
-        public void done() {
-            parent.stopWorking(workingId);
-        }
-    };
+            public void done() {
+                parent.stopWorking(workingId);
+            }
+        };
 
-    worker.execute();
-}//GEN-LAST:event_testConnectionActionPerformed
+        worker.execute();
+    }//GEN-LAST:event_testConnectionActionPerformed
 
-private void secureModeYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureModeYesActionPerformed
-    // only WebDAV has access to here.
-    // change host label to 'https://'
-    hostLabel.setText("https://");
-}//GEN-LAST:event_secureModeYesActionPerformed
+    private void secureModeYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureModeYesActionPerformed
+        // only WebDAV has access to here.
+        // change host label to 'https://'
+        hostLabel.setText("https://");
+    }//GEN-LAST:event_secureModeYesActionPerformed
 
-private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureModeNoActionPerformed
-    // only WebDAV has access to here.
-    // change host label to 'http://'
-    hostLabel.setText("http://");
-}//GEN-LAST:event_secureModeNoActionPerformed
+    private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureModeNoActionPerformed
+        // only WebDAV has access to here.
+        // change host label to 'http://'
+        hostLabel.setText("http://");
+    }//GEN-LAST:event_secureModeNoActionPerformed
 
-private void fileExistsAppendRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExistsAppendRadioActionPerformed
-    tempFileNoRadio.setSelected(true);
-    tempFileLabel.setEnabled(false);
-    tempFileYesRadio.setEnabled(false);
-    tempFileNoRadio.setEnabled(false);
-}//GEN-LAST:event_fileExistsAppendRadioActionPerformed
+    private void fileExistsAppendRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExistsAppendRadioActionPerformed
+        tempFileNoRadio.setSelected(true);
+        tempFileLabel.setEnabled(false);
+        tempFileYesRadio.setEnabled(false);
+        tempFileNoRadio.setEnabled(false);
+    }//GEN-LAST:event_fileExistsAppendRadioActionPerformed
 
-private void fileExistsOverwriteRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExistsOverwriteRadioActionPerformed
-    tempFileLabel.setEnabled(true);
-    tempFileYesRadio.setEnabled(true);
-    tempFileNoRadio.setEnabled(true);
-}//GEN-LAST:event_fileExistsOverwriteRadioActionPerformed
+    private void fileExistsOverwriteRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExistsOverwriteRadioActionPerformed
+        tempFileLabel.setEnabled(true);
+        tempFileYesRadio.setEnabled(true);
+        tempFileNoRadio.setEnabled(true);
+    }//GEN-LAST:event_fileExistsOverwriteRadioActionPerformed
 
-private void fileExistsErrorRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExistsErrorRadioActionPerformed
-    tempFileLabel.setEnabled(true);
-    tempFileYesRadio.setEnabled(true);
-    tempFileNoRadio.setEnabled(true);
-}//GEN-LAST:event_fileExistsErrorRadioActionPerformed
+    private void fileExistsErrorRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExistsErrorRadioActionPerformed
+        tempFileLabel.setEnabled(true);
+        tempFileYesRadio.setEnabled(true);
+        tempFileNoRadio.setEnabled(true);
+    }//GEN-LAST:event_fileExistsErrorRadioActionPerformed
 
-private void fileTypeASCIIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileTypeASCIIActionPerformed
-    encodingLabel.setEnabled(true);
-    charsetEncodingCombobox.setEnabled(true);
-}//GEN-LAST:event_fileTypeASCIIActionPerformed
+    private void fileTypeASCIIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileTypeASCIIActionPerformed
+        encodingLabel.setEnabled(true);
+        charsetEncodingCombobox.setEnabled(true);
+    }//GEN-LAST:event_fileTypeASCIIActionPerformed
 
-private void fileTypeBinaryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileTypeBinaryActionPerformed
-    encodingLabel.setEnabled(false);
-    charsetEncodingCombobox.setEnabled(false);
-    charsetEncodingCombobox.setSelectedIndex(0);
-}//GEN-LAST:event_fileTypeBinaryActionPerformed
+    private void fileTypeBinaryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileTypeBinaryActionPerformed
+        encodingLabel.setEnabled(false);
+        charsetEncodingCombobox.setEnabled(false);
+        charsetEncodingCombobox.setSelectedIndex(0);
+    }//GEN-LAST:event_fileTypeBinaryActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel anonymousLabel;
