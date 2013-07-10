@@ -35,6 +35,7 @@ import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
+import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConfiguration;
@@ -61,6 +62,7 @@ import com.mirth.connect.donkey.server.data.passthru.DelayedStatisticsUpdater;
 import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.message.DataType;
+import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.Connector;
@@ -107,12 +109,18 @@ public class DonkeyEngineController implements EngineController {
     private com.mirth.connect.donkey.server.controllers.ChannelController donkeyChannelController = com.mirth.connect.donkey.server.controllers.ChannelController.getInstance();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+    private int queueBufferSize = Constants.DEFAULT_QUEUE_BUFFER_SIZE;
 
     private DonkeyEngineController() {}
 
     @Override
     public void startEngine() throws StartException, StopException, ControllerException, InterruptedException {
         logger.debug("starting donkey engine");
+        
+        Integer queueBufferSize = configurationController.getServerSettings().getQueueBufferSize();
+        if (queueBufferSize != null) {
+            this.queueBufferSize = queueBufferSize;
+        }
 
         final Encryptor encryptor = configurationController.getEncryptor();
 
@@ -481,6 +489,10 @@ public class DonkeyEngineController implements EngineController {
         channel.setResponseSelector(new ResponseSelector(channel.getSourceConnector().getInboundDataType()));
         channel.setSourceFilterTransformer(createFilterTransformerExecutor(channelId, model.getSourceConnector(), destinationNameMap));
 
+        ConnectorMessageQueue sourceQueue = new ConnectorMessageQueue();
+        sourceQueue.setBufferCapacity(queueBufferSize);
+        channel.setSourceQueue(sourceQueue);
+
         if (model.getSourceConnector().getProperties() instanceof ResponseConnectorPropertiesInterface) {
             ResponseConnectorProperties responseConnectorProperties = ((ResponseConnectorPropertiesInterface) model.getSourceConnector().getProperties()).getResponseConnectorProperties();
             channel.getResponseSelector().setRespondFromName(responseConnectorProperties.getResponseVariable());
@@ -798,6 +810,10 @@ public class DonkeyEngineController implements EngineController {
 
         destinationConnector.setDestinationName(model.getName());
         destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(channelId, model, destinationNameMap));
+
+        ConnectorMessageQueue queue = new ConnectorMessageQueue();
+        queue.setBufferCapacity(queueBufferSize);
+        destinationConnector.setQueue(queue);
 
         return destinationConnector;
     }

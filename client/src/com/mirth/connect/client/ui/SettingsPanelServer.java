@@ -41,7 +41,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         provideUsageStatsMoreInfoLabel.setToolTipText(UIConstants.PRIVACY_TOOLTIP);
         provideUsageStatsMoreInfoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        maxQueueSizeField.setDocument(new MirthFieldConstraints(8, false, false, true));
+        queueBufferSizeField.setDocument(new MirthFieldConstraints(8, false, false, true));
         smtpTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
     }
 
@@ -83,9 +83,9 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         final ServerSettings serverSettings = getServerSettings();
         final UpdateSettings updateSettings = getUpdateSettings();
 
-        // Integer maxQueueSize will be null if it was invalid
-        if (serverSettings.getMaxQueueSize() == null) {
-            getFrame().alertWarning(this, "Please enter a valid maximum queue size.");
+        // Integer queueBufferSize will be null if it was invalid
+        if (serverSettings.getQueueBufferSize() == null) {
+            getFrame().alertWarning(this, "Please enter a valid queue buffer size.");
             return false;
         }
         
@@ -171,10 +171,10 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             clearGlobalMapYesRadio.setSelected(true);
         }
 
-        if (serverSettings.getMaxQueueSize() != null) {
-            maxQueueSizeField.setText(serverSettings.getMaxQueueSize().toString());
+        if (serverSettings.getQueueBufferSize() != null) {
+            queueBufferSizeField.setText(serverSettings.getQueueBufferSize().toString());
         } else {
-            maxQueueSizeField.setText("");
+            queueBufferSizeField.setText("");
         }
 
         if (serverSettings.getSmtpUsername() != null) {
@@ -216,12 +216,12 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         serverSettings.setClearGlobalMap(clearGlobalMapYesRadio.isSelected());
         
-        // Set the max queue size Integer to null if it was invalid
-        int maxQueueSize = NumberUtils.toInt(maxQueueSizeField.getText(), -1);
-        if (maxQueueSize == -1) {
-            serverSettings.setMaxQueueSize(null);
+        // Set the queue buffer size Integer to null if it was invalid
+        int queueBufferSize = NumberUtils.toInt(queueBufferSizeField.getText(), 0);
+        if (queueBufferSize == 0) {
+            serverSettings.setQueueBufferSize(null);
         } else {
-            serverSettings.setMaxQueueSize(maxQueueSize);
+            serverSettings.setQueueBufferSize(queueBufferSize);
         }
         
         serverSettings.setSmtpHost(smtpHostField.getText());
@@ -377,8 +377,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         updateUrlField = new com.mirth.connect.client.ui.components.MirthTextField();
         updateUrlLabel = new javax.swing.JLabel();
         provideUsageStatsMoreInfoLabel = new javax.swing.JLabel();
-        maxQueueSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
-        maxQueueSizeLabel = new javax.swing.JLabel();
+        queueBufferSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
+        queueBufferSizeLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -604,9 +604,9 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             }
         });
 
-        maxQueueSizeField.setToolTipText("<html>The maximum queue size allowed for each connector, or 0 for infinite.<br>Mirth Connect must be restarted for this setting to take effect.</html>");
+        queueBufferSizeField.setToolTipText("<html>The maximum number of queued messages each connector will hold in memory.<br>There is no limit to the total number of queued messages. A smaller buffer will<br>use less memory, but may decrease queue performance. Mirth Connect must be<br>restarted for this setting to take effect.</html>");
 
-        maxQueueSizeLabel.setText("Maximum Queue Size:");
+        queueBufferSizeLabel.setText("Queue Buffer Size:");
 
         javax.swing.GroupLayout configurationPanelLayout = new javax.swing.GroupLayout(configurationPanel);
         configurationPanel.setLayout(configurationPanelLayout);
@@ -619,7 +619,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     .addComponent(clearGlobalMapLabel)
                     .addComponent(provideUsageStatsLabel)
                     .addComponent(updateUrlLabel)
-                    .addComponent(maxQueueSizeLabel))
+                    .addComponent(queueBufferSizeLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(updateUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -637,7 +637,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                         .addComponent(checkForUpdatesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(checkForUpdatesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(maxQueueSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(queueBufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         configurationPanelLayout.setVerticalGroup(
@@ -664,8 +664,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     .addComponent(updateUrlLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(maxQueueSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(maxQueueSizeLabel))
+                    .addComponent(queueBufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(queueBufferSizeLabel))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -721,8 +721,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthTextField defaultFromAddressField;
     private javax.swing.JLabel defaultFromAddressLabel;
     private javax.swing.JPanel emailPanel;
-    private com.mirth.connect.client.ui.components.MirthTextField maxQueueSizeField;
-    private javax.swing.JLabel maxQueueSizeLabel;
     private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
     private javax.swing.ButtonGroup provideUsageStatsButtonGroup;
@@ -730,6 +728,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     private javax.swing.JLabel provideUsageStatsMoreInfoLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton provideUsageStatsNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton provideUsageStatsYesRadio;
+    private com.mirth.connect.client.ui.components.MirthTextField queueBufferSizeField;
+    private javax.swing.JLabel queueBufferSizeLabel;
     private javax.swing.ButtonGroup requireAuthenticationButtonGroup;
     private javax.swing.JLabel requireAuthenticationLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton requireAuthenticationNoRadio;

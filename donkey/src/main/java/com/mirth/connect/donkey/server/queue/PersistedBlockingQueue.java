@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
     private BlockingQueue<E> buffer = new LinkedBlockingQueue<E>();
     private Integer size;
-    private int bufferCapacity = 100;
+    private int bufferCapacity = 1000;
     private boolean reachedCapacity = false;
     private PersistedBlockingQueueDataSource<E> dataSource;
     private final AtomicBoolean timeoutLock = new AtomicBoolean(false);

@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.mirth.connect.donkey.model.event.MessageEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.event.MessageEvent;
@@ -23,9 +22,7 @@ public class ConnectorMessageQueue extends PersistedBlockingQueue<ConnectorMessa
     private String channelId;
     private Integer metaDataId;
 
-    public ConnectorMessageQueue() {
-        setBufferCapacity(Constants.CONNECTOR_MESSAGE_QUEUE_BUFFER_SIZE);
-    }
+    public ConnectorMessageQueue() {}
 
     @Override
     public void setDataSource(PersistedBlockingQueueDataSource<ConnectorMessage> dataSource) {

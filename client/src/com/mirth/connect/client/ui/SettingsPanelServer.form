@@ -380,7 +380,7 @@
                       <Component id="clearGlobalMapLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="provideUsageStatsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="updateUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                      <Component id="maxQueueSizeLabel" min="-2" max="-2" attributes="0"/>
+                      <Component id="queueBufferSizeLabel" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -402,7 +402,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="checkForUpdatesNoRadio" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="maxQueueSizeField" alignment="0" min="-2" pref="60" max="-2" attributes="1"/>
+                      <Component id="queueBufferSizeField" alignment="0" min="-2" pref="60" max="-2" attributes="1"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -436,8 +436,8 @@
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="maxQueueSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="maxQueueSizeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="queueBufferSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="queueBufferSizeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -601,14 +601,14 @@
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="provideUsageStatsMoreInfoLabelMouseClicked"/>
           </Events>
         </Component>
-        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="maxQueueSizeField">
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="queueBufferSizeField">
           <Properties>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The maximum queue size allowed for each connector, or 0 for infinite.&lt;br&gt;Mirth Connect must be restarted for this setting to take effect.&lt;/html&gt;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The maximum number of queued messages each connector will hold in memory.&lt;br&gt;There is no limit to the total number of queued messages. A smaller buffer will&lt;br&gt;use less memory, but may decrease queue performance. Mirth Connect must be&lt;br&gt;restarted for this setting to take effect.&lt;/html&gt;"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="maxQueueSizeLabel">
+        <Component class="javax.swing.JLabel" name="queueBufferSizeLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Maximum Queue Size:"/>
+            <Property name="text" type="java.lang.String" value="Queue Buffer Size:"/>
           </Properties>
         </Component>
       </SubComponents>

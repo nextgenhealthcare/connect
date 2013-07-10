@@ -22,7 +22,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 public class ServerSettings extends AbstractSettings implements Serializable, Auditable {
 
     private static final String CLEAR_GLOBAL_MAP = "server.resetglobalvariables";
-    private static final String MAX_QUEUE_SIZE = "server.maxqueuesize";
+    private static final String QUEUE_BUFFER_SIZE = "server.queuebuffersize";
     private static final String SMTP_HOST = "smtp.host";
     private static final String SMTP_PORT = "smtp.port";
     private static final String SMTP_TIMEOUT = "smtp.timeout";
@@ -34,7 +34,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
 
     // Configuration
     private Boolean clearGlobalMap;
-    private Integer maxQueueSize;
+    private Integer queueBufferSize;
 
     // SMTP
     private String smtpHost;
@@ -60,8 +60,8 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         if (getClearGlobalMap() != null) {
             properties.put(CLEAR_GLOBAL_MAP, BooleanUtils.toIntegerObject(getClearGlobalMap()).toString());
         }
-        if (getMaxQueueSize() != null) {
-            properties.put(MAX_QUEUE_SIZE, getMaxQueueSize().toString());
+        if (getQueueBufferSize() != null) {
+            properties.put(QUEUE_BUFFER_SIZE, getQueueBufferSize().toString());
         }
         if (getSmtpHost() != null) {
             properties.put(SMTP_HOST, getSmtpHost());
@@ -93,7 +93,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
 
     public void setProperties(Properties properties) {
         setClearGlobalMap(intToBooleanObject(properties.getProperty(CLEAR_GLOBAL_MAP)));
-        setMaxQueueSize(toIntegerObject(properties.getProperty(MAX_QUEUE_SIZE)));
+        setQueueBufferSize(toIntegerObject(properties.getProperty(QUEUE_BUFFER_SIZE)));
         setSmtpHost(properties.getProperty(SMTP_HOST));
         setSmtpPort(properties.getProperty(SMTP_PORT));
         setSmtpTimeout(toIntegerObject(properties.getProperty(SMTP_TIMEOUT)));
@@ -112,12 +112,12 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         this.clearGlobalMap = clearGlobalMap;
     }
 
-    public Integer getMaxQueueSize() {
-        return maxQueueSize;
+    public Integer getQueueBufferSize() {
+        return queueBufferSize;
     }
 
-    public void setMaxQueueSize(Integer maxQueueSize) {
-        this.maxQueueSize = maxQueueSize;
+    public void setQueueBufferSize(Integer queueBufferSize) {
+        this.queueBufferSize = queueBufferSize;
     }
 
     public String getSmtpHost() {
