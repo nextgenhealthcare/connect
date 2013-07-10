@@ -3313,13 +3313,13 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * Export a file with the default defined file filter type.
+     * Creates a File with the default defined file filter type, but does not yet write to it.
      * 
-     * @param fileContents
-     * @param fileName
+     * @param defaultFileName
+     * @param fileExtension
      * @return
      */
-    public boolean exportFile(String fileContents, String defaultFileName, String fileExtension, String name) {
+    public File createFileForExport(String defaultFileName, String fileExtension) {
         JFileChooser exportFileChooser = new JFileChooser();
 
         if (defaultFileName != null) {
@@ -3346,10 +3346,29 @@ public class Frame extends JXFrame {
 
             if (exportFile.exists()) {
                 if (!alertOption(this, "This file already exists.  Would you like to overwrite it?")) {
-                    return false;
+                    return null;
                 }
             }
 
+            return exportFile;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Export a file with the default defined file filter type.
+     * 
+     * @param fileContents
+     * @param fileName
+     * @return
+     */
+    public boolean exportFile(String fileContents, String defaultFileName, String fileExtension, String name) {
+        return exportFile(fileContents, createFileForExport(defaultFileName, fileExtension), name);
+    }
+
+    public boolean exportFile(String fileContents, File exportFile, String name) {
+        if (exportFile != null) {
             try {
                 String contentToWrite = null;
 

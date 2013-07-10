@@ -176,7 +176,7 @@ public class Client {
     public synchronized void setServerConfiguration(ServerConfiguration serverConfiguration) throws ClientException {
         logger.debug("setting server configuration");
         NameValuePair[] params = { new NameValuePair("op", Operations.SERVER_CONFIGURATION_SET.getName()), new NameValuePair("data", serializer.toXML(serverConfiguration)) };
-        serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+        serverConnection.executePostMethodAsync(CONFIGURATION_SERVLET, params);
     }
 
     /**

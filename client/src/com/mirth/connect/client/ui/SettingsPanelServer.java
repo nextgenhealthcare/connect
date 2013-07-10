@@ -10,6 +10,7 @@
 package com.mirth.connect.client.ui;
 
 import java.awt.Cursor;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -28,7 +29,7 @@ import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class SettingsPanelServer extends AbstractSettingsPanel {
-    
+
     public static final String TAB_NAME = "Server";
 
     public SettingsPanelServer(String tabName) {
@@ -88,7 +89,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             getFrame().alertWarning(this, "Please enter a valid queue buffer size.");
             return false;
         }
-        
+
         // Integer smtpTimeput will be null if it was invalid
         if (serverSettings.getSmtpTimeout() == null) {
             getFrame().alertWarning(this, "Please enter a valid SMTP timeout.");
@@ -118,7 +119,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         };
 
         worker.execute();
-        
+
         return true;
     }
 
@@ -130,12 +131,12 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             smtpHostField.setText("");
         }
 
-        if (serverSettings.getSmtpPort()!= null) {
+        if (serverSettings.getSmtpPort() != null) {
             smtpPortField.setText(serverSettings.getSmtpPort());
         } else {
             smtpPortField.setText("");
         }
-        
+
         if (serverSettings.getSmtpTimeout() != null) {
             smtpTimeoutField.setText(serverSettings.getSmtpTimeout().toString());
         } else {
@@ -189,7 +190,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             passwordField.setText("");
         }
     }
-    
+
     public void setUpdateSettings(UpdateSettings updateSettings) {
         if (updateSettings.getUpdatesEnabled() != null && !updateSettings.getUpdatesEnabled()) {
             checkForUpdatesNoRadio.setSelected(true);
@@ -197,7 +198,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             checkForUpdatesYesRadio.setSelected(true);
         }
 
-        if (updateSettings.getStatsEnabled() != null  && !updateSettings.getStatsEnabled()) {
+        if (updateSettings.getStatsEnabled() != null && !updateSettings.getStatsEnabled()) {
             provideUsageStatsNoRadio.setSelected(true);
         } else {
             provideUsageStatsYesRadio.setSelected(true);
@@ -215,7 +216,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         ServerSettings serverSettings = new ServerSettings();
 
         serverSettings.setClearGlobalMap(clearGlobalMapYesRadio.isSelected());
-        
+
         // Set the queue buffer size Integer to null if it was invalid
         int queueBufferSize = NumberUtils.toInt(queueBufferSizeField.getText(), 0);
         if (queueBufferSize == 0) {
@@ -223,10 +224,10 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         } else {
             serverSettings.setQueueBufferSize(queueBufferSize);
         }
-        
+
         serverSettings.setSmtpHost(smtpHostField.getText());
         serverSettings.setSmtpPort(smtpPortField.getText());
-        
+
         // Set the SMTP timeout Integer to null if it was invalid
         int smtpTimeout = NumberUtils.toInt(smtpTimeoutField.getText(), -1);
         if (smtpTimeout == -1) {
@@ -234,9 +235,9 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         } else {
             serverSettings.setSmtpTimeout(smtpTimeout);
         }
-        
+
         serverSettings.setSmtpFrom(defaultFromAddressField.getText());
-        
+
         if (secureConnectionTLSRadio.isSelected()) {
             serverSettings.setSmtpSecure("tls");
         } else if (secureConnectionSSLRadio.isSelected()) {
@@ -257,7 +258,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         return serverSettings;
     }
-    
+
     public UpdateSettings getUpdateSettings() {
         UpdateSettings updateSettings = new UpdateSettings();
 
@@ -281,21 +282,38 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             }
         }
 
-        String backupDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        final String backupDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        final File exportFile = getFrame().createFileForExport(backupDate.substring(0, 10) + " Mirth Backup.xml", "XML");
 
-        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        ServerConfiguration configuration = null;
-        try {
-            configuration = getFrame().mirthClient.getServerConfiguration();
-        } catch (ClientException e) {
-            getFrame().alertException(this, e.getStackTrace(), e.getMessage());
-            return;
+        if (exportFile != null) {
+            final String workingId = getFrame().startWorking("Exporting server config...");
+
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+                public Void doInBackground() {
+                    ServerConfiguration configuration = null;
+
+                    try {
+                        configuration = getFrame().mirthClient.getServerConfiguration();
+                    } catch (ClientException e) {
+                        getFrame().alertException(SettingsPanelServer.this, e.getStackTrace(), e.getMessage());
+                        return null;
+                    }
+
+                    configuration.setDate(backupDate);
+                    String backupXML = ObjectXMLSerializer.getInstance().toXML(configuration);
+
+                    getFrame().exportFile(backupXML, exportFile, "Server Configuration");
+                    return null;
+                }
+
+                public void done() {
+                    getFrame().stopWorking(workingId);
+                }
+            };
+
+            worker.execute();
         }
-
-        configuration.setDate(backupDate);
-        String backupXML = serializer.toXML(configuration);
-
-        getFrame().exportFile(backupXML, backupDate.substring(0, 10) + " Mirth Backup.xml", "XML", "Server Configuration");
     }
 
     public void doRestore() {
@@ -312,17 +330,31 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         if (content != null) {
             try {
-                ServerConfiguration configuration = ObjectXMLSerializer.getInstance().fromXML(content, ServerConfiguration.class);
+                final ServerConfiguration configuration = ObjectXMLSerializer.getInstance().fromXML(content, ServerConfiguration.class);
 
                 if (getFrame().alertOption(this, "Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels,\nalerts, server properties, and plugin properties.")) {
-                    try {
-                        getFrame().mirthClient.setServerConfiguration(configuration);
-                        getFrame().clearChannelCache();
-                        doRefresh();
-                        getFrame().alertInformation(this, "Your configuration was successfully restored.");
-                    } catch (ClientException e) {
-                        getFrame().alertException(this, e.getStackTrace(), e.getMessage());
-                    }
+                    final String workingId = getFrame().startWorking("Restoring server config...");
+
+                    SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+                        public Void doInBackground() {
+                            try {
+                                getFrame().mirthClient.setServerConfiguration(configuration);
+                                getFrame().clearChannelCache();
+                                doRefresh();
+                                getFrame().alertInformation(SettingsPanelServer.this, "Your configuration was successfully restored.");
+                            } catch (ClientException e) {
+                                getFrame().alertException(SettingsPanelServer.this, e.getStackTrace(), e.getMessage());
+                            }
+                            return null;
+                        }
+
+                        public void done() {
+                            getFrame().stopWorking(workingId);
+                        }
+                    };
+
+                    worker.execute();
                 }
             } catch (Exception e) {
                 getFrame().alertError(this, "Invalid server configuration file.");
