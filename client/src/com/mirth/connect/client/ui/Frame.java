@@ -1241,7 +1241,9 @@ public class Frame extends JXFrame {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the scripts?");
 
             if (option == JOptionPane.YES_OPTION) {
-                doSaveGlobalScripts();
+                if (!doSaveGlobalScripts()) {
+                    return false;
+                }
             } else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
                 return false;
             }
@@ -1996,6 +1998,12 @@ public class Frame extends JXFrame {
     public void doExportGlobalScripts() {
         if (changesHaveBeenMade()) {
             if (alertOption(this, "You must save your global scripts before exporting.  Would you like to save them now?")) {
+                String validationMessage = globalScriptsPanel.validateAllScripts();
+                if (validationMessage != null) {
+                    alertCustomError(this, validationMessage, CustomErrorDialog.ERROR_VALIDATING_GLOBAL_SCRIPTS);
+                    return;
+                }
+
                 globalScriptsPanel.save();
                 setSaveEnabled(false);
             } else {
@@ -2013,8 +2021,14 @@ public class Frame extends JXFrame {
         channelEditPanel.validateScripts();
     }
 
-    public void doSaveGlobalScripts() {
+    public boolean doSaveGlobalScripts() {
         final String workingId = startWorking("Saving global scripts...");
+
+        String validationMessage = globalScriptsPanel.validateAllScripts();
+        if (validationMessage != null) {
+            alertCustomError(this, validationMessage, CustomErrorDialog.ERROR_VALIDATING_GLOBAL_SCRIPTS);
+            return false;
+        }
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -2030,6 +2044,8 @@ public class Frame extends JXFrame {
         };
 
         worker.execute();
+
+        return true;
     }
 
     public void doDeleteChannel() {

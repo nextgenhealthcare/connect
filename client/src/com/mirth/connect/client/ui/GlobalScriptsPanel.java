@@ -72,11 +72,6 @@ public class GlobalScriptsPanel extends javax.swing.JPanel {
     }
 
     public void save() {
-        String validationMessage = validateAllScripts();
-        if (validationMessage != null) {
-            parent.alertCustomError(this, validationMessage, CustomErrorDialog.ERROR_VALIDATING_GLOBAL_SCRIPTS);
-        }
-
         try {
             parent.mirthClient.setGlobalScripts(scriptPanel.getScripts());
         } catch (ClientException e) {
