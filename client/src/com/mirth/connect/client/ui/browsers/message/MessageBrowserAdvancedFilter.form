@@ -467,7 +467,7 @@
           <SubComponents>
             <Component class="com.mirth.connect.client.ui.components.MirthTable" name="metaDataSearchTable">
               <Properties>
-                <Property name="toolTipText" type="java.lang.String" value="Search on custom metadata stored for this channel."/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Search on custom metadata stored for this channel.&lt;br/&gt;Note that if Ignore Case is unchecked, case&lt;br/&gt;sensitivity depends on the database collation.&lt;/html&gt;"/>
                 <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                   <TableColumnModel selectionModel="0"/>
                 </Property>

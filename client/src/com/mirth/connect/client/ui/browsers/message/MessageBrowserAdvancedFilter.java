@@ -697,7 +697,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
             }
         });
 
-        metaDataSearchTable.setToolTipText("Search on custom metadata stored for this channel.");
+        metaDataSearchTable.setToolTipText("<html>Search on custom metadata stored for this channel.<br/>Note that if Ignore Case is unchecked, case<br/>sensitivity depends on the database collation.</html>");
         jScrollPane7.setViewportView(metaDataSearchTable);
 
         deleteMetaDataSearchButton.setText("Delete");
