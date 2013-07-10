@@ -45,7 +45,7 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="hostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -70,6 +70,7 @@
                   <Component id="errorMoveToFileNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="checkFileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="fileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileSizeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="sortFilesByLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="fileTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -142,19 +143,28 @@
                       <Component id="jScrollPane1" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="fileAge" min="-2" pref="75" max="-2" attributes="1"/>
-                  <Component id="sortBy" min="-2" pref="75" max="-2" attributes="1"/>
-                  <Component id="charsetEncodingCombobox" min="-2" pref="125" max="-2" attributes="1"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="checkFileAgeYes" min="-2" max="-2" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="checkFileAgeNo" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Component id="fileSizeMinimumField" min="-2" pref="75" max="-2" attributes="1"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="fileSizeDashLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="fileSizeMaximumField" min="-2" pref="75" max="-2" attributes="1"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="ignoreFileSizeMaximumCheckBox" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="sortBy" min="-2" pref="75" max="-2" attributes="1"/>
+                  <Group type="102" attributes="0">
                       <Component id="fileTypeBinary" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Component id="charsetEncodingCombobox" min="-2" pref="125" max="-2" attributes="1"/>
+                  <Group type="102" attributes="0">
                       <Component id="processBatchFilesYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="processBatchFilesNo" min="-2" max="-2" attributes="0"/>
@@ -289,30 +299,38 @@
                           <Component id="fileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="fileAge" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="sortFilesByLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="sortBy" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="fileTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="fileTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="fileTypeASCII" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="encodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="processBatchFilesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="processBatchFilesYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="processBatchFilesNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
                   </Group>
                   <Component id="jScrollPane1" min="-2" pref="162" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="fileSizeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileSizeMinimumField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileSizeDashLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileSizeMaximumField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="ignoreFileSizeMaximumCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="sortFilesByLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="sortBy" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="fileTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileTypeASCII" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="encodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="processBatchFilesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="processBatchFilesYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="processBatchFilesNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace pref="20" max="32767" attributes="0"/>
           </Group>
@@ -1061,6 +1079,38 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="fileSizeLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="File Size (bytes):"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="fileSizeMinimumField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The minimum size (in bytes) of files to be accepted.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="fileSizeDashLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="-"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="fileSizeMaximumField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The maximum size (in bytes) of files to be accepted.&lt;br/&gt;This option has no effect if Ignore Maximum is checked.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="ignoreFileSizeMaximumCheckBox">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Ignore Maximum"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, only the minimum file size will be checked against incoming files.&lt;/html&gt;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ignoreFileSizeMaximumCheckBoxActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

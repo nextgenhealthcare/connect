@@ -40,6 +40,8 @@ public class FileReader extends ConnectorSettingsPanel {
         errorResponseActionComboBox.setModel(new DefaultComboBoxModel(new FileAction[] {
                 FileAction.AFTER_PROCESSING, FileAction.MOVE, FileAction.DELETE }));
         fileAge.setDocument(new MirthFieldConstraints(0, false, false, true));
+        fileSizeMinimumField.setDocument(new MirthFieldConstraints(0, false, false, true));
+        fileSizeMaximumField.setDocument(new MirthFieldConstraints(0, false, false, true));
         // ast:encoding activation
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
@@ -89,6 +91,10 @@ public class FileReader extends ConnectorSettingsPanel {
 
         properties.setCheckFileAge(checkFileAgeYes.isSelected());
         properties.setFileAge(fileAge.getText());
+
+        properties.setFileSizeMinimum(fileSizeMinimumField.getText());
+        properties.setFileSizeMaximum(fileSizeMaximumField.getText());
+        properties.setIgnoreFileSizeMaximum(ignoreFileSizeMaximumCheckBox.isSelected());
 
         if (((String) sortBy.getSelectedItem()).equals("Name")) {
             properties.setSortBy(FileReceiverProperties.SORT_BY_NAME);
@@ -249,6 +255,11 @@ public class FileReader extends ConnectorSettingsPanel {
 
         fileAge.setText(props.getFileAge());
 
+        fileSizeMinimumField.setText(props.getFileSizeMinimum());
+        fileSizeMaximumField.setText(props.getFileSizeMaximum());
+        ignoreFileSizeMaximumCheckBox.setSelected(props.isIgnoreFileSizeMaximum());
+        ignoreFileSizeMaximumCheckBoxActionPerformed(null);
+
         if (props.getSortBy().equals(FileReceiverProperties.SORT_BY_NAME)) {
             sortBy.setSelectedItem("Name");
         } else if (props.getSortBy().equals(FileReceiverProperties.SORT_BY_SIZE)) {
@@ -338,6 +349,22 @@ public class FileReader extends ConnectorSettingsPanel {
             }
         }
 
+        if (props.getFileSizeMinimum().length() == 0) {
+            valid = false;
+            if (highlight) {
+                fileSizeMinimumField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+
+        if (!props.isIgnoreFileSizeMaximum()) {
+            if (props.getFileSizeMaximum().length() == 0) {
+                valid = false;
+                if (highlight) {
+                    fileSizeMaximumField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
+        }
+
         return valid;
     }
 
@@ -348,6 +375,8 @@ public class FileReader extends ConnectorSettingsPanel {
         pathField.setBackground(null);
         fileNameFilter.setBackground(null);
         fileAge.setBackground(null);
+        fileSizeMinimumField.setBackground(null);
+        fileSizeMaximumField.setBackground(null);
         usernameField.setBackground(null);
         passwordField.setBackground(null);
         timeoutField.setBackground(null);
@@ -438,6 +467,11 @@ public class FileReader extends ConnectorSettingsPanel {
         directoryRecursionLabel = new javax.swing.JLabel();
         directoryRecursionYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         directoryRecursionNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        fileSizeLabel = new javax.swing.JLabel();
+        fileSizeMinimumField = new com.mirth.connect.client.ui.components.MirthTextField();
+        fileSizeDashLabel = new javax.swing.JLabel();
+        fileSizeMaximumField = new com.mirth.connect.client.ui.components.MirthTextField();
+        ignoreFileSizeMaximumCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -779,6 +813,23 @@ public class FileReader extends ConnectorSettingsPanel {
         directoryRecursionNoRadio.setToolTipText("<html>Select No to only search for files in the selected directory/location, ignoring subdirectories.</html>");
         directoryRecursionNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        fileSizeLabel.setText("File Size (bytes):");
+
+        fileSizeMinimumField.setToolTipText("<html>The minimum size (in bytes) of files to be accepted.</html>");
+
+        fileSizeDashLabel.setText("-");
+
+        fileSizeMaximumField.setToolTipText("<html>The maximum size (in bytes) of files to be accepted.<br/>This option has no effect if Ignore Maximum is checked.</html>");
+
+        ignoreFileSizeMaximumCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        ignoreFileSizeMaximumCheckBox.setText("Ignore Maximum");
+        ignoreFileSizeMaximumCheckBox.setToolTipText("<html>If checked, only the minimum file size will be checked against incoming files.</html>");
+        ignoreFileSizeMaximumCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ignoreFileSizeMaximumCheckBoxActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -808,6 +859,7 @@ public class FileReader extends ConnectorSettingsPanel {
                     .addComponent(errorMoveToFileNameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(checkFileAgeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(fileAgeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(fileSizeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(sortFilesByLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(fileTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(encodingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
@@ -868,16 +920,24 @@ public class FileReader extends ConnectorSettingsPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(fileAge, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sortBy, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(checkFileAgeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(checkFileAgeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(fileSizeMinimumField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(fileSizeDashLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(fileSizeMaximumField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ignoreFileSizeMaximumCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(sortBy, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(processBatchFilesYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -986,26 +1046,33 @@ public class FileReader extends ConnectorSettingsPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(fileAgeLabel)
-                            .addComponent(fileAge, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(sortFilesByLabel)
-                            .addComponent(sortBy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(fileTypeLabel)
-                            .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(encodingLabel)
-                            .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(processBatchFilesLabel)
-                            .addComponent(processBatchFilesYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(processBatchFilesNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(fileAge, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fileSizeLabel)
+                    .addComponent(fileSizeMinimumField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fileSizeDashLabel)
+                    .addComponent(fileSizeMaximumField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ignoreFileSizeMaximumCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(sortFilesByLabel)
+                    .addComponent(sortBy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fileTypeLabel)
+                    .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(encodingLabel)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(processBatchFilesLabel)
+                    .addComponent(processBatchFilesYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(processBatchFilesNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(20, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -1235,6 +1302,11 @@ public class FileReader extends ConnectorSettingsPanel {
         }
     }//GEN-LAST:event_directoryRecursionYesRadioActionPerformed
 
+    private void ignoreFileSizeMaximumCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ignoreFileSizeMaximumCheckBoxActionPerformed
+        fileSizeDashLabel.setEnabled(!ignoreFileSizeMaximumCheckBox.isSelected());
+        fileSizeMaximumField.setEnabled(!ignoreFileSizeMaximumCheckBox.isSelected());
+    }//GEN-LAST:event_ignoreFileSizeMaximumCheckBoxActionPerformed
+
     private void updateErrorFields() {
         FileAction readAction = (FileAction) errorReadingActionComboBox.getSelectedItem();
         FileAction responseAction = (FileAction) errorResponseActionComboBox.getSelectedItem();
@@ -1299,6 +1371,10 @@ public class FileReader extends ConnectorSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthTextField fileAge;
     private javax.swing.JLabel fileAgeLabel;
     private com.mirth.connect.client.ui.components.MirthTextField fileNameFilter;
+    private javax.swing.JLabel fileSizeDashLabel;
+    private javax.swing.JLabel fileSizeLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField fileSizeMaximumField;
+    private com.mirth.connect.client.ui.components.MirthTextField fileSizeMinimumField;
     private com.mirth.connect.client.ui.components.MirthRadioButton fileTypeASCII;
     private com.mirth.connect.client.ui.components.MirthRadioButton fileTypeBinary;
     private javax.swing.JLabel fileTypeLabel;
@@ -1310,6 +1386,7 @@ public class FileReader extends ConnectorSettingsPanel {
     private javax.swing.JLabel ignoreDotFilesLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton ignoreDotFilesNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton ignoreDotFilesYesRadio;
+    private com.mirth.connect.client.ui.components.MirthCheckBox ignoreFileSizeMaximumCheckBox;
     private javax.swing.JScrollPane jScrollPane1;
     private com.mirth.connect.client.ui.components.MirthVariableList mirthVariableList1;
     private com.mirth.connect.client.ui.components.MirthTextField moveToDirectoryField;

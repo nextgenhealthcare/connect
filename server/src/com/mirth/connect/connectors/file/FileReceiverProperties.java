@@ -45,6 +45,9 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
     private String errorMoveToFileName;
     private boolean checkFileAge;
     private String fileAge;
+    private String fileSizeMinimum;
+    private String fileSizeMaximum;
+    private boolean ignoreFileSizeMaximum;
     private String sortBy;
     private boolean binary;
     private String charsetEncoding;
@@ -80,6 +83,9 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
         errorMoveToFileName = "";
         checkFileAge = true;
         fileAge = "1000";
+        fileSizeMinimum = "0";
+        fileSizeMaximum = "";
+        ignoreFileSizeMaximum = true;
         sortBy = SORT_BY_DATE;
         binary = false;
         charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
@@ -260,6 +266,30 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
 
     public void setFileAge(String fileAge) {
         this.fileAge = fileAge;
+    }
+
+    public String getFileSizeMinimum() {
+        return fileSizeMinimum;
+    }
+
+    public void setFileSizeMinimum(String fileSizeMinimum) {
+        this.fileSizeMinimum = fileSizeMinimum;
+    }
+
+    public String getFileSizeMaximum() {
+        return fileSizeMaximum;
+    }
+
+    public void setFileSizeMaximum(String fileSizeMaximum) {
+        this.fileSizeMaximum = fileSizeMaximum;
+    }
+
+    public boolean isIgnoreFileSizeMaximum() {
+        return ignoreFileSizeMaximum;
+    }
+
+    public void setIgnoreFileSizeMaximum(boolean ignoreFileSizeMaximum) {
+        this.ignoreFileSizeMaximum = ignoreFileSizeMaximum;
     }
 
     public String getSortBy() {

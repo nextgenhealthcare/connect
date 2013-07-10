@@ -29,6 +29,7 @@ import java.util.UUID;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -81,6 +82,9 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
     private String charsetEncoding;
     private String batchScriptId;
     private URI uri;
+    
+    private long fileSizeMinimum;
+    private long fileSizeMaximum;
 
     @Override
     public void onDeploy() throws DeployException {
@@ -124,6 +128,9 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 throw new DeployException("Error compiling " + connectorProperties.getName() + " script " + batchScriptId + ".", e);
             }
         }
+        
+        fileSizeMinimum = NumberUtils.toLong(connectorProperties.getFileSizeMinimum(), 0);
+        fileSizeMaximum = NumberUtils.toLong(connectorProperties.getFileSizeMaximum(), 0);
 
         eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
     }
@@ -266,6 +273,13 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 long now = System.currentTimeMillis();
                 if ((now - lastMod) < fileAge)
                     return;
+            }
+            
+            if (file.getSize() < fileSizeMinimum) {
+                return;
+            }
+            if (!connectorProperties.isIgnoreFileSizeMaximum() && file.getSize() > fileSizeMaximum) {
+                return;
             }
 
             // Add the original filename to the channel map
