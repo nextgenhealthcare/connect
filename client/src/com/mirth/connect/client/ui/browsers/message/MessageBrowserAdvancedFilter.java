@@ -21,6 +21,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -79,6 +80,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         messageIdUpperField.setDocument(new MirthFieldConstraints(19, false, false, true));
         importIdLowerField.setDocument(new MirthFieldConstraints(19, false, false, true));
         importIdUpperField.setDocument(new MirthFieldConstraints(19, false, false, true));
+        sendAttemptsLower.setModel(new SpinnerNumberModel(0, 0, null, 1));
     }
 
     private void initContentSearchTable() {
@@ -523,7 +525,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         contentSearchTable = new com.mirth.connect.client.ui.components.MirthTable();
         addContentSearchButton = new com.mirth.connect.client.ui.components.MirthButton();
         deleteContentSearchButton = new com.mirth.connect.client.ui.components.MirthButton();
-        sendAttemptsUpper = new com.mirth.connect.client.ui.components.MirthBlankableSpinner();
+        sendAttemptsUpper = new com.mirth.connect.client.ui.components.MirthBlankableSpinner(0, null);
         jScrollPane6 = new javax.swing.JScrollPane();
         connectorTable = new com.mirth.connect.client.ui.components.MirthTable();
         connectorSelectAll = new javax.swing.JLabel();

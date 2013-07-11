@@ -13,10 +13,14 @@ import javax.swing.JSpinner;
 
 public class MirthBlankableSpinner extends JSpinner {
     public MirthBlankableSpinner() {
-        setModel(new MirthBlankableSpinnerModel());
+        this(null, null);
+    }
+
+    public MirthBlankableSpinner(Integer minimum, Integer maximum) {
+        setModel(new MirthBlankableSpinnerModel(minimum, maximum));
         setEditor(new MirthBlankableSpinnerEditor(this));
     }
-    
+
     public Integer getIntegerValue() {
         Object value = getValue();
         return (value == null || value.equals("")) ? null : new Integer(value.toString());

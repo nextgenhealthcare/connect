@@ -394,6 +394,9 @@
           </Events>
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthBlankableSpinner" name="sendAttemptsUpper">
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthBlankableSpinner(0, null)"/>
+          </AuxValues>
         </Component>
         <Container class="javax.swing.JScrollPane" name="jScrollPane6">
           <AuxValues>
