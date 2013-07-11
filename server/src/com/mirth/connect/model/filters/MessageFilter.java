@@ -23,7 +23,7 @@ import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
- * A MessageObjectFilter is used to search the message store.
+ * A MessageFilter is used to search the message store.
  * 
  */
 @XStreamAlias("messageFilter")
@@ -53,6 +53,7 @@ public class MessageFilter implements Serializable {
     private String type;
     private String source;
     private Boolean attachment;
+    private Boolean error;
 
     public Long getMessageIdUpper() {
         return messageIdUpper;
@@ -212,6 +213,14 @@ public class MessageFilter implements Serializable {
 
     public void setAttachment(Boolean attachment) {
         this.attachment = attachment;
+    }
+
+    public Boolean getError() {
+        return error;
+    }
+
+    public void setError(Boolean error) {
+        this.error = error;
     }
 
     public String toString() {

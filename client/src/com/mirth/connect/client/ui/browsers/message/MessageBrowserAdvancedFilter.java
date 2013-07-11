@@ -285,6 +285,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         }
 
         messageFilter.setAttachment(attachmentCheckBox.isSelected());
+        messageFilter.setError(errorCheckBox.isSelected());
         messageFilter.setSendAttemptsLower(sendAttemptsLower);
         messageFilter.setSendAttemptsUpper(sendAttemptsUpper);
         messageFilter.setContentSearch(getContentSearch(messageFilter.getQuickSearch()));
@@ -394,6 +395,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         cachedSettings.put("sendAttemptsLower", sendAttemptsLower.getValue());
         cachedSettings.put("sendAttemptsUpper", sendAttemptsUpper.getValue());
         cachedSettings.put("attachment", attachmentCheckBox.isSelected());
+        cachedSettings.put("error", errorCheckBox.isSelected());
 
         Object[][] contentSearchData = new Object[contentSearchModel.getRowCount()][contentSearchModel.getColumnCount()];
         for (int row = 0; row < contentSearchModel.getRowCount(); row++) {
@@ -431,6 +433,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         sendAttemptsLower.setValue(cachedSettings.get("sendAttemptsLower"));
         sendAttemptsUpper.setValue(cachedSettings.get("sendAttemptsUpper"));
         attachmentCheckBox.setSelected((Boolean) cachedSettings.get("attachment"));
+        errorCheckBox.setSelected((Boolean) cachedSettings.get("error"));
 
         contentSearchModel.setNumRows(0);
         Object[][] contentSearchData = (Object[][]) cachedSettings.get("contentSearchTable");
@@ -461,6 +464,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         sendAttemptsLower.setValue(0);
         sendAttemptsUpper.setValue("");
         attachmentCheckBox.setSelected(false);
+        errorCheckBox.setSelected(false);
         ((DefaultTableModel) contentSearchTable.getModel()).setNumRows(0);
         ((DefaultTableModel) metaDataSearchTable.getModel()).setNumRows(0);
         ((ItemSelectionTableModel<Integer, String>) connectorTable.getModel()).selectAllKeys();
@@ -471,7 +475,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
 
         ItemSelectionTableModel<Integer, String> model = ((ItemSelectionTableModel<Integer, String>) connectorTable.getModel());
 
-        if (StringUtils.isNotEmpty(messageIdLowerField.getText()) || StringUtils.isNotEmpty(messageIdUpperField.getText()) || StringUtils.isNotEmpty(importIdLowerField.getText()) || StringUtils.isNotEmpty(importIdUpperField.getText()) || StringUtils.isNotEmpty(serverIdField.getText()) || !sendAttemptsLower.getValue().equals(0) || StringUtils.isNotEmpty(sendAttemptsUpper.getValue().toString()) || attachmentCheckBox.isSelected() || ((DefaultTableModel) contentSearchTable.getModel()).getRowCount() != 0 || ((DefaultTableModel) metaDataSearchTable.getModel()).getRowCount() != 0 || model.getKeys(true).size() != model.getRowCount()) {
+        if (StringUtils.isNotEmpty(messageIdLowerField.getText()) || StringUtils.isNotEmpty(messageIdUpperField.getText()) || StringUtils.isNotEmpty(importIdLowerField.getText()) || StringUtils.isNotEmpty(importIdUpperField.getText()) || StringUtils.isNotEmpty(serverIdField.getText()) || !sendAttemptsLower.getValue().equals(0) || StringUtils.isNotEmpty(sendAttemptsUpper.getValue().toString()) || attachmentCheckBox.isSelected() || errorCheckBox.isSelected() || ((DefaultTableModel) contentSearchTable.getModel()).getRowCount() != 0 || ((DefaultTableModel) metaDataSearchTable.getModel()).getRowCount() != 0 || model.getKeys(true).size() != model.getRowCount()) {
             hasAdvancedCriteria = true;
         }
 
@@ -539,6 +543,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         jLabel6 = new javax.swing.JLabel();
         importIdUpperField = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel8 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        errorCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
 
         mirthTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -708,7 +714,6 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         });
 
         jLabel1.setText("Has Attachment:");
-        jLabel1.setToolTipText("<html>\nIf this is not checked, messages with and without attachments will be retrieved.<br/>\nIf this is checked, only messages with attachments will be retrieved.\n</html>");
 
         attachmentCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         attachmentCheckBox.setToolTipText("If checked, only messages with attachments will be included.");
@@ -721,6 +726,11 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         jLabel6.setText("-");
 
         jLabel8.setText("-");
+
+        jLabel2.setText("Has Error:");
+
+        errorCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        errorCheckBox.setToolTipText("If checked, only messages with errors will be included.");
 
         javax.swing.GroupLayout containerPanelLayout = new javax.swing.GroupLayout(containerPanel);
         containerPanel.setLayout(containerPanelLayout);
@@ -754,30 +764,31 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                             .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(serverIdLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(importIdLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(messageIdLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                            .addComponent(messageIdLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(errorCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(containerPanelLayout.createSequentialGroup()
-                                .addComponent(messageIdLowerField, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(sendAttemptsLower, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel4)
+                                .addComponent(jLabel8)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(messageIdUpperField, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(attachmentCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(containerPanelLayout.createSequentialGroup()
-                                    .addComponent(sendAttemptsLower, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jLabel8)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(sendAttemptsUpper, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(sendAttemptsUpper, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(serverIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 265, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(attachmentCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(containerPanelLayout.createSequentialGroup()
                                 .addComponent(importIdLowerField, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(importIdUpperField, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(importIdUpperField, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(containerPanelLayout.createSequentialGroup()
+                                .addComponent(messageIdLowerField, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(messageIdUpperField, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 197, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -817,26 +828,32 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                     .addComponent(sendAttemptsUpper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel8))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
-                    .addComponent(attachmentCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(attachmentCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addGap(5, 5, 5)
+                .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel2)
+                    .addComponent(errorCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
+                    .addGroup(containerPanelLayout.createSequentialGroup()
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(containerPanelLayout.createSequentialGroup()
+                                .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(containerPanelLayout.createSequentialGroup()
+                                .addComponent(addMetaDataSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(deleteMetaDataSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(containerPanelLayout.createSequentialGroup()
                         .addComponent(addContentSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(deleteContentSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(containerPanelLayout.createSequentialGroup()
-                        .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(containerPanelLayout.createSequentialGroup()
-                        .addComponent(addMetaDataSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(deleteMetaDataSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(deleteContentSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -971,10 +988,12 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     private com.mirth.connect.client.ui.components.MirthTable contentSearchTable;
     private com.mirth.connect.client.ui.components.MirthButton deleteContentSearchButton;
     private com.mirth.connect.client.ui.components.MirthButton deleteMetaDataSearchButton;
+    private com.mirth.connect.client.ui.components.MirthCheckBox errorCheckBox;
     private javax.swing.JLabel importIdLabel;
     private com.mirth.connect.client.ui.components.MirthTextField importIdLowerField;
     private com.mirth.connect.client.ui.components.MirthTextField importIdUpperField;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;

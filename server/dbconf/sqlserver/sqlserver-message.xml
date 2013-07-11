@@ -200,6 +200,9 @@
 			<if test="attachment != null and attachment == true">
 				AND EXISTS (SELECT 1 FROM d_ma${localChannelId} ma WHERE ma.message_id = m.id)
 			</if>
+			<if test="error != null and error == true">
+				AND mm.error_code <![CDATA[ > ]]> 0
+			</if>
 			<if test="metaDataSearch != null">
 				<foreach item="element" collection="metaDataSearch">
 					AND 

@@ -98,6 +98,7 @@ public class DonkeyMessageController extends MessageController {
         params.put("metaDataSearch", filter.getMetaDataSearch());
         params.put("quickSearchMetaDataColumns", filter.getQuickSearchMetaDataColumns());
         params.put("attachment", filter.getAttachment());
+        params.put("error", filter.getError());
 
         return params;
     }

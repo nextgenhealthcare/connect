@@ -752,6 +752,10 @@ public class MessageBrowser extends javax.swing.JPanel {
             text.append(padding + "Has Attachment");
         }
 
+        if (messageFilter.getError()) {
+            text.append(padding + "Has Error");
+        }
+
         lastSearchCriteria.setText(text.toString());
     }
 
