@@ -303,6 +303,8 @@ public class JavaScriptBuilder {
             }
         }
 
+        builder.append("if ('xml' === typeof msg && msg.hasSimpleContent()) { msg = msg.toXMLString(); }");
+        builder.append("if ('xml' === typeof tmp && tmp.hasSimpleContent()) { tmp = tmp.toXMLString(); }");
         builder.append("\n}\n");
     }
 
