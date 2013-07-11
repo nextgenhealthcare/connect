@@ -496,7 +496,7 @@ tr.notAccepted {
 }
 
 .subpage #centerWrapper {
-	width: 700px; 
+	width: 701px; 
 	background-color: #fff;
 	background-image: -webkit-gradient(linear, left top, left bottom, from(#fff),
 		to(#fff) );
