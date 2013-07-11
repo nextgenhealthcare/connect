@@ -74,7 +74,7 @@ public class JmsConnectorService implements ConnectorService {
         templates = null;
 
         if (object != null && !object.toString().isEmpty()) {
-            Object deserialized = serializer.deserialize(object.toString());
+            Object deserialized = serializer.deserialize(object.toString(), Object.class);
 
             if (deserialized instanceof LinkedHashMap) {
                 templates = (LinkedHashMap<String, JmsConnectorProperties>) deserialized;

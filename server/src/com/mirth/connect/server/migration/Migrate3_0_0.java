@@ -44,7 +44,9 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
     }
     
     @Override
-    public void migrateSerializedData() throws MigrationException {}
+    public void migrateSerializedData() throws MigrationException {
+        // serialized data will be migrated by ServerMigrator
+    }
 
     @Override
     public Map<String, Object> getConfigurationPropertiesToAdd() {

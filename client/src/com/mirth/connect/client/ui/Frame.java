@@ -2083,7 +2083,8 @@ public class Frame extends JXFrame {
         if (content != null) {
             try {
                 ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-                Map<String, String> importScripts = (Map<String, String>) serializer.fromXML(content);
+                @SuppressWarnings("unchecked")
+                Map<String, String> importScripts = serializer.deserialize(content, Map.class);
 
                 for (Entry<String, String> globalScriptEntry : importScripts.entrySet()) {
                     importScripts.put(globalScriptEntry.getKey(), globalScriptEntry.getValue().replaceAll("com.webreach.mirth", "com.mirth.connect"));
@@ -2113,7 +2114,7 @@ public class Frame extends JXFrame {
         }
 
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        String globalScriptsXML = serializer.toXML(globalScriptsPanel.exportAllScripts());
+        String globalScriptsXML = serializer.serialize(globalScriptsPanel.exportAllScripts());
 
         exportFile(globalScriptsXML, null, "XML", "Global Scripts export");
     }
@@ -3090,7 +3091,7 @@ public class Frame extends JXFrame {
         Channel importChannel = null;
 
         try {
-            importChannel = ObjectXMLSerializer.getInstance().fromXML(content, Channel.class);
+            importChannel = ObjectXMLSerializer.getInstance().deserialize(content, Channel.class);
         } catch (Exception e) {
             if (showAlerts) {
                 alertException(this, e.getStackTrace(), "Invalid channel file:\n" + e.getMessage());
@@ -3210,7 +3211,7 @@ public class Frame extends JXFrame {
         }
 
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        String channelXML = serializer.toXML(channel);
+        String channelXML = serializer.serialize(channel);
 
         return exportFile(channelXML, channel.getName(), "XML", "Channel");
     }
@@ -3239,7 +3240,7 @@ public class Frame extends JXFrame {
                 for (Channel channel : channels.values()) {
                     if (!tagFilteredEnabled || CollectionUtils.containsAny(visibleTags, channel.getProperties().getTags())) {
                         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-                        String channelXML = serializer.toXML(channel);
+                        String channelXML = serializer.serialize(channel);
 
                         exportFile = new File(exportDirectory.getAbsolutePath() + "/" + channel.getName() + ".xml");
 
@@ -3414,7 +3415,7 @@ public class Frame extends JXFrame {
 
         if (content != null) {
             try {
-                channelEditPanel.importConnector(ObjectXMLSerializer.getInstance().fromXML(content, Connector.class));
+                channelEditPanel.importConnector(ObjectXMLSerializer.getInstance().deserialize(content, Connector.class));
             } catch (Exception e) {
                 alertException(this, e.getStackTrace(), e.getMessage());
             }
@@ -3437,7 +3438,7 @@ public class Frame extends JXFrame {
         Connector connector = channelEditPanel.exportSelectedConnector();
 
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        String connectorXML = serializer.toXML(connector);
+        String connectorXML = serializer.serialize(connector);
 
         String fileName = channelEditPanel.currentChannel.getName();
         if (connector.getMode().equals(Mode.SOURCE)) {
@@ -4117,7 +4118,7 @@ public class Frame extends JXFrame {
         } else {
             alert = alerts.get(0);
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-            String alertXML = serializer.toXML(alert);
+            String alertXML = serializer.serialize(alert);
 
             exportFile(alertXML, alert.getName(), "XML", "Alert");
         }
@@ -4151,7 +4152,7 @@ public class Frame extends JXFrame {
 
                 for (AlertModel alert : alerts) {
                     ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-                    String channelXML = serializer.toXML(alert);
+                    String channelXML = serializer.serialize(alert);
 
                     exportFile = new File(exportDirectory.getAbsolutePath() + "/" + alert.getName() + ".xml");
 
@@ -4183,7 +4184,7 @@ public class Frame extends JXFrame {
         List<AlertModel> alertList;
 
         try {
-            alertList = (List<AlertModel>) serializer.listFromXML(alertXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"), AlertModel.class);
+            alertList = (List<AlertModel>) serializer.deserializeList(alertXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"), AlertModel.class);
         } catch (Exception e) {
             if (showAlerts) {
                 alertException(this, e.getStackTrace(), "Invalid alert file:\n" + e.getMessage());
@@ -4353,7 +4354,7 @@ public class Frame extends JXFrame {
         }
 
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-        String codeTemplateXML = serializer.toXML(codeTemplates);
+        String codeTemplateXML = serializer.serialize(codeTemplates);
 
         exportFile(codeTemplateXML, null, "XML", "Code templates export");
     }
@@ -4366,7 +4367,7 @@ public class Frame extends JXFrame {
                 ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 boolean append = false;
 
-                List<CodeTemplate> newCodeTemplates = serializer.listFromXML(content, CodeTemplate.class);
+                List<CodeTemplate> newCodeTemplates = serializer.deserializeList(content, CodeTemplate.class);
 
                 if (codeTemplates != null && codeTemplates.size() > 0) {
                     if (alertOption(this, "Would you like to append these code templates to the existing code templates?")) {
@@ -4728,7 +4729,14 @@ public class Frame extends JXFrame {
      * the user if it is not.
      */
     private boolean promptObjectMigration(String content, String objectName) {
-        String version = MigrationUtil.normalizeVersion(MigrationUtil.getSerializedObjectVersion(content), 3);
+        String version = null;
+        
+        try {
+            version = MigrationUtil.normalizeVersion(MigrationUtil.getSerializedObjectVersion(content), 3);
+        } catch (Exception e) {
+            logger.error("Failed to read version information", e);
+        }
+        
         StringBuilder message = new StringBuilder();
 
         if (version == null) {

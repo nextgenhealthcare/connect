@@ -133,7 +133,7 @@ public class UpdateClient {
         HttpClient httpClient = new HttpClient(httpClientParams, httpConnectionManager);
 
         PostMethod post = new PostMethod(client.getUpdateSettings().getUpdateUrl() + URL_USAGE_STATISTICS);
-        NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("version", client.getVersion()), new NameValuePair("data", serializer.toXML(usageData)) };
+        NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("version", client.getVersion()), new NameValuePair("data", serializer.serialize(usageData)) };
         post.setRequestBody(params);
 
         try {
@@ -164,7 +164,7 @@ public class UpdateClient {
         HttpClient httpClient = new HttpClient(httpClientParams, httpConnectionManager);
 
         PostMethod post = new PostMethod(client.getUpdateSettings().getUpdateUrl() + URL_REGISTRATION);
-        NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("version", client.getVersion()), new NameValuePair("user", serializer.toXML(user)) };
+        NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("version", client.getVersion()), new NameValuePair("user", serializer.serialize(user)) };
         post.setRequestBody(params);
 
         try {
@@ -189,7 +189,7 @@ public class UpdateClient {
         HttpClient httpClient = new HttpClient(httpClientParams, httpConnectionManager);
 
         PostMethod post = new PostMethod(client.getUpdateSettings().getUpdateUrl() + URL_UPDATES);
-        NameValuePair[] params = { new NameValuePair("serverInfo", serializer.toXML(serverInfo)) };
+        NameValuePair[] params = { new NameValuePair("serverInfo", serializer.serialize(serverInfo)) };
         post.setRequestBody(params);
 
         try {
@@ -208,7 +208,7 @@ public class UpdateClient {
                 result.append('\n');
             }
 
-            return (List<UpdateInfo>) serializer.fromXML(result.toString());
+            return serializer.deserializeList(result.toString(), UpdateInfo.class);
         } catch (Exception e) {
             throw e;
         } finally {

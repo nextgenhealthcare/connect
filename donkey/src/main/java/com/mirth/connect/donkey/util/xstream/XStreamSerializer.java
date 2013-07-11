@@ -9,13 +9,12 @@
 
 package com.mirth.connect.donkey.util.xstream;
 
-import java.io.Reader;
 import java.io.StringReader;
-import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.apache.log4j.Logger;
 import org.xmlpull.mxp1.MXParser;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -41,6 +40,7 @@ public class XStreamSerializer implements Serializer {
     }; // @formatter:on
 
     private XStream xstream;
+    private Logger logger = Logger.getLogger(getClass());
 
     public XStreamSerializer() {
         xstream = new XStream(new Xpp3Driver());
@@ -52,53 +52,31 @@ public class XStreamSerializer implements Serializer {
     }
 
     @Override
-    public String serialize(Object serializableObject) {
+    public String serialize(Object object) {
         try {
-            return xstream.toXML(serializableObject);
+            return xstream.toXML(object);
         } catch (Exception e) {
-            throw new SerializerException(e);
-        }
-    }
-    
-    @Override
-    public void serialize(Object serializableObject, Writer writer) {
-        try {
-            xstream.toXML(serializableObject, writer);
-        } catch (Exception e) {
+            logger.error(e);
             throw new SerializerException(e);
         }
     }
 
     @Override
-    public Object deserialize(String serializedObject) {
+    public <T> T deserialize(String serializedObject, Class<T> expectedClass) {
         try {
-            return xstream.fromXML(serializedObject);
+            return (T) xstream.fromXML(serializedObject);
         } catch (Exception e) {
-            throw new SerializerException(e);
-        }
-    }
-    
-    @Override
-    public Object deserialize(Reader reader) {
-        try {
-            return xstream.fromXML(reader);
-        } catch (Exception e) {
+            logger.error(e);
             throw new SerializerException(e);
         }
     }
     
     @Override
     public Class<?> getClass(String serializedObject) {
-        return getClass(new StringReader(serializedObject));
-    }
-
-    @Override
-    public Class<?> getClass(Reader reader) {
         try {
-            Class<?> clazz = HierarchicalStreams.readClassType(new XppReader(reader, new MXParser()), getXStream().getMapper());
-            reader.reset();
-            return clazz;
+            return HierarchicalStreams.readClassType(new XppReader(new StringReader(serializedObject), new MXParser()), getXStream().getMapper());
         } catch (Exception e) {
+            logger.error(e);
             throw new SerializerException(e);
         }
     }

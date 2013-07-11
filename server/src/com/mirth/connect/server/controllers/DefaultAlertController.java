@@ -121,7 +121,7 @@ public class DefaultAlertController extends AlertController {
 
             if (!rows.isEmpty()) {
                 try {
-                    return serializer.fromXML((String) rows.get(0).get("alert"), AlertModel.class);
+                    return serializer.deserialize((String) rows.get(0).get("alert"), AlertModel.class);
                 } catch (Exception e) {
                     logger.error("Failed to load alert " + alertId, e);
                 }
@@ -144,7 +144,7 @@ public class DefaultAlertController extends AlertController {
 
             for (Map<String, Object> row : rows) {
                 try {
-                    alerts.add(serializer.fromXML((String) row.get("alert"), AlertModel.class));
+                    alerts.add(serializer.deserialize((String) row.get("alert"), AlertModel.class));
                 } catch (Exception e) {
                     logger.error("Failed to load alert " + row.get("id"), e);
                 }

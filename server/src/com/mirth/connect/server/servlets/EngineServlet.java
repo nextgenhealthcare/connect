@@ -54,7 +54,8 @@ public class EngineServlet extends MirthServlet {
                         engineController.redeployAllChannels();
                     }
                 } else if (operation.equals(Operations.CHANNEL_DEPLOY)) {
-                    Set<String> channelIds = (Set<String>) serializer.fromXML(request.getParameter("channelIds"));
+                    @SuppressWarnings("unchecked")
+                    Set<String> channelIds = serializer.deserialize(request.getParameter("channelIds"), Set.class);
                     parameterMap.put("channelIds", channelIds);
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -63,7 +64,8 @@ public class EngineServlet extends MirthServlet {
                         engineController.deployChannels(channelIds, context);
                     }
                 } else if (operation.equals(Operations.CHANNEL_UNDEPLOY)) {
-                    Set<String> channelIds = (Set<String>) serializer.fromXML(request.getParameter("channelIds"));
+                    @SuppressWarnings("unchecked")
+                    Set<String> channelIds = serializer.deserialize(request.getParameter("channelIds"), Set.class);
                     parameterMap.put("channelIds", channelIds);
 
                     if (!isUserAuthorized(request, parameterMap)) {

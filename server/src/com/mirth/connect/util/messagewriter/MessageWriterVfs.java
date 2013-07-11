@@ -144,7 +144,7 @@ public class MessageWriterVfs implements MessageWriter {
             MessageEncryptionUtil.decryptMessage(message, encryptor);
         }
 
-        return serializer.toXML(message);
+        return serializer.serialize(message);
     }
 
     private String extractContent(Message message) {

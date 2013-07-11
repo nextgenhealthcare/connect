@@ -148,7 +148,7 @@ public class MessageImporter {
                     serializedMessage.append(line);
 
                     if (line.equals(CLOSE_ELEMENT)) {
-                        Message message = (Message) serializer.deserialize(serializedMessage.toString());
+                        Message message = serializer.deserialize(serializedMessage.toString(), Message.class);
                         serializedMessage.delete(0, serializedMessage.length());
                         enteredMessage = false;
                         result[0]++;

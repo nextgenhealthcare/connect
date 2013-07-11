@@ -39,6 +39,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.CharsetUtils;
@@ -97,7 +98,7 @@ public class ImportConverter {
             trans.transform(new DOMSource(channel), new StreamResult(sw));
             String channelDocXML = sw.toString();
 
-            channelList.add(MigrationUtil.elementFromXml(convertChannelString(channelDocXML)));
+            channelList.add(new DonkeyElement(convertChannelString(channelDocXML)).getElement());
             channelsRoot.removeChild(channel);
         }
 
@@ -110,7 +111,7 @@ public class ImportConverter {
 
         for (int i = 0; i < codeTemplateCount; i++) {
             Element codeTemplate = (Element) codeTemplates.item(i);
-            Element convertedCodeTemplate = convertCodeTemplates(MigrationUtil.elementToXml(codeTemplate)).getDocumentElement();
+            Element convertedCodeTemplate = convertCodeTemplates(new DonkeyElement(codeTemplate).toXml()).getDocumentElement();
             documentElement.replaceChild(document.importNode(convertedCodeTemplate, true), codeTemplate);
         }
 
@@ -601,8 +602,8 @@ public class ImportConverter {
             propertyDefaults.put("receiverServiceName", "Mirth");
             propertyDefaults.put("receiverResponseValue", "None");
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-            propertyDefaults.put("receiverUsernames", serializer.toXML(new ArrayList<String>()));
-            propertyDefaults.put("receiverPasswords", serializer.toXML(new ArrayList<String>()));
+            propertyDefaults.put("receiverUsernames", serializer.serialize(new ArrayList<String>()));
+            propertyDefaults.put("receiverPasswords", serializer.serialize(new ArrayList<String>()));
 
             // rename properties
             for (int i = 0; i < properties.getLength(); i++) {
@@ -660,11 +661,11 @@ public class ImportConverter {
 
             ArrayList<String> defaultOperations = new ArrayList<String>();
             defaultOperations.add("Press Get Operations");
-            propertyDefaults.put("dispatcherWsdlOperations", serializer.toXML(defaultOperations));
+            propertyDefaults.put("dispatcherWsdlOperations", serializer.serialize(defaultOperations));
 
-            propertyDefaults.put("dispatcherAttachmentNames", serializer.toXML(new ArrayList<String>()));
-            propertyDefaults.put("dispatcherAttachmentContents", serializer.toXML(new ArrayList<String>()));
-            propertyDefaults.put("dispatcherAttachmentTypes", serializer.toXML(new ArrayList<String>()));
+            propertyDefaults.put("dispatcherAttachmentNames", serializer.serialize(new ArrayList<String>()));
+            propertyDefaults.put("dispatcherAttachmentContents", serializer.serialize(new ArrayList<String>()));
+            propertyDefaults.put("dispatcherAttachmentTypes", serializer.serialize(new ArrayList<String>()));
 
             // Add new queue property
             propertyDefaults.put("queuePollInterval", "200");
@@ -697,7 +698,7 @@ public class ImportConverter {
                     if (StringUtils.isNotBlank(value)) {
                         defaultOperations.clear();
                         defaultOperations.add(value);
-                        propertyChanges.put("dispatcherWsdlOperations", serializer.toXML(defaultOperations));
+                        propertyChanges.put("dispatcherWsdlOperations", serializer.serialize(defaultOperations));
                     }
                 }
 
@@ -797,8 +798,8 @@ public class ImportConverter {
             propertyDefaults.put("host", "");
 
             propertyDefaults.put("dispatcherMethod", "POST");
-            propertyDefaults.put("dispatcherHeaders", serializer.toXML(new Properties()));
-            propertyDefaults.put("dispatcherParameters", serializer.toXML(new Properties()));
+            propertyDefaults.put("dispatcherHeaders", serializer.serialize(new Properties()));
+            propertyDefaults.put("dispatcherParameters", serializer.serialize(new Properties()));
             propertyDefaults.put("dispatcherReplyChannelId", "sink");
             propertyDefaults.put("dispatcherIncludeHeadersInResponse", "0");
             propertyDefaults.put("dispatcherMultipart", "0");
@@ -826,7 +827,7 @@ public class ImportConverter {
 
                 if (attribute.equals("requestVariables")) {
                     // get the properties object for the variables
-                    Properties tempProps = (Properties) serializer.fromXML(value);
+                    Properties tempProps = serializer.deserialize(value, Properties.class);
 
                     // set the content of 2.0 to be $payload of 1.8.2
                     propertyChanges.put("dispatcherContent", tempProps.getProperty("$payload", ""));
@@ -835,7 +836,7 @@ public class ImportConverter {
                     tempProps.remove("$payload");
 
                     // set the params
-                    propertyChanges.put("dispatcherParameters", serializer.toXML(tempProps));
+                    propertyChanges.put("dispatcherParameters", serializer.serialize(tempProps));
                 }
 
                 if (attribute.equals("replyChannelId")) {
@@ -928,7 +929,7 @@ public class ImportConverter {
             propertyDefaults.put("password", "");
             propertyDefaults.put("to", "");
             propertyDefaults.put("from", "");
-            propertyDefaults.put("headers", serializer.toXML(new LinkedHashMap<String, String>()));
+            propertyDefaults.put("headers", serializer.serialize(new LinkedHashMap<String, String>()));
             propertyDefaults.put("subject", "");
             propertyDefaults.put("charsetEncoding", CharsetUtils.DEFAULT_ENCODING);
             propertyDefaults.put("html", "0");
@@ -961,11 +962,11 @@ public class ImportConverter {
                         propertyChanges.put("html", "1");
                     }
                 } else if (attribute.equals("attachmentNames")) {
-                    attachmentNames = (ArrayList<String>) serializer.fromXML(value);
+                    attachmentNames = serializer.deserializeList(value, String.class);
                 } else if (attribute.equals("attachmentContents")) {
-                    attachmentContents = (ArrayList<String>) serializer.fromXML(value);
+                    attachmentContents = serializer.deserializeList(value, String.class);
                 } else if (attribute.equals("attachmentTypes")) {
-                    attachmentTypes = (ArrayList<String>) serializer.fromXML(value);
+                    attachmentTypes = serializer.deserializeList(value, String.class);
                 } else if (attribute.equals("useServerSettings")) {
                     // Disable the channel or connector if useServerSettings was set
                     if (value.equalsIgnoreCase("1")) {

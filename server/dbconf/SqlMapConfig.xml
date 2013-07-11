@@ -8,8 +8,7 @@
 	</settings>
 	
 	<typeAliases>
-		<!-- <typeAlias alias="MapTypeHandler" type="com.mirth.connect.server.sqlmap.extensions.MapTypeHandler" /> -->
-		<typeAlias alias="MapTypeHandler" type="com.mirth.connect.server.sqlmap.extensions.SerializableHandler" />
+		<typeAlias alias="MapTypeHandler" type="com.mirth.connect.server.sqlmap.extensions.MapTypeHandler" />
 		<package name="com.mirth.connect.donkey.model.message" />
 		<package name="com.mirth.connect.donkey.model.message.attachment" />
 		<package name="com.mirth.connect.server.mybatis" />
@@ -24,9 +23,8 @@
 		<typeHandler javaType="ContentType" handler="com.mirth.connect.server.sqlmap.extensions.ContentTypeHandler" />
 		<typeHandler javaType="com.mirth.connect.model.ServerEvent$Level" handler="com.mirth.connect.server.sqlmap.extensions.EventLevelTypeHandler" />
 		<typeHandler javaType="com.mirth.connect.model.ServerEvent$Outcome" handler="com.mirth.connect.server.sqlmap.extensions.EventOutcomeTypeHandler" />
-		<typeHandler javaType="com.mirth.connect.model.Channel" handler="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
-		<typeHandler javaType="java.util.List" handler="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
-		<typeHandler javaType="java.util.Properties" handler="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
+		<typeHandler javaType="com.mirth.connect.model.Channel" handler="com.mirth.connect.server.sqlmap.extensions.ChannelTypeHandler" />
+		<typeHandler javaType="java.util.Properties" handler="com.mirth.connect.server.sqlmap.extensions.PropertiesTypeHandler" />
 	</typeHandlers>
 
 	<environments default="all">

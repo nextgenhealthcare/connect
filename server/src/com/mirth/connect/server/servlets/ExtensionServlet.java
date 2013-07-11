@@ -86,7 +86,7 @@ public class ExtensionServlet extends MirthServlet {
 
                     if (isUserAuthorizedForExtension(request, pluginName, operation.getName(), null)) {
                         response.setContentType(APPLICATION_XML);
-                        serializer.toXML(extensionController.getPluginProperties(pluginName), out);
+                        serializer.serialize(extensionController.getPluginProperties(pluginName), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
@@ -94,7 +94,7 @@ public class ExtensionServlet extends MirthServlet {
                     String pluginName = request.getParameter("name");
 
                     if (isUserAuthorizedForExtension(request, pluginName, operation.getName(), null)) {
-                        Properties properties = (Properties) serializer.fromXML(request.getParameter("properties"));
+                        Properties properties = serializer.deserialize(request.getParameter("properties"), Properties.class);
                         extensionController.setPluginProperties(pluginName, properties);
                         extensionController.updatePluginProperties(pluginName, properties);
                     } else {
@@ -102,7 +102,7 @@ public class ExtensionServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.PLUGIN_METADATA_GET)) {
                     response.setContentType(APPLICATION_XML);
-                    serializer.toXML(extensionController.getPluginMetaData(), out);
+                    serializer.serialize(extensionController.getPluginMetaData(), out);
                 } else if (operation.equals(Operations.EXTENSION_SET_ENABLED)) {
                     String pluginName = request.getParameter("name");
                     boolean enabled = BooleanUtils.toBoolean(request.getParameter("enabled"));
@@ -116,7 +116,7 @@ public class ExtensionServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.CONNECTOR_METADATA_GET)) {
                     response.setContentType(APPLICATION_XML);
-                    serializer.toXML(extensionController.getConnectorMetaData(), out);
+                    serializer.serialize(extensionController.getConnectorMetaData(), out);
                 } else if (operation.equals(Operations.EXTENSION_IS_ENABLED)) {
                     String extensionName = request.getParameter("name");
                     response.setContentType(TEXT_PLAIN);
@@ -124,11 +124,11 @@ public class ExtensionServlet extends MirthServlet {
                 } else if (operation.equals(Operations.PLUGIN_SERVICE_INVOKE)) {
                     String pluginName = request.getParameter("name");
                     String method = request.getParameter("method");
-                    Object object = serializer.fromXML(request.getParameter("object"));
+                    Object object = serializer.deserialize(request.getParameter("object"), Object.class);
                     String sessionId = request.getSession().getId();
 
                     if (isUserAuthorizedForExtension(request, pluginName, method, null)) {
-                        serializer.toXML(extensionController.invokePluginService(pluginName, method, object, sessionId), out);
+                        serializer.serialize(extensionController.invokePluginService(pluginName, method, object, sessionId), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
@@ -136,10 +136,10 @@ public class ExtensionServlet extends MirthServlet {
                     String channelId = request.getParameter("channelId");
                     String name = request.getParameter("name");
                     String method = request.getParameter("method");
-                    Object object = serializer.fromXML(request.getParameter("object"));
+                    Object object = serializer.deserialize(request.getParameter("object"), Object.class);
                     String sessionId = request.getSession().getId();
                     response.setContentType(APPLICATION_XML);
-                    serializer.toXML(extensionController.invokeConnectorService(channelId, name, method, object, sessionId), out);
+                    serializer.serialize(extensionController.invokeConnectorService(channelId, name, method, object, sessionId), out);
                 } else if (operation.equals(Operations.EXTENSION_UNINSTALL)) {
                     String packageName = request.getParameter("packageName");
                     parameterMap.put("packageName", packageName);

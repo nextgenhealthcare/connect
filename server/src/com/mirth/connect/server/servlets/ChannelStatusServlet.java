@@ -87,7 +87,7 @@ public class ChannelStatusServlet extends MirthServlet {
                     channelStatuses = engineController.getChannelStatusList();
                 }
 
-                serializer.toXML(channelStatuses, out);
+                serializer.serialize(channelStatuses, out);
             }
         } catch (RuntimeIOException rio) {
             logger.debug(rio);

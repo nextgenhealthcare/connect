@@ -632,7 +632,7 @@ public class CommandLineInterface {
 
             File fXml = new File(path);
             out.println("Exporting Configuration");
-            String configurationXML = serializer.toXML(configuration);
+            String configurationXML = serializer.serialize(configuration);
             FileUtils.writeStringToFile(fXml, configurationXML);
         } catch (IOException e) {
             error("unable to write file " + path + ": " + e, e);
@@ -647,7 +647,7 @@ public class CommandLineInterface {
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
         try {
-            client.setServerConfiguration(serializer.fromXML(FileUtils.readFileToString(fXml), ServerConfiguration.class));
+            client.setServerConfiguration(serializer.deserialize(FileUtils.readFileToString(fXml), ServerConfiguration.class));
         } catch (IOException e) {
             error("cannot read " + path, e);
             return;
@@ -695,7 +695,7 @@ public class CommandLineInterface {
                 try {
                     File fXml = new File(path + alert.getName() + ".xml");
                     out.println("Exporting " + alert.getName());
-                    String alertXML = serializer.toXML(alert);
+                    String alertXML = serializer.serialize(alert);
                     FileUtils.writeStringToFile(fXml, alertXML);
                 } catch (IOException e) {
                     error("unable to write file " + path + ": " + e, e);
@@ -710,7 +710,7 @@ public class CommandLineInterface {
             for (AlertModel alert : alerts) {
                 if (skey.equalsIgnoreCase(alert.getName()) != skey.equalsIgnoreCase(alert.getId())) {
                     out.println("Exporting " + alert.getName());
-                    String alertXML = serializer.toXML(alert);
+                    String alertXML = serializer.serialize(alert);
                     try {
                         FileUtils.writeStringToFile(fXml, alertXML);
                     } catch (IOException e) {
@@ -733,7 +733,7 @@ public class CommandLineInterface {
         File fXml = new File(path);
 
         try {
-            String scriptsXml = serializer.toXML(client.getGlobalScripts());
+            String scriptsXml = serializer.serialize(client.getGlobalScripts());
             out.println("Exporting scripts");
             FileUtils.writeStringToFile(fXml, scriptsXml);
         } catch (IOException e) {
@@ -766,7 +766,7 @@ public class CommandLineInterface {
             List<CodeTemplate> codeTemplates = client.getCodeTemplate(null);
             File fXml = new File(path);
             out.println("Exporting code templates");
-            String codeTemplatesXml = serializer.toXML(codeTemplates);
+            String codeTemplatesXml = serializer.serialize(codeTemplates);
             FileUtils.writeStringToFile(fXml, codeTemplatesXml);
         } catch (IOException e) {
             error("unable to write file " + path + ": " + e, e);
@@ -784,7 +784,7 @@ public class CommandLineInterface {
         File fXml = new File(path);
         
         try {
-            client.updateCodeTemplates(ObjectXMLSerializer.getInstance().listFromXML(FileUtils.readFileToString(fXml), CodeTemplate.class));
+            client.updateCodeTemplates(ObjectXMLSerializer.getInstance().deserializeList(FileUtils.readFileToString(fXml), CodeTemplate.class));
             out.println("Code Templates Import Complete");
         } catch (IOException e) {
             error("cannot read " + path, e);
@@ -935,7 +935,7 @@ public class CommandLineInterface {
                 try {
                     File fXml = new File(path + channel.getName() + ".xml");
                     out.println("Exporting " + channel.getName());
-                    String channelXML = serializer.toXML(channel);
+                    String channelXML = serializer.serialize(channel);
                     FileUtils.writeStringToFile(fXml, channelXML);
                 } catch (IOException e) {
                     error("unable to write file " + path + ": " + e, e);
@@ -950,7 +950,7 @@ public class CommandLineInterface {
             for (Channel channel : channels) {
                 if (skey.equalsIgnoreCase(channel.getName()) != skey.equalsIgnoreCase(channel.getId())) {
                     out.println("Exporting " + channel.getName());
-                    String channelXML = serializer.toXML(channel);
+                    String channelXML = serializer.serialize(channel);
                     try {
                         FileUtils.writeStringToFile(fXml, channelXML);
                     } catch (IOException e) {
@@ -1320,7 +1320,7 @@ public class CommandLineInterface {
             return;
         }
 
-        Map<String, String> scriptsMap = (Map<String, String>) serializer.fromXML(scriptsXml);
+        Map<String, String> scriptsMap = serializer.deserialize(scriptsXml, Map.class);
         client.setGlobalScripts(scriptsMap);
     }
 
@@ -1329,7 +1329,7 @@ public class CommandLineInterface {
 
         try {
             String channelXML = FileUtils.readFileToString(importFile);
-            importChannel = ObjectXMLSerializer.getInstance().fromXML(channelXML, Channel.class);
+            importChannel = ObjectXMLSerializer.getInstance().deserialize(channelXML, Channel.class);
         } catch (Exception e1) {
             error("invalid channel file.", e1);
             return;
@@ -1374,7 +1374,7 @@ public class CommandLineInterface {
         List<AlertModel> alertList;
 
         try {
-            alertList = (List<AlertModel>) serializer.listFromXML(FileUtils.readFileToString(importFile).replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"), AlertModel.class);
+            alertList = (List<AlertModel>) serializer.deserializeList(FileUtils.readFileToString(importFile).replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"), AlertModel.class);
         } catch (Exception e) {
             error("invalid alert file.", e);
             return;

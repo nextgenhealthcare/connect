@@ -280,7 +280,7 @@ public class DataPrunerService implements ServicePlugin {
             if (properties.contains("archiverOptions")) {
                 pruner.setArchiverOptions(new MessageWriterOptions());
             } else {
-                pruner.setArchiverOptions((MessageWriterOptions) serializer.fromXML(properties.getProperty("archiverOptions")));
+                pruner.setArchiverOptions(serializer.deserialize(properties.getProperty("archiverOptions"), MessageWriterOptions.class));
             }
         }
 

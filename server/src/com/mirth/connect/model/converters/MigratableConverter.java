@@ -9,8 +9,7 @@
 
 package com.mirth.connect.model.converters;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.log4j.Logger;
+import org.w3c.dom.Element;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
@@ -25,10 +24,19 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.xml.DocumentReader;
 import com.thoughtworks.xstream.mapper.Mapper;
 
+/**
+ * MigratableConverter will be triggered during serialization/deserialization of any classes that
+ * implement the Migratable interface. When serializing, it will add a 'version' attribute to the
+ * XML node containing the Mith version at the time of serialization. When deserializing, it will
+ * check the 'version' attribute to see if the XML data needs to be migrated to the current version.
+ * If migration is needed, it will invoke the appropriate migration methods to transform the XML
+ * data before deserializing.
+ * 
+ * @author brentm
+ */
 public class MigratableConverter extends ReflectionConverter {
     private String currentVersion;
-    private Logger logger = Logger.getLogger(getClass());
-
+    
     public MigratableConverter(String currentVersion, Mapper mapper) {
         super(mapper, new JVM().bestReflectionProvider());
         this.currentVersion = currentVersion;
@@ -36,55 +44,40 @@ public class MigratableConverter extends ReflectionConverter {
 
     @Override
     public boolean canConvert(Class type) {
-        return type != null && super.canConvert(type) && ArrayUtils.contains(type.getInterfaces(), Migratable.class);
+        return type != null && super.canConvert(type) && Migratable.class.isAssignableFrom(type);
     }
 
     @Override
     public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
-        if (context.get("wroteDocumentElement") == null) {
-            context.put("wroteDocumentElement", true);
-            writer.addAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, currentVersion);
-        }
-
+        writer.addAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, currentVersion);
         super.marshal(value, writer, context);
     }
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        if (reader instanceof DocumentReader) {
-            DonkeyElement element = new DonkeyElement((org.w3c.dom.Element) ((DocumentReader) reader).getCurrent());
-            logger.debug("Unmarshalling element: " + element.getNodeName());
-    
-            /*
-             * The first element to be unmarshalled should have the "version" attribute. Once the
-             * version is read from the attribute, it will be stored in the context since Migratable
-             * child nodes will not have the "version" attribute.
-             */
-            if (context.get("readDocumentElement") == null) {
-                String version = element.hasAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME) ? element.getAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME) : null;
-                context.put(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, version);
-                context.put("readDocumentElement", true);
-            }
-    
-            String version = (String) context.get(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME);
-    
-            if (version != null && MigrationUtil.compareVersions(version, currentVersion) < 0 && context.getRequiredType() != null) {
-                migrateElement(element, version, context.getRequiredType());
-            }
+        String version = reader.getAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME);
+
+        /*
+         * If the current DOM element contains a version attribute, then check if the element needs
+         * to be migrated to the current version. The reader should always be a DocumentReader at
+         * this point.
+         */
+        if (version != null && MigrationUtil.compareVersions(version, currentVersion) < 0 && context.getRequiredType() != null) {
+            migrateElement(new DonkeyElement((Element) ((DocumentReader) reader).getCurrent()), version, context.getRequiredType());
         }
 
         return super.unmarshal(reader, context);
     }
 
-    private void migrateElement(DonkeyElement element, String version, Class<?> clazz) {
+    private void migrateElement(DonkeyElement element, String elementVersion, Class<?> clazz) {
         try {
             Migratable instance = (Migratable) clazz.newInstance();
 
-//            if (compareVersions(version, "3.0.1") < 0) {
+//            if (MigrationUtil.compareVersions(elementVersion, "3.0.1") < 0) {
 //                instance.migrate3_0_1(element);
 //            }
 //
-//            if (compareVersions(version, "3.0.2") < 0) {
+//            if (MigrationUtil.compareVersions(elementVersion, "3.0.2") < 0) {
 //                instance.migrate3_0_2(element);
 //            }
         } catch (Exception e) {

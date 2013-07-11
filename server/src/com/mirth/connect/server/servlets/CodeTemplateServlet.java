@@ -48,17 +48,17 @@ public class CodeTemplateServlet extends MirthServlet {
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
 
                 if (operation.equals(Operations.CODE_TEMPLATE_GET)) {
-                    CodeTemplate codeTemplate = (CodeTemplate) serializer.fromXML(request.getParameter("codeTemplate"));
+                    CodeTemplate codeTemplate = serializer.deserialize(request.getParameter("codeTemplate"), CodeTemplate.class);
                     parameterMap.put("codeTemplate", codeTemplate);
 
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         response.setContentType(APPLICATION_XML);
-                        serializer.toXML(codeTemplateController.getCodeTemplate(codeTemplate), out);
+                        serializer.serialize(codeTemplateController.getCodeTemplate(codeTemplate), out);
                     }
                 } else if (operation.equals(Operations.CODE_TEMPLATE_UPDATE)) {
-                    List<CodeTemplate> codeTemplates = (List<CodeTemplate>) serializer.fromXML(request.getParameter("codeTemplates"));
+                    List<CodeTemplate> codeTemplates = serializer.deserializeList(request.getParameter("codeTemplates"), CodeTemplate.class);
                     parameterMap.put("codeTemplates", codeTemplates);
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -67,7 +67,7 @@ public class CodeTemplateServlet extends MirthServlet {
                         codeTemplateController.updateCodeTemplates(codeTemplates);
                     }
                 } else if (operation.equals(Operations.CODE_TEMPLATE_REMOVE)) {
-                    CodeTemplate codeTemplate = (CodeTemplate) serializer.fromXML(request.getParameter("codeTemplate"));
+                    CodeTemplate codeTemplate = serializer.deserialize(request.getParameter("codeTemplate"), CodeTemplate.class);
                     parameterMap.put("codeTemplate", codeTemplate);
 
                     if (!isUserAuthorized(request, parameterMap)) {

@@ -9,19 +9,13 @@
 
 package com.mirth.connect.model.converters;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilderFactory;
+import org.apache.log4j.Logger;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.w3c.dom.Document;
-import org.xmlpull.v1.dom2_builder.DOM2XmlPullBuilder;
-
-import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 import com.mirth.connect.model.ArchiveMetaData;
@@ -116,31 +110,51 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         return annotatedClasses;
     }
     
+    private Logger logger = Logger.getLogger(getClass());
+    
     private ObjectXMLSerializer() {
         processAnnotations(annotatedClasses);
+    }
+    
+    public void processAnnotations(Class<?>[] classes) {
+        getXStream().processAnnotations(classes);
     }
     
     public void init(String currentVersion) {
         getXStream().registerConverter(new MigratableConverter(MigrationUtil.normalizeVersion(currentVersion, 3), getXStream().getMapper()));
     }
-
-    public String toXML(Object source) {
-        return serialize(source);
-    }
-
-    public void toXML(Object source, Writer writer) {
-        serialize(source, writer);
-    }
-
-    public Object fromXML(String source) {
-        return deserialize(new StringReader(source));
-    }
     
     /**
-     * Deserializes a source XML string and returns an object of the expectedClass type.
+     * Serializes an object.
      */
-    public <T> T fromXML(String source, Class<T> expectedClass) {
-        return (T) doFromXML(source, expectedClass);
+    public void serialize(Object object, Writer writer) {
+        try {
+            getXStream().toXML(object, writer);
+        } catch (Exception e) {
+            logger.error(e);
+            throw new SerializerException(e);
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T deserialize(String serializedObject, Class<T> expectedClass) {
+        try {
+            if (skipMigration(expectedClass)) {
+                return (T) getXStream().fromXML(serializedObject);
+            } else {
+                DonkeyElement element = new DonkeyElement(serializedObject);
+                
+                if (ImportConverter3_0_0.isMigratable(expectedClass)) {
+                    element = ImportConverter3_0_0.migrate(element, expectedClass);
+                }
+                
+                return (T) getXStream().unmarshal(new DomReader(element.getElement()));
+            }
+        } catch (Exception e) {
+            logger.error(e);
+            throw new SerializerException(e);
+        }
     }
 
     /**
@@ -148,69 +162,66 @@ public class ObjectXMLSerializer extends XStreamSerializer {
      * type. If the source xml string represents a single object, then a list with that single
      * object will be returned.
      */
-    public <T> List<T> listFromXML(String source, Class<T> expectedListItemClass) {
-        Object object = doFromXML(source, expectedListItemClass);
-        
-        if (!(object instanceof List<?>)) {
-            List<T> objectList = new ArrayList<T>();
-            objectList.add((T) object);
-            return objectList;
-        }
-        
-        return (List<T>) object;
-    }
-
-    private Object doFromXML(String source, Class<?> expectedClass) {
+    @SuppressWarnings("unchecked")
+    public <T> List<T> deserializeList(String serializedObject, Class<T> expectedListItemClass) {
         try {
-            Document document = buildXmlDocument(source);
-
             /*
-             * Have the ImportConverter migrate the serialized object to the version 3.0.0
-             * structure, which is when the "version" attribute and the Migratable interface were
-             * first introduced. After converting it to the 3.0.0 structure, the migration methods
-             * in the Migratable interface will migrate the object to the current Mirth version (see
-             * MigratableConverter).
+             * If the expectedListItemClass is migratable to version 3.0.0, then we need to invoke
+             * ImportConverter3_0_0.migrate() on each item in the list.
              */
-            document = ImportConverter3_0_0.convert(document, source, expectedClass);
-            
-            return getXStream().unmarshal(new DomReader(document));
-        } catch (Exception e) {
-            throw new SerializerException(e);
-        }
-    }
+            if (ImportConverter3_0_0.isMigratable(expectedListItemClass)) {
+                DonkeyElement listElement = new DonkeyElement(serializedObject);
 
-    @Override
-    public Object deserialize(String source) {
-        return deserialize(new StringReader(source));
-    }
-
-    @Override
-    public Object deserialize(Reader reader) {
-        try {
-            Class<?> clazz = getClass(reader);
-
-            if (ArrayUtils.contains(clazz.getInterfaces(), Migratable.class)) {
-                Document document = buildXmlDocument(reader);
-                return getXStream().unmarshal(new DomReader(document));
+                if (listElement.getNodeName().equalsIgnoreCase("null")) {
+                    return null;
+                } else {
+                    // If the element is not a list, then re-create the element as a list with one item
+                    if (!listElement.getNodeName().equals("list")) {
+                        listElement = new DonkeyElement("<list/>");
+                        listElement.addChildElementFromXml(serializedObject);
+                    }
+        
+                    List<T> list = new ArrayList<T>();
+        
+                    for (DonkeyElement child : listElement.getChildElements()) {
+                        child = ImportConverter3_0_0.migrate(child, expectedListItemClass);
+                        list.add((T) getXStream().unmarshal(new DomReader(child.getElement())));
+                    }
+        
+                    return list;
+                }
             } else {
-                return super.deserialize(reader);
+                Object object;
+                
+                if (skipMigration(expectedListItemClass)) {
+                    object = (T) getXStream().fromXML(serializedObject);
+                } else {
+                    object = getXStream().unmarshal(new DomReader(new DonkeyElement(serializedObject).getElement()));
+                }
+
+                if (object == null) {
+                    return null;
+                } else if (object instanceof List) {
+                    return (List<T>) object;
+                } else {
+                    List<T> list = new ArrayList<T>();
+                    list.add((T) object);
+                    return list;
+                }
             }
         } catch (Exception e) {
+            logger.error(e);
             throw new SerializerException(e);
         }
     }
-    
-    public void processAnnotations(Class<?>[] classes) {
-        getXStream().processAnnotations(classes);
-    }
 
-    private Document buildXmlDocument(String xml) throws Exception {
-        return buildXmlDocument(new StringReader(xml));
-    }
-
-    private Document buildXmlDocument(Reader reader) throws Exception {
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-        document.appendChild(new DOM2XmlPullBuilder().parse(reader, document));
-        return document;
+    /**
+     * This should return true only for classes that are not Migratable AND whose instances do not
+     * contain references to other Migratable objects. The purpose of this method is to avoid
+     * parsing serialized data for these types into a DOM document, since that is only required if
+     * MigratableConverter is triggered.
+     */
+    private boolean skipMigration(Class<?> expectedClass) {
+        return (expectedClass.equals(String.class) || expectedClass.equals(Integer.class) || expectedClass.equals(Long.class) || expectedClass.equals(Float.class) || expectedClass.equals(Double.class));
     }
 }

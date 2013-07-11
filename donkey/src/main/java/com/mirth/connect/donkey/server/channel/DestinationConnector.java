@@ -303,7 +303,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
      */
     public void processPendingConnectorMessage(DonkeyDao dao, ConnectorMessage message) throws InterruptedException {
         Serializer serializer = Donkey.getInstance().getSerializer();
-        Response response = (Response) serializer.deserialize(message.getResponse().getContent());
+        Response response = serializer.deserialize(message.getResponse().getContent(), Response.class);
 
         // ResponseTransformerExecutor could be null if the ResponseTransformer was removed before recovering
         if (responseTransformerExecutor != null) {
@@ -377,7 +377,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                                 }
                             }
                         } else {
-                            connectorProperties = (ConnectorProperties) serializer.deserialize(connectorMessage.getSent().getContent());
+                            connectorProperties = serializer.deserialize(connectorMessage.getSent().getContent(), ConnectorProperties.class);
 
                             serializedPropertiesClass = connectorProperties.getClass();
                         }

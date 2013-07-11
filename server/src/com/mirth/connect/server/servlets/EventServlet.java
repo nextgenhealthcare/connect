@@ -54,7 +54,7 @@ public class EventServlet extends MirthServlet {
                         out.print(eventController.getMaxEventId());
                     }
                 } else if (operation.equals(Operations.EVENT_GET)) {
-                    EventFilter eventFilter = (EventFilter) serializer.fromXML(request.getParameter("filter"));
+                    EventFilter eventFilter = serializer.deserialize(request.getParameter("filter"), EventFilter.class);
                     parameterMap.put("filter", eventFilter);
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -63,10 +63,10 @@ public class EventServlet extends MirthServlet {
                         int offset = Integer.parseInt(request.getParameter("offset"));
                         int limit = Integer.parseInt(request.getParameter("limit"));
                         response.setContentType(APPLICATION_XML);
-                        serializer.toXML(eventController.getEvents(eventFilter, offset, limit), out);
+                        serializer.serialize(eventController.getEvents(eventFilter, offset, limit), out);
                     }
                 } else if (operation.equals(Operations.EVENT_GET_COUNT)) {
-                    EventFilter eventFilter = (EventFilter) serializer.fromXML(request.getParameter("filter"));
+                    EventFilter eventFilter = serializer.deserialize(request.getParameter("filter"), EventFilter.class);
                     parameterMap.put("filter", eventFilter);
                     
                     if (!isUserAuthorized(request, null)) {

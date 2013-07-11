@@ -24,10 +24,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.mirth.connect.donkey.util.DateParser;
 import com.mirth.connect.donkey.util.DateParser.DateParserException;
@@ -41,87 +38,82 @@ import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.alert.AlertModel;
-import com.mirth.connect.model.converters.DocumentSerializer;
-import com.mirth.connect.util.MigrationUtil;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.migration.MigrationException;
 
+/**
+ * The purpose of this class is to migrate serialized objects created prior to version 3.0.0 (which
+ * was when the Migratable interface was first introduced). This class will invoke the original
+ * ImportConverter class if necessary to run 1.x and 2.x migration, then it will migrate to the
+ * 3.0.0 structure. Once an object has been migrated to the 3.0.0 structure, the migration methods
+ * defined by the Migratable interface are then responsible to migrate the serialized data to the
+ * latest Mirth version.
+ */
 public class ImportConverter3_0_0 {
-    private final static String VERSION_ATTRIBUTE_NAME = "version";
     private final static String VERSION_STRING = "3.0.0";
     private final static Pattern STRING_NODE_PATTERN = Pattern.compile("(?<=<(string)>).*(?=</string>)|<null/>");
 
     private static Logger logger = Logger.getLogger(ImportConverter3_0_0.class);
 
     /**
+     * Tell whether or not serialized data for the given class is migratable to version 3.0.0.
+     */
+    public static boolean isMigratable(Class<?> clazz) {
+        return (clazz.equals(Channel.class) || clazz.equals(Connector.class) || clazz.equals(AlertModel.class) || clazz.equals(ChannelProperties.class) || clazz.equals(CodeTemplate.class) || clazz.equals(ServerConfiguration.class) || clazz.equals(Filter.class) || clazz.equals(MetaData.class));
+    }
+    
+    /**
      * Takes a serialized object and using the expectedClass hint, runs the
      * appropriate conversion to convert the object to the 3.0.0 structure.
      * 
-     * @param document
-     *            A DOM document representation of the object
-     * @param objectXml
-     *            A serialized XML string representation of the object
+     * @param element
+     *            A DOM element representing the object
      * @param expectedClass
      *            The expected class of the object (after migration to the
      *            LATEST version).
-     * @return A DOM document representing the object in version 3.0.0 format
+     * @return A DOM element representing the object in version 3.0.0 format
      */
-    public static Document convert(Document document, String objectXml, Class<?> expectedClass) throws Exception {
-        if (document.getDocumentElement().hasAttribute(VERSION_ATTRIBUTE_NAME)) {
-            return document;
+    public static DonkeyElement migrate(DonkeyElement element, Class<?> expectedClass) throws MigrationException {
+        // The version attribute was first added in 3.0.0, so if it exists, we don't need to migrate.
+        if (element.hasAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME)) {
+            return element;
         }
 
-        DonkeyElement root = new DonkeyElement(document.getDocumentElement());
-
-        if (root.getNodeName().equals("list") && (expectedClass == Connector.class || expectedClass == AlertModel.class || expectedClass == CodeTemplate.class)) {
-            NodeList childNodes = root.getChildNodes();
-            int childCount = childNodes.getLength();
-
-            for (int i = 0; i < childCount; i++) {
-                Node node = childNodes.item(i);
-
-                if (node.getNodeType() == Node.ELEMENT_NODE && !((Element) node).hasAttribute(VERSION_ATTRIBUTE_NAME)) {
-                    Element child = (Element) node;
-
-                    if (expectedClass == Connector.class) {
-                        Element convertedConnector = MigrationUtil.elementFromXml(ImportConverter.convertConnector(MigrationUtil.elementToXml(child)));
-                        migrateConnector(new DonkeyElement(convertedConnector), null);
-                        root.replaceChild(document.importNode(convertedConnector, true), child);
-                    } else if (expectedClass == AlertModel.class) {
-                        migrateAlert(new DonkeyElement(child));
-                    } else if (expectedClass == CodeTemplate.class) {
-                        Element convertedCodeTemplate = ImportConverter.convertCodeTemplates(MigrationUtil.elementToXml(child)).getDocumentElement();
-                        migrateCodeTemplate(new DonkeyElement(convertedCodeTemplate));
-                        root.replaceChild(document.importNode(convertedCodeTemplate, true), child);
-                    }
-                }
+        try {
+            if (expectedClass == Channel.class) {
+                element = new DonkeyElement(ImportConverter.convertChannelString(element.toXml()));
+                migrateChannel(element);
+            } else if (expectedClass == Connector.class) {
+                element = new DonkeyElement(ImportConverter.convertConnector(element.toXml()));
+                migrateConnector(element, null);
+            } else if (expectedClass == AlertModel.class) {
+                migrateAlert(element);
+            } else if (expectedClass == ChannelProperties.class) {
+                migrateChannelProperties(element, false);
+                element.setNodeName("channelProperties");
+            } else if (expectedClass == CodeTemplate.class) {
+                element = new DonkeyElement(ImportConverter.convertCodeTemplates(element.toXml()).getDocumentElement());
+                migrateCodeTemplate(element);
+            } else if (expectedClass == ServerConfiguration.class) {
+                element = new DonkeyElement(ImportConverter.convertServerConfiguration(element.toXml()).getDocumentElement());
+                migrateServerConfiguration(element);
+            } else if (expectedClass == Filter.class) {
+                element = new DonkeyElement(ImportConverter.convertFilter(element.toXml()));
+                // no 3.0.0 conversion is needed for the Filter class since it didn't change at all in 3.0.0
+            } else if (expectedClass == MetaData.class) {
+                migrateMetaData(element);
             }
-        } else if (expectedClass == Channel.class) {
-            document = new DocumentSerializer().fromXML(ImportConverter.convertChannelString(objectXml));
-            migrateChannel(new DonkeyElement(document.getDocumentElement()));
-        } else if (expectedClass == Connector.class) {
-            document = new DocumentSerializer().fromXML(ImportConverter.convertConnector(objectXml));
-            migrateConnector(new DonkeyElement(document.getDocumentElement()), null);
-        } else if (expectedClass == AlertModel.class) {
-            migrateAlert(root);
-        } else if (expectedClass == ChannelProperties.class) {
-            migrateChannelProperties(root, false);
-            root.setNodeName("channelProperties");
-        } else if (expectedClass == CodeTemplate.class) {
-            document = ImportConverter.convertCodeTemplates(objectXml);
-            migrateCodeTemplate(new DonkeyElement(document.getDocumentElement()));
-        } else if (expectedClass == ServerConfiguration.class) {
-            document = ImportConverter.convertServerConfiguration(objectXml);
-            migrateServerConfiguration(new DonkeyElement(document.getDocumentElement()));
-        } else if (expectedClass == Filter.class) {
-            document = new DocumentSerializer().fromXML(ImportConverter.convertFilter(objectXml));
-            // no 3.0.0 conversion is needed for the Filter class since it didn't change at all in 3.0.0
-        } else if (expectedClass == MetaData.class) {
-            migrateMetaData(root);
+        } catch (MigrationException e) {
+            // TODO if an exception occurs while migrating, and the expectedClass is a Channel, then we need to convert it to an InvalidChannel instead of re-throwing the exception
+            throw e;
+        } catch (Exception e) {
+            throw new MigrationException(e);
         }
 
-        return document;
+        return element;
     }
 
-    private static void migrateChannel(DonkeyElement channel) {
+    private static void migrateChannel(DonkeyElement channel) throws MigrationException {
         logger.debug("Migrating channel to version " + VERSION_STRING);
         channel.removeChild("version"); // TODO is it safe to remove the version property from the Channel class and other classes?
 
@@ -165,7 +157,7 @@ public class ImportConverter3_0_0 {
         channel.addChildElement("nextMetaDataId").setTextContent(Integer.toString(metaDataId));
     }
 
-    private static void createResponseChannelWriter(DonkeyElement connector, Integer prevMetaDataId, String channelId) {
+    private static void createResponseChannelWriter(DonkeyElement connector, Integer prevMetaDataId, String channelId) throws MigrationException {
         String responseMapKey = "d" + String.valueOf(prevMetaDataId);
         DonkeyElement name = connector.getChildElement("name");
         name.setTextContent(name.getTextContent() + " - Send response to channel " + channelId);
@@ -228,7 +220,7 @@ public class ImportConverter3_0_0 {
         }
     }
 
-    private static String migrateConnector(DonkeyElement connector, Integer metaDataId) {
+    private static String migrateConnector(DonkeyElement connector, Integer metaDataId) throws MigrationException {
         logger.debug("Migrating connector");
 
         DonkeyElement version = connector.getChildElement("version");
@@ -327,10 +319,10 @@ public class ImportConverter3_0_0 {
                 Method migrateMethod = migratorClass.getMethod("migrate", DonkeyElement.class);
                 migrateMethod.invoke(migratorClass.newInstance(), properties);
             } catch (Exception e) {
-                logger.error("Failed to migrate " + connectorName + " properties", e);
+                throw new MigrationException("Failed to migrate " + connectorName + " properties", e);
             }
         } else {
-            logger.error("Failed to migrate properties for unrecognized connector: " + connectorName);
+            throw new MigrationException("Failed to migrate properties for unrecognized connector: " + connectorName);
         }
 
         // convert transformer (no conversion needed for filter since it didn't change at all in 3.0.0)
@@ -523,7 +515,7 @@ public class ImportConverter3_0_0 {
         alertActionGroupProperties.addChildElement("template").setTextContent(template);
     }
 
-    private static void migrateServerConfiguration(DonkeyElement serverConfiguration) {
+    private static void migrateServerConfiguration(DonkeyElement serverConfiguration) throws MigrationException {
         DonkeyElement channels = serverConfiguration.getChildElement("channels");
 
         if (channels != null) {
@@ -894,7 +886,7 @@ public class ImportConverter3_0_0 {
         }
     }
 
-    private static String migrateHttpDispatcherProperties(DonkeyElement properties) {
+    private static String migrateHttpDispatcherProperties(DonkeyElement properties) throws MigrationException {
         logger.debug("Migrating HttpDispatcherProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.http.HttpDispatcherProperties");
@@ -915,33 +907,37 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("charset").setTextContent(oldProperties.getProperty("dispatcherCharset", "UTF-8"));
         properties.addChildElement("socketTimeout").setTextContent(convertReferences(oldProperties.getProperty("dispatcherSocketTimeout", "30000")));
 
-        Properties oldHeaderProperties = readPropertiesElement(new DonkeyElement(MigrationUtil.elementFromXml(convertReferences(oldProperties.getProperty("dispatcherHeaders")))));
-
-        DonkeyElement headerProperties = properties.addChildElement("headers");
-        headerProperties.setAttribute("class", "linked-hash-map");
-
-        for (Object key : oldHeaderProperties.keySet()) {
-            String value = oldHeaderProperties.getProperty((String) key);
-
-            DonkeyElement entry = headerProperties.addChildElement("entry");
-            entry.addChildElement("string", (String) key);
-            entry.addChildElement("string", value);
+        try {
+            Properties oldHeaderProperties = readPropertiesElement(new DonkeyElement(convertReferences(oldProperties.getProperty("dispatcherHeaders"))));
+    
+            DonkeyElement headerProperties = properties.addChildElement("headers");
+            headerProperties.setAttribute("class", "linked-hash-map");
+    
+            for (Object key : oldHeaderProperties.keySet()) {
+                String value = oldHeaderProperties.getProperty((String) key);
+    
+                DonkeyElement entry = headerProperties.addChildElement("entry");
+                entry.addChildElement("string", (String) key);
+                entry.addChildElement("string", value);
+            }
+    
+            Properties oldParameterProperties = readPropertiesElement(new DonkeyElement(convertReferences(oldProperties.getProperty("dispatcherParameters"))));
+    
+            DonkeyElement parameterProperties = properties.addChildElement("parameters");
+            parameterProperties.setAttribute("class", "linked-hash-map");
+    
+            for (Object key : oldParameterProperties.keySet()) {
+                String value = oldParameterProperties.getProperty((String) key);
+    
+                DonkeyElement entry = parameterProperties.addChildElement("entry");
+                entry.addChildElement("string", (String) key);
+                entry.addChildElement("string", value);
+            }
+    
+            return oldProperties.getProperty("dispatcherReplyChannelId");
+        } catch (DonkeyElementException e) {
+            throw new MigrationException("Failed to migrate HTTP Dispatcher properties", e);
         }
-
-        Properties oldParameterProperties = readPropertiesElement(new DonkeyElement(MigrationUtil.elementFromXml(convertReferences(oldProperties.getProperty("dispatcherParameters")))));
-
-        DonkeyElement parameterProperties = properties.addChildElement("parameters");
-        parameterProperties.setAttribute("class", "linked-hash-map");
-
-        for (Object key : oldParameterProperties.keySet()) {
-            String value = oldParameterProperties.getProperty((String) key);
-
-            DonkeyElement entry = parameterProperties.addChildElement("entry");
-            entry.addChildElement("string", (String) key);
-            entry.addChildElement("string", value);
-        }
-
-        return oldProperties.getProperty("dispatcherReplyChannelId");
     }
 
     private static void migrateDatabaseReceiverProperties(DonkeyElement properties) {
@@ -989,7 +985,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("useScript").setTextContent(Boolean.toString(useScript));
     }
 
-    private static void migrateJmsReceiverProperties(DonkeyElement properties) {
+    private static void migrateJmsReceiverProperties(DonkeyElement properties) throws MigrationException {
         logger.debug("Migrating JmsReceiverProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.jms.JmsReceiverProperties");
@@ -1022,12 +1018,12 @@ public class ImportConverter3_0_0 {
                 entry.addChildElement("string", (String) key);
                 entry.addChildElement("string", value);
             }
-        } catch (DonkeyElementException e) {
-            logger.error("Failed to convert JMS Receiver connection properties", e);
+        } catch (Exception e) {
+            throw new MigrationException(e);
         }
     }
 
-    private static void migrateJmsDispatcherProperties(DonkeyElement properties) {
+    private static void migrateJmsDispatcherProperties(DonkeyElement properties) throws MigrationException {
         logger.debug("Migrating JmsDispatcherProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.jms.JmsDispatcherProperties");
@@ -1048,17 +1044,21 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("topic").setTextContent("false");
         properties.addChildElement("template").setTextContent(convertReferences(oldProperties.getProperty("template", "${message.encodedData}")));
 
-        Properties oldConnectionProperties = readPropertiesElement(new DonkeyElement(MigrationUtil.elementFromXml(oldProperties.getProperty("connectionFactoryProperties"))));
-
-        DonkeyElement connectionProperties = properties.addChildElement("connectionProperties");
-        connectionProperties.setAttribute("class", "linked-hash-map");
-
-        for (Object key : oldConnectionProperties.keySet()) {
-            String value = convertReferences(oldConnectionProperties.getProperty((String) key));
-
-            DonkeyElement entry = connectionProperties.addChildElement("entry");
-            entry.addChildElement("string", (String) key);
-            entry.addChildElement("string", value);
+        try {
+            Properties oldConnectionProperties = readPropertiesElement(new DonkeyElement(oldProperties.getProperty("connectionFactoryProperties")));
+    
+            DonkeyElement connectionProperties = properties.addChildElement("connectionProperties");
+            connectionProperties.setAttribute("class", "linked-hash-map");
+    
+            for (Object key : oldConnectionProperties.keySet()) {
+                String value = convertReferences(oldConnectionProperties.getProperty((String) key));
+    
+                DonkeyElement entry = connectionProperties.addChildElement("entry");
+                entry.addChildElement("string", (String) key);
+                entry.addChildElement("string", value);
+            }
+        } catch (DonkeyElementException e) {
+            throw new MigrationException(e);
         }
     }
 
@@ -1087,7 +1087,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("script").setTextContent(oldProperties.getProperty("script", ""));
     }
 
-    private static void migrateSmtpDispatcherProperties(DonkeyElement properties) {
+    private static void migrateSmtpDispatcherProperties(DonkeyElement properties) throws MigrationException {
         logger.debug("Migrating SmtpDispatcherProperties");
 
         Properties oldProperties = readPropertiesElement(properties);
@@ -1119,7 +1119,7 @@ public class ImportConverter3_0_0 {
             convertEscapedText(properties.addChildElement("headers"), convertReferences(oldProperties.getProperty("headers", "")));
             convertEscapedText(properties.addChildElement("attachments"), convertReferences(oldProperties.getProperty("attachments", "")));
         } catch (DonkeyElementException e) {
-            logger.error("Failed to convert SMTP Dispatcher connection properties", e);
+            throw new MigrationException("Failed to convert SMTP Dispatcher connection properties", e);
         }
     }
 
@@ -1739,7 +1739,7 @@ public class ImportConverter3_0_0 {
 
     public static void convertEscapedText(DonkeyElement newProperties, String list) throws DonkeyElementException {
         if (StringUtils.isNotEmpty(list)) {
-            DonkeyElement oldProperties = new DonkeyElement(DonkeyElement.elementFromXml(list));
+            DonkeyElement oldProperties = new DonkeyElement(list);
 
             for (DonkeyElement oldProperty : oldProperties.getChildElements()) {
                 newProperties.appendChild(newProperties.getOwnerDocument().importNode(oldProperty.getElement(), true));
@@ -1759,8 +1759,7 @@ public class ImportConverter3_0_0 {
 
     private static void dumpElement(DonkeyElement element) {
         try {
-            String xml = MigrationUtil.elementToXml(element);
-            System.out.println(xml);
+            System.out.println(element.toXml());
         } catch (Exception e) {
             e.printStackTrace();
         }

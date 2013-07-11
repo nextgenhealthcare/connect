@@ -734,11 +734,11 @@ public class DefaultConfigurationController extends ConfigurationController {
 
                     if (defaultElement != null) {
                         defaultElement.setNodeName("java.security.KeyRep");
-                        xml = MigrationUtil.elementToXml(defaultElement);
+                        xml = defaultElement.toXml();
                     }
                 }
 
-                SecretKey secretKey = (SecretKey) serializer.fromXML(xml);
+                SecretKey secretKey = serializer.deserialize(xml, SecretKey.class);
 
                 // add the secret key entry to the new keystore
                 KeyStore.SecretKeyEntry entry = new KeyStore.SecretKeyEntry(secretKey);

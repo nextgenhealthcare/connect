@@ -1850,10 +1850,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         if (sentMessage != null) {
             if (connectorMessage.getMetaDataId() > 0) {
                 Serializer serializer = ObjectXMLSerializer.getInstance();
-                Object sentObject = serializer.deserialize(sentMessage.getContent());
-                if (sentObject instanceof ConnectorProperties) {
-                    content = ((ConnectorProperties) sentObject).toFormattedString();
-                }
+                ConnectorProperties sentObject = serializer.deserialize(sentMessage.getContent(), ConnectorProperties.class);
+                content = (sentObject == null) ? null : sentObject.toFormattedString();
             } else {
                 content = sentMessage.getContent();
             }
@@ -1867,9 +1865,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         content = null;
         if (responseMessage != null) {
             Serializer serializer = ObjectXMLSerializer.getInstance();
-            Object object = serializer.deserialize(responseMessage.getContent());
-            if (object instanceof Response) {
-                Response responseObject = (Response) object;
+            Response responseObject = serializer.deserialize(responseMessage.getContent(), Response.class);
+            if (responseObject != null) {
                 String responseStatusMessage = StringUtils.isEmpty(responseObject.getStatusMessage()) ? "" : ": " + responseObject.getStatusMessage();
 
                 responseStatusTextField.setText(responseObject.getStatus().toString() + responseStatusMessage);
@@ -1895,9 +1892,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         if (processedResponseMessage != null) {
             if (connectorMessage.getMetaDataId() > 0) {
                 Serializer serializer = ObjectXMLSerializer.getInstance();
-                Object object = serializer.deserialize(processedResponseMessage.getContent());
-                if (object instanceof Response) {
-                    Response responseObject = (Response) object;
+                Response responseObject = serializer.deserialize(processedResponseMessage.getContent(), Response.class);
+                if (responseObject != null) {
                     String processedResponseStatusMessage = StringUtils.isEmpty(responseObject.getStatusMessage()) ? "" : ": " + responseObject.getStatusMessage();
 
                     processedResponseStatusTextField.setText(responseObject.getStatus().toString() + processedResponseStatusMessage);
@@ -2096,10 +2092,8 @@ public class MessageBrowser extends javax.swing.JPanel {
 
                     if (messagePaneName.equals("Response") || messagePaneName.equals("Processed Response")) {
                         Serializer serializer = ObjectXMLSerializer.getInstance();
-                        Object object = serializer.deserialize(content.getContent());
-                        if (object instanceof Response) {
-                            Response responseObject = (Response) object;
-
+                        Response responseObject = serializer.deserialize(content.getContent(), Response.class);
+                        if (responseObject != null) {
                             trimmedContent = responseObject.getMessage().trim();
                         }
                     } else {

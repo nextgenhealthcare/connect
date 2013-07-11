@@ -26,6 +26,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.alert.AlertModel;
@@ -240,7 +241,7 @@ public class ServerMigrator extends Migrator {
                 try {
                     String id = resultSet.getString(1);
                     String serializedData = resultSet.getString(2);
-                    String migratedData = serializer.toXML(serializer.fromXML(serializedData, expectedClass));
+                    String migratedData = serializer.serialize(serializer.deserialize(serializedData, expectedClass));
 
                     if (!migratedData.equals(serializedData)) {
                         updateStatement = connection.prepareStatement(updateSql);
@@ -248,9 +249,7 @@ public class ServerMigrator extends Migrator {
                         updateStatement.setString(2, id);
                         updateStatement.executeUpdate();
                     }
-                } catch (LinkageError e) {
-                    logger.error("Failed to migrate serialized data", e);
-                } catch (SQLException e) {
+                } catch (Exception e) {
                     logger.error("Failed to migrate serialized data", e);
                 }
             }

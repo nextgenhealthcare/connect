@@ -60,7 +60,8 @@ public class ChannelServlet extends MirthServlet {
                 if (operation.equals(Operations.CHANNEL_GET)) {
                     response.setContentType(APPLICATION_XML);
                     List<Channel> channels = null;
-                    Set<String> channelIds = (Set<String>) serializer.fromXML(request.getParameter("channelIds"));
+                    @SuppressWarnings("unchecked")
+                    Set<String> channelIds = serializer.deserialize(request.getParameter("channelIds"), Set.class);
                     parameterMap.put("channelIds", channelIds);
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -71,9 +72,9 @@ public class ChannelServlet extends MirthServlet {
                         channels = channelController.getChannels(channelIds);
                     }
 
-                    serializer.toXML(channels, out);
+                    serializer.serialize(channels, out);
                 } else if (operation.equals(Operations.CHANNEL_UPDATE)) {
-                    Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
+                    Channel channel = serializer.deserialize(request.getParameter("channel"), Channel.class);
                     boolean override = Boolean.valueOf(request.getParameter("override")).booleanValue();
                     parameterMap.put("channel", channel);
                     parameterMap.put("override", override);
@@ -87,7 +88,7 @@ public class ChannelServlet extends MirthServlet {
                         out.print(channelController.updateChannel(channel, context, override));
                     }
                 } else if (operation.equals(Operations.CHANNEL_REMOVE)) {
-                    Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
+                    Channel channel = serializer.deserialize(request.getParameter("channel"), Channel.class);
                     parameterMap.put("channel", channel);
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -98,7 +99,8 @@ public class ChannelServlet extends MirthServlet {
                 } else if (operation.equals(Operations.CHANNEL_GET_SUMMARY)) {
                     response.setContentType(APPLICATION_XML);
                     List<ChannelSummary> channelSummaries = null;
-                    Map<String, Integer> cachedChannels = (Map<String, Integer>) serializer.fromXML(request.getParameter("cachedChannels"));
+                    @SuppressWarnings("unchecked")
+                    Map<String, Integer> cachedChannels = serializer.deserialize(request.getParameter("cachedChannels"), Map.class);
                     parameterMap.put("cachedChannels", cachedChannels);
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -109,7 +111,7 @@ public class ChannelServlet extends MirthServlet {
                         channelSummaries = channelController.getChannelSummary(cachedChannels);
                     }
 
-                    serializer.toXML(channelSummaries, out);
+                    serializer.serialize(channelSummaries, out);
                 } else if (operation.equals(Operations.CHANNEL_GET_TAGS)) {
                     response.setContentType(APPLICATION_XML);
                     Set<String> tags = null;
@@ -122,7 +124,7 @@ public class ChannelServlet extends MirthServlet {
                         tags = channelController.getChannelTags(null);
                     }
 
-                    serializer.toXML(tags, out);
+                    serializer.serialize(tags, out);
                 } else if (operation.equals(Operations.CHANNEL_GET_CONNECTOR_NAMES)) {
                     response.setContentType(APPLICATION_XML);
                     String channelId = request.getParameter("channelId");
@@ -140,7 +142,7 @@ public class ChannelServlet extends MirthServlet {
                         connectorNames = channelController.getConnectorNames(channelId);
                     }
 
-                    serializer.toXML(connectorNames, out);
+                    serializer.serialize(connectorNames, out);
                 } else if (operation.equals(Operations.CHANNEL_GET_METADATA_COLUMNS)) {
                     response.setContentType(APPLICATION_XML);
                     String channelId = request.getParameter("channelId");
@@ -158,7 +160,7 @@ public class ChannelServlet extends MirthServlet {
                         metaDataColumns = channelController.getMetaDataColumns(channelId);
                     }
 
-                    serializer.toXML(metaDataColumns, out);
+                    serializer.serialize(metaDataColumns, out);
                 }
             } catch (RuntimeIOException rio) {
                 logger.debug(rio);

@@ -71,10 +71,10 @@ public class AlertServlet extends MirthServlet {
                             }
                         }
 
-                        serializer.toXML(alerts, out);
+                        serializer.serialize(alerts, out);
                     }
                 } else if (operation.equals(Operations.ALERT_UPDATE)) {
-                    AlertModel alertModel = (AlertModel) serializer.fromXML(request.getParameter("alertModel"));
+                    AlertModel alertModel = serializer.deserialize(request.getParameter("alertModel"), AlertModel.class);
                     parameterMap.put("alertModel", alertModel);
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -119,7 +119,7 @@ public class AlertServlet extends MirthServlet {
                     } else {
                         response.setContentType(APPLICATION_XML);
 
-                        serializer.toXML(alertController.getAlertStatusList(), out);
+                        serializer.serialize(alertController.getAlertStatusList(), out);
                     }
                 }
             } catch (RuntimeIOException rio) {

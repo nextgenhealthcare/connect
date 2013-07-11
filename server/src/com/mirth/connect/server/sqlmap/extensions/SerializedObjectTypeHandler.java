@@ -19,40 +19,40 @@ import org.apache.ibatis.type.TypeHandler;
 
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
-public class SerializedObjectTypeHandler implements TypeHandler {
-    private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+public abstract class SerializedObjectTypeHandler<T> implements TypeHandler<T> {
+    private Class<T> clazz;
+
+    protected SerializedObjectTypeHandler(Class<T> clazz) {
+        this.clazz = clazz;
+    }
 
     @Override
-    public void setParameter(PreparedStatement statement, int i, Object parameter, JdbcType jdbc) throws SQLException {
+    public void setParameter(PreparedStatement statement, int i, T parameter, JdbcType jdbc) throws SQLException {
         if (parameter == null) {
             statement.setNull(i, java.sql.Types.LONGVARCHAR);
         } else {
-            statement.setString(i, serializer.toXML(parameter));
+            statement.setString(i, ObjectXMLSerializer.getInstance().serialize(parameter));
         }
     }
 
     @Override
-    public Object getResult(ResultSet resultSet, String columnName) throws SQLException {
-        return serializer.fromXML(resultSet.getString(columnName));
+    public T getResult(ResultSet resultSet, String columnName) throws SQLException {
+        return ObjectXMLSerializer.getInstance().deserialize(resultSet.getString(columnName), clazz);
     }
 
     @Override
-    public Object getResult(ResultSet resultSet, int columnIndex) throws SQLException {
-        return serializer.fromXML(resultSet.getString(columnIndex));
+    public T getResult(ResultSet resultSet, int columnIndex) throws SQLException {
+        return ObjectXMLSerializer.getInstance().deserialize(resultSet.getString(columnIndex), clazz);
     }
 
     @Override
-    public Object getResult(CallableStatement callableStatement, int columnIndex) throws SQLException {
+    public T getResult(CallableStatement callableStatement, int columnIndex) throws SQLException {
         String resultString = callableStatement.getString(columnIndex);
 
         if (resultString != null) {
-            return serializer.fromXML(resultString);
+            return ObjectXMLSerializer.getInstance().deserialize(resultString, clazz);
         }
 
         return null;
-    }
-
-    public Object valueOf(String source) {
-        return source;
     }
 }

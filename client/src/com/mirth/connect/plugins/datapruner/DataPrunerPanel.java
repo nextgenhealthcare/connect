@@ -251,7 +251,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         if (archiverOptions == null) {
             archiverPanel.setMessageWriterOptions(new MessageWriterOptions());
         } else {
-            archiverPanel.setMessageWriterOptions((MessageWriterOptions) serializer.fromXML(archiverOptions));
+            archiverPanel.setMessageWriterOptions(serializer.deserialize(archiverOptions, MessageWriterOptions.class));
         }
         
         if (archiverPanel.isEnabled()) {

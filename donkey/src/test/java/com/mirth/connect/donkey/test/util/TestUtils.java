@@ -984,7 +984,7 @@ public class TestUtils {
     
     @SuppressWarnings("unchecked")
     private static Map<String, Object> deserializeMap(String serializedMap) {
-        return (Map<String, Object>) Donkey.getInstance().getSerializer().deserialize(serializedMap);
+        return Donkey.getInstance().getSerializer().deserialize(serializedMap, Map.class);
     }
     
     public static String getErrorFromMessageContent(MessageContent content) {

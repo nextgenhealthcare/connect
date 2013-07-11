@@ -69,10 +69,11 @@ public class ChannelStatisticsServlet extends MirthServlet {
                         channelStatistics.setReceived(map.get(Status.RECEIVED));
                         channelStatistics.setSent(map.get(Status.SENT));
 
-                        serializer.toXML(channelStatistics, out);
+                        serializer.serialize(channelStatistics, out);
                     }
                 } else if (operation.equals(Operations.CHANNEL_STATS_CLEAR)) {
-                    Map<String, List<Integer>> channelConnectorMap = (Map<String, List<Integer>>) serializer.fromXML(request.getParameter("channelConnectorMap"));
+                    @SuppressWarnings("unchecked")
+                    Map<String, List<Integer>> channelConnectorMap = serializer.deserialize(request.getParameter("channelConnectorMap"), Map.class);
                     parameterMap.put("channelConnectorMap", channelConnectorMap);
 
                     if (!isUserAuthorized(request, parameterMap)) {

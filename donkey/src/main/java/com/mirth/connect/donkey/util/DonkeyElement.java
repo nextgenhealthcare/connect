@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -32,20 +33,24 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.TypeInfo;
 import org.w3c.dom.UserDataHandler;
-import org.xml.sax.InputSource;
+import org.xmlpull.v1.dom2_builder.DOM2XmlPullBuilder;
 
 /**
- * Represents a DOM document element. Implements additional convenience methods beyond what is defined by the org.w3c.dom.Element interface.
+ * Represents a DOM document element. Implements additional convenience methods beyond what is defined by the Element interface.
  */
 public class DonkeyElement implements Element {
-    private org.w3c.dom.Element element;
-
-    public DonkeyElement(org.w3c.dom.Element element) {
+    private Element element;
+    
+    public DonkeyElement(Element element) {
         this.element = element;
     }
     
     public DonkeyElement(String xml) throws DonkeyElementException {
-        this.element = elementFromXml(xml);
+        try {
+            this.element = fromXml(xml, DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument());
+        } catch (ParserConfigurationException e) {
+            throw new DonkeyElementException(e);
+        }
     }
     
     public Element getElement() {
@@ -58,7 +63,7 @@ public class DonkeyElement implements Element {
 
         for (int i = 0; i < childCount; i++) {
             if (children.item(i).getNodeName().equals(name) && children.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                return new DonkeyElement((org.w3c.dom.Element) children.item(i));
+                return new DonkeyElement((Element) children.item(i));
             }
         }
 
@@ -74,7 +79,7 @@ public class DonkeyElement implements Element {
             Node node = childNodes.item(i);
 
             if (node.getNodeType() == Node.ELEMENT_NODE) {
-                childElements.add(new DonkeyElement((org.w3c.dom.Element) node));
+                childElements.add(new DonkeyElement((Element) node));
             }
         }
 
@@ -82,20 +87,22 @@ public class DonkeyElement implements Element {
     }
 
     public DonkeyElement addChildElement(String name) {
-        org.w3c.dom.Element child = element.getOwnerDocument().createElement(name);
+        Element child = element.getOwnerDocument().createElement(name);
         element.appendChild(child);
         return new DonkeyElement(child);
     }
     
     public DonkeyElement addChildElement(String name, String content) {
-        org.w3c.dom.Element child = element.getOwnerDocument().createElement(name);
+        Element child = element.getOwnerDocument().createElement(name);
         element.appendChild(child);
         child.setTextContent(content);
         return new DonkeyElement(child);
     }
     
-    public DonkeyElement addChildElementFromXml(String xml) throws Exception {
-        return new DonkeyElement((Element) element.appendChild(element.getOwnerDocument().importNode(elementFromXml(xml), true)));
+    public DonkeyElement addChildElementFromXml(String xml) throws DonkeyElementException {
+        DonkeyElement child = fromXml(xml, element.getOwnerDocument());
+        element.appendChild(child.getElement());
+        return child;
     }
 
     public DonkeyElement removeChild(String name) {
@@ -104,7 +111,7 @@ public class DonkeyElement implements Element {
 
         for (int i = 0; i < childCount; i++) {
             if (children.item(i).getNodeName().equals(name) && children.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                return new DonkeyElement((org.w3c.dom.Element) element.removeChild(children.item(i)));
+                return new DonkeyElement((Element) element.removeChild(children.item(i)));
             }
         }
 
@@ -424,11 +431,10 @@ public class DonkeyElement implements Element {
         element.setIdAttributeNode(idAttr, isId);
     }
     
-    public String toXml() throws Exception {
-        return elementToXml(element);
-    }
-    
-    public static String elementToXml(Element element) throws DonkeyElementException {
+    /**
+     * Serializes the element into an XML string.
+     */
+    public String toXml() throws DonkeyElementException {
         Writer writer = new StringWriter();
 
         try {
@@ -444,9 +450,9 @@ public class DonkeyElement implements Element {
         return writer.toString();
     }
 
-    public static Element elementFromXml(String xml) throws DonkeyElementException {
+    private DonkeyElement fromXml(String xml, Document document) throws DonkeyElementException {
         try {
-            return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(xml))).getDocumentElement();
+            return new DonkeyElement(new DOM2XmlPullBuilder().parse(new StringReader(xml), document));
         } catch (Exception e) {
             throw new DonkeyElementException(e);
         }

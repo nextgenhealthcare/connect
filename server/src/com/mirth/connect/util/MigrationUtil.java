@@ -9,55 +9,60 @@
 
 package com.mirth.connect.util;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.xmlpull.mxp1.MXParser;
+import org.xmlpull.v1.XmlPullParser;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
-import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class MigrationUtil {
     /**
-     * Serializes a DOM element into an XML string
-     */
-    public static String elementToXml(Element element) throws Exception {
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-        document.appendChild(document.importNode(element, true));
-        return new DocumentSerializer().toXML(document);
-    }
-    
-    /**
-     * Deserializes a DOM element from an XML string
-     */
-    public static Element elementFromXml(String xml) {
-        return new DocumentSerializer().fromXML(xml).getDocumentElement();
-    }
-    
-    /**
      * Extract the version string from an XML serialized object
      */
-    public static String getSerializedObjectVersion(String serializedObject) {
-        DonkeyElement element = new DonkeyElement(elementFromXml(serializedObject));
+    public static String getSerializedObjectVersion(String serializedObject) throws Exception {
+        String version = getRootNodeAttribute(serializedObject, ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME);
 
-        // Objects serialized by version >= 3.0.0 should have a version attribute on the root element
-        if (element.hasAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME)) {
-            return element.getAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME);
+        if (version != null) {
+            return version;
+        }
+        
+        /*
+         * Pre-3.0.0 objects might have a 'version' child node, check for it. The reason we
+         * don't create a DonkeyElement above is to avoid parsing the entire XML string.
+         */
+        DonkeyElement element = new DonkeyElement(serializedObject);
+
+        for (DonkeyElement child : element.getChildElements()) {
+            if (child.getNodeName().equals("version")) {
+                return child.getTextContent();
+            }
         }
 
-        // Pre-3.0.0 objects might have a 'version' child node, check for it
-        DonkeyElement versionElement = element.getChildElement("version");
-
-        if (versionElement != null) {
-            return versionElement.getTextContent();
+        return null;
+    }
+    
+    private static String getRootNodeAttribute(String serializedObject, String attributeName) throws Exception {
+        XmlPullParser parser = new MXParser();
+        parser.setInput(new StringReader(serializedObject));
+        
+        while (parser.getEventType() != XmlPullParser.START_TAG) {
+            parser.next();
         }
-
+        
+        int attrCount = parser.getAttributeCount();
+        
+        for (int i = 0; i < attrCount; i++) {
+            if (parser.getAttributeName(i).equals(attributeName)) {
+                return parser.getAttributeValue(i);
+            }
+        }
+        
         return null;
     }
     
@@ -104,6 +109,10 @@ public class MigrationUtil {
      * Normalizes a version string so that it has 'length' number of version numbers separated by '.'
      */
     public static String normalizeVersion(String version, int length) {
+        if (version == null) {
+            return null;
+        }
+        
         List<String> numbers = new ArrayList<String>(Arrays.asList(version.split("\\.")));
 
         while (numbers.size() < length) {

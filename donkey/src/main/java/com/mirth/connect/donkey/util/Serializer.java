@@ -9,27 +9,21 @@
 
 package com.mirth.connect.donkey.util;
 
-import java.io.Reader;
-import java.io.Writer;
-
 public interface Serializer {
-    public String serialize(Object serializableObject);
-    
-    public void serialize(Object serializableObject, Writer writer);
+    /**
+     * Serializes an object.
+     */
+    public String serialize(Object object);
 
-    public Object deserialize(String serializedObject);
-    
-    public Object deserialize(Reader reader);
-    
+    /**
+     * Deserializes an object of the expectedClass type from the serializedObject string.
+     */
+    public <T> T deserialize(String serializedObject, Class<T> expectedClass);
+
     /**
      * Reads the class of a serialized object without deserializing it.
+     * 
      * @return The class of the serialized object or null if the class could not be determined.
      */
     public Class<?> getClass(String serializedObject);
-
-    /**
-     * Reads the class of a serialized object without deserializing it.
-     * @return The class of the serialized object or null if the class could not be determined.
-     */
-    public Class<?> getClass(Reader reader);
 }

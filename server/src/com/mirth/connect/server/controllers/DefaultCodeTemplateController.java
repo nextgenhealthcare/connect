@@ -49,7 +49,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             
             for (Map<String, Object> row : rows) {
                 try {
-                    codeTemplates.add(serializer.fromXML((String) row.get("codeTemplate"), CodeTemplate.class));
+                    codeTemplates.add(serializer.deserialize((String) row.get("codeTemplate"), CodeTemplate.class));
                 } catch (Exception e) {
                     logger.error("Failed to load code template " + row.get("id"), e);
                 }
@@ -80,7 +80,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
 
                 Map<String, Object> params = new HashMap<String, Object>();
                 params.put("id", codeTemplate.getId());
-                params.put("codeTemplate", ObjectXMLSerializer.getInstance().toXML(codeTemplate));
+                params.put("codeTemplate", ObjectXMLSerializer.getInstance().serialize(codeTemplate));
 
                 SqlConfig.getSqlSessionManager().insert("CodeTemplate.insertCodeTemplate", params);
 

@@ -301,7 +301,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     }
 
                     configuration.setDate(backupDate);
-                    String backupXML = ObjectXMLSerializer.getInstance().toXML(configuration);
+                    String backupXML = ObjectXMLSerializer.getInstance().serialize(configuration);
 
                     getFrame().exportFile(backupXML, exportFile, "Server Configuration");
                     return null;
@@ -330,7 +330,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         if (content != null) {
             try {
-                final ServerConfiguration configuration = ObjectXMLSerializer.getInstance().fromXML(content, ServerConfiguration.class);
+                final ServerConfiguration configuration = ObjectXMLSerializer.getInstance().deserialize(content, ServerConfiguration.class);
 
                 if (getFrame().alertOption(this, "Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels,\nalerts, server properties, and plugin properties.")) {
                     final String workingId = getFrame().startWorking("Restoring server config...");

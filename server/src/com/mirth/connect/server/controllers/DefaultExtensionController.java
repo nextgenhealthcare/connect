@@ -154,7 +154,7 @@ public class DefaultExtensionController extends ExtensionController {
 
             for (File extensionFile : extensionFiles) {
                 try {
-                    MetaData metaData = (MetaData) serializer.fromXML(FileUtils.readFileToString(extensionFile), MetaData.class);
+                    MetaData metaData = (MetaData) serializer.deserialize(FileUtils.readFileToString(extensionFile), MetaData.class);
 
                     if (isExtensionCompatible(metaData)) {
                         if (metaData instanceof ConnectorMetaData) {
@@ -417,7 +417,7 @@ public class DefaultExtensionController extends ExtensionController {
 
                 if (entryName.endsWith("plugin.xml") || entryName.endsWith("destination.xml") || entryName.endsWith("source.xml")) {
                     // parse the extension metadata xml file
-                    MetaData extensionMetaData = (MetaData) serializer.fromXML(IOUtils.toString(zipFile.getInputStream(entry)));
+                    MetaData extensionMetaData = serializer.deserialize(IOUtils.toString(zipFile.getInputStream(entry)), MetaData.class);
 
                     if (!isExtensionCompatible(extensionMetaData)) {
                         throw new VersionMismatchException("Extension \"" + entry.getName() + "\" is not compatible with this version of Mirth Connect.");
@@ -633,7 +633,7 @@ public class DefaultExtensionController extends ExtensionController {
             List<String> uninstallScripts = readUninstallScript();
             uninstallScripts.addAll(uninstallStatements);
             File uninstallScriptsFile = new File(getExtensionsPath(), EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
-            FileUtils.writeStringToFile(uninstallScriptsFile, serializer.toXML(uninstallScripts));
+            FileUtils.writeStringToFile(uninstallScriptsFile, serializer.serialize(uninstallScripts));
         }
     }
 
@@ -646,7 +646,7 @@ public class DefaultExtensionController extends ExtensionController {
         List<String> scripts = new ArrayList<String>();
 
         if (uninstallScriptsFile.exists()) {
-            scripts = (List<String>) serializer.fromXML(FileUtils.readFileToString(uninstallScriptsFile));
+            scripts = serializer.deserializeList(FileUtils.readFileToString(uninstallScriptsFile), String.class);
         }
 
         return scripts;

@@ -70,7 +70,7 @@ public class MessageObjectServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.MESSAGE_GET)) {
                     String channelId = request.getParameter("channelId");
-                    MessageFilter filter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
+                    MessageFilter filter = serializer.deserialize(request.getParameter("filter"), MessageFilter.class);
 
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("filter", filter);
@@ -92,11 +92,11 @@ public class MessageObjectServlet extends MirthServlet {
                         
                         Channel channel = ControllerFactory.getFactory().createEngineController().getDeployedChannel(channelId);
                         response.setContentType(APPLICATION_XML);
-                        serializer.toXML(messageController.getMessages(filter, channel, includeContent, offset, limit), out);
+                        serializer.serialize(messageController.getMessages(filter, channel, includeContent, offset, limit), out);
                     }
                 } else if (operation.equals(Operations.MESSAGE_GET_COUNT)) {
                     String channelId = request.getParameter("channelId");
-                    MessageFilter filter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
+                    MessageFilter filter = serializer.deserialize(request.getParameter("filter"), MessageFilter.class);
                     
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("filter", filter);
@@ -110,19 +110,19 @@ public class MessageObjectServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.MESSAGE_GET_CONTENT)) {
                 	String channelId = request.getParameter("channelId");
-                	Long messageId = (Long) serializer.fromXML(request.getParameter("messageId"));
+                	Long messageId = serializer.deserialize(request.getParameter("messageId"), Long.class);
                 	parameterMap.put("channelId", channelId);
                 	parameterMap.put("messageId", messageId);
                 	
                 	if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                 		response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                 	} else {
-                		serializer.toXML(messageController.getMessageContent(channelId, messageId), out);
+                		serializer.serialize(messageController.getMessageContent(channelId, messageId), out);
                 	}
                 } else if (operation.equals(Operations.MESSAGE_REMOVE)) {
                     // TODO: update calls to this servlet operation so that they pass channelId
                     String channelId = request.getParameter("channelId");
-                    MessageFilter filter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
+                    MessageFilter filter = serializer.deserialize(request.getParameter("filter"), MessageFilter.class);
                     
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("filter", filter);
@@ -134,9 +134,9 @@ public class MessageObjectServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.MESSAGE_CLEAR)) {
                     @SuppressWarnings("unchecked")
-                    Set<String> channelIds = (Set<String>) serializer.fromXML(request.getParameter("channelIds"));
-                    Boolean restartRunningChannels = (Boolean) serializer.fromXML(request.getParameter("restartRunningChannels"));
-                    Boolean clearStatistics = (Boolean) serializer.fromXML(request.getParameter("clearStatistics"));
+                    Set<String> channelIds = serializer.deserialize(request.getParameter("channelIds"), Set.class);
+                    Boolean restartRunningChannels = serializer.deserialize(request.getParameter("restartRunningChannels"), Boolean.class);
+                    Boolean clearStatistics = serializer.deserialize(request.getParameter("clearStatistics"), Boolean.class);
                     
                     parameterMap.put("channelIds", channelIds);
                     parameterMap.put("restartRunningChannels", restartRunningChannels);
@@ -149,9 +149,9 @@ public class MessageObjectServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.MESSAGE_REPROCESS)) {
                     final String channelId = request.getParameter("channelId");
-                    final MessageFilter filter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
+                    final MessageFilter filter = serializer.deserialize(request.getParameter("filter"), MessageFilter.class);
                     final boolean replace = Boolean.valueOf(request.getParameter("replace"));
-                    final List<Integer> reprocessMetaDataIds = (List<Integer>) serializer.fromXML(request.getParameter("reprocessMetaDataIds"));
+                    final List<Integer> reprocessMetaDataIds = serializer.deserializeList(request.getParameter("reprocessMetaDataIds"), Integer.class);
                     parameterMap.put("filter", filter);
                     parameterMap.put("replace", replace);
                     parameterMap.put("destinations", reprocessMetaDataIds);
@@ -174,7 +174,7 @@ public class MessageObjectServlet extends MirthServlet {
                     String rawData = request.getParameter("message");
 
                     @SuppressWarnings("unchecked")
-                    List<Integer> metaDataIds = (List<Integer>) serializer.fromXML(request.getParameter("metaDataIds"));
+                    List<Integer> metaDataIds = serializer.deserializeList(request.getParameter("metaDataIds"), Integer.class);
                     
                     final RawMessage rawMessage = new RawMessage(rawData, metaDataIds, null);
 
@@ -201,7 +201,7 @@ public class MessageObjectServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.MESSAGE_IMPORT)) {
                     String channelId = request.getParameter("channelId");
-                    Message message = (Message) serializer.fromXML(request.getParameter("message"));
+                    Message message = serializer.deserialize(request.getParameter("message"), Message.class);
                     parameterMap.put("message", message);
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -212,7 +212,7 @@ public class MessageObjectServlet extends MirthServlet {
                 } else if (operation.equals(Operations.MESSAGE_IMPORT_SERVER)) {
                     String channelId = request.getParameter("channelId");
                     String uri = request.getParameter("uri");
-                    Boolean includeSubfolders = (Boolean) serializer.fromXML(request.getParameter("includeSubfolders"));
+                    Boolean includeSubfolders = serializer.deserialize(request.getParameter("includeSubfolders"), Boolean.class);
                     
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("uri", uri);
@@ -221,14 +221,14 @@ public class MessageObjectServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        serializer.toXML(messageController.importMessagesServer(channelId, uri, includeSubfolders), out);
+                        serializer.serialize(messageController.importMessagesServer(channelId, uri, includeSubfolders), out);
                     }
                 } else if (operation.equals(Operations.MESSAGE_EXPORT)) {
                     String channelId = request.getParameter("channelId");
-                    MessageFilter messageFilter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
-                    Integer pageSize = (Integer) serializer.fromXML(request.getParameter("pageSize"));
-                    Boolean includeAttachments = (Boolean) serializer.fromXML(request.getParameter("includeAttachments"));
-                    MessageWriterOptions writerOptions = (MessageWriterOptions) serializer.fromXML(request.getParameter("writerOptions"));
+                    MessageFilter messageFilter = serializer.deserialize(request.getParameter("filter"), MessageFilter.class);
+                    Integer pageSize = serializer.deserialize(request.getParameter("pageSize"), Integer.class);
+                    Boolean includeAttachments = serializer.deserialize(request.getParameter("includeAttachments"), Boolean.class);
+                    MessageWriterOptions writerOptions = serializer.deserialize(request.getParameter("writerOptions"), MessageWriterOptions.class);
                     
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("messageFilter", messageFilter);
@@ -241,7 +241,7 @@ public class MessageObjectServlet extends MirthServlet {
                         out.print(messageController.exportMessages(channelId, messageFilter, pageSize, includeAttachments, writerOptions));
                     }
                 } else if (operation.equals(Operations.MESSAGE_DICOM_MESSAGE_GET)) {
-                    ConnectorMessage message = (ConnectorMessage) serializer.fromXML(request.getParameter("message"));
+                    ConnectorMessage message = serializer.deserialize(request.getParameter("message"), ConnectorMessage.class);
                     parameterMap.put("message", message);
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -252,14 +252,14 @@ public class MessageObjectServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID)) {
                     String channelId = request.getParameter("channelId");
-                    Long messageId = (Long) serializer.fromXML(request.getParameter("messageId"));
+                    Long messageId = serializer.deserialize(request.getParameter("messageId"), Long.class);
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("messageId", messageId);
                     
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        serializer.toXML(messageController.getMessageAttachmentIds(channelId, messageId), out);
+                        serializer.serialize(messageController.getMessageAttachmentIds(channelId, messageId), out);
                     }
                 } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET)) {
                     String channelId = request.getParameter("channelId");
@@ -270,18 +270,18 @@ public class MessageObjectServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        serializer.toXML(messageController.getMessageAttachment(channelId, attachmentId), out);
+                        serializer.serialize(messageController.getMessageAttachment(channelId, attachmentId), out);
                     }
                 } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID)) {
                     String channelId = request.getParameter("channelId");
-                    Long messageId = (Long) serializer.fromXML(request.getParameter("messageId"));
+                    Long messageId = serializer.deserialize(request.getParameter("messageId"), Long.class);
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("messageId", messageId);
                     
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        serializer.toXML(messageController.getMessageAttachment(channelId, messageId), out);
+                        serializer.serialize(messageController.getMessageAttachment(channelId, messageId), out);
                     }
                 }
             } catch (RuntimeIOException rio) {

@@ -156,7 +156,7 @@ public class ImmutableConnectorMessage {
 
     public Response getResponseData() {
         if (connectorMessage.getResponse() != null) {
-            return (Response) Donkey.getInstance().getSerializer().deserialize(connectorMessage.getResponse().getContent());
+            return Donkey.getInstance().getSerializer().deserialize(connectorMessage.getResponse().getContent(), Response.class);
         } else {
             return null;
         }
@@ -188,7 +188,7 @@ public class ImmutableConnectorMessage {
 
     public Response getProcessedResponseData() {
         if (connectorMessage.getProcessedResponse() != null) {
-            return (Response) Donkey.getInstance().getSerializer().deserialize(connectorMessage.getProcessedResponse().getContent());
+            return Donkey.getInstance().getSerializer().deserialize(connectorMessage.getProcessedResponse().getContent(), Response.class);
         } else {
             return null;
         }

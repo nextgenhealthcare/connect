@@ -1796,7 +1796,7 @@ public class JdbcDao implements DonkeyDao {
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> deserializeMap(String serializedMap) {
-        return (Map<String, Object>) serializer.deserialize(serializedMap);
+        return (Map<String, Object>) serializer.deserialize(serializedMap, Map.class);
     }
 
     private ErrorContent getErrorContentFromMessageContent(MessageContent content) {
