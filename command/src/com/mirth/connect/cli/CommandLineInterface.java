@@ -163,7 +163,11 @@ public class CommandLineInterface {
                 error("Could not login to server.", null);
                 return;
             }
-            out.println("Connected to Mirth Connect server @ " + server + " (" + client.getVersion() + ")");
+
+            String serverVersion = client.getVersion();
+            ObjectXMLSerializer.getInstance().init(serverVersion);
+
+            out.println("Connected to Mirth Connect server @ " + server + " (" + serverVersion + ")");
             currentUser = user;
 
             if (script != null) {
