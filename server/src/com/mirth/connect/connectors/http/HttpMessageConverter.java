@@ -17,57 +17,53 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
-
-import nu.xom.Attribute;
-import nu.xom.Document;
-import nu.xom.Element;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+
+import com.mirth.connect.donkey.util.DonkeyElement;
 
 public class HttpMessageConverter {
     private Logger logger = Logger.getLogger(this.getClass());
 
     public String httpRequestToXml(HttpRequestMessage request) {
         try {
-            Element requestElement = new Element("HttpRequest");
-            Document document = new Document(requestElement);
+            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            DonkeyElement requestElement = new DonkeyElement(document.createElement("HttpRequest"));
 
-            addElement(requestElement, "RemoteAddress", request.getRemoteAddress());
-            addElement(requestElement, "RequestUrl", request.getRequestUrl());
-            addElement(requestElement, "Method", request.getMethod());
-            addElement(requestElement, "RequestPath", request.getQueryString());
-            addElement(requestElement, "RequestContextPath", new URL(request.getRequestUrl()).getPath());
+            requestElement.addChildElement("RemoteAddress", request.getRemoteAddress());
+            requestElement.addChildElement("RequestUrl", request.getRequestUrl());
+            requestElement.addChildElement("Method", request.getMethod());
+            requestElement.addChildElement("RequestPath", request.getQueryString());
+            requestElement.addChildElement("RequestContextPath", new URL(request.getRequestUrl()).getPath());
 
             if (!request.getParameters().isEmpty()) {
-                Element parametersElement = new Element("Parameters");
+                DonkeyElement parametersElement = requestElement.addChildElement("Parameters");
 
                 for (Entry<String, Object> entry : request.getParameters().entrySet()) {
                     if (entry.getValue() instanceof List<?>) {
                         String name = entry.getKey().substring(0, entry.getKey().indexOf("[]"));
 
                         for (String value : (List<String>) entry.getValue()) {
-                            addElement(parametersElement, name, value);
+                            parametersElement.addChildElement(name, value);
                         }
                     } else {
-                        addElement(parametersElement, entry.getKey(), entry.getValue().toString());
+                        parametersElement.addChildElement(entry.getKey(), entry.getValue().toString());
                     }
                 }
-
-                requestElement.appendChild(parametersElement);
             }
 
-            Element headerElement = new Element("Header");
+            DonkeyElement headerElement = requestElement.addChildElement("Header");
 
             for (Entry<String, String> entry : request.getHeaders().entrySet()) {
-                addElement(headerElement, entry.getKey(), entry.getValue());
+                headerElement.addChildElement(entry.getKey(), entry.getValue());
             }
 
-            requestElement.appendChild(headerElement);
-
-            Element contentElement = new Element("Content");
+            DonkeyElement contentElement = requestElement.addChildElement("Content");
 
             String content = null;
             // If the request is GZIP encoded, uncompress the content
@@ -78,15 +74,13 @@ public class HttpMessageConverter {
             }
 
             if (isBinaryContentType(request.getContentType())) {
-                contentElement.appendChild(new String(Base64.encodeBase64Chunked(content.getBytes())));
-                contentElement.addAttribute(new Attribute("encoding", "Base64"));
+                contentElement.setTextContent(new String(Base64.encodeBase64Chunked(content.getBytes())));
+                contentElement.setAttribute("encoding", "Base64");
             } else {
-                contentElement.appendChild(content);
+                contentElement.setTextContent(content);
             }
 
-            requestElement.appendChild(contentElement);
-
-            return document.toXML();
+            return requestElement.toXml();
         } catch (Exception e) {
             logger.error("Error converting HTTP request.", e);
         }
@@ -96,31 +90,22 @@ public class HttpMessageConverter {
 
     public String httpResponseToXml(String status, Header[] headers, String content) {
         try {
-            Element requestElement = new Element("HttpResponse");
-            Document document = new Document(requestElement);
+            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            DonkeyElement requestElement = new DonkeyElement(document.createElement("HttpResponse"));
 
-            addElement(requestElement, "Status", status);
+            requestElement.addChildElement("Status", status);
 
-            Element headerElement = new Element("Header");
+            DonkeyElement headerElement = requestElement.addChildElement("Header");
 
             for (Header header : headers) {
-                Element fieldElement = new Element("Field");
-                addElement(fieldElement, "Name", header.getName());
-                addElement(fieldElement, "Value", header.getValue());
-                headerElement.appendChild(fieldElement);
+                DonkeyElement fieldElement = headerElement.addChildElement("Field");
+                fieldElement.addChildElement("Name", header.getName());
+                fieldElement.addChildElement("Value", header.getValue());
             }
 
-            requestElement.appendChild(headerElement);
+            requestElement.addChildElement("Body", content);
 
-            /*
-             * NOTE: "Body" is added as a CDATA element in the
-             * documentSerializer constructor
-             */
-            Element contentElement = new Element("Body");
-            contentElement.appendChild(content);
-            requestElement.appendChild(contentElement);
-
-            return document.toXML();
+            return requestElement.toXml();
         } catch (Exception e) {
             logger.error("Error converting HTTP request.", e);
         }
@@ -148,15 +133,7 @@ public class HttpMessageConverter {
         return headers;
     }
 
-    private Element addElement(Element parent, String name, String textContent) {
-        Element child = new Element(name);
-        child.appendChild(textContent);
-        parent.appendChild(child);
-        return child;
-    }
-
     private boolean isBinaryContentType(String contentType) {
-        return StringUtils.startsWithAny(contentType, new String[] { "application/", "image/",
-                "video/", "audio/" });
+        return StringUtils.startsWithAny(contentType, new String[] { "application/", "image/", "video/", "audio/" });
     }
 }
