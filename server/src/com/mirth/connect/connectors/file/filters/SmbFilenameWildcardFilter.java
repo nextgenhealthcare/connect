@@ -19,16 +19,17 @@ import org.apache.commons.logging.LogFactory;
 
 public class SmbFilenameWildcardFilter implements SmbFilenameFilter {
     private static transient Log logger = LogFactory.getLog(SmbFilenameFilter.class);
-    private String pattern;
     private boolean isRegex;
-    private String[] patterns;
+    private String[] wildcardPatterns;
+    private Pattern regexPattern;
 
     public SmbFilenameWildcardFilter(String pattern, boolean isRegex) {
-        this.pattern = pattern;
         this.isRegex = isRegex;
 
-        if (!isRegex) {
-            this.patterns = pattern.trim().split("\\s*,\\s*");
+        if (isRegex) {
+            regexPattern = Pattern.compile(pattern);
+        } else {
+            wildcardPatterns = pattern.trim().split("\\s*,\\s*");
         }
     }
 
@@ -49,7 +50,7 @@ public class SmbFilenameWildcardFilter implements SmbFilenameFilter {
             logger.warn("The filename and or directory was null");
             return false;
         } else if (isRegex) {
-            return Pattern.compile(pattern).matcher(name).matches();
+            return regexPattern.matcher(name).matches();
         } else {
             return accept(name);
         }
@@ -60,32 +61,67 @@ public class SmbFilenameWildcardFilter implements SmbFilenameFilter {
         if (name == null) {
             return false;
         }
+
         String pattern = null;
         boolean match = false;
-        for (int x = 0; x < patterns.length; x++) {
-            pattern = patterns[x];
+
+        for (int x = 0; x < wildcardPatterns.length; x++) {
+            pattern = wildcardPatterns[x];
 
             if ("*".equals(pattern) || "**".equals(pattern)) {
                 return true;
             }
+
             int i = pattern.indexOf("*");
 
             if (i == -1) {
+                // If there is no *, just check for equality
                 match = pattern.equals(name);
             } else {
-                int i2 = pattern.indexOf("*", i + 1);
-                if (i2 > 1) {
-                    match = name.indexOf(pattern.substring(1, i2)) > -1;
-                } else if (i == 0) {
-                    match = name.endsWith(pattern.substring(1));
-                } else {
-                    match = name.startsWith(pattern.substring(0, i));
+                String partialName = name;
+                String partialPattern = pattern;
+                boolean partialMatch = true;
+                boolean first = true;
+
+                while (i != -1) {
+                    // Get the substring before the *
+                    String prefix = partialPattern.substring(0, i);
+                    // Get and save the substring after the *
+                    partialPattern = partialPattern.substring(i + 1);
+
+                    if (!prefix.isEmpty()) {
+                        int prefixIndex = partialName.indexOf(prefix);
+
+                        if (first && prefixIndex == 0) {
+                            // See if the partial name starts with the prefix
+                            partialName = partialName.substring(prefix.length());
+                        } else if (!first && prefixIndex >= 0) {
+                            // See if the partial name contains the prefix
+                            partialName = partialName.substring(prefixIndex + prefix.length());
+                        } else {
+                            partialMatch = false;
+                            break;
+                        }
+                    }
+
+                    // Get the next *
+                    i = partialPattern.indexOf("*");
+                    first = false;
                 }
+
+                // Check for trailing partial patterns
+                if (partialMatch && !partialPattern.isEmpty() && !partialName.endsWith(partialPattern)) {
+                    partialMatch = false;
+                }
+
+                match = partialMatch;
             }
+
             if (match) {
                 return true;
             }
         }
+
         return false;
     }
 }
