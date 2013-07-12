@@ -25,6 +25,8 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.model.util.MigrationException;
+
 public class Migrate2_0_0 extends Migrator {
     private Logger logger = Logger.getLogger(getClass());
     

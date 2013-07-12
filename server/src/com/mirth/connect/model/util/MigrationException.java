@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.migration;
+package com.mirth.connect.model.util;
 
 /**
  * A schema migration exception occurs if the database schema could not be migrated to a newer version.

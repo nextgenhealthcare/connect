@@ -24,6 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
+import com.mirth.connect.model.util.MigrationException;
 
 public abstract class Migrator {
     private Connection connection;

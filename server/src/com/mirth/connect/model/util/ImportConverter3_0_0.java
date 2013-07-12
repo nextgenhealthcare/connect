@@ -39,7 +39,6 @@ import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.server.migration.MigrationException;
 
 /**
  * The purpose of this class is to migrate serialized objects created prior to version 3.0.0 (which

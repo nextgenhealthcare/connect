@@ -17,7 +17,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.PluginMetaData;
-import com.mirth.connect.server.migration.MigrationException;
+import com.mirth.connect.model.util.MigrationException;
 import com.mirth.connect.server.migration.Migrator;
 import com.mirth.connect.server.migration.ServerMigrator;
 import com.mirth.connect.server.util.SqlConfig;

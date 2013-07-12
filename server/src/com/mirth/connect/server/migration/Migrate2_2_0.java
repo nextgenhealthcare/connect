@@ -14,6 +14,8 @@ import java.util.Map;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 
+import com.mirth.connect.model.util.MigrationException;
+
 public class Migrate2_2_0 extends Migrator implements ConfigurationMigrator {
     @Override
     public void migrate() throws MigrationException {

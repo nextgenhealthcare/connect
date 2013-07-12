@@ -31,6 +31,7 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.util.MigrationException;
 
 public class ServerMigrator extends Migrator {
     private Logger logger = Logger.getLogger(getClass());

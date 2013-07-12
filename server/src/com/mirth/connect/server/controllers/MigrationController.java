@@ -11,7 +11,7 @@ package com.mirth.connect.server.controllers;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 
-import com.mirth.connect.server.migration.MigrationException;
+import com.mirth.connect.model.util.MigrationException;
 
 /**
  * The MigrationController migrates the database to the current version.

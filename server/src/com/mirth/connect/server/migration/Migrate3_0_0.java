@@ -30,6 +30,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.model.util.MigrationException;
 
 public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
     private Logger logger = Logger.getLogger(getClass());
