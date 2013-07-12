@@ -117,10 +117,9 @@ public class DICOMUtil {
             ImmutableMessageContent encoded = message.getEncoded();
             ImmutableMessageContent raw = message.getRaw();
 
-            //TODO verify the logic here. Is data type required? There are potential problems with using data type from either model or donkey
-            if (encoded != null && encoded.getContent() != null && message.getMetaDataId() > 0) {
+            if (encoded != null && encoded.getContent() != null && encoded.getDataType().equals("DICOM")) {
                 headerBytes = Base64.decodeBase64(StringUtils.getBytesUsAscii(encoded.getContent()));
-            } else if (raw != null && raw.getContent() != null && message.getMetaDataId() == 0) {
+            } else if (raw != null && raw.getContent() != null && raw.getDataType().equals("DICOM")) {
                 headerBytes = Base64.decodeBase64(StringUtils.getBytesUsAscii(raw.getContent()));
             } else {
                 return new byte[0];
@@ -157,28 +156,37 @@ public class DICOMUtil {
         return DICOMConverter.dicomObjectToByteArray(dcmObj);
     }
 
-    public static String convertDICOM(String imageType, ImmutableConnectorMessage message, boolean autoThreshold) {
-        return returnOtherImageFormat(message, imageType, autoThreshold);
+    public static int getSliceCount(ImmutableConnectorMessage message) {
+        ByteArrayInputStream bais = new ByteArrayInputStream(getDICOMRawBytes(message));
+
+        try {
+            DICOM dicom = new DICOM(bais);
+            // run() is required to create the dicom object. The argument serves multiple purposes. If it is null or empty, it opens a dialog to select a dicom file.
+            // Otherwise, if dicom.show() is called, it is the title of the dialog. Since we are not showing any dialogs here, we just need to pass a non-null, non-empty string.
+            dicom.run("DICOM");
+
+            return dicom.getImageStack().getSize();
+        } finally {
+            IOUtils.closeQuietly(bais);
+        }
     }
 
-    public static String convertDICOM(String imageType, ImmutableConnectorMessage message) {
-        return returnOtherImageFormat(message, imageType, false);
-    }
+    public static String convertDICOM(String imageType, ImmutableConnectorMessage message, int sliceIndex, boolean autoThreshold) {
+        byte[] bytes = convertDICOMToByteArray(imageType, message, sliceIndex, autoThreshold);
 
-    private static String returnOtherImageFormat(ImmutableConnectorMessage message, String format, boolean autoThreshold) {
-        // use new method for jpegs
-        if (format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg")) {
-            byte[] bytes = dicomToJpg(1, message, autoThreshold);
-            if (bytes != null) {
-                return new String(Base64.encodeBase64Chunked(bytes));
-            } else {
-                logger.error("Could not convert DICOM image to JPEG format.");
-                return null;
-            }
+        if (bytes != null) {
+            return new String(Base64.encodeBase64Chunked(bytes));
         }
 
-        byte[] rawImage = getDICOMRawBytes(message);
-        ByteArrayInputStream bais = new ByteArrayInputStream(rawImage);
+        return "";
+    }
+
+    public static byte[] convertDICOMToByteArray(String imageType, ImmutableConnectorMessage message, int sliceIndex, boolean autoThreshold) {
+        if (imageType.equalsIgnoreCase("jpg") || imageType.equalsIgnoreCase("jpeg")) {
+            return dicomToJpg(sliceIndex, message, autoThreshold);
+        }
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(getDICOMRawBytes(message));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         try {
@@ -186,12 +194,15 @@ public class DICOMUtil {
             // run() is required to create the dicom object. The argument serves multiple purposes. If it is null or empty, it opens a dialog to select a dicom file.
             // Otherwise, if dicom.show() is called, it is the title of the dialog. Since we are not showing any dialogs here, we just need to pass a non-null, non-empty string.
             dicom.run("DICOM");
-            BufferedImage image = new BufferedImage(dicom.getWidth(), dicom.getHeight(), BufferedImage.TYPE_INT_RGB);
-            Graphics graphics = image.createGraphics();
-            graphics.drawImage(dicom.getImage(), 0, 0, null);
-            graphics.dispose();
-            ImageIO.write(image, format, baos);
-            return new String(Base64.encodeBase64Chunked(baos.toByteArray()));
+
+            ImageStack imageStack = dicom.getImageStack();
+
+            if (sliceIndex >= 1 && sliceIndex <= imageStack.getSize()) {
+                ImageIO.write(imageStack.getProcessor(sliceIndex).getBufferedImage(), imageType, baos);
+                return baos.toByteArray();
+            } else {
+                logger.error("Image slice " + sliceIndex + " not found for message " + message.getMessageId() + ".");
+            }
         } catch (IOException e) {
             logger.error("Error Converting DICOM image", e);
         } finally {
@@ -199,10 +210,10 @@ public class DICOMUtil {
             IOUtils.closeQuietly(baos);
         }
 
-        return org.apache.commons.lang3.StringUtils.EMPTY;
+        return null;
     }
 
-    public static byte[] dicomToJpg(int sliceIndex, ImmutableConnectorMessage message, boolean autoThreshold) {
+    private static byte[] dicomToJpg(int sliceIndex, ImmutableConnectorMessage message, boolean autoThreshold) {
         ByteArrayInputStream bais = new ByteArrayInputStream(getDICOMRawBytes(message));
 
         try {
@@ -221,6 +232,7 @@ public class DICOMUtil {
             ImageStack imageStack = dicom.getImageStack();
 
             if ((imageStack.getSize() < sliceIndex) || sliceIndex < 1) {
+                logger.error("Image slice " + sliceIndex + " not found for message " + message.getMessageId() + ".");
                 return null;
             }
 
@@ -259,7 +271,7 @@ public class DICOMUtil {
             writer.write(null, iioImage, param);
             return baos.toByteArray();
         } catch (Exception e) {
-            logger.error("Error converting dcm file", e);
+            logger.error("Error Converting DICOM image", e);
         } finally {
             IOUtils.closeQuietly(baos);
         }

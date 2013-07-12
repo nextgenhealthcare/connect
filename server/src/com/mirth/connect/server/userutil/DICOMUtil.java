@@ -23,14 +23,14 @@ import com.mirth.connect.server.util.AttachmentUtil;
 
 public class DICOMUtil {
     private static Logger logger = Logger.getLogger(DICOMUtil.class);
-    
+
     @Deprecated
     // TODO: Remove in 3.1
     public static String getDICOMRawData(MessageObject message) {
         logger.error("The getDICOMRawData(messageObject) method is deprecated and will soon be removed. Please use getDICOMRawData(connectorMessage) instead.");
         return com.mirth.connect.server.util.DICOMUtil.getDICOMRawData(message.getImmutableConnectorMessage());
     }
-    
+
     public static String getDICOMRawData(ImmutableConnectorMessage message) {
         return com.mirth.connect.server.util.DICOMUtil.getDICOMRawData(message);
     }
@@ -38,7 +38,7 @@ public class DICOMUtil {
     public static byte[] getDICOMRawBytes(ImmutableConnectorMessage message) {
         return com.mirth.connect.server.util.DICOMUtil.getDICOMRawBytes(message);
     }
-    
+
     @Deprecated
     // TODO: Remove in 3.1
     public static byte[] getDICOMMessage(MessageObject message) {
@@ -49,7 +49,7 @@ public class DICOMUtil {
     public static byte[] getDICOMMessage(ImmutableConnectorMessage message) {
         return com.mirth.connect.server.util.DICOMUtil.getDICOMMessage(message);
     }
-    
+
     @Deprecated
     // TODO: Remove in 3.1
     public static byte[] mergeHeaderAttachments(MessageObject message, List<Attachment> attachments) throws XmlSerializerException {
@@ -64,72 +64,97 @@ public class DICOMUtil {
     public static byte[] mergeHeaderPixelData(byte[] header, List<Attachment> attachments) throws IOException {
         return com.mirth.connect.server.util.DICOMUtil.mergeHeaderPixelData(header, attachments);
     }
-    
+
     @Deprecated
     // TODO: Remove in 3.1
     public static List<Attachment> getMessageAttachments(MessageObject message) throws XmlSerializerException {
         logger.error("The DICOMUtil.getMessageAttachments(messageObject) method is deprecated and will soon be removed. Please use getAttachments() instead.");
         return AttachmentUtil.getMessageAttachments(message.getImmutableConnectorMessage());
     }
-    
+
     @Deprecated
     // TODO: Remove in 3.1
     public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage message) throws XmlSerializerException {
         logger.error("The DICOMUtil.getMessageAttachments(connectorMessage) method is deprecated and will soon be removed. Please use getAttachments() instead.");
         return AttachmentUtil.getMessageAttachments(message);
     }
-    
+
+    public static int getSliceCount(ImmutableConnectorMessage message) {
+        return com.mirth.connect.server.util.DICOMUtil.getSliceCount(message);
+    }
+
     @Deprecated
     // TODO: Remove in 3.1
     public static String convertDICOM(String imageType, MessageObject message, boolean autoThreshold) {
         logger.error("The convertDICOM(imageType, messageObject, autoThreshold) method is deprecated and will soon be removed. Please use convertDICOM(imageType, connectorMessage, autoThreshold) instead.");
-        return com.mirth.connect.server.util.DICOMUtil.convertDICOM(imageType, message.getImmutableConnectorMessage(), autoThreshold);
+        return com.mirth.connect.server.util.DICOMUtil.convertDICOM(imageType, message.getImmutableConnectorMessage(), 1, autoThreshold);
     }
 
     public static String convertDICOM(String imageType, ImmutableConnectorMessage message, boolean autoThreshold) {
-        return com.mirth.connect.server.util.DICOMUtil.convertDICOM(imageType, message, autoThreshold);
+        return com.mirth.connect.server.util.DICOMUtil.convertDICOM(imageType, message, 1, autoThreshold);
     }
-    
+
     @Deprecated
     // TODO: Remove in 3.1
     public static String convertDICOM(String imageType, MessageObject message) {
         logger.error("The convertDICOM(imageType, messageObject) method is deprecated and will soon be removed. Please use convertDICOM(imageType, connectorMessage) instead.");
-        return com.mirth.connect.server.util.DICOMUtil.convertDICOM(imageType, message.getImmutableConnectorMessage());
+        return com.mirth.connect.server.util.DICOMUtil.convertDICOM(imageType, message.getImmutableConnectorMessage(), 1, false);
     }
 
     public static String convertDICOM(String imageType, ImmutableConnectorMessage message) {
-        return com.mirth.connect.server.util.DICOMUtil.convertDICOM(imageType, message);
+        return com.mirth.connect.server.util.DICOMUtil.convertDICOM(imageType, message, 1, false);
     }
-    
+
+    public static String convertDICOM(String imageType, ImmutableConnectorMessage message, int sliceIndex) {
+        return com.mirth.connect.server.util.DICOMUtil.convertDICOM(imageType, message, sliceIndex, false);
+    }
+
+    public static String convertDICOM(String imageType, ImmutableConnectorMessage message, int sliceIndex, boolean autoThreshold) {
+        return com.mirth.connect.server.util.DICOMUtil.convertDICOM(imageType, message, sliceIndex, autoThreshold);
+    }
+
+    public static byte[] convertDICOMToByteArray(String imageType, ImmutableConnectorMessage message) {
+        return com.mirth.connect.server.util.DICOMUtil.convertDICOMToByteArray(imageType, message, 1, false);
+    }
+
+    public static byte[] convertDICOMToByteArray(String imageType, ImmutableConnectorMessage message, int sliceIndex) {
+        return com.mirth.connect.server.util.DICOMUtil.convertDICOMToByteArray(imageType, message, sliceIndex, false);
+    }
+
+    public static byte[] convertDICOMToByteArray(String imageType, ImmutableConnectorMessage message, int sliceIndex, boolean autoThreshold) {
+        return com.mirth.connect.server.util.DICOMUtil.convertDICOMToByteArray(imageType, message, sliceIndex, autoThreshold);
+    }
+
     @Deprecated
     // TODO: Remove in 3.1
     public static String reAttachMessage(MessageObject message) {
         logger.error("The DICOMUtil.reAttachMessage(messageObject) method is deprecated and will soon be removed. Please use AttachmentUtil.reAttachMessage(connectorMessage) instead.");
         return AttachmentUtil.reAttachMessage(message.getImmutableConnectorMessage());
     }
-    
+
     @Deprecated
     // TODO: Remove in 3.1
     public static String reAttachMessage(ImmutableConnectorMessage message) {
         logger.error("The DICOMUtil.reAttachMessage(connectorMessage) method is deprecated and will soon be removed. Please use AttachmentUtil.reAttachMessage(connectorMessage) instead.");
         return AttachmentUtil.reAttachMessage(message);
     }
-    
+
     @Deprecated
     // TODO: Remove in 3.1
     public static byte[] dicomToJpg(int sliceIndex, MessageObject message, boolean autoThreshold) {
-        logger.error("The dicomToJpg(sliceIndex, messageObject, autoThreshold) method is deprecated and will soon be removed. Please use dicomToJpg(sliceIndex, connectorMessage, autoThreshold) instead.");
-        return com.mirth.connect.server.util.DICOMUtil.dicomToJpg(sliceIndex, message.getImmutableConnectorMessage(), autoThreshold);
+        logger.error("The dicomToJpg(sliceIndex, messageObject, autoThreshold) method is deprecated and will soon be removed. Please use convertDICOMToByteArray(imageType, connectorMessage, sliceIndex, autoThreshold) instead.");
+        return com.mirth.connect.server.util.DICOMUtil.convertDICOMToByteArray("jpg", message.getImmutableConnectorMessage(), sliceIndex, autoThreshold);
     }
 
     public static byte[] dicomToJpg(int sliceIndex, ImmutableConnectorMessage message, boolean autoThreshold) {
-        return com.mirth.connect.server.util.DICOMUtil.dicomToJpg(sliceIndex, message, autoThreshold);
+        logger.error("The dicomToJpg(sliceIndex, connectorMessage, autoThreshold) method is deprecated and will soon be removed. Please use convertDICOMToByteArray(imageType, connectorMessage, sliceIndex, autoThreshold) instead.");
+        return com.mirth.connect.server.util.DICOMUtil.convertDICOMToByteArray("jpg", message, sliceIndex, autoThreshold);
     }
-    
+
     public static DicomObject byteArrayToDicomObject(byte[] bytes, boolean decodeBase64) throws IOException {
         return DICOMConverter.byteArrayToDicomObject(bytes, decodeBase64);
     }
-    
+
     public static byte[] dicomObjectToByteArray(DicomObject dicomObject) throws IOException {
         return DICOMConverter.dicomObjectToByteArray(dicomObject);
     }
