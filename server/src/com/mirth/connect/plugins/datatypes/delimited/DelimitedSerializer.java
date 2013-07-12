@@ -40,11 +40,11 @@ public class DelimitedSerializer implements IXMLSerializer {
         deserializationProperties = (DelimitedDeserializationProperties) properties.getDeserializationProperties();
         batchProperties = (DelimitedBatchProperties) properties.getBatchProperties();
     }
-    
+
     @Override
     public boolean isSerializationRequired(boolean toXml) {
         boolean serializationRequired = false;
-        
+
         //TODO Optimize which properties require serialization and which can be done via transformWithoutSerializing
         if (toXml) {
             if (!serializationProperties.getColumnDelimiter().equals(",") || !serializationProperties.getRecordDelimiter().equals("\\n") || serializationProperties.getColumnWidths() != null || !serializationProperties.getQuoteChar().equals("\"") || !serializationProperties.isEscapeWithDoubleQuote() || !serializationProperties.getQuoteEscapeChar().equals("\\") || serializationProperties.getColumnNames() != null || serializationProperties.isNumberedRows() || !serializationProperties.isIgnoreCR() || batchProperties.getBatchSkipRecords() != 0 || !batchProperties.isBatchSplitByRecord() || !batchProperties.getBatchMessageDelimiter().equals("") || batchProperties.isBatchMessageDelimiterIncluded() || !batchProperties.getBatchGroupingColumn().equals("") || !batchProperties.getBatchScript().equals("")) {
@@ -58,9 +58,9 @@ public class DelimitedSerializer implements IXMLSerializer {
 
         return serializationRequired;
     }
-    
+
     @Override
-    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
+    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) throws XmlSerializerException {
         return null;
     }
 

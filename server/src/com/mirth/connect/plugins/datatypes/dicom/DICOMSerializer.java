@@ -65,23 +65,23 @@ public class DICOMSerializer implements IXMLSerializer {
     public static Map<String, String> getDefaultProperties() {
         return new HashMap<String, String>();
     }
-    
+
     public static byte[] removePixelData(byte[] content) throws IOException {
         DicomObject dicomObject = DICOMConverter.byteArrayToDicomObject(content, false);
         dicomObject.remove(Tag.PixelData);
-        
+
         return DICOMConverter.dicomObjectToByteArray(dicomObject);
     }
-    
+
     @Override
     public boolean isSerializationRequired(boolean toXml) {
-    	boolean serializationRequired = false;
-    	
-    	return serializationRequired;
+        boolean serializationRequired = false;
+
+        return serializationRequired;
     }
-    
+
     @Override
-    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
+    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) throws XmlSerializerException {
         return null;
     }
 

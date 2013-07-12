@@ -69,11 +69,11 @@ public class RawMessage {
     }
 
     public String getRawData() {
-        return rawData;
+        return rawData == null ? "" : rawData;
     }
 
     public byte[] getRawBytes() {
-        return rawBytes;
+        return rawBytes == null ? new byte[0] : rawBytes;
     }
 
     public List<Integer> getDestinationMetaDataIds() {

@@ -16,5 +16,5 @@ public interface XmlSerializer {
 
     public boolean isSerializationRequired(boolean toXml);
 
-    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer);
+    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) throws XmlSerializerException;
 }

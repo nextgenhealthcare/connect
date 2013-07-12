@@ -89,32 +89,36 @@ public class NCPDPSerializer implements IXMLSerializer {
     }
 
     @Override
-    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
-        boolean transformed = false;
+    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) throws XmlSerializerException {
+        try {
+            boolean transformed = false;
 
-        NCPDPSerializer serializer = (NCPDPSerializer) outboundSerializer;
+            NCPDPSerializer serializer = (NCPDPSerializer) outboundSerializer;
 
-        String outputSegmentDelimiter = serializer.getDeserializationSegmentDelimiter();
-        String outputGroupDelimiter = serializer.getDeserializationGroupDelimiter();
-        String outputFieldDelimiter = serializer.getDeserializationFieldDelimiter();
+            String outputSegmentDelimiter = serializer.getDeserializationSegmentDelimiter();
+            String outputGroupDelimiter = serializer.getDeserializationGroupDelimiter();
+            String outputFieldDelimiter = serializer.getDeserializationFieldDelimiter();
 
-        if (!serializationSegmentDelimiter.equals(outputSegmentDelimiter)) {
-            message = StringUtils.replace(message, serializationSegmentDelimiter, outputSegmentDelimiter);
-            transformed = true;
-        }
+            if (!serializationSegmentDelimiter.equals(outputSegmentDelimiter)) {
+                message = StringUtils.replace(message, serializationSegmentDelimiter, outputSegmentDelimiter);
+                transformed = true;
+            }
 
-        if (!serializationGroupDelimiter.equals(outputGroupDelimiter)) {
-            message = StringUtils.replace(message, serializationGroupDelimiter, outputGroupDelimiter);
-            transformed = true;
-        }
+            if (!serializationGroupDelimiter.equals(outputGroupDelimiter)) {
+                message = StringUtils.replace(message, serializationGroupDelimiter, outputGroupDelimiter);
+                transformed = true;
+            }
 
-        if (!serializationFieldDelimiter.equals(outputFieldDelimiter)) {
-            message = StringUtils.replace(message, serializationFieldDelimiter, outputFieldDelimiter);
-            transformed = true;
-        }
+            if (!serializationFieldDelimiter.equals(outputFieldDelimiter)) {
+                message = StringUtils.replace(message, serializationFieldDelimiter, outputFieldDelimiter);
+                transformed = true;
+            }
 
-        if (transformed) {
-            return message;
+            if (transformed) {
+                return message;
+            }
+        } catch (Exception e) {
+            throw new XmlSerializerException("Error transforming NCPDP", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_501, "Error transforming NCPDP", e));
         }
 
         return null;

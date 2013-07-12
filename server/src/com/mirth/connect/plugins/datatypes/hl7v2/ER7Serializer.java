@@ -100,34 +100,41 @@ public class ER7Serializer implements IXMLSerializer {
     }
 
     @Override
-    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
-        boolean transformed = false;
-        ER7Serializer serializer = (ER7Serializer) outboundSerializer;
-        String outputSegmentDelimiter = serializer.getDeserializationSegmentDelimiter();
+    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) throws XmlSerializerException {
+        try {
+            boolean transformed = false;
+            ER7Serializer serializer = (ER7Serializer) outboundSerializer;
+            String outputSegmentDelimiter = serializer.getDeserializationSegmentDelimiter();
 
-        if (serializationProperties.isConvertLineBreaks()) {
-            if (skipIntermediateDelimiter) {
-                /*
-                 * When convert line breaks is on and transform without serializing is called,
-                 * ordinarily line breaks would be converted to the serialization delimiter, then the
-                 * serialization delimiter would be converted to the deserialization delimiter. In this
-                 * case, we can skip a step by simply converting line breaks to the deserialization
-                 * delimiter if the serialization delimiter is also a line break.
-                 */
-                return StringUtil.convertLineBreaks(message, outputSegmentDelimiter);
+            if (serializationProperties.isConvertLineBreaks()) {
+                if (skipIntermediateDelimiter) {
+                    /*
+                     * When convert line breaks is on and transform without serializing is called,
+                     * ordinarily line breaks would be converted to the serialization delimiter,
+                     * then the
+                     * serialization delimiter would be converted to the deserialization delimiter.
+                     * In this
+                     * case, we can skip a step by simply converting line breaks to the
+                     * deserialization
+                     * delimiter if the serialization delimiter is also a line break.
+                     */
+                    return StringUtil.convertLineBreaks(message, outputSegmentDelimiter);
+                }
+
+                message = StringUtil.convertLineBreaks(message, serializationSegmentDelimiter);
+                transformed = true;
             }
 
-            message = StringUtil.convertLineBreaks(message, serializationSegmentDelimiter);
-            transformed = true;
-        }
+            if (!serializationSegmentDelimiter.equals(outputSegmentDelimiter)) {
+                message = StringUtils.replace(message, serializationSegmentDelimiter, outputSegmentDelimiter);
+                transformed = true;
+            }
 
-        if (!serializationSegmentDelimiter.equals(outputSegmentDelimiter)) {
-            message = StringUtils.replace(message, serializationSegmentDelimiter, outputSegmentDelimiter);
-            transformed = true;
-        }
-
-        if (transformed) {
-            return message;
+            if (transformed) {
+                return message;
+            }
+        } catch (Exception e) {
+            throw new XmlSerializerException("Error transforming ER7", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_501, "Error transforming ER7", e));
         }
 
         return null;
@@ -146,7 +153,7 @@ public class ER7Serializer implements IXMLSerializer {
             if (serializationProperties.isConvertLineBreaks()) {
                 source = StringUtil.convertLineBreaks(source, serializationSegmentDelimiter);
             }
-            
+
             if (serializationProperties.isUseStrictParser()) {
                 if (serializationPipeParser == null || serializationXmlParser == null) {
                     serializationPipeParser = new PipeParser();
