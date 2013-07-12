@@ -66,11 +66,9 @@ public class DelimitedSerializer implements IXMLSerializer {
 
     @Override
     public String fromXML(String source) throws XmlSerializerException {
-
         StringBuilder builder = new StringBuilder();
 
         try {
-
             DelimitedXMLHandler handler = new DelimitedXMLHandler(deserializationProperties);
             XMLReader xr = XMLReaderFactory.createXMLReader();
             xr.setContentHandler(handler);
@@ -82,6 +80,7 @@ public class DelimitedSerializer implements IXMLSerializer {
             logger.error(exceptionMessage);
             throw new XmlSerializerException("Error converting XML to delimited text", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to delimited text", e));
         }
+
         return builder.toString();
     }
 
@@ -111,9 +110,7 @@ public class DelimitedSerializer implements IXMLSerializer {
             delimitedReader.parse(new InputSource(new StringReader(source)));
             return stringWriter.toString();
         } catch (Exception e) {
-            logger.error("Error converting delimited text to XML.", e);
+            throw new XmlSerializerException("Error converting delimited text to XML", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting delimited text to XML", e));
         }
-
-        return new String();
     }
 }

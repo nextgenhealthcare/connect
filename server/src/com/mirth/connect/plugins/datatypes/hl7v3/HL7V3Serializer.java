@@ -52,8 +52,12 @@ public class HL7V3Serializer implements IXMLSerializer {
 
     @Override
     public String toXML(String source) throws XmlSerializerException {
-        if (serializationProperties.isStripNamespaces()) {
-            source = StringUtil.stripNamespaces(source);
+        try {
+            if (serializationProperties.isStripNamespaces()) {
+                source = StringUtil.stripNamespaces(source);
+            }
+        } catch (Exception e) {
+            throw new XmlSerializerException("Error transforming HL7 v3.x", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_501, "Error transforming HL7 v3.x", e));
         }
 
         return source;

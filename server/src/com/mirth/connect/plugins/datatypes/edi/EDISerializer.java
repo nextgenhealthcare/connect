@@ -70,7 +70,7 @@ public class EDISerializer implements IXMLSerializer {
         try {
             xr = XMLReaderFactory.createXMLReader();
         } catch (SAXException e) {
-            throw new XmlSerializerException(e.getMessage(), e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
+            throw new XmlSerializerException("Error converting XML to EDI", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
         }
         EDIXMLHandler handler = new EDIXMLHandler();
         xr.setContentHandler(handler);
@@ -79,7 +79,7 @@ public class EDISerializer implements IXMLSerializer {
             //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
             xr.parse(new InputSource(new StringReader(prettyPattern.matcher(source).replaceAll("</$1><"))));
         } catch (Exception e) {
-            throw new XmlSerializerException(e.getMessage(), e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
+            throw new XmlSerializerException("Error converting XML to EDI", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
         }
         return handler.getOutput().toString();
     }
@@ -112,11 +112,8 @@ public class EDISerializer implements IXMLSerializer {
             ediReader.parse(new InputSource(new StringReader(source)));
             return stringWriter.toString();
         } catch (Exception e) {
-            //TODO is this supposed to throw a SerializerException?
-            logger.error("Error converting EDI message to XML.", e);
+            throw new XmlSerializerException("Error converting EDI to XML", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting EDI to XML", e));
         }
-
-        return new String();
     }
 
     @Override
