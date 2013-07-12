@@ -31,6 +31,7 @@ import com.mirth.connect.model.DeployedChannelInfo;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.ExtensionLibrary;
 import com.mirth.connect.model.Filter;
+import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
@@ -60,7 +61,7 @@ import com.thoughtworks.xstream.io.xml.DomReader;
 
 public class ObjectXMLSerializer extends XStreamSerializer {
     public final static String VERSION_ATTRIBUTE_NAME = "version";
-    
+
     private static final Class<?>[] annotatedClasses = new Class<?>[] {//@formatter:off
         AlertAction.class,
         AlertActionGroup.class,
@@ -109,21 +110,24 @@ public class ObjectXMLSerializer extends XStreamSerializer {
     public static Class<?>[] getAnnotatedClasses() {
         return annotatedClasses;
     }
-    
+
     private Logger logger = Logger.getLogger(getClass());
-    
+
     private ObjectXMLSerializer() {
+        super(new InvalidChannelWrapper());
         processAnnotations(annotatedClasses);
     }
-    
+
     public void processAnnotations(Class<?>[] classes) {
         getXStream().processAnnotations(classes);
     }
-    
+
     public void init(String currentVersion) {
-        getXStream().registerConverter(new MigratableConverter(MigrationUtil.normalizeVersion(currentVersion, 3), getXStream().getMapper()));
+        String normalizedVersion = MigrationUtil.normalizeVersion(currentVersion, 3);
+        getXStream().registerConverter(new MigratableConverter(normalizedVersion, getXStream().getMapper()));
+        getXStream().registerConverter(new ChannelConverter(normalizedVersion, getXStream().getMapper()));
     }
-    
+
     /**
      * Serializes an object.
      */
@@ -135,39 +139,41 @@ public class ObjectXMLSerializer extends XStreamSerializer {
             throw new SerializerException(e);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public <T> T deserialize(String serializedObject, Class<T> expectedClass) {
+        DonkeyElement element = null;
+
         try {
             if (skipMigration(expectedClass)) {
                 return (T) getXStream().fromXML(serializedObject);
             } else {
-                DonkeyElement element = new DonkeyElement(serializedObject);
-                
+                element = new DonkeyElement(serializedObject);
+
                 if (ImportConverter3_0_0.isMigratable(expectedClass)) {
                     element = ImportConverter3_0_0.migrate(element, expectedClass);
                 }
-                
+
                 return (T) getXStream().unmarshal(new DomReader(element.getElement()));
             }
         } catch (Exception e) {
-            logger.error(e);
-            throw new SerializerException(e);
+            return handleDeserializationException(element, e, expectedClass);
         }
     }
 
     /**
-     * Deserializes a source XML string and returns a List of objects of the expectedListItemClass
-     * type. If the source xml string represents a single object, then a list with that single
-     * object will be returned.
+     * Deserializes a source XML string and returns a List of objects of the
+     * expectedListItemClass type. If the source xml string represents a single
+     * object, then a list with that single object will be returned.
      */
     @SuppressWarnings("unchecked")
     public <T> List<T> deserializeList(String serializedObject, Class<T> expectedListItemClass) {
         try {
             /*
-             * If the expectedListItemClass is migratable to version 3.0.0, then we need to invoke
-             * ImportConverter3_0_0.migrate() on each item in the list.
+             * If the expectedListItemClass is migratable to version 3.0.0, then
+             * we need to invoke ImportConverter3_0_0.migrate() on each item in
+             * the list.
              */
             if (ImportConverter3_0_0.isMigratable(expectedListItemClass)) {
                 DonkeyElement listElement = new DonkeyElement(serializedObject);
@@ -180,19 +186,23 @@ public class ObjectXMLSerializer extends XStreamSerializer {
                         listElement = new DonkeyElement("<list/>");
                         listElement.addChildElementFromXml(serializedObject);
                     }
-        
+
                     List<T> list = new ArrayList<T>();
-        
+
                     for (DonkeyElement child : listElement.getChildElements()) {
-                        child = ImportConverter3_0_0.migrate(child, expectedListItemClass);
-                        list.add((T) getXStream().unmarshal(new DomReader(child.getElement())));
+                        try {
+                            child = ImportConverter3_0_0.migrate(child, expectedListItemClass);
+                            list.add((T) getXStream().unmarshal(new DomReader(child.getElement())));
+                        } catch (Exception e) {
+                            list.add(handleDeserializationException(child, e, expectedListItemClass));
+                        }
                     }
-        
+
                     return list;
                 }
             } else {
                 Object object;
-                
+
                 if (skipMigration(expectedListItemClass)) {
                     object = (T) getXStream().fromXML(serializedObject);
                 } else {
@@ -216,12 +226,23 @@ public class ObjectXMLSerializer extends XStreamSerializer {
     }
 
     /**
-     * This should return true only for classes that are not Migratable AND whose instances do not
-     * contain references to other Migratable objects. The purpose of this method is to avoid
-     * parsing serialized data for these types into a DOM document, since that is only required if
+     * This should return true only for classes that are not Migratable AND
+     * whose instances do not contain references to other Migratable objects.
+     * The purpose of this method is to avoid parsing serialized data for these
+     * types into a DOM document, since that is only required if
      * MigratableConverter is triggered.
      */
     private boolean skipMigration(Class<?> expectedClass) {
         return (expectedClass.equals(String.class) || expectedClass.equals(Integer.class) || expectedClass.equals(Long.class) || expectedClass.equals(Float.class) || expectedClass.equals(Double.class));
+    }
+
+    private <T> T handleDeserializationException(DonkeyElement element, Exception e, Class<T> expectedClass) {
+        if (expectedClass == Channel.class) {
+            logger.error("Error deserializing channel.", e);
+            return (T) new InvalidChannel(element, e, null);
+        }
+
+        logger.error(e);
+        throw new SerializerException(e);
     }
 }

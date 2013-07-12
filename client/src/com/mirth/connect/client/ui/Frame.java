@@ -108,6 +108,7 @@ import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.model.EncryptionSettings;
+import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateInfo;
@@ -1982,7 +1983,10 @@ public class Frame extends JXFrame {
             try {
                 Channel channel = selectedChannels.get(0);
 
-                if (checkInstalledConnectors(channel)) {
+                if (channel instanceof InvalidChannel) {
+                    Throwable cause = ((InvalidChannel) channel).getCause();
+                    alertException(this, cause.getStackTrace(), "Channel \"" + channel.getName() + "\" is invalid and cannot be edited. Original cause:\n" + cause.getMessage());
+                } else if (checkInstalledConnectors(channel)) {
                     editChannel((Channel) SerializationUtils.clone(channel));
                 }
             } catch (SerializationException e) {
@@ -1993,6 +1997,11 @@ public class Frame extends JXFrame {
     }
 
     public boolean checkInstalledConnectors(Channel channel) {
+        // TODO: Make this work for invalid channels as well
+        if (channel instanceof InvalidChannel) {
+            return true;
+        }
+
         Connector source = channel.getSourceConnector();
         List<Connector> destinations = channel.getDestinationConnectors();
         ArrayList<String> missingConnectors = new ArrayList<String>();
@@ -2628,6 +2637,11 @@ public class Frame extends JXFrame {
         }
 
         for (final Channel channel : selectedChannels) {
+            if (channel instanceof InvalidChannel) {
+                Throwable cause = ((InvalidChannel) channel).getCause();
+                alertException(this, cause.getStackTrace(), "Channel \"" + channel.getName() + "\" is invalid and cannot be enabled. Original cause:\n" + cause.getMessage());
+                return;
+            }
 
             String validationMessage = channelEditPanel.checkAllForms(channel);
             if (validationMessage != null) {
@@ -2669,27 +2683,29 @@ public class Frame extends JXFrame {
         }
 
         for (final Channel channel : selectedChannels) {
-            final String workingId = startWorking("Disabling channel...");
+            if (!(channel instanceof InvalidChannel)) {
+                final String workingId = startWorking("Disabling channel...");
 
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
-                public Void doInBackground() {
-                    channel.setEnabled(false);
-                    try {
-                        updateChannel(channel, false);
-                    } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    public Void doInBackground() {
+                        channel.setEnabled(false);
+                        try {
+                            updateChannel(channel, false);
+                        } catch (ClientException e) {
+                            alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        }
+                        return null;
                     }
-                    return null;
-                }
 
-                public void done() {
-                    doRefreshChannels();
-                    stopWorking(workingId);
-                }
-            };
+                    public void done() {
+                        doRefreshChannels();
+                        stopWorking(workingId);
+                    }
+                };
 
-            worker.execute();
+                worker.execute();
+            }
         }
     }
 
@@ -3146,7 +3162,21 @@ public class Frame extends JXFrame {
             alertException(this, e.getStackTrace(), e.getMessage());
         }
 
-        if (showAlerts) {
+        if (importChannel instanceof InvalidChannel) {
+            // Update the channel, but don't try to edit it
+            try {
+                updateChannel(importChannel, overwrite);
+
+                if (importChannel instanceof InvalidChannel && showAlerts) {
+                    Throwable cause = ((InvalidChannel) importChannel).getCause();
+                    alertException(this, cause.getStackTrace(), "Channel \"" + importChannel.getName() + "\" is invalid. Original cause:\n" + cause.getMessage());
+                }
+
+                doRefreshChannels();
+            } catch (Exception e) {
+                channels.remove(importChannel.getId());
+            }
+        } else if (showAlerts) {
             if (checkInstalledConnectors(importChannel)) {
                 final Channel importChannelFinal = importChannel;
 
@@ -3332,7 +3362,8 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * Creates a File with the default defined file filter type, but does not yet write to it.
+     * Creates a File with the default defined file filter type, but does not
+     * yet write to it.
      * 
      * @param defaultFileName
      * @param fileExtension
@@ -3457,9 +3488,16 @@ public class Frame extends JXFrame {
             return;
         }
 
-        Channel channel = null;
+        Channel channel = selectedChannels.get(0);
+
+        if (channel instanceof InvalidChannel) {
+            Throwable cause = ((InvalidChannel) channel).getCause();
+            alertException(this, cause.getStackTrace(), "Channel \"" + channel.getName() + "\" is invalid and cannot be cloned. Original cause:\n" + cause.getMessage());
+            return;
+        }
+
         try {
-            channel = (Channel) SerializationUtils.clone(selectedChannels.get(0));
+            channel = (Channel) SerializationUtils.clone(channel);
         } catch (SerializationException e) {
             alertException(this, e.getStackTrace(), e.getMessage());
             return;
@@ -4730,13 +4768,13 @@ public class Frame extends JXFrame {
      */
     private boolean promptObjectMigration(String content, String objectName) {
         String version = null;
-        
+
         try {
             version = MigrationUtil.normalizeVersion(MigrationUtil.getSerializedObjectVersion(content), 3);
         } catch (Exception e) {
             logger.error("Failed to read version information", e);
         }
-        
+
         StringBuilder message = new StringBuilder();
 
         if (version == null) {

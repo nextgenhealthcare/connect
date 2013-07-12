@@ -25,18 +25,19 @@ import com.thoughtworks.xstream.io.xml.DocumentReader;
 import com.thoughtworks.xstream.mapper.Mapper;
 
 /**
- * MigratableConverter will be triggered during serialization/deserialization of any classes that
- * implement the Migratable interface. When serializing, it will add a 'version' attribute to the
- * XML node containing the Mith version at the time of serialization. When deserializing, it will
- * check the 'version' attribute to see if the XML data needs to be migrated to the current version.
- * If migration is needed, it will invoke the appropriate migration methods to transform the XML
- * data before deserializing.
+ * MigratableConverter will be triggered during serialization/deserialization of
+ * any classes that implement the Migratable interface. When serializing, it
+ * will add a 'version' attribute to the XML node containing the Mith version at
+ * the time of serialization. When deserializing, it will check the 'version'
+ * attribute to see if the XML data needs to be migrated to the current version.
+ * If migration is needed, it will invoke the appropriate migration methods to
+ * transform the XML data before deserializing.
  * 
  * @author brentm
  */
 public class MigratableConverter extends ReflectionConverter {
-    private String currentVersion;
-    
+    protected String currentVersion;
+
     public MigratableConverter(String currentVersion, Mapper mapper) {
         super(mapper, new JVM().bestReflectionProvider());
         this.currentVersion = currentVersion;
@@ -58,9 +59,9 @@ public class MigratableConverter extends ReflectionConverter {
         String version = reader.getAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME);
 
         /*
-         * If the current DOM element contains a version attribute, then check if the element needs
-         * to be migrated to the current version. The reader should always be a DocumentReader at
-         * this point.
+         * If the current DOM element contains a version attribute, then check
+         * if the element needs to be migrated to the current version. The
+         * reader should always be a DocumentReader at this point.
          */
         if (version != null && MigrationUtil.compareVersions(version, currentVersion) < 0 && context.getRequiredType() != null) {
             migrateElement(new DonkeyElement((Element) ((DocumentReader) reader).getCurrent()), version, context.getRequiredType());

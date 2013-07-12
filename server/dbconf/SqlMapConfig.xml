@@ -24,6 +24,7 @@
 		<typeHandler javaType="com.mirth.connect.model.ServerEvent$Level" handler="com.mirth.connect.server.sqlmap.extensions.EventLevelTypeHandler" />
 		<typeHandler javaType="com.mirth.connect.model.ServerEvent$Outcome" handler="com.mirth.connect.server.sqlmap.extensions.EventOutcomeTypeHandler" />
 		<typeHandler javaType="com.mirth.connect.model.Channel" handler="com.mirth.connect.server.sqlmap.extensions.ChannelTypeHandler" />
+		<typeHandler javaType="com.mirth.connect.model.InvalidChannel" handler="com.mirth.connect.server.sqlmap.extensions.ChannelTypeHandler" />
 		<typeHandler javaType="java.util.Properties" handler="com.mirth.connect.server.sqlmap.extensions.PropertiesTypeHandler" />
 	</typeHandlers>
 

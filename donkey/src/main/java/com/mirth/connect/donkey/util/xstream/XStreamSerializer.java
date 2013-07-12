@@ -27,6 +27,7 @@ import com.thoughtworks.xstream.converters.basic.StringConverter;
 import com.thoughtworks.xstream.core.util.HierarchicalStreams;
 import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 import com.thoughtworks.xstream.io.xml.XppReader;
+import com.thoughtworks.xstream.mapper.MapperWrapper;
 
 public class XStreamSerializer implements Serializer {
     // http://jira.codehaus.org/browse/XSTR-395
@@ -43,7 +44,21 @@ public class XStreamSerializer implements Serializer {
     private Logger logger = Logger.getLogger(getClass());
 
     public XStreamSerializer() {
-        xstream = new XStream(new Xpp3Driver());
+        this(null);
+    }
+
+    public XStreamSerializer(final DonkeyMapperWrapper mapperWrapper) {
+        if (mapperWrapper != null) {
+            xstream = new XStream(new Xpp3Driver()) {
+                @Override
+                protected MapperWrapper wrapMapper(MapperWrapper next) {
+                    return mapperWrapper.wrapMapper(next);
+                }
+            };
+        } else {
+            xstream = new XStream(new Xpp3Driver());
+        }
+
         xstream.registerConverter(new StringConverter(stringCache));
         xstream.registerConverter(new ConcurrentHashMapConverter(xstream.getMapper()));
         xstream.registerConverter(new PropertiesConverter());
@@ -70,7 +85,7 @@ public class XStreamSerializer implements Serializer {
             throw new SerializerException(e);
         }
     }
-    
+
     @Override
     public Class<?> getClass(String serializedObject) {
         try {
@@ -80,7 +95,7 @@ public class XStreamSerializer implements Serializer {
             throw new SerializerException(e);
         }
     }
-    
+
     public XStream getXStream() {
         return xstream;
     }

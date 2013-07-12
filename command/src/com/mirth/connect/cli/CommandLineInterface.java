@@ -56,6 +56,7 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.DashboardStatus;
+import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEvent;
@@ -782,7 +783,7 @@ public class CommandLineInterface {
 
         String path = arguments[1].getText();
         File fXml = new File(path);
-        
+
         try {
             client.updateCodeTemplates(ObjectXMLSerializer.getInstance().deserializeList(FileUtils.readFileToString(fXml), CodeTemplate.class));
             out.println("Code Templates Import Complete");
@@ -792,7 +793,7 @@ public class CommandLineInterface {
             error("invalid file: " + path, e);
         }
     }
-    
+
     private void commandImportMessages(Token[] arguments) {
         if (hasInvalidNumberOfArguments(arguments, 2)) {
             return;
@@ -897,7 +898,7 @@ public class CommandLineInterface {
             writerOptions.setFilePattern(fXml.getAbsolutePath());
             writerOptions.setArchiveFormat(null);
             writerOptions.setCompressFormat(null);
-            
+
             MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, client.getEncryptor());
 
             messageCount = new MessageExporter().exportMessages(messageList, messageWriter);
@@ -1001,7 +1002,7 @@ public class CommandLineInterface {
 
     private void commandChannelEnable(Token[] arguments) throws ClientException {
         for (Channel channel : getMatchingChannels(arguments[2])) {
-            if (!channel.isEnabled()) {
+            if (!(channel instanceof InvalidChannel) && !channel.isEnabled()) {
                 channel.setEnabled(true);
                 client.updateChannel(channel, true);
                 out.println("Channel '" + channel.getName() + "' Enabled");
@@ -1075,11 +1076,13 @@ public class CommandLineInterface {
 
     private void commandChannelRename(Token[] arguments) throws ClientException {
         for (Channel channel : getMatchingChannels(arguments[2])) {
-            String oldName = channel.getName();
-            channel.setName(arguments[3].getText());
-            if (checkChannelName(channel.getName(), channel.getId())) {
-                client.updateChannel(channel, true);
-                out.println("Channel '" + oldName + "' renamed to '" + channel.getName() + "'");
+            if (!(channel instanceof InvalidChannel)) {
+                String oldName = channel.getName();
+                channel.setName(arguments[3].getText());
+                if (checkChannelName(channel.getName(), channel.getId())) {
+                    client.updateChannel(channel, true);
+                    out.println("Channel '" + oldName + "' renamed to '" + channel.getName() + "'");
+                }
             }
         }
     }
@@ -1284,7 +1287,7 @@ public class CommandLineInterface {
         if (hasInvalidNumberOfArguments(arguments, 2)) {
             return;
         }
-        
+
         String dumpFilename = arguments[2].getText();
         dumpFilename = replaceValues(dumpFilename);
 
@@ -1368,7 +1371,7 @@ public class CommandLineInterface {
         client.updateChannel(importChannel, true);
         out.println("Channel '" + channelName + "' imported successfully.");
     }
-    
+
     private void doImportAlert(File importFile, boolean force) throws ClientException {
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         List<AlertModel> alertList;
@@ -1403,7 +1406,7 @@ public class CommandLineInterface {
             out.println("Alert '" + alertName + "' imported successfully.");
         }
     }
-    
+
     private boolean checkAlertName(String name) throws ClientException {
         if (name.equals("")) {
             out.println("Channel name cannot be empty.");

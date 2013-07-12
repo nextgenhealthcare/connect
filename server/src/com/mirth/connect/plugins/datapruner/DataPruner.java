@@ -34,6 +34,7 @@ import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.util.ThreadUtils;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
+import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
 import com.mirth.connect.model.ServerEvent.Outcome;
@@ -218,46 +219,48 @@ public class DataPruner implements Runnable {
         Queue<PrunerTask> queue = new LinkedList<PrunerTask>();
 
         for (Channel channel : channels) {
-            ChannelProperties properties = channel.getProperties();
-            Integer pruneMetaDataDays = properties.getPruneMetaDataDays();
-            Integer pruneContentDays = properties.getPruneContentDays();
-            Calendar contentDateThreshold = null;
-            Calendar messageDateThreshold = null;
+            if (!(channel instanceof InvalidChannel)) {
+                ChannelProperties properties = channel.getProperties();
+                Integer pruneMetaDataDays = properties.getPruneMetaDataDays();
+                Integer pruneContentDays = properties.getPruneContentDays();
+                Calendar contentDateThreshold = null;
+                Calendar messageDateThreshold = null;
 
-            switch (channel.getProperties().getMessageStorageMode()) {
-                case DEVELOPMENT:
-                case PRODUCTION:
-                case RAW:
-                    if (pruneContentDays != null) {
-                        contentDateThreshold = Calendar.getInstance();
-                        contentDateThreshold.set(Calendar.DAY_OF_MONTH, contentDateThreshold.get(Calendar.DAY_OF_MONTH) - pruneContentDays);
-                    }
+                switch (channel.getProperties().getMessageStorageMode()) {
+                    case DEVELOPMENT:
+                    case PRODUCTION:
+                    case RAW:
+                        if (pruneContentDays != null) {
+                            contentDateThreshold = Calendar.getInstance();
+                            contentDateThreshold.set(Calendar.DAY_OF_MONTH, contentDateThreshold.get(Calendar.DAY_OF_MONTH) - pruneContentDays);
+                        }
 
-                case METADATA:
-                    if (pruneMetaDataDays != null) {
-                        messageDateThreshold = Calendar.getInstance();
-                        messageDateThreshold.set(Calendar.DAY_OF_MONTH, messageDateThreshold.get(Calendar.DAY_OF_MONTH) - pruneMetaDataDays);
-                    }
+                    case METADATA:
+                        if (pruneMetaDataDays != null) {
+                            messageDateThreshold = Calendar.getInstance();
+                            messageDateThreshold.set(Calendar.DAY_OF_MONTH, messageDateThreshold.get(Calendar.DAY_OF_MONTH) - pruneMetaDataDays);
+                        }
 
-                    if (messageDateThreshold != null || contentDateThreshold != null) {
-                        queue.add(new PrunerTask(channel.getId(), channel.getName(), messageDateThreshold, contentDateThreshold));
-                        status.getPendingChannelIds().add(channel.getId());
-                    }
-                    break;
+                        if (messageDateThreshold != null || contentDateThreshold != null) {
+                            queue.add(new PrunerTask(channel.getId(), channel.getName(), messageDateThreshold, contentDateThreshold));
+                            status.getPendingChannelIds().add(channel.getId());
+                        }
+                        break;
 
-                case DISABLED:
-                    break;
+                    case DISABLED:
+                        break;
 
-                default:
-                    String errorMessage = "Unrecognized message storage mode: " + properties.getMessageStorageMode().toString();
-                    logger.error(errorMessage);
+                    default:
+                        String errorMessage = "Unrecognized message storage mode: " + properties.getMessageStorageMode().toString();
+                        logger.error(errorMessage);
 
-                    Map<String, String> attributes = new HashMap<String, String>();
-                    attributes.put("Channel", channel.getName());
-                    attributes.put("Error", errorMessage);
+                        Map<String, String> attributes = new HashMap<String, String>();
+                        attributes.put("Channel", channel.getName());
+                        attributes.put("Error", errorMessage);
 
-                    eventController.dispatchEvent(new ServerEvent(DataPrunerService.PLUGINPOINT, Level.ERROR, Outcome.FAILURE, attributes));
-                    break;
+                        eventController.dispatchEvent(new ServerEvent(DataPrunerService.PLUGINPOINT, Level.ERROR, Outcome.FAILURE, attributes));
+                        break;
+                }
             }
         }
 
@@ -394,9 +397,12 @@ public class DataPruner implements Runnable {
 
             try {
                 /*
-                 * Choose the method of pruning. If we are not archiving, then prune by date.
-                 * Otherwise select the message ids to prune first, then constrain the deletion to
-                 * those ids. This is necessary when archiving in order to be sure that only
+                 * Choose the method of pruning. If we are not archiving, then
+                 * prune by date.
+                 * Otherwise select the message ids to prune first, then
+                 * constrain the deletion to
+                 * those ids. This is necessary when archiving in order to be
+                 * sure that only
                  * messages that were successfully archived get deleted.
                  */
                 if (!archiveEnabled && strategy == null && !DatabaseUtil.statementExists("Message.pruneMessagesByIds")) {
@@ -592,10 +598,14 @@ public class DataPruner implements Runnable {
         Strategy strategy = this.strategy;
 
         /*
-         * If a query strategy hasn't been defined, automatically choose one. If the # of archived
-         * messages is less than the # unarchived, then we want to prune using DELETE ... WHERE IN
-         * ([archived message ids]). Otherwise, we want to delete by excluding the unarchived
-         * messages: DELETE ... WHERE NOT IN ([unarchived message ids]) AND id BETWEEN min AND max.
+         * If a query strategy hasn't been defined, automatically choose one. If
+         * the # of archived
+         * messages is less than the # unarchived, then we want to prune using
+         * DELETE ... WHERE IN
+         * ([archived message ids]). Otherwise, we want to delete by excluding
+         * the unarchived
+         * messages: DELETE ... WHERE NOT IN ([unarchived message ids]) AND id
+         * BETWEEN min AND max.
          */
         if (strategy == null) {
             if (messageIds.size() > LIST_LIMIT && invertedMessageIdList.size() > LIST_LIMIT) {
@@ -761,7 +771,8 @@ public class DataPruner implements Runnable {
             currentValue = sortedValues.get(i);
 
             /*
-             * See if there is a gap at the current position in the list, if there is, then add all
+             * See if there is a gap at the current position in the list, if
+             * there is, then add all
              * of the gap values in the inverted list
              */
             if (currentValue > (lastValue + 1)) {

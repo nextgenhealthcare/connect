@@ -31,6 +31,7 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerInfo;
 import com.mirth.connect.model.UpdateInfo;
@@ -257,40 +258,42 @@ public class UpdateClient {
         List<Channel> channels = client.getChannels(null);
 
         for (Channel channel : channels) {
-            // number of destinations
-            usageData.add(new UsageData(channel.getId(), KEY_DESTINATIONS, String.valueOf(channel.getDestinationConnectors().size())));
+            if (!(channel instanceof InvalidChannel)) {
+                // number of destinations
+                usageData.add(new UsageData(channel.getId(), KEY_DESTINATIONS, String.valueOf(channel.getDestinationConnectors().size())));
 
-            // message counts
-            ChannelStatistics statistics = client.getStatistics(channel.getId());
+                // message counts
+                ChannelStatistics statistics = client.getStatistics(channel.getId());
 
-            if (statistics != null) {
-                usageData.add(new UsageData(channel.getId(), KEY_RECEIVED, String.valueOf(statistics.getReceived())));
-                usageData.add(new UsageData(channel.getId(), KEY_FILTERED, String.valueOf(statistics.getFiltered())));
-                usageData.add(new UsageData(channel.getId(), KEY_SENT, String.valueOf(statistics.getSent())));
-                usageData.add(new UsageData(channel.getId(), KEY_ERRORED, String.valueOf(statistics.getError())));
-            }
-
-            // connector transport and data type counts
-            usageData.add(new UsageData(channel.getId(), KEY_INBOUND_TRANSPORT, channel.getSourceConnector().getTransportName()));
-            usageData.add(new UsageData(channel.getId(), KEY_INBOUND_DATA_TYPE, channel.getSourceConnector().getTransformer().getInboundDataType()));
-
-            StringBuilder outboundTransports = new StringBuilder();
-            StringBuilder outboundDataTypes = new StringBuilder();
-
-            for (Iterator<Connector> iterator = channel.getDestinationConnectors().iterator(); iterator.hasNext();) {
-                Connector connector = iterator.next();
-                outboundTransports.append(connector.getTransportName());
-                outboundDataTypes.append(connector.getTransformer().getOutboundDataType());
-                // TODO add response transformer data types
-
-                if (iterator.hasNext()) {
-                    outboundTransports.append(",");
-                    outboundDataTypes.append(",");
+                if (statistics != null) {
+                    usageData.add(new UsageData(channel.getId(), KEY_RECEIVED, String.valueOf(statistics.getReceived())));
+                    usageData.add(new UsageData(channel.getId(), KEY_FILTERED, String.valueOf(statistics.getFiltered())));
+                    usageData.add(new UsageData(channel.getId(), KEY_SENT, String.valueOf(statistics.getSent())));
+                    usageData.add(new UsageData(channel.getId(), KEY_ERRORED, String.valueOf(statistics.getError())));
                 }
-            }
 
-            usageData.add(new UsageData(channel.getId(), KEY_OUTBOUND_TRANSPORTS, outboundTransports.toString()));
-            usageData.add(new UsageData(channel.getId(), KEY_OUTBOUND_DATA_TYPES, outboundDataTypes.toString()));
+                // connector transport and data type counts
+                usageData.add(new UsageData(channel.getId(), KEY_INBOUND_TRANSPORT, channel.getSourceConnector().getTransportName()));
+                usageData.add(new UsageData(channel.getId(), KEY_INBOUND_DATA_TYPE, channel.getSourceConnector().getTransformer().getInboundDataType()));
+
+                StringBuilder outboundTransports = new StringBuilder();
+                StringBuilder outboundDataTypes = new StringBuilder();
+
+                for (Iterator<Connector> iterator = channel.getDestinationConnectors().iterator(); iterator.hasNext();) {
+                    Connector connector = iterator.next();
+                    outboundTransports.append(connector.getTransportName());
+                    outboundDataTypes.append(connector.getTransformer().getOutboundDataType());
+                    // TODO add response transformer data types
+
+                    if (iterator.hasNext()) {
+                        outboundTransports.append(",");
+                        outboundDataTypes.append(",");
+                    }
+                }
+
+                usageData.add(new UsageData(channel.getId(), KEY_OUTBOUND_TRANSPORTS, outboundTransports.toString()));
+                usageData.add(new UsageData(channel.getId(), KEY_OUTBOUND_DATA_TYPES, outboundDataTypes.toString()));
+            }
         }
 
         return usageData;

@@ -29,7 +29,9 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DeployedChannelInfo;
+import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.server.util.DatabaseUtil;
@@ -184,10 +186,11 @@ public class DefaultChannelController extends ChannelController {
     @Override
     public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
         /*
-         * updateChannel and removeChannel must be synchronized to ensure the channel cache and database
+         * updateChannel and removeChannel must be synchronized to ensure the
+         * channel cache and database
          * never contain different versions of a channel.
          */
-        
+
         int newRevision = channel.getRevision();
         int currentRevision = 0;
 
@@ -206,8 +209,7 @@ public class DefaultChannelController extends ChannelController {
              * date. The client/CLI take care of this by passing in the proper
              * revision number, but the API alone does not.
              */
-            if (EqualsBuilder.reflectionEquals(channel, matchingChannel, new String[] {
-                    "lastModified", "revision" })) {
+            if (EqualsBuilder.reflectionEquals(channel, matchingChannel, new String[] { "lastModified", "revision" })) {
                 return true;
             }
 
@@ -230,8 +232,10 @@ public class DefaultChannelController extends ChannelController {
 
         ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
-        String sourceVersion = extensionController.getConnectorMetaDataByTransportName(channel.getSourceConnector().getTransportName()).getPluginVersion();
-        channel.getSourceConnector().setVersion(sourceVersion);
+        ConnectorMetaData sourceMetaData = extensionController.getConnectorMetaDataByTransportName(channel.getSourceConnector().getTransportName());
+        if (sourceMetaData != null) {
+            channel.getSourceConnector().setVersion(sourceMetaData.getPluginVersion());
+        }
 
         ArrayList<String> destConnectorNames = new ArrayList<String>(channel.getDestinationConnectors().size());
 
@@ -241,8 +245,10 @@ public class DefaultChannelController extends ChannelController {
             }
             destConnectorNames.add(connector.getName());
 
-            String destinationVersion = extensionController.getConnectorMetaDataByTransportName(connector.getTransportName()).getPluginVersion();
-            connector.setVersion(destinationVersion);
+            ConnectorMetaData destinationMetaData = extensionController.getConnectorMetaDataByTransportName(connector.getTransportName());
+            if (destinationMetaData != null) {
+                connector.setVersion(destinationMetaData.getPluginVersion());
+            }
         }
 
         try {
@@ -291,10 +297,11 @@ public class DefaultChannelController extends ChannelController {
     @Override
     public synchronized void removeChannel(Channel channel, ServerEventContext context) throws ControllerException {
         /*
-         * updateChannel and removeChannel must be synchronized to ensure the channel cache and database
+         * updateChannel and removeChannel must be synchronized to ensure the
+         * channel cache and database
          * never contain different versions of a channel.
          */
-        
+
         logger.debug("removing channel");
 
         if ((channel != null) && ControllerFactory.getFactory().createEngineController().isDeployed(channel.getId())) {
@@ -343,7 +350,7 @@ public class DefaultChannelController extends ChannelController {
         logger.debug("getting connector names");
         Channel channel = getChannelById(channelId);
 
-        if (channel == null) {
+        if (channel == null || channel instanceof InvalidChannel) {
             return null;
         }
 
@@ -362,7 +369,7 @@ public class DefaultChannelController extends ChannelController {
         logger.debug("getting metadata columns");
         Channel channel = getChannelById(channelId);
 
-        if (channel == null) {
+        if (channel == null || channel instanceof InvalidChannel) {
             return null;
         }
 
@@ -408,9 +415,12 @@ public class DefaultChannelController extends ChannelController {
     // ---------- CHANNEL CACHE ----------
 
     /**
-     * The Channel cache holds all channels currently stored in the database. Every method first
-     * should call refreshCache() to update any outdated, missing, or removed channels in the cache
-     * before performing its function. No two threads should refresh the cache simultaneously.
+     * The Channel cache holds all channels currently stored in the database.
+     * Every method first
+     * should call refreshCache() to update any outdated, missing, or removed
+     * channels in the cache
+     * before performing its function. No two threads should refresh the cache
+     * simultaneously.
      * 
      */
     private class ChannelCache {
@@ -440,7 +450,7 @@ public class DefaultChannelController extends ChannelController {
 
                     if (!channelCacheById.containsKey(channelId) || channelRevision.getValue() > channelCacheById.get(channelId).getRevision()) {
                         Channel channel = null;
-                        
+
                         try {
                             channel = SqlConfig.getSqlSessionManager().selectOne("Channel.getChannel", channelId);
                         } catch (Exception e) {
@@ -454,8 +464,10 @@ public class DefaultChannelController extends ChannelController {
                             channelCacheByName.put(channel.getName(), channel);
 
                             /*
-                             * If the channel being put in the cache already existed and it has a
-                             * new name, make sure to remove the entry with its old name from the
+                             * If the channel being put in the cache already
+                             * existed and it has a
+                             * new name, make sure to remove the entry with its
+                             * old name from the
                              * channelCacheByName map.
                              */
                             if (oldChannel != null && !oldChannel.getName().equals(channel.getName())) {
@@ -463,8 +475,10 @@ public class DefaultChannelController extends ChannelController {
                             }
                         } else {
                             /*
-                             * The channel was either removed from the database after the initial
-                             * revision query or an error occurred while attempting to retrieve it,
+                             * The channel was either removed from the database
+                             * after the initial
+                             * revision query or an error occurred while
+                             * attempting to retrieve it,
                              * remove it from the cache if it already existed.
                              */
                             if (channelCacheById.containsKey(channelId)) {
@@ -527,7 +541,8 @@ public class DefaultChannelController extends ChannelController {
 
     // ---------- DEPLOYED CHANNEL CACHE ----------
     /**
-     * The deployed channel cache holds all channels currently deployed on this server.
+     * The deployed channel cache holds all channels currently deployed on this
+     * server.
      * 
      */
     private class DeployedChannelCache {
@@ -556,8 +571,10 @@ public class DefaultChannelController extends ChannelController {
                 deployedChannelCacheByName.put(channel.getName(), channel);
 
                 /*
-                 * If the channel being put in the cache already existed and it has a
-                 * new name, make sure to remove the entry with its old name from the
+                 * If the channel being put in the cache already existed and it
+                 * has a
+                 * new name, make sure to remove the entry with its old name
+                 * from the
                  * channelCacheByName map.
                  */
                 if (oldDeployedChannel != null && !oldDeployedChannel.getName().equals(channel.getName())) {
