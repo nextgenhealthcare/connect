@@ -78,6 +78,7 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.Rule;
+import com.mirth.connect.model.Rule.Operator;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.FilterRulePlugin;
@@ -911,6 +912,20 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             modified = true;
 
             if (append) {
+                /*
+                 * MIRTH-2746 When appending filter rules from an import, the first rule may not
+                 * have an operator. To prevent an error in the JavaScript, we default it to AND.
+                 */
+                switch (importFilter.getRules().get(0).getOperator()) {
+                    case AND:
+                    case OR:
+                        break;
+
+                    default:
+                        importFilter.getRules().get(0).setOperator(Operator.AND);
+                        break;
+                }
+
                 previousFilter.getRules().addAll(importFilter.getRules());
                 importFilter = previousFilter;
                 connector.setFilter(importFilter);
