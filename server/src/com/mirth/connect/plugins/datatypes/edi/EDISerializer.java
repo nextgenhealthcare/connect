@@ -28,7 +28,6 @@ import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.model.datatype.SerializerProperties;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
@@ -70,7 +69,7 @@ public class EDISerializer implements IXMLSerializer {
         try {
             xr = XMLReaderFactory.createXMLReader();
         } catch (SAXException e) {
-            throw new XmlSerializerException("Error converting XML to EDI", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
+            throw new XmlSerializerException("Error converting XML to EDI", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to EDI", e));
         }
         EDIXMLHandler handler = new EDIXMLHandler();
         xr.setContentHandler(handler);
@@ -79,7 +78,7 @@ public class EDISerializer implements IXMLSerializer {
             //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
             xr.parse(new InputSource(new StringReader(prettyPattern.matcher(source).replaceAll("</$1><"))));
         } catch (Exception e) {
-            throw new XmlSerializerException("Error converting XML to EDI", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
+            throw new XmlSerializerException("Error converting XML to EDI", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to EDI", e));
         }
         return handler.getOutput().toString();
     }
@@ -112,7 +111,7 @@ public class EDISerializer implements IXMLSerializer {
             ediReader.parse(new InputSource(new StringReader(source)));
             return stringWriter.toString();
         } catch (Exception e) {
-            throw new XmlSerializerException("Error converting EDI to XML", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting EDI to XML", e));
+            throw new XmlSerializerException("Error converting EDI to XML", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting EDI to XML", e));
         }
     }
 

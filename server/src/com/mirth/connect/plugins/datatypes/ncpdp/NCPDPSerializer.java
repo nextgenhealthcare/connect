@@ -27,7 +27,6 @@ import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.model.datatype.SerializerProperties;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
@@ -118,7 +117,7 @@ public class NCPDPSerializer implements IXMLSerializer {
                 return message;
             }
         } catch (Exception e) {
-            throw new XmlSerializerException("Error transforming NCPDP", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_501, "Error transforming NCPDP", e));
+            throw new XmlSerializerException("Error transforming NCPDP", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming NCPDP", e));
         }
 
         return null;
@@ -162,7 +161,7 @@ public class NCPDPSerializer implements IXMLSerializer {
             reader.parse(new InputSource(new StringReader(prettyPattern.matcher(source).replaceAll("><"))));
             return handler.getOutput().toString();
         } catch (Exception e) {
-            throw new XmlSerializerException("Error converting XML to NCPDP message.", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to NCPDP", e));
+            throw new XmlSerializerException("Error converting XML to NCPDP message.", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to NCPDP", e));
         }
     }
 
@@ -176,7 +175,7 @@ public class NCPDPSerializer implements IXMLSerializer {
             ncpdpReader.parse(new InputSource(new StringReader(source)));
             return stringWriter.toString();
         } catch (Exception e) {
-            throw new XmlSerializerException("Error converting NCPDP message to XML.", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting NCPDP to XML", e));
+            throw new XmlSerializerException("Error converting NCPDP message to XML.", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting NCPDP to XML", e));
         }
     }
 

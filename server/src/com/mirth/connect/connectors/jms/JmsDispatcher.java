@@ -32,7 +32,6 @@ import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JmsDispatcher extends DestinationConnector {
@@ -104,7 +103,7 @@ public class JmsDispatcher extends DestinationConnector {
         } catch (Exception e) {
             logger.error("An error occurred in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\": " + e.getMessage(), ExceptionUtils.getRootCause(e));
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), e.getMessage(), e));
-            return new Response(Status.QUEUED, null, ErrorMessageBuilder.buildErrorResponse("Error occurred when attempting to send JMS message.", e), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_407, e.getMessage(), e));
+            return new Response(Status.QUEUED, null, ErrorMessageBuilder.buildErrorResponse("Error occurred when attempting to send JMS message.", e), ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), e.getMessage(), e));
         } finally {
             eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
         }

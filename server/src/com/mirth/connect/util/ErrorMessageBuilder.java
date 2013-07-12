@@ -34,6 +34,7 @@ public class ErrorMessageBuilder {
         }
 
         builder.append(errorType);
+        builder.append(" error");
 
         if (StringUtils.isNotBlank(errorSourceLine)) {
             builder.append(LINE_SEPARATOR);

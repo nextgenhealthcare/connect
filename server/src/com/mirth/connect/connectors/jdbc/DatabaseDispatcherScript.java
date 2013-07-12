@@ -32,7 +32,6 @@ import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
@@ -119,7 +118,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
             } catch (Exception e) {
                 ConnectorProperties connectorProperties = connector.getConnectorProperties();
                 responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error evaluating " + connectorProperties.getName(), e);
-                responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Error evaluating " + connector.getConnectorProperties().getName(), e);
+                responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error evaluating " + connector.getConnectorProperties().getName(), e);
                 responseStatus = Status.QUEUED;
 
                 logger.error("Error evaluating " + connectorProperties.getName() + " (" + connectorProperties.getName() + " \"" + connector.getDestinationName() + "\" on channel " + connector.getChannelId() + ").", e);

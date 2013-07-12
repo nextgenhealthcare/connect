@@ -60,7 +60,6 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class HttpDispatcher extends DestinationConnector {
@@ -197,12 +196,12 @@ public class HttpDispatcher extends DestinationConnector {
             } else {
                 eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Received error response from HTTP server.", null));
                 responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Received error response from HTTP server.", null);
-                responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_404, responseData, null);
+                responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), responseData, null);
             }
         } catch (Exception e) {
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error connecting to HTTP server.", e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error connecting to HTTP server", e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_404, "Error connecting to HTTP server", e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error connecting to HTTP server", e);
 
             // TODO: Handle Exception
             // connector.handleException(e);

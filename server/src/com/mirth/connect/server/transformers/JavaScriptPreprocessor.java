@@ -10,11 +10,11 @@
 package com.mirth.connect.server.transformers;
 
 import com.mirth.connect.donkey.model.DonkeyException;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.channel.components.PreProcessor;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptPreprocessor implements PreProcessor {
@@ -29,7 +29,7 @@ public class JavaScriptPreprocessor implements PreProcessor {
         } catch (InterruptedException e) {
             throw e;
         } catch (Exception e) {
-            throw new DonkeyException(e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_000, "Error running preprocessor scripts", e));
+            throw new DonkeyException(e, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.PREPROCESSOR.toString(), "Error running preprocessor scripts", e));
         }
     }
 

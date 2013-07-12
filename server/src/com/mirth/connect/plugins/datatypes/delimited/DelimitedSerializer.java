@@ -25,7 +25,6 @@ import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.model.datatype.SerializerProperties;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DelimitedSerializer implements IXMLSerializer {
@@ -78,7 +77,7 @@ public class DelimitedSerializer implements IXMLSerializer {
         } catch (Exception e) {
             String exceptionMessage = e.getClass().getName() + ":" + e.getMessage();
             logger.error(exceptionMessage);
-            throw new XmlSerializerException("Error converting XML to delimited text", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to delimited text", e));
+            throw new XmlSerializerException("Error converting XML to delimited text", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to delimited text", e));
         }
 
         return builder.toString();
@@ -110,7 +109,7 @@ public class DelimitedSerializer implements IXMLSerializer {
             delimitedReader.parse(new InputSource(new StringReader(source)));
             return stringWriter.toString();
         } catch (Exception e) {
-            throw new XmlSerializerException("Error converting delimited text to XML", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting delimited text to XML", e));
+            throw new XmlSerializerException("Error converting delimited text to XML", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting delimited text to XML", e));
         }
     }
 }

@@ -63,7 +63,6 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class WebServiceDispatcher extends DestinationConnector {
@@ -288,7 +287,7 @@ public class WebServiceDispatcher extends DestinationConnector {
                 } else {
                     responseStatus = Status.ERROR;
                     responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error invoking web service", e);
-                    responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_410, "Error invoking web service", e);
+                    responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error invoking web service", e);
                     eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error invoking web service.", e));
                 }
             }
@@ -297,7 +296,7 @@ public class WebServiceDispatcher extends DestinationConnector {
             // Set the response status to ERROR if it failed to create the dispatch
             responseStatus = Status.ERROR;
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error creating web service dispatch", e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_410, "Error creating web service dispatch", e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error creating web service dispatch", e);
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error creating web service dispatch.", e));
         } finally {
             eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));

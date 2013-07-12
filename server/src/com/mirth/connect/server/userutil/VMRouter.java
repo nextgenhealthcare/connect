@@ -27,7 +27,6 @@ import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class VMRouter {
@@ -111,7 +110,7 @@ public class VMRouter {
 
             logger.error(longMessage, cause);
             String responseStatusMessage = ErrorMessageBuilder.buildErrorResponse(shortMessage, cause);
-            String responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_412, longMessage, cause);
+            String responseError = ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), longMessage, cause);
             return new Response(Status.ERROR, null, responseStatusMessage, responseError);
         }
     }

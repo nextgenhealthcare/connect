@@ -44,7 +44,6 @@ import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptDispatcher extends DestinationConnector {
@@ -98,7 +97,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
         } catch (JavaScriptExecutorException e) {
             logger.error("Error executing script (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error executing script", e));
-            return new Response(Status.ERROR, null, ErrorMessageBuilder.buildErrorResponse("Error executing script", e), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Error executing script", e));
+            return new Response(Status.ERROR, null, ErrorMessageBuilder.buildErrorResponse("Error executing script", e), ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error executing script", e));
         } finally {
             eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
         }
@@ -123,7 +122,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
 
             if (compiledScript == null) {
                 responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Script not found in cache", null);
-                responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Script not found in cache", null);
+                responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Script not found in cache", null);
                 responseStatus = Status.ERROR;
 
                 logger.error("Script not found in cache (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
@@ -172,7 +171,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
                         }
                     }
 
-                    responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Error evaluating " + getConnectorProperties().getName(), t);
+                    responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error evaluating " + getConnectorProperties().getName(), t);
                     responseStatus = Status.ERROR;
 
                     logger.error("Error evaluating " + getConnectorProperties().getName() + " (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", t);

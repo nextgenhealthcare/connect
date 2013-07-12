@@ -67,7 +67,6 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.TcpUtil;
 
@@ -373,7 +372,7 @@ public class TcpReceiver extends SourceConnector {
                         responseSocket = createResponseSocket(streamHandler);
                         sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, true);
                     } catch (IOException e) {
-                        errorMessage = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, "Error sending response.", e);
+                        errorMessage = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error sending response.", e);
                     } finally {
                         closeSocketQuietly(responseSocket);
                     }
@@ -535,7 +534,7 @@ public class TcpReceiver extends SourceConnector {
 
                                                 sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION);
                                             } catch (IOException e) {
-                                                errorMessage = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, "Error sending response.", e);
+                                                errorMessage = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error sending response.", e);
                                             } finally {
                                                 if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
                                                     closeSocketQuietly(responseSocket);

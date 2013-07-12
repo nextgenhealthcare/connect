@@ -25,7 +25,6 @@ import com.mirth.connect.donkey.server.message.ResponseValidator;
 import com.mirth.connect.model.datatype.ResponseValidationProperties;
 import com.mirth.connect.model.datatype.SerializationProperties;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
@@ -61,7 +60,7 @@ public class HL7v2ResponseValidator implements ResponseValidator {
                 } catch (Exception e) {
                     response.setStatus(Status.ERROR);
                     response.setStatusMessage("Error validating response: " + e.getMessage());
-                    response.setError(ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_600, response.getStatusMessage(), e));
+                    response.setError(ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), response.getStatusMessage(), e));
                 }
             } else {
                 if (serializationProperties.isConvertLineBreaks()) {

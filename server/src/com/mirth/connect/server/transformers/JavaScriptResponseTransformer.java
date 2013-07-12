@@ -34,7 +34,6 @@ import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptResponseTransformer implements ResponseTransformer {
@@ -72,7 +71,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                 e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 0, "response", null);
             }
 
-            logger.error(ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_300, null, e)); // TODO Add new error code for Response Transformer
+            logger.error(ErrorMessageBuilder.buildErrorMessage(ErrorEventType.RESPONSE_TRANSFORMER.toString(), null, e)); // TODO Add new error code for Response Transformer
             throw new JavaScriptInitializationException("Error initializing JavaScript response transformer", e);
         }
     }
@@ -150,7 +149,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                 }
 
                 eventDispatcher.dispatchEvent(new ErrorEvent(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), ErrorEventType.RESPONSE_TRANSFORMER, connectorName, "Error evaluating response transformer", t));
-                throw new ResponseTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_600, "Error evaluating response transformer", t));
+                throw new ResponseTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.RESPONSE_TRANSFORMER.toString(), "Error evaluating response transformer", t));
             } finally {
                 Context.exit();
             }

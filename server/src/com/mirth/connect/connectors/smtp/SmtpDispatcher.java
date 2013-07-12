@@ -37,7 +37,6 @@ import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class SmtpDispatcher extends DestinationConnector {
@@ -227,7 +226,7 @@ public class SmtpDispatcher extends DestinationConnector {
         } catch (Exception e) {
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error sending email message", e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error sending email message", e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_402, "Error sending email message", e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error sending email message", e);
 
             // TODO: Exception handling
 //            connector.handleException(new Exception(e));

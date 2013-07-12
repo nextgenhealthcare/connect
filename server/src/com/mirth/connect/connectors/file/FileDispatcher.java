@@ -37,7 +37,6 @@ import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class FileDispatcher extends DestinationConnector {
@@ -141,7 +140,7 @@ public class FileDispatcher extends DestinationConnector {
         } catch (Exception e) {
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error writing file", e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error writing file", e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_403, "Error writing file", e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error writing file", e);
             // TODO: handleException
 //            fileConnector.handleException(e);
         } finally {

@@ -46,7 +46,6 @@ import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class VmDispatcher extends DestinationConnector {
@@ -198,7 +197,7 @@ public class VmDispatcher extends DestinationConnector {
 
             eventController.dispatchEvent(new ErrorEvent(currentChannelId, getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), longMessage, cause));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse(shortMessage, cause);
-            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_412, longMessage, cause);
+            responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), longMessage, cause);
         } finally {
             eventController.dispatchEvent(new ConnectorEvent(currentChannelId, getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
         }

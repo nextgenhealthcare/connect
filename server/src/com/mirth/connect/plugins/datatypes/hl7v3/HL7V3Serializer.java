@@ -18,7 +18,6 @@ import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.SerializerProperties;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
@@ -44,7 +43,7 @@ public class HL7V3Serializer implements IXMLSerializer {
                 return StringUtil.stripNamespaces(message);
             }
         } catch (Exception e) {
-            throw new XmlSerializerException("Error transforming HL7 v3.x", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_501, "Error transforming HL7 v3.x", e));
+            throw new XmlSerializerException("Error transforming HL7 v3.x", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming HL7 v3.x", e));
         }
 
         return null;
@@ -57,7 +56,7 @@ public class HL7V3Serializer implements IXMLSerializer {
                 source = StringUtil.stripNamespaces(source);
             }
         } catch (Exception e) {
-            throw new XmlSerializerException("Error transforming HL7 v3.x", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_501, "Error transforming HL7 v3.x", e));
+            throw new XmlSerializerException("Error transforming HL7 v3.x", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming HL7 v3.x", e));
         }
 
         return source;

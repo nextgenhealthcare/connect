@@ -46,7 +46,6 @@ import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class TcpDispatcher extends DestinationConnector {
@@ -238,7 +237,7 @@ public class TcpDispatcher extends DestinationConnector {
                         responseStatusMessage = "Error receiving response";
                     }
 
-                    responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, responseStatusMessage + ": " + e.getMessage(), e);
+                    responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), responseStatusMessage + ": " + e.getMessage(), e);
                     logger.warn(responseStatusMessage + " (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
                     eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), responseStatusMessage + ".", e));
                     eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.FAILURE, responseStatusMessage + " from " + SocketUtil.getInetAddress(socket)));
@@ -266,7 +265,7 @@ public class TcpDispatcher extends DestinationConnector {
             // If an exception occurred then close the socket, even if keep connection open is true
             closeSocketQuietly();
             responseStatusMessage = e.getClass().getSimpleName() + ": " + e.getMessage();
-            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, e.getMessage(), e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), e.getMessage(), e);
 
             if (e instanceof ConnectException || e.getCause() != null && e.getCause() instanceof ConnectException) {
                 logger.error("Error sending message via TCP (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);

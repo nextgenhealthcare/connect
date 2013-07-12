@@ -36,7 +36,6 @@ import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.model.datatype.SerializerProperties;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
@@ -134,7 +133,7 @@ public class ER7Serializer implements IXMLSerializer {
                 return message;
             }
         } catch (Exception e) {
-            throw new XmlSerializerException("Error transforming ER7", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_501, "Error transforming ER7", e));
+            throw new XmlSerializerException("Error transforming ER7", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming ER7", e));
         }
 
         return null;
@@ -201,7 +200,7 @@ public class ER7Serializer implements IXMLSerializer {
                 return stringWriter.toString();
             }
         } catch (Exception e) {
-            throw new XmlSerializerException("Error converting ER7 to XML", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting ER7 to XML", e));
+            throw new XmlSerializerException("Error converting ER7 to XML", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting ER7 to XML", e));
         }
     }
 
@@ -278,7 +277,7 @@ public class ER7Serializer implements IXMLSerializer {
                 return handler.getOutput().toString();
             }
         } catch (Exception e) {
-            throw new XmlSerializerException("Error converting XML to ER7", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to ER7", e));
+            throw new XmlSerializerException("Error converting XML to ER7", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to ER7", e));
         }
     }
 

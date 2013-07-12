@@ -35,7 +35,6 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DICOMDispatcher extends DestinationConnector {
@@ -219,7 +218,7 @@ public class DICOMDispatcher extends DestinationConnector {
             responseStatus = Status.SENT;
         } catch (Exception e) {
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse(e.getMessage(), e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_415, e.getMessage(), null);
+            responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), e.getMessage(), null);
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), e.getMessage(), null));
         } finally {
             eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));

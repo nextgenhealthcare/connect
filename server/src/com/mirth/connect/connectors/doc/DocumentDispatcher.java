@@ -47,7 +47,6 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DocumentDispatcher extends DestinationConnector {
@@ -111,7 +110,7 @@ public class DocumentDispatcher extends DestinationConnector {
         } catch (Exception e) {
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error writing document", e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error writing document", e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_401, "Error writing document", e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error writing document", e);
 
             // TODO: Handle exception
 //            connector.handleException(e);

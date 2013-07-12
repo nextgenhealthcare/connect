@@ -18,7 +18,6 @@ import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.SerializerProperties;
-import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
@@ -44,7 +43,7 @@ public class DefaultXMLSerializer implements IXMLSerializer {
                 return StringUtil.stripNamespaces(message);
             }
         } catch (Exception e) {
-            throw new XmlSerializerException("Error transforming XML", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_501, "Error transforming XML", e));
+            throw new XmlSerializerException("Error transforming XML", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming XML", e));
         }
 
         return null;
@@ -57,7 +56,7 @@ public class DefaultXMLSerializer implements IXMLSerializer {
                 source = StringUtil.stripNamespaces(source);
             }
         } catch (Exception e) {
-            throw new XmlSerializerException("Error transforming XML", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_501, "Error transforming XML", e));
+            throw new XmlSerializerException("Error transforming XML", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming XML", e));
         }
 
         return source;
