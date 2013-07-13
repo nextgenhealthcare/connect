@@ -114,7 +114,7 @@ public class LoadedExtensions {
                     }
                 }
             } catch (Exception e) {
-                PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, "Could not load connector class: " + metaData.getClientClassName());
+                PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), "Could not load connector class: " + metaData.getClientClassName());
             }
         }
     }
