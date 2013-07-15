@@ -14,8 +14,10 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,12 +43,13 @@ import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 /**
- * The purpose of this class is to migrate serialized objects created prior to version 3.0.0 (which
- * was when the Migratable interface was first introduced). This class will invoke the original
- * ImportConverter class if necessary to run 1.x and 2.x migration, then it will migrate to the
- * 3.0.0 structure. Once an object has been migrated to the 3.0.0 structure, the migration methods
- * defined by the Migratable interface are then responsible to migrate the serialized data to the
- * latest Mirth version.
+ * The purpose of this class is to migrate serialized objects created prior to
+ * version 3.0.0 (which was when the Migratable interface was first introduced).
+ * This class will invoke the original ImportConverter class if necessary to run
+ * 1.x and 2.x migration, then it will migrate to the 3.0.0 structure. Once an
+ * object has been migrated to the 3.0.0 structure, the migration methods
+ * defined by the Migratable interface are then responsible to migrate the
+ * serialized data to the latest Mirth version.
  */
 public class ImportConverter3_0_0 {
     private final static String VERSION_STRING = "3.0.0";
@@ -55,12 +58,13 @@ public class ImportConverter3_0_0 {
     private static Logger logger = Logger.getLogger(ImportConverter3_0_0.class);
 
     /**
-     * Tell whether or not serialized data for the given class is migratable to version 3.0.0.
+     * Tell whether or not serialized data for the given class is migratable to
+     * version 3.0.0.
      */
     public static boolean isMigratable(Class<?> clazz) {
         return (clazz.equals(Channel.class) || clazz.equals(Connector.class) || clazz.equals(AlertModel.class) || clazz.equals(ChannelProperties.class) || clazz.equals(CodeTemplate.class) || clazz.equals(ServerConfiguration.class) || clazz.equals(Filter.class) || clazz.equals(MetaData.class));
     }
-    
+
     /**
      * Takes a serialized object and using the expectedClass hint, runs the
      * appropriate conversion to convert the object to the 3.0.0 structure.
@@ -908,31 +912,31 @@ public class ImportConverter3_0_0 {
 
         try {
             Properties oldHeaderProperties = readPropertiesElement(new DonkeyElement(convertReferences(oldProperties.getProperty("dispatcherHeaders"))));
-    
+
             DonkeyElement headerProperties = properties.addChildElement("headers");
             headerProperties.setAttribute("class", "linked-hash-map");
-    
+
             for (Object key : oldHeaderProperties.keySet()) {
                 String value = oldHeaderProperties.getProperty((String) key);
-    
+
                 DonkeyElement entry = headerProperties.addChildElement("entry");
                 entry.addChildElement("string", (String) key);
                 entry.addChildElement("string", value);
             }
-    
+
             Properties oldParameterProperties = readPropertiesElement(new DonkeyElement(convertReferences(oldProperties.getProperty("dispatcherParameters"))));
-    
+
             DonkeyElement parameterProperties = properties.addChildElement("parameters");
             parameterProperties.setAttribute("class", "linked-hash-map");
-    
+
             for (Object key : oldParameterProperties.keySet()) {
                 String value = oldParameterProperties.getProperty((String) key);
-    
+
                 DonkeyElement entry = parameterProperties.addChildElement("entry");
                 entry.addChildElement("string", (String) key);
                 entry.addChildElement("string", value);
             }
-    
+
             return oldProperties.getProperty("dispatcherReplyChannelId");
         } catch (DonkeyElementException e) {
             throw new MigrationException("Failed to migrate HTTP Dispatcher properties", e);
@@ -1045,13 +1049,13 @@ public class ImportConverter3_0_0 {
 
         try {
             Properties oldConnectionProperties = readPropertiesElement(new DonkeyElement(oldProperties.getProperty("connectionFactoryProperties")));
-    
+
             DonkeyElement connectionProperties = properties.addChildElement("connectionProperties");
             connectionProperties.setAttribute("class", "linked-hash-map");
-    
+
             for (Object key : oldConnectionProperties.keySet()) {
                 String value = convertReferences(oldConnectionProperties.getProperty((String) key));
-    
+
                 DonkeyElement entry = connectionProperties.addChildElement("entry");
                 entry.addChildElement("string", (String) key);
                 entry.addChildElement("string", value);
@@ -1762,5 +1766,37 @@ public class ImportConverter3_0_0 {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static Set<String> getMissingDataTypes(DonkeyElement transformer, Set<String> loadedDataTypes) {
+        Set<String> missingDataTypes = new HashSet<String>();
+
+        DonkeyElement inboundDataType = transformer.getChildElement("inboundProtocol");
+
+        if (inboundDataType != null) {
+            String dataTypeContent = inboundDataType.getTextContent();
+            if (dataTypeContent.equals("EDI") || dataTypeContent.equals("X12")) {
+                dataTypeContent = "EDI/X12";
+            }
+
+            if (!loadedDataTypes.contains(dataTypeContent)) {
+                missingDataTypes.add(dataTypeContent);
+            }
+        }
+
+        DonkeyElement outboundDataType = transformer.getChildElement("outboundProtocol");
+
+        if (outboundDataType != null) {
+            String dataTypeContent = outboundDataType.getTextContent();
+            if (dataTypeContent.equals("EDI") || dataTypeContent.equals("X12")) {
+                dataTypeContent = "EDI/X12";
+            }
+
+            if (!loadedDataTypes.contains(dataTypeContent)) {
+                missingDataTypes.add(dataTypeContent);
+            }
+        }
+
+        return missingDataTypes;
     }
 }

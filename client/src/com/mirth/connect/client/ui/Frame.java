@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -98,6 +99,8 @@ import com.mirth.connect.client.ui.extensionmanager.ExtensionUpdateDialog;
 import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
@@ -118,6 +121,7 @@ import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
+import com.mirth.connect.model.util.ImportConverter3_0_0;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 import com.mirth.connect.util.MigrationUtil;
@@ -1984,9 +1988,10 @@ public class Frame extends JXFrame {
                 Channel channel = selectedChannels.get(0);
 
                 if (channel instanceof InvalidChannel) {
-                    Throwable cause = ((InvalidChannel) channel).getCause();
-                    alertException(this, cause.getStackTrace(), "Channel \"" + channel.getName() + "\" is invalid and cannot be edited. Original cause:\n" + cause.getMessage());
-                } else if (checkInstalledConnectors(channel)) {
+                    InvalidChannel invalidChannel = (InvalidChannel) channel;
+                    Throwable cause = invalidChannel.getCause();
+                    alertException(this, cause.getStackTrace(), "Channel \"" + channel.getName() + "\" is invalid and cannot be edited. " + getMissingExtensions(invalidChannel) + "Original cause:\n" + cause.getMessage());
+                } else {
                     editChannel((Channel) SerializationUtils.clone(channel));
                 }
             } catch (SerializationException e) {
@@ -1996,35 +2001,78 @@ public class Frame extends JXFrame {
         isEditingChannel = false;
     }
 
-    public boolean checkInstalledConnectors(Channel channel) {
-        // TODO: Make this work for invalid channels as well
-        if (channel instanceof InvalidChannel) {
-            return true;
+    private String getMissingExtensions(InvalidChannel channel) {
+        Set<String> missingConnectors = new HashSet<String>();
+        Set<String> missingDataTypes = new HashSet<String>();
+
+        try {
+            DonkeyElement channelElement = new DonkeyElement(((InvalidChannel) channel).getChannelXml());
+
+            checkConnectorForMissingExtensions(channelElement.getChildElement("sourceConnector"), true, missingConnectors, missingDataTypes);
+
+            DonkeyElement destinationConnectors = channelElement.getChildElement("destinationConnectors");
+            if (destinationConnectors != null) {
+                for (DonkeyElement destinationConnector : destinationConnectors.getChildElements()) {
+                    checkConnectorForMissingExtensions(destinationConnector, false, missingConnectors, missingDataTypes);
+                }
+            }
+        } catch (DonkeyElementException e) {
         }
 
-        Connector source = channel.getSourceConnector();
-        List<Connector> destinations = channel.getDestinationConnectors();
-        ArrayList<String> missingConnectors = new ArrayList<String>();
+        StringBuilder builder = new StringBuilder();
 
-        if (!LoadedExtensions.getInstance().getSourceConnectors().containsKey(source.getTransportName())) {
-            missingConnectors.add(source.getTransportName());
+        if (!missingConnectors.isEmpty()) {
+            builder.append("\n\nYour Mirth Connect installation is missing required connectors for this channel:\n     ");
+            builder.append(StringUtils.join(missingConnectors.toArray(), "\n     "));
+            builder.append("\n\n");
         }
 
-        for (int i = 0; i < destinations.size(); i++) {
-            if (!LoadedExtensions.getInstance().getDestinationConnectors().containsKey(destinations.get(i).getTransportName())) {
-                missingConnectors.add(destinations.get(i).getTransportName());
+        if (!missingDataTypes.isEmpty()) {
+            if (missingConnectors.isEmpty()) {
+                builder.append("\n\n");
+            }
+            builder.append("Your Mirth Connect installation is missing required data types for this channel:\n     ");
+            builder.append(StringUtils.join(missingDataTypes.toArray(), "\n     "));
+            builder.append("\n\n");
+        }
+
+        return builder.toString();
+    }
+
+    private void checkConnectorForMissingExtensions(DonkeyElement connector, boolean source, Set<String> missingConnectors, Set<String> missingDataTypes) {
+        if (connector != null) {
+            DonkeyElement transportName = connector.getChildElement("transportName");
+            if (transportName != null) {
+                if (source && !LoadedExtensions.getInstance().getSourceConnectors().containsKey(transportName.getTextContent())) {
+                    missingConnectors.add(transportName.getTextContent());
+                } else if (!source && !LoadedExtensions.getInstance().getDestinationConnectors().containsKey(transportName.getTextContent())) {
+                    missingConnectors.add(transportName.getTextContent());
+                }
+            }
+
+            checkTransformerForMissingExtensions(connector.getChildElement("transformer"), missingDataTypes);
+            if (!source) {
+                checkTransformerForMissingExtensions(connector.getChildElement("responseTransformer"), missingDataTypes);
             }
         }
+    }
 
-        if (missingConnectors.size() > 0) {
-            String errorText = "Your Mirth Connect installation is missing required connectors for this channel:\n";
-            for (String s : missingConnectors) {
-                errorText += s + "\n";
+    private void checkTransformerForMissingExtensions(DonkeyElement transformer, Set<String> missingDataTypes) {
+        if (transformer != null) {
+            // Check for 2.x-specific data types
+            missingDataTypes.addAll(ImportConverter3_0_0.getMissingDataTypes(transformer, LoadedExtensions.getInstance().getDataTypePlugins().keySet()));
+
+            DonkeyElement inboundDataType = transformer.getChildElement("inboundDataType");
+
+            if (inboundDataType != null && !LoadedExtensions.getInstance().getDataTypePlugins().containsKey(inboundDataType.getTextContent())) {
+                missingDataTypes.add(inboundDataType.getTextContent());
             }
-            alertError(this, errorText);
-            return false;
-        } else {
-            return true;
+
+            DonkeyElement outboundDataType = transformer.getChildElement("outboundDataType");
+
+            if (outboundDataType != null && !LoadedExtensions.getInstance().getDataTypePlugins().containsKey(outboundDataType.getTextContent())) {
+                missingDataTypes.add(outboundDataType.getTextContent());
+            }
         }
     }
 
@@ -2638,8 +2686,9 @@ public class Frame extends JXFrame {
 
         for (final Channel channel : selectedChannels) {
             if (channel instanceof InvalidChannel) {
-                Throwable cause = ((InvalidChannel) channel).getCause();
-                alertException(this, cause.getStackTrace(), "Channel \"" + channel.getName() + "\" is invalid and cannot be enabled. Original cause:\n" + cause.getMessage());
+                InvalidChannel invalidChannel = (InvalidChannel) channel;
+                Throwable cause = invalidChannel.getCause();
+                alertException(this, cause.getStackTrace(), "Channel \"" + channel.getName() + "\" is invalid and cannot be enabled. " + getMissingExtensions(invalidChannel) + "Original cause:\n" + cause.getMessage());
                 return;
             }
 
@@ -3168,8 +3217,9 @@ public class Frame extends JXFrame {
                 updateChannel(importChannel, overwrite);
 
                 if (importChannel instanceof InvalidChannel && showAlerts) {
-                    Throwable cause = ((InvalidChannel) importChannel).getCause();
-                    alertException(this, cause.getStackTrace(), "Channel \"" + importChannel.getName() + "\" is invalid. Original cause:\n" + cause.getMessage());
+                    InvalidChannel invalidChannel = (InvalidChannel) importChannel;
+                    Throwable cause = invalidChannel.getCause();
+                    alertException(this, cause.getStackTrace(), "Channel \"" + importChannel.getName() + "\" is invalid. " + getMissingExtensions(invalidChannel) + " Original cause:\n" + cause.getMessage());
                 }
 
                 doRefreshChannels();
@@ -3177,32 +3227,30 @@ public class Frame extends JXFrame {
                 channels.remove(importChannel.getId());
             }
         } else if (showAlerts) {
-            if (checkInstalledConnectors(importChannel)) {
-                final Channel importChannelFinal = importChannel;
+            final Channel importChannelFinal = importChannel;
 
-                /*
-                 * MIRTH-2048 - This is a hack to fix the memory access error
-                 * that only occurs on OS X. The block of code that edits the
-                 * channel needs to be invoked later so that the screen does not
-                 * change before the drag/drop action of a channel finishes.
-                 */
-                SwingUtilities.invokeLater(new Runnable() {
+            /*
+             * MIRTH-2048 - This is a hack to fix the memory access error
+             * that only occurs on OS X. The block of code that edits the
+             * channel needs to be invoked later so that the screen does not
+             * change before the drag/drop action of a channel finishes.
+             */
+            SwingUtilities.invokeLater(new Runnable() {
 
-                    @Override
-                    public void run() {
-                        try {
-                            editChannel(importChannelFinal);
-                            setSaveEnabled(true);
-                        } catch (Exception e) {
-                            channels.remove(importChannelFinal.getId());
-                            alertError(PlatformUI.MIRTH_FRAME, "Channel had an unknown problem. Channel import aborted.");
-                            channelEditPanel = new ChannelSetup();
-                            doShowChannel();
-                        }
+                @Override
+                public void run() {
+                    try {
+                        editChannel(importChannelFinal);
+                        setSaveEnabled(true);
+                    } catch (Exception e) {
+                        channels.remove(importChannelFinal.getId());
+                        alertError(PlatformUI.MIRTH_FRAME, "Channel had an unknown problem. Channel import aborted.");
+                        channelEditPanel = new ChannelSetup();
+                        doShowChannel();
                     }
+                }
 
-                });
-            }
+            });
         } else {
             try {
                 updateChannel(importChannel, overwrite);
@@ -3491,8 +3539,9 @@ public class Frame extends JXFrame {
         Channel channel = selectedChannels.get(0);
 
         if (channel instanceof InvalidChannel) {
-            Throwable cause = ((InvalidChannel) channel).getCause();
-            alertException(this, cause.getStackTrace(), "Channel \"" + channel.getName() + "\" is invalid and cannot be cloned. Original cause:\n" + cause.getMessage());
+            InvalidChannel invalidChannel = (InvalidChannel) channel;
+            Throwable cause = invalidChannel.getCause();
+            alertException(this, cause.getStackTrace(), "Channel \"" + channel.getName() + "\" is invalid and cannot be cloned. " + getMissingExtensions(invalidChannel) + "Original cause:\n" + cause.getMessage());
             return;
         }
 
