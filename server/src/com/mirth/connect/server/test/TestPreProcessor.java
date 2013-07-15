@@ -14,6 +14,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Calendar;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -77,7 +79,9 @@ public class TestPreProcessor {
         }
 
         if (!engineController.isDeployed(CHANNEL_ID)) {
-            engineController.deployChannel(CHANNEL_ID, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+            Set<String> channelIds = new LinkedHashSet<String>();
+            channelIds.add(CHANNEL_ID);
+            engineController.deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
             Thread.sleep(200);
 
             if (!engineController.isDeployed(CHANNEL_ID)) {

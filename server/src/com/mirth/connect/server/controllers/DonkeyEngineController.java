@@ -159,24 +159,18 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public void deployChannel(String channelId, ServerEventContext context) throws StartException, StopException, DeployException, UndeployException {
-        Channel channel = channelController.getChannelById(channelId);
-
-        if (channel == null) {
-            throw new DeployException("Unable to deploy channel, channel ID " + channelId + " not found.");
-        }
-
-        deployChannel(channel, context);
-    }
-
-    @Override
-    public void deployChannels(Set<String> channelIds, ServerEventContext context) {
+    public synchronized void deployChannels(Set<String> channelIds, ServerEventContext context) {
         if (channelIds == null) {
             throw new NullPointerException();
         }
 
         // Execute global deploy script before channel deploy script
         scriptController.executeGlobalDeployScript();
+        
+        // Execute the overall channel plugin deploy hook
+        for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+            channelPlugin.deploy(context);
+        }
 
         List<Channel> channels = channelController.getChannels(channelIds);
 
@@ -189,7 +183,7 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    private void deployChannel(Channel channel, ServerEventContext context) throws StartException, StopException, DeployException, UndeployException {
+    private synchronized void deployChannel(Channel channel, ServerEventContext context) throws StartException, StopException, DeployException, UndeployException {
         String channelId = channel.getId();
 
         if (!channel.isEnabled()) {
@@ -208,10 +202,6 @@ public class DonkeyEngineController implements EngineController {
             throw new DeployException(e.getMessage(), e);
         }
 
-        for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
-            channelPlugin.deploy(context);
-        }
-
         try {
             scriptController.compileChannelScripts(channel);
         } catch (ScriptCompileException e) {
@@ -227,6 +217,7 @@ public class DonkeyEngineController implements EngineController {
         }
         channelController.putDeployedChannelInCache(channel);
 
+        // Execute the individual channel plugin deploy hook
         for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
             channelPlugin.deploy(channel, context);
         }
@@ -244,9 +235,27 @@ public class DonkeyEngineController implements EngineController {
             throw e;
         }
     }
-
+    
     @Override
-    public void undeployChannel(String channelId, ServerEventContext context) throws StopException, UndeployException {
+    public synchronized void undeployChannels(Set<String> channelIds, ServerEventContext context) throws InterruptedException {
+        for (String channelId : channelIds) {
+            try {
+                undeployChannel(channelId, context);
+            } catch (Exception e) {
+                logger.error("Error undeploying channel " + channelId + ".", e);
+            }
+        }
+        
+        // Execute the overall channel plugin undeploy hook
+        for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+            channelPlugin.undeploy(context);
+        }
+
+        // Execute global shutdown script
+        scriptController.executeGlobalShutdownScript();
+    }
+
+    private synchronized void undeployChannel(String channelId, ServerEventContext context) throws StopException, UndeployException {
         // Get a reference to the deployed channel for later
         com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
 
@@ -267,7 +276,12 @@ public class DonkeyEngineController implements EngineController {
                 }
             }
         }
-
+        
+        // Execute the individual channel plugin undeploy hook
+        for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+            channelPlugin.undeploy(channelId, context);
+        }
+        
         // Execute channel shutdown script
         try {
             scriptController.executeChannelShutdownScript(channelId);
@@ -282,21 +296,7 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public void undeployChannels(Set<String> channelIds, ServerEventContext context) throws InterruptedException {
-        for (String channelId : channelIds) {
-            try {
-                undeployChannel(channelId, context);
-            } catch (Exception e) {
-                logger.error("Error undeploying channel " + channelId + ".", e);
-            }
-        }
-
-        // Execute global shutdown script
-        scriptController.executeGlobalShutdownScript();
-    }
-
-    @Override
-    public void redeployAllChannels() throws StartException, StopException, InterruptedException {
+    public synchronized void redeployAllChannels() throws StartException, StopException, InterruptedException {
         undeployChannels(donkey.getDeployedChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
         clearGlobalMap();
         deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);

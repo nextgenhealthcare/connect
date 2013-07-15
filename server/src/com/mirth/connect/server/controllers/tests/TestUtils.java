@@ -18,8 +18,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -282,7 +284,9 @@ public class TestUtils {
 
     public static void deployTestChannel(com.mirth.connect.model.Channel channel) throws Exception {
         com.mirth.connect.server.controllers.ChannelController.getInstance().updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
-        ControllerFactory.getFactory().createEngineController().deployChannel(channel.getId(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+        Set<String> channelIds = new LinkedHashSet<String>();
+        channelIds.add(channel.getId());
+        ControllerFactory.getFactory().createEngineController().deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
     }
 
     public static Properties getSqlProperties() {

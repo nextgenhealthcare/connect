@@ -13,12 +13,10 @@ import java.util.List;
 import java.util.Set;
 
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.PauseException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
@@ -32,11 +30,7 @@ public interface EngineController {
 
     public boolean isRunning();
 
-    public void deployChannel(String channelId, ServerEventContext context) throws StartException, StopException, DeployException, UndeployException;
-
     public void deployChannels(Set<String> channelIds, ServerEventContext context);
-
-    public void undeployChannel(String channelId, ServerEventContext context) throws StopException, UndeployException;
 
     public void undeployChannels(Set<String> channelIds, ServerEventContext context) throws InterruptedException;
 

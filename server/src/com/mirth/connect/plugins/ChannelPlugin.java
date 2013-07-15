@@ -13,9 +13,9 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ServerEventContext;
 
 public interface ChannelPlugin extends ServerPlugin {
-    public void save(Channel channel, ServerEventContext context) throws Exception;
+    public void save(Channel channel, ServerEventContext context);
 
-    public void remove(Channel channel, ServerEventContext context) throws Exception;
+    public void remove(Channel channel, ServerEventContext context);
 
     /**
      * This is invoked for every channel when deployed.
@@ -34,7 +34,7 @@ public interface ChannelPlugin extends ServerPlugin {
      */
     public void deploy(ServerEventContext context);
     
-    public void undeploy(String channelId, ServerEventContext context) throws Exception;
+    public void undeploy(String channelId, ServerEventContext context);
     
-    public void undeploy(ServerEventContext context) throws Exception;
+    public void undeploy(ServerEventContext context);
 }

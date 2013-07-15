@@ -411,69 +411,73 @@ public class DefaultConfigurationController extends ConfigurationController {
         CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
 
-        if (serverConfiguration.getChannels() != null) {
-            // Undeploy all channels before updating or removing them
-            engineController.undeployChannels(engineController.getDeployedIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
-
-            // Remove channels that don't exist in the new configuration
-            for (Channel channel : channelController.getChannels(null)) {
-                boolean found = false;
-
-                for (Channel newChannel : serverConfiguration.getChannels()) {
-                    if (newChannel.getId().equals(channel.getId())) {
-                        found = true;
+        /*
+         * Make sure users aren't deploying or undeploying channels while the server configuration
+         * is being restored.
+         */
+        synchronized (engineController) {
+            if (serverConfiguration.getChannels() != null) {
+                // Undeploy all channels before updating or removing them
+                engineController.undeployChannels(engineController.getDeployedIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+    
+                // Remove channels that don't exist in the new configuration
+                for (Channel channel : channelController.getChannels(null)) {
+                    boolean found = false;
+    
+                    for (Channel newChannel : serverConfiguration.getChannels()) {
+                        if (newChannel.getId().equals(channel.getId())) {
+                            found = true;
+                        }
+                    }
+    
+                    if (!found) {
+                        channelController.removeChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
                     }
                 }
-
-                if (!found) {
-                    channelController.removeChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+    
+                // Update all channels from the server configuration
+                for (Channel channel : serverConfiguration.getChannels()) {
+                    channelController.updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
                 }
             }
-
-            // Update all channels from the server configuration
-            for (Channel channel : serverConfiguration.getChannels()) {
-//                PropertyVerifier.checkChannelProperties(channel);
-//                PropertyVerifier.checkConnectorProperties(channel, ControllerFactory.getFactory().createExtensionController().getConnectorMetaData());
-                channelController.updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
+    
+            if (serverConfiguration.getAlerts() != null) {
+                alertController.removeAlert(null);
+                for (AlertModel alert : serverConfiguration.getAlerts()) {
+                    alertController.updateAlert(alert);
+                }
             }
-        }
-
-        if (serverConfiguration.getAlerts() != null) {
-            alertController.removeAlert(null);
-            for (AlertModel alert : serverConfiguration.getAlerts()) {
-                alertController.updateAlert(alert);
+    
+            if (serverConfiguration.getCodeTemplates() != null) {
+                codeTemplateController.removeCodeTemplate(null);
+                codeTemplateController.updateCodeTemplates(serverConfiguration.getCodeTemplates());
             }
-        }
-
-        if (serverConfiguration.getCodeTemplates() != null) {
-            codeTemplateController.removeCodeTemplate(null);
-            codeTemplateController.updateCodeTemplates(serverConfiguration.getCodeTemplates());
-        }
-
-        if (serverConfiguration.getServerSettings() != null) {
-            setServerSettings(serverConfiguration.getServerSettings());
-        }
-
-        if (serverConfiguration.getUpdateSettings() != null) {
-            setUpdateSettings(serverConfiguration.getUpdateSettings());
-        }
-
-        if (serverConfiguration.getGlobalScripts() != null) {
-            scriptController.setGlobalScripts(serverConfiguration.getGlobalScripts());
-        }
-
-        // Set the properties for all plugins in the server configuration,
-        // whether or not the plugin is actually installed on this server.
-        if (serverConfiguration.getPluginProperties() != null) {
-            ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-
-            for (Entry<String, Properties> pluginEntry : serverConfiguration.getPluginProperties().entrySet()) {
-                extensionController.setPluginProperties(pluginEntry.getKey(), pluginEntry.getValue());
+    
+            if (serverConfiguration.getServerSettings() != null) {
+                setServerSettings(serverConfiguration.getServerSettings());
             }
+    
+            if (serverConfiguration.getUpdateSettings() != null) {
+                setUpdateSettings(serverConfiguration.getUpdateSettings());
+            }
+    
+            if (serverConfiguration.getGlobalScripts() != null) {
+                scriptController.setGlobalScripts(serverConfiguration.getGlobalScripts());
+            }
+    
+            // Set the properties for all plugins in the server configuration,
+            // whether or not the plugin is actually installed on this server.
+            if (serverConfiguration.getPluginProperties() != null) {
+                ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+    
+                for (Entry<String, Properties> pluginEntry : serverConfiguration.getPluginProperties().entrySet()) {
+                    extensionController.setPluginProperties(pluginEntry.getKey(), pluginEntry.getValue());
+                }
+            }
+    
+            // Redeploy all channels
+            engineController.redeployAllChannels();
         }
-
-        // Redeploy all channels
-        engineController.redeployAllChannels();
     }
 
     @Override
