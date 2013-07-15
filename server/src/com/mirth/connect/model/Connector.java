@@ -28,8 +28,6 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("connector")
 public class Connector implements Serializable, Migratable {
-    private static int migrateMetaDataId = 1;
-
     public enum Mode {
         SOURCE, DESTINATION
     }
