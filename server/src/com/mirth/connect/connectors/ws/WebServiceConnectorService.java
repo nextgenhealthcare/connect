@@ -55,7 +55,13 @@ public class WebServiceConnectorService implements ConnectorService {
             URI wsdlUri = new URI(wsdlUrl);
             String username = replacer.replaceValues(params.get("username"), channelId);
             String password = replacer.replaceValues(params.get("password"), channelId);
-            wsdlInterfaceCache.put(wsdlUrl, getWsdlInterface(wsdlUri, username, password));
+
+            WsdlInterface wsdlInterface = getWsdlInterface(wsdlUri, username, password);
+            if (wsdlInterface != null) {
+                wsdlInterfaceCache.put(wsdlUrl, getWsdlInterface(wsdlUri, username, password));
+            } else {
+                throw new Exception("Could not find any definitions in " + wsdlUri);
+            }
         } else if (method.equals("isWsdlCached")) {
             String id = (String) object;
             return (wsdlInterfaceCache.get(id) != null);
@@ -147,7 +153,7 @@ public class WebServiceConnectorService implements ConnectorService {
         return executor.submit(new Callable<WsdlInterface>() {
             public WsdlInterface call() throws Exception {
                 WsdlInterface[] wsdlInterfaces = WsdlInterfaceFactory.importWsdl(wsdlProject, newWsdlUrl.toURL().toString(), false, wsdlLoader);
-                return wsdlInterfaces[0];
+                return wsdlInterfaces.length > 0 ? wsdlInterfaces[0] : null;
             }
         });
     }

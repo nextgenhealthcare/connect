@@ -251,7 +251,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
             return true;
         } catch (ClientException e) {
-            parent.alertError(parent, "Error caching WSDL. Please check the WSDL URL and authentication settings.");
+            parent.alertException(parent, e.getStackTrace(), "Error caching WSDL. Please check the WSDL URL and authentication settings.\n\n" + e.getMessage());
             return false;
         }
     }
@@ -314,8 +314,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             tableData[i][MIME_TYPE_COLUMN_NUMBER] = attachmentTypes.get(i);
         }
 
-        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
-                ID_COLUMN_NAME, CONTENT_COLUMN_NAME, MIME_TYPE_COLUMN_NAME }) {
+        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { ID_COLUMN_NAME, CONTENT_COLUMN_NAME, MIME_TYPE_COLUMN_NAME }) {
 
             boolean[] canEdit = new boolean[] { true, true, true };
 
@@ -810,8 +809,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
     private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
         stopCellEditing();
-        ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[] {
-                getNewAttachmentId(attachmentsTable.getModel().getRowCount() + 1), "" });
+        ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[] { getNewAttachmentId(attachmentsTable.getModel().getRowCount() + 1), "" });
         int newViewIndex = attachmentsTable.convertRowIndexToView(attachmentsTable.getModel().getRowCount() - 1);
         attachmentsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
 
