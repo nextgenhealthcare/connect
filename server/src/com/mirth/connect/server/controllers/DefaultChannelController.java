@@ -29,7 +29,6 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DeployedChannelInfo;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.ServerEventContext;
@@ -230,13 +229,6 @@ public class DefaultChannelController extends ChannelController {
             channel.setRevision(currentRevision + 1);
         }
 
-        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-
-        ConnectorMetaData sourceMetaData = extensionController.getConnectorMetaDataByTransportName(channel.getSourceConnector().getTransportName());
-        if (sourceMetaData != null) {
-            channel.getSourceConnector().setVersion(sourceMetaData.getPluginVersion());
-        }
-
         ArrayList<String> destConnectorNames = new ArrayList<String>(channel.getDestinationConnectors().size());
 
         for (Connector connector : channel.getDestinationConnectors()) {
@@ -244,11 +236,6 @@ public class DefaultChannelController extends ChannelController {
                 throw new ControllerException("Destination connectors must have unique names");
             }
             destConnectorNames.add(connector.getName());
-
-            ConnectorMetaData destinationMetaData = extensionController.getConnectorMetaDataByTransportName(connector.getTransportName());
-            if (destinationMetaData != null) {
-                connector.setVersion(destinationMetaData.getPluginVersion());
-            }
         }
 
         try {

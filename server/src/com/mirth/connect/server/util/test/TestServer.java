@@ -51,7 +51,6 @@ public class TestServer {
         sourceConnector.setProperties(receiverProperties);
         sourceConnector.setEnabled(true);
         sourceConnector.setName("testsourceconnector");
-        sourceConnector.setVersion("0");
         sourceConnector.setTransportName("JavaScript Reader");
         sourceConnector.setTransformer(sourceTransformer);
 
@@ -74,7 +73,6 @@ public class TestServer {
         destinationConnector.setProperties(dispatcherProperties);
         destinationConnector.setEnabled(true);
         destinationConnector.setName("testdestinationconnector");
-        destinationConnector.setVersion("0");
         destinationConnector.setTransportName("JavaScript Writer");
         destinationConnector.setTransformer(destinationTransformer);
 

@@ -43,7 +43,6 @@ public class Connector implements Serializable, Migratable {
     private String transportName;
     private Mode mode;
     private boolean enabled;
-    private String version;
     private boolean waitForPrevious = true;
 
     public Connector() {}
@@ -122,14 +121,6 @@ public class Connector implements Serializable, Migratable {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
     }
 
     public boolean equals(Object obj) {
