@@ -226,13 +226,7 @@ public class ImportConverter3_0_0 {
     private static String migrateConnector(DonkeyElement connector, Integer metaDataId) throws MigrationException {
         logger.debug("Migrating connector");
 
-        DonkeyElement version = connector.getChildElement("version");
-
-        if (version == null) {
-            connector.addChildElement("version").setTextContent(VERSION_STRING);
-        } else {
-            version.setTextContent(VERSION_STRING);
-        }
+        connector.removeChild("version");
 
         // add metaDataId element
         String mode = connector.getChildElement("mode").getTextContent();
