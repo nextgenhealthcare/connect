@@ -11,6 +11,7 @@ package com.mirth.connect.model.converters;
 
 import java.io.StringReader;
 
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 import org.xmlpull.mxp1.MXParser;
 import org.xmlpull.v1.XmlPullParser;
@@ -47,6 +48,11 @@ public class ChannelConverter extends MigratableConverter {
         if (value instanceof InvalidChannel) {
             try {
                 DonkeyElement element = new DonkeyElement(((InvalidChannel) value).getChannelXml());
+
+                String version = element.getAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME);
+                if (StringUtils.isNotEmpty(version)) {
+                    writer.addAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, version);
+                }
 
                 for (DonkeyElement child : element.getChildElements()) {
                     copier.copy(new XppReader(new StringReader(child.toXml()), parser), writer);
