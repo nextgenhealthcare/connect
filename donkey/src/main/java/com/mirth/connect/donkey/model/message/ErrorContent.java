@@ -10,24 +10,33 @@
 package com.mirth.connect.donkey.model.message;
 
 public class ErrorContent {
-    private String error = null;
+    private String content = null;
+    private boolean encrypted = false;
     private transient boolean persisted = false;
 
     public ErrorContent() {
 
     }
-    
+
     public ErrorContent(String error, boolean persisted) {
-        this.error = error;
+        this.content = error;
         this.persisted = persisted;
     }
 
-    public String getError() {
-        return error;
+    public String getContent() {
+        return content;
     }
 
-    protected void setError(String error) {
-        this.error = error;
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public boolean isEncrypted() {
+        return encrypted;
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
     }
 
     public boolean isPersisted() {

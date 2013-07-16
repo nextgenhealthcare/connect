@@ -50,6 +50,7 @@ import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
+import com.mirth.connect.donkey.util.MapUtil;
 import com.mirth.connect.donkey.util.Serializer;
 
 public class JdbcDao implements DonkeyDao {
@@ -622,14 +623,15 @@ public class JdbcDao implements DonkeyDao {
     }
 
     private boolean updateError(ErrorContent errorContent, String channelId, long messageId, int metaDataId, ContentType contentType) {
-        String error = errorContent.getError();
+        String error = errorContent.getContent();
+        boolean encrypted = errorContent.isEncrypted();
         boolean persisted = errorContent.isPersisted();
 
         if (StringUtils.isNotEmpty(error)) {
             if (persisted) {
-                storeContent(channelId, messageId, metaDataId, contentType, error, null, false);
+                storeContent(channelId, messageId, metaDataId, contentType, error, null, encrypted);
             } else {
-                insertContent(channelId, messageId, metaDataId, contentType, error, null, false);
+                insertContent(channelId, messageId, metaDataId, contentType, error, null, encrypted);
                 errorContent.setPersisted(true);
             }
         } else if (persisted) {
@@ -664,16 +666,24 @@ public class JdbcDao implements DonkeyDao {
     }
 
     private void updateMap(MapContent mapContent, String channelId, long messageId, int metaDataId, ContentType contentType) {
+        boolean encrypted = mapContent.isEncrypted();
         boolean persisted = mapContent.isPersisted();
-        Map<String, Object> map = mapContent.getMap();
 
-        if (MapUtils.isNotEmpty(map)) {
-            String serializedMap = serializeMap(map);
+        String content = null;
+        if (encrypted) {
+            content = (String) mapContent.getContent();
+        } else {
+            Map<String, Object> map = mapContent.getMap();
+            if (MapUtils.isNotEmpty(map)) {
+                content = MapUtil.serializeMap(serializer, map);
+            }
+        }
 
+        if (content != null) {
             if (persisted) {
-                storeContent(channelId, messageId, metaDataId, contentType, serializedMap, null, false);
+                storeContent(channelId, messageId, metaDataId, contentType, content, null, encrypted);
             } else {
-                insertContent(channelId, messageId, metaDataId, contentType, serializedMap, null, false);
+                insertContent(channelId, messageId, metaDataId, contentType, content, null, encrypted);
                 mapContent.setPersisted(true);
             }
         } else if (persisted) {
@@ -1762,41 +1772,7 @@ public class JdbcDao implements DonkeyDao {
             return new MapContent(new HashMap<String, Object>(), true);
         }
 
-        return new MapContent(deserializeMap(content.getContent()), true);
-    }
-
-    private String serializeMap(Map<String, Object> map) {
-        /*
-         * Try to serialize the entire map and if it fails, then find the map
-         * values that failed to
-         * serialize and convert them into their string representation before
-         * attempting to
-         * serialize again.
-         */
-        try {
-            return serializer.serialize(map);
-        } catch (Exception e) {
-            Map<String, Object> newMap = new HashMap<String, Object>();
-
-            for (Entry<String, Object> entry : map.entrySet()) {
-                Object value = entry.getValue();
-
-                try {
-                    serializer.serialize(value);
-                    newMap.put(entry.getKey(), value);
-                } catch (Exception e2) {
-                    logger.error("Non-serializable value found in map, converting value to string with key: " + entry.getKey());
-                    newMap.put(entry.getKey(), (value == null) ? "" : value.toString());
-                }
-            }
-
-            return serializer.serialize(newMap);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> deserializeMap(String serializedMap) {
-        return (Map<String, Object>) serializer.deserialize(serializedMap, Map.class);
+        return new MapContent(MapUtil.deserializeMap(serializer, content.getContent()), true);
     }
 
     private ErrorContent getErrorContentFromMessageContent(MessageContent content) {

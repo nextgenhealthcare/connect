@@ -104,7 +104,7 @@ public class MessageWriterVfs implements MessageWriter {
             String content = (contentType == null) ? toXml(message) : extractContent(message);
 
             if (StringUtils.isNotBlank(content)) {
-                String file = uri + IOUtils.DIR_SEPARATOR + replacer.replaceValues(filePattern, message);
+                String file = uri + IOUtils.DIR_SEPARATOR + replacer.replaceValues(filePattern, message, false);
 
                 if (!file.equals(currentFile)) {
                     if (writer != null) {

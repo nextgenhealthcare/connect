@@ -11,8 +11,12 @@ package com.mirth.connect.util;
 
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.ErrorContent;
+import com.mirth.connect.donkey.model.message.MapContent;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
+import com.mirth.connect.donkey.util.MapUtil;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class MessageEncryptionUtil {
 
@@ -32,10 +36,34 @@ public class MessageEncryptionUtil {
             decryptMessageContent(connectorMessage.getResponse(), encryptor);
             decryptMessageContent(connectorMessage.getResponseTransformed(), encryptor);
             decryptMessageContent(connectorMessage.getProcessedResponse(), encryptor);
+            decryptMapContent(connectorMessage.getConnectorMapContent(), encryptor);
+            decryptMapContent(connectorMessage.getChannelMapContent(), encryptor);
+            decryptMapContent(connectorMessage.getResponseMapContent(), encryptor);
+            decryptErrorContent(connectorMessage.getProcessingErrorContent(), encryptor);
+            decryptErrorContent(connectorMessage.getPostProcessorErrorContent(), encryptor);
+            decryptErrorContent(connectorMessage.getResponseErrorContent(), encryptor);
         }
     }
 
     public static void decryptMessageContent(MessageContent content, Encryptor encryptor) {
+        if (content != null) {
+            if (content.getContent() != null && content.isEncrypted()) {
+                content.setContent(encryptor.decrypt(content.getContent()));
+                content.setEncrypted(false);
+            }
+        }
+    }
+
+    public static void decryptMapContent(MapContent content, Encryptor encryptor) {
+        if (content != null) {
+            if (content.getContent() != null && content.isEncrypted()) {
+                content.setMap(MapUtil.deserializeMap(ObjectXMLSerializer.getInstance(), encryptor.decrypt((String) content.getContent())));
+                content.setEncrypted(false);
+            }
+        }
+    }
+
+    public static void decryptErrorContent(ErrorContent content, Encryptor encryptor) {
         if (content != null) {
             if (content.getContent() != null && content.isEncrypted()) {
                 content.setContent(encryptor.decrypt(content.getContent()));
@@ -60,10 +88,34 @@ public class MessageEncryptionUtil {
             encryptMessageContent(connectorMessage.getResponse(), encryptor);
             encryptMessageContent(connectorMessage.getResponseTransformed(), encryptor);
             encryptMessageContent(connectorMessage.getProcessedResponse(), encryptor);
+            encryptMapContent(connectorMessage.getConnectorMapContent(), encryptor);
+            encryptMapContent(connectorMessage.getChannelMapContent(), encryptor);
+            encryptMapContent(connectorMessage.getResponseMapContent(), encryptor);
+            encryptErrorContent(connectorMessage.getProcessingErrorContent(), encryptor);
+            encryptErrorContent(connectorMessage.getPostProcessorErrorContent(), encryptor);
+            encryptErrorContent(connectorMessage.getResponseErrorContent(), encryptor);
         }
     }
 
     public static void encryptMessageContent(MessageContent content, Encryptor encryptor) {
+        if (content != null) {
+            if (content.getContent() != null && !content.isEncrypted()) {
+                content.setContent(encryptor.encrypt(content.getContent()));
+                content.setEncrypted(true);
+            }
+        }
+    }
+
+    public static void encryptMapContent(MapContent content, Encryptor encryptor) {
+        if (content != null) {
+            if (content.getContent() != null && !content.isEncrypted()) {
+                content.setContent(encryptor.encrypt(MapUtil.serializeMap(ObjectXMLSerializer.getInstance(), content.getMap())));
+                content.setEncrypted(true);
+            }
+        }
+    }
+
+    public static void encryptErrorContent(ErrorContent content, Encryptor encryptor) {
         if (content != null) {
             if (content.getContent() != null && !content.isEncrypted()) {
                 content.setContent(encryptor.encrypt(content.getContent()));

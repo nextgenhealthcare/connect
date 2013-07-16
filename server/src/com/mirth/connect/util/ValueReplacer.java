@@ -144,10 +144,10 @@ public class ValueReplacer {
         }
     }
 
-    public String replaceValues(String template, Message message) {
+    public String replaceValues(String template, Message message, boolean includeMaps) {
         if (hasReplaceableValues(template)) {
             VelocityContext context = getDefaultContext();
-            loadContextFromMessage(context, message);
+            loadContextFromMessage(context, message, includeMaps);
             return evaluate(context, template);
         } else {
             return template;
@@ -243,9 +243,11 @@ public class ValueReplacer {
      * @return void
      */
     protected void loadContextFromMap(VelocityContext context, Map<String, ?> map) {
-        ((MapTool) context.get("maps")).addMap(map);
-        for (Entry<String, ?> entry : map.entrySet()) {
-            context.put(entry.getKey(), entry.getValue());
+        if (map != null) {
+            ((MapTool) context.get("maps")).addMap(map);
+            for (Entry<String, ?> entry : map.entrySet()) {
+                context.put(entry.getKey(), entry.getValue());
+            }
         }
     }
 
@@ -275,14 +277,17 @@ public class ValueReplacer {
      * 
      * @return void
      */
-    protected void loadContextFromMessage(VelocityContext context, Message message) {
+    protected void loadContextFromMessage(VelocityContext context, Message message, boolean includeMaps) {
         context.put("message", new ValueReplacerMessage(new ImmutableMessage(message)));
-        ConnectorMessage mergedConnectorMessage = message.getMergedConnectorMessage();
 
-        // Load maps
-        loadContextFromMap(context, mergedConnectorMessage.getChannelMap());
-        loadContextFromMap(context, mergedConnectorMessage.getConnectorMap());
-        loadContextFromMap(context, mergedConnectorMessage.getResponseMap());
+        if (includeMaps) {
+            ConnectorMessage mergedConnectorMessage = message.getMergedConnectorMessage();
+
+            // Load maps
+            loadContextFromMap(context, mergedConnectorMessage.getChannelMap());
+            loadContextFromMap(context, mergedConnectorMessage.getConnectorMap());
+            loadContextFromMap(context, mergedConnectorMessage.getResponseMap());
+        }
 
         // Use the current time as the original file name if there is no original file name.
         if (!context.containsKey("originalFilename")) {

@@ -93,8 +93,8 @@ public class TemplateValueReplacer extends ValueReplacer {
      * @return void
      */
     @Override
-    protected void loadContextFromMessage(VelocityContext context, Message message) {
+    protected void loadContextFromMessage(VelocityContext context, Message message, boolean includeMaps) {
         loadContextFromMap(context, GlobalChannelVariableStoreFactory.getInstance().get(message.getChannelId()).getVariables());
-        super.loadContextFromMessage(context, message);
+        super.loadContextFromMessage(context, message, includeMaps);
     }
 }

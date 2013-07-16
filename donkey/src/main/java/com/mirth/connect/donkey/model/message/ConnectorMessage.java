@@ -319,31 +319,31 @@ public class ConnectorMessage implements Serializable {
     }
 
     public String getProcessingError() {
-        return processingErrorContent.getError();
+        return processingErrorContent.getContent();
     }
 
     public void setProcessingError(String processingError) {
-        processingErrorContent.setError(processingError);
+        processingErrorContent.setContent(processingError);
 
         updateErrorCode();
     }
-    
+
     public String getPostProcessorError() {
-        return postProcessorErrorContent.getError();
+        return postProcessorErrorContent.getContent();
     }
 
     public void setPostProcessorError(String postProcessorError) {
-        postProcessorErrorContent.setError(postProcessorError);
+        postProcessorErrorContent.setContent(postProcessorError);
 
         updateErrorCode();
     }
 
     public String getResponseError() {
-        return responseErrorContent.getError();
+        return responseErrorContent.getContent();
     }
 
     public void setResponseError(String responseError) {
-        responseErrorContent.setError(responseError);
+        responseErrorContent.setContent(responseError);
 
         updateErrorCode();
     }
