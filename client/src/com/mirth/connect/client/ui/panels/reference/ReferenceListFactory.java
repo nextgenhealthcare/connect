@@ -260,9 +260,9 @@ public class ReferenceListFactory {
         variablelistItems.add(new CodeTemplate("Get Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.get('key')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Put Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.put('key','value')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Get Response Variable Map", "The variable map that stores responses.", "responseMap.get('key')", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Put Success Response Variable", "Places a successful response in the response variable map.", "responseMap.put('key', ResponseFactory.getSentResponse('message'))", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Sent Response Variable", "Places a successful response in the response variable map.", "responseMap.put('key', ResponseFactory.getSentResponse('message'))", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Put Error Response Variable", "Places an unsuccessful response in the response variable map.", "responseMap.put('key', ResponseFactory.getErrorResponse('message'))", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Create Success Response", "Creates a successful response object.", "ResponseFactory.getSentResponse('message')", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Create Sent Response", "Creates a successful response object.", "ResponseFactory.getSentResponse('message')", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Create Error Response", "Creates an unsuccessful response object.", "ResponseFactory.getErrorResponse('message')", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
 
         return variablelistItems;
