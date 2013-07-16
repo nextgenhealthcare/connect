@@ -27,7 +27,7 @@ public class Message implements Serializable {
     private Long importId;
     private String importChannelId;
     private Map<Integer, ConnectorMessage> connectorMessages = new LinkedHashMap<Integer, ConnectorMessage>();
-    private ConnectorMessage mergedConnectorMessage;
+    private transient ConnectorMessage mergedConnectorMessage;
 
     public Long getMessageId() {
         return messageId;
