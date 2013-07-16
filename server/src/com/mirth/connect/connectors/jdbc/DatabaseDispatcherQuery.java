@@ -76,7 +76,7 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
 
             return new Response(Status.SENT, responseData, responseMessageStatus);
         } catch (SQLException e) {
-            if (!JdbcUtils.isValidConnection(connection)) {
+            if (connection != null && !JdbcUtils.isValidConnection(connection)) {
                 try {
                     connection.close();
                 } catch (SQLException e1) {
@@ -85,7 +85,7 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
             }
 
             try {
-                if (retryOnConnectionFailure && connection.isClosed()) {
+                if (retryOnConnectionFailure && (connection == null || connection.isClosed())) {
                     // retry sending on a new connection and pass retryOnConnectionFailure = false this time, so that we only retry once
                     return send(connectorProperties, false);
                 }
@@ -93,7 +93,7 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
                 // if connection.isClosed() threw a SQLException, ignore it and refer to the original exception
             }
 
-            throw new DatabaseDispatcherException("Database write failed", e);
+            throw new DatabaseDispatcherException("Failed to write to database", e);
         } finally {
             DbUtils.closeQuietly(statement);
             DbUtils.closeQuietly(connection);
