@@ -86,13 +86,13 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons/commons-compress-1.4.1.jar"/>
-	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.1.24-bin.jar"/>
 	<classpathentry kind="lib" path="lib/quartz-all-2.1.7.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://quartz-scheduler.org/api/2.1.7/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/xstream-1.4.4.jar"/>
+	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.1.25-bin.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>
