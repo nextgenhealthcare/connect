@@ -84,7 +84,7 @@ public class DonkeyMessageController extends MessageController {
         params.put("importIdLower", filter.getImportIdLower());
         params.put("startDate", filter.getStartDate());
         params.put("endDate", filter.getEndDate());
-        params.put("quickSearch", filter.getQuickSearch());
+        params.put("textSearch", filter.getTextSearch());
         params.put("statuses", filter.getStatuses());
         params.put("sendAttemptsLower", filter.getSendAttemptsLower());
         params.put("sendAttemptsUpper", filter.getSendAttemptsUpper());
@@ -96,7 +96,7 @@ public class DonkeyMessageController extends MessageController {
         params.put("serverId", filter.getServerId());
         params.put("maxMessageId", filter.getMaxMessageId());
         params.put("metaDataSearch", filter.getMetaDataSearch());
-        params.put("quickSearchMetaDataColumns", filter.getQuickSearchMetaDataColumns());
+        params.put("textSearchMetaDataColumns", filter.getTextSearchMetaDataColumns());
         params.put("attachment", filter.getAttachment());
         params.put("error", filter.getError());
 

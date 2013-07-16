@@ -290,7 +290,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         messageFilter.setError(errorCheckBox.isSelected());
         messageFilter.setSendAttemptsLower(sendAttemptsLower);
         messageFilter.setSendAttemptsUpper(sendAttemptsUpper);
-        messageFilter.setContentSearch(getContentSearch(messageFilter.getQuickSearch()));
+        messageFilter.setContentSearch(getContentSearch(messageFilter.getTextSearch()));
 
         try {
             messageFilter.setMetaDataSearch(getMetaDataSearch());
@@ -312,7 +312,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         return (serverId.length() == 0) ? null : serverId;
     }
 
-    private List<ContentSearchElement> getContentSearch(String quickSearch) {
+    private List<ContentSearchElement> getContentSearch(String textSearch) {
         List<ContentSearchElement> contentSearch = new ArrayList<ContentSearchElement>();
         Map<ContentType, List<String>> contentSearchMap = new HashMap<ContentType, List<String>>();
         DefaultTableModel model = ((DefaultTableModel) contentSearchTable.getModel());
@@ -336,10 +336,10 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         for (ContentType contentType : ContentType.getMessageTypes()) {
             if (contentSearchMap.containsKey(contentType)) {
                 contentSearch.add(new ContentSearchElement(contentType.getContentTypeCode(), contentSearchMap.get(contentType)));
-            } else if (quickSearch != null) {
+            } else if (textSearch != null) {
                 /*
-                 * If quick search is active, always add the content type to the content search so
-                 * the content is joined for quick search.
+                 * If text search is active, always add the content type to the content search so
+                 * the content is joined for text search.
                  */
                 contentSearch.add(new ContentSearchElement(contentType.getContentTypeCode(), new ArrayList<String>()));
             }

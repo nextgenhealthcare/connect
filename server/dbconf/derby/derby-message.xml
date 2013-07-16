@@ -112,7 +112,7 @@
 		FROM d_m${localChannelId} m
 		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id
 		
-		<if test="quickSearch != null || metaDataSearch != null">
+		<if test="textSearch != null || metaDataSearch != null">
 			LEFT JOIN d_mcm${localChannelId} mcm ON mcm.message_id = mm.message_id AND mcm.metadata_id = mm.id
 		</if>
 		
@@ -157,19 +157,19 @@
 			<if test="importIdUpper != null">
 				AND m.import_id <![CDATA[ <= ]]> #{importIdUpper}
 			</if>
-			<if test="quickSearch != null">
+			<if test="textSearch != null">
 				AND (
-				TRIM(CAST(CAST(m.id AS CHAR(254)) AS VARCHAR(254))) LIKE '%' || #{quickSearch} || '%'
-				OR UPPER(mm.connector_name) LIKE '%' || UPPER(#{quickSearch}) || '%'
+				TRIM(CAST(CAST(m.id AS CHAR(254)) AS VARCHAR(254))) LIKE '%' || #{textSearch} || '%'
+				OR UPPER(mm.connector_name) LIKE '%' || UPPER(#{textSearch}) || '%'
 				
 				<if test="contentSearch != null">
 					<foreach item="element" collection="contentSearch">
-						OR UPPER(mc_${element.contentCode}.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
+						OR UPPER(mc_${element.contentCode}.content) LIKE '%' || UPPER(#{textSearch}) || '%'
 					</foreach>
 				</if>
 				
-				<foreach item="column" collection="quickSearchMetaDataColumns">
-					OR UPPER(mcm.${column}) LIKE '%' || UPPER(#{quickSearch}) || '%'
+				<foreach item="column" collection="textSearchMetaDataColumns">
+					OR UPPER(mcm.${column}) LIKE '%' || UPPER(#{textSearch}) || '%'
 				</foreach>
 				)
 			</if>

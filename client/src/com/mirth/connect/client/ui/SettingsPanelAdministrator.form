@@ -4,6 +4,8 @@
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="formatXmlButtonGroup">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="textSearchWarningButtonGroup">
+    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -72,6 +74,7 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
+                      <Component id="textSearchWarningLabel" min="-2" max="-2" attributes="0"/>
                       <Component id="eventBrowserPageSizeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="formatXmlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="messageBrowserPageSizeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -87,8 +90,13 @@
                           <Component id="formatXmlNoRadio" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Component id="eventBrowserPageSizeField" min="-2" pref="30" max="-2" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <Component id="textSearchWarningYesRadio" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="textSearchWarningNoRadio" min="-2" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
-                  <EmptySpace pref="228" max="32767" attributes="0"/>
+                  <EmptySpace pref="224" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -114,6 +122,12 @@
                       <Component id="formatXmlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="formatXmlYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="formatXmlNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="textSearchWarningLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="textSearchWarningYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="textSearchWarningNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -159,7 +173,6 @@
             <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
               <ComponentRef name="formatXmlButtonGroup"/>
             </Property>
-            <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="Yes"/>
             <Property name="toolTipText" type="java.lang.String" value="Pretty print messages in the message browser that are XML."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
@@ -195,6 +208,52 @@
         <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="eventBrowserPageSizeField">
           <Properties>
             <Property name="toolTipText" type="java.lang.String" value="Sets the default page size for browsers (message, event, etc.)"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="textSearchWarningLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Message browser text search warning:"/>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="textSearchWarningYesRadio">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+              </Border>
+            </Property>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="textSearchWarningButtonGroup"/>
+            </Property>
+            <Property name="selected" type="boolean" value="true"/>
+            <Property name="text" type="java.lang.String" value="Yes"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Show a warning in the message browser when attempting a text search, warning users&lt;br/&gt;that the query may take a long time depending on the amount of messages being searched.&lt;/html&gt;"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="textSearchWarningNoRadio">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+              </Border>
+            </Property>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="textSearchWarningButtonGroup"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="No"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Show a warning in the message browser when attempting a text search, warning users&lt;br/&gt;that the query may take a long time depending on the amount of messages being searched.&lt;/html&gt;"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
           </Properties>
         </Component>
       </SubComponents>

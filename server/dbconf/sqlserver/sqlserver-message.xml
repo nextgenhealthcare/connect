@@ -103,7 +103,7 @@
 		FROM d_m${localChannelId} m
 		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id
 		
-		<if test="quickSearch != null || metaDataSearch != null">
+		<if test="textSearch != null || metaDataSearch != null">
 			LEFT JOIN d_mcm${localChannelId} mcm ON mcm.message_id = mm.message_id AND mcm.metadata_id = mm.id
 		</if>
 		
@@ -148,19 +148,19 @@
 			<if test="importIdUpper != null">
 				AND m.import_id <![CDATA[ <= ]]> #{importIdUpper}
 			</if>
-			<if test="quickSearch != null">
+			<if test="textSearch != null">
 				AND (
-				CAST(m.id AS NVARCHAR) LIKE '%' + #{quickSearch} + '%'
-				OR mm.connector_name LIKE '%' + #{quickSearch} + '%'
+				CAST(m.id AS NVARCHAR) LIKE '%' + #{textSearch} + '%'
+				OR mm.connector_name LIKE '%' + #{textSearch} + '%'
 				
 				<if test="contentSearch != null">
 					<foreach item="element" collection="contentSearch">
-						OR mc_${element.contentCode}.content LIKE '%' + #{quickSearch} + '%'
+						OR mc_${element.contentCode}.content LIKE '%' + #{textSearch} + '%'
 					</foreach>
 				</if>
 				
-				<foreach item="column" collection="quickSearchMetaDataColumns">
-					OR mcm.${column} LIKE '%' + #{quickSearch} + '%'
+				<foreach item="column" collection="textSearchMetaDataColumns">
+					OR mcm.${column} LIKE '%' + #{textSearch} + '%'
 				</foreach>
 				)
 			</if>

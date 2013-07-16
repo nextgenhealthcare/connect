@@ -420,7 +420,7 @@
                                   <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                                   <Component id="responseLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                                  <Component id="ResponseTextArea" pref="94" max="32767" attributes="0"/>
+                                  <Component id="ResponseTextArea" pref="67" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
@@ -515,7 +515,7 @@
                                   <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                                   <Component id="processedResponseLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                                  <Component id="ProcessedResponseTextArea" pref="94" max="32767" attributes="0"/>
+                                  <Component id="ProcessedResponseTextArea" pref="67" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
@@ -619,7 +619,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
                               <Component id="ErrorsCardPane" max="32767" attributes="0"/>
-                              <Component id="ErrorsRadioPane" pref="764" max="32767" attributes="0"/>
+                              <Component id="ErrorsRadioPane" pref="773" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -631,7 +631,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="ErrorsRadioPane" min="-2" pref="17" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="ErrorsCardPane" pref="179" max="32767" attributes="0"/>
+                          <Component id="ErrorsCardPane" pref="154" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -821,7 +821,7 @@
                       <Component id="jLabel2" max="32767" attributes="0"/>
                       <Component id="jLabel3" max="32767" attributes="0"/>
                       <Component id="pageSizeLabel" max="32767" attributes="0"/>
-                      <Component id="quickSearchLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="textSearchLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -843,7 +843,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="mirthTimePicker2" linkSize="2" min="-2" pref="80" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="quickSearchField" alignment="1" min="-2" pref="218" max="-2" attributes="1"/>
+                          <Component id="textSearchField" alignment="1" min="-2" pref="218" max="-2" attributes="1"/>
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
@@ -915,8 +915,8 @@
                                   </Group>
                                   <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="3" attributes="0">
-                                      <Component id="quickSearchField" alignment="3" min="-2" max="-2" attributes="0"/>
-                                      <Component id="quickSearchLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="textSearchField" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="textSearchLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                               <Group type="102" alignment="1" attributes="0">
@@ -955,24 +955,25 @@
                       </Group>
                       <Group type="102" attributes="0">
                           <EmptySpace min="4" pref="4" max="-2" attributes="0"/>
-                          <Component id="lastSearchCriteriaPane" min="-2" pref="107" max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="4" pref="4" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="statusBoxReceived" alignment="3" min="-2" pref="16" max="-2" attributes="0"/>
-                              <Component id="allDayCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="lastSearchCriteriaPane" min="-2" pref="107" max="-2" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Group type="103" groupAlignment="3" attributes="0">
+                                      <Component id="statusBoxReceived" alignment="3" min="-2" pref="16" max="-2" attributes="0"/>
+                                      <Component id="allDayCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="statusBoxTransformed" min="-2" pref="16" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="statusBoxFiltered" pref="16" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="statusBoxQueued" min="-2" pref="16" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="statusBoxSent" min="-2" pref="16" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="statusBoxError" min="-2" pref="16" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="statusBoxTransformed" min="-2" pref="16" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="statusBoxFiltered" pref="16" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="statusBoxQueued" min="-2" pref="16" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="statusBoxSent" min="-2" pref="16" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="statusBoxError" min="-2" pref="16" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
@@ -1058,7 +1059,7 @@
             <Property name="horizontalTextPosition" type="int" value="4"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JTextField" name="quickSearchField">
+        <Component class="javax.swing.JTextField" name="textSearchField">
           <Properties>
             <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Search all message content for the given string. This process could take a long&lt;br/&gt;&#xa;time depending on the amount of message content currently stored. Any message&lt;br/&gt;&#xa;content that was encrypted by this channel will not be searchable.&#xa;&lt;/html&gt;"/>
           </Properties>
@@ -1084,10 +1085,10 @@
             </Property>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="quickSearchLabel">
+        <Component class="javax.swing.JLabel" name="textSearchLabel">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="4"/>
-            <Property name="text" type="java.lang.String" value="Quick Search:"/>
+            <Property name="text" type="java.lang.String" value="Text Search:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="filterButton">

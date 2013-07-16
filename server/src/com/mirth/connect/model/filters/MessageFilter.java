@@ -40,14 +40,14 @@ public class MessageFilter implements Serializable {
     private Long importIdLower;
     private Calendar startDate;
     private Calendar endDate;
-    private String quickSearch;
+    private String textSearch;
     private Set<Status> statuses;
     private List<Integer> includedMetaDataIds;
     private List<Integer> excludedMetaDataIds;
     private String serverId;
     private List<ContentSearchElement> contentSearch;
     private List<MetaDataSearchElement> metaDataSearch;
-    private List<String> quickSearchMetaDataColumns;
+    private List<String> textSearchMetaDataColumns;
     private Integer sendAttemptsLower;
     private Integer sendAttemptsUpper;
     private String type;
@@ -103,12 +103,12 @@ public class MessageFilter implements Serializable {
         this.endDate = endDate;
     }
 
-    public String getQuickSearch() {
-        return quickSearch;
+    public String getTextSearch() {
+        return textSearch;
     }
 
-    public void setQuickSearch(String quickSearch) {
-        this.quickSearch = quickSearch;
+    public void setTextSearch(String textSearch) {
+        this.textSearch = textSearch;
     }
 
     public Set<Status> getStatuses() {
@@ -126,7 +126,7 @@ public class MessageFilter implements Serializable {
     public void setIncludedMetaDataIds(List<Integer> includedMetaDataIds) {
         this.includedMetaDataIds = includedMetaDataIds;
     }
-    
+
     public List<Integer> getExcludedMetaDataIds() {
         return excludedMetaDataIds;
     }
@@ -143,7 +143,7 @@ public class MessageFilter implements Serializable {
         this.serverId = serverId;
     }
 
-	public List<ContentSearchElement> getContentSearch() {
+    public List<ContentSearchElement> getContentSearch() {
         return contentSearch;
     }
 
@@ -159,12 +159,12 @@ public class MessageFilter implements Serializable {
         this.metaDataSearch = metaDataSearch;
     }
 
-    public List<String> getQuickSearchMetaDataColumns() {
-        return quickSearchMetaDataColumns;
+    public List<String> getTextSearchMetaDataColumns() {
+        return textSearchMetaDataColumns;
     }
 
-    public void setQuickSearchMetaDataColumns(List<String> quickSearchMetaDataColumns) {
-        this.quickSearchMetaDataColumns = quickSearchMetaDataColumns;
+    public void setTextSearchMetaDataColumns(List<String> textSearchMetaDataColumns) {
+        this.textSearchMetaDataColumns = textSearchMetaDataColumns;
     }
 
     public Integer getSendAttemptsLower() {
