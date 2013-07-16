@@ -149,21 +149,21 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
         eventBrowserPageSizeField.setToolTipText("Sets the default page size for browsers (message, event, etc.)");
 
-        textSearchWarningLabel.setText("Message browser text search warning:");
+        textSearchWarningLabel.setText("Message browser text search confirmation:");
 
         textSearchWarningYesRadio.setBackground(new java.awt.Color(255, 255, 255));
         textSearchWarningYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         textSearchWarningButtonGroup.add(textSearchWarningYesRadio);
         textSearchWarningYesRadio.setSelected(true);
         textSearchWarningYesRadio.setText("Yes");
-        textSearchWarningYesRadio.setToolTipText("<html>Show a warning in the message browser when attempting a text search, warning users<br/>that the query may take a long time depending on the amount of messages being searched.</html>");
+        textSearchWarningYesRadio.setToolTipText("<html>Show a confirmation dialog in the message browser when attempting a text search, warning users<br/>that the query may take a long time depending on the amount of messages being searched.</html>");
         textSearchWarningYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         textSearchWarningNoRadio.setBackground(new java.awt.Color(255, 255, 255));
         textSearchWarningNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         textSearchWarningButtonGroup.add(textSearchWarningNoRadio);
         textSearchWarningNoRadio.setText("No");
-        textSearchWarningNoRadio.setToolTipText("<html>Show a warning in the message browser when attempting a text search, warning users<br/>that the query may take a long time depending on the amount of messages being searched.</html>");
+        textSearchWarningNoRadio.setToolTipText("<html>Show a confirmation dialog in the message browser when attempting a text search, warning users<br/>that the query may take a long time depending on the amount of messages being searched.</html>");
         textSearchWarningNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         javax.swing.GroupLayout clientSettingsLayout = new javax.swing.GroupLayout(clientSettings);
@@ -191,7 +191,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                         .addComponent(textSearchWarningYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(textSearchWarningNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(224, Short.MAX_VALUE))
+                .addContainerGap(198, Short.MAX_VALUE))
         );
         clientSettingsLayout.setVerticalGroup(
             clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

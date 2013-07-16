@@ -96,7 +96,7 @@
                           <Component id="textSearchWarningNoRadio" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace pref="224" max="32767" attributes="0"/>
+                  <EmptySpace pref="198" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -212,7 +212,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="textSearchWarningLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Message browser text search warning:"/>
+            <Property name="text" type="java.lang.String" value="Message browser text search confirmation:"/>
           </Properties>
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="textSearchWarningYesRadio">
@@ -230,7 +230,7 @@
             </Property>
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="Yes"/>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Show a warning in the message browser when attempting a text search, warning users&lt;br/&gt;that the query may take a long time depending on the amount of messages being searched.&lt;/html&gt;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Show a confirmation dialog in the message browser when attempting a text search, warning users&lt;br/&gt;that the query may take a long time depending on the amount of messages being searched.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -250,7 +250,7 @@
               <ComponentRef name="textSearchWarningButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="No"/>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Show a warning in the message browser when attempting a text search, warning users&lt;br/&gt;that the query may take a long time depending on the amount of messages being searched.&lt;/html&gt;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Show a confirmation dialog in the message browser when attempting a text search, warning users&lt;br/&gt;that the query may take a long time depending on the amount of messages being searched.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
