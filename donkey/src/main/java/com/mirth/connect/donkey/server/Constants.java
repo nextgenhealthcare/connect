@@ -26,7 +26,7 @@ public class Constants {
     /**
      * The number of milliseconds to wait when a destination queue is empty before peeking again
      */
-    public static final int DESTINATION_QUEUE_EMPTY_SLEEP_TIME = 1000;
+    public static final int DESTINATION_QUEUE_EMPTY_SLEEP_TIME = 200;
 
     /**
      * Thread priority level for the event handler

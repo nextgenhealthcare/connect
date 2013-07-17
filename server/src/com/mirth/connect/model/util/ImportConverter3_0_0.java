@@ -1661,7 +1661,7 @@ public class ImportConverter3_0_0 {
         }
 
         if (reconnectInterval == null) {
-            reconnectInterval = "1000";
+            reconnectInterval = "10000";
         }
 
         if (retryCount == null) {

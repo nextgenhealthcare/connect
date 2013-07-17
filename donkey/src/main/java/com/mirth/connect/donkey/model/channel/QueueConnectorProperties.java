@@ -24,7 +24,7 @@ public class QueueConnectorProperties implements Serializable, Migratable {
     public QueueConnectorProperties() {
         queueEnabled = false;
         sendFirst = false;
-        retryIntervalMillis = 1000;
+        retryIntervalMillis = 10000;
         regenerateTemplate = false;
         retryCount = 0;
         rotate = false;
