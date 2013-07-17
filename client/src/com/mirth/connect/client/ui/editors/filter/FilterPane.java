@@ -895,11 +895,9 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     }
 
     public void importFilter(String content) {
-        Filter previousFilter = connector.getFilter();
-
         boolean append = false;
 
-        if (previousFilter.getRules().size() > 0) {
+        if (filterTableModel.getRowCount() > 0) {
             if (parent.alertOption(parent, "Would you like to append the rules from the imported filter to the existing filter?")) {
                 append = true;
             }
@@ -925,14 +923,18 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                         importFilter.getRules().get(0).setOperator(Operator.AND);
                         break;
                 }
-
-                previousFilter.getRules().addAll(importFilter.getRules());
-                importFilter = previousFilter;
+                
+                int row = filterTableModel.getRowCount();
+                
+                for (Rule rule : importFilter.getRules()) {
+                    setRowData(rule, row++, false);
+                }
+                
+                updateRuleNumbers();
+            } else {
                 connector.setFilter(importFilter);
+                load(connector, importFilter, transformer, modified);
             }
-            connector.setFilter(importFilter);
-
-            load(connector, importFilter, transformer, modified);
         } catch (Exception e) {
             e.printStackTrace();
             parent.alertError(this, "Invalid filter file.");
