@@ -110,7 +110,7 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
         } catch (ClientException e) {
             parent.alertException(this, e.getStackTrace(), e.getMessage());
         }
-        alertModel.setEnabled(true);
+        alertModel.setEnabled(false);
         alertModel.setTrigger(new DefaultTrigger(new HashSet<ErrorEventType>(), ""));
         alertModel.getActionGroups().add(new AlertActionGroup());
 
