@@ -66,17 +66,17 @@ public class SerializerFactory {
     }
     
     @Deprecated
+    
     // TODO: Remove in 3.1
-    public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR, boolean handleSubcomponents) {
-        logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, handleSubcomponents) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
-        
+    private static IXMLSerializer getHL7SerializerQuietly(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR, boolean handleSubcomponents) {
         String dataType = "HL7V2";
         Map<String, Object> serializationPropertiesMap = getDefaultSerializationProperties(dataType);
+        serializationPropertiesMap.put("handleRepetitions", handleRepetitions);
+        serializationPropertiesMap.put("handleSubcomponents", handleSubcomponents);
         serializationPropertiesMap.put("useStrictParser", useStrictParser);
         serializationPropertiesMap.put("useStrictValidation", useStrictValidation);
-        serializationPropertiesMap.put("handleRepetitions", handleRepetitions);
-        serializationPropertiesMap.put("segmentDelimiter", convertLFtoCR ? "\\r\\n|\\r|\\n" : "\\r");
-        serializationPropertiesMap.put("handleSubcomponents", handleSubcomponents);
+        serializationPropertiesMap.put("segmentDelimiter", "\\r");
+        serializationPropertiesMap.put("convertLineBreaks", convertLFtoCR);
         
         Map<String, Object> deserializationPropertiesMap = getDefaultDeserializationProperties(dataType);
         deserializationPropertiesMap.put("useStrictParser", useStrictParser);
@@ -87,30 +87,37 @@ public class SerializerFactory {
     
     @Deprecated
     // TODO: Remove in 3.1
+    public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR, boolean handleSubcomponents) {
+        logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, handleSubcomponents) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
+        return getHL7SerializerQuietly(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, handleSubcomponents);
+    }
+    
+    @Deprecated
+    // TODO: Remove in 3.1
     public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR) {
         logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
-        return getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, false);
+        return getHL7SerializerQuietly(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, false);
     }
 
     @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions) {
         logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
-        return getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, true);
+        return getHL7SerializerQuietly(useStrictParser, useStrictValidation, handleRepetitions, true, false);
     }
 
     @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation) {
         logger.error("The getHL7Serializer(useStrictParser, useStrictValidation) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
-        return getHL7Serializer(useStrictParser, useStrictValidation, false);
+        return getHL7SerializerQuietly(useStrictParser, useStrictValidation, false, true, false);
     }
 
     @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getHL7Serializer() {
-        logger.error("The getHL7Serializer() method is deprecated and will soon be removed. Please use getSerializer('HL7V2') instead.");
-        return getSerializer("HL7V2");
+        logger.error("The getHL7Serializer() method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
+        return getHL7SerializerQuietly(false, false, false, true, false);
     }
     
     @Deprecated
@@ -142,9 +149,7 @@ public class SerializerFactory {
     
     @Deprecated
     // TODO: Remove in 3.1
-    public static IXMLSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim, boolean useStrictValidation) {
-        logger.error("The getNCPDPSerializer(segmentDelim, groupDelim, fieldDelim, useStrictValidation) method is deprecated and will soon be removed. Please use the \"Convert NCPDP\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
-        
+    private static IXMLSerializer getNCPDPSerializerQuietly(String segmentDelim, String groupDelim, String fieldDelim, boolean useStrictValidation) {
         String dataType = "NCPDP";
         Map<String, Object> serializationPropertiesMap = getDefaultSerializationProperties(dataType);
         serializationPropertiesMap.put("segmentDelimiter", segmentDelim);
@@ -162,8 +167,15 @@ public class SerializerFactory {
     
     @Deprecated
     // TODO: Remove in 3.1
+    public static IXMLSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim, boolean useStrictValidation) {
+        logger.error("The getNCPDPSerializer(segmentDelim, groupDelim, fieldDelim, useStrictValidation) method is deprecated and will soon be removed. Please use the \"Convert NCPDP\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
+        return getNCPDPSerializerQuietly(segmentDelim, groupDelim, fieldDelim, useStrictValidation);
+    }
+    
+    @Deprecated
+    // TODO: Remove in 3.1
     public static IXMLSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim) {
         logger.error("The getNCPDPSerializer(segmentDelim, groupDelim, fieldDelim) method is deprecated and will soon be removed. Please use the \"Convert NCPDP\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
-        return getNCPDPSerializer(segmentDelim, groupDelim, fieldDelim, false);
+        return getNCPDPSerializerQuietly(segmentDelim, groupDelim, fieldDelim, false);
     }
 }
