@@ -128,10 +128,11 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
         List<ConnectorMessage> messages = new ArrayList<ConnectorMessage>();
         ConnectorMessage message = this.message;
         int startMetaDataId = enabledMetaDataIds.indexOf(message.getMetaDataId());
+        boolean stopChain = false;
 
         /*
-         * The message that we're starting with should be associated with one of the
-         * destinations in this chain, if it's not, we can't proceed.
+         * The message that we're starting with should be associated with one of
+         * the destinations in this chain, if it's not, we can't proceed.
          */
         if (startMetaDataId == -1) {
             logger.error("The message's metadata ID is not in the destination chain's list of enabled metadata IDs");
@@ -139,7 +140,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
         }
 
         // loop through each metaDataId in the chain, beginning with startMetaDataId
-        for (int i = startMetaDataId; i < enabledMetaDataIds.size(); i++) {
+        for (int i = startMetaDataId; i < enabledMetaDataIds.size() && !stopChain; i++) {
             ThreadUtils.checkInterruptedStatus();
             Integer metaDataId = enabledMetaDataIds.get(i);
             Integer nextMetaDataId = (enabledMetaDataIds.size() > (i + 1)) ? enabledMetaDataIds.get(i + 1) : null;
@@ -171,6 +172,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                             try {
                                 filterTransformerExecutors.get(metaDataId).processConnectorMessage(message);
                             } catch (DonkeyException e) {
+                                stopChain = true;
                                 message.setStatus(Status.ERROR);
                                 message.setProcessingError(e.getFormattedError());
                             }
@@ -235,6 +237,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                 } catch (RuntimeException e) { // TODO: remove this catch since we can't determine an error code
                     // if an error occurred in processing the message through the current destination, then update the message status to ERROR and continue processing through the chain
                     logger.error("Error processing destination " + destinationConnectors.get(metaDataId).getDestinationName() + ".", e);
+                    stopChain = true;
                     dao.rollback();
                     message.setStatus(Status.ERROR);
                     message.setProcessingError(e.toString());
@@ -246,7 +249,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                 }
 
                 // now that we're finished processing the current message, we can create the next message in the chain
-                if (nextMetaDataId != null) {
+                if (nextMetaDataId != null && !stopChain) {
                     nextMessage = new ConnectorMessage(message.getChannelId(), message.getMessageId(), nextMetaDataId, message.getServerId(), Calendar.getInstance(), Status.RECEIVED);
 
                     DestinationConnector nextDestinationConnector = destinationConnectors.get(nextMetaDataId);
