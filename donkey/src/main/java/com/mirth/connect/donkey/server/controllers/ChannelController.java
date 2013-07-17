@@ -93,6 +93,21 @@ public class ChannelController {
         }
     }
 
+    public void resetAllStatistics() {
+        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+
+        try {
+            for (String channelId : dao.getLocalChannelIds().keySet()) {
+                dao.resetAllStatistics(channelId);
+
+                // Each update here must have its own transaction, otherwise deadlocks may occur.
+                dao.commit();
+            }
+        } finally {
+            dao.close();
+        }
+    }
+
     public Long getLocalChannelId(String channelId) {
         Long localChannelId = null;
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();

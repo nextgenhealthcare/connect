@@ -43,6 +43,7 @@ public class TaskConstants {
     // Server Settings Tasks
     public static final String SETTINGS_SERVER_BACKUP = "doBackup";
     public static final String SETTINGS_SERVER_RESTORE = "doRestore";
+    public static final String SETTINGS_CLEAR_ALL_STATS = "doClearAllStats";
 
     // Alert Tasks
     public static final String ALERT_REFRESH = "doRefreshAlerts";

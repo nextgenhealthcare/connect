@@ -370,6 +370,17 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
+    public void resetAllStatistics(String channelId) {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            dao.resetAllStatistics(channelId);
+        } finally {
+            timer.log("resetStatistics", System.currentTimeMillis() - startTime);
+        }
+    }
+
+    @Override
     public Long selectMaxLocalChannelId() {
         long startTime = System.currentTimeMillis();
 

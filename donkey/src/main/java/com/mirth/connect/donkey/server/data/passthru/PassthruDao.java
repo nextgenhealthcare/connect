@@ -166,6 +166,11 @@ public class PassthruDao implements DonkeyDao {
     }
 
     @Override
+    public void resetAllStatistics(String channelId) {
+        // Unsupported for this Dao implementation
+    }
+
+    @Override
     public void insertMessage(Message message) {}
 
     @Override

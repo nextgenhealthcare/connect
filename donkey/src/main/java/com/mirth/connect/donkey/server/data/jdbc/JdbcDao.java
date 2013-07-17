@@ -21,9 +21,11 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -64,7 +66,8 @@ public class JdbcDao implements DonkeyDao {
     private Statistics currentStats;
     private Statistics totalStats;
     private Statistics transactionStats = new Statistics(false);
-    private Map<String, Map<Integer, Set<Status>>> resetStats = new HashMap<String, Map<Integer, Set<Status>>>();
+    private Map<String, Map<Integer, Set<Status>>> resetCurrentStats = new HashMap<String, Map<Integer, Set<Status>>>();
+    private Map<String, Map<Integer, Set<Status>>> resetTotalStats = new HashMap<String, Map<Integer, Set<Status>>>();
     private List<String> removedChannelIds = new ArrayList<String>();
     private String asyncCommitCommand;
     private Map<String, Long> localChannelIds;
@@ -1417,16 +1420,58 @@ public class JdbcDao implements DonkeyDao {
 
             statement.executeUpdate();
 
-            if (!resetStats.containsKey(channelId)) {
-                resetStats.put(channelId, new HashMap<Integer, Set<Status>>());
+            if (!resetCurrentStats.containsKey(channelId)) {
+                resetCurrentStats.put(channelId, new HashMap<Integer, Set<Status>>());
             }
 
-            Map<Integer, Set<Status>> metaDataIds = resetStats.get(channelId);
+            Map<Integer, Set<Status>> metaDataIds = resetCurrentStats.get(channelId);
 
             if (!metaDataIds.containsKey(metaDataId)) {
                 metaDataIds.put(metaDataId, statuses);
             }
 
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        } finally {
+            close(statement);
+        }
+    }
+    
+    @Override
+    public void resetAllStatistics(String channelId) {
+        logger.debug(channelId + ": resetting all statistics (including lifetime)");
+        PreparedStatement statement = null;
+
+        try {
+            Map<String, Object> values = new HashMap<String, Object>();
+            values.put("localChannelId", getLocalChannelId(channelId));
+
+            statement = connection.prepareStatement(querySource.getQuery("resetAllStatistics", values));
+            statement.executeUpdate();
+            
+            Set<Status> statuses = new HashSet<Status>(Arrays.asList(Status.values()));
+            
+            Map<Integer, Set<Status>> metaDataIdsCurrent = resetCurrentStats.get(channelId);
+            if (metaDataIdsCurrent == null) {
+                metaDataIdsCurrent = new HashMap<Integer, Set<Status>>();
+                resetCurrentStats.put(channelId, metaDataIdsCurrent);
+            }
+            
+            Map<Integer, Map<Status, Long>> channelCurrentStats = currentStats.getStats().get(channelId);
+            for (Entry<Integer, Map<Status, Long>> channelEntry : channelCurrentStats.entrySet()) {
+                metaDataIdsCurrent.put(channelEntry.getKey(), statuses);
+            }
+            
+            Map<Integer, Set<Status>> metaDataIdsTotal = resetTotalStats.get(channelId);
+            if (metaDataIdsTotal == null) {
+                metaDataIdsTotal = new HashMap<Integer, Set<Status>>();
+                resetTotalStats.put(channelId, metaDataIdsTotal);
+            }
+            
+            Map<Integer, Map<Status, Long>> channelTotalStats = totalStats.getStats().get(channelId);
+            for (Entry<Integer, Map<Status, Long>> channelEntry : channelTotalStats.entrySet()) {
+                metaDataIdsTotal.put(channelEntry.getKey(), statuses);
+            }
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
@@ -1519,7 +1564,7 @@ public class JdbcDao implements DonkeyDao {
 
         if (currentStats != null) {
             // reset stats for any connectors that need to be reset
-            for (Entry<String, Map<Integer, Set<Status>>> entry : resetStats.entrySet()) {
+            for (Entry<String, Map<Integer, Set<Status>>> entry : resetCurrentStats.entrySet()) {
                 String channelId = entry.getKey();
                 Map<Integer, Set<Status>> metaDataIds = entry.getValue();
 
@@ -1532,7 +1577,7 @@ public class JdbcDao implements DonkeyDao {
             }
 
             // Clear the reset stats map because we've just reset the stats
-            resetStats.clear();
+            resetCurrentStats.clear();
 
             // update the in-memory stats with the stats we just saved in storage
             currentStats.update(transactionStats);
@@ -1544,6 +1589,22 @@ public class JdbcDao implements DonkeyDao {
         }
 
         if (totalStats != null) {
+            // reset stats for any connectors that need to be reset
+            for (Entry<String, Map<Integer, Set<Status>>> entry : resetTotalStats.entrySet()) {
+                String channelId = entry.getKey();
+                Map<Integer, Set<Status>> metaDataIds = entry.getValue();
+
+                for (Entry<Integer, Set<Status>> metaDataEntry : metaDataIds.entrySet()) {
+                    Integer metaDataId = metaDataEntry.getKey();
+                    Set<Status> statuses = metaDataEntry.getValue();
+
+                    totalStats.resetStats(channelId, metaDataId, statuses);
+                }
+            }
+            
+            // Clear the reset stats map because we've just reset the stats
+            resetTotalStats.clear();
+            
             // update the in-memory total stats with the stats we just saved in storage
             totalStats.update(transactionStats);
 

@@ -39,6 +39,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         addTask(TaskConstants.SETTINGS_SERVER_BACKUP, "Backup Config", "Backup your server configuration to an XML file. The backup includes channels, alerts, code templates, server properties, global scripts, and plugin properties.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")));
         addTask(TaskConstants.SETTINGS_SERVER_RESTORE, "Restore Config", "Restore your server configuration from a server configuration XML file. This will remove and restore your channels, alerts, code templates, server properties, global scripts, and plugin properties.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")));
+        addTask(TaskConstants.SETTINGS_CLEAR_ALL_STATS, "Clear All Statistics", "Reset the current and lifetime statistics for all channels.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/chart_bar_delete.png")));
 
         provideUsageStatsMoreInfoLabel.setToolTipText(UIConstants.PRIVACY_TOOLTIP);
         provideUsageStatsMoreInfoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -359,6 +360,38 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             } catch (Exception e) {
                 getFrame().alertError(this, "Invalid server configuration file.");
             }
+        }
+    }
+
+    public void doClearAllStats() {
+        String result = JOptionPane.showInputDialog(this, "<html>This will reset all channel statistics (including lifetime statistics) for<br>all channels (including undeployed channels).<br><font size='1'><br></font>Type CLEAR and click the OK button to continue.</html>", "Clear All Statistics", JOptionPane.WARNING_MESSAGE);
+
+        if (result != null) {
+            if (!result.equals("CLEAR")) {
+                getFrame().alertWarning(SettingsPanelServer.this, "You must type CLEAR to clear all statistics.");
+                return;
+            }
+
+            final String workingId = getFrame().startWorking("Clearing all statistics...");
+
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+                public Void doInBackground() {
+                    try {
+                        getFrame().mirthClient.clearAllStatistics();
+                    } catch (ClientException e) {
+                        getFrame().alertException(SettingsPanelServer.this, e.getStackTrace(), e.getMessage());
+                    }
+                    return null;
+                }
+
+                public void done() {
+                    getFrame().stopWorking(workingId);
+                    getFrame().alertInformation(SettingsPanelServer.this, "All current and lifetime statistics have been cleared for all channels.");
+                }
+            };
+
+            worker.execute();
         }
     }
 

@@ -82,6 +82,8 @@ public interface DonkeyDao {
 
     public void resetStatistics(String channelId, Integer metaDataId, Set<Status> statuses);
 
+    public void resetAllStatistics(String channelId);
+
     public Long selectMaxLocalChannelId();
 
     public Map<String, Long> getLocalChannelIds();

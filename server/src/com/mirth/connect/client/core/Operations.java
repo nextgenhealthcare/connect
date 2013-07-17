@@ -33,6 +33,7 @@ public class Operations {
     // Channel Statistics
     public static final Operation CHANNEL_STATS_GET = new Operation("getStatistics", "Get statistics", false);
     public static final Operation CHANNEL_STATS_CLEAR = new Operation("clearStatistics", "Clear statistics", true);
+    public static final Operation CHANNEL_STATS_CLEAR_ALL = new Operation("clearAllStatistics", "Clear all statistics", true);
 
     // Channel Status
     public static final Operation CHANNEL_START = new Operation("startChannel", "Start channel", true);
@@ -141,6 +142,7 @@ public class Operations {
         operationMap.put(CHANNEL_GET_METADATA_COLUMNS.getName(), CHANNEL_GET_METADATA_COLUMNS);
         operationMap.put(CHANNEL_STATS_GET.getName(), CHANNEL_STATS_GET);
         operationMap.put(CHANNEL_STATS_CLEAR.getName(), CHANNEL_STATS_CLEAR);
+        operationMap.put(CHANNEL_STATS_CLEAR_ALL.getName(), CHANNEL_STATS_CLEAR_ALL);
         operationMap.put(CHANNEL_START.getName(), CHANNEL_START);
         operationMap.put(CHANNEL_STOP.getName(), CHANNEL_STOP);
         operationMap.put(CHANNEL_HALT.getName(), CHANNEL_HALT);

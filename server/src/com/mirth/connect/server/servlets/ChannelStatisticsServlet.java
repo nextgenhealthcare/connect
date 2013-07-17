@@ -101,6 +101,12 @@ public class ChannelStatisticsServlet extends MirthServlet {
 
                         channelController.resetStatistics(channelConnectorMap, statusesToClear);
                     }
+                } else if (operation.equals(Operations.CHANNEL_STATS_CLEAR_ALL)) {
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        channelController.resetAllStatistics();
+                    }
                 }
             } catch (RuntimeIOException rio) {
                 logger.debug(rio);

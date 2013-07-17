@@ -711,6 +711,12 @@ public class Client {
         serverConnection.executePostMethod(CHANNEL_STATISTICS_SERVLET, params);
     }
 
+    public void clearAllStatistics() throws ClientException {
+        logger.debug("clearing all statistics (including lifetime)");
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STATS_CLEAR_ALL.getName()) };
+        serverConnection.executePostMethod(CHANNEL_STATISTICS_SERVLET, params);
+    }
+
     public Integer getMaxEventId() throws ClientException {
         NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_GET_MAX_ID.getName()) };
         Integer maxEventId = null;

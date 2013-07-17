@@ -119,6 +119,7 @@ public class BufferedDao implements DonkeyDao {
                     case ADD_META_DATA_COLUMN: dao.addMetaDataColumn((String) p[0], (MetaDataColumn) p[1]); break;
                     case REMOVE_META_DATA_COLUMN: dao.removeMetaDataColumn((String) p[0], (String) p[1]); break;
                     case RESET_STATISTICS: dao.resetStatistics((String) p[0], (Integer) p[1], (Set<Status>) p[2]); break;
+                    case RESET_ALL_STATISTICS: dao.resetAllStatistics((String) p[0]); break;
                 }
                 // @formatter:on
             }
@@ -289,6 +290,11 @@ public class BufferedDao implements DonkeyDao {
     public void resetStatistics(String channelId, Integer metaDataId, Set<Status> statuses) {
         tasks.add(new DaoTask(DaoTaskType.RESET_STATISTICS, new Object[] { channelId, metaDataId,
                 statuses }));
+    }
+    
+    @Override
+    public void resetAllStatistics(String channelId) {
+        tasks.add(new DaoTask(DaoTaskType.RESET_ALL_STATISTICS, new Object[] { channelId }));
     }
 
     @Override
