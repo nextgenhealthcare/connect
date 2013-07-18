@@ -25,6 +25,7 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
+import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
@@ -214,7 +215,17 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
 
                                 destinationConnector.process(dao, message, previousStatus);
                             } else {
+                                if (message.getStatus() == Status.FILTERED) {
+                                    message.getResponseMap().put("d" + String.valueOf(metaDataId), new Response(Status.FILTERED, "", "Message has been filtered"));
+                                } else if (message.getStatus() == Status.ERROR) {
+                                    message.getResponseMap().put("d" + String.valueOf(metaDataId), new Response(Status.ERROR, "", "Error converting message or evaluating filter/transformer"));
+                                }
+
                                 dao.updateStatus(message, previousStatus);
+
+                                if (storageSettings.isStoreMaps()) {
+                                    dao.updateMaps(message);
+                                }
                             }
                             break;
 
