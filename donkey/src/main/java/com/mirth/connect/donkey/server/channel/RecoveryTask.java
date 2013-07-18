@@ -10,10 +10,12 @@
 package com.mirth.connect.donkey.server.channel;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -42,8 +44,10 @@ public class RecoveryTask implements Callable<List<Message>> {
         try {
             // step 1: recover messages for each destination (RECEIVED or PENDING on destination)
             for (DestinationChain chain : channel.getDestinationChains()) {
-                for (Entry<Integer, DestinationConnector> destinationConnectorEntry : chain.getDestinationConnectors().entrySet()) {
-                    Integer metaDataId = destinationConnectorEntry.getKey();
+                List<Integer> chainMetaDataIds = chain.getMetaDataIds();
+
+                for (int i = 0; i < chainMetaDataIds.size(); i++) {
+                    Integer metaDataId = chainMetaDataIds.get(i);
 
                     if (storageSettings.isMessageRecoveryEnabled()) {
                         ThreadUtils.checkInterruptedStatus();
@@ -54,25 +58,38 @@ public class RecoveryTask implements Callable<List<Message>> {
                         for (ConnectorMessage recoveredConnectorMessage : recoveredConnectorMessages) {
                             long messageId = recoveredConnectorMessage.getMessageId();
 
-                            // get the list of destination meta data ids to send to
-                            List<Integer> metaDataIds = null;
-
-                            if (recoveredConnectorMessage.getChannelMap().containsKey(Constants.DESTINATION_META_DATA_IDS_KEY)) {
-                                metaDataIds = (List<Integer>) recoveredConnectorMessage.getChannelMap().get(Constants.DESTINATION_META_DATA_IDS_KEY);
+                            List<ConnectorMessage> existingConnectorMessages = dao.getConnectorMessages(channel.getChannelId(), messageId, new HashSet<Integer>(chainMetaDataIds), false);
+                            Set<Integer> existingMetaDataIds = new HashSet<Integer>();
+                            for (ConnectorMessage connectorMessage : existingConnectorMessages) {
+                                existingMetaDataIds.add(connectorMessage.getMetaDataId());
                             }
 
-                            if (metaDataIds != null && metaDataIds.size() > 0) {
-                                // The order of the enabledMetaDataId list needs to be based on the chain order.
-                                // We do not use ListUtils here because there is no official guarantee of order.
-                                List<Integer> enabledMetaDataIds = new ArrayList<Integer>();
-                                for (Integer id : chain.getMetaDataIds()) {
-                                    if (metaDataIds.contains(id)) {
+                            // get the list of destination meta data ids to send to
+                            List<Integer> channelMapMetaDataIds = null;
+
+                            if (recoveredConnectorMessage.getChannelMap().containsKey(Constants.DESTINATION_META_DATA_IDS_KEY)) {
+                                channelMapMetaDataIds = (List<Integer>) recoveredConnectorMessage.getChannelMap().get(Constants.DESTINATION_META_DATA_IDS_KEY);
+                            }
+
+                            List<Integer> enabledMetaDataIds = new ArrayList<Integer>();
+
+                            // The order of the enabledMetaDataId list needs to be based on the chain order.
+                            // We do not use ListUtils here because there is no official guarantee of order.
+                            for (Integer id : chainMetaDataIds) {
+                                if (CollectionUtils.isEmpty(channelMapMetaDataIds) || channelMapMetaDataIds.contains(id)) {
+                                    // Don't add the ID to the enabled list if it already exists in the database
+                                    // This doesn't apply to the current metadata ID, which will always be there
+                                    if (!existingMetaDataIds.contains(id) || id == metaDataId) {
                                         enabledMetaDataIds.add(id);
                                     }
                                 }
-                                chain.setEnabledMetaDataIds(enabledMetaDataIds);
                             }
 
+                            if (!enabledMetaDataIds.contains(metaDataId)) {
+                                enabledMetaDataIds.add(metaDataId);
+                            }
+
+                            chain.setEnabledMetaDataIds(enabledMetaDataIds);
                             chain.setMessage(recoveredConnectorMessage);
 
                             try {
@@ -136,9 +153,9 @@ public class RecoveryTask implements Callable<List<Message>> {
                         Response response = null;
 
                         /*
-                         * only put a response in the dispatchResult if a response was not already
-                         * stored in the source message (which happens when the source queue is
-                         * enabled)
+                         * only put a response in the dispatchResult if a
+                         * response was not already stored in the source message
+                         * (which happens when the source queue is enabled)
                          */
                         if (sourceMessage.getResponse() == null) {
                             response = responseSelector.getResponse(sourceMessage, message);

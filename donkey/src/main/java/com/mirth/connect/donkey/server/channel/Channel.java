@@ -31,6 +31,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -1240,7 +1241,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             for (DestinationChain chain : destinationChains) {
                 // The order of the enabledMetaDataId list needs to be based on the chain order.
                 // We do not use ListUtils here because there is no official guarantee of order.
-                if (metaDataIds != null && metaDataIds.size() > 0) {
+                if (CollectionUtils.isNotEmpty(metaDataIds)) {
                     List<Integer> enabledMetaDataIds = new ArrayList<Integer>();
                     for (Integer id : chain.getMetaDataIds()) {
                         if (metaDataIds.contains(id)) {
