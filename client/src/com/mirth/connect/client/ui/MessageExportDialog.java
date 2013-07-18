@@ -51,7 +51,7 @@ public class MessageExportDialog extends JDialog {
         messageExportPanel.setExportLocal(true);
 
         setTitle("Export Results");
-        setSize(800, 230);
+        setSize(800, 300);
         setBackground(new Color(255, 255, 255));
         setLocationRelativeTo(null);
         setModal(true);
@@ -103,7 +103,7 @@ public class MessageExportDialog extends JDialog {
     }
 
     private void initLayout() {
-        setLayout(new MigLayout("insets 12, wrap", "[]", "[fill]12[]"));
+        setLayout(new MigLayout("insets 12, wrap", "[]", "[fill][]"));
 
         add(messageExportPanel, "grow,push");
         add(exportButton, "split 2, alignx right, width 70");
@@ -156,7 +156,7 @@ public class MessageExportDialog extends JDialog {
     /**
      * Launches the dialog in a test frame
      */
-//    public void main() throws Exception {
+//    public static void main(String[] args) {
 //        Mirth.initUIManager();
 //        PlatformUI.MIRTH_FRAME = new Frame() {
 //            public void setSaveEnabled(boolean enabled) {}

@@ -9,6 +9,7 @@
 
 package com.mirth.connect.client.ui.panels.export;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -17,6 +18,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -35,13 +37,13 @@ import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.client.ui.VariableList;
 import com.mirth.connect.client.ui.components.MirthButton;
 import com.mirth.connect.client.ui.components.MirthCheckBox;
 import com.mirth.connect.client.ui.components.MirthComboBox;
 import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.components.MirthTextPane;
+import com.mirth.connect.client.ui.components.MirthVariableList;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
@@ -54,6 +56,12 @@ public class MessageExportPanel extends JPanel {
     private Preferences userPreferences;
     private boolean archiverMode;
     private boolean initialized;
+    private Component[] archiveComponents;
+    
+    private MirthVariableList varList = new MirthVariableList();
+    private JScrollPane varListScrollPane = new JScrollPane();
+    private JPanel varListPanel = new JPanel();
+    
     private ButtonGroup archiveButtonGroup = new ButtonGroup();
     private JLabel archiveLabel = new JLabel("Enable Archiving:");
     private JRadioButton archiveYes = new MirthRadioButton("Yes");
@@ -61,6 +69,7 @@ public class MessageExportPanel extends JPanel {
     private JLabel contentLabel = new JLabel("Content:");
     private JComboBox contentComboBox = new MirthComboBox();
     private JCheckBox encryptCheckBox = new MirthCheckBox("Encrypt");
+    private JLabel attachmentsLabel = new JLabel();
 //    private JCheckBox attachmentsCheckBox = new MirthCheckBox("Include Attachments");
     private JLabel compressLabel = new JLabel("Compression:");
     private JComboBox compressComboBox = new MirthComboBox();
@@ -74,9 +83,7 @@ public class MessageExportPanel extends JPanel {
     private JLabel filePatternLabel = new JLabel("File Pattern:");
     private JScrollPane filePatternScrollPane = new JScrollPane();
     private JTextPane filePatternTextPane = new MirthTextPane();
-    private VariableList varList = new VariableList();
     private JLabel rootPathExtLabel = new JLabel();
-    private Component[] archiveComponents;
 
     /**
      * Construct a message export panel.
@@ -254,6 +261,8 @@ public class MessageExportPanel extends JPanel {
         exportLocalRadio.setToolTipText("<html>Store exported files on this computer, in the Root Path specified below.</html>");
         rootPathTextField.setToolTipText("<html>The root path to store the exported files/folders or compressed file.</html>");
         filePatternTextPane.setToolTipText("<html>The file/folder pattern in which to write the exported message files.<br />Variables from the Variables list to the right may be used in the pattern.</html>");
+        
+        attachmentsLabel.setText("<html><i>Note: attachments will not be included with " + (archiverMode ? "archived" : "exported") + " messages</i></html>");
 
         archiveYes = new MirthRadioButton("Yes");
         archiveNo = new MirthRadioButton("No");
@@ -290,9 +299,14 @@ public class MessageExportPanel extends JPanel {
         variables.add("Timestamp");
         variables.add("Unique ID");
         variables.add("Count");
-
-        varList.getMirthVariableList().removeAll();
-        varList.getMirthVariableList().setListData(variables.toArray());
+        
+        varListScrollPane.setBackground(UIConstants.BACKGROUND_COLOR);
+        varListPanel.setBackground(UIConstants.BACKGROUND_COLOR);
+        varListPanel.setBorder(BorderFactory.createEmptyBorder());
+        varListPanel.setLayout(new BorderLayout());
+        varListPanel.add(varListScrollPane);
+        varListScrollPane.setViewportView(varList);
+        varList.setListData(variables.toArray());
 
         archiveButtonGroup.add(archiveYes);
         archiveButtonGroup.add(archiveNo);
@@ -314,9 +328,9 @@ public class MessageExportPanel extends JPanel {
 
         // this is the list of components that will be disabled when the archive radio "No" is selected, see archiveChanged()
         archiveComponents = new Component[] { contentLabel, contentComboBox, encryptCheckBox,
-                varList, compressLabel, compressComboBox, exportToLabel, exportServerRadio,
+                varList, varListScrollPane, varListPanel, compressLabel, compressComboBox, exportToLabel, exportServerRadio,
                 exportLocalRadio, browseButton, rootPathLabel, rootPathTextField, rootPathExtLabel,
-                filePatternLabel, filePatternScrollPane, filePatternTextPane };
+                filePatternLabel, filePatternScrollPane, filePatternTextPane, attachmentsLabel };
 
         // @formatter:off
         archiveYes.addActionListener(new ActionListener() {
@@ -412,7 +426,7 @@ public class MessageExportPanel extends JPanel {
             add(archiveYes, "split 2");
             add(archiveNo, "gapbottom " + rowGap);
 
-            add(varList, "spany 5, growy, width 170!");
+            add(varListPanel, "spany 5, growy, width 170!");
         }
 
         add(contentLabel);
@@ -421,7 +435,7 @@ public class MessageExportPanel extends JPanel {
 //        add(attachmentsCheckBox, "gapleft 8");
 
         if (!archiverMode) {
-            add(varList, "spany 5, growy");
+            add(varListPanel, "spany 5, growy, width 170!");
         }
 
         add(compressLabel);
@@ -441,6 +455,9 @@ public class MessageExportPanel extends JPanel {
         add(filePatternLabel, "aligny top");
         add(filePatternScrollPane, "grow, push, split 2");
         add(new JLabel(), "gapbottom " + rowGap);
+        
+        add(new JLabel());
+        add(attachmentsLabel);
     }
 
     /**
@@ -457,7 +474,7 @@ public class MessageExportPanel extends JPanel {
 //        MessageExportPanel panel = new MessageExportPanel(null, false, true);
 //        panel.setBackground(new Color(255, 255, 255));
 //
-//        frame.setSize(800, 230);
+//        frame.setSize(800, 300);
 //        frame.getContentPane().setBackground(new Color(255, 255, 255));
 //        frame.setLayout(new MigLayout("fill, insets dialog", "", ""));
 //        frame.add(panel, "grow");

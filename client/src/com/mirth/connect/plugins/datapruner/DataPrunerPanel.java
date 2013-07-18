@@ -73,7 +73,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         archiverPanel = new MessageExportPanel(Frame.userPreferences, true, false);
         archiverPanel.setBackground(archiverContainerPanel.getBackground());
         archiverContainerPanel.setLayout(new MigLayout("fillx, insets 0 0 0 0", "[grow,fill]", "[grow,fill]"));
-        archiverContainerPanel.add(archiverPanel, "height 150!, aligny top");
+        archiverContainerPanel.add(archiverPanel, "height 195!, aligny top");
     }
 
     @Override
