@@ -44,7 +44,7 @@ After the installation, the Mirth Connect directory layout will look as follows:
 
 Once Mirth Connect has been installed, there are several ways to connect to launch the Mirth Connect Administrator. On a Windows installation, there is a Mirth Connect Administrator item in the Start Menu which launches the application directly.
 
-If the option is not available, you can connect to the Mirth Connect Administrator launch page which by default should be available at http://[server address]:8080. Clicking the Launch Mirth Connect Administrator button will connect you to the server which will be listening on https://[server address]:8443. If running a new installation, the default username and password for the login screen is admin and admin. This should be changed immediately for security purposes.
+If the option is not available, you can connect to the Mirth Connect Administrator launch page which by default should be available at http://[server address]:8080 (i.e. http://localhost:8080). Clicking the Launch Mirth Connect Administrator button will connect you to the server which will be listening on https://[server address]:8443 (i.e. https://localhost:8443). If running a new installation, the default username and password for the login screen is admin and admin. This should be changed immediately for security purposes.
 
 If you are launching the administrator for the first time, you will notice that the libraries for the Mirth Connect Administrator will be loaded. This feature allows you run the Administrator from any remote Mirth Connect server without having to download and install a separate client.
 
