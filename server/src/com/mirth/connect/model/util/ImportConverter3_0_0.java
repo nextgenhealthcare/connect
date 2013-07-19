@@ -270,13 +270,10 @@ public class ImportConverter3_0_0 {
         } else if (connectorName.equals("JavaScript Writer")) {
             migrateJavaScriptDispatcherProperties(properties);
         } else if (connectorName.equals("JMS Reader")) {
-            transportName.setTextContent("JMS Listener");
             migrateJmsReceiverProperties(properties);
         } else if (connectorName.equals("JMS Writer")) {
-            transportName.setTextContent("JMS Sender");
             migrateJmsDispatcherProperties(properties);
         } else if (connectorName.equals("LLP Listener")) {
-            transportName.setTextContent("TCP Listener");
             DonkeyElement transformer = connector.getChildElement("transformer");
 
             // Some properties have been moved from the LLP Listener connector to the HL7 v2.x data type
@@ -298,7 +295,6 @@ public class ImportConverter3_0_0 {
 
             migrateLLPListenerProperties(properties);
         } else if (connectorName.equals("LLP Sender")) {
-            transportName.setTextContent("TCP Sender");
             sendResponseToChannelId = migrateLLPSenderProperties(properties);
         } else if (connectorName.equals("TCP Listener")) {
             migrateTCPListenerProperties(properties);
@@ -346,6 +342,9 @@ public class ImportConverter3_0_0 {
             migrateDataTypeProperties(responseTransformer.addChildElement("inboundProperties"), outboundDataType);
             migrateDataTypeProperties(responseTransformer.addChildElement("outboundProperties"), outboundDataType);
         }
+
+        // Fix the transport name if necessary
+        transportName.setTextContent(convertTransportName(transportName.getTextContent()));
 
         // default waitForPrevious to true
         connector.addChildElement("waitForPrevious").setTextContent("true");
@@ -1759,6 +1758,19 @@ public class ImportConverter3_0_0 {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static String convertTransportName(String transportName) {
+        if (transportName.equals("JMS Reader")) {
+            return "JMS Listener";
+        } else if (transportName.equals("JMS Writer")) {
+            return "JMS Sender";
+        } else if (transportName.equals("LLP Listener")) {
+            return "TCP Listener";
+        } else if (transportName.equals("LLP Sender")) {
+            return "TCP Sender";
+        }
+        return transportName;
     }
 
     public static Set<String> getMissingDataTypes(DonkeyElement transformer, Set<String> loadedDataTypes) {

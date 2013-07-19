@@ -2042,6 +2042,9 @@ public class Frame extends JXFrame {
     private void checkConnectorForMissingExtensions(DonkeyElement connector, boolean source, Set<String> missingConnectors, Set<String> missingDataTypes) {
         if (connector != null) {
             DonkeyElement transportName = connector.getChildElement("transportName");
+            // Check for 2.x-specific connectors
+            transportName.setTextContent(ImportConverter3_0_0.convertTransportName(transportName.getTextContent()));
+
             if (transportName != null) {
                 if (source && !LoadedExtensions.getInstance().getSourceConnectors().containsKey(transportName.getTextContent())) {
                     missingConnectors.add(transportName.getTextContent());
