@@ -41,7 +41,7 @@ public class ServerLogProvider implements ServicePlugin {
 
     private void initialize() {
         // add the new appender
-        Appender arrayAppender = new ArrayAppender();
+        Appender arrayAppender = new ArrayAppender(this);
         Layout patternLayout = new PatternLayout("[%d]  %-5p (%c:%L): %m%n");
         arrayAppender.setLayout(patternLayout);
         patternLayout.activateOptions();
@@ -57,7 +57,7 @@ public class ServerLogProvider implements ServicePlugin {
         if (serverLogs.size() == LOG_SIZE) {
             serverLogs.removeLast();
         }
-        
+
         serverLogs.addFirst(new String[] { String.valueOf(logId), logMessage });
         logId++;
     }
@@ -74,7 +74,7 @@ public class ServerLogProvider implements ServicePlugin {
             } catch (SerializationException e) {
                 // ignore
             }
-            
+
             if (lastDisplayedServerLogIdBySessionId.containsKey(sessionId)) {
                 // client exist with the sessionId.
                 // -> only display new log entries.
@@ -112,7 +112,7 @@ public class ServerLogProvider implements ServicePlugin {
                     // very latest logId.
                     lastDisplayedServerLogIdBySessionId.put(sessionId, logId - 1);
                 }
-                
+
                 try {
                     return SerializationUtils.clone(serverLogsCloned);
                 } catch (SerializationException e) {
@@ -128,10 +128,10 @@ public class ServerLogProvider implements ServicePlugin {
                 lastDisplayedServerLogIdBySessionId.remove(sessionId);
                 return true; // sessionId found and successfully removed.
             }
-            
+
             return false; // no sessionId found.
         }
-        
+
         return null;
     }
 
@@ -157,7 +157,7 @@ public class ServerLogProvider implements ServicePlugin {
 
     @Override
     public ExtensionPermission[] getExtensionPermissions() {
-        ExtensionPermission viewPermission = new ExtensionPermission(PLUGINPOINT, "View Server Log", "Displays the contents of the Server Log on the Dashboard.", new String[] { GET_SERVER_LOGS }, new String[] { });
+        ExtensionPermission viewPermission = new ExtensionPermission(PLUGINPOINT, "View Server Log", "Displays the contents of the Server Log on the Dashboard.", new String[] { GET_SERVER_LOGS }, new String[] {});
         return new ExtensionPermission[] { viewPermission };
     }
 }
