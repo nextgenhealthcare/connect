@@ -9,8 +9,10 @@
 
 package com.mirth.connect.connectors.jms;
 
+import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import javax.naming.NamingException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -54,11 +56,12 @@ public class JmsDispatcher extends DestinationConnector {
 
     @Override
     public void onStart() throws StartException {
+        jmsClient.start();
+        
         try {
-            jmsClient.start();
             producer = jmsClient.getSession().createProducer(null);
-        } catch (Exception e) {
-            throw new StartException("Failed to establish JMS connection", e);
+        } catch (JMSException e) {
+            throw new StartException("Failed to create a JMS message producer", e);
         }
 
         eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.CONNECTED));
@@ -95,17 +98,36 @@ public class JmsDispatcher extends DestinationConnector {
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) throws InterruptedException {
         eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.SENDING));
         JmsDispatcherProperties jmsDispatcherProperties = (JmsDispatcherProperties) connectorProperties;
-        Session session = jmsClient.getSession();
 
-        try {
-            producer.send(jmsClient.getDestination(jmsDispatcherProperties.getDestinationName()), session.createTextMessage(jmsDispatcherProperties.getTemplate()));
-            return new Response(Status.SENT, null, "Message sent successfully.");
-        } catch (Exception e) {
-            logger.error("An error occurred in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\": " + e.getMessage(), ExceptionUtils.getRootCause(e));
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), e.getMessage(), e));
-            return new Response(Status.QUEUED, null, ErrorMessageBuilder.buildErrorResponse("Error occurred when attempting to send JMS message.", e), ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), e.getMessage(), e));
-        } finally {
-            eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
+        /*
+         * We synchronize with the client here because the client could be attempting to reconnect
+         * to the broker on a different thread if we detected a disconnection.
+         */
+        synchronized (jmsClient) {
+            Session session = jmsClient.getSession();
+            
+            try {
+                return doSend(jmsDispatcherProperties, session);
+            } catch (Exception e) {
+                try {
+                    if (jmsClient.beginReconnect(true)) {
+                        return doSend(jmsDispatcherProperties, session);
+                    } else {
+                        throw e;
+                    }
+                } catch (Exception e1) {
+                    logger.error("An error occurred in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\": " + e1.getMessage(), ExceptionUtils.getRootCause(e1));
+                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), e1.getMessage(), e1));
+                    return new Response(Status.QUEUED, null, ErrorMessageBuilder.buildErrorResponse("Error occurred when attempting to send JMS message.", e1), ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), e1.getMessage(), e1));
+                }
+            } finally {
+                eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
+            }
         }
+    }
+    
+    private Response doSend(JmsDispatcherProperties jmsDispatcherProperties, Session session) throws JMSException, NamingException {
+        producer.send(jmsClient.getDestination(jmsDispatcherProperties.getDestinationName()), session.createTextMessage(jmsDispatcherProperties.getTemplate()));
+        return new Response(Status.SENT, null, "Message sent successfully.");
     }
 }

@@ -72,6 +72,12 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         this.connectorType = connectorType;
         this.connectorName = connectorName;
         this.listModel = JmsTemplateListModel.getInstance();
+
+        if (connectorType == TYPE_SENDER) {
+            reconnectIntervalField.setToolTipText("<html>The number of milliseconds between reconnect attempts when a connection error occurs (while the connector is idle).</html>");
+        } else {
+            reconnectIntervalField.setToolTipText("<html>The number of milliseconds between reconnect attempts when a connection error occurs.</html>");
+        }
     }
 
     @Override
@@ -411,7 +417,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
 
         reconnectIntervalLabel.setText("Reconnect Interval (ms):");
 
-        reconnectIntervalField.setToolTipText("The number of milliseconds between reconnect attempts when a connection error occurs.");
+        reconnectIntervalField.setToolTipText("");
 
         passwordField.setToolTipText("The password for accessing the queue or topic.");
 
@@ -421,7 +427,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
 
         templateScrollPane.setBorder(null);
 
-        templateList.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Connection Templates", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0))); // NOI18N
+        templateList.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Connection Templates", 0, 0, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0))); // NOI18N
         templateList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         templateScrollPane.setViewportView(templateList);
 

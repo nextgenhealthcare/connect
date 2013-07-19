@@ -378,7 +378,7 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="reconnectIntervalField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The number of milliseconds between reconnect attempts when a connection error occurs."/>
+        <Property name="toolTipText" type="java.lang.String" value=""/>
       </Properties>
     </Component>
     <Component class="javax.swing.JPasswordField" name="passwordField">

@@ -59,11 +59,7 @@ public class JmsReceiver extends SourceConnector {
 
     @Override
     public void onStart() throws StartException {
-        try {
-            jmsClient.start();
-        } catch (Exception e) {
-            throw new StartException("Failed to establish connection to the JMS broker", e);
-        }
+        jmsClient.start();
 
         TemplateValueReplacer replacer = new TemplateValueReplacer();
         String channelId = getChannelId();
