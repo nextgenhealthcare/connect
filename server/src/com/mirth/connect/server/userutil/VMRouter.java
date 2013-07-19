@@ -32,7 +32,7 @@ import com.mirth.connect.util.ErrorMessageBuilder;
 public class VMRouter {
     private static final int DEFAULT_TIMEOUT = 0;
     private static ExecutorService executor = Executors.newCachedThreadPool();
-    
+
     private Logger logger = Logger.getLogger(getClass());
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private EngineController engineController = ControllerFactory.getFactory().createEngineController();
@@ -42,7 +42,7 @@ public class VMRouter {
     }
 
     public Response routeMessage(String channelName, String message, int timeout) {
-        return routeMessage(channelName, new RawMessage(message, null, null), timeout);
+        return routeMessage(channelName, new RawMessage(message), timeout);
     }
 
     public Response routeMessage(String channelName, RawMessage rawMessage, int timeout) {
@@ -55,14 +55,14 @@ public class VMRouter {
 
         return routeMessageByChannelId(channel.getId(), rawMessage, timeout);
     }
-    
+
     @Deprecated
     // TODO: Remove in 3.1
     public Response routeMessage(String channelName, String message, boolean useQueue) {
         logger.error("The routeMessage(channelName, message, useQueue) method is deprecated and will soon be removed. Please use routeMessage(channelName, message) instead. The useQueue parameter will not be used. If you want the downstream channel to queue its message and return immediately upon receipt, enable the source queue on the source connector.");
         return routeMessage(channelName, message);
     }
-    
+
     @Deprecated
     // TODO: Remove in 3.1
     public Response routeMessageByChannelId(String channelId, Object message, boolean useQueue) {
@@ -83,7 +83,7 @@ public class VMRouter {
     }
 
     public Response routeMessageByChannelId(String channelId, String message, int timeout) {
-        return routeMessageByChannelId(channelId, new RawMessage(message, null, null), timeout);
+        return routeMessageByChannelId(channelId, new RawMessage(message), timeout);
     }
 
     public Response routeMessageByChannelId(String channelId, RawMessage rawMessage, int timeout) {

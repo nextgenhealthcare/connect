@@ -176,7 +176,7 @@ public class MessageObjectServlet extends MirthServlet {
                     @SuppressWarnings("unchecked")
                     List<Integer> metaDataIds = serializer.deserializeList(request.getParameter("metaDataIds"), Integer.class);
                     
-                    final RawMessage rawMessage = new RawMessage(rawData, metaDataIds, null);
+                    final RawMessage rawMessage = new RawMessage(rawData, metaDataIds);
 
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("message", rawData);

@@ -53,7 +53,7 @@ public class VmDispatcher extends DestinationConnector {
     private static final String SOURCE_CHANNEL_IDS = "sourceChannelIds";
     private static final String SOURCE_MESSAGE_ID = "sourceMessageId";
     private static final String SOURCE_MESSAGE_IDS = "sourceMessageIds";
-    
+
     private VmDispatcherProperties connectorProperties;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
@@ -68,11 +68,13 @@ public class VmDispatcher extends DestinationConnector {
 
         if (timeout > 0) {
             /*
-             * This executor is created on deploy so it can be shutdown on undeploy. If it were
-             * created on start, it would need to be shutdown on stop. However, we don't want to
-             * shutdown the executor on stop because we want to let any lingering messages finish.
+             * This executor is created on deploy so it can be shutdown on
+             * undeploy. If it were created on start, it would need to be
+             * shutdown on stop. However, we don't want to shutdown the executor
+             * on stop because we want to let any lingering messages finish.
              * 
-             * A cached thread pool is used in case multiple threads are reading from the source queue.
+             * A cached thread pool is used in case multiple threads are reading
+             * from the source queue.
              */
             executor = Executors.newCachedThreadPool();
         }
@@ -130,17 +132,17 @@ public class VmDispatcher extends DestinationConnector {
                 RawMessage rawMessage;
 
                 if (isBinary) {
-                    rawMessage = new RawMessage(data, null, null);
+                    rawMessage = new RawMessage(data);
                 } else {
-                    rawMessage = new RawMessage(StringUtils.newString(data, Constants.ATTACHMENT_CHARSET), null, null);
+                    rawMessage = new RawMessage(StringUtils.newString(data, Constants.ATTACHMENT_CHARSET));
                 }
 
                 Map<String, Object> rawChannelMap = rawMessage.getChannelMap();
                 Map<String, Object> channelMap = message.getChannelMap();
 
                 /*
-                 * Build the lists of source channel and message Ids if this channel is not the
-                 * start of the chain.
+                 * Build the lists of source channel and message Ids if this
+                 * channel is not the start of the chain.
                  */
                 List<String> sourceChannelIds = getSourceChannelIds(channelMap);
                 List<Long> sourceMessageIds = getSourceMessageIds(channelMap);
@@ -211,8 +213,8 @@ public class VmDispatcher extends DestinationConnector {
         List<String> sourceChannelIds = null;
 
         /*
-         * If the source channel id already exists, then a source channel id list needs to be
-         * created to store the historical channel ids.
+         * If the source channel id already exists, then a source channel id
+         * list needs to be created to store the historical channel ids.
          */
         if (object != null && object instanceof String) {
             String sourceChannelId = (String) object;
@@ -221,8 +223,9 @@ public class VmDispatcher extends DestinationConnector {
             Object listObject = map.get(SOURCE_CHANNEL_IDS);
 
             /*
-             * If the source channel id list already exists, add all items into the new list.
-             * Otherwise only add the previous channel id to the new list.
+             * If the source channel id list already exists, add all items into
+             * the new list. Otherwise only add the previous channel id to the
+             * new list.
              */
             if (listObject == null) {
                 sourceChannelIds.add(sourceChannelId);
@@ -244,8 +247,8 @@ public class VmDispatcher extends DestinationConnector {
         List<Long> sourceMessageIds = null;
 
         /*
-         * If the source message id already exists, then a source message id list needs to be
-         * created to store the historical message ids.
+         * If the source message id already exists, then a source message id
+         * list needs to be created to store the historical message ids.
          */
         if (object != null && object instanceof Long) {
             Long sourceMessageId = (Long) object;
@@ -254,8 +257,9 @@ public class VmDispatcher extends DestinationConnector {
             Object listObject = map.get(SOURCE_MESSAGE_IDS);
 
             /*
-             * If the source message id list already exists, add all items into the new list.
-             * Otherwise only add the previous message id to the new list.
+             * If the source message id list already exists, add all items into
+             * the new list. Otherwise only add the previous message id to the
+             * new list.
              */
             if (listObject == null) {
                 sourceMessageIds.add(sourceMessageId);

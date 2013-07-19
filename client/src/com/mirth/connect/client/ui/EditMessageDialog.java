@@ -43,7 +43,9 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
      * @param message
      * @param dataType
      * @param channelId
-     * @param selectedMetaDataIds The connectors that will be pre-selected for processing the message. If null, all connectors will be pre-selected.
+     * @param selectedMetaDataIds
+     *            The connectors that will be pre-selected for processing the
+     *            message. If null, all connectors will be pre-selected.
      */
     public EditMessageDialog(String message, String dataType, String channelId, Map<Integer, String> destinationConnectors, List<Integer> selectedMetaDataIds) {
         super(PlatformUI.MIRTH_FRAME);
@@ -96,14 +98,11 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
         }
     }
 
-    public void dragOver(DropTargetDragEvent dtde) {
-    }
+    public void dragOver(DropTargetDragEvent dtde) {}
 
-    public void dropActionChanged(DropTargetDragEvent dtde) {
-    }
+    public void dropActionChanged(DropTargetDragEvent dtde) {}
 
-    public void dragExit(DropTargetEvent dte) {
-    }
+    public void dragExit(DropTargetEvent dte) {}
 
     public void drop(DropTargetDropEvent dtde) {
         try {
@@ -130,7 +129,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
         if (message != null) {
             if (dataType != null) {
                 TokenMarker tokenMarker = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getTokenMarker();
-                
+
                 if (tokenMarker != null) {
                     newDoc.setTokenMarker(tokenMarker);
                 }
@@ -290,7 +289,14 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
 
     private void processMessageButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_processMessageButtonActionPerformed
     {//GEN-HEADEREND:event_processMessageButtonActionPerformed
-        parent.processMessage(channelId, messageContent.getText(), ((ItemSelectionTableModel<Integer, String>)mirthTable1.getModel()).getKeys(true));
+        ItemSelectionTableModel<Integer, String> model = (ItemSelectionTableModel<Integer, String>) mirthTable1.getModel();
+        List<Integer> metaDataIds = model.getKeys(true);
+
+        if (metaDataIds.size() == model.getRowCount()) {
+            metaDataIds = null;
+        }
+
+        parent.processMessage(channelId, messageContent.getText(), metaDataIds);
         this.dispose();
     }//GEN-LAST:event_processMessageButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables

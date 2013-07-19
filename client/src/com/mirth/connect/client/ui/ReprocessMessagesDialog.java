@@ -62,12 +62,12 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
      */
     public void makeIncludedDestinationsTable(Map<Integer, String> destinationsConnectors, Integer selectedMetaDataId) {
         List<Integer> selectedMetaDataIds = null;
-        
+
         if (selectedMetaDataId != null && selectedMetaDataId > 0) {
             selectedMetaDataIds = new ArrayList<Integer>();
             selectedMetaDataIds.add(selectedMetaDataId);
         }
-        
+
         includedDestinationsTable = new ItemSelectionTable();
         includedDestinationsTable.setModel(new ItemSelectionTableModel<Integer, String>(destinationsConnectors, selectedMetaDataIds, "Destination", "Included"));
         includedDestinationsPane.setViewportView(includedDestinationsTable);
@@ -98,9 +98,9 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
             model.refreshDataVector(tableData);
         } else {
             includedDestinationsTable = new MirthTable();
-            includedDestinationsTable.setModel(new RefreshTableModel(tableData, new String[]{INCLUDED_DESTINATION_NAME_COLUMN_NAME, INCLUDED_STATUS_COLUMN_NAME, INCLUDED_ID_COLUMN_NAME}) {
+            includedDestinationsTable.setModel(new RefreshTableModel(tableData, new String[] { INCLUDED_DESTINATION_NAME_COLUMN_NAME, INCLUDED_STATUS_COLUMN_NAME, INCLUDED_ID_COLUMN_NAME }) {
 
-                boolean[] canEdit = new boolean[]{false, true, false};
+                boolean[] canEdit = new boolean[] { false, true, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -211,14 +211,21 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-    this.dispose();
-}//GEN-LAST:event_cancelButtonActionPerformed
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
-private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-    parent.reprocessMessage(channelId, filter, isReprocessOriginal(), ((ItemSelectionTableModel<Integer, String>)includedDestinationsTable.getModel()).getKeys(true));
-    this.dispose();
-}//GEN-LAST:event_okButtonActionPerformed
+    private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
+        ItemSelectionTableModel<Integer, String> model = (ItemSelectionTableModel<Integer, String>) includedDestinationsTable.getModel();
+        List<Integer> metaDataIds = model.getKeys(true);
+
+        if (metaDataIds.size() == model.getRowCount()) {
+            metaDataIds = null;
+        }
+
+        parent.reprocessMessage(channelId, filter, isReprocessOriginal(), metaDataIds);
+        this.dispose();
+    }//GEN-LAST:event_okButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JScrollPane includedDestinationsPane;

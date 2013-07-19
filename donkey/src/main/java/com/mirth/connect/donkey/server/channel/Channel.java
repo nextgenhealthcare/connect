@@ -31,7 +31,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -994,7 +993,13 @@ public class Channel implements Startable, Stoppable, Runnable {
         } else {
             messageId = rawMessage.getMessageIdToOverwrite();
             List<Integer> metaDataIds = new ArrayList<Integer>();
-            metaDataIds.addAll(rawMessage.getDestinationMetaDataIds());
+
+            if (rawMessage.getDestinationMetaDataIds() != null) {
+                metaDataIds.addAll(rawMessage.getDestinationMetaDataIds());
+            } else {
+                metaDataIds.addAll(getMetaDataIds());
+            }
+
             metaDataIds.add(0);
             dao.deleteConnectorMessages(channelId, messageId, metaDataIds, true);
             dao.resetMessage(channelId, messageId);
@@ -1241,7 +1246,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             for (DestinationChain chain : destinationChains) {
                 // The order of the enabledMetaDataId list needs to be based on the chain order.
                 // We do not use ListUtils here because there is no official guarantee of order.
-                if (CollectionUtils.isNotEmpty(metaDataIds)) {
+                if (metaDataIds != null) {
                     List<Integer> enabledMetaDataIds = new ArrayList<Integer>();
                     for (Integer id : chain.getMetaDataIds()) {
                         if (metaDataIds.contains(id)) {
@@ -1296,40 +1301,42 @@ public class Channel implements Startable, Stoppable, Runnable {
                 }
             }
 
-            // Execute each destination chain (but the last one) and store the tasks in a list
-            List<Future<List<ConnectorMessage>>> destinationChainTasks = new ArrayList<Future<List<ConnectorMessage>>>();
+            if (!enabledChains.isEmpty()) {
+                // Execute each destination chain (but the last one) and store the tasks in a list
+                List<Future<List<ConnectorMessage>>> destinationChainTasks = new ArrayList<Future<List<ConnectorMessage>>>();
 
-            for (int i = 0; i <= enabledChains.size() - 2; i++) {
-                try {
-                    destinationChainTasks.add(channelExecutor.submit(enabledChains.get(i)));
-                } catch (RejectedExecutionException e) {
-                    Thread.currentThread().interrupt();
-                    throw new InterruptedException();
+                for (int i = 0; i <= enabledChains.size() - 2; i++) {
+                    try {
+                        destinationChainTasks.add(channelExecutor.submit(enabledChains.get(i)));
+                    } catch (RejectedExecutionException e) {
+                        Thread.currentThread().interrupt();
+                        throw new InterruptedException();
+                    }
                 }
-            }
 
-            List<ConnectorMessage> connectorMessages = null;
+                List<ConnectorMessage> connectorMessages = null;
 
-            // Always call the last chain directly rather than submitting it as a Future
-            try {
-                connectorMessages = enabledChains.get(enabledChains.size() - 1).call();
-            } catch (Throwable t) {
-                handleDestinationChainThrowable(t);
-            }
-
-            addConnectorMessages(finalMessage, sourceMessage, connectorMessages);
-
-            // Get the result message from each destination chain's task and merge the map data into the final merged message. If an exception occurs, return immediately without sending the message to the post-processor.
-            for (Future<List<ConnectorMessage>> task : destinationChainTasks) {
-                connectorMessages = null;
-
+                // Always call the last chain directly rather than submitting it as a Future
                 try {
-                    connectorMessages = task.get();
-                } catch (Exception e) {
-                    handleDestinationChainThrowable(e);
+                    connectorMessages = enabledChains.get(enabledChains.size() - 1).call();
+                } catch (Throwable t) {
+                    handleDestinationChainThrowable(t);
                 }
 
                 addConnectorMessages(finalMessage, sourceMessage, connectorMessages);
+
+                // Get the result message from each destination chain's task and merge the map data into the final merged message. If an exception occurs, return immediately without sending the message to the post-processor.
+                for (Future<List<ConnectorMessage>> task : destinationChainTasks) {
+                    connectorMessages = null;
+
+                    try {
+                        connectorMessages = task.get();
+                    } catch (Exception e) {
+                        handleDestinationChainThrowable(e);
+                    }
+
+                    addConnectorMessages(finalMessage, sourceMessage, connectorMessages);
+                }
             }
 
             // re-enable all destination connectors in each chain
