@@ -667,7 +667,6 @@ public class ImportConverter3_0_0 {
         }
 
         properties.addChildElement("channelId").setTextContent(host);
-        properties.addChildElement("responseTimeout").setTextContent("0");
         properties.addChildElement("channelTemplate").setTextContent(convertReferences(oldProperties.getProperty("template", "${message.encodedData}")));
     }
 

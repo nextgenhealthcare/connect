@@ -12,15 +12,8 @@ package com.mirth.connect.connectors.vm;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.codec.binary.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -36,7 +29,6 @@ import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
-import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.event.ConnectorEvent;
@@ -57,35 +49,15 @@ public class VmDispatcher extends DestinationConnector {
     private VmDispatcherProperties connectorProperties;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private ExecutorService executor;
-    private int timeout;
     private Logger logger = Logger.getLogger(getClass());
 
     @Override
     public void onDeploy() throws DeployException {
         this.connectorProperties = (VmDispatcherProperties) getConnectorProperties();
-        timeout = NumberUtils.toInt(connectorProperties.getResponseTimeout(), 0);
-
-        if (timeout > 0) {
-            /*
-             * This executor is created on deploy so it can be shutdown on
-             * undeploy. If it were created on start, it would need to be
-             * shutdown on stop. However, we don't want to shutdown the executor
-             * on stop because we want to let any lingering messages finish.
-             * 
-             * A cached thread pool is used in case multiple threads are reading
-             * from the source queue.
-             */
-            executor = Executors.newCachedThreadPool();
-        }
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {
-        if (executor != null) {
-            executor.shutdown();
-        }
-    }
+    public void onUndeploy() throws UndeployException {}
 
     @Override
     public void onStart() throws StartException {
@@ -166,13 +138,7 @@ public class VmDispatcher extends DestinationConnector {
                 // Remove the reference to the raw message so its doesn't hold the entire message in memory.
                 data = null;
 
-                DispatchResult dispatchResult = null;
-
-                if (timeout > 0) {
-                    dispatchResult = executor.submit(new DispatchTask(targetChannelId, rawMessage)).get(timeout, TimeUnit.MILLISECONDS);
-                } else {
-                    dispatchResult = ControllerFactory.getFactory().createEngineController().dispatchRawMessage(targetChannelId, rawMessage);
-                }
+                DispatchResult dispatchResult = ControllerFactory.getFactory().createEngineController().dispatchRawMessage(targetChannelId, rawMessage);
 
                 if (dispatchResult.getSelectedResponse() != null) {
                     // If a response was returned from the channel then use that message
@@ -183,23 +149,9 @@ public class VmDispatcher extends DestinationConnector {
             responseStatus = Status.SENT;
             responseStatusMessage = "Message routed successfully to channel id: " + targetChannelId;
         } catch (Throwable e) {
-            Throwable cause;
-            if (e instanceof ExecutionException) {
-                cause = e.getCause();
-            } else {
-                cause = e;
-            }
-
-            String shortMessage = "Error routing message to channel id: " + targetChannelId;
-            String longMessage = shortMessage;
-
-            if (e instanceof TimeoutException) {
-                longMessage += ". A cycle may be present where a channel is attempting to dispatch a message to itself. If this is the case, enable queuing on the source or destination connectors, otherwise try increasing the response timeout.";
-            }
-
-            eventController.dispatchEvent(new ErrorEvent(currentChannelId, getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), longMessage, cause));
-            responseStatusMessage = ErrorMessageBuilder.buildErrorResponse(shortMessage, cause);
-            responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), longMessage, cause);
+            eventController.dispatchEvent(new ErrorEvent(currentChannelId, getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error routing message to channel id: " + targetChannelId, e));
+            responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error routing message to channel id: " + targetChannelId, e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error routing message to channel id: " + targetChannelId, e);
         } finally {
             eventController.dispatchEvent(new ConnectorEvent(currentChannelId, getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
         }
@@ -273,21 +225,5 @@ public class VmDispatcher extends DestinationConnector {
         }
 
         return sourceMessageIds;
-    }
-
-    private class DispatchTask implements Callable<DispatchResult> {
-
-        private String channelId;
-        private RawMessage rawMessage;
-
-        public DispatchTask(String channelId, RawMessage rawMessage) {
-            this.channelId = channelId;
-            this.rawMessage = rawMessage;
-        }
-
-        @Override
-        public DispatchResult call() throws ChannelException {
-            return ControllerFactory.getFactory().createEngineController().dispatchRawMessage(channelId, rawMessage);
-        }
     }
 }

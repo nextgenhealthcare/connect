@@ -14,12 +14,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
-import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Channel;
@@ -32,7 +28,6 @@ public class ChannelWriter extends ConnectorSettingsPanel {
     public ChannelWriter() {
         parent = PlatformUI.MIRTH_FRAME;
         initComponents();
-        responseTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
     }
 
     @Override
@@ -49,7 +44,6 @@ public class ChannelWriter extends ConnectorSettingsPanel {
         VmDispatcherProperties properties = new VmDispatcherProperties();
 
         properties.setChannelId(channelList.get((String) channelNames.getSelectedItem()));
-        properties.setResponseTimeout(responseTimeoutField.getText());
         properties.setChannelTemplate(template.getText());
 
         return properties;
@@ -85,7 +79,6 @@ public class ChannelWriter extends ConnectorSettingsPanel {
         boolean enabled = parent.isSaveEnabled();
 
         channelNames.setSelectedItem(selectedChannelName);
-        responseTimeoutField.setText(props.getResponseTimeout());
         template.setText(props.getChannelTemplate());
 
         parent.setSaveEnabled(enabled);
@@ -98,24 +91,11 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
     @Override
     public boolean checkProperties(ConnectorProperties properties, boolean highlight) {
-        VmDispatcherProperties props = (VmDispatcherProperties) properties;
-
-        boolean valid = true;
-
-        if (StringUtils.isBlank(props.getResponseTimeout())) {
-            valid = false;
-            if (highlight) {
-                responseTimeoutField.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
-
-        return valid;
+        return true;
     }
 
     @Override
-    public void resetInvalidProperties() {
-        responseTimeoutField.setBackground(null);
-    }
+    public void resetInvalidProperties() {}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -131,8 +111,6 @@ public class ChannelWriter extends ConnectorSettingsPanel {
         channelNames = new com.mirth.connect.client.ui.components.MirthComboBox();
         jLabel7 = new javax.swing.JLabel();
         template = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
-        responseTimeoutLabel = new javax.swing.JLabel();
-        responseTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -152,10 +130,6 @@ public class ChannelWriter extends ConnectorSettingsPanel {
         template.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         template.setToolTipText("<html>A Velocity enabled template for the actual message to be written to the channel.<br>In many cases, the default value of \"${message.encodedData}\" is sufficient.</html>");
 
-        responseTimeoutLabel.setText("Response Timeout (ms):");
-
-        responseTimeoutField.setToolTipText("<html>The amount of time to wait before marking the message as error.</html>");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -163,17 +137,14 @@ public class ChannelWriter extends ConnectorSettingsPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(responseTimeoutLabel)
                     .addComponent(jLabel7)
                     .addComponent(URL))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(template, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(channelNames, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(responseTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 23, Short.MAX_VALUE)))
+                        .addComponent(channelNames, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -183,15 +154,11 @@ public class ChannelWriter extends ConnectorSettingsPanel {
                     .addComponent(URL)
                     .addComponent(channelNames, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(responseTimeoutLabel)
-                    .addComponent(responseTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel7)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(template, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE))
+                        .addGap(0, 55, Short.MAX_VALUE))
+                    .addComponent(template, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -203,8 +170,6 @@ public class ChannelWriter extends ConnectorSettingsPanel {
     private javax.swing.ButtonGroup buttonGroup1;
     private com.mirth.connect.client.ui.components.MirthComboBox channelNames;
     private javax.swing.JLabel jLabel7;
-    private com.mirth.connect.client.ui.components.MirthTextField responseTimeoutField;
-    private javax.swing.JLabel responseTimeoutLabel;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea template;
     // End of variables declaration//GEN-END:variables
 }
