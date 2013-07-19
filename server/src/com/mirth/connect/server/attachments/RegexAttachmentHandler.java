@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
@@ -125,7 +126,7 @@ public class RegexAttachmentHandler extends AttachmentHandler {
         
         int count = 0;
         while (attachmentProperties.getProperties().containsKey("regex.replaceKey" + count)) {
-        	replacements.put(attachmentProperties.getProperties().get("regex.replaceKey" + count), attachmentProperties.getProperties().get("regex.replaceValue" + count));
+        	replacements.put(StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("regex.replaceKey" + count)), StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("regex.replaceValue" + count)));
         	count++;
         }
 
