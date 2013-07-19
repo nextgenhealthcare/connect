@@ -174,7 +174,7 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="selectLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="selectTextPane" pref="93" max="32767" attributes="0"/>
+                  <Component id="selectTextPane" pref="140" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -189,7 +189,7 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="updateLabel" min="-2" pref="14" max="-2" attributes="0"/>
-                  <Component id="updateTextPane" pref="93" max="32767" attributes="0"/>
+                  <Component id="updateTextPane" pref="141" max="32767" attributes="0"/>
                   <Component id="dbVarScrollPane" pref="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
