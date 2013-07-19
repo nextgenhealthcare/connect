@@ -29,6 +29,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -134,8 +135,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
      * load( Filter f )
      */
     public boolean load(Connector c, Filter f, Transformer t, boolean channelHasBeenChanged) {
-        if (LoadedExtensions.getInstance().getFilterRulePlugins().values().size() == 0) {
-            parent.alertError(this, "No filter rule plugins loaded.\r\nPlease install plugins and try again.");
+        if (alertUnsupportedRuleTypes(f)) {
             return false;
         }
 
@@ -156,12 +156,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         ListIterator<Rule> li = list.listIterator();
         while (li.hasNext()) {
             Rule s = li.next();
-            if (!LoadedExtensions.getInstance().getFilterRulePlugins().containsKey(s.getType())) {
-                parent.alertError(this, "Unable to load filter rule plugin \"" + s.getType() + "\"\r\nPlease install plugin and try again.");
-                return false;
-            }
-            int row = s.getSequenceNumber();
-            setRowData(s, row, false);
+            setRowData(s, s.getSequenceNumber(), false);
         }
 
         tabTemplatePanel.setDefaultComponent();
@@ -210,6 +205,36 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         }
 
         return true;
+    }
+    
+    /**
+     * @return Returns true if the filter has unsupported rule types and an alert was generated, false otherwise.
+     */
+    private boolean alertUnsupportedRuleTypes(Filter filter) {
+        if (LoadedExtensions.getInstance().getFilterRulePlugins().values().size() == 0) {
+            parent.alertError(this, "No filter rule plugins loaded.\r\nPlease install plugins and try again.");
+            return true;
+        }
+
+        Set<String> types = new HashSet<String>();
+
+        for (Rule rule : filter.getRules()) {
+            types.add(rule.getType());
+        }
+
+        types.removeAll(LoadedExtensions.getInstance().getFilterRulePlugins().keySet());
+
+        if (!types.isEmpty()) {
+            if (types.size() == 1) {
+                parent.alertError(this, "The \"" + types.toArray()[0] + "\" rule plugin is required by this filter. Please install this plugin and try again.");
+            } else {
+                parent.alertError(this, "The following rule type plugins are required by this filter: " + StringUtils.join(types, ", ") + ". Please install these plugins and try again.");
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public void dragEnter(DropTargetDragEvent dtde) {
@@ -895,51 +920,61 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     }
 
     public void importFilter(String content) {
-        boolean append = false;
-
-        if (filterTableModel.getRowCount() > 0) {
-            if (parent.alertOption(parent, "Would you like to append the rules from the imported filter to the existing filter?")) {
-                append = true;
-            }
-        }
-
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+        Filter importFilter = null;
+
         try {
-            Filter importFilter = serializer.deserialize(content, Filter.class);
-            prevSelRow = -1;
-            modified = true;
-
-            if (append) {
-                /*
-                 * MIRTH-2746 When appending filter rules from an import, the first rule may not
-                 * have an operator. To prevent an error in the JavaScript, we default it to AND.
-                 */
-                switch (importFilter.getRules().get(0).getOperator()) {
-                    case AND:
-                    case OR:
-                        break;
-
-                    default:
-                        importFilter.getRules().get(0).setOperator(Operator.AND);
-                        break;
-                }
-                
-                int row = filterTableModel.getRowCount();
-                
-                for (Rule rule : importFilter.getRules()) {
-                    setRowData(rule, row++, false);
-                }
-                
-                updateRuleNumbers();
-            } else {
-                connector.setFilter(importFilter);
-                load(connector, importFilter, transformer, modified);
-            }
+            importFilter = serializer.deserialize(content, Filter.class);
         } catch (Exception e) {
-            e.printStackTrace();
             parent.alertError(this, "Invalid filter file.");
+            return;
         }
-    }
+        
+        if (alertUnsupportedRuleTypes(importFilter)) {
+            return;
+        }
+        
+        prevSelRow = -1;
+        modified = true;
+
+        boolean append = (filterTableModel.getRowCount() > 0 && parent.alertOption(parent, "Would you like to append the rules from the imported filter to the existing filter?"));
+        
+        /*
+         * When appending, we merely add the rules from the filter being imported. When not
+         * appending, we replace the entire filter with the one being imported.
+         */
+        if (append) {
+            /*
+             * MIRTH-2746 When appending filter rules from an import, the first rule may not
+             * have an operator. To prevent an error in the JavaScript, we default it to AND.
+             */
+            switch (importFilter.getRules().get(0).getOperator()) {
+                case AND:
+                case OR:
+                    break;
+
+                default:
+                    importFilter.getRules().get(0).setOperator(Operator.AND);
+                    break;
+            }
+            
+            int row = filterTableModel.getRowCount();
+            
+            for (Rule rule : importFilter.getRules()) {
+                setRowData(rule, row++, false);
+            }
+            
+            updateRuleNumbers();
+        } else {
+            connector.setFilter(importFilter);
+            
+            /*
+             * We don't need to check the boolean return value from load() because we already
+             * checked for unsupported rule types earlier in this method.
+             */
+            load(connector, importFilter, transformer, modified);
+        }
+}
 
     /*
      * Export the filter.

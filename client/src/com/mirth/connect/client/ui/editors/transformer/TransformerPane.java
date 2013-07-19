@@ -29,6 +29,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -50,6 +51,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.BoundAction;
@@ -128,10 +130,10 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
      * load( Transformer t ) now that the components have been initialized...
      */
     public boolean load(Connector c, Transformer t, boolean channelHasBeenChanged, boolean isResponse) {
-        if (LoadedExtensions.getInstance().getTransformerStepPlugins().values().size() == 0) {
-            parent.alertError(this, "No transformer step plugins loaded.\r\nPlease install plugins and try again.");
+        if (alertUnsupportedStepTypes(t)) {
             return false;
         }
+        
         this.isResponse = isResponse;
         prevSelRow = -1;
         connector = c;
@@ -145,12 +147,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         ListIterator<Step> li = list.listIterator();
         while (li.hasNext()) {
             Step s = li.next();
-            if (!LoadedExtensions.getInstance().getTransformerStepPlugins().containsKey(s.getType())) {
-                parent.alertError(this, "Unable to load transformer step plugin \"" + s.getType() + "\"\r\nPlease install plugin and try again.");
-                return false;
-            }
-            int row = s.getSequenceNumber();
-            setRowData(s, row, false);
+            setRowData(s, s.getSequenceNumber(), false);
         }
 
         parent.setCurrentContentPage((JPanel) this);
@@ -201,6 +198,36 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             modified = false;
         }
         return true;
+    }
+    
+    /**
+     * @return Returns true if the transformer has unsupported step types and an alert was generated, false otherwise.
+     */
+    private boolean alertUnsupportedStepTypes(Transformer transformer) {
+        if (LoadedExtensions.getInstance().getTransformerStepPlugins().values().size() == 0) {
+            parent.alertError(this, "No transformer step plugins loaded.\r\nPlease install plugins and try again.");
+            return true;
+        }
+
+        Set<String> stepTypes = new HashSet<String>();
+
+        for (Step step : transformer.getSteps()) {
+            stepTypes.add(step.getType());
+        }
+
+        stepTypes.removeAll(LoadedExtensions.getInstance().getTransformerStepPlugins().keySet());
+
+        if (!stepTypes.isEmpty()) {
+            if (stepTypes.size() == 1) {
+                parent.alertError(this, "The \"" + stepTypes.toArray()[0] + "\" step plugin is required by this transformer. Please install this plugin and try again.");
+            } else {
+                parent.alertError(this, "The following step type plugins are required by this transformer: " + StringUtils.join(stepTypes, ", ") + ". Please install these plugins and try again.");
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public void dragEnter(DropTargetDragEvent dtde) {
@@ -860,46 +887,44 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     }
 
     private void importTransformer(String content) {
-        String incomingDataType = null;
-        String outgoingDataType = null;
-
-        for (String dataType : LoadedExtensions.getInstance().getDataTypePlugins().keySet()) {
-            if (PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(dataType).equals(tabTemplatePanel.getIncomingDataType())) {
-                incomingDataType = dataType;
-            }
-            if (PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(dataType).equals(tabTemplatePanel.getOutgoingDataType())) {
-                outgoingDataType = dataType;
-            }
-        }
-
-        Transformer previousTransformer = isResponse ? connector.getResponseTransformer() : connector.getTransformer();
-
-        boolean append = false;
-
-        if (previousTransformer.getSteps().size() > 0) {
-            if (parent.alertOption(parent, "Would you like to append the steps from the imported transformer to the existing transformer?")) {
-                append = true;
-            }
-        }
-
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+        Transformer importTransformer = null;
+
         try {
             /*
-             * Note: We removed the ability to migrate old transformer XML that was generated prior
-             * to version 3.0.0, since it did not contain a version field, which posed problems when
-             * migrating to 3.0.0. Transformers prior to 3.0.0 can still be migrated when imported
-             * as part of a connector.
+             * Note: Transformers generated prior to version 3.0.0 cannot be imported and migrated,
+             * because the lack of a version field poses problems with migration. However they can
+             * still be imported as part of a connector.
              */
-            Transformer importTransformer = serializer.deserialize(content, Transformer.class);
-            prevSelRow = -1;
-            modified = true;
-            invalidVar = false;
+            importTransformer = serializer.deserialize(content, Transformer.class);
+        } catch (Exception e) {
+            parent.alertError(this, "Invalid transformer file.");
+            return;
+        }
 
-            if (append) {
-                previousTransformer.getSteps().addAll(importTransformer.getSteps());
-                importTransformer = previousTransformer;
+        if (alertUnsupportedStepTypes(importTransformer)) {
+            return;
+        }
+        
+        prevSelRow = -1;
+        modified = true;
+        invalidVar = false;
+
+        boolean append = (transformerTableModel.getRowCount() > 0 && parent.alertOption(parent, "Would you like to append the steps from the imported transformer to the existing transformer?"));
+
+        /*
+         * When appending, we merely add the steps from the transformer being imported. When not
+         * appending, we replace the entire transformer with the one being imported.
+         */
+        if (append) {
+            int row = transformerTableModel.getRowCount();
+
+            for (Step step : importTransformer.getSteps()) {
+                setRowData(step, row++, false);
             }
 
+            updateStepNumbers();
+        } else {
             if (isResponse) {
                 connector.setResponseTransformer(importTransformer);
             } else {
@@ -910,19 +935,14 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 }
             }
 
-            if (!load(connector, importTransformer, modified, isResponse)) {
-                if (isResponse) {
-                    connector.setResponseTransformer(previousTransformer);
-                } else {
-                    connector.setTransformer(previousTransformer);
-                }
-                load(connector, previousTransformer, modified, isResponse);
-            }
-        } catch (Exception e) {
-            parent.alertError(this, "Invalid transformer file.");
+            /*
+             * We don't need to check the boolean return value from load() because we already
+             * checked for unsupported step types earlier in this method.
+             */
+            load(connector, importTransformer, modified, isResponse);
         }
     }
-
+    
     /*
      * Export the transfomer
      */
