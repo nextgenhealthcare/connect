@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -127,8 +128,8 @@ public class DatabaseConnectorService implements ConnectorService {
 
                             // replace the '?' with the appropriate schema.table name, and use ResultSetMetaData to 
                             // retrieve column information 
-                            final String schemaTableName = StringUtils.isNotEmpty(schema) ? schema + "." + tableName : tableName;
-                            final String queryString = selectLimit.trim().replaceAll("\\?", schemaTableName);
+                            final String schemaTableName = StringUtils.isNotEmpty(schema) ? "\"" + schema + "\".\"" + tableName + "\"" : "\"" + tableName + "\"";
+                            final String queryString = selectLimit.trim().replaceAll("\\?", Matcher.quoteReplacement(schemaTableName));
                             Statement statement = connection.createStatement();
                             try {
                                 rs = statement.executeQuery(queryString);
@@ -155,7 +156,7 @@ public class DatabaseConnectorService implements ConnectorService {
                                 columnList = new ArrayList<Column>();
 
                                 logger.debug("Using fallback method for retrieving columns");
-                                backupRs = dbMetaData.getColumns(null, null, tableName, null);
+                                backupRs = dbMetaData.getColumns(null, null, tableName.replace("/", "//"), null);
 
                                 // retrieve all relevant column information                			
                                 for (int i = 0; backupRs.next(); i++) {
