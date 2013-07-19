@@ -11,6 +11,8 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.util.prefs.Preferences;
 
 import javax.swing.event.ListSelectionEvent;
@@ -18,7 +20,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
@@ -26,6 +27,7 @@ import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProper
 public class RegexAttachmentDialog extends javax.swing.JDialog {
 
     private Frame parent;
+    private boolean initialFocus = true;
     private AttachmentHandlerProperties attachmentHandlerProperties;
 
     public static final int DATA_TYPE_COLUMN_NUMBER = 1;
@@ -35,13 +37,22 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         initReplacementTable();
-        
-        Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-        replacementTable.setHighlighters(highlighter);
-        
+
         attachmentHandlerProperties = properties;
 
         RegexTextField.setText(StringUtils.defaultIfEmpty(attachmentHandlerProperties.getProperties().get("regex.pattern"), ""));
+        RegexTextField.requestFocus();
+        RegexTextField.addFocusListener(new FocusAdapter() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (initialFocus) {
+                    RegexTextField.setCaretPosition(0);
+                    initialFocus = false;
+                }
+            }
+
+        });
         MimeTypeField.setText(StringUtils.defaultIfEmpty(attachmentHandlerProperties.getProperties().get("regex.mimetype"), ""));
 
         int count = 0;
@@ -114,8 +125,8 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
         closeButton = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
         jPanel2 = new javax.swing.JPanel();
+        exampleTextField = new javax.swing.JTextField();
         RegexTextField = new com.mirth.connect.client.ui.components.MirthTextField();
-        jTextField1 = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         MimeTypeField = new com.mirth.connect.client.ui.components.MirthTextField();
         jPanel4 = new javax.swing.JPanel();
@@ -141,24 +152,24 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Regular Expression"));
 
-        jTextField1.setEditable(false);
-        jTextField1.setText("Example for OBX 5.5: (?:OBX\\|(?:[^|]*?\\|){4}(?:[^|^]*?\\^){4})([^|^]*)[|^]");
-        jTextField1.setBorder(null);
-        jTextField1.setOpaque(false);
+        exampleTextField.setEditable(false);
+        exampleTextField.setText("Example for OBX 5.5: (?:OBX\\|(?:[^|]*?\\|){4}(?:[^|^]*?\\^){4})([^|^]*)[|^]");
+        exampleTextField.setBorder(null);
+        exampleTextField.setOpaque(false);
+
+        RegexTextField.setToolTipText("<html>The regular expression that will be used to match and extract attachments.<br>If capturing groups are used, only the last group will be extracted.</html>");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(RegexTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 591, Short.MAX_VALUE)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(RegexTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(exampleTextField)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(exampleTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(RegexTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -166,11 +177,13 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Mime Type"));
 
+        MimeTypeField.setToolTipText("The mime type of the extracted attachment data.");
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(MimeTypeField, javax.swing.GroupLayout.DEFAULT_SIZE, 591, Short.MAX_VALUE)
+            .addComponent(MimeTypeField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -212,7 +225,7 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
             }
         });
 
-        jLabel1.setText("Note: Regular expressions and escape characters are not supported. Do not surround with quotes.");
+        jLabel1.setText("<html>Replace strings on the matched data before storing. Do not use regular expressions in these fields or surround with quotes.<br>\nExample: Use <b>\\\\X0D0A\\\\</b> and <b>\\r\\n</b> to replace \\X0D0A\\ with actual CRLF characters. </html>");
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -225,20 +238,20 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
                     .addComponent(deleteButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(newButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addComponent(jLabel1)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addComponent(jLabel1)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(12, 12, 12)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(newButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 97, Short.MAX_VALUE))
+                        .addGap(0, 65, Short.MAX_VALUE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
         );
 
@@ -266,8 +279,8 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(closeButton)
@@ -343,6 +356,7 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
     private com.mirth.connect.client.ui.components.MirthTextField RegexTextField;
     private javax.swing.JButton closeButton;
     private com.mirth.connect.client.ui.components.MirthButton deleteButton;
+    private javax.swing.JTextField exampleTextField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -350,7 +364,6 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JTextField jTextField1;
     private com.mirth.connect.client.ui.components.MirthButton newButton;
     private com.mirth.connect.client.ui.components.MirthTable replacementTable;
     // End of variables declaration//GEN-END:variables
