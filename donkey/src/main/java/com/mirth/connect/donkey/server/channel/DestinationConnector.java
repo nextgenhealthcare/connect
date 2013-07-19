@@ -55,6 +55,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private StorageSettings storageSettings = new StorageSettings();
     private DonkeyDaoFactory daoFactory;
     private Logger logger = Logger.getLogger(getClass());
+    private AtomicBoolean attemptedFirst = new AtomicBoolean(false);
 
     public abstract void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message);
 
@@ -154,9 +155,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
         onStart();
 
         /*
-         * If forceQueue was enabled because this connector was stopped individually, disable it
-         * AFTER onStart() so make sure the connector does not attempt to send before it is finished
-         * starting.
+         * If forceQueue was enabled because this connector was stopped
+         * individually, disable it AFTER onStart() so make sure the connector
+         * does not attempt to send before it is finished starting.
          */
         forceQueue.set(false);
 
@@ -287,6 +288,10 @@ public abstract class DestinationConnector extends Connector implements Runnable
             } while ((responseStatus == Status.ERROR || responseStatus == Status.QUEUED) && (sendAttempts - 1) < retryCount);
 
             afterSend(dao, message, response, previousStatus);
+
+            if (message.getStatus() == Status.QUEUED) {
+                attemptedFirst.set(true);
+            }
         } else {
             message.getResponseMap().put("d" + String.valueOf(getMetaDataId()), new Response(Status.QUEUED, QUEUED_RESPONSE));
 
@@ -339,14 +344,16 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
                 if (connectorMessage != null) {
                     /*
-                     * If the last message id is equal to the current message id, then the message
-                     * was not successfully send and is being retried, so wait the retry interval.
+                     * If the last message id is equal to the current message
+                     * id, then the message was not successfully send and is
+                     * being retried, so wait the retry interval.
                      * 
-                     * If the last message id is greater than the current message id, then some
-                     * message was not successful, message rotation is on, and the queue is back to
-                     * the oldest message, so wait the retry interval.
+                     * If the last message id is greater than the current
+                     * message id, then some message was not successful, message
+                     * rotation is on, and the queue is back to the oldest
+                     * message, so wait the retry interval.
                      */
-                    if (lastMessageId != null && lastMessageId >= connectorMessage.getMessageId()) {
+                    if (attemptedFirst.getAndSet(false) || (lastMessageId != null && lastMessageId >= connectorMessage.getMessageId())) {
                         Thread.sleep(retryIntervalMillis);
                     }
 
@@ -386,9 +393,10 @@ public abstract class DestinationConnector extends Connector implements Runnable
                         }
 
                         /*
-                         * Verify that the connector properties stored in the connector message
-                         * match the properties from the current connector. Otherwise the connector
-                         * type has changed and the message will be set to errored.
+                         * Verify that the connector properties stored in the
+                         * connector message match the properties from the
+                         * current connector. Otherwise the connector type has
+                         * changed and the message will be set to errored.
                          */
                         if (serializedPropertiesClass == connectorPropertiesClass) {
                             ThreadUtils.checkInterruptedStatus();
@@ -404,9 +412,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
                             /*
                              * if the "remove content on completion" setting is
-                             * enabled, we will need to
-                             * retrieve a list of the other connector messages for
-                             * this message id and
+                             * enabled, we will need to retrieve a list of the
+                             * other connector messages for this message id and
                              * check if the message is "completed"
                              */
                             if (storageSettings.isRemoveContentOnCompletion() || storageSettings.isRemoveAttachmentsOnCompletion()) {
@@ -469,8 +476,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
                     }
                 } else {
                     /*
-                     * This is necessary because there is no blocking peek. If the queue is empty,
-                     * wait some time to free up the cpu.
+                     * This is necessary because there is no blocking peek. If
+                     * the queue is empty, wait some time to free up the cpu.
                      */
                     Thread.sleep(Constants.DESTINATION_QUEUE_EMPTY_SLEEP_TIME);
                 }
