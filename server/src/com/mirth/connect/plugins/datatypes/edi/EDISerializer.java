@@ -98,7 +98,7 @@ public class EDISerializer implements IXMLSerializer {
                     segmentDelimiter = x12message.charAt(105) + "";
                     // hack to handle newlines
                     if (x12message.charAt(106) == '\n') {
-                        segmentDelimiter = serializationProperties.getSegmentDelimiter() + x12message.charAt(106);
+                        segmentDelimiter += '\n';
                     }
                 }
             }
