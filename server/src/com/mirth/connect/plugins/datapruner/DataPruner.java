@@ -561,6 +561,7 @@ public class DataPruner implements Runnable {
             status.setArchiving(true);
             MessageWriter archiver = MessageWriterFactory.getInstance().getMessageWriter(messageWriterOptions, ConfigurationController.getInstance().getEncryptor());
             messageExporter.exportMessages(messageList, archiver);
+            archiver.close();
 
             if (messageWriterOptions.getArchiveFormat() == null && new File(tempChannelFolder).isDirectory()) {
                 try {
@@ -569,8 +570,6 @@ public class DataPruner implements Runnable {
                     logger.error("Failed to move " + tempChannelFolder + " to " + finalChannelFolder, e);
                 }
             }
-
-            archiver.close();
 
             PruneIds ids = new PruneIds();
             ids.messageIds = messageList.getMessageIds();
