@@ -15,6 +15,7 @@ import java.sql.Types;
 import org.apache.commons.beanutils.converters.BigDecimalConverter;
 import org.apache.commons.beanutils.converters.BooleanConverter;
 import org.apache.commons.beanutils.converters.StringConverter;
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.util.DateParser;
 
@@ -82,7 +83,7 @@ public enum MetaDataColumnType {
             switch (this) {
                 case BOOLEAN: return (Boolean) new BooleanConverter().convert(Boolean.class, value);
                 case NUMBER: return (BigDecimal) new BigDecimalConverter().convert(BigDecimal.class, value);
-                case STRING: return (String) new StringConverter().convert(String.class, value);
+                case STRING: return StringUtils.substring((String) new StringConverter().convert(String.class, value), 0, 255);
                 case TIMESTAMP: return new DateParser().parse(value.toString());
             }
             // @formatter:on
