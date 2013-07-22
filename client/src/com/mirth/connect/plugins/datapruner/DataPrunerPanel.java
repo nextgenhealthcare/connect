@@ -16,11 +16,13 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.AbstractSettingsPanel;
@@ -35,9 +37,6 @@ import com.mirth.connect.plugins.SettingsPanelPlugin;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DataPrunerPanel extends AbstractSettingsPanel {
-    private final static String PRUNER_START_TEXT = "Prune Now";
-    private final static String PRUNER_STOP_TEXT = "Stop";
-
     private final static Color ACTIVE_STATUS_COLOR = new Color(200, 0, 0);
     private final static Color INACTIVE_STATUS_COLOR = new Color(0, 100, 0);
     private final static Color UNKNOWN_STATUS_COLOR = new Color(0, 0, 0);
@@ -116,8 +115,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         worker.execute();
     }
     
-    @Override
-    public boolean doSave() {
+    private boolean validateFields() {
         archiverPanel.resetInvalidProperties();
         pruneEventAgeTextField.setBackground(null);
 
@@ -129,6 +127,15 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         if (pruneEventsYes.isSelected() && StringUtils.isBlank(pruneEventAgeTextField.getText())) {
             pruneEventAgeTextField.setBackground(UIConstants.INVALID_COLOR);
             parent.alertError(this, "Please fill in required fields.");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    @Override
+    public boolean doSave() {
+        if (!validateFields()) {
             return false;
         }
 
@@ -163,12 +170,35 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
     }
     
     public void doStart() {
+        final MutableBoolean saveChanges = new MutableBoolean(false);
+        
+        if (isSaveEnabled()) {
+            if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this, "Settings changes must be saved first, would you like to save the settings and prune now?", "Select an Option", JOptionPane.OK_CANCEL_OPTION)) {
+                if (!validateFields()) {
+                    return;
+                }
+                
+                saveChanges.setValue(true);
+            } else {
+                return;
+            }
+        }
+        
         setStartTaskVisible(false);
         final String workingId = parent.startWorking("Starting the data pruner...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() {
+                if (saveChanges.getValue()) {
+                    try {
+                        plugin.setPropertiesToServer(getProperties());
+                    } catch (Exception e) {
+                        getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
+                        return null;
+                    }
+                }
+                
                 try {
                     parent.mirthClient.invokePluginMethod(plugin.getPluginName(), "start", null);
                 } catch (Exception e) {
@@ -181,8 +211,12 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
             @Override
             public void done() {
+                if (saveChanges.getValue()) {
+                    setSaveEnabled(false);
+                }
+                
                 parent.stopWorking(workingId);
-                updateStatus(true, false);
+                updateStatus();
             }
         };
 
@@ -209,7 +243,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
             @Override
             public void done() {
                 parent.stopWorking(workingId);
-                updateStatus(false, true);
+                updateStatus();
             }
         };
 
@@ -318,10 +352,6 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
     }
     
     private void updateStatus() {
-        updateStatus(false, false);
-    }
-    
-    private void updateStatus(final boolean keepStartTaskHidden, final boolean keepStopTaskHidden) {
         final String workingId = parent.startWorking("Refreshing status...");
         
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -336,12 +366,12 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
                     if (status.get("isRunning").equals("false")) {
                         currentStateTextLabel.setForeground(INACTIVE_STATUS_COLOR);
-                        setStartTaskVisible(!keepStartTaskHidden);
+                        setStartTaskVisible(true);
                         setStopTaskVisible(false);
                     } else {
                         currentStateTextLabel.setForeground(ACTIVE_STATUS_COLOR);
                         setStartTaskVisible(false);
-                        setStopTaskVisible(!keepStopTaskHidden);
+                        setStopTaskVisible(true);
                     }
                 } catch (ClientException e) {
                     currentStateTextLabel.setText("Unknown");
@@ -761,14 +791,6 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         pruneEventAgeLabel.setEnabled(false);
         pruneEventAgeTextField.setEnabled(false);
     }//GEN-LAST:event_pruneEventsNoActionPerformed
-
-    private boolean isStartTaskVisible() {
-        return getTaskPane().getContentPane().getComponent(startIndex).isVisible();
-    }
-    
-    private boolean isStopTaskVisible() {
-        return getTaskPane().getContentPane().getComponent(startIndex).isVisible();
-    }
     
     private void setStartTaskVisible(boolean visible) {
         setVisibleTasks(startIndex, startIndex, visible);
