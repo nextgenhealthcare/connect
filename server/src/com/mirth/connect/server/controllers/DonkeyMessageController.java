@@ -80,6 +80,8 @@ public class DonkeyMessageController extends MessageController {
         params.put("limit", limit);
         params.put("messageIdUpper", filter.getMessageIdUpper());
         params.put("messageIdLower", filter.getMessageIdLower());
+        params.put("originalIdUpper", filter.getOriginalIdUpper());
+        params.put("originalIdLower", filter.getOriginalIdLower());
         params.put("importIdUpper", filter.getImportIdUpper());
         params.put("importIdLower", filter.getImportIdLower());
         params.put("startDate", filter.getStartDate());
@@ -403,9 +405,8 @@ public class DonkeyMessageController extends MessageController {
                     rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(AttachmentUtil.reAttachMessage(rawContent.getContent(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
                 }
 
-                if (replace) {
-                    rawMessage.setMessageIdToOverwrite(messageId);
-                }
+                rawMessage.setOverwrite(replace);
+                rawMessage.setOriginalMessageId(messageId);
 
                 rawMessage.setDestinationMetaDataIds(reprocessMetaDataIds);
 

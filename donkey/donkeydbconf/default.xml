@@ -2,8 +2,8 @@
 
 <queries>
 	<query id="insertMessage">
-		INSERT INTO d_m${localChannelId} (id, server_id, received_date, processed, import_id, import_channel_id)
-		VALUES (?, ?, ?, ?, ?, ?)
+		INSERT INTO d_m${localChannelId} (id, server_id, received_date, processed, original_id, import_id, import_channel_id)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
 	</query>
 	
 	<query id="insertMessageContent">

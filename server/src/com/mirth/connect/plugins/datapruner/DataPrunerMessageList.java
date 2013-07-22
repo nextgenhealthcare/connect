@@ -90,6 +90,7 @@ public class DataPrunerMessageList extends PaginatedList<Message> {
                 message.setReceivedDate((Calendar) map.get("received_date"));
                 message.setProcessed((Boolean) map.get("processed"));
                 message.setServerId((String) map.get("server_id"));
+                message.setOriginalId((Long) map.get("original_id"));
                 message.setImportId((Long) map.get("import_id"));
                 message.getConnectorMessages().putAll(connectorMessages);
 

@@ -22,6 +22,7 @@ public class MessageSearchResult {
     private String serverId;
     private Calendar receivedDate;
     private boolean processed;
+    private Long originalId;
     private Long importId;
     private String importChannelId;
     private String metaDataIds;
@@ -58,6 +59,14 @@ public class MessageSearchResult {
 
     public void setProcessed(boolean processed) {
         this.processed = processed;
+    }
+
+    public Long getOriginalId() {
+        return originalId;
+    }
+
+    public void setOriginalId(Long originalId) {
+        this.originalId = originalId;
     }
 
     public Long getImportId() {
@@ -103,6 +112,7 @@ public class MessageSearchResult {
         message.setReceivedDate(receivedDate);
         message.setServerId(serverId);
         message.setProcessed(processed);
+        message.setOriginalId(originalId);
         message.setImportId(importId);
         message.setImportChannelId(importChannelId);
 

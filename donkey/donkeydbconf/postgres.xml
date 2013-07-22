@@ -7,6 +7,7 @@
 	        server_id character varying(36),
 	        received_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	        processed boolean NOT NULL DEFAULT FALSE,
+	        original_id bigint,
 	        import_id bigint,
 	        import_channel_id character varying(36)
 	    );

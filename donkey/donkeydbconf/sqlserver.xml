@@ -7,6 +7,7 @@
 	        server_id NVARCHAR(36),
 	        received_date DATETIME NOT NULL DEFAULT GETDATE(),
 	        processed BIT NOT NULL DEFAULT 0,
+	        original_id BIGINT,
 	        import_id BIGINT,
 	        import_channel_id NVARCHAR(36)
 	    )

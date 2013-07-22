@@ -36,6 +36,8 @@ public class MessageFilter implements Serializable {
     private Long maxMessageId;
     private Long messageIdUpper;
     private Long messageIdLower;
+    private Long originalIdUpper;
+    private Long originalIdLower;
     private Long importIdUpper;
     private Long importIdLower;
     private Calendar startDate;
@@ -69,6 +71,22 @@ public class MessageFilter implements Serializable {
 
     public void setMessageIdLower(Long messageIdLower) {
         this.messageIdLower = messageIdLower;
+    }
+
+    public Long getOriginalIdUpper() {
+        return originalIdUpper;
+    }
+
+    public void setOriginalIdUpper(Long originalIdUpper) {
+        this.originalIdUpper = originalIdUpper;
+    }
+
+    public Long getOriginalIdLower() {
+        return originalIdLower;
+    }
+
+    public void setOriginalIdLower(Long originalIdLower) {
+        this.originalIdLower = originalIdLower;
     }
 
     public Long getImportIdUpper() {

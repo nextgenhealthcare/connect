@@ -121,20 +121,28 @@ public class JdbcDao implements DonkeyDao {
             statement.setTimestamp(3, new Timestamp(message.getReceivedDate().getTimeInMillis()));
             statement.setBoolean(4, message.isProcessed());
 
+            Long originalId = message.getOriginalId();
+
+            if (originalId != null) {
+                statement.setLong(5, originalId);
+            } else {
+                statement.setNull(5, Types.BIGINT);
+            }
+
             Long importId = message.getImportId();
 
             if (importId != null) {
-                statement.setLong(5, message.getImportId());
+                statement.setLong(6, importId);
             } else {
-                statement.setNull(5, Types.BIGINT);
+                statement.setNull(6, Types.BIGINT);
             }
 
             String importChannelId = message.getImportChannelId();
 
             if (importChannelId != null) {
-                statement.setString(6, message.getImportChannelId());
+                statement.setString(7, message.getImportChannelId());
             } else {
-                statement.setNull(6, Types.VARCHAR);
+                statement.setNull(7, Types.VARCHAR);
             }
 
             statement.executeUpdate();
@@ -1713,6 +1721,7 @@ public class JdbcDao implements DonkeyDao {
             message.setReceivedDate(receivedDate);
             message.setProcessed(resultSet.getBoolean("processed"));
             message.setServerId(resultSet.getString("server_id"));
+            message.setOriginalId(resultSet.getLong("original_id"));
             message.setImportId(resultSet.getLong("import_id"));
             message.setImportChannelId(resultSet.getString("import_channel_id"));
 

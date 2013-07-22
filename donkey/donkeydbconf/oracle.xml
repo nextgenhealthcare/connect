@@ -7,6 +7,7 @@
 	        server_id NVARCHAR2(36),
 	        received_date TIMESTAMP NOT NULL,
 	        processed CHAR(1) DEFAULT '0' CHECK (processed IN ('0','1')) NOT NULL,
+	        original_id NUMBER(19),
 	        import_id NUMBER(19),
 	        import_channel_id NVARCHAR2(36)
 	    )

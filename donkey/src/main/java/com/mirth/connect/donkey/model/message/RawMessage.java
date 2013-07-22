@@ -16,7 +16,8 @@ import java.util.Map;
 import com.mirth.connect.donkey.server.Constants;
 
 public class RawMessage {
-    private Long messageIdToOverwrite;
+    private boolean overwrite;
+    private Long originalMessageId;
     private String rawData;
     private byte[] rawBytes;
     private Map<String, Object> channelMap = new HashMap<String, Object>();
@@ -60,12 +61,20 @@ public class RawMessage {
         this.binary = true;
     }
 
-    public Long getMessageIdToOverwrite() {
-        return messageIdToOverwrite;
+    public boolean isOverwrite() {
+        return overwrite;
     }
 
-    public void setMessageIdToOverwrite(Long messageId) {
-        this.messageIdToOverwrite = messageId;
+    public void setOverwrite(boolean overwrite) {
+        this.overwrite = overwrite;
+    }
+
+    public Long getOriginalMessageId() {
+        return originalMessageId;
+    }
+
+    public void setOriginalMessageId(Long messageId) {
+        this.originalMessageId = messageId;
     }
 
     public String getRawData() {

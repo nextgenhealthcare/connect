@@ -979,19 +979,8 @@ public class Channel implements Startable, Stoppable, Runnable {
         Long messageId;
         Calendar receivedDate;
 
-        if (rawMessage.getMessageIdToOverwrite() == null) {
-            messageId = dao.getNextMessageId(channelId);
-            receivedDate = Calendar.getInstance();
-
-            Message message = new Message();
-            message.setMessageId(messageId);
-            message.setChannelId(channelId);
-            message.setServerId(serverId);
-            message.setReceivedDate(receivedDate);
-
-            dao.insertMessage(message);
-        } else {
-            messageId = rawMessage.getMessageIdToOverwrite();
+        if (rawMessage.isOverwrite() && rawMessage.getOriginalMessageId() != null) {
+            messageId = rawMessage.getOriginalMessageId();
             List<Integer> metaDataIds = new ArrayList<Integer>();
 
             if (rawMessage.getDestinationMetaDataIds() != null) {
@@ -1004,6 +993,18 @@ public class Channel implements Startable, Stoppable, Runnable {
             dao.deleteConnectorMessages(channelId, messageId, metaDataIds, true);
             dao.resetMessage(channelId, messageId);
             receivedDate = Calendar.getInstance();
+        } else {
+            messageId = dao.getNextMessageId(channelId);
+            receivedDate = Calendar.getInstance();
+
+            Message message = new Message();
+            message.setMessageId(messageId);
+            message.setChannelId(channelId);
+            message.setServerId(serverId);
+            message.setReceivedDate(receivedDate);
+            message.setOriginalId(rawMessage.getOriginalMessageId());
+
+            dao.insertMessage(message);
         }
 
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, messageId, 0, serverId, receivedDate, Status.RECEIVED);

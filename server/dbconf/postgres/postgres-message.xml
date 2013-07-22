@@ -31,6 +31,7 @@
 		<result property="serverId" column="server_id" />
 		<result property="receivedDate" column="received_date" />
 		<result property="processed" column="processed" />
+		<result property="originalId" column="original_id" />
 		<result property="importId" column="import_id" />
 		<result property="importChannelId" column="import_channel_id" />
 		<result property="metaDataIds" column="metadata_ids" />
@@ -41,6 +42,7 @@
 		<result property="serverId" column="server_id" />
 		<result property="receivedDate" column="received_date" />
 		<result property="processed" column="processed" />
+		<result property="originalId" column="original_id" />
 		<result property="importId" column="import_id" />
 		<result property="importChannelId" column="import_channel_id" />
 	</resultMap>
@@ -51,6 +53,7 @@
 		<result property="received_date" column="received_date" javaType="java.util.Calendar" />
 		<result property="mm_received_date" column="mm_received_date" javaType="java.util.Calendar" />
 		<result property="processed" column="processed" javaType="Boolean" />
+		<result property="original_Id" column="original_id" javaType="Long" />
 		<result property="import_id" column="import_id" javaType="Long" />
 		<result property="import_channel_id" column="import_channel_id" javaType="String" />
 	</resultMap>
@@ -61,6 +64,7 @@
 			message.server_id,
 			message.received_date,
 			message.processed,
+			message.original_id,
 			message.import_id,
 			message.import_channel_id,
 			metadata_ids
@@ -147,6 +151,12 @@
 			</if>
 			<if test="serverId != null">
 				AND m.server_id ILIKE '%' || #{serverId} || '%'
+			</if>
+			<if test="originalIdLower != null">
+				AND m.original_id <![CDATA[ >= ]]> #{originalIdLower}
+			</if>
+			<if test="originalIdUpper != null">
+				AND m.original_id <![CDATA[ <= ]]> #{originalIdUpper}
 			</if>
 			<if test="importIdLower != null">
 				AND m.import_id <![CDATA[ >= ]]> #{importIdLower}
@@ -279,6 +289,7 @@
 			server_id,
 			received_date,
 			processed,
+			original_id,
 			import_id,
 			import_channel_id
 
@@ -435,6 +446,7 @@
 			m.server_id,
 			m.received_date,
 			m.processed,
+			m.original_id,
 			m.import_id,
 			m.import_channel_id,
 			mm.received_date AS mm_received_date

@@ -134,7 +134,9 @@ public class MessageBrowser extends javax.swing.JPanel {
     protected static final int RESPONSE_DATE_COLUMN = 7;
     protected static final int ERRORS_COLUMN = 8;
     protected static final int SERVER_ID_COLUMN = 9;
-    protected static final int IMPORT_ID_COLUMN = 10;
+    protected static final int ORIGINAL_ID_COLUMN = 10;
+    protected static final int IMPORT_ID_COLUMN = 11;
+    protected static final int IMPORT_CHANNEL_ID_COLUMN = 12;
     protected final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
     private static Map<String, Set<String>> customHiddenColumnMap = new HashMap<String, Set<String>>();
 
@@ -699,6 +701,17 @@ public class MessageBrowser extends javax.swing.JPanel {
                 text.append("Between " + messageFilter.getMessageIdLower() + " and " + messageFilter.getMessageIdUpper());
             }
         }
+        
+        if (messageFilter.getOriginalIdLower() != null || messageFilter.getOriginalIdUpper() != null) {
+            text.append(padding + "Original Id: ");
+            if (messageFilter.getOriginalIdUpper() == null) {
+                text.append("Greater than " + messageFilter.getOriginalIdLower());
+            } else if (messageFilter.getOriginalIdLower() == null) {
+                text.append("Less than " + messageFilter.getOriginalIdUpper());
+            } else {
+                text.append("Between " + messageFilter.getOriginalIdLower() + " and " + messageFilter.getOriginalIdUpper());
+            }
+        }
 
         if (messageFilter.getImportIdLower() != null || messageFilter.getImportIdUpper() != null) {
             text.append(padding + "Import Id: ");
@@ -1039,7 +1052,9 @@ public class MessageBrowser extends javax.swing.JPanel {
         columnMap.put(RESPONSE_DATE_COLUMN, "Response Date");
         columnMap.put(ERRORS_COLUMN, "Errors");
         columnMap.put(SERVER_ID_COLUMN, "Server Id");
+        columnMap.put(ORIGINAL_ID_COLUMN, "Original Id");
         columnMap.put(IMPORT_ID_COLUMN, "Import Id");
+        columnMap.put(IMPORT_CHANNEL_ID_COLUMN, "Import Channel Id");
 
         messageTreeTable.setDragEnabled(false);
         //messageTreeTable.setFocusable(false);
