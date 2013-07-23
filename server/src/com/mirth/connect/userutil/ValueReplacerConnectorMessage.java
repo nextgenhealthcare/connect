@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.model.util.DefaultMetaData;
 
 public class ValueReplacerConnectorMessage {
     private Logger logger = Logger.getLogger(getClass());
@@ -74,22 +75,25 @@ public class ValueReplacerConnectorMessage {
     @Deprecated
     // TODO: Remove in 3.1
     public String getSource() {
-        logger.error("The ${message.source} reference is deprecated and will soon be removed. Please extract the source in a transformer and use a map variable instead.");
-        return null;
+        logger.error("The ${message.source} reference is deprecated and will soon be removed. Please use the \"" + DefaultMetaData.SOURCE_VARIABLE_MAPPING + "\" variable in the connector map instead.");
+        Object source = connectorMessage.getConnectorMap().get(DefaultMetaData.SOURCE_VARIABLE_MAPPING);
+        return source != null ? source.toString() : "";
     }
 
     @Deprecated
     // TODO: Remove in 3.1
     public String getType() {
-        logger.error("The ${message.type} reference is deprecated and will soon be removed. Please extract the type in a transformer and use a map variable instead.");
-        return null;
+        logger.error("The ${message.type} reference is deprecated and will soon be removed. Please use the \"" + DefaultMetaData.TYPE_VARIABLE_MAPPING + "\" variable in the connector map instead.");
+        Object type = connectorMessage.getConnectorMap().get(DefaultMetaData.TYPE_VARIABLE_MAPPING);
+        return type != null ? type.toString() : "";
     }
 
     @Deprecated
     // TODO: Remove in 3.1
     public String getVersion() {
-        logger.error("The ${message.version} reference is deprecated and will soon be removed. Please extract the version in a transformer and use a map variable instead.");
-        return null;
+        logger.error("The ${message.version} reference is deprecated and will soon be removed. Please use the \"" + DefaultMetaData.VERSION_VARIABLE_MAPPING + "\" variable in the connector map instead.");
+        Object version = connectorMessage.getConnectorMap().get(DefaultMetaData.VERSION_VARIABLE_MAPPING);
+        return version != null ? version.toString() : "";
     }
 
     public String toString() {

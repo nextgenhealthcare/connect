@@ -41,7 +41,7 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="configurationPanel" alignment="1" max="32767" attributes="3"/>
+                  <Component id="configurationPanel" max="32767" attributes="3"/>
                   <Component id="emailPanel" alignment="0" max="32767" attributes="2"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -55,7 +55,7 @@
               <Component id="configurationPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="emailPanel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace pref="25" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -376,6 +376,7 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
+                      <Component id="defaultMetaDataLabel" min="-2" max="-2" attributes="0"/>
                       <Component id="checkForUpdatesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="clearGlobalMapLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="provideUsageStatsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -403,6 +404,13 @@
                           <Component id="checkForUpdatesNoRadio" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Component id="queueBufferSizeField" alignment="0" min="-2" pref="60" max="-2" attributes="1"/>
+                      <Group type="102" attributes="0">
+                          <Component id="defaultMetaDataSourceCheckBox" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="defaultMetaDataTypeCheckBox" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="defaultMetaDataVersionCheckBox" min="-2" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -438,6 +446,13 @@
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="queueBufferSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="queueBufferSizeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="defaultMetaDataLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="defaultMetaDataSourceCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="defaultMetaDataTypeCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="defaultMetaDataVersionCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -609,6 +624,62 @@
         <Component class="javax.swing.JLabel" name="queueBufferSizeLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="Queue Buffer Size:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="defaultMetaDataLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Default Metadata Columns:"/>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="defaultMetaDataSourceCheckBox">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+              </Border>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Source"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the Source metadata column will be added by&lt;br/&gt;default when a user creates a new channel. The user can&lt;br/&gt;choose to remove the column on the channel&apos;s Summary tab.&lt;/html&gt;"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="defaultMetaDataTypeCheckBox">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+              </Border>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Type"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the Type metadata column will be added by&lt;br/&gt;default when a user creates a new channel. The user can&lt;br/&gt;choose to remove the column on the channel&apos;s Summary tab.&lt;/html&gt;"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="defaultMetaDataVersionCheckBox">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+              </Border>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Version"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the Version metadata column will be added by&lt;br/&gt;default when a user creates a new channel. The user can&lt;br/&gt;choose to remove the column on the channel&apos;s Summary tab.&lt;/html&gt;"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
           </Properties>
         </Component>
       </SubComponents>

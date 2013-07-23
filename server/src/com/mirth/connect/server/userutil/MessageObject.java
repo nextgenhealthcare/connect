@@ -17,37 +17,42 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.model.util.DefaultMetaData;
 
 @Deprecated
 // TODO: Remove in 3.1
 public class MessageObject {
     private Logger logger = Logger.getLogger(getClass());
     private ImmutableConnectorMessage connectorMessage;
-    
+
     public MessageObject(ImmutableConnectorMessage connectorMessage) {
         this.connectorMessage = connectorMessage;
     }
-    
+
     ImmutableConnectorMessage getImmutableConnectorMessage() {
         return connectorMessage;
     }
 
     public String getSource() {
-        logger.error("The messageObject.getSource() method is deprecated and will soon be removed. Please extract the message source from the \"msg\" variable in a transformer instead.");
-        return "";
+        logger.error("The messageObject.getSource() method is deprecated and will soon be removed. Please use the \"" + DefaultMetaData.SOURCE_VARIABLE_MAPPING + "\" variable in the connector map instead.");
+        Object source = connectorMessage.getConnectorMap().get(DefaultMetaData.SOURCE_VARIABLE_MAPPING);
+        return source != null ? source.toString() : "";
     }
 
     public void setSource(String source) {
-        logger.error("The messageObject.setSource() method is deprecated and will soon be removed. Please use a custom metadata column instead.");
+        logger.error("The messageObject.setSource(source) method is deprecated and will soon be removed. Please set the \"" + DefaultMetaData.SOURCE_VARIABLE_MAPPING + "\" variable in the connector map instead.");
+        connectorMessage.getConnectorMap().put(DefaultMetaData.SOURCE_VARIABLE_MAPPING, source);
     }
 
     public String getType() {
-        logger.error("The messageObject.getType() method is deprecated and will soon be removed. Please extract the message type from the \"msg\" variable in a transformer instead.");
-        return "";
+        logger.error("The messageObject.getType() method is deprecated and will soon be removed. Please use the \"" + DefaultMetaData.TYPE_VARIABLE_MAPPING + "\" variable in the connector map instead.");
+        Object type = connectorMessage.getConnectorMap().get(DefaultMetaData.TYPE_VARIABLE_MAPPING);
+        return type != null ? type.toString() : "";
     }
 
     public void setType(String type) {
-        logger.error("The messageObject.setType(type) method is deprecated and will soon be removed. Please use a custom metadata column instead.");
+        logger.error("The messageObject.setType(type) method is deprecated and will soon be removed. Please set the \"" + DefaultMetaData.TYPE_VARIABLE_MAPPING + "\" variable in the connector map instead.");
+        connectorMessage.getConnectorMap().put(DefaultMetaData.TYPE_VARIABLE_MAPPING, type);
     }
 
     public String getId() {
@@ -60,12 +65,14 @@ public class MessageObject {
     }
 
     public String getVersion() {
-        logger.error("The messageObject.getVersion() method is deprecated and will soon be removed. Please extract the message version from the \"msg\" variable in a transformer instead.");
-        return "";
+        logger.error("The messageObject.getVersion() method is deprecated and will soon be removed. Please use the \"" + DefaultMetaData.VERSION_VARIABLE_MAPPING + "\" variable in the connector map instead.");
+        Object version = connectorMessage.getConnectorMap().get(DefaultMetaData.VERSION_VARIABLE_MAPPING);
+        return version != null ? version.toString() : "";
     }
 
     public void setVersion(String version) {
-        logger.error("The messageObject.setVersion(version) method is deprecated and will soon be removed. Please use a custom metadata column instead.");
+        logger.error("The messageObject.setVersion(version) method is deprecated and will soon be removed. Please set the \"" + DefaultMetaData.VERSION_VARIABLE_MAPPING + "\" variable in the connector map instead.");
+        connectorMessage.getConnectorMap().put(DefaultMetaData.VERSION_VARIABLE_MAPPING, version);
     }
 
     public String getChannelId() {
@@ -183,7 +190,7 @@ public class MessageObject {
     public void setErrors(String errors) {
         logger.error("The messageObject.setErrors(errors) method is deprecated and will soon be removed. This method no longer does anything.");
     }
-    
+
     public Map getResponseMap() {
         logger.error("The messageObject.getResponseMap() method is deprecated and will soon be removed. Please use connectorMessage.getResponseMap() or the variable \"responseMap\" instead.");
         return connectorMessage.getResponseMap();
@@ -247,12 +254,12 @@ public class MessageObject {
     public void setContext(Map<String, Object> context) {
         logger.error("The messageObject.setContext(context) method is deprecated and will soon be removed. This method no longer does anything.");
     }
-    
+
     public String toString() {
         logger.error("The messageObject.toString() method is deprecated and will soon be removed. Please use connectorMessage.toString() instead.");
         return connectorMessage.toString();
     }
-    
+
     public String toAuditString() {
         logger.error("The messageObject.toAuditString() method is deprecated and will soon be removed. Please use connectorMessage.toString() instead.");
         return connectorMessage.toString();

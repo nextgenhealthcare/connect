@@ -615,7 +615,14 @@ public class ChannelSetup extends javax.swing.JPanel {
         setLastModified();
         loadChannelInfo();
         makeDestinationTable(true);
+
+        try {
+            currentChannel.getProperties().setMetaDataColumns(parent.mirthClient.getServerSettings().getDefaultMetaDataColumns());
+        } catch (ClientException e) {
+            parent.alertException(parent, e.getStackTrace(), "Error loading default metadata columns: " + e.getMessage());
+        }
         updateMetaDataTable();
+
         setDestinationVariableList();
         loadingChannel = false;
         channelView.setSelectedIndex(0);

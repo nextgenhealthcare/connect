@@ -14,6 +14,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.Calendar;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
@@ -116,6 +117,9 @@ public class FilterTransformerTests {
             public String fromXML(String message) throws XmlSerializerException {
                 throw new XmlSerializerException("Outbound serialization failed.");
             }
+
+            @Override
+            public void populateMetaData(String message, Map<String, Object> map) {}
         }
 
         class FailingTestDataType extends DataType {

@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
@@ -25,6 +24,7 @@ import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DelimitedSerializer implements IXMLSerializer {
@@ -84,21 +84,6 @@ public class DelimitedSerializer implements IXMLSerializer {
     }
 
     @Override
-    public Map<String, String> getMetadataFromDocument(Document doc) throws XmlSerializerException {
-        Map<String, String> map = new HashMap<String, String>();
-        populateMetadata(map);
-        return map;
-    }
-
-    private void populateMetadata(Map<String, String> map) {
-        // There is no meaningful meta data available in the delimited text case
-        // for version, type and source, so populate empty strings.
-        map.put("version", "");
-        map.put("type", "delimited");
-        map.put("source", "");
-    }
-
-    @Override
     public String toXML(String source) throws XmlSerializerException {
         try {
             StringWriter stringWriter = new StringWriter();
@@ -112,4 +97,15 @@ public class DelimitedSerializer implements IXMLSerializer {
             throw new XmlSerializerException("Error converting delimited text to XML", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting delimited text to XML", e));
         }
     }
+
+    @Override
+    public Map<String, Object> getMetaDataForTree(String message) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put(DefaultMetaData.VERSION_VARIABLE_MAPPING, "");
+        map.put(DefaultMetaData.TYPE_VARIABLE_MAPPING, "delimited");
+        return map;
+    }
+
+    @Override
+    public void populateMetaData(String message, Map<String, Object> map) {}
 }

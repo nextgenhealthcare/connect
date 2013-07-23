@@ -19,6 +19,7 @@ import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.plugins.CodeTemplatePlugin;
 
 public class ReferenceListFactory {
@@ -213,6 +214,9 @@ public class ReferenceListFactory {
 
         variablelistItems.add(new CodeTemplate("Incoming Message", "The original message received.", "connectorMessage.getRawData()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Incoming Message (XML)", "The original message as XML", "msg", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Message Source", "The message source (sending facility)", "$('" + DefaultMetaData.SOURCE_VARIABLE_MAPPING + "')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Message Type", "The message type", "$('" + DefaultMetaData.TYPE_VARIABLE_MAPPING + "')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Message Version", "The message version", "$('" + DefaultMetaData.VERSION_VARIABLE_MAPPING + "')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Message ID", "The ID of the overall message being processed", "connectorMessage.getMessageId()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Metadata ID", "The ID of the connector the message is currently being processed through", "connectorMessage.getMetaDataId()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Message Inbound Data Type", "The inbound data type for this connector message", "connectorMessage.getRaw().getDataType()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));

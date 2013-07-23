@@ -11,11 +11,8 @@ package com.mirth.connect.model.converters;
 
 import java.util.Map;
 
-import org.w3c.dom.Document;
-
 import com.mirth.connect.donkey.model.message.XmlSerializer;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
 
 public interface IXMLSerializer extends XmlSerializer {
-	public Map<String, String> getMetadataFromDocument(Document doc) throws XmlSerializerException;
+    public Map<String, Object> getMetaDataForTree(String message);
 }

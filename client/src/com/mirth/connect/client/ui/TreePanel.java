@@ -52,6 +52,7 @@ import com.mirth.connect.client.ui.editors.MessageTreePanel;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.DataTypeProperties;
+import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.model.util.MessageVocabulary;
 import com.mirth.connect.model.util.MessageVocabularyFactory;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
@@ -95,15 +96,13 @@ public class TreePanel extends javax.swing.JPanel {
 
         filterTextBox.addKeyListener(new KeyAdapter() {
 
-            public void keyPressed(KeyEvent arg0) {
-            }
+            public void keyPressed(KeyEvent arg0) {}
 
             public void keyReleased(KeyEvent e) {
                 filterActionPerformed();
             }
 
-            public void keyTyped(KeyEvent e) {
-            }
+            public void keyTyped(KeyEvent e) {}
         });
 
         exact.addActionListener(new ActionListener() {
@@ -144,7 +143,7 @@ public class TreePanel extends javax.swing.JPanel {
     public void setSuffix(String suffix) {
         _dropSuffix = suffix;
     }
-    
+
     public void setupPopupMenu() {
         popupMenu = new JPopupMenu();
         popupMenuExpand = new JMenuItem("Expand");
@@ -210,7 +209,7 @@ public class TreePanel extends javax.swing.JPanel {
                 }
             });
             popupMenu.add(popupMenuMapToVariable);
-            
+
             popupMenuMapSegment = new JMenuItem("Map to Message");
             popupMenuMapSegment.setIcon(new ImageIcon(this.getClass().getResource("images/book_next.png")));
             popupMenuMapSegment.addActionListener(new ActionListener() {
@@ -229,7 +228,7 @@ public class TreePanel extends javax.swing.JPanel {
                 }
             });
             popupMenu.add(popupMenuMapSegment);
-            
+
         } else if (_dropPrefix.equals(MessageTreePanel.MESSAGE_BUILDER_PREFIX)) {
             popupMenuMapSegmentFilter = new JMenuItem("Map to Message");
             popupMenuMapSegmentFilter.setIcon(new ImageIcon(this.getClass().getResource("images/book_next.png")));
@@ -282,17 +281,15 @@ public class TreePanel extends javax.swing.JPanel {
         toggleMenuComponent(popupMenuMapSegment, true);
         toggleMenuComponent(popupMenuMapToVariable, true);
     }
-    
+
     private void toggleMenuComponent(Component component, boolean show) {
         int index = popupMenu.getComponentIndex(component);
         if (index >= 0) {
             popupMenu.getComponent(index).setVisible(show);
         }
     }
-    
 
-    public void setBorderText(String text) {
-    }
+    public void setBorderText(String text) {}
 
     public void filterActionPerformed() {
 
@@ -347,7 +344,7 @@ public class TreePanel extends javax.swing.JPanel {
         String dataType = null;
         if (source.length() > 0 && !source.equals(ignoreText)) {
             IXMLSerializer serializer;
-            
+
             if (PlatformUI.MIRTH_FRAME.displayNameToDataType.containsKey(messageType)) {
                 dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(messageType);
             } else {
@@ -356,55 +353,51 @@ public class TreePanel extends javax.swing.JPanel {
             }
 
             DataTypeClientPlugin clientPlugin = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType);
-            
+
             switch (clientPlugin.getSerializationType()) {
                 case XML:
                     try {
                         serializer = clientPlugin.getSerializer(dataTypeProperties.getSerializerProperties());
+                        Map<String, Object> metadata = serializer.getMetaDataForTree(source);
+
+                        if (metadata.get(DefaultMetaData.VERSION_VARIABLE_MAPPING) != null) {
+                            version = ((String) metadata.get(DefaultMetaData.VERSION_VARIABLE_MAPPING)).trim();
+                        } else {
+                            version = "Unknown version";
+                        }
+
+                        if (metadata.get(DefaultMetaData.TYPE_VARIABLE_MAPPING) != null) {
+                            type = ((String) metadata.get(DefaultMetaData.TYPE_VARIABLE_MAPPING)).trim();
+                        } else {
+                            type = "Unknown type";
+                        }
+
+                        messageName = type + " (" + version + ")";
+                        Map<String, Class<? extends MessageVocabulary>> vocabs = new HashMap<String, Class<? extends MessageVocabulary>>();
+                        for (DataTypeClientPlugin dataTypePlugin : LoadedExtensions.getInstance().getDataTypePlugins().values()) {
+                            Class<? extends MessageVocabulary> vocabulary = dataTypePlugin.getVocabulary();
+
+                            if (vocabulary != null) {
+                                vocabs.put(dataTypePlugin.getPluginPointName(), vocabulary);
+                            }
+                        }
+                        vocabulary = MessageVocabularyFactory.getInstance(PlatformUI.MIRTH_FRAME.mirthClient, vocabs).getVocabulary(dataType, version, type);
+                        messageDescription = vocabulary.getDescription(type.replaceAll("-", ""));
+
                         docBuilder = docFactory.newDocumentBuilder();
-        
                         String message;
-                        
+
                         if (clientPlugin.isBinary()) {
                             message = source;
                         } else {
                             message = serializer.toXML(source);
                         }
-        
+
                         xmlDoc = docBuilder.parse(new InputSource(new StringReader(message)));
-        
-                        if (xmlDoc != null) {
-                            Map<String, String> metadata = serializer.getMetadataFromDocument(xmlDoc);
-                            
-                            if (metadata.get("version") != null) {
-                                version = metadata.get("version").trim();    
-                            } else {
-                                version = "Unknown version";
-                            }
-                            
-                            if (metadata.get("type") != null) {
-                                type = metadata.get("type").trim();    
-                            } else {
-                                type = "Unknown type";
-                            }
-                            
-                            messageName = type + " (" + version + ")";
-                            Map<String, Class<? extends MessageVocabulary>> vocabs = new HashMap<String, Class<? extends MessageVocabulary>>();
-                            for (DataTypeClientPlugin dataTypePlugin : LoadedExtensions.getInstance().getDataTypePlugins().values()) {
-                                Class<? extends MessageVocabulary> vocabulary = dataTypePlugin.getVocabulary();
-                                
-                                if (vocabulary != null) {
-                                    vocabs.put(dataTypePlugin.getPluginPointName(), vocabulary);
-                                }
-                            }
-                            vocabulary = MessageVocabularyFactory.getInstance(PlatformUI.MIRTH_FRAME.mirthClient, vocabs).getVocabulary(dataType, version, type);
-                            messageDescription = vocabulary.getDescription(type.replaceAll("-", ""));
-        
-                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-        
+
                     if (xmlDoc != null) {
                         createTree(dataType, xmlDoc, messageName, messageDescription);
                         filter();
@@ -412,7 +405,7 @@ public class TreePanel extends javax.swing.JPanel {
                         setInvalidMessage(messageType);
                     }
                     break;
-                    
+
                 case RAW:
                     setRawMessage();
                     break;
@@ -440,17 +433,17 @@ public class TreePanel extends javax.swing.JPanel {
     private void createTree(String dataType, Document document, String messageName, String messageDescription) {
         Element element = document.getDocumentElement();
         MirthTreeNode top;
-        
+
         if (messageDescription.length() > 0) {
             top = new MirthTreeNode(messageName + " (" + messageDescription + ")");
         } else {
             top = new MirthTreeNode(messageName);
         }
-        
+
         processAttributes(element, top);
 
         NodeList children = element.getChildNodes();
-        
+
         for (int i = 0; i < children.getLength(); i++) {
             processElement(dataType, children.item(i), top);
         }
@@ -469,7 +462,7 @@ public class TreePanel extends javax.swing.JPanel {
                          * dragging is started. This is because a release may
                          * have never been triggered the last time it was
                          * pressed if it was released during a mouse drag.
-                         */ 
+                         */
                         PlatformUI.MIRTH_FRAME.updateAcceleratorKeyPressed(evt);
                     }
                 }
@@ -484,11 +477,9 @@ public class TreePanel extends javax.swing.JPanel {
             }
         });
         tree.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
-            }
+            public void mouseClicked(MouseEvent e) {}
 
-            public void mouseEntered(MouseEvent e) {
-            }
+            public void mouseEntered(MouseEvent e) {}
 
             public void mouseExited(MouseEvent e) {
                 if (!popupMenu.isShowing()) {
@@ -504,7 +495,7 @@ public class TreePanel extends javax.swing.JPanel {
                 showTreePopupMenu(e);
             }
         });
-        
+
         try {
             tree.setScrollsOnExpand(true);
             treePane.setViewportView(tree);
@@ -512,7 +503,7 @@ public class TreePanel extends javax.swing.JPanel {
         } catch (Exception e) {
             logger.error(e);
         }
-        
+
         PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
@@ -521,7 +512,7 @@ public class TreePanel extends javax.swing.JPanel {
             Element element = (Element) elo;
             String description;
             MirthTreeNode currentNode = new MirthTreeNode(LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getNodeText(vocabulary, element));
-            
+
             String text = "";
             if (element.hasChildNodes()) {
                 text = element.getFirstChild().getNodeValue();
@@ -537,7 +528,7 @@ public class TreePanel extends javax.swing.JPanel {
                     for (int i = 0; i < minLevel; i++) {
                         regex += "\\..*";
                     }
-                    
+
                     // build regex
                     if (!element.getNodeName().matches(regex)) {
                         // We have empty node and possibly empty children
@@ -554,14 +545,14 @@ public class TreePanel extends javax.swing.JPanel {
                         }
                         parentNode.add(new MirthTreeNode(EMPTY));
                         currentNode.add(parentNode);
-                        
+
                     } else {
                         currentNode.add(new MirthTreeNode(EMPTY));
                     }
                 } else {
                     currentNode.add(new MirthTreeNode(EMPTY));
                 }
-                
+
             }
 
             processAttributes(element, currentNode);
@@ -636,7 +627,7 @@ public class TreePanel extends javax.swing.JPanel {
         treePane.setViewportView(tree);
         revalidate();
     }
-    
+
     public void setRawMessage() {
         MirthTreeNode top = new MirthTreeNode("Template tree not available for raw data.");
         MirthTree tree = new MirthTree(top, _dropPrefix, _dropSuffix);

@@ -16,8 +16,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
@@ -27,12 +26,14 @@ import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
 public class NCPDPSerializer implements IXMLSerializer {
     private NCPDPSerializationProperties serializationProperties;
     private NCPDPDeserializationProperties deserializationProperties;
+    private Logger logger = Logger.getLogger(getClass());
 
     private String serializationSegmentDelimiter = null;
     private String serializationGroupDelimiter = null;
@@ -180,43 +181,46 @@ public class NCPDPSerializer implements IXMLSerializer {
     }
 
     @Override
-    public Map<String, String> getMetadataFromDocument(Document document) {
-        Map<String, String> metadata = new HashMap<String, String>();
-
-        String serviceProviderId = StringUtils.EMPTY;
-
-        if ((document != null) && (document.getElementsByTagName("ServiceProviderId") != null)) {
-            Node sender = document.getElementsByTagName("ServiceProviderId").item(0);
-
-            if (sender != null) {
-                serviceProviderId = sender.getTextContent();
-            }
+    public Map<String, Object> getMetaDataForTree(String message) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        populateMetaData(message, map);
+        if (!map.containsKey(DefaultMetaData.VERSION_VARIABLE_MAPPING)) {
+            // Put default version value
+            map.put(DefaultMetaData.VERSION_VARIABLE_MAPPING, "5.1");
         }
-
-        String transactionCode = StringUtils.EMPTY;
-
-        if ((document != null) && (document.getElementsByTagName("TransactionCode") != null)) {
-            Node type = document.getElementsByTagName("TransactionCode").item(0);
-
-            if (type != null) {
-                transactionCode = NCPDPReference.getInstance().getTransactionName(type.getTextContent());
-            }
-        }
-
-        String versionReleaseNumber = "5.1";
-
-        if ((document != null) && (document.getElementsByTagName("VersionReleaseNumber") != null)) {
-            Node versionNode = document.getElementsByTagName("VersionReleaseNumber").item(0);
-
-            if (versionNode != null) {
-                versionReleaseNumber = versionNode.getTextContent();
-            }
-        }
-
-        metadata.put("version", versionReleaseNumber);
-        metadata.put("type", transactionCode);
-        metadata.put("source", serviceProviderId);
-        return metadata;
+        return map;
     }
 
+    @Override
+    public void populateMetaData(String message, Map<String, Object> map) {
+        try {
+            int segmentDelimiterIndex = message.indexOf(serializationSegmentDelimiter);
+            if (segmentDelimiterIndex == -1) {
+                return;
+            }
+
+            int versionPos = 6;
+            int typePos = 8;
+            int sourcePos = 23;
+
+            if (segmentDelimiterIndex <= 40) {
+                // Handle a response (requests have a longer header than responses)
+                versionPos = 0;
+                typePos = 2;
+                sourcePos = 8;
+            }
+
+            if (versionPos + 2 <= message.length()) {
+                map.put(DefaultMetaData.VERSION_VARIABLE_MAPPING, message.substring(versionPos, versionPos + 2));
+            }
+            if (typePos + 2 <= message.length()) {
+                map.put(DefaultMetaData.TYPE_VARIABLE_MAPPING, NCPDPReference.getInstance().getTransactionName(message.substring(typePos, typePos + 2)));
+            }
+            if (sourcePos + 15 <= message.length()) {
+                map.put(DefaultMetaData.SOURCE_VARIABLE_MAPPING, message.substring(sourcePos, sourcePos + 15));
+            }
+        } catch (Exception e) {
+            logger.error("Error populating NCPDP metadata.", e);
+        }
+    }
 }

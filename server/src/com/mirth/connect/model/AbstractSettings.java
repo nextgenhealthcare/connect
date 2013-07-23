@@ -9,10 +9,14 @@
 
 package com.mirth.connect.model;
 
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+
+import com.mirth.connect.donkey.util.xstream.SerializerException;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public abstract class AbstractSettings {
 
@@ -32,7 +36,7 @@ public abstract class AbstractSettings {
     protected Boolean intToBooleanObject(String str) {
         return intToBooleanObject(str, null);
     }
-    
+
     /**
      * Takes a String and returns a Boolean Object.
      * "1" = true
@@ -45,7 +49,7 @@ public abstract class AbstractSettings {
      */
     protected Boolean intToBooleanObject(String str, Boolean defaultValue) {
         int i = NumberUtils.toInt(str, -1);
-        
+
         if (i == -1) {
             // Must return null explicitly to avoid Java NPE due to autoboxing
             if (defaultValue == null) {
@@ -69,7 +73,7 @@ public abstract class AbstractSettings {
     protected Integer toIntegerObject(String str) {
         return toIntegerObject(str, null);
     }
-    
+
     /**
      * Takes a String and returns an Integer Object.
      * "1" = 1
@@ -81,7 +85,7 @@ public abstract class AbstractSettings {
      */
     protected Integer toIntegerObject(String str, Integer defaultValue) {
         int i = NumberUtils.toInt(str, -1);
-        
+
         if (i == -1) {
             // Must return null explicitly to avoid Java NPE due to autoboxing
             if (defaultValue == null) {
@@ -93,7 +97,7 @@ public abstract class AbstractSettings {
             return i;
         }
     }
-    
+
     /**
      * Takes a String and returns a Long Object.
      * "1" = 1
@@ -105,7 +109,7 @@ public abstract class AbstractSettings {
     protected Long toLongObject(String str) {
         return toLongObject(str, null);
     }
-    
+
     /**
      * Takes a String and returns a Long Object.
      * "1" = 1
@@ -117,7 +121,7 @@ public abstract class AbstractSettings {
      */
     protected Long toLongObject(String str, Long defaultValue) {
         long i = NumberUtils.toLong(str, -1);
-        
+
         if (i == -1) {
             // Must return null explicitly to avoid Java NPE due to autoboxing
             if (defaultValue == null) {
@@ -128,5 +132,15 @@ public abstract class AbstractSettings {
         } else {
             return i;
         }
+    }
+
+    protected <T> List<T> toList(String str, Class<T> expectedListItemClass, List<T> defaultValue) {
+        if (str != null) {
+            try {
+                return ObjectXMLSerializer.getInstance().deserializeList(str, expectedListItemClass);
+            } catch (SerializerException e) {
+            }
+        }
+        return defaultValue;
     }
 }

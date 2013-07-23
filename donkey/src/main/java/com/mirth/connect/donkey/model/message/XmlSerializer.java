@@ -9,6 +9,8 @@
 
 package com.mirth.connect.donkey.model.message;
 
+import java.util.Map;
+
 public interface XmlSerializer {
     public String toXML(String message) throws XmlSerializerException;
 
@@ -17,4 +19,6 @@ public interface XmlSerializer {
     public boolean isSerializationRequired(boolean toXml);
 
     public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) throws XmlSerializerException;
+
+    public void populateMetaData(String message, Map<String, Object> map);
 }

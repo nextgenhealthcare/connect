@@ -10,12 +10,16 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.util.DefaultMetaData;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("serverSettings")
@@ -23,6 +27,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
 
     private static final String CLEAR_GLOBAL_MAP = "server.resetglobalvariables";
     private static final String QUEUE_BUFFER_SIZE = "server.queuebuffersize";
+    private static final String DEFAULT_METADATA_COLUMNS = "server.defaultmetadatacolumns";
     private static final String SMTP_HOST = "smtp.host";
     private static final String SMTP_PORT = "smtp.port";
     private static final String SMTP_TIMEOUT = "smtp.timeout";
@@ -35,6 +40,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     // Configuration
     private Boolean clearGlobalMap;
     private Integer queueBufferSize;
+    private List<MetaDataColumn> defaultMetaDataColumns;
 
     // SMTP
     private String smtpHost;
@@ -62,6 +68,9 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         }
         if (getQueueBufferSize() != null) {
             properties.put(QUEUE_BUFFER_SIZE, getQueueBufferSize().toString());
+        }
+        if (getDefaultMetaDataColumns() != null) {
+            properties.put(DEFAULT_METADATA_COLUMNS, ObjectXMLSerializer.getInstance().serialize(getDefaultMetaDataColumns()));
         }
         if (getSmtpHost() != null) {
             properties.put(SMTP_HOST, getSmtpHost());
@@ -94,6 +103,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     public void setProperties(Properties properties) {
         setClearGlobalMap(intToBooleanObject(properties.getProperty(CLEAR_GLOBAL_MAP)));
         setQueueBufferSize(toIntegerObject(properties.getProperty(QUEUE_BUFFER_SIZE)));
+        setDefaultMetaDataColumns(toList(properties.getProperty(DEFAULT_METADATA_COLUMNS), MetaDataColumn.class, DefaultMetaData.DEFAULT_COLUMNS));
         setSmtpHost(properties.getProperty(SMTP_HOST));
         setSmtpPort(properties.getProperty(SMTP_PORT));
         setSmtpTimeout(toIntegerObject(properties.getProperty(SMTP_TIMEOUT)));
@@ -103,7 +113,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         setSmtpUsername(properties.getProperty(SMTP_USERNAME));
         setSmtpPassword(properties.getProperty(SMTP_PASSWORD));
     }
-    
+
     public Boolean getClearGlobalMap() {
         return clearGlobalMap;
     }
@@ -118,6 +128,14 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
 
     public void setQueueBufferSize(Integer queueBufferSize) {
         this.queueBufferSize = queueBufferSize;
+    }
+
+    public List<MetaDataColumn> getDefaultMetaDataColumns() {
+        return defaultMetaDataColumns;
+    }
+
+    public void setDefaultMetaDataColumns(List<MetaDataColumn> defaultMetaDataColumns) {
+        this.defaultMetaDataColumns = defaultMetaDataColumns;
     }
 
     public String getSmtpHost() {
@@ -135,7 +153,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     public void setSmtpPort(String smtpPort) {
         this.smtpPort = smtpPort;
     }
-    
+
     public Integer getSmtpTimeout() {
         return smtpTimeout;
     }

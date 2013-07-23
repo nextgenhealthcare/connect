@@ -15,9 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -28,6 +27,7 @@ import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
@@ -86,24 +86,8 @@ public class EDISerializer implements IXMLSerializer {
     @Override
     public String toXML(String source) throws XmlSerializerException {
         try {
-            String elementDelimiter = serializationElementDelimiter;
-            String subelementDelimiter = serializationSubelementDelimiter;
-            String segmentDelimiter = serializationSegmentDelimiter;
-
-            if (serializationProperties.isInferX12Delimiters()) {
-                String x12message = source;
-                if (x12message.startsWith("ISA")) {
-                    elementDelimiter = x12message.charAt(3) + "";
-                    subelementDelimiter = x12message.charAt(104) + "";
-                    segmentDelimiter = x12message.charAt(105) + "";
-                    // hack to handle newlines
-                    if (x12message.charAt(106) == '\n') {
-                        segmentDelimiter += '\n';
-                    }
-                }
-            }
-
-            EDIReader ediReader = new EDIReader(segmentDelimiter, elementDelimiter, subelementDelimiter);
+            Delimiters delimiters = getDelimiters(source);
+            EDIReader ediReader = new EDIReader(delimiters.segmentDelimiter, delimiters.elementDelimiter, delimiters.subelementDelimiter);
             StringWriter stringWriter = new StringWriter();
             XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
             serializer.setEncodeEntities(true);
@@ -115,41 +99,125 @@ public class EDISerializer implements IXMLSerializer {
         }
     }
 
-    @Override
-    public Map<String, String> getMetadataFromDocument(Document document) {
-        Map<String, String> map = new HashMap<String, String>();
-        String sendingFacility = "";
-        if (document.getElementsByTagName("ISA.06.1") != null) {
-            Node sender = document.getElementsByTagName("ISA.06.1").item(0);
-            if (sender != null) {
-                sendingFacility = sender.getTextContent();
-            }
-        }
-        if (sendingFacility == null && document.getElementsByTagName("GS.02.1") != null) {
-            Node sender = document.getElementsByTagName("GS.02.1").item(0);
-            if (sender != null) {
-                sendingFacility = sender.getTextContent();
-            }
-        }
-        String event = document.getDocumentElement().getNodeName();
-        if (document.getElementsByTagName("ST.01.1") != null) {
-            Node type = document.getElementsByTagName("ST.01.1").item(0);
-            if (type != null) {
-                event = type.getTextContent();
-            }
-        }
-        String version = "";
-        if (document.getElementsByTagName("GS.08.1") != null) {
-            Node versionNode = document.getElementsByTagName("GS.08.1").item(0);
-            if (versionNode != null) {
-                version = versionNode.getTextContent();
+    private class Delimiters {
+        public String elementDelimiter;
+        public String subelementDelimiter;
+        public String segmentDelimiter;
+    }
+
+    private Delimiters getDelimiters(String message) {
+        Delimiters delimiters = new Delimiters();
+        delimiters.elementDelimiter = serializationElementDelimiter;
+        delimiters.subelementDelimiter = serializationSubelementDelimiter;
+        delimiters.segmentDelimiter = serializationSegmentDelimiter;
+
+        if (serializationProperties.isInferX12Delimiters()) {
+            if (message.startsWith("ISA") && message.length() > 105) {
+                delimiters.elementDelimiter = message.charAt(3) + "";
+                delimiters.subelementDelimiter = message.charAt(104) + "";
+                delimiters.segmentDelimiter = message.charAt(105) + "";
+                // hack to handle newlines
+                if (message.length() > 106 && message.charAt(106) == '\n') {
+                    delimiters.segmentDelimiter += '\n';
+                }
             }
         }
 
-        map.put("version", version);
-        map.put("type", event);
-        map.put("source", sendingFacility);
+        return delimiters;
+    }
+
+    @Override
+    public Map<String, Object> getMetaDataForTree(String message) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        populateMetaData(message, map);
         return map;
     }
 
+    @Override
+    public void populateMetaData(String message, Map<String, Object> map) {
+        try {
+            Delimiters delimiters = getDelimiters(message);
+            String source = null;
+            String type = null;
+            String version = null;
+            int index = -1;
+
+            do {
+                index++;
+
+                if (source == null && message.startsWith("ISA", index)) {
+                    // Get the source from ISA.06.1
+                    source = getElement(message, delimiters, index, 6);
+                } else if ((source == null || version == null) && message.startsWith("GS", index)) {
+                    // Get the source from GS.02.1 if we haven't already found it
+                    if (source == null) {
+                        source = getElement(message, delimiters, index, 2);
+                    }
+
+                    // Get the version from GS.08.1
+                    version = getElement(message, delimiters, index, 8);
+                } else if (type == null && message.startsWith("ST", index)) {
+                    // Get the type from ST.01.1
+                    type = getElement(message, delimiters, index, 1);
+                }
+            } while ((index = getDelimiterIndex(message, delimiters.segmentDelimiter, index)) != -1 && (source == null || type == null || version == null));
+
+            if (source != null) {
+                map.put(DefaultMetaData.SOURCE_VARIABLE_MAPPING, source);
+            }
+            if (type != null) {
+                map.put(DefaultMetaData.TYPE_VARIABLE_MAPPING, type);
+            }
+            if (version != null) {
+                map.put(DefaultMetaData.VERSION_VARIABLE_MAPPING, version);
+            }
+        } catch (Exception e) {
+            logger.error("Error populating EDI/X12 metadata.", e);
+        }
+    }
+
+    private int getDelimiterIndex(String message, String delimiters, int startIndex) {
+        char[] delimitersArray = delimiters.toCharArray();
+        while (startIndex < message.length()) {
+            if (ArrayUtils.contains(delimitersArray, message.charAt(startIndex))) {
+                return startIndex;
+            }
+            startIndex++;
+        }
+        return -1;
+    }
+
+    private boolean startsWithDelimiter(String message, String delimiters, int startIndex) {
+        return ArrayUtils.contains(delimiters.toCharArray(), message.charAt(startIndex));
+    }
+
+    private String getElement(String message, Delimiters delimiters, int index, int elementNumber) {
+        StringBuilder builder = new StringBuilder();
+        boolean done = false;
+        boolean found = false;
+        int elementCount = 0;
+
+        while (index < message.length() && !done) {
+            if (startsWithDelimiter(message, delimiters.segmentDelimiter, index)) {
+                done = true;
+            } else if (startsWithDelimiter(message, delimiters.elementDelimiter, index)) {
+                elementCount++;
+
+                if (found) {
+                    done = true;
+                } else if (elementCount == elementNumber) {
+                    found = true;
+                }
+            } else if (startsWithDelimiter(message, delimiters.subelementDelimiter, index)) {
+                if (found) {
+                    done = true;
+                }
+            } else if (found) {
+                builder.append(message.charAt(index));
+            }
+            index++;
+        }
+
+        return found ? builder.toString() : null;
+    }
 }

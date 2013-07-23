@@ -9,16 +9,18 @@
 
 package com.mirth.connect.connectors.tests;
 
+import java.util.Map;
+
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 
 public class TestSerializer implements XmlSerializer {
-	
+
     @Override
     public boolean isSerializationRequired(boolean isXml) {
         return false;
     }
-    
+
     @Override
     public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
         return message;
@@ -34,4 +36,6 @@ public class TestSerializer implements XmlSerializer {
         return message;
     }
 
+    @Override
+    public void populateMetaData(String message, Map<String, Object> map) {}
 }

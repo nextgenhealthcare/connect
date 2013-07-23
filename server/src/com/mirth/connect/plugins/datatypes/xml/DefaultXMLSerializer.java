@@ -12,12 +12,11 @@ package com.mirth.connect.plugins.datatypes.xml;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.w3c.dom.Document;
-
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
@@ -67,16 +66,14 @@ public class DefaultXMLSerializer implements IXMLSerializer {
         return source;
     }
 
-    private Map<String, String> getMetadata() throws XmlSerializerException {
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("version", "1.0");
-        map.put("type", "XML-Message");
-        map.put("source", "");
+    @Override
+    public Map<String, Object> getMetaDataForTree(String message) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put(DefaultMetaData.VERSION_VARIABLE_MAPPING, "1.0");
+        map.put(DefaultMetaData.TYPE_VARIABLE_MAPPING, "XML-Message");
         return map;
     }
 
     @Override
-    public Map<String, String> getMetadataFromDocument(Document doc) throws XmlSerializerException {
-        return getMetadata();
-    }
+    public void populateMetaData(String message, Map<String, Object> map) {}
 }

@@ -9,6 +9,7 @@
 
 package com.mirth.connect.plugins.datatypes.hl7v2;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -17,12 +18,11 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.DefaultXMLParser;
 import ca.uhn.hl7v2.parser.PipeParser;
@@ -32,10 +32,10 @@ import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
-import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
@@ -281,77 +281,6 @@ public class ER7Serializer implements IXMLSerializer {
         }
     }
 
-    @Override
-    public Map<String, String> getMetadataFromDocument(Document document) {
-        Map<String, String> metadata = new HashMap<String, String>();
-
-        if (serializationProperties.isUseStrictParser()) {
-            XMLParser xmlParser = new DefaultXMLParser();
-            if (!serializationProperties.isUseStrictValidation()) {
-                xmlParser.setValidationContext(new NoValidation());
-            }
-
-            xmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
-
-            try {
-                DocumentSerializer serializer = new DocumentSerializer();
-                String source = serializer.toXML(document);
-                Message message = xmlParser.parse(source);
-                Terser terser = new Terser(message);
-                String sendingFacility = terser.get("/MSH-4-1");
-                String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2");
-                metadata.put("version", message.getVersion());
-                metadata.put("type", event);
-                metadata.put("source", sendingFacility);
-                return metadata;
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-                return metadata;
-            }
-        } else {
-            if (document.getElementsByTagName("MSH.4.1").getLength() > 0) {
-                Node senderNode = document.getElementsByTagName("MSH.4.1").item(0);
-
-                if ((senderNode != null) && (senderNode.getFirstChild() != null)) {
-                    metadata.put("source", senderNode.getFirstChild().getTextContent());
-                } else {
-                    metadata.put("source", "");
-                }
-            }
-
-            if (document.getElementsByTagName("MSH.9").getLength() > 0) {
-                if (document.getElementsByTagName("MSH.9.1").getLength() > 0) {
-                    Node typeNode = document.getElementsByTagName("MSH.9.1").item(0);
-
-                    if (typeNode != null) {
-                        String type = typeNode.getFirstChild().getNodeValue();
-
-                        if (document.getElementsByTagName("MSH.9.2").getLength() > 0) {
-                            Node subTypeNode = document.getElementsByTagName("MSH.9.2").item(0);
-                            type += "-" + subTypeNode.getFirstChild().getTextContent();
-                        }
-
-                        metadata.put("type", type);
-                    } else {
-                        metadata.put("type", "Unknown");
-                    }
-                }
-            }
-
-            if (document.getElementsByTagName("MSH.12.1").getLength() > 0) {
-                Node versionNode = document.getElementsByTagName("MSH.12.1").item(0);
-
-                if (versionNode != null) {
-                    metadata.put("version", versionNode.getFirstChild().getTextContent());
-                } else {
-                    metadata.put("version", "");
-                }
-            }
-
-            return metadata;
-        }
-    }
-
     private String getNodeValue(String source, String startTag, String endTag) {
         int startIndex = -1;
 
@@ -360,5 +289,167 @@ public class ER7Serializer implements IXMLSerializer {
         } else {
             return "";
         }
+    }
+
+    @Override
+    public Map<String, Object> getMetaDataForTree(String message) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        populateMetaData(message, map);
+        return map;
+    }
+
+    @Override
+    public void populateMetaData(String message, Map<String, Object> map) {
+        try {
+            if (serializationProperties.isUseStrictParser()) {
+                Message hapiMessage = serializationPipeParser.parse(message.trim());
+                Terser terser = new Terser(hapiMessage);
+
+                try {
+                    map.put(DefaultMetaData.SOURCE_VARIABLE_MAPPING, (Object) terser.get("/MSH-4-1"));
+                } catch (HL7Exception e) {
+                    logger.error("Error populating ER7 metadata.", e);
+                }
+
+                try {
+                    map.put(DefaultMetaData.TYPE_VARIABLE_MAPPING, terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2"));
+                } catch (HL7Exception e) {
+                    logger.error("Error populating ER7 metadata.", e);
+                }
+
+                map.put(DefaultMetaData.VERSION_VARIABLE_MAPPING, hapiMessage.getVersion());
+            } else {
+                int index = 0;
+
+                // Skip leading whitespace
+                while (index < message.length() && message.charAt(index) <= ' ') {
+                    index++;
+                }
+
+                // Get the index of the first segment delimiter
+                int segmentDelimiterIndex = -1;
+                if (serializationProperties.isConvertLineBreaks()) {
+                    // If we're converting line breaks, check for CR, LF, and the serialization segment delimiter
+                    int tempIndex = index;
+                    while (segmentDelimiterIndex == -1 && tempIndex < message.length()) {
+                        if (message.startsWith("\r", tempIndex) || message.startsWith("\n", tempIndex) || (!skipIntermediateDelimiter && message.startsWith(serializationSegmentDelimiter, tempIndex))) {
+                            segmentDelimiterIndex = tempIndex;
+                        }
+                        tempIndex++;
+                    }
+                } else {
+                    segmentDelimiterIndex = message.indexOf(serializationSegmentDelimiter, index);
+                }
+
+                if (segmentDelimiterIndex == -1) {
+                    segmentDelimiterIndex = message.length();
+                }
+
+                // Return if the message doesn't start with MSH, FHS, or BHS
+                boolean mshFound = false;
+                if (message.startsWith("MSH", index)) {
+                    mshFound = true;
+                }
+                if (!mshFound && !message.startsWith("FHS", index) && !message.startsWith("BHS", index)) {
+                    return;
+                }
+                index += 3;
+
+                if (index >= segmentDelimiterIndex || index >= message.length()) {
+                    return;
+                }
+
+                int fieldSeparator = message.charAt(index++);
+                int[] encodingCharacters = new int[] { -1, -1, -1, -1 };
+                int c;
+
+                // Attempt to find the encoding characters
+                while (index < segmentDelimiterIndex && index < message.length() && (c = message.charAt(index)) != fieldSeparator) {
+                    for (int i = 0; i < encodingCharacters.length; i++) {
+                        if (encodingCharacters[i] == -1) {
+                            encodingCharacters[i] = c;
+                            break;
+                        }
+                    }
+                    index++;
+                }
+
+                if (index >= segmentDelimiterIndex || index >= message.length()) {
+                    return;
+                }
+
+                // At the beginning of third field, skip to fourth field
+                index = message.indexOf(fieldSeparator, index + 1);
+                if (index == -1 || index >= segmentDelimiterIndex || index >= message.length()) {
+                    return;
+                }
+
+                // Get the source (fourth field)
+                map.put(DefaultMetaData.SOURCE_VARIABLE_MAPPING, getComponent(message, index + 1, fieldSeparator, encodingCharacters, segmentDelimiterIndex, false));
+
+                // Skip fields 4-8
+                for (int i = 4; i <= 8; i++) {
+                    index = message.indexOf(fieldSeparator, index + 1);
+                    if (index == -1 || index >= segmentDelimiterIndex) {
+                        return;
+                    }
+                }
+
+                // Get the type and trigger (ninth field)
+                map.put(DefaultMetaData.TYPE_VARIABLE_MAPPING, getComponent(message, index + 1, fieldSeparator, encodingCharacters, segmentDelimiterIndex, true));
+
+                // Don't get the version for batches
+                if (mshFound) {
+                    // Skip fields 9-11
+                    for (int i = 9; i <= 11; i++) {
+                        index = message.indexOf(fieldSeparator, index + 1);
+                        if (index == -1 || index >= segmentDelimiterIndex) {
+                            return;
+                        }
+                    }
+
+                    // Get the version (twelfth field)
+                    map.put(DefaultMetaData.VERSION_VARIABLE_MAPPING, getComponent(message, index + 1, fieldSeparator, encodingCharacters, segmentDelimiterIndex, false));
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error populating ER7 metadata.", e);
+        }
+    }
+
+    private String getComponent(String message, int index, int fieldSeparator, int[] encodingCharacters, int segmentDelimiterIndex, boolean combineSecond) throws IOException {
+        StringBuilder result = new StringBuilder();
+        boolean resultEnd = false;
+        int c = -1;
+
+        int componentSeparator = encodingCharacters[0];
+        int repetitionMarker = encodingCharacters[1];
+        int subcomponentSeparator = encodingCharacters[3];
+
+        // Keep iterating until the reader is done, or until a field/component separator or repetition marker is found
+        while (index < segmentDelimiterIndex && index < message.length() && (c = message.charAt(index)) != fieldSeparator && c != componentSeparator && (!serializationProperties.isHandleRepetitions() || c != repetitionMarker)) {
+            if (serializationProperties.isHandleSubcomponents() && c == subcomponentSeparator) {
+                resultEnd = true;
+            } else if (!resultEnd) {
+                result.append((char) c);
+            }
+            index++;
+        }
+
+        // If combining the second component and the previous iteration was stopped by a component separator
+        if (combineSecond && c == componentSeparator) {
+            boolean secondFound = false;
+            index++;
+            while (index < segmentDelimiterIndex && index < message.length() && (c = message.charAt(index)) != fieldSeparator && c != componentSeparator && (!serializationProperties.isHandleRepetitions() || c != repetitionMarker) && (!serializationProperties.isHandleSubcomponents() || c != subcomponentSeparator)) {
+                if (!secondFound) {
+                    result.append('-');
+                    secondFound = true;
+                }
+                result.append((char) c);
+                index++;
+            }
+        }
+
+        return result.toString();
     }
 }

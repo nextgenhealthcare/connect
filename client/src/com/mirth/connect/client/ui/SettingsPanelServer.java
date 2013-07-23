@@ -12,7 +12,9 @@ package com.mirth.connect.client.ui;
 import java.awt.Cursor;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -23,14 +25,18 @@ import org.apache.commons.lang3.math.NumberUtils;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.util.DefaultMetaData;
 
 public class SettingsPanelServer extends AbstractSettingsPanel {
 
     public static final String TAB_NAME = "Server";
+
+    private List<MetaDataColumn> defaultMetaDataColumns;
 
     public SettingsPanelServer(String tabName) {
         super(tabName);
@@ -45,6 +51,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         provideUsageStatsMoreInfoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         queueBufferSizeField.setDocument(new MirthFieldConstraints(8, false, false, true));
         smtpTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
+
+        defaultMetaDataColumns = new ArrayList<MetaDataColumn>();
     }
 
     public void doRefresh() {
@@ -179,6 +187,17 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             queueBufferSizeField.setText("");
         }
 
+        // TODO: Change this to use a more complex custom metadata table rather than checkboxes
+        List<MetaDataColumn> defaultMetaDataColumns = serverSettings.getDefaultMetaDataColumns();
+        if (defaultMetaDataColumns != null) {
+            this.defaultMetaDataColumns = new ArrayList<MetaDataColumn>(defaultMetaDataColumns);
+        } else {
+            this.defaultMetaDataColumns = new ArrayList<MetaDataColumn>(DefaultMetaData.DEFAULT_COLUMNS);
+        }
+        defaultMetaDataSourceCheckBox.setSelected(this.defaultMetaDataColumns.contains(DefaultMetaData.SOURCE_COLUMN));
+        defaultMetaDataTypeCheckBox.setSelected(this.defaultMetaDataColumns.contains(DefaultMetaData.TYPE_COLUMN));
+        defaultMetaDataVersionCheckBox.setSelected(this.defaultMetaDataColumns.contains(DefaultMetaData.VERSION_COLUMN));
+
         if (serverSettings.getSmtpUsername() != null) {
             usernameField.setText(serverSettings.getSmtpUsername());
         } else {
@@ -225,6 +244,34 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         } else {
             serverSettings.setQueueBufferSize(queueBufferSize);
         }
+
+        // TODO: Change this to use a more complex custom metadata table rather than checkboxes
+        // Until this is changed to a table, always add source/type/version in order
+        List<MetaDataColumn> defaultMetaDataColumns = new ArrayList<MetaDataColumn>();
+        if (defaultMetaDataSourceCheckBox.isSelected()) {
+            defaultMetaDataColumns.add(DefaultMetaData.SOURCE_COLUMN);
+        } else {
+            this.defaultMetaDataColumns.remove(DefaultMetaData.SOURCE_COLUMN);
+        }
+
+        if (defaultMetaDataTypeCheckBox.isSelected()) {
+            defaultMetaDataColumns.add(DefaultMetaData.TYPE_COLUMN);
+        } else {
+            this.defaultMetaDataColumns.remove(DefaultMetaData.TYPE_COLUMN);
+        }
+
+        if (defaultMetaDataVersionCheckBox.isSelected()) {
+            defaultMetaDataColumns.add(DefaultMetaData.VERSION_COLUMN);
+        } else {
+            this.defaultMetaDataColumns.remove(DefaultMetaData.VERSION_COLUMN);
+        }
+
+        for (MetaDataColumn column : this.defaultMetaDataColumns) {
+            if (!defaultMetaDataColumns.contains(column)) {
+                defaultMetaDataColumns.add(column);
+            }
+        }
+        serverSettings.setDefaultMetaDataColumns(this.defaultMetaDataColumns = defaultMetaDataColumns);
 
         serverSettings.setSmtpHost(smtpHostField.getText());
         serverSettings.setSmtpPort(smtpPortField.getText());
@@ -444,6 +491,10 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         provideUsageStatsMoreInfoLabel = new javax.swing.JLabel();
         queueBufferSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
         queueBufferSizeLabel = new javax.swing.JLabel();
+        defaultMetaDataLabel = new javax.swing.JLabel();
+        defaultMetaDataSourceCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        defaultMetaDataTypeCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        defaultMetaDataVersionCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -673,6 +724,26 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         queueBufferSizeLabel.setText("Queue Buffer Size:");
 
+        defaultMetaDataLabel.setText("Default Metadata Columns:");
+
+        defaultMetaDataSourceCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        defaultMetaDataSourceCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        defaultMetaDataSourceCheckBox.setText("Source");
+        defaultMetaDataSourceCheckBox.setToolTipText("<html>If checked, the Source metadata column will be added by<br/>default when a user creates a new channel. The user can<br/>choose to remove the column on the channel's Summary tab.</html>");
+        defaultMetaDataSourceCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        defaultMetaDataTypeCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        defaultMetaDataTypeCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        defaultMetaDataTypeCheckBox.setText("Type");
+        defaultMetaDataTypeCheckBox.setToolTipText("<html>If checked, the Type metadata column will be added by<br/>default when a user creates a new channel. The user can<br/>choose to remove the column on the channel's Summary tab.</html>");
+        defaultMetaDataTypeCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        defaultMetaDataVersionCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        defaultMetaDataVersionCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        defaultMetaDataVersionCheckBox.setText("Version");
+        defaultMetaDataVersionCheckBox.setToolTipText("<html>If checked, the Version metadata column will be added by<br/>default when a user creates a new channel. The user can<br/>choose to remove the column on the channel's Summary tab.</html>");
+        defaultMetaDataVersionCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         javax.swing.GroupLayout configurationPanelLayout = new javax.swing.GroupLayout(configurationPanel);
         configurationPanel.setLayout(configurationPanelLayout);
         configurationPanelLayout.setHorizontalGroup(
@@ -680,6 +751,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             .addGroup(configurationPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(defaultMetaDataLabel)
                     .addComponent(checkForUpdatesLabel)
                     .addComponent(clearGlobalMapLabel)
                     .addComponent(provideUsageStatsLabel)
@@ -702,7 +774,13 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                         .addComponent(checkForUpdatesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(checkForUpdatesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(queueBufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(queueBufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(configurationPanelLayout.createSequentialGroup()
+                        .addComponent(defaultMetaDataSourceCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(defaultMetaDataTypeCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(defaultMetaDataVersionCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         configurationPanelLayout.setVerticalGroup(
@@ -731,6 +809,12 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(queueBufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(queueBufferSizeLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(defaultMetaDataLabel)
+                    .addComponent(defaultMetaDataSourceCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(defaultMetaDataTypeCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(defaultMetaDataVersionCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -741,7 +825,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(configurationPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(configurationPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(emailPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -752,7 +836,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 .addComponent(configurationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(emailPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -773,6 +857,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         usernameLabel.setEnabled(true);
         passwordLabel.setEnabled(true);
     }//GEN-LAST:event_requireAuthenticationYesRadioActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup checkForUpdatesButtonGroup;
     private javax.swing.JLabel checkForUpdatesLabel;
@@ -785,6 +870,10 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     private javax.swing.JPanel configurationPanel;
     private com.mirth.connect.client.ui.components.MirthTextField defaultFromAddressField;
     private javax.swing.JLabel defaultFromAddressLabel;
+    private javax.swing.JLabel defaultMetaDataLabel;
+    private com.mirth.connect.client.ui.components.MirthCheckBox defaultMetaDataSourceCheckBox;
+    private com.mirth.connect.client.ui.components.MirthCheckBox defaultMetaDataTypeCheckBox;
+    private com.mirth.connect.client.ui.components.MirthCheckBox defaultMetaDataVersionCheckBox;
     private javax.swing.JPanel emailPanel;
     private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;

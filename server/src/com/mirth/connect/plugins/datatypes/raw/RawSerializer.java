@@ -9,11 +9,9 @@
 
 package com.mirth.connect.plugins.datatypes.raw;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
@@ -48,9 +46,10 @@ public class RawSerializer implements IXMLSerializer {
     }
 
     @Override
-    public Map<String, String> getMetadataFromDocument(Document doc) throws XmlSerializerException {
-        Map<String, String> map = new HashMap<String, String>();
-        return map;
+    public Map<String, Object> getMetaDataForTree(String message) {
+        return null;
     }
 
+    @Override
+    public void populateMetaData(String message, Map<String, Object> map) {}
 }

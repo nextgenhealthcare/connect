@@ -12,12 +12,11 @@ package com.mirth.connect.plugins.datatypes.hl7v3;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.w3c.dom.Document;
-
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
@@ -67,18 +66,39 @@ public class HL7V3Serializer implements IXMLSerializer {
         return source;
     }
 
-    public Map<String, String> getMetadata() throws XmlSerializerException {
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("version", "3.0"); //TODO: Update this to real version codes
-        map.put("type", "HL7v3-Message");
-        map.put("source", "");
+    @Override
+    public Map<String, Object> getMetaDataForTree(String message) {
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        // TODO: Update this to real version codes
+        map.put(DefaultMetaData.VERSION_VARIABLE_MAPPING, "3.0");
+
+        StringBuilder builder = new StringBuilder();
+        int index = 0;
+        boolean found = false;
+
+        // Find the QName of the root node of the XML
+        while (index < message.length() - 1) {
+            char c = message.charAt(index);
+            char next = message.charAt(index + 1);
+            if (!found && c == '<' && ((next >= 'A' && next <= 'Z') || (next >= 'a' && next <= 'z') || next == '_')) {
+                found = true;
+            } else if (found) {
+                if (c <= ' ' || c == '/' || c == '>') {
+                    break;
+                }
+                builder.append(c);
+            }
+            index++;
+        }
+
+        if (builder.length() > 0) {
+            map.put(DefaultMetaData.TYPE_VARIABLE_MAPPING, builder.toString());
+        }
+
         return map;
     }
 
     @Override
-    public Map<String, String> getMetadataFromDocument(Document doc) throws XmlSerializerException {
-        Map<String, String> map = getMetadata();
-        map.put("type", doc.getDocumentElement().getNodeName());
-        return map;
-    }
+    public void populateMetaData(String message, Map<String, Object> map) {}
 }

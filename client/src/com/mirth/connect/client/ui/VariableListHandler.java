@@ -22,6 +22,7 @@ import org.jdesktop.swingx.JXList;
 
 import com.mirth.connect.client.ui.panels.reference.ReferenceTable;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.util.DefaultMetaData;
 
 public class VariableListHandler extends TransferHandler {
 
@@ -56,6 +57,9 @@ public class VariableListHandler extends TransferHandler {
         staticVelocityReferences.put("Transformed Data", "${message.transformedData}");
         staticVelocityReferences.put("Message ID", "${message.messageId}");
         staticVelocityReferences.put("Encoded Data", "${message.encodedData}");
+        staticVelocityReferences.put("Message Source", "${" + DefaultMetaData.SOURCE_VARIABLE_MAPPING + "}");
+        staticVelocityReferences.put("Message Type", "${" + DefaultMetaData.TYPE_VARIABLE_MAPPING + "}");
+        staticVelocityReferences.put("Message Version", "${" + DefaultMetaData.VERSION_VARIABLE_MAPPING + "}");
         staticVelocityReferences.put("Timestamp", "${SYSTIME}");
         staticVelocityReferences.put("Unique ID", "${UUID}");
         staticVelocityReferences.put("Date", "${DATE}");
@@ -77,6 +81,9 @@ public class VariableListHandler extends TransferHandler {
         staticJsReferences.put("Transformed Data", "connectorMessage.getTransformedData()");
         staticJsReferences.put("Message ID", "connectorMessage.getMessageId()");
         staticJsReferences.put("Encoded Data", "connectorMessage.getEncodedData()");
+        staticJsReferences.put("Message Source", "$('" + DefaultMetaData.SOURCE_VARIABLE_MAPPING + "')");
+        staticJsReferences.put("Message Type", "$('" + DefaultMetaData.TYPE_VARIABLE_MAPPING + "')");
+        staticJsReferences.put("Message Version", "$('" + DefaultMetaData.VERSION_VARIABLE_MAPPING + "')");
         staticJsReferences.put("Timestamp", "var dateString = DateUtil.getCurrentDate('yyyyMMddHHmmss');");
         staticJsReferences.put("Unique ID", "var uuid = UUIDGenerator.getUUID();");
         staticJsReferences.put("Date", "var date = DateUtil.getDate('pattern','date');");

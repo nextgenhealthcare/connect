@@ -48,6 +48,7 @@ import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DICOMSerializer implements IXMLSerializer {
@@ -186,15 +187,6 @@ public class DICOMSerializer implements IXMLSerializer {
         }
     }
 
-    @Override
-    public Map<String, String> getMetadataFromDocument(Document document) {
-        Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put("version", org.apache.commons.lang3.StringUtils.EMPTY);
-        metadata.put("type", "DICOM");
-        metadata.put("source", "dicom");
-        return metadata;
-    }
-
     private void renameAttrToTag(Document document, Node node) throws DOMException {
         if (node.getNodeName().equals("attr")) {
             String tag = node.getAttributes().getNamedItem("tag").getNodeValue();
@@ -220,4 +212,15 @@ public class DICOMSerializer implements IXMLSerializer {
             }
         }
     }
+
+    @Override
+    public Map<String, Object> getMetaDataForTree(String message) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put(DefaultMetaData.VERSION_VARIABLE_MAPPING, "");
+        map.put(DefaultMetaData.TYPE_VARIABLE_MAPPING, "DICOM");
+        return map;
+    }
+
+    @Override
+    public void populateMetaData(String message, Map<String, Object> map) {}
 }

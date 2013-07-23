@@ -75,6 +75,9 @@ public class FilterTransformerExecutor {
             content = connectorMessage.getProcessedRaw().getContent();
         }
 
+        // Populate the connector map with metadata as necessary
+        inbound.getSerializer().populateMetaData(content, connectorMessage.getConnectorMap());
+
         if (filterTransformer != null) {
             // Pre-transformation setup
             switch (inbound.getSerializationType()) {
