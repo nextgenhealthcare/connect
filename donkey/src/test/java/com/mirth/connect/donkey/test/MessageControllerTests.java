@@ -132,7 +132,7 @@ public class MessageControllerTests {
     public void testDeleteMessage() throws Exception {
         TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId);
         channel.getSourceConnector().setRespondAfterProcessing(false);
-        channel.getSourceQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, TestUtils.getDaoFactory()));
+        channel.getSourceQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, serverId, 0, Status.RECEIVED, false, TestUtils.getDaoFactory()));
         channel.getSourceQueue().updateSize();
 
         Message message = null;

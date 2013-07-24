@@ -184,7 +184,7 @@ public class DatabaseDispatcherTests {
 
         DonkeyDao dao = new PassthruDaoFactory().getDao();
 
-        DestinationConnector databaseDispatcher = new TestDatabaseDispatcher(TEST_CHANNEL_ID, 1, properties);
+        DestinationConnector databaseDispatcher = new TestDatabaseDispatcher(TEST_CHANNEL_ID, TEST_SERVER_ID, 1, properties);
         databaseDispatcher.onDeploy();
         databaseDispatcher.start();
 
@@ -262,14 +262,14 @@ public class DatabaseDispatcherTests {
     }
 
     private class TestDatabaseDispatcher extends DatabaseDispatcher {
-        public TestDatabaseDispatcher(String channelId, Integer metaDataId, DatabaseDispatcherProperties properties) {
+        public TestDatabaseDispatcher(String channelId, String serverId, Integer metaDataId, DatabaseDispatcherProperties properties) {
             super();
             setChannelId(channelId);
             setMetaDataId(metaDataId);
             setConnectorProperties(properties);
 
             if (properties.getQueueConnectorProperties().isQueueEnabled()) {
-                getQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, isQueueRotate(), new PassthruDaoFactory()));
+                getQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, serverId, metaDataId, Status.QUEUED, isQueueRotate(), new PassthruDaoFactory()));
                 getQueue().updateSize();
             }
         }

@@ -79,7 +79,7 @@
 	</query>
 	
 	<query id="resetMessage">
-		UPDATE d_m${localChannelId} SET processed = FALSE
+		UPDATE d_m${localChannelId} SET processed = FALSE, server_id = ?
 		WHERE id = ?
 	</query>
 	
@@ -232,10 +232,10 @@
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatus">
-		SELECT mm.*, m.server_id
+		SELECT mm.*
 		FROM d_mm${localChannelId} mm
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? AND mm.status = ?
+		WHERE mm.id = ? AND mm.status = ? AND m.server_id = ?
 		ORDER BY mm.message_id
 	</query>
 	
@@ -243,7 +243,7 @@
 		SELECT mm.*, m.server_id
 		FROM d_mm${localChannelId} mm
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? AND mm.status = ?
+		WHERE mm.id = ? AND mm.status = ? AND m.server_id = ?
 		ORDER BY m.id
 		LIMIT ${limit}
 		OFFSET ${offset}
@@ -253,7 +253,7 @@
 		SELECT mm.*, m.server_id
 		FROM d_mm${localChannelId} mm
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? AND mm.status = ?
+		WHERE mm.id = ? AND mm.status = ? AND m.server_id = ?
 		AND m.id <![CDATA[ >= ]]> ? AND m.id <![CDATA[ <= ]]> ?
 		ORDER BY m.id
 		LIMIT ${limit}
@@ -281,14 +281,14 @@
 		SELECT COUNT(*)
 		FROM d_mm${localChannelId} mm
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? AND mm.status = ?
+		WHERE mm.id = ? AND mm.status = ? AND m.server_id = ?
 	</query>
 	
 	<query id="getConnectorMessageMaxMessageIdByMetaDataIdAndStatus">
 		SELECT COALESCE(MAX(m.id), 0)
 		FROM d_mm${localChannelId} mm
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? AND mm.status = ?
+		WHERE mm.id = ? AND mm.status = ? AND m.server_id = ?
 	</query>
 	
 	

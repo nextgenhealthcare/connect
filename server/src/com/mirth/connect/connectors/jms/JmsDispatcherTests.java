@@ -154,7 +154,7 @@ public class JmsDispatcherTests {
     public final void testInvalidConnection() throws Exception {
         JmsDispatcherProperties connectorProperties = getInitialProperties(true);
 
-        DestinationConnector connector = new TestJmsDispatcher(TEST_CHANNEL_ID, 1, connectorProperties);
+        DestinationConnector connector = new TestJmsDispatcher(TEST_CHANNEL_ID, TEST_SERVER_ID, 1, connectorProperties);
         connector.onDeploy();
         connector.start();
     }
@@ -180,7 +180,7 @@ public class JmsDispatcherTests {
 
         MessageConsumer consumer = session.createConsumer(destination);
 
-        DestinationConnector connector = new TestJmsDispatcher(TEST_CHANNEL_ID, 1, connectorProperties);
+        DestinationConnector connector = new TestJmsDispatcher(TEST_CHANNEL_ID, TEST_SERVER_ID, 1, connectorProperties);
         connector.onDeploy();
         connector.start();
 
@@ -220,14 +220,14 @@ public class JmsDispatcherTests {
     }
 
     private class TestJmsDispatcher extends JmsDispatcher {
-        public TestJmsDispatcher(String channelId, Integer metaDataId, JmsDispatcherProperties properties) {
+        public TestJmsDispatcher(String channelId, String serverId, Integer metaDataId, JmsDispatcherProperties properties) {
             super();
             setChannelId(channelId);
             setMetaDataId(metaDataId);
             setConnectorProperties(properties);
 
             if (properties.getQueueConnectorProperties().isQueueEnabled()) {
-                getQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, isQueueRotate(), new PassthruDaoFactory()));
+                getQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, serverId, metaDataId, Status.QUEUED, isQueueRotate(), new PassthruDaoFactory()));
                 getQueue().updateSize();
             }
         }

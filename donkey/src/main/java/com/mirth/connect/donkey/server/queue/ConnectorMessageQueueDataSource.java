@@ -19,14 +19,16 @@ import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 public class ConnectorMessageQueueDataSource implements PersistedBlockingQueueDataSource<ConnectorMessage> {
     private DonkeyDaoFactory daoFactory;
     private String channelId;
+    private String serverId;
     private int metaDataId;
     private Status status;
     private boolean rotate;
     private Long maxMessageId = null;
     private Long minMessageId = null;
 
-    public ConnectorMessageQueueDataSource(String channelId, int metaDataId, Status status, boolean rotate, DonkeyDaoFactory daoFactory) {
+    public ConnectorMessageQueueDataSource(String channelId, String serverId, int metaDataId, Status status, boolean rotate, DonkeyDaoFactory daoFactory) {
         this.channelId = channelId;
+        this.serverId = serverId;
         this.metaDataId = metaDataId;
         this.status = status;
         this.rotate = rotate;
@@ -82,13 +84,13 @@ public class ConnectorMessageQueueDataSource implements PersistedBlockingQueueDa
         try {
             if (rotate) {
                 minMessageId = 0L;
-                maxMessageId = dao.getConnectorMessageMaxMessageId(channelId, metaDataId, status);
+                maxMessageId = dao.getConnectorMessageMaxMessageId(channelId, serverId, metaDataId, status);
             } else {
                 minMessageId = null;
                 maxMessageId = null;
             }
 
-            return dao.getConnectorMessageCount(channelId, metaDataId, status);
+            return dao.getConnectorMessageCount(channelId, serverId, metaDataId, status);
         } finally {
             dao.close();
         }
@@ -99,12 +101,12 @@ public class ConnectorMessageQueueDataSource implements PersistedBlockingQueueDa
         DonkeyDao dao = daoFactory.getDao();
 
         try {
-            List<ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
+            List<ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, serverId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
 
             if (rotate && connectorMessages.size() == 0) {
                 minMessageId = 0L;
-                maxMessageId = dao.getConnectorMessageMaxMessageId(channelId, metaDataId, status);
-                connectorMessages = dao.getConnectorMessages(channelId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
+                maxMessageId = dao.getConnectorMessageMaxMessageId(channelId, serverId, metaDataId, status);
+                connectorMessages = dao.getConnectorMessages(channelId, serverId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
             }
 
             return connectorMessages;

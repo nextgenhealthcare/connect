@@ -204,7 +204,7 @@ public class PassthruDao implements DonkeyDao {
     public void markAsProcessed(String channelId, long messageId) {}
 
     @Override
-    public void resetMessage(String channelId, long messageId) {}
+    public void resetMessage(String channelId, long messageId, String serverId) {}
 
     @Override
     public void createChannel(String channelId, long localChannelId) {}
@@ -260,12 +260,12 @@ public class PassthruDao implements DonkeyDao {
     }
 
     @Override
-    public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status) {
+    public List<ConnectorMessage> getConnectorMessages(String channelId, String serverId, int metaDataId, Status status) {
         return new ArrayList<ConnectorMessage>();
     }
 
     @Override
-    public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId) {
+    public List<ConnectorMessage> getConnectorMessages(String channelId, String serverId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId) {
         return new ArrayList<ConnectorMessage>();
     }
 
@@ -275,12 +275,12 @@ public class PassthruDao implements DonkeyDao {
     }
 
     @Override
-    public int getConnectorMessageCount(String channelId, int metaDataId, Status status) {
+    public int getConnectorMessageCount(String channelId, String serverId, int metaDataId, Status status) {
         return 0;
     }
 
     @Override
-    public long getConnectorMessageMaxMessageId(String channelId, int metaDataId, Status status) {
+    public long getConnectorMessageMaxMessageId(String channelId, String serverId, int metaDataId, Status status) {
         return 0;
     }
 

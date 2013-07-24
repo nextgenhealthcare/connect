@@ -249,11 +249,11 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public void resetMessage(String channelId, long messageId) {
+    public void resetMessage(String channelId, long messageId, String serverId) {
         long startTime = System.currentTimeMillis();
 
         try {
-            dao.resetMessage(channelId, messageId);
+            dao.resetMessage(channelId, messageId, serverId);
         } finally {
             timer.log("resetMessage", System.currentTimeMillis() - startTime);
         }
@@ -447,22 +447,22 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status) {
+    public List<ConnectorMessage> getConnectorMessages(String channelId, String serverId, int metaDataId, Status status) {
         long startTime = System.currentTimeMillis();
 
         try {
-            return dao.getConnectorMessages(channelId, metaDataId, status);
+            return dao.getConnectorMessages(channelId, serverId, metaDataId, status);
         } finally {
             timer.log("getConnectorMessages", System.currentTimeMillis() - startTime);
         }
     }
 
     @Override
-    public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId) {
+    public List<ConnectorMessage> getConnectorMessages(String channelId, String serverId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId) {
         long startTime = System.currentTimeMillis();
 
         try {
-            return dao.getConnectorMessages(channelId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
+            return dao.getConnectorMessages(channelId, serverId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
         } finally {
             timer.log("getConnectorMessages", System.currentTimeMillis() - startTime);
         }
@@ -491,22 +491,22 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public int getConnectorMessageCount(String channelId, int metaDataId, Status status) {
+    public int getConnectorMessageCount(String channelId, String serverId, int metaDataId, Status status) {
         long startTime = System.currentTimeMillis();
 
         try {
-            return dao.getConnectorMessageCount(channelId, metaDataId, status);
+            return dao.getConnectorMessageCount(channelId, serverId, metaDataId, status);
         } finally {
             timer.log("getConnectorMessageCount", System.currentTimeMillis() - startTime);
         }
     }
 
     @Override
-    public long getConnectorMessageMaxMessageId(String channelId, int metaDataId, Status status) {
+    public long getConnectorMessageMaxMessageId(String channelId, String serverId, int metaDataId, Status status) {
         long startTime = System.currentTimeMillis();
 
         try {
-            return dao.getConnectorMessageMaxMessageId(channelId, metaDataId, status);
+            return dao.getConnectorMessageMaxMessageId(channelId, serverId, metaDataId, status);
         } finally {
             timer.log("getConnectorMessageCount", System.currentTimeMillis() - startTime);
         }

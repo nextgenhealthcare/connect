@@ -215,7 +215,7 @@ public class TestUtils {
         destinationConnector.setResponseTransformerExecutor(responseTransformerExecutor);
 
         ConnectorMessageQueue queue = new ConnectorMessageQueue();
-        queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 1, Status.QUEUED, false, Donkey.getInstance().getDaoFactory()));
+        queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, serverId, 1, Status.QUEUED, false, Donkey.getInstance().getDaoFactory()));
         destinationConnector.setQueue(queue);
 
         return channel;
@@ -261,7 +261,7 @@ public class TestUtils {
 
             for (int j = 0; j < destinationsPerChain; j++) {
                 ConnectorMessageQueue queue = new ConnectorMessageQueue();
-                queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, false, Donkey.getInstance().getDaoFactory()));
+                queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, serverId, metaDataId, Status.QUEUED, false, Donkey.getInstance().getDaoFactory()));
 
                 TestDestinationConnector testDestinationConnector = new TestDestinationConnector();
                 testDestinationConnector.setChannelId(channelId);

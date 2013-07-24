@@ -60,7 +60,7 @@ public interface DonkeyDao {
 
     public void markAsProcessed(String channelId, long messageId);
 
-    public void resetMessage(String channelId, long messageId);
+    public void resetMessage(String channelId, long messageId, String serverId);
 
     public void deleteMessage(String channelId, long messageId, boolean deleteStatistics);
 
@@ -92,17 +92,17 @@ public interface DonkeyDao {
 
     public long getNextMessageId(String channelId);
 
-    public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status);
+    public List<ConnectorMessage> getConnectorMessages(String channelId, String serverId, int metaDataId, Status status);
 
-    public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId);
+    public List<ConnectorMessage> getConnectorMessages(String channelId, String serverId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId);
 
     public List<ConnectorMessage> getConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds, boolean includeContent);
 
     public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId);
 
-    public int getConnectorMessageCount(String channelId, int metaDataId, Status status);
+    public int getConnectorMessageCount(String channelId, String serverId, int metaDataId, Status status);
 
-    public long getConnectorMessageMaxMessageId(String channelId, int metaDataId, Status status);
+    public long getConnectorMessageMaxMessageId(String channelId, String serverId, int metaDataId, Status status);
 
     public List<Message> getUnfinishedMessages(String channelId, String serverId);
 

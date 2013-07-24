@@ -1502,7 +1502,7 @@ public class DonkeyDaoTests {
             
             try {
                 dao = daoFactory.getDao();
-                databaseSourceMessages = dao.getConnectorMessages(channel.getChannelId(), 0, Status.RECEIVED);
+                databaseSourceMessages = dao.getConnectorMessages(channel.getChannelId(), channel.getServerId(), 0, Status.RECEIVED);
             } finally {
                 TestUtils.close(dao);
             }
@@ -1525,8 +1525,8 @@ public class DonkeyDaoTests {
             
             try {
                 dao = daoFactory.getDao();
-                databaseSourceMessages = dao.getConnectorMessages(channel.getChannelId(), 0, Status.TRANSFORMED);
-                databaseDestinationMessages = dao.getConnectorMessages(channel.getChannelId(), 1, Status.SENT);
+                databaseSourceMessages = dao.getConnectorMessages(channel.getChannelId(), channel.getServerId(), 0, Status.TRANSFORMED);
+                databaseDestinationMessages = dao.getConnectorMessages(channel.getChannelId(), channel.getServerId(), 1, Status.SENT);
             } finally {
                 TestUtils.close(dao);
             }
@@ -1550,7 +1550,7 @@ public class DonkeyDaoTests {
                 
                 try {
                     dao = daoFactory.getDao();
-                    databaseSourceMessages = dao.getConnectorMessages(channel.getChannelId(), 0, Status.RECEIVED, offset, limit, null, null);
+                    databaseSourceMessages = dao.getConnectorMessages(channel.getChannelId(), channel.getServerId(), 0, Status.RECEIVED, offset, limit, null, null);
                 } finally {
                     TestUtils.close(dao);
                 }
@@ -1577,8 +1577,8 @@ public class DonkeyDaoTests {
                 
                 try {
                     dao = daoFactory.getDao();
-                    databaseSourceMessages = dao.getConnectorMessages(channel.getChannelId(), 0, Status.TRANSFORMED, offset, limit, null, null);
-                    databaseDestinationMessages = dao.getConnectorMessages(channel.getChannelId(), 1, Status.SENT, offset, limit, null, null);
+                    databaseSourceMessages = dao.getConnectorMessages(channel.getChannelId(), channel.getServerId(), 0, Status.TRANSFORMED, offset, limit, null, null);
+                    databaseDestinationMessages = dao.getConnectorMessages(channel.getChannelId(), channel.getServerId(), 1, Status.SENT, offset, limit, null, null);
                 } finally {
                     TestUtils.close(dao);
                 }
@@ -1619,8 +1619,8 @@ public class DonkeyDaoTests {
                     dao = daoFactory.getDao();
                     
                     // Test selecting all source connector messages with a specific metadata ID and status
-                    assertEquals(i, dao.getConnectorMessageCount(channel.getChannelId(), 0, Status.TRANSFORMED));
-                    assertEquals(0, dao.getConnectorMessageCount(channel.getChannelId(), 0, Status.SENT));
+                    assertEquals(i, dao.getConnectorMessageCount(channel.getChannelId(), channel.getServerId(), 0, Status.TRANSFORMED));
+                    assertEquals(0, dao.getConnectorMessageCount(channel.getChannelId(), channel.getServerId(), 0, Status.SENT));
                 } finally {
                     TestUtils.close(dao);
                 }
@@ -1632,8 +1632,8 @@ public class DonkeyDaoTests {
                             dao = daoFactory.getDao();
                             
                             // Test selecting all destination connector messages with a specific metadata ID and status
-                            assertEquals(0, dao.getConnectorMessageCount(channel.getChannelId(), metaDataId, Status.TRANSFORMED));
-                            assertEquals(i, dao.getConnectorMessageCount(channel.getChannelId(), metaDataId, Status.SENT));
+                            assertEquals(0, dao.getConnectorMessageCount(channel.getChannelId(), channel.getServerId(), metaDataId, Status.TRANSFORMED));
+                            assertEquals(i, dao.getConnectorMessageCount(channel.getChannelId(), channel.getServerId(), metaDataId, Status.SENT));
                         } finally {
                             TestUtils.close(dao);
                         }

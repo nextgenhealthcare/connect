@@ -51,9 +51,9 @@ public class RecoveryTask implements Callable<List<Message>> {
 
                     if (storageSettings.isMessageRecoveryEnabled()) {
                         ThreadUtils.checkInterruptedStatus();
-                        List<ConnectorMessage> recoveredConnectorMessages = dao.getConnectorMessages(channel.getChannelId(), metaDataId, Status.RECEIVED);
+                        List<ConnectorMessage> recoveredConnectorMessages = dao.getConnectorMessages(channel.getChannelId(), channel.getServerId(), metaDataId, Status.RECEIVED);
                         ThreadUtils.checkInterruptedStatus();
-                        recoveredConnectorMessages.addAll(dao.getConnectorMessages(channel.getChannelId(), metaDataId, Status.PENDING));
+                        recoveredConnectorMessages.addAll(dao.getConnectorMessages(channel.getChannelId(), channel.getServerId(), metaDataId, Status.PENDING));
 
                         for (ConnectorMessage recoveredConnectorMessage : recoveredConnectorMessages) {
                             long messageId = recoveredConnectorMessage.getMessageId();

@@ -991,7 +991,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             metaDataIds.add(0);
             dao.deleteConnectorMessages(channelId, messageId, metaDataIds, true);
-            dao.resetMessage(channelId, messageId);
+            dao.resetMessage(channelId, messageId, serverId);
             receivedDate = Calendar.getInstance();
         } else {
             messageId = dao.getNextMessageId(channelId);
@@ -1618,7 +1618,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 }
 
                 // set the source queue data source
-                sourceQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, daoFactory));
+                sourceQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, serverId, 0, Status.RECEIVED, false, daoFactory));
 
                 // manually refresh the source queue size from it's data source
                 sourceQueue.updateSize();
@@ -1636,7 +1636,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                         destinationConnector.setStorageSettings(storageSettings);
 
                         // set the queue data source
-                        destinationConnector.getQueue().setDataSource(new ConnectorMessageQueueDataSource(getChannelId(), destinationConnector.getMetaDataId(), Status.QUEUED, destinationConnector.isQueueRotate(), daoFactory));
+                        destinationConnector.getQueue().setDataSource(new ConnectorMessageQueueDataSource(getChannelId(), getServerId(), destinationConnector.getMetaDataId(), Status.QUEUED, destinationConnector.isQueueRotate(), daoFactory));
 
                         // refresh the queue size from it's data source
                         destinationConnector.getQueue().updateSize();

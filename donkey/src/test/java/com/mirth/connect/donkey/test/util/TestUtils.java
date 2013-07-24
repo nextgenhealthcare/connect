@@ -188,7 +188,7 @@ public class TestUtils {
 
             for (int j = 1; j <= numDestinationsPerChain; j++) {
                 int metaDataId = (i - 1) * numDestinationsPerChain + j;
-                TestDestinationConnector destinationConnector = (TestDestinationConnector) TestUtils.createDestinationConnector(channel.getChannelId(), new TestConnectorProperties(), TestUtils.DEFAULT_DESTINATION_NAME, new TestDataType(), new TestDataType(), new TestResponseTransformer(), metaDataId);
+                TestDestinationConnector destinationConnector = (TestDestinationConnector) TestUtils.createDestinationConnector(channel.getChannelId(), channel.getServerId(), new TestConnectorProperties(), TestUtils.DEFAULT_DESTINATION_NAME, new TestDataType(), new TestDataType(), new TestResponseTransformer(), metaDataId);
                 destinationConnector.setChannelId(channelId);
                 chain.addDestination(metaDataId, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
             }
@@ -215,20 +215,20 @@ public class TestUtils {
     }
 
     public static DestinationConnector createDefaultDestinationConnector() {
-        return createDestinationConnector(DEFAULT_CHANNEL_ID, new TestConnectorProperties(), DEFAULT_DESTINATION_NAME, new TestDataType(), new TestDataType(), new TestResponseTransformer(), 1);
+        return createDestinationConnector(DEFAULT_CHANNEL_ID, DEFAULT_SERVER_ID, new TestConnectorProperties(), DEFAULT_DESTINATION_NAME, new TestDataType(), new TestDataType(), new TestResponseTransformer(), 1);
     }
 
-    public static DestinationConnector createDestinationConnector(String channelId, ConnectorProperties connectorProperties, String name, DataType inboundDataType, DataType outboundDataType, ResponseTransformer responseTransformer, Integer metaDataId) {
+    public static DestinationConnector createDestinationConnector(String channelId, String serverId, ConnectorProperties connectorProperties, String name, DataType inboundDataType, DataType outboundDataType, ResponseTransformer responseTransformer, Integer metaDataId) {
         DestinationConnector destinationConnector = new TestDestinationConnector();
-        initDestinationConnector(destinationConnector, channelId, connectorProperties, name, inboundDataType, outboundDataType, responseTransformer, metaDataId);
+        initDestinationConnector(destinationConnector, channelId, serverId, connectorProperties, name, inboundDataType, outboundDataType, responseTransformer, metaDataId);
         return destinationConnector;
     }
 
     public static void initDefaultDestinationConnector(DestinationConnector destinationConnector, ConnectorProperties connectorProperties) {
-        initDestinationConnector(destinationConnector, DEFAULT_CHANNEL_ID, connectorProperties, DEFAULT_DESTINATION_NAME, new TestDataType(), new TestDataType(), new TestResponseTransformer(), 1);
+        initDestinationConnector(destinationConnector, DEFAULT_CHANNEL_ID, DEFAULT_SERVER_ID, connectorProperties, DEFAULT_DESTINATION_NAME, new TestDataType(), new TestDataType(), new TestResponseTransformer(), 1);
     }
 
-    public static void initDestinationConnector(DestinationConnector destinationConnector, String channelId, ConnectorProperties connectorProperties, String name, DataType inboundDataType, DataType outboundDataType, ResponseTransformer responseTransformer, Integer metaDataId) {
+    public static void initDestinationConnector(DestinationConnector destinationConnector, String channelId, String serverId, ConnectorProperties connectorProperties, String name, DataType inboundDataType, DataType outboundDataType, ResponseTransformer responseTransformer, Integer metaDataId) {
         destinationConnector.setChannelId(channelId);
         destinationConnector.setConnectorProperties(connectorProperties);
         destinationConnector.setDestinationName(name);
@@ -238,7 +238,7 @@ public class TestUtils {
         destinationConnector.setMetaDataId(metaDataId);
 
         ConnectorMessageQueue destinationConnectorQueue = new ConnectorMessageQueue();
-        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, false, getDaoFactory()));
+        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, serverId, metaDataId, Status.QUEUED, false, getDaoFactory()));
         destinationConnector.setQueue(destinationConnectorQueue);
     }
 
