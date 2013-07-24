@@ -46,7 +46,7 @@ public class RawSerializer implements IXMLSerializer {
     }
 
     @Override
-    public Map<String, Object> getMetaDataForTree(String message) {
+    public Map<String, Object> getMetaDataFromMessage(String message) {
         return null;
     }
 

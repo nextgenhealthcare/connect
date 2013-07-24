@@ -67,7 +67,7 @@ public class HL7V3Serializer implements IXMLSerializer {
     }
 
     @Override
-    public Map<String, Object> getMetaDataForTree(String message) {
+    public Map<String, Object> getMetaDataFromMessage(String message) {
         Map<String, Object> map = new HashMap<String, Object>();
 
         // TODO: Update this to real version codes

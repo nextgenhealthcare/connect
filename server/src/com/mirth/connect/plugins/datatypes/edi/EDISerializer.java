@@ -127,7 +127,7 @@ public class EDISerializer implements IXMLSerializer {
     }
 
     @Override
-    public Map<String, Object> getMetaDataForTree(String message) {
+    public Map<String, Object> getMetaDataFromMessage(String message) {
         Map<String, Object> map = new HashMap<String, Object>();
         populateMetaData(message, map);
         return map;

@@ -214,7 +214,7 @@ public class DICOMSerializer implements IXMLSerializer {
     }
 
     @Override
-    public Map<String, Object> getMetaDataForTree(String message) {
+    public Map<String, Object> getMetaDataFromMessage(String message) {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put(DefaultMetaData.VERSION_VARIABLE_MAPPING, "");
         map.put(DefaultMetaData.TYPE_VARIABLE_MAPPING, "DICOM");

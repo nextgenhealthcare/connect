@@ -358,7 +358,7 @@ public class TreePanel extends javax.swing.JPanel {
                 case XML:
                     try {
                         serializer = clientPlugin.getSerializer(dataTypeProperties.getSerializerProperties());
-                        Map<String, Object> metadata = serializer.getMetaDataForTree(source);
+                        Map<String, Object> metadata = serializer.getMetaDataFromMessage(source);
 
                         if (metadata.get(DefaultMetaData.VERSION_VARIABLE_MAPPING) != null) {
                             version = ((String) metadata.get(DefaultMetaData.VERSION_VARIABLE_MAPPING)).trim();

@@ -14,5 +14,5 @@ import java.util.Map;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 
 public interface IXMLSerializer extends XmlSerializer {
-    public Map<String, Object> getMetaDataForTree(String message);
+    public Map<String, Object> getMetaDataFromMessage(String message);
 }
