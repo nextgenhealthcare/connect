@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
@@ -55,8 +57,8 @@ public class TcpDispatcher extends DestinationConnector {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-    private StateAwareSocket socket;
-    private Thread thread;
+    private Map<String, StateAwareSocket> connectedSockets;
+    private Map<String, Thread> timeoutThreads;
     private AtomicBoolean sending;
     private int sendTimeout;
 
@@ -88,6 +90,8 @@ public class TcpDispatcher extends DestinationConnector {
             throw new DeployException("Unable to find transmission mode plugin: " + pluginPointName);
         }
 
+        connectedSockets = new ConcurrentHashMap<String, StateAwareSocket>();
+        timeoutThreads = new ConcurrentHashMap<String, Thread>();
         sending = new AtomicBoolean(false);
         sendTimeout = parseInt(connectorProperties.getSendTimeout());
 
@@ -104,28 +108,35 @@ public class TcpDispatcher extends DestinationConnector {
 
     @Override
     public void onStop() throws StopException {
-        // Interrupt and join the connector thread
-        try {
-            disposeThread();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new StopException("Thread join operation interrupted (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
-        }
+        StopException firstCause = null;
 
         try {
             while (sending.get()) {
                 Thread.sleep(100);
             }
 
-            // Close the connector client socket
-            try {
-                closeSocket();
-            } catch (IOException e) {
-                throw new StopException("Error closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+            // Interrupt and join the connector timeout threads
+            for (String socketKey : timeoutThreads.keySet().toArray(new String[timeoutThreads.size()])) {
+                disposeThread(socketKey);
+            }
+
+            // Close the connector client sockets
+            for (String socketKey : connectedSockets.keySet().toArray(new String[connectedSockets.size()])) {
+                try {
+                    closeSocket(socketKey);
+                } catch (IOException e) {
+                    if (firstCause == null) {
+                        firstCause = new StopException("Error closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", firstCause);
+                    }
+                }
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new StopException("Error closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+            throw new StopException(e);
+        }
+
+        if (firstCause != null) {
+            throw new StopException("Error closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", firstCause);
         }
     }
 
@@ -133,20 +144,24 @@ public class TcpDispatcher extends DestinationConnector {
     public void onHalt() throws HaltException {
         HaltException firstCause = null;
 
-        // Interrupt and join the connector thread
-        try {
-            disposeThread();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            firstCause = new HaltException("Thread join operation interrupted (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+        // Interrupt and join the connector timeout threads
+        for (String socketKey : timeoutThreads.keySet().toArray(new String[timeoutThreads.size()])) {
+            try {
+                disposeThread(socketKey);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                firstCause = new HaltException("Thread join operation interrupted (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+            }
         }
 
-        // Close the connector client socket
-        try {
-            closeSocket();
-        } catch (IOException e) {
-            if (firstCause == null) {
-                firstCause = new HaltException("Error closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+        // Close the connector client sockets
+        for (String socketKey : connectedSockets.keySet().toArray(new String[connectedSockets.size()])) {
+            try {
+                closeSocket(socketKey);
+            } catch (IOException e) {
+                if (firstCause == null) {
+                    firstCause = new HaltException("Error closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+                }
             }
         }
 
@@ -164,17 +179,28 @@ public class TcpDispatcher extends DestinationConnector {
         String responseError = null;
         boolean validateResponse = false;
 
-        // If keep connection open is true, then interrupt the thread so it won't close the socket
-        if (tcpDispatcherProperties.isKeepConnectionOpen() && thread != null) {
-            thread.interrupt();
+        String socketKey = tcpDispatcherProperties.getRemoteAddress() + tcpDispatcherProperties.getRemotePort();
+        if (tcpDispatcherProperties.isOverrideLocalBinding()) {
+            socketKey += tcpDispatcherProperties.getLocalAddress() + tcpDispatcherProperties.getLocalPort();
         }
+
+        StateAwareSocket socket = null;
+        Thread timeoutThread = null;
 
         try {
             sending.set(true);
 
+            socket = connectedSockets.get(socketKey);
+            timeoutThread = timeoutThreads.get(socketKey);
+
+            // If keep connection open is true, then interrupt the thread so it won't close the socket
+            if (tcpDispatcherProperties.isKeepConnectionOpen() && timeoutThread != null) {
+                disposeThreadQuietly(socketKey);
+            }
+
             // Initialize a new socket if our current one is invalid, the remote side has closed, or keep connection open is false
             if (socket == null || socket.isClosed() || socket.remoteSideHasClosed() || !tcpDispatcherProperties.isKeepConnectionOpen()) {
-                closeSocketQuietly();
+                closeSocketQuietly(socketKey);
 
                 logger.debug("Creating new socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
                 String info = "Trying to connect on " + tcpDispatcherProperties.getRemoteAddress() + ":" + tcpDispatcherProperties.getRemotePort() + "...";
@@ -191,6 +217,8 @@ public class TcpDispatcher extends DestinationConnector {
                 socket.setSendBufferSize(parseInt(tcpDispatcherProperties.getBufferSize()));
                 socket.setSoTimeout(parseInt(tcpDispatcherProperties.getResponseTimeout()));
                 socket.setKeepAlive(tcpDispatcherProperties.isKeepConnectionOpen());
+
+                connectedSockets.put(socketKey, socket);
                 eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.CONNECTED, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), true));
             }
 
@@ -242,7 +270,7 @@ public class TcpDispatcher extends DestinationConnector {
                     eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), responseStatusMessage + ".", e));
                     eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.FAILURE, responseStatusMessage + " from " + SocketUtil.getInetAddress(socket)));
 
-                    closeSocketQuietly();
+                    closeSocketQuietly(socketKey);
                 }
             } else {
                 // We're ignoring the response, so always return a successful response
@@ -252,18 +280,19 @@ public class TcpDispatcher extends DestinationConnector {
             if (tcpDispatcherProperties.isKeepConnectionOpen()) {
                 if (sendTimeout > 0) {
                     // Close the connection after the send timeout has been reached
-                    startThread();
+                    startThread(socketKey);
                 }
             } else {
                 // If keep connection open is false, then close the socket right now
-                closeSocketQuietly();
+                closeSocketQuietly(socketKey);
             }
         } catch (Exception e) {
             String monitorMessage = "Error sending message (" + SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket) + "): " + e.getMessage() + (e.getMessage().endsWith(".") ? "" : ". ");
             eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.FAILURE, monitorMessage));
 
             // If an exception occurred then close the socket, even if keep connection open is true
-            closeSocketQuietly();
+            disposeThreadQuietly(socketKey);
+            closeSocketQuietly(socketKey);
             responseStatusMessage = e.getClass().getSimpleName() + ": " + e.getMessage();
             responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), e.getMessage(), e);
 
@@ -290,22 +319,26 @@ public class TcpDispatcher extends DestinationConnector {
         return response;
     }
 
-    private void closeSocketQuietly() {
+    private void closeSocketQuietly(String socketKey) {
         try {
-            closeSocket();
+            closeSocket(socketKey);
         } catch (IOException e) {
             logger.debug("Error closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
         }
     }
 
-    private void closeSocket() throws IOException {
-        boolean wasOpen = socket != null && !socket.isClosed();
-        try {
-            logger.trace("Closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
-            SocketUtil.closeSocket(socket);
-        } finally {
-            if (wasOpen) {
-                eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.DISCONNECTED, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), false));
+    private void closeSocket(String socketKey) throws IOException {
+        StateAwareSocket socket = connectedSockets.get(socketKey);
+        if (socket != null) {
+            boolean wasOpen = !socket.isClosed();
+            try {
+                logger.trace("Closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
+                SocketUtil.closeSocket(socket);
+            } finally {
+                connectedSockets.remove(socketKey);
+                if (wasOpen) {
+                    eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.DISCONNECTED, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), false));
+                }
             }
         }
     }
@@ -314,33 +347,38 @@ public class TcpDispatcher extends DestinationConnector {
      * Starts up the connector thread which closes the connection after the send
      * timeout has been reached.
      */
-    private void startThread() {
-        disposeThreadQuietly();
+    private void startThread(final String socketKey) {
+        disposeThreadQuietly(socketKey);
 
-        thread = new Thread() {
+        Thread thread = new Thread() {
             @Override
             public void run() {
                 try {
                     Thread.sleep(sendTimeout);
-                    closeSocketQuietly();
+                    closeSocketQuietly(socketKey);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
+                } finally {
+                    timeoutThreads.remove(socketKey);
                 }
             }
         };
 
+        timeoutThreads.put(socketKey, thread);
         thread.start();
     }
 
-    private void disposeThreadQuietly() {
+    private void disposeThreadQuietly(String socketKey) {
         try {
-            disposeThread();
+            disposeThread(socketKey);
         } catch (InterruptedException e) {
             logger.warn("Thread join operation interrupted (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
         }
     }
 
-    private void disposeThread() throws InterruptedException {
+    private void disposeThread(String socketKey) throws InterruptedException {
+        Thread thread = timeoutThreads.get(socketKey);
+
         if (thread != null && thread.isAlive()) {
             logger.trace("Interrupting thread (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
             thread.interrupt();
