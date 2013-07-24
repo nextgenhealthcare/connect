@@ -9,17 +9,8 @@
 	<!-- Donkey -->
 	<target name="build-donkey" depends="init">
 		<ant antfile="${donkey}/build.xml" dir="${donkey}" target="build" />
-	</target>
-	
-	<!-- WebAdmin -->
-	<target name="build-webadmin" depends="init">
-		<ant antfile="${webadmin}/build.xml" dir="${webadmin}" target="dist"/>
-		<copy file="${webadmin}/dist/webadmin.war" todir="${server.build}/webapps" />
-		<copy file="${webadmin}/dist/webadmin.war" todir="${server.setup}/webapps" />
-	</target>
-
-	<!-- Server extensions -->
-	<target name="build-server-extensions" depends="build-donkey">
+		
+		<delete dir="${server}/lib/donkey" />
 		<copy file="${donkey.setup}/donkey-model.jar" todir="${server}/lib/donkey" />
 		<copy file="${donkey.setup}/donkey-server.jar" todir="${server}/lib/donkey" />
 		<copy todir="${server}/lib/donkey">
@@ -30,7 +21,17 @@
 				<exclude name="database/**" />
 			</fileset>
 		</copy>
-		
+	</target>
+	
+	<!-- WebAdmin -->
+	<target name="build-webadmin" depends="init">
+		<ant antfile="${webadmin}/build.xml" dir="${webadmin}" target="dist"/>
+		<copy file="${webadmin}/dist/webadmin.war" todir="${server.build}/webapps" />
+		<copy file="${webadmin}/dist/webadmin.war" todir="${server.setup}/webapps" />
+	</target>
+	
+	<!-- Server extensions -->
+	<target name="build-server-extensions" depends="build-donkey">
 		<ant antfile="${server}/build.xml" dir="${server}" target="create-plugins" />
 
 		<!-- copy the shared extension jars to the client lib -->
