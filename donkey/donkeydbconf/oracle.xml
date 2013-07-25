@@ -13,6 +13,10 @@
 	    )
 	</query>
 	
+	<query id="createMessageTableIndex1">
+		CREATE INDEX d_m${localChannelId}_index1 ON d_m${localChannelId}(id, server_id)
+	</query>
+
 	<query id="createConnectorMessageTable">
 		CREATE TABLE d_mm${localChannelId} (
 	        id NUMBER(10) NOT NULL,
@@ -50,14 +54,6 @@
 	        CONSTRAINT mc${localChannelId}_pkey PRIMARY KEY(message_id, metadata_id, content_type),
 	        CONSTRAINT mc${localChannelId}_fkey FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE CASCADE
         )
-	</query>
-	
-	<query id="createMessageContentTableIndex1">
-		CREATE INDEX d_mc${localChannelId}_index1 ON d_mc${localChannelId}(message_id)
-	</query>
-	
-	<query id="createMessageContentTableIndex2">
-		CREATE INDEX d_mc${localChannelId}_index2 ON d_mc${localChannelId}(message_id, metadata_id)
 	</query>
 
 	<query id="createMessageCustomMetaDataTable">

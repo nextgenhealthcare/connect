@@ -17,6 +17,10 @@
 		CREATE INDEX d_m${localChannelId}_index1 ON d_m${localChannelId} USING BTREE (id)
 	</query>
 	
+	<query id="createMessageTableIndex2">
+		CREATE INDEX d_m${localChannelId}_index2 ON d_m${localChannelId} USING BTREE (id, server_id)
+	</query>
+	
 	<query id="createConnectorMessageTable">
 		CREATE TABLE d_mm${localChannelId} (
 	        id integer NOT NULL,
@@ -40,11 +44,7 @@
 	</query>
 	
 	<query id="createConnectorMessageTableIndex2">
-		CREATE INDEX d_mm${localChannelId}_index2 ON d_mm${localChannelId} USING BTREE (message_id, id)
-	</query>
-	
-	<query id="createConnectorMessageTableIndex3">
-		CREATE INDEX d_mm${localChannelId}_index3 ON d_mm${localChannelId} USING BTREE (message_id, id, status)
+		CREATE INDEX d_mm${localChannelId}_index2 ON d_mm${localChannelId} USING BTREE (message_id, id, status)
 	</query>
 	
 	<query id="createMessageContentTable">
@@ -61,15 +61,7 @@
 	</query>
 	
 	<query id="createMessageContentTableIndex1">
-		CREATE INDEX d_mc${localChannelId}_index1 ON d_mc${localChannelId} USING BTREE (message_id)
-	</query>
-	
-	<query id="createMessageContentTableIndex2">
-		CREATE INDEX d_mc${localChannelId}_index2 ON d_mc${localChannelId} USING BTREE (message_id, metadata_id)
-	</query>
-	
-	<query id="createMessageContentTableIndex3">
-		CREATE INDEX d_mc${localChannelId}_index3 ON d_mc${localChannelId} USING BTREE (message_id, metadata_id, content_type)
+		CREATE INDEX d_mc${localChannelId}_index1 ON d_mc${localChannelId} USING BTREE (message_id, metadata_id, content_type)
 	</query>
 	
 	<query id="createMessageCustomMetaDataTable">

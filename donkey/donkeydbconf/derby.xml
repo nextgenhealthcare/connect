@@ -18,7 +18,7 @@
 	</query>
 	
 	<query id="createMessageTableIndex2">
-		CREATE INDEX d_m${localChannelId}_index2 ON d_m${localChannelId}(id, received_date, processed)
+		CREATE INDEX d_m${localChannelId}_index2 ON d_m${localChannelId}(id, server_id)
 	</query>
 	
 	<query id="createConnectorMessageTable">
@@ -68,15 +68,7 @@
 	</query>
 	
 	<query id="createMessageContentTableIndex1">
-		CREATE INDEX d_mc${localChannelId}_index1 ON d_mc${localChannelId}(message_id)
-	</query>
-	
-	<query id="createMessageContentTableIndex2">
-		CREATE INDEX d_mc${localChannelId}_index2 ON d_mc${localChannelId}(message_id, metadata_id)
-	</query>
-	
-	<query id="createMessageContentTableIndex3">
-		CREATE INDEX d_mc${localChannelId}_index3 ON d_mc${localChannelId}(message_id, metadata_id, content_type)
+		CREATE INDEX d_mc${localChannelId}_index1 ON d_mc${localChannelId}(message_id, metadata_id, content_type)
 	</query>
 	
 	<query id="createMessageCustomMetaDataTable">
