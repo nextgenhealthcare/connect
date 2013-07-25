@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Encryptor;
-import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
@@ -116,7 +115,7 @@ public class DonkeyEngineController implements EngineController {
     @Override
     public void startEngine() throws StartException, StopException, ControllerException, InterruptedException {
         logger.debug("starting donkey engine");
-        
+
         Integer queueBufferSize = configurationController.getServerSettings().getQueueBufferSize();
         if (queueBufferSize != null) {
             this.queueBufferSize = queueBufferSize;
@@ -166,7 +165,7 @@ public class DonkeyEngineController implements EngineController {
 
         // Execute global deploy script before channel deploy script
         scriptController.executeGlobalDeployScript();
-        
+
         // Execute the overall channel plugin deploy hook
         for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
             channelPlugin.deploy(context);
@@ -235,7 +234,7 @@ public class DonkeyEngineController implements EngineController {
             throw e;
         }
     }
-    
+
     @Override
     public synchronized void undeployChannels(Set<String> channelIds, ServerEventContext context) throws InterruptedException {
         for (String channelId : channelIds) {
@@ -245,7 +244,7 @@ public class DonkeyEngineController implements EngineController {
                 logger.error("Error undeploying channel " + channelId + ".", e);
             }
         }
-        
+
         // Execute the overall channel plugin undeploy hook
         for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
             channelPlugin.undeploy(context);
@@ -276,12 +275,12 @@ public class DonkeyEngineController implements EngineController {
                 }
             }
         }
-        
+
         // Execute the individual channel plugin undeploy hook
         for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
             channelPlugin.undeploy(channelId, context);
         }
-        
+
         // Execute channel shutdown script
         try {
             scriptController.executeChannelShutdownScript(channelId);
@@ -471,7 +470,7 @@ public class DonkeyEngineController implements EngineController {
         StorageSettings storageSettings = getStorageSettings(channelProperties.getMessageStorageMode(), channelProperties);
 
         com.mirth.connect.donkey.server.channel.Channel channel = new com.mirth.connect.donkey.server.channel.Channel();
-        
+
         Map<String, String> destinationNameMap = new HashMap<String, String>();
 
         channel.setChannelId(channelId);
@@ -479,7 +478,7 @@ public class DonkeyEngineController implements EngineController {
         channel.setName(model.getName());
         channel.setEnabled(model.isEnabled());
         channel.setRevision(model.getRevision());
-        channel.setInitialState(channelProperties.isInitialStateStarted() ? ChannelState.STARTED : ChannelState.STOPPED);
+        channel.setInitialState(channelProperties.getInitialState());
         channel.setStorageSettings(storageSettings);
         channel.setMetaDataColumns(channelProperties.getMetaDataColumns());
         channel.setAttachmentHandler(createAttachmentHandler(channelId, channelProperties.getAttachmentProperties()));
@@ -517,10 +516,10 @@ public class DonkeyEngineController implements EngineController {
                     chain = createDestinationChain(channel);
                     channel.addDestinationChain(chain);
                 }
-                
+
                 Integer metaDataId = connector.getMetaDataId();
                 destinationNameMap.put(connector.getName(), "d" + String.valueOf(metaDataId));
-                
+
                 if (metaDataId == null) {
                     metaDataId = model.getNextMetaDataId();
                     model.setNextMetaDataId(metaDataId + 1);

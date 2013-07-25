@@ -11,6 +11,7 @@ package com.mirth.connect.donkey.server;
 
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -158,6 +159,10 @@ public class Donkey {
 
             if (channel.getInitialState() == ChannelState.STARTED) {
                 channel.start();
+            } else if (channel.getInitialState() == ChannelState.PAUSED) {
+                Set<Integer> connectorsToStart = new HashSet<Integer>(channel.getMetaDataIds());
+                connectorsToStart.remove(0);
+                channel.start(connectorsToStart);
             }
         } finally {
             channel.unlock();

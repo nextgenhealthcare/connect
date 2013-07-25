@@ -9,33 +9,13 @@
 
 package com.mirth.connect.donkey.model.channel;
 
+import org.apache.commons.lang.WordUtils;
+
 public enum ChannelState {
-    STARTING('T'), STARTED('S'), PAUSING('A'), PAUSED('P'), STOPPING('O'), STOPPED('D');
+    STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED;
 
-    private char state;
-
-    private ChannelState(char state) {
-        this.state = state;
-    }
-
-    public char getStatusCode() {
-        return state;
-    }
-
-    public static ChannelState fromChar(char state) {
-        if (state == 'T')
-            return STARTING;
-        if (state == 'S')
-            return STARTED;
-        if (state == 'A')
-            return PAUSING;
-        if (state == 'P')
-            return PAUSED;
-        if (state == 'O')
-            return STOPPING;
-        if (state == 'D')
-            return STOPPED;
-
-        return null;
+    @Override
+    public String toString() {
+        return WordUtils.capitalizeFully(super.toString());
     }
 }

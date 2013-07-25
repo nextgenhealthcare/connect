@@ -57,6 +57,7 @@ import com.mirth.connect.client.ui.editors.filter.FilterPane;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.util.VariableListUtil;
+import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
@@ -734,11 +735,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         sourceSourceDropdown.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
 
-        if (currentChannel.getProperties().isInitialStateStarted()) {
-            initialState.setSelectedItem("Started");
-        } else {
-            initialState.setSelectedItem("Stopped");
-        }
+        initialState.setSelectedItem(currentChannel.getProperties().getInitialState());
 
         attachmentStoreCheckBox.setSelected(currentChannel.getProperties().isStoreAttachments());
 
@@ -1010,7 +1007,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         currentChannel.getProperties().setClearGlobalChannelMap(clearGlobalChannelMapCheckBox.isSelected());
         currentChannel.getProperties().setEncryptData(encryptMessagesCheckBox.isSelected());
-        currentChannel.getProperties().setInitialStateStarted(((String) initialState.getSelectedItem()).equalsIgnoreCase("Started"));
+        currentChannel.getProperties().setInitialState((ChannelState) initialState.getSelectedItem());
         currentChannel.getProperties().setStoreAttachments(attachmentStoreCheckBox.isSelected());
 
         String validationMessage = checkAllForms(currentChannel);
@@ -1637,7 +1634,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
         });
 
-        initialState.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Started", "Stopped" }));
+        initialState.setModel(new javax.swing.DefaultComboBoxModel(new Object[] { ChannelState.STARTED, ChannelState.PAUSED, ChannelState.STOPPED }));
 
         attachmentLabel.setText("Attachment:");
 
