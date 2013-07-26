@@ -22,7 +22,7 @@ import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 public class JavaScriptAttachmentHandler extends AttachmentHandler {
 
     private String newMessage;
-    private List<Attachment> attachments;
+    private List<com.mirth.connect.server.userutil.Attachment> attachments;
     private int index;
 
     public JavaScriptAttachmentHandler() {
@@ -32,14 +32,14 @@ public class JavaScriptAttachmentHandler extends AttachmentHandler {
     @Override
     public void initialize(String message, Channel channel) throws AttachmentException {
         index = 0;
-        attachments = new ArrayList<Attachment>();
+        attachments = new ArrayList<com.mirth.connect.server.userutil.Attachment>();
         try {
             newMessage = JavaScriptUtil.executeAttachmentScript(message, channel.getChannelId(), attachments);
         } catch (Throwable t) {
             throw new AttachmentException(t);
         }
     }
-    
+
     @Override
     public void initialize(byte[] bytes, Channel channel) throws AttachmentException {
         throw new AttachmentException("Binary data not supported for Javascript attachment handler");
@@ -48,7 +48,8 @@ public class JavaScriptAttachmentHandler extends AttachmentHandler {
     @Override
     public Attachment nextAttachment() {
         if (index < attachments.size()) {
-            return attachments.get(index++);
+            com.mirth.connect.server.userutil.Attachment attachment = attachments.get(index++);
+            return new Attachment(attachment.getId(), attachment.getContent(), attachment.getType());
         }
 
         return null;
@@ -57,10 +58,10 @@ public class JavaScriptAttachmentHandler extends AttachmentHandler {
     @Override
     public String shutdown() {
         String finalMessage = newMessage;
-        
+
         newMessage = null;
         attachments = null;
-        
+
         return finalMessage;
     }
 
@@ -68,7 +69,5 @@ public class JavaScriptAttachmentHandler extends AttachmentHandler {
     public void setProperties(AttachmentHandlerProperties attachmentProperties) {
 
     }
-
-    
 
 }

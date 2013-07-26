@@ -34,7 +34,6 @@ import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
@@ -44,6 +43,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ScriptCompileException;
 import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.userutil.Attachment;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.UUIDGenerator;
 

@@ -358,21 +358,19 @@ public class JavaScriptBuilder {
     private static void appendAttachmentFunctions(StringBuilder builder, Set<String> scriptOptions) {
         // Helper function to access attachments (returns List<Attachment>)
         builder.append("function getAttachments() {");
-        builder.append("return Packages.com.mirth.connect.server.controllers.MessageController.getInstance().getMessageAttachment(connectorMessage.getChannelId(), connectorMessage.getMessageId());");
+        builder.append("return AttachmentUtil.getMessageAttachments(connectorMessage);");
         builder.append("}\n");
 
         // Helper function to set attachment
         if (scriptOptions != null && scriptOptions.contains("useAttachmentList")) {
 
-            builder.append("function addAttachment(data, type) {");
-            builder.append("var attachment = Packages.com.mirth.connect.donkey.server.controllers.MessageController.getInstance().createAttachment(data, type);");
-            builder.append("attachments.add(attachment); \n");
-            builder.append("return attachment; }\n");
+            builder.append("function addAttachment(data, type) {\n");
+            builder.append("return AttachmentUtil.addAttachment(mirth_attachments, data, type);\n");
+            builder.append("}\n");
         } else {
-            builder.append("function addAttachment(data, type) {");
-            builder.append("var attachment = Packages.com.mirth.connect.donkey.server.controllers.MessageController.getInstance().createAttachment(data, type);");
-            builder.append("Packages.com.mirth.connect.donkey.server.controllers.MessageController.getInstance().insertAttachment(attachment, channelId, connectorMessage.getMessageId())\n");
-            builder.append("return attachment; }\n");
+            builder.append("function addAttachment(data, type) {\n");
+            builder.append("return AttachmentUtil.createAttachment(connectorMessage, data, type);\n");
+            builder.append("}\n");
         }
     }
 

@@ -31,8 +31,8 @@ import com.mirth.connect.donkey.model.message.ImmutableResponse;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.server.userutil.AlertSender;
+import com.mirth.connect.server.userutil.Attachment;
 import com.mirth.connect.server.userutil.MessageObject;
 import com.mirth.connect.server.userutil.VMRouter;
 import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
@@ -209,7 +209,7 @@ public class JavaScriptScopeUtil {
         Context context = getContext();
         Scriptable scope = getBasicScope(context, logger, channelId);
         addRawMessage(scope, message);
-        scope.put("attachments", scope, attachments);
+        scope.put("mirth_attachments", scope, attachments);
         return scope;
     }
 
