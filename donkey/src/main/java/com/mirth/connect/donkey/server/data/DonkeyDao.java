@@ -60,7 +60,7 @@ public interface DonkeyDao {
 
     public void markAsProcessed(String channelId, long messageId);
 
-    public void resetMessage(String channelId, long messageId, String serverId);
+    public void resetMessage(String channelId, long messageId);
 
     public void deleteMessage(String channelId, long messageId, boolean deleteStatistics);
 
@@ -108,9 +108,9 @@ public interface DonkeyDao {
 
     public List<MetaDataColumn> getMetaDataColumns(String channelId);
 
-    public Statistics getChannelStatistics();
+    public Statistics getChannelStatistics(String serverId);
 
-    public Statistics getChannelTotalStatistics();
+    public Statistics getChannelTotalStatistics(String serverId);
 
     public void commit();
 

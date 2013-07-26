@@ -991,7 +991,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             metaDataIds.add(0);
             dao.deleteConnectorMessages(channelId, messageId, metaDataIds, true);
-            dao.resetMessage(channelId, messageId, serverId);
+            dao.resetMessage(channelId, messageId);
             receivedDate = Calendar.getInstance();
         } else {
             messageId = dao.getNextMessageId(channelId);

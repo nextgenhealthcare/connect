@@ -18,12 +18,14 @@ public class DonkeyConfiguration {
     private Properties databaseProperties;
     private Encryptor encryptor;
     private EventDispatcher eventDispatcher;
+    private String serverId;
 
-    public DonkeyConfiguration(String appData, Properties databaseProperties, Encryptor encryptor, EventDispatcher eventDispatcher) {
+    public DonkeyConfiguration(String appData, Properties databaseProperties, Encryptor encryptor, EventDispatcher eventDispatcher, String serverId) {
         this.appData = appData;
         this.databaseProperties = databaseProperties;
         this.encryptor = encryptor;
         this.eventDispatcher = eventDispatcher;
+        this.serverId = serverId;
     }
 
     public String getAppData() {
@@ -56,5 +58,13 @@ public class DonkeyConfiguration {
 
     public void setEventDispatcher(EventDispatcher eventDispatcher) {
         this.eventDispatcher = eventDispatcher;
+    }
+
+    public String getServerId() {
+        return serverId;
+    }
+
+    public void setServerId(String serverId) {
+        this.serverId = serverId;
     }
 }

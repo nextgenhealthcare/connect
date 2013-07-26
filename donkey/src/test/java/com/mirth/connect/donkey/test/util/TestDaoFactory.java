@@ -93,6 +93,6 @@ public class TestDaoFactory extends JdbcDaoFactory {
             }
         }
 
-        return new TestDao(connection, getQuerySource(), statementSource, getSerializer(), errorPct, hangPct, hangMillis);
+        return new TestDao(connection, getQuerySource(), statementSource, getSerializer(), getStatsServerId(), errorPct, hangPct, hangMillis);
     }
 }

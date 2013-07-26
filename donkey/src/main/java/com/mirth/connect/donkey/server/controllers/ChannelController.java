@@ -48,12 +48,12 @@ public class ChannelController {
         }
     }
 
-    public void loadStatistics() {
+    public void loadStatistics(String serverId) {
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 
         try {
-            currentStats = dao.getChannelStatistics();
-            totalStats = dao.getChannelTotalStatistics();
+            currentStats = dao.getChannelStatistics(serverId);
+            totalStats = dao.getChannelTotalStatistics(serverId);
         } finally {
             dao.close();
         }

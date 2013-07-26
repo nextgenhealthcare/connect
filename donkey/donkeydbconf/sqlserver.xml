@@ -108,6 +108,7 @@
 	<query id="createMessageStatisticsTable">
 		CREATE TABLE d_ms${localChannelId} (
 	        metadata_id INTEGER,
+	        server_id NVARCHAR(36) NOT NULL,
 	        received BIGINT DEFAULT 0 NOT NULL,
 	        received_lifetime BIGINT DEFAULT 0 NOT NULL,
 	        filtered BIGINT DEFAULT 0 NOT NULL,
@@ -124,7 +125,7 @@
 	</query>
 	
 	<query id="createMessageStatisticsTableIndex1">
-		CREATE INDEX d_ms${localChannelId}_index1 ON d_ms${localChannelId}(metadata_id)
+		CREATE INDEX d_ms${localChannelId}_index1 ON d_ms${localChannelId}(metadata_id, server_id)
 	</query>
 	
 	<query id="createMessageSequence">

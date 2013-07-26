@@ -71,17 +71,19 @@ public class JdbcDao implements DonkeyDao {
     private List<String> removedChannelIds = new ArrayList<String>();
     private String asyncCommitCommand;
     private Map<String, Long> localChannelIds;
+    private String statsServerId;
     private boolean transactionAlteredChannels = false;
     private char quoteChar = '"';
     private Logger logger = Logger.getLogger(this.getClass());
 
-    protected JdbcDao(Connection connection, QuerySource querySource, PreparedStatementSource statementSource, Serializer serializer, boolean encryptData, boolean decryptData) {
+    protected JdbcDao(Connection connection, QuerySource querySource, PreparedStatementSource statementSource, Serializer serializer, boolean encryptData, boolean decryptData, String statsServerId) {
         this.connection = connection;
         this.querySource = querySource;
         this.statementSource = statementSource;
         this.serializer = serializer;
         this.encryptData = encryptData;
         this.decryptData = decryptData;
+        this.statsServerId = statsServerId;
 
         ChannelController channelController = ChannelController.getInstance();
         currentStats = channelController.getStatistics();
@@ -322,6 +324,9 @@ public class JdbcDao implements DonkeyDao {
 
                     if (metaDataId != null) {
                         statement.setInt(13, metaDataId);
+                        statement.setString(14, statsServerId);
+                    } else {
+                        statement.setString(13, statsServerId);
                     }
 
                     if (statement.executeUpdate() == 0) {
@@ -333,18 +338,19 @@ public class JdbcDao implements DonkeyDao {
                             statement.setInt(1, metaDataId);
                         }
 
-                        statement.setLong(2, connectorStats.get(Status.RECEIVED));
+                        statement.setString(2, statsServerId);
                         statement.setLong(3, connectorStats.get(Status.RECEIVED));
-                        statement.setLong(4, connectorStats.get(Status.FILTERED));
+                        statement.setLong(4, connectorStats.get(Status.RECEIVED));
                         statement.setLong(5, connectorStats.get(Status.FILTERED));
-                        statement.setLong(6, connectorStats.get(Status.TRANSFORMED));
+                        statement.setLong(6, connectorStats.get(Status.FILTERED));
                         statement.setLong(7, connectorStats.get(Status.TRANSFORMED));
-                        statement.setLong(8, connectorStats.get(Status.PENDING));
+                        statement.setLong(8, connectorStats.get(Status.TRANSFORMED));
                         statement.setLong(9, connectorStats.get(Status.PENDING));
-                        statement.setLong(10, connectorStats.get(Status.SENT));
+                        statement.setLong(10, connectorStats.get(Status.PENDING));
                         statement.setLong(11, connectorStats.get(Status.SENT));
-                        statement.setLong(12, connectorStats.get(Status.ERROR));
+                        statement.setLong(12, connectorStats.get(Status.SENT));
                         statement.setLong(13, connectorStats.get(Status.ERROR));
+                        statement.setLong(14, connectorStats.get(Status.ERROR));
                         statement.executeUpdate();
                     }
                 }
@@ -723,12 +729,12 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
-    public void resetMessage(String channelId, long messageId, String serverId) {
+    public void resetMessage(String channelId, long messageId) {
         logger.debug(channelId + "/" + messageId + ": resetting message");
 
         try {
             PreparedStatement statement = prepareStatement("resetMessage", channelId);
-            statement.setString(1, serverId);
+            statement.setString(1, statsServerId);
             statement.setLong(2, messageId);
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -1427,9 +1433,10 @@ public class JdbcDao implements DonkeyDao {
 
             String queryName = (metaDataId == null) ? "resetChannelStatistics" : "resetConnectorStatistics";
             statement = connection.prepareStatement(querySource.getQuery(queryName, values));
-
+            statement.setString(1, statsServerId);
+            
             if (metaDataId != null) {
-                statement.setInt(1, metaDataId);
+                statement.setInt(2, metaDataId);
             }
 
             statement.executeUpdate();
@@ -1461,6 +1468,7 @@ public class JdbcDao implements DonkeyDao {
             values.put("localChannelId", getLocalChannelId(channelId));
 
             statement = connection.prepareStatement(querySource.getQuery("resetAllStatistics", values));
+            statement.setString(1, statsServerId);
             statement.executeUpdate();
             
             Set<Status> statuses = new HashSet<Status>(Arrays.asList(Status.values()));
@@ -1494,16 +1502,16 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
-    public Statistics getChannelStatistics() {
-        return getChannelStatistics(false);
+    public Statistics getChannelStatistics(String serverId) {
+        return getChannelStatistics(serverId, false);
     }
 
     @Override
-    public Statistics getChannelTotalStatistics() {
-        return getChannelStatistics(true);
+    public Statistics getChannelTotalStatistics(String serverId) {
+        return getChannelStatistics(serverId, true);
     }
 
-    private Statistics getChannelStatistics(boolean total) {
+    private Statistics getChannelStatistics(String serverId, boolean total) {
         Map<String, Long> channelIds = getLocalChannelIds();
         String queryId = (total) ? "getChannelTotalStatistics" : "getChannelStatistics";
         Statistics statistics = new Statistics(!total);
@@ -1512,6 +1520,7 @@ public class JdbcDao implements DonkeyDao {
         for (String channelId : channelIds.keySet()) {
             try {
                 PreparedStatement statement = prepareStatement(queryId, channelId);
+                statement.setString(1, serverId);
                 resultSet = statement.executeQuery();
 
                 while (resultSet.next()) {

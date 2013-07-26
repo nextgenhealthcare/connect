@@ -108,7 +108,7 @@ public class BufferedDao implements DonkeyDao {
                     case UPDATE_MAPS: dao.updateMaps((ConnectorMessage) p[0]); break;
                     case UPDATE_RESPONSE_MAP: dao.updateResponseMap((ConnectorMessage) p[0]); break;
                     case MARK_AS_PROCESSED: dao.markAsProcessed((String) p[0], (Long) p[1]); break;
-                    case RESET_MESSAGE: dao.resetMessage((String) p[0], (Long) p[1], (String) p[2]); break;
+                    case RESET_MESSAGE: dao.resetMessage((String) p[0], (Long) p[1]); break;
                     case DELETE_MESSAGE: dao.deleteMessage((String) p[0], (Long) p[1], (Boolean) p[2]); break;
                     case DELETE_CONNECTOR_MESSAGES: dao.deleteConnectorMessages((String) p[0], (Long) p[1], (List<Integer>) p[2], (Boolean) p[3]); break;
                     case DELETE_ALL_MESSAGES: dao.deleteAllMessages((String) p[0]); break;
@@ -231,8 +231,8 @@ public class BufferedDao implements DonkeyDao {
     }
 
     @Override
-    public void resetMessage(String channelId, long messageId, String serverId) {
-        tasks.add(new DaoTask(DaoTaskType.RESET_MESSAGE, new Object[] { channelId, messageId, serverId }));
+    public void resetMessage(String channelId, long messageId) {
+        tasks.add(new DaoTask(DaoTaskType.RESET_MESSAGE, new Object[] { channelId, messageId }));
     }
 
     @Override
@@ -453,22 +453,22 @@ public class BufferedDao implements DonkeyDao {
     }
 
     @Override
-    public Statistics getChannelStatistics() {
+    public Statistics getChannelStatistics(String serverId) {
         DonkeyDao dao = getDelegateDao();
 
         try {
-            return dao.getChannelStatistics();
+            return dao.getChannelStatistics(serverId);
         } finally {
             dao.close();
         }
     }
 
     @Override
-    public Statistics getChannelTotalStatistics() {
+    public Statistics getChannelTotalStatistics(String serverId) {
         DonkeyDao dao = getDelegateDao();
 
         try {
-            return dao.getChannelTotalStatistics();
+            return dao.getChannelTotalStatistics(serverId);
         } finally {
             dao.close();
         }

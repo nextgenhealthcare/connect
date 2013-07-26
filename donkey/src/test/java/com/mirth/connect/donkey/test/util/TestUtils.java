@@ -1237,7 +1237,7 @@ public class TestUtils {
             return new DonkeyConfiguration(new File(".").getAbsolutePath(), databaseProperties, null, new EventDispatcher() {
                 @Override
                 public void dispatchEvent(Event event) {}
-            });
+            }, "testserverid");
         } catch (Exception e) {
             throw new DonkeyDaoException("Failed to read configuration file", e);
         }

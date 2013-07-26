@@ -204,7 +204,7 @@ public class PassthruDao implements DonkeyDao {
     public void markAsProcessed(String channelId, long messageId) {}
 
     @Override
-    public void resetMessage(String channelId, long messageId, String serverId) {}
+    public void resetMessage(String channelId, long messageId) {}
 
     @Override
     public void createChannel(String channelId, long localChannelId) {}
@@ -302,12 +302,12 @@ public class PassthruDao implements DonkeyDao {
     public void executeBatchInsertMessageContent(String channelId) {}
 
     @Override
-    public Statistics getChannelStatistics() {
+    public Statistics getChannelStatistics(String serverId) {
         return new Statistics(false);
     }
 
     @Override
-    public Statistics getChannelTotalStatistics() {
+    public Statistics getChannelTotalStatistics(String serverId) {
         return new Statistics(false);
     }
 

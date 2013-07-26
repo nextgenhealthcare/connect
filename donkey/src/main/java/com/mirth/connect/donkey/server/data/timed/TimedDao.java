@@ -249,11 +249,11 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public void resetMessage(String channelId, long messageId, String serverId) {
+    public void resetMessage(String channelId, long messageId) {
         long startTime = System.currentTimeMillis();
 
         try {
-            dao.resetMessage(channelId, messageId, serverId);
+            dao.resetMessage(channelId, messageId);
         } finally {
             timer.log("resetMessage", System.currentTimeMillis() - startTime);
         }
@@ -535,22 +535,22 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public Statistics getChannelStatistics() {
+    public Statistics getChannelStatistics(String serverId) {
         long startTime = System.currentTimeMillis();
 
         try {
-            return dao.getChannelStatistics();
+            return dao.getChannelStatistics(serverId);
         } finally {
             timer.log("getChannelStatistics", System.currentTimeMillis() - startTime);
         }
     }
 
     @Override
-    public Statistics getChannelTotalStatistics() {
+    public Statistics getChannelTotalStatistics(String serverId) {
         long startTime = System.currentTimeMillis();
 
         try {
-            return dao.getChannelTotalStatistics();
+            return dao.getChannelTotalStatistics(serverId);
         } finally {
             timer.log("getChannelTotalStatistics", System.currentTimeMillis() - startTime);
         }

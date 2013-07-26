@@ -142,8 +142,8 @@ public class DonkeyEngineController implements EngineController {
                 eventController.dispatchEvent(event);
             }
         };
-
-        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), donkeyEncryptor, eventDispatcher));
+        
+        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), donkeyEncryptor, eventDispatcher, configurationController.getServerId()));
     }
 
     @Override

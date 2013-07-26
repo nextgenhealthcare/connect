@@ -41,6 +41,7 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
         return new JdbcDaoFactory();
     }
 
+    private String statsServerId;
     private ConnectionPool connectionPool;
     private QuerySource querySource;
     private Serializer serializer;
@@ -50,6 +51,14 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
     private Logger logger = Logger.getLogger(getClass());
 
     protected JdbcDaoFactory() {}
+
+    public String getStatsServerId() {
+        return statsServerId;
+    }
+
+    public void setStatsServerId(String serverId) {
+        statsServerId = serverId;
+    }
 
     public ConnectionPool getConnectionPool() {
         return connectionPool;
@@ -126,6 +135,6 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
             }
         }
 
-        return new JdbcDao(connection, querySource, statementSource, serializer, encryptData, decryptData);
+        return new JdbcDao(connection, querySource, statementSource, serializer, encryptData, decryptData, statsServerId);
     }
 }

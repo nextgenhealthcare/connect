@@ -104,6 +104,7 @@
 	<query id="createMessageStatisticsTable">
 		CREATE TABLE d_ms${localChannelId} (
 	        metadata_id integer,
+	        server_id character varying(36) NOT NULL,
 	        received bigint NOT NULL DEFAULT 0,
 	        received_lifetime bigint NOT NULL DEFAULT 0,
 	        filtered bigint NOT NULL DEFAULT 0,
@@ -120,7 +121,7 @@
 	</query>
 	
 	<query id="createMessageStatisticsTableIndex1">
-		CREATE INDEX d_ms${localChannelId}_index1 ON d_ms${localChannelId} USING BTREE (metadata_id)
+		CREATE INDEX d_ms${localChannelId}_index1 ON d_ms${localChannelId} USING BTREE (metadata_id, server_id)
 	</query>
 	
 	<query id="createMessageSequence">

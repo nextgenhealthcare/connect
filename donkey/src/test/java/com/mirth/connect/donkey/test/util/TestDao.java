@@ -25,8 +25,8 @@ public class TestDao extends JdbcDao {
     private int hangPct = 0;
     private int hangMillis = 0;
 
-    public TestDao(Connection connection, QuerySource querySource, PreparedStatementSource statementSource, Serializer serializer, int errorPct, int hangPct, int hangMillis) {
-        super(connection, querySource, statementSource, serializer, false, true);
+    public TestDao(Connection connection, QuerySource querySource, PreparedStatementSource statementSource, Serializer serializer, String statsServerId, int errorPct, int hangPct, int hangMillis) {
+        super(connection, querySource, statementSource, serializer, false, true, statsServerId);
         this.errorPct = errorPct;
         this.hangPct = hangPct;
         this.hangMillis = hangMillis;

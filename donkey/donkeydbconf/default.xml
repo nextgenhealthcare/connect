@@ -122,16 +122,18 @@
 	<query id="getChannelStatistics">
 		SELECT metadata_id, received, filtered, transformed, pending, sent, error
 		FROM d_ms${localChannelId}
+		WHERE server_id = ?
 	</query>
 	
 	<query id="getChannelTotalStatistics">
 		SELECT metadata_id, received_lifetime AS received, filtered_lifetime AS filtered, transformed_lifetime AS transformed, pending_lifetime AS pending, sent_lifetime AS sent, error_lifetime AS error
 		FROM d_ms${localChannelId}
+		WHERE server_id = ?
 	</query>
 	
 	<query id="insertChannelStatistics">
-		INSERT INTO d_ms${localChannelId} (metadata_id, received, received_lifetime, filtered, filtered_lifetime, transformed, transformed_lifetime, pending, pending_lifetime, sent, sent_lifetime, error, error_lifetime)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO d_ms${localChannelId} (metadata_id, server_id, received, received_lifetime, filtered, filtered_lifetime, transformed, transformed_lifetime, pending, pending_lifetime, sent, sent_lifetime, error, error_lifetime)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</query>
 	
 	<query id="updateChannelStatistics">
@@ -150,6 +152,7 @@
 			error_lifetime = error_lifetime + ?
 		
 		WHERE metadata_id IS NULL
+		AND server_id = ?
 	</query>
 	
 	<query id="updateConnectorStatistics">
@@ -168,18 +171,19 @@
 			error_lifetime = error_lifetime + ?
 		
 		WHERE metadata_id = ?
+		AND server_id = ?
 	</query>
 	
 	<query id="resetConnectorStatistics">
 		UPDATE d_ms${localChannelId}
 		SET ${statuses}
-		WHERE metadata_id = ?
+		WHERE server_id = ? AND metadata_id = ?
 	</query>
 	
 	<query id="resetChannelStatistics">
 		UPDATE d_ms${localChannelId}
 		SET ${statuses}
-		WHERE metadata_id IS NULL
+		WHERE server_id = ? AND metadata_id IS NULL
 	</query>
 	
 	<query id="resetAllStatistics">
@@ -196,6 +200,8 @@
 			sent_lifetime = 0,
 			error = 0,
 			error_lifetime = 0
+
+		WHERE server_id = ?
 	</query>
 	
 	<query id="deleteTestData">

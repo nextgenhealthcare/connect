@@ -31,6 +31,7 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.controllers.ConfigurationController;
 
 public class ChannelStatisticsServlet extends MirthServlet {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -62,7 +63,7 @@ public class ChannelStatisticsServlet extends MirthServlet {
 
                         ChannelStatistics channelStatistics = new ChannelStatistics();
                         channelStatistics.setChannelId(channelId);
-                        channelStatistics.setServerId("hardCodedServer");
+                        channelStatistics.setServerId(ConfigurationController.getInstance().getServerId());
                         channelStatistics.setAlerted(0L);
                         channelStatistics.setError(map.get(Status.ERROR));
                         channelStatistics.setFiltered(map.get(Status.FILTERED));

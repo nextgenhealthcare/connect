@@ -70,7 +70,7 @@ public class Donkey {
         initDaoFactory();
 
         // load channel statistics into memory
-        ChannelController.getInstance().loadStatistics();
+        ChannelController.getInstance().loadStatistics(donkeyConfiguration.getServerId());
 
         encryptor = donkeyConfiguration.getEncryptor();
 
@@ -103,6 +103,7 @@ public class Donkey {
         }
 
         JdbcDaoFactory jdbcDaoFactory = JdbcDaoFactory.getInstance(database);
+        jdbcDaoFactory.setStatsServerId(donkeyConfiguration.getServerId());
         jdbcDaoFactory.setConnectionPool(new DBCPConnectionPool(url, username, password, maxConnections));
         jdbcDaoFactory.setSerializer(serializer);
 
