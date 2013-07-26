@@ -72,9 +72,7 @@ public class JavaScriptScopeUtil {
     // Retrieves the Context for the current Thread; only initializes the shared scope if necessary
     public static Context getContext() {
         initialize();
-        Context context = Context.getCurrentContext();
-        if (context == null)
-            context = Context.enter();
+        Context context = ContextFactory.getGlobal().enterContext();
         context.setOptimizationLevel(rhinoOptimizationLevel);
 
         if (sealedSharedScope == null) {
