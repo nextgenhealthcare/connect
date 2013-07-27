@@ -98,7 +98,7 @@ public class QueueTests {
 
         for (int i = 0; i < testSize; i++) {
             ConnectorMessage connectorMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, serverId, daoFactory).getConnectorMessages().get(0);
-            queue.put(connectorMessage);
+            queue.add(connectorMessage);
         }
 
         assertEquals(initialSize + testSize, queue.size());
@@ -506,7 +506,7 @@ public class QueueTests {
             synchronized (destinationConnector.getQueue()) {
                 Message message = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, serverId, daoFactory);
                 ConnectorMessage destinationMessage = TestUtils.createAndStoreDestinationConnectorMessage(daoFactory, channelId, serverId, message.getMessageId(), destinationConnector.getMetaDataId(), testMessage, Status.QUEUED);
-                destinationConnector.getQueue().put(destinationMessage);
+                destinationConnector.getQueue().add(destinationMessage);
             }
         }
 

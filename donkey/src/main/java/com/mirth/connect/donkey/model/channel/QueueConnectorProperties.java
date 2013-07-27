@@ -20,6 +20,7 @@ public class QueueConnectorProperties implements Serializable, Migratable {
     private boolean regenerateTemplate;
     private int retryCount;
     private boolean rotate;
+    private int threadCount;
 
     public QueueConnectorProperties() {
         queueEnabled = false;
@@ -28,6 +29,7 @@ public class QueueConnectorProperties implements Serializable, Migratable {
         regenerateTemplate = false;
         retryCount = 0;
         rotate = false;
+        threadCount = 1;
     }
     
     public QueueConnectorProperties(QueueConnectorProperties props) {
@@ -37,6 +39,7 @@ public class QueueConnectorProperties implements Serializable, Migratable {
         regenerateTemplate = props.isRegenerateTemplate();
         retryCount = props.getRetryCount();
         rotate = props.isRotate();
+        threadCount = props.getThreadCount();
     }
 
     public boolean isQueueEnabled() {
@@ -85,5 +88,13 @@ public class QueueConnectorProperties implements Serializable, Migratable {
 
     public void setRotate(boolean rotate) {
         this.rotate = rotate;
+    }
+
+    public int getThreadCount() {
+        return threadCount;
+    }
+
+    public void setThreadCount(int threadCount) {
+        this.threadCount = threadCount;
     }
 }

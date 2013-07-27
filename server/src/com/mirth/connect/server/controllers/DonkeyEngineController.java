@@ -812,6 +812,7 @@ public class DonkeyEngineController implements EngineController {
 
         ConnectorMessageQueue queue = new ConnectorMessageQueue();
         queue.setBufferCapacity(queueBufferSize);
+        queue.setRotate(destinationConnector.isQueueRotate());
         destinationConnector.setQueue(queue);
 
         return destinationConnector;

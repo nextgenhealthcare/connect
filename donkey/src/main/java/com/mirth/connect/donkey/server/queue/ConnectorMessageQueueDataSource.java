@@ -9,14 +9,16 @@
 
 package com.mirth.connect.donkey.server.queue;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 
-public class ConnectorMessageQueueDataSource implements PersistedBlockingQueueDataSource<ConnectorMessage> {
+public class ConnectorMessageQueueDataSource {
     private DonkeyDaoFactory daoFactory;
     private String channelId;
     private String serverId;
@@ -25,6 +27,7 @@ public class ConnectorMessageQueueDataSource implements PersistedBlockingQueueDa
     private boolean rotate;
     private Long maxMessageId = null;
     private Long minMessageId = null;
+    private Long rotatedMessageId = null;
 
     public ConnectorMessageQueueDataSource(String channelId, String serverId, int metaDataId, Status status, boolean rotate, DonkeyDaoFactory daoFactory) {
         this.channelId = channelId;
@@ -67,17 +70,22 @@ public class ConnectorMessageQueueDataSource implements PersistedBlockingQueueDa
         this.status = status;
     }
 
-    @Override
-    public boolean wasItemRotated() {
-        return (rotate && minMessageId != null && minMessageId != 0L);
+    public void setLastItem(ConnectorMessage connectorMessage) {
+        rotatedMessageId = connectorMessage.getMessageId() + 1;
+
+        if (isQueueRotated()) {
+            rotateQueue();
+        }
     }
 
-    @Override
-    public void rotateItem(Object o) {
-        this.minMessageId = ((ConnectorMessage) o).getMessageId() + 1;
+    public void rotateQueue() {
+        minMessageId = rotatedMessageId;
     }
 
-    @Override
+    public boolean isQueueRotated() {
+        return (rotate && minMessageId != null && minMessageId != 0);
+    };
+
     public int getSize() {
         DonkeyDao dao = getDaoFactory().getDao();
 
@@ -96,8 +104,7 @@ public class ConnectorMessageQueueDataSource implements PersistedBlockingQueueDa
         }
     }
 
-    @Override
-    public List<ConnectorMessage> getItems(int offset, int limit) {
+    public Map<Long, ConnectorMessage> getItems(int offset, int limit) {
         DonkeyDao dao = daoFactory.getDao();
 
         try {
@@ -109,7 +116,13 @@ public class ConnectorMessageQueueDataSource implements PersistedBlockingQueueDa
                 connectorMessages = dao.getConnectorMessages(channelId, serverId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
             }
 
-            return connectorMessages;
+            Map<Long, ConnectorMessage> map = new LinkedHashMap<Long, ConnectorMessage>();
+
+            for (ConnectorMessage connectorMessage : connectorMessages) {
+                map.put(connectorMessage.getMessageId(), connectorMessage);
+            }
+
+            return map;
         } finally {
             dao.close();
         }

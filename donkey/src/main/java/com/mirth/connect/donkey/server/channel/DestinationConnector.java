@@ -9,11 +9,14 @@
 
 package com.mirth.connect.donkey.server.channel;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -45,7 +48,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private final static String QUEUED_RESPONSE = "Message queued successfully";
 
     private Integer orderId;
-    private Thread thread;
+    private List<Thread> queueThreads = new ArrayList<Thread>();
     private QueueConnectorProperties queueProperties;
     private ConnectorMessageQueue queue = new ConnectorMessageQueue();
     private String destinationName;
@@ -148,8 +151,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
             // Remove any items in the queue's buffer because they may be outdated and refresh the queue size
             queue.invalidate(true);
 
-            thread = new Thread(this);
-            thread.start();
+            for (int i = 0; i < queueProperties.getThreadCount(); i++) {
+                Thread thread = new Thread(this);
+                thread.start();
+                queueThreads.add(thread);
+            }
         }
 
         onStart();
@@ -168,12 +174,18 @@ public abstract class DestinationConnector extends Connector implements Runnable
     public void stop() throws StopException {
         setCurrentState(ChannelState.STOPPING);
 
-        if (thread != null) {
+        if (CollectionUtils.isNotEmpty(queueThreads)) {
             try {
-                thread.join();
+                for (Thread thread : queueThreads) {
+                    thread.join();
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new StopException("Failed to stop destination connector for channel: " + getChannelId(), e);
+            } finally {
+                // Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
+                // unsynchronized with the data store.
+                queue.invalidate(false);
             }
         }
 
@@ -207,13 +219,22 @@ public abstract class DestinationConnector extends Connector implements Runnable
     public void halt() throws HaltException {
         setCurrentState(ChannelState.STOPPING);
 
-        if (thread != null) {
+        if (CollectionUtils.isNotEmpty(queueThreads)) {
             try {
-                thread.interrupt();
-                thread.join();
+                for (Thread thread : queueThreads) {
+                    thread.interrupt();
+                }
+
+                for (Thread thread : queueThreads) {
+                    thread.join();
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new HaltException("Failed to stop destination connector for channel: " + getChannelId(), e);
+            } finally {
+                // Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
+                // unsynchronized with the data store.
+                queue.invalidate(false);
             }
         }
 
@@ -338,9 +359,13 @@ public abstract class DestinationConnector extends Connector implements Runnable
             ConnectorMessage connectorMessage = null;
             int retryIntervalMillis = queueProperties.getRetryIntervalMillis();
             Long lastMessageId = null;
+            boolean canAcquire = true;
 
             do {
-                connectorMessage = queue.peek();
+
+                if (canAcquire) {
+                    connectorMessage = queue.acquire();
+                }
 
                 if (connectorMessage != null) {
                     /*
@@ -444,25 +469,13 @@ public abstract class DestinationConnector extends Connector implements Runnable
                         dao.commit(storageSettings.isDurable());
 
                         if (connectorMessage.getStatus() != Status.QUEUED) {
-                            ThreadUtils.checkInterruptedStatus();
-
-                            // We only peeked before, so this time actually remove the head of the queue.
-                            // If the queue was invalidated, a different message could have been inserted to the front of the queue.
-                            // Therefore, only poll the queue if the head is the same as the current message
-                            synchronized (queue) {
-                                ConnectorMessage firstMessage = queue.peek();
-                                if (connectorMessage.getMessageId() == firstMessage.getMessageId() && connectorMessage.getMetaDataId() == firstMessage.getMetaDataId()) {
-                                    queue.poll();
-                                }
-                            }
+                            canAcquire = true;
+                            queue.release(connectorMessage, true);
                         } else if (queueProperties.isRotate()) {
-                            // If the message is still queued and rotation is enabled, notify the queue that the message is to be rotated.
-                            synchronized (queue) {
-                                ConnectorMessage firstMessage = queue.peek();
-                                if (connectorMessage.getMessageId() == firstMessage.getMessageId() && connectorMessage.getMetaDataId() == firstMessage.getMetaDataId()) {
-                                    queue.rotate(connectorMessage);
-                                }
-                            }
+                            canAcquire = true;
+                            queue.release(connectorMessage, false);
+                        } else {
+                            canAcquire = false;
                         }
                     } catch (RuntimeException e) {
                         logger.error("Error processing queued " + (connectorMessage != null ? connectorMessage.toString() : "message (null)") + " for channel " + getChannelId() + " (" + destinationName + "). This error is expected if the message was manually removed from the queue.", e);
@@ -486,10 +499,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
         } catch (Exception e) {
             logger.error(e);
         } finally {
-            // Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
-            // unsynchronized with the data store.
-            queue.invalidate(false);
-
             if (dao != null) {
                 dao.close();
             }

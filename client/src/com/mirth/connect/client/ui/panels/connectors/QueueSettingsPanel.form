@@ -4,10 +4,6 @@
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="queueButtonGroup">
     </Component>
-    <Component class="javax.swing.ButtonGroup" name="regenerateTemplateButtonGroup">
-    </Component>
-    <Component class="javax.swing.ButtonGroup" name="retryButtonGroup">
-    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -44,12 +40,22 @@
           <Group type="102" attributes="0">
               <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="queueMessagesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="retryCountLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="queueThreadsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="retryIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="retryCountLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="queueMessagesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="retryCountField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                          <Component id="retryIntervalField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                          <Component id="queueThreadsField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="queueWarningLabel" min="-2" pref="200" max="-2" attributes="0"/>
+                  </Group>
                   <Group type="102" attributes="0">
                       <Component id="queueNeverRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -60,14 +66,6 @@
                       <Component id="regenerateTemplateCheckbox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="rotateCheckbox" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="retryCountField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                          <Component id="retryIntervalField" min="-2" pref="75" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="queueWarningLabel" min="-2" pref="200" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace pref="30" max="32767" attributes="0"/>
@@ -102,6 +100,11 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="queueWarningLabel" min="-2" pref="42" max="-2" attributes="0"/>
                   </Group>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="queueThreadsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="queueThreadsField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
           </Group>
       </Group>
@@ -234,6 +237,17 @@
         </Property>
         <Property name="text" type="java.lang.String" value="Rotate"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;If checked, when any message fails to be sent from the queue, the connector will&lt;br/&gt;&#xa;place the message at the end of the queue and attempt to send the next message.&lt;br/&gt;&#xa;This will prevent a single message from holding up the entire queue. If the order&lt;br/&gt;&#xa;of messages processed is important, this should be unchecked.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="queueThreadsField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;The number of threads that will read from the queue and dispatch&lt;br/&gt;&#xa;messages simultaneously. Message order is NOT guaranteed if this&lt;br/&gt;&#xa;value is greater than one.&#xa;&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="queueThreadsLabel">
+      <Properties>
+        <Property name="horizontalAlignment" type="int" value="4"/>
+        <Property name="text" type="java.lang.String" value="Queue Threads:"/>
       </Properties>
     </Component>
   </SubComponents>

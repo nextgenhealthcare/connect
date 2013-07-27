@@ -1672,6 +1672,7 @@ public class ImportConverter3_0_0 {
         queueConnectorProperties.addChildElement("regenerateTemplate").setTextContent("false");
         queueConnectorProperties.addChildElement("retryCount").setTextContent(retryCount);
         queueConnectorProperties.addChildElement("rotate").setTextContent(rotate);
+        queueConnectorProperties.addChildElement("threadCount").setTextContent("1");
     }
 
     public static Properties readPropertiesElement(DonkeyElement propertiesElement) {
