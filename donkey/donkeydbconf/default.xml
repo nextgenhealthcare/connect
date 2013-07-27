@@ -51,26 +51,27 @@
 	</query>
 	
 	<query id="insertConnectorMessage">
-		INSERT INTO d_mm${localChannelId} (id, message_id, received_date, status, connector_name, send_attempts, send_date, response_date, error_code, chain_id, order_id)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO d_mm${localChannelId} (id, message_id, server_id, received_date, status, connector_name, send_attempts, send_date, response_date, error_code, chain_id, order_id)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</query>
 	
 	<query id="updateSourceResponse">
 		UPDATE d_mm${localChannelId}
 		SET send_attempts = ?, response_date = ?
-		WHERE id = 0 AND message_id = ?
+		WHERE id = 0 AND message_id = ? AND server_id = ?
 	</query>
 	
 	<query id="updateErrorCode">
 		UPDATE d_mm${localChannelId}
 		SET error_code = ?
-		WHERE id = ? AND message_id = ?
+		WHERE id = ? AND message_id = ? AND server_id = ?
 	</query>
 	
 	<query id="updateStatus">
 		UPDATE d_mm${localChannelId} SET status = ?, send_attempts = ?, send_date = ?, response_date = ?
 		WHERE id = ?
 		AND message_id = ?
+		AND server_id = ?
 	</query>
 	
 	<query id="markAsProcessed">
@@ -79,7 +80,7 @@
 	</query>
 	
 	<query id="resetMessage">
-		UPDATE d_m${localChannelId} SET processed = FALSE, server_id = ?
+		UPDATE d_m${localChannelId} SET processed = FALSE
 		WHERE id = ?
 	</query>
 	
@@ -103,19 +104,19 @@
 	</query>
 	
 	<query id="getUnfinishedMessages">
-		SELECT *
-		FROM d_m${localChannelId}
-		WHERE processed = FALSE
-		AND server_id = ?
-		ORDER BY id
+		SELECT m.*
+		FROM d_m${localChannelId} m
+		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0
+		WHERE m.processed = FALSE AND mm.server_id = ?
+		ORDER BY m.id
 	</query>
 	
 	<query id="getUnfinishedConnectorMessages">
 		SELECT *
 		FROM d_mm${localChannelId} mm
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE m.processed = FALSE
-		AND m.server_id = ?
+		JOIN d_mm${localChannelId} mm0 ON mm0.message_id = mm.message_id AND mm0.id = 0
+		WHERE m.processed = FALSE AND mm0.server_id = ?
 		ORDER BY m.id, mm.id
 	</query>
 	
@@ -238,63 +239,56 @@
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatus">
-		SELECT mm.*
-		FROM d_mm${localChannelId} mm
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? AND mm.status = ? AND m.server_id = ?
-		ORDER BY mm.message_id
+		SELECT *
+		FROM d_mm${localChannelId}
+		WHERE id = ? AND status = ? AND server_id = ?
+		ORDER BY message_id
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit">
-		SELECT mm.*, m.server_id
-		FROM d_mm${localChannelId} mm
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? AND mm.status = ? AND m.server_id = ?
-		ORDER BY m.id
+		SELECT *
+		FROM d_mm${localChannelId}
+		WHERE id = ? AND status = ? AND server_id = ?
+		ORDER BY message_id
 		LIMIT ${limit}
 		OFFSET ${offset}
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange">
-		SELECT mm.*, m.server_id
-		FROM d_mm${localChannelId} mm
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? AND mm.status = ? AND m.server_id = ?
-		AND m.id <![CDATA[ >= ]]> ? AND m.id <![CDATA[ <= ]]> ?
-		ORDER BY m.id
+		SELECT *
+		FROM d_mm${localChannelId}
+		WHERE id = ? AND status = ? AND server_id = ?
+		AND message_id <![CDATA[ >= ]]> ? AND message_id <![CDATA[ <= ]]> ?
+		ORDER BY message_id
 		LIMIT ${limit}
 		OFFSET ${offset}
 	</query>
 	
 	<query id="getConnectorMessagesByMessageId">
-		SELECT mm.*, m.server_id
-		FROM d_mm${localChannelId} mm
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE m.id = ?
-		ORDER BY m.id
+		SELECT *
+		FROM d_mm${localChannelId}
+		WHERE message_id = ?
+		ORDER BY message_id
 	</query>
 	
 	<query id="getConnectorMessagesByMessageIdAndMetaDataIds">
-		SELECT mm.*, m.server_id
-		FROM d_mm${localChannelId} mm
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.message_id = ?
-		AND mm.id IN (${metaDataIds})
-		ORDER BY mm.chain_id ASC, mm.order_id ASC
+		SELECT *
+		FROM d_mm${localChannelId}
+		WHERE message_id = ?
+		AND id IN (${metaDataIds})
+		ORDER BY chain_id ASC, order_id ASC
 	</query>
 	
 	<query id="getConnectorMessageCountByMetaDataIdAndStatus">
 		SELECT COUNT(*)
-		FROM d_mm${localChannelId} mm
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? AND mm.status = ? AND m.server_id = ?
+		FROM d_mm${localChannelId}
+		WHERE id = ? AND status = ? AND server_id = ?
 	</query>
 	
 	<query id="getConnectorMessageMaxMessageIdByMetaDataIdAndStatus">
-		SELECT COALESCE(MAX(m.id), 0)
-		FROM d_mm${localChannelId} mm
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? AND mm.status = ? AND m.server_id = ?
+		SELECT COALESCE(MAX(message_id), 0)
+		FROM d_mm${localChannelId}
+		WHERE id = ? AND status = ? AND server_id = ?
 	</query>
 	
 	

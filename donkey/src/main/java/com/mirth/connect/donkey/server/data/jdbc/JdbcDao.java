@@ -162,6 +162,7 @@ public class JdbcDao implements DonkeyDao {
             statement.setInt(1, connectorMessage.getSendAttempts());
             statement.setTimestamp(2, new Timestamp(connectorMessage.getResponseDate().getTimeInMillis()));
             statement.setLong(3, connectorMessage.getMessageId());
+            statement.setString(4, connectorMessage.getServerId());
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -474,32 +475,33 @@ public class JdbcDao implements DonkeyDao {
             PreparedStatement statement = prepareStatement("insertConnectorMessage", connectorMessage.getChannelId());
             statement.setInt(1, connectorMessage.getMetaDataId());
             statement.setLong(2, connectorMessage.getMessageId());
-            statement.setTimestamp(3, new Timestamp(connectorMessage.getReceivedDate().getTimeInMillis()));
-            statement.setString(4, Character.toString(connectorMessage.getStatus().getStatusCode()));
+            statement.setString(3, connectorMessage.getServerId());
+            statement.setTimestamp(4, new Timestamp(connectorMessage.getReceivedDate().getTimeInMillis()));
+            statement.setString(5, Character.toString(connectorMessage.getStatus().getStatusCode()));
 
             if (connectorMessage.getConnectorName() == null) {
-                statement.setNull(5, Types.VARCHAR);
+                statement.setNull(6, Types.VARCHAR);
             } else {
-                statement.setString(5, connectorMessage.getConnectorName());
+                statement.setString(6, connectorMessage.getConnectorName());
             }
 
-            statement.setInt(6, connectorMessage.getSendAttempts());
+            statement.setInt(7, connectorMessage.getSendAttempts());
 
             if (connectorMessage.getSendDate() == null) {
-                statement.setNull(7, Types.TIMESTAMP);
+                statement.setNull(8, Types.TIMESTAMP);
             } else {
-                statement.setTimestamp(7, new Timestamp(connectorMessage.getSendDate().getTimeInMillis()));
+                statement.setTimestamp(8, new Timestamp(connectorMessage.getSendDate().getTimeInMillis()));
             }
 
             if (connectorMessage.getResponseDate() == null) {
-                statement.setNull(8, Types.TIMESTAMP);
+                statement.setNull(9, Types.TIMESTAMP);
             } else {
-                statement.setTimestamp(8, new Timestamp(connectorMessage.getResponseDate().getTimeInMillis()));
+                statement.setTimestamp(9, new Timestamp(connectorMessage.getResponseDate().getTimeInMillis()));
             }
 
-            statement.setInt(9, connectorMessage.getErrorCode());
-            statement.setInt(10, connectorMessage.getChainId());
-            statement.setInt(11, connectorMessage.getOrderId());
+            statement.setInt(10, connectorMessage.getErrorCode());
+            statement.setInt(11, connectorMessage.getChainId());
+            statement.setInt(12, connectorMessage.getOrderId());
             statement.executeUpdate();
 
             if (storeMaps) {
@@ -536,6 +538,7 @@ public class JdbcDao implements DonkeyDao {
         }
     }
 
+    // TODO doesn't limit by server id
     @Override
     public void deleteConnectorMessages(String channelId, long messageId, List<Integer> metaDataIds, boolean deleteStatistics) {
         logger.debug(channelId + "/" + messageId + ": deleting connector messages");
@@ -610,7 +613,11 @@ public class JdbcDao implements DonkeyDao {
             statement.setTimestamp(4, responseDate == null ? null : new Timestamp(responseDate.getTimeInMillis()));
             statement.setInt(5, connectorMessage.getMetaDataId());
             statement.setLong(6, connectorMessage.getMessageId());
-            statement.executeUpdate();
+            statement.setString(7, connectorMessage.getServerId());
+
+            if (statement.executeUpdate() == 0) {
+                throw new DonkeyDaoException("Failed to update connector message status, the connector message was removed from this server.");
+            }
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         }
@@ -667,6 +674,7 @@ public class JdbcDao implements DonkeyDao {
             statement.setInt(1, connectorMessage.getErrorCode());
             statement.setInt(2, connectorMessage.getMetaDataId());
             statement.setLong(3, connectorMessage.getMessageId());
+            statement.setString(4, connectorMessage.getServerId());
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -734,8 +742,7 @@ public class JdbcDao implements DonkeyDao {
 
         try {
             PreparedStatement statement = prepareStatement("resetMessage", channelId);
-            statement.setString(1, statsServerId);
-            statement.setLong(2, messageId);
+            statement.setLong(1, messageId);
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -1129,7 +1136,7 @@ public class JdbcDao implements DonkeyDao {
             List<ConnectorMessage> connectorMessages = new ArrayList<ConnectorMessage>();
 
             while (resultSet.next()) {
-                connectorMessages.add(getConnectorMessageFromResultSet(channelId, serverId, resultSet, true, true));
+                connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, true, true));
             }
 
             return connectorMessages;
@@ -1174,7 +1181,7 @@ public class JdbcDao implements DonkeyDao {
             resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                connectorMessages.add(getConnectorMessageFromResultSet(channelId, serverId, resultSet, true, true));
+                connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, true, true));
             }
 
             return connectorMessages;
@@ -1186,6 +1193,7 @@ public class JdbcDao implements DonkeyDao {
         }
     }
 
+    // TODO doesn't limit by server id
     @Override
     public List<ConnectorMessage> getConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds, boolean includeContent) {
         PreparedStatement statement = null;
@@ -1203,7 +1211,7 @@ public class JdbcDao implements DonkeyDao {
             List<ConnectorMessage> connectorMessages = new ArrayList<ConnectorMessage>();
 
             while (resultSet.next()) {
-                connectorMessages.add(getConnectorMessageFromResultSet(channelId, null, resultSet, includeContent, true));
+                connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, includeContent, true));
             }
 
             return connectorMessages;
@@ -1215,6 +1223,7 @@ public class JdbcDao implements DonkeyDao {
         }
     }
 
+    // TODO doesn't limit by server id
     @Override
     public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId) {
         ResultSet resultSet = null;
@@ -1227,7 +1236,7 @@ public class JdbcDao implements DonkeyDao {
             Map<Integer, ConnectorMessage> connectorMessages = new HashMap<Integer, ConnectorMessage>();
 
             while (resultSet.next()) {
-                ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, null, resultSet, true, true);
+                ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, true, true);
                 connectorMessages.put(connectorMessage.getMetaDataId(), connectorMessage);
             }
 
@@ -1266,7 +1275,7 @@ public class JdbcDao implements DonkeyDao {
             resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, serverId, resultSet, true, true);
+                ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, true, true);
                 messageMap.get(connectorMessage.getMessageId()).getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
             }
 
@@ -1746,7 +1755,7 @@ public class JdbcDao implements DonkeyDao {
         }
     }
 
-    private ConnectorMessage getConnectorMessageFromResultSet(String channelId, String serverId, ResultSet resultSet, boolean includeContent, boolean includeMetaDataMap) {
+    private ConnectorMessage getConnectorMessageFromResultSet(String channelId, ResultSet resultSet, boolean includeContent, boolean includeMetaDataMap) {
         try {
             ConnectorMessage connectorMessage = new ConnectorMessage();
             long messageId = resultSet.getLong("message_id");
@@ -1771,7 +1780,7 @@ public class JdbcDao implements DonkeyDao {
             connectorMessage.setMessageId(messageId);
             connectorMessage.setMetaDataId(metaDataId);
             connectorMessage.setChannelId(channelId);
-            connectorMessage.setServerId((serverId == null) ? resultSet.getString("server_id") : serverId);
+            connectorMessage.setServerId(resultSet.getString("server_id"));
             connectorMessage.setConnectorName(resultSet.getString("connector_name"));
             connectorMessage.setReceivedDate(receivedDate);
             connectorMessage.setStatus(Status.fromChar(resultSet.getString("status").charAt(0)));

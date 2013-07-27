@@ -134,6 +134,13 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 renderer = new DefaultTableCellRenderer();
                 column.setToolTipText("<html><body>If a message was imported from a different channel, this<br>column indivates the original channel Id.</body></html>");
                 break;
+                
+            case MessageBrowser.ORIGINAL_SERVER_ID_COLUMN: // Original Server Id
+                column.setMaxWidth(210);
+                column.setMinWidth(210);
+                renderer = new DefaultTableCellRenderer();
+                column.setToolTipText("<html><body>The Id of the server where the message was originally processed.</body></html>");
+                break;
 
             default:
                 renderer = new DefaultTableCellRenderer();

@@ -4,7 +4,7 @@
 	<query id="createMessageTable">
 		CREATE TABLE d_m${localChannelId} (
 	        id NUMBER(19) NOT NULL PRIMARY KEY,
-	        server_id NVARCHAR2(36),
+	        server_id NVARCHAR2(36) NOT NULL,
 	        received_date TIMESTAMP NOT NULL,
 	        processed CHAR(1) DEFAULT '0' CHECK (processed IN ('0','1')) NOT NULL,
 	        original_id NUMBER(19),
@@ -21,6 +21,7 @@
 		CREATE TABLE d_mm${localChannelId} (
 	        id NUMBER(10) NOT NULL,
 	        message_id NUMBER(19) NOT NULL,
+	        server_id NVARCHAR2(36) NOT NULL,
 	        received_date TIMESTAMP NOT NULL,
 	        status CHAR(1) NOT NULL,
 	        connector_name NCLOB,
@@ -232,19 +233,19 @@
 	</query>
 	
 	<query id="getUnfinishedMessages">
-		SELECT *
-		FROM d_m${localChannelId}
-		WHERE processed = 0
-		AND server_id = ?
-		ORDER BY id
+		SELECT m.*
+		FROM d_m${localChannelId} m
+		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0
+		WHERE m.processed = 0 AND mm.server_id = ?
+		ORDER BY m.id
 	</query>
 	
 	<query id="getUnfinishedConnectorMessages">
 		SELECT *
 		FROM d_mm${localChannelId} mm
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE m.processed = 0
-		AND m.server_id = ?
+		JOIN d_mm${localChannelId} mm0 ON mm0.message_id = mm.message_id AND mm0.id = 0
+		WHERE m.processed = 0 AND mm0.server_id = ?
 		ORDER BY m.id, mm.id
 	</query>
 </queries>

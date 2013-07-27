@@ -1425,7 +1425,12 @@ public class Channel implements Startable, Stoppable, Runnable {
         ConnectorMessage sourceMessage = sourceQueue.poll(timeout, TimeUnit.MILLISECONDS);
 
         while (sourceMessage != null && !stopSourceQueue) {
-            process(sourceMessage, true);
+            try {
+                process(sourceMessage, true);
+            } catch (RuntimeException e) {
+                logger.error("An error occurred while processing a message from the source queue", e);
+            }
+
             sourceMessage = sourceQueue.poll();
         }
     }
@@ -1484,6 +1489,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             }
         }
 
+        // TODO this commit may be unnecessary if nothing was executed above
         dao.commit(storageSettings.isDurable());
         dao.close();
     }

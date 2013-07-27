@@ -4,7 +4,7 @@
 	<query id="createMessageTable">
 		CREATE TABLE d_m${localChannelId} (
 	        id bigint NOT NULL PRIMARY KEY,
-	        server_id character varying(36),
+	        server_id character varying(36) NOT NULL,
 	        received_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	        processed boolean NOT NULL DEFAULT FALSE,
 	        original_id bigint,
@@ -25,6 +25,7 @@
 		CREATE TABLE d_mm${localChannelId} (
 	        id integer NOT NULL,
 	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE RESTRICT,
+	        server_id character varying(36) NOT NULL,
 	        received_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	        status character(1) NOT NULL,
 	        connector_name character varying(256),

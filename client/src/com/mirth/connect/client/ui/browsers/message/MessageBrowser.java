@@ -134,9 +134,11 @@ public class MessageBrowser extends javax.swing.JPanel {
     protected static final int RESPONSE_DATE_COLUMN = 7;
     protected static final int ERRORS_COLUMN = 8;
     protected static final int SERVER_ID_COLUMN = 9;
-    protected static final int ORIGINAL_ID_COLUMN = 10;
-    protected static final int IMPORT_ID_COLUMN = 11;
-    protected static final int IMPORT_CHANNEL_ID_COLUMN = 12;
+    protected static final int ORIGINAL_SERVER_ID_COLUMN = 10;
+    protected static final int ORIGINAL_ID_COLUMN = 11;
+    protected static final int IMPORT_ID_COLUMN = 12;
+    protected static final int IMPORT_CHANNEL_ID_COLUMN = 13;
+
     protected final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
     private static Map<String, Set<String>> customHiddenColumnMap = new HashMap<String, Set<String>>();
 
@@ -1055,6 +1057,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         columnMap.put(ORIGINAL_ID_COLUMN, "Original Id");
         columnMap.put(IMPORT_ID_COLUMN, "Import Id");
         columnMap.put(IMPORT_CHANNEL_ID_COLUMN, "Import Channel Id");
+        columnMap.put(ORIGINAL_SERVER_ID_COLUMN, "Original Server Id");
 
         messageTreeTable.setDragEnabled(false);
         //messageTreeTable.setFocusable(false);
