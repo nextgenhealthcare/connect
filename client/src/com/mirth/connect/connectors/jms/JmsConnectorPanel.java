@@ -663,7 +663,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         Object defaultValue = (templateList.getSelectedValue() == null || listModel.isPredefinedTemplate(templateList.getSelectedValue().toString())) ? "" : templateList.getSelectedValue();
 
         do {
-            Object response = JOptionPane.showInputDialog(parent, "Enter a name for the connection template:", "Save", JOptionPane.QUESTION_MESSAGE, UIConstants.ICON_INFORMATION, null, defaultValue);
+            Object response = JOptionPane.showInputDialog(parent, "Enter a name for the connection template:", "Save", JOptionPane.QUESTION_MESSAGE, null, null, defaultValue);
 
             if (response == null) {
                 return;
@@ -733,7 +733,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
     }
 
     private boolean confirmDialog(String message) {
-        return (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(parent, message, "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, UIConstants.ICON_WARNING));
+        return (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(parent, message, "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
