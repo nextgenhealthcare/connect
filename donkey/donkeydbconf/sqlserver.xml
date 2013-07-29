@@ -269,10 +269,9 @@
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit">
 		SELECT a.* FROM (
 
-		SELECT mm.*, m.server_id, ROW_NUMBER() OVER (ORDER BY m.id) AS rownum
-		FROM d_mm${localChannelId} mm
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? AND mm.status = ?
+		SELECT *, ROW_NUMBER() OVER (ORDER BY message_id) AS rownum
+		FROM d_mm${localChannelId}
+		WHERE id = ? AND status = ? AND server_id = ?
 
 		) AS a WHERE a.rownum <![CDATA[ > ]]> ${offset} AND a.rownum <![CDATA[ <= ]]> (${offset} + ${limit})
 	</query>
@@ -280,11 +279,10 @@
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange">
 		SELECT a.* FROM (
 	
-		SELECT mm.*, m.server_id, ROW_NUMBER() OVER (ORDER BY m.id) AS rownum
-		FROM d_mm${localChannelId} mm
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? AND mm.status = ?
-		AND m.id <![CDATA[ >= ]]> ? AND m.id <![CDATA[ <= ]]> ?
+		SELECT *, ROW_NUMBER() OVER (ORDER BY message_id) AS rownum
+		FROM d_mm${localChannelId}
+		WHERE id = ? AND status = ? AND server_id = ?
+		AND message_id <![CDATA[ >= ]]> ? AND message_id <![CDATA[ <= ]]> ?
 		
 		) AS a WHERE a.rownum <![CDATA[ > ]]> ${offset} AND a.rownum <![CDATA[ <= ]]> (${offset} + ${limit})
 	</query>
@@ -307,12 +305,11 @@
 	</query>
 	
 	<query id="getConnectorMessagesByMessageIdAndMetaDataIds">
-		SELECT mm.*, m.server_id
-		FROM d_mm${localChannelId} mm
+		SELECT *
+		FROM d_mm${localChannelId}
 		WITH (NOLOCK)
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.message_id = ?
-		AND mm.id IN (${metaDataIds})
-		ORDER BY mm.chain_id ASC, mm.order_id ASC
+		WHERE message_id = ?
+		AND id IN (${metaDataIds})
+		ORDER BY chain_id ASC, order_id ASC
 	</query>
 </queries>

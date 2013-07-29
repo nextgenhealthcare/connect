@@ -191,22 +191,20 @@
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit">
-		SELECT mm.*, m.server_id
-		FROM d_mm${localChannelId} mm
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? and mm.status = ?
-		ORDER BY m.id
+		SELECT *
+		FROM d_mm${localChannelId}
+		WHERE id = ? and status = ? AND server_id = ?
+		ORDER BY message_id
 		OFFSET ${offset} ROWS
 		FETCH FIRST ${limit} ROWS ONLY
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange">
-		SELECT mm.*, m.server_id
-		FROM d_mm${localChannelId} mm
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? AND mm.status = ?
-		AND m.id <![CDATA[ >= ]]> ? AND m.id <![CDATA[ <= ]]> ?
-		ORDER BY m.id
+		SELECT *
+		FROM d_mm${localChannelId}
+		WHERE id = ? AND status = ? AND server_id = ?
+		AND message_id <![CDATA[ >= ]]> ? AND message_id <![CDATA[ <= ]]> ?
+		ORDER BY message_id
 		OFFSET ${offset} ROWS
 		FETCH FIRST ${limit} ROWS ONLY
 	</query>

@@ -41,7 +41,7 @@
 	</query>
 	
 	<query id="createConnectorMessageTableIndex2">
-		CREATE INDEX d_mm${localChannelId}_index3 ON d_mm${localChannelId}(message_id, id, status)
+		CREATE INDEX d_mm${localChannelId}_index2 ON d_mm${localChannelId}(message_id, id, status)
 	</query>
 	
 	<query id="createMessageContentTable">
@@ -210,11 +210,10 @@
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit">
 		SELECT a.* FROM (SELECT b.*, rownum b_rownum FROM (
 
-		SELECT mm.*, m.server_id
-		FROM d_mm${localChannelId} mm
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? AND mm.status = ?
-		ORDER BY m.id
+		SELECT *
+		FROM d_mm${localChannelId}
+		WHERE id = ? AND status = ? AND server_id = ?
+		ORDER BY message_id
 
 		) b WHERE rownum <![CDATA[ <= ]]> (${offset} + ${limit})) a WHERE b_rownum > ${offset}
 	</query>
@@ -222,12 +221,11 @@
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange">
 		SELECT a.* FROM (SELECT b.*, rownum b_rownum FROM (
 	
-		SELECT mm.*, m.server_id
-		FROM d_mm${localChannelId} mm
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		WHERE mm.id = ? AND mm.status = ?
-		AND m.id <![CDATA[ >= ]]> ? AND m.id <![CDATA[ <= ]]> ?
-		ORDER BY m.id
+		SELECT *
+		FROM d_mm${localChannelId}
+		WHERE id = ? AND status = ? AND server_id = ?
+		AND message_id <![CDATA[ >= ]]> ? AND message_id <![CDATA[ <= ]]> ?
+		ORDER BY message_id
 		
 		) b WHERE rownum <![CDATA[ <= ]]> (${offset} + ${limit})) a WHERE b_rownum > ${offset}
 	</query>
