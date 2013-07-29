@@ -78,7 +78,6 @@ public class DICOMTest {
 //                System.out.println("Processing test file:" + fileName);
 //                //System.out.println(testMessage);
 //            } catch (IOException e) {
-//                // TODO Auto-generated catch block
 //                e.printStackTrace();
 //            }
 //            try {
@@ -93,10 +92,8 @@ public class DICOMTest {
 //            }
 //            // System.out.println(new X12Serializer().toXML("SEG*1*2**4*5"));
 //            catch (SAXException e) {
-//                // TODO Auto-generated catch block
 //                e.printStackTrace();
 //            } catch (Exception e) {
-//                // TODO Auto-generated catch block
 //                e.printStackTrace();
 //            }
 //        }

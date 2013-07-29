@@ -32,7 +32,6 @@ public class VmReceiverProperties extends ConnectorProperties implements Respons
 
     @Override
     public String toFormattedString() {
-        // TODO Auto-generated method stub
         return null;
     }
 

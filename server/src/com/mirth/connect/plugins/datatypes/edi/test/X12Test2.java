@@ -31,7 +31,6 @@ public class X12Test2 {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		try {
 			JAXBContext jc = JAXBContext.newInstance("com.mirth.connect.model.edi");
 			Unmarshaller unmarshaller = jc.createUnmarshaller();
@@ -49,7 +48,6 @@ public class X12Test2 {
 			}
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

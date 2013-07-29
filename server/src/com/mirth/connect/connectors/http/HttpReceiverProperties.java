@@ -111,7 +111,6 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
 
     @Override
     public String toFormattedString() {
-        // TODO Auto-generated method stub
         return null;
     }
 

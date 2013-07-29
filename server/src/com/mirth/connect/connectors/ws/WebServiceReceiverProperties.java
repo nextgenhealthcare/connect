@@ -81,7 +81,6 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
 
     @Override
     public String toFormattedString() {
-        // TODO Auto-generated method stub
         return null;
     }
 

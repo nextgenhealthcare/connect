@@ -115,12 +115,10 @@ public class XMLPrettyPrinter implements ContentHandler {
 	}
 
 	public void endPrefixMapping(String prefix) throws SAXException {
-	// TODO Auto-generated method stub
 
 	}
 
 	public void skippedEntity(String name) throws SAXException {
-	// TODO Auto-generated method stub
 
 	}
 
@@ -151,8 +149,6 @@ public class XMLPrettyPrinter implements ContentHandler {
 
 
 	public void startPrefixMapping(String prefix, String uri) throws SAXException {
-	// TODO Auto-generated method stub
-
 	}
 
 	public boolean isEncodeEntities() {

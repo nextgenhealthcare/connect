@@ -14,7 +14,6 @@ public class DefaultVocabulary extends MessageVocabulary {
 
     public DefaultVocabulary(String version, String type) {
         super(version, type);
-        // TODO Auto-generated constructor stub
     }
 
     public String getDescription(String elementId) {
@@ -23,7 +22,6 @@ public class DefaultVocabulary extends MessageVocabulary {
 
     @Override
     public String getDataType() {
-        // TODO Auto-generated method stub
         return null;
     }
 

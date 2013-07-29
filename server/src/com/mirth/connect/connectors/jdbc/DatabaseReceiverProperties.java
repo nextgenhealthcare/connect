@@ -68,7 +68,6 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
 
     @Override
     public String toFormattedString() {
-        // TODO Auto-generated method stub
         return null;
     }
 

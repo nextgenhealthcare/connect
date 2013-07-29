@@ -103,10 +103,8 @@ public class NCPDPTest {
             }
             // System.out.println(new X12Serializer().serialize("SEG*1*2**4*5"));
             catch (SAXException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }

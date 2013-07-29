@@ -29,29 +29,19 @@ public class TestDestinationConnector extends DestinationConnector {
     private List<Long> messageIds = new ArrayList<Long>();
 
     @Override
-    public void onDeploy() throws DeployException {
-        // TODO Auto-generated method stub
-    }
+    public void onDeploy() throws DeployException {}
 
     @Override
-    public void onUndeploy() throws UndeployException {
-        // TODO Auto-generated method stub
-    }
+    public void onUndeploy() throws UndeployException {}
 
     @Override
-    public void onStart() throws StartException {
-        // TODO Auto-generated method stub
-    }
+    public void onStart() throws StartException {}
 
     @Override
-    public void onStop() throws StopException {
-        // TODO Auto-generated method stub
-    }
-    
+    public void onStop() throws StopException {}
+
     @Override
-    public void onHalt() throws HaltException {
-        // TODO Auto-generated method stub
-    }
+    public void onHalt() throws HaltException {}
 
     @Override
     public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message) {}

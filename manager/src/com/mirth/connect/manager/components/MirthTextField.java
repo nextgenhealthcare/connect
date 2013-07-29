@@ -38,11 +38,9 @@ public class MirthTextField extends javax.swing.JTextField {
             }
 
             public void keyReleased(KeyEvent e) {
-                // TODO Auto-generated method stub
             }
 
             public void keyTyped(KeyEvent e) {
-                // TODO Auto-generated method stub
             }
         });
     }

@@ -19,13 +19,11 @@ public class TestConnectorProperties extends ConnectorProperties {
 
     @Override
     public String getProtocol() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public String getName() {
-        // TODO Auto-generated method stub
         return null;
     }
 }
