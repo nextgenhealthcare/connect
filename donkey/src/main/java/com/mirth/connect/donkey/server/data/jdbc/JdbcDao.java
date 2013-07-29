@@ -538,7 +538,6 @@ public class JdbcDao implements DonkeyDao {
         }
     }
 
-    // TODO doesn't limit by server id
     @Override
     public void deleteConnectorMessages(String channelId, long messageId, List<Integer> metaDataIds, boolean deleteStatistics) {
         logger.debug(channelId + "/" + messageId + ": deleting connector messages");
@@ -1193,7 +1192,6 @@ public class JdbcDao implements DonkeyDao {
         }
     }
 
-    // TODO doesn't limit by server id
     @Override
     public List<ConnectorMessage> getConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds, boolean includeContent) {
         PreparedStatement statement = null;
@@ -1223,7 +1221,6 @@ public class JdbcDao implements DonkeyDao {
         }
     }
 
-    // TODO doesn't limit by server id
     @Override
     public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId) {
         ResultSet resultSet = null;
