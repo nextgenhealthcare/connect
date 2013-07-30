@@ -9,14 +9,13 @@
 
 package com.mirth.connect.donkey.server.channel;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -48,7 +47,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private final static String QUEUED_RESPONSE = "Message queued successfully";
 
     private Integer orderId;
-    private List<Thread> queueThreads = new ArrayList<Thread>();
+    private Map<Long, Thread> queueThreads = new HashMap<Long, Thread>();
     private QueueConnectorProperties queueProperties;
     private ConnectorMessageQueue queue = new ConnectorMessageQueue();
     private String destinationName;
@@ -70,6 +69,21 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     public void setQueue(ConnectorMessageQueue connectorMessages) {
         this.queue = connectorMessages;
+    }
+
+    /**
+     * Returns a unique id that the dispatcher can use for thread safety.
+     * If queueing is disabled or if there is only 1 queue thread, returns -1. If there are multiple
+     * queue threads, returns the thread's id if the current thread is a queue thread, otherwise it
+     * returns -1.
+     */
+    public long getDispatcherId() {
+        long threadId = Thread.currentThread().getId();
+        if (queueThreads.size() <= 1 || !queueThreads.containsKey(threadId)) {
+            threadId = -1L;
+        }
+
+        return threadId;
     }
 
     public String getDestinationName() {
@@ -154,7 +168,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
             for (int i = 0; i < queueProperties.getThreadCount(); i++) {
                 Thread thread = new Thread(this);
                 thread.start();
-                queueThreads.add(thread);
+                queueThreads.put(thread.getId(), thread);
             }
         }
 
@@ -174,11 +188,13 @@ public abstract class DestinationConnector extends Connector implements Runnable
     public void stop() throws StopException {
         setCurrentState(ChannelState.STOPPING);
 
-        if (CollectionUtils.isNotEmpty(queueThreads)) {
+        if (MapUtils.isNotEmpty(queueThreads)) {
             try {
-                for (Thread thread : queueThreads) {
+                for (Thread thread : queueThreads.values()) {
                     thread.join();
                 }
+
+                queueThreads.clear();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new StopException("Failed to stop destination connector for channel: " + getChannelId(), e);
@@ -219,15 +235,17 @@ public abstract class DestinationConnector extends Connector implements Runnable
     public void halt() throws HaltException {
         setCurrentState(ChannelState.STOPPING);
 
-        if (CollectionUtils.isNotEmpty(queueThreads)) {
+        if (MapUtils.isNotEmpty(queueThreads)) {
             try {
-                for (Thread thread : queueThreads) {
+                for (Thread thread : queueThreads.values()) {
                     thread.interrupt();
                 }
 
-                for (Thread thread : queueThreads) {
+                for (Thread thread : queueThreads.values()) {
                     thread.join();
                 }
+
+                queueThreads.clear();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new HaltException("Failed to stop destination connector for channel: " + getChannelId(), e);

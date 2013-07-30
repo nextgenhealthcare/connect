@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.Header;
@@ -70,9 +71,8 @@ public class HttpDispatcher extends DestinationConnector {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-    private HttpClient client = new HttpClient();
+    private Map<Long, HttpClient> clients = new ConcurrentHashMap<Long, HttpClient>();
     private HttpConfiguration configuration = null;
-    private File tempFile;
 
     @Override
     public void onDeploy() throws DeployException {
@@ -102,10 +102,14 @@ public class HttpDispatcher extends DestinationConnector {
     public void onStart() throws StartException {}
 
     @Override
-    public void onStop() throws StopException {}
+    public void onStop() throws StopException {
+        clients.clear();
+    }
 
     @Override
-    public void onHalt() throws HaltException {}
+    public void onHalt() throws HaltException {
+        clients.clear();
+    }
 
     @Override
     public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {
@@ -135,10 +139,18 @@ public class HttpDispatcher extends DestinationConnector {
         Status responseStatus = Status.QUEUED;
 
         HttpMethod httpMethod = null;
+        File tempFile = null;
 
         try {
+            long dispatcherId = getDispatcherId();
+            HttpClient client = clients.get(dispatcherId);
+            if (client == null) {
+                client = new HttpClient();
+                clients.put(dispatcherId, client);
+            }
+
             configuration.configureDispatcher(getChannelId(), getMetaDataId(), httpDispatcherProperties.getHost());
-            httpMethod = buildHttpRequest(httpDispatcherProperties, connectorMessage);
+            httpMethod = buildHttpRequest(httpDispatcherProperties, connectorMessage, tempFile);
 
             // authentication
             if (httpDispatcherProperties.isUseAuthentication()) {
@@ -224,7 +236,7 @@ public class HttpDispatcher extends DestinationConnector {
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);
     }
 
-    private HttpMethod buildHttpRequest(HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage) throws Exception {
+    private HttpMethod buildHttpRequest(HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage, File tempFile) throws Exception {
         String address = httpDispatcherProperties.getHost();
         String method = httpDispatcherProperties.getMethod();
         Object content = AttachmentUtil.reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage);

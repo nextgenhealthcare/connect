@@ -24,6 +24,9 @@ import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.HaltException;
+import com.mirth.connect.donkey.server.StartException;
+import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -61,6 +64,15 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     public void undeploy() throws UndeployException {
         JavaScriptUtil.removeScriptFromCache(scriptId);
     }
+
+    @Override
+    public void start() throws StartException {}
+
+    @Override
+    public void stop() throws StopException {}
+
+    @Override
+    public void halt() throws HaltException {}
 
     @Override
     public Response send(DatabaseDispatcherProperties connectorProperties, ConnectorMessage connectorMessage) throws DatabaseDispatcherException, InterruptedException {

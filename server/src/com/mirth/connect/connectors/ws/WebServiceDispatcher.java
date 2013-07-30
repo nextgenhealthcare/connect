@@ -18,6 +18,8 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.AttachmentPart;
@@ -75,12 +77,7 @@ public class WebServiceDispatcher extends DestinationConnector {
      * Dispatch object used for pooling the soap connection, and the current
      * properties used to create the dispatch object
      */
-    private Dispatch<SOAPMessage> dispatch = null;
-    private String currentWsdlUrl = null;
-    private String currentUsername = null;
-    private String currentPassword = null;
-    private String currentServiceName = null;
-    private String currentPortName = null;
+    private Map<Long, DispatchContainer> dispatchContainers = new ConcurrentHashMap<Long, DispatchContainer>();
 
     @Override
     public void onDeploy() throws DeployException {
@@ -94,10 +91,14 @@ public class WebServiceDispatcher extends DestinationConnector {
     public void onStart() throws StartException {}
 
     @Override
-    public void onStop() throws StopException {}
+    public void onStop() throws StopException {
+        dispatchContainers.clear();
+    }
 
     @Override
-    public void onHalt() throws HaltException {}
+    public void onHalt() throws HaltException {
+        dispatchContainers.clear();
+    }
 
     private String sourceToXmlString(Source source) throws TransformerConfigurationException, TransformerException {
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -108,7 +109,7 @@ public class WebServiceDispatcher extends DestinationConnector {
         return writer.toString();
     }
 
-    private void createDispatch(WebServiceDispatcherProperties webServiceDispatcherProperties) throws Exception {
+    private void createDispatch(WebServiceDispatcherProperties webServiceDispatcherProperties, DispatchContainer dispatchContainer) throws Exception {
         String wsdlUrl = webServiceDispatcherProperties.getWsdlUrl();
         String username = webServiceDispatcherProperties.getUsername();
         String password = webServiceDispatcherProperties.getPassword();
@@ -121,12 +122,12 @@ public class WebServiceDispatcher extends DestinationConnector {
          * different than what were used to create the current dispatch object.
          * This could happen if variables are being used for these properties.
          */
-        if (dispatch == null || !StringUtils.equals(wsdlUrl, currentWsdlUrl) || !StringUtils.equals(username, currentUsername) || !StringUtils.equals(password, currentPassword) || !StringUtils.equals(serviceName, currentServiceName) || !StringUtils.equals(portName, currentPortName)) {
-            currentWsdlUrl = wsdlUrl;
-            currentUsername = username;
-            currentPassword = password;
-            currentServiceName = serviceName;
-            currentPortName = portName;
+        if (dispatchContainer.getDispatch() == null || !StringUtils.equals(wsdlUrl, dispatchContainer.getCurrentWsdlUrl()) || !StringUtils.equals(username, dispatchContainer.getCurrentUsername()) || !StringUtils.equals(password, dispatchContainer.getCurrentPassword()) || !StringUtils.equals(serviceName, dispatchContainer.getCurrentServiceName()) || !StringUtils.equals(portName, dispatchContainer.getCurrentPortName())) {
+            dispatchContainer.setCurrentWsdlUrl(wsdlUrl);
+            dispatchContainer.setCurrentUsername(username);
+            dispatchContainer.setCurrentPassword(password);
+            dispatchContainer.setCurrentServiceName(serviceName);
+            dispatchContainer.setCurrentPortName(portName);
 
             URL endpointUrl = getWsdlUrl(wsdlUrl, username, password);
             QName serviceQName = QName.valueOf(serviceName);
@@ -136,7 +137,7 @@ public class WebServiceDispatcher extends DestinationConnector {
             logger.debug("Creating web service: url=" + endpointUrl.toString() + ", service=" + serviceQName + ", port=" + portQName);
             Service service = Service.create(endpointUrl, serviceQName);
 
-            dispatch = service.createDispatch(portQName, SOAPMessage.class, Service.Mode.MESSAGE);
+            dispatchContainer.setDispatch(service.createDispatch(portQName, SOAPMessage.class, Service.Mode.MESSAGE));
         }
     }
 
@@ -212,16 +213,28 @@ public class WebServiceDispatcher extends DestinationConnector {
         Status responseStatus = Status.QUEUED;
 
         try {
+            long dispatcherId = getDispatcherId();
+            DispatchContainer dispatchContainer = dispatchContainers.get(dispatcherId);
+            if (dispatchContainer == null) {
+                dispatchContainer = new DispatchContainer();
+                dispatchContainers.put(dispatcherId, dispatchContainer);
+            }
+
             /*
              * Initialize the dispatch object if it hasn't been initialized yet,
              * or create a new one if the connector properties have changed due
              * to variables.
              */
-            createDispatch(webServiceDispatcherProperties);
+            createDispatch(webServiceDispatcherProperties, dispatchContainer);
+
+            Dispatch<SOAPMessage> dispatch = dispatchContainer.getDispatch();
 
             SOAPBinding soapBinding = (SOAPBinding) dispatch.getBinding();
 
             if (webServiceDispatcherProperties.isUseAuthentication()) {
+                String currentUsername = dispatchContainer.getCurrentUsername();
+                String currentPassword = dispatchContainer.getCurrentPassword();
+
                 dispatch.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, currentUsername);
                 dispatch.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, currentPassword);
                 logger.debug("Using authentication: username=" + currentUsername + ", password length=" + currentPassword.length());
@@ -303,5 +316,66 @@ public class WebServiceDispatcher extends DestinationConnector {
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);
+    }
+
+    private class DispatchContainer {
+        /*
+         * Dispatch object used for pooling the soap connection, and the current
+         * properties used to create the dispatch object
+         */
+        private Dispatch<SOAPMessage> dispatch = null;
+        private String currentWsdlUrl = null;
+        private String currentUsername = null;
+        private String currentPassword = null;
+        private String currentServiceName = null;
+        private String currentPortName = null;
+
+        public Dispatch<SOAPMessage> getDispatch() {
+            return dispatch;
+        }
+
+        public void setDispatch(Dispatch<SOAPMessage> dispatch) {
+            this.dispatch = dispatch;
+        }
+
+        public String getCurrentWsdlUrl() {
+            return currentWsdlUrl;
+        }
+
+        public void setCurrentWsdlUrl(String currentWsdlUrl) {
+            this.currentWsdlUrl = currentWsdlUrl;
+        }
+
+        public String getCurrentUsername() {
+            return currentUsername;
+        }
+
+        public void setCurrentUsername(String currentUsername) {
+            this.currentUsername = currentUsername;
+        }
+
+        public String getCurrentPassword() {
+            return currentPassword;
+        }
+
+        public void setCurrentPassword(String currentPassword) {
+            this.currentPassword = currentPassword;
+        }
+
+        public String getCurrentServiceName() {
+            return currentServiceName;
+        }
+
+        public void setCurrentServiceName(String currentServiceName) {
+            this.currentServiceName = currentServiceName;
+        }
+
+        public String getCurrentPortName() {
+            return currentPortName;
+        }
+
+        public void setCurrentPortName(String currentPortName) {
+            this.currentPortName = currentPortName;
+        }
     }
 }

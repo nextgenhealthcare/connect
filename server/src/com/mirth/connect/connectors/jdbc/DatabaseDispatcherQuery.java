@@ -12,6 +12,8 @@ package com.mirth.connect.connectors.jdbc;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.DbUtils;
@@ -19,22 +21,57 @@ import org.apache.commons.dbutils.DbUtils;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.server.HaltException;
+import com.mirth.connect.donkey.server.StartException;
+import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 
 public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
-    private BasicDataSource dataSource;
+    private DatabaseDispatcher connector;
+    private Map<Long, BasicDataSource> dataSources = new ConcurrentHashMap<Long, BasicDataSource>();
+
+    public DatabaseDispatcherQuery(DatabaseDispatcher connector) {
+        this.connector = connector;
+    }
 
     @Override
     public void deploy() {}
 
     @Override
-    public void undeploy() throws UndeployException {
-        if (dataSource != null && !dataSource.isClosed()) {
-            try {
-                dataSource.close();
-            } catch (SQLException e) {
-                throw new UndeployException("Failed to close data source", e);
+    public void undeploy() throws UndeployException {}
+
+    @Override
+    public void start() throws StartException {}
+
+    @Override
+    public void stop() throws StopException {
+        Throwable firstThrowable = null;
+
+        for (BasicDataSource dataSource : dataSources.values()) {
+            if (dataSource != null && !dataSource.isClosed()) {
+                try {
+                    dataSource.close();
+                } catch (Throwable t) {
+                    if (firstThrowable == null) {
+                        firstThrowable = t;
+                    }
+                }
             }
+        }
+
+        if (firstThrowable != null) {
+            throw new StopException("Failed to close data source", firstThrowable);
+        }
+
+        dataSources.clear();
+    }
+
+    @Override
+    public void halt() throws HaltException {
+        try {
+            stop();
+        } catch (StopException e) {
+            throw new HaltException(e);
         }
     }
 
@@ -104,6 +141,9 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
      * Get a database connection based on the given connector properties.
      */
     private Connection getConnection(DatabaseDispatcherProperties connectorProperties) throws SQLException {
+        long dispatcherId = connector.getDispatcherId();
+        BasicDataSource dataSource = dataSources.get(dispatcherId);
+
         /*
          * If we have an existing connection pool and it is based on the same
          * driver/username/password/url that is set in the given connector properties, then
@@ -129,6 +169,8 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
         dataSource.setUsername(connectorProperties.getUsername());
         dataSource.setPassword(connectorProperties.getPassword());
         dataSource.setUrl(connectorProperties.getUrl());
+
+        dataSources.put(dispatcherId, dataSource);
 
         Connection connection = dataSource.getConnection();
         connection.setAutoCommit(true);

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -37,10 +38,10 @@ import com.mirth.connect.userutil.XmlUtil;
 
 public class ValueReplacer {
     private Logger logger = Logger.getLogger(this.getClass());
-    private long count = 1;
+    private AtomicLong count = new AtomicLong(1);
 
-    public synchronized long getCount() {
-        return count++;
+    public long getCount() {
+        return count.getAndIncrement();
     }
 
     public static boolean hasReplaceableValues(String str) {

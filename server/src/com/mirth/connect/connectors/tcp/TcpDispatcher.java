@@ -18,7 +18,7 @@ import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
@@ -59,7 +59,7 @@ public class TcpDispatcher extends DestinationConnector {
 
     private Map<String, StateAwareSocket> connectedSockets;
     private Map<String, Thread> timeoutThreads;
-    private AtomicBoolean sending;
+    private AtomicInteger sending;
     private int sendTimeout;
 
     TransmissionModeProvider transmissionModeProvider;
@@ -92,7 +92,7 @@ public class TcpDispatcher extends DestinationConnector {
 
         connectedSockets = new ConcurrentHashMap<String, StateAwareSocket>();
         timeoutThreads = new ConcurrentHashMap<String, Thread>();
-        sending = new AtomicBoolean(false);
+        sending = new AtomicInteger(0);
         sendTimeout = parseInt(connectorProperties.getSendTimeout());
 
         eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
@@ -103,7 +103,7 @@ public class TcpDispatcher extends DestinationConnector {
 
     @Override
     public void onStart() throws StartException {
-        sending.set(false);
+        sending.set(0);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class TcpDispatcher extends DestinationConnector {
         StopException firstCause = null;
 
         try {
-            while (sending.get()) {
+            while (sending.get() != 0) {
                 Thread.sleep(100);
             }
 
@@ -179,7 +179,9 @@ public class TcpDispatcher extends DestinationConnector {
         String responseError = null;
         boolean validateResponse = false;
 
-        String socketKey = tcpDispatcherProperties.getRemoteAddress() + tcpDispatcherProperties.getRemotePort();
+        long dispatcherId = getDispatcherId();
+
+        String socketKey = dispatcherId + tcpDispatcherProperties.getRemoteAddress() + tcpDispatcherProperties.getRemotePort();
         if (tcpDispatcherProperties.isOverrideLocalBinding()) {
             socketKey += tcpDispatcherProperties.getLocalAddress() + tcpDispatcherProperties.getLocalPort();
         }
@@ -188,7 +190,7 @@ public class TcpDispatcher extends DestinationConnector {
         Thread timeoutThread = null;
 
         try {
-            sending.set(true);
+            sending.incrementAndGet();
 
             socket = connectedSockets.get(socketKey);
             timeoutThread = timeoutThreads.get(socketKey);
@@ -304,7 +306,7 @@ public class TcpDispatcher extends DestinationConnector {
 
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error sending message via TCP.", e));
         } finally {
-            sending.set(false);
+            sending.decrementAndGet();
             eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket)));
         }
 

@@ -22,6 +22,9 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.HaltException;
+import com.mirth.connect.donkey.server.StartException;
+import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectorEvent;
@@ -48,7 +51,7 @@ public class DatabaseDispatcher extends DestinationConnector {
         if (((DatabaseDispatcherProperties) getConnectorProperties()).isUseScript()) {
             delegate = new DatabaseDispatcherScript(this);
         } else {
-            delegate = new DatabaseDispatcherQuery();
+            delegate = new DatabaseDispatcherQuery(this);
         }
 
         delegate.deploy();
@@ -61,13 +64,19 @@ public class DatabaseDispatcher extends DestinationConnector {
     }
 
     @Override
-    public void onStart() {}
+    public void onStart() throws StartException {
+        delegate.start();
+    }
 
     @Override
-    public void onStop() {}
+    public void onStop() throws StopException {
+        delegate.stop();
+    }
 
     @Override
-    public void onHalt() {}
+    public void onHalt() throws HaltException {
+        delegate.halt();
+    }
 
     @Override
     public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message) {
