@@ -72,12 +72,6 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         this.connectorType = connectorType;
         this.connectorName = connectorName;
         this.listModel = JmsTemplateListModel.getInstance();
-
-        if (connectorType == TYPE_SENDER) {
-            reconnectIntervalField.setToolTipText("<html>The number of milliseconds between reconnect attempts when a connection error occurs (while the connector is idle).</html>");
-        } else {
-            reconnectIntervalField.setToolTipText("<html>The number of milliseconds between reconnect attempts when a connection error occurs.</html>");
-        }
     }
 
     @Override
@@ -114,7 +108,6 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
 
         properties.setDestinationName(destinationNameField.getText());
         properties.setClientId(clientIdField.getText());
-        properties.setReconnectIntervalMillis(reconnectIntervalField.getText());
         properties.setUsername(usernameField.getText());
         properties.setPassword(passwordField.getText());
 
@@ -160,7 +153,6 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
 
         destinationNameField.setText(jmsConnectorProperties.getDestinationName());
         clientIdField.setText(jmsConnectorProperties.getClientId());
-        reconnectIntervalField.setText(jmsConnectorProperties.getReconnectIntervalMillis());
         usernameField.setText(jmsConnectorProperties.getUsername());
         passwordField.setText(jmsConnectorProperties.getPassword());
     }
@@ -317,8 +309,6 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         connectionPropertiesTable = new com.mirth.connect.client.ui.components.MirthPropertiesTable();
         newButton = new com.mirth.connect.client.ui.components.MirthButton();
         deleteButton = new com.mirth.connect.client.ui.components.MirthButton();
-        reconnectIntervalLabel = new javax.swing.JLabel();
-        reconnectIntervalField = new com.mirth.connect.client.ui.components.MirthTextField();
         passwordField = new javax.swing.JPasswordField();
         clientIdLabel = new javax.swing.JLabel();
         clientIdField = new com.mirth.connect.client.ui.components.MirthTextField();
@@ -415,10 +405,6 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         deleteButton.setText("Delete");
         deleteButton.setToolTipText("Deletes the currently selected row from the list.");
 
-        reconnectIntervalLabel.setText("Reconnect Interval (ms):");
-
-        reconnectIntervalField.setToolTipText("");
-
         passwordField.setToolTipText("The password for accessing the queue or topic.");
 
         clientIdLabel.setText("Client ID:");
@@ -427,7 +413,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
 
         templateScrollPane.setBorder(null);
 
-        templateList.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Connection Templates", 0, 0, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0))); // NOI18N
+        templateList.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Connection Templates", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0))); // NOI18N
         templateList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         templateScrollPane.setViewportView(templateList);
 
@@ -471,7 +457,6 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
                     .addComponent(initialContextFactoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(useJndiLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(reconnectIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(destinationTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(clientIdLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(destinationNameLabel, javax.swing.GroupLayout.Alignment.TRAILING))
@@ -489,7 +474,6 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
                                 .addComponent(useJndiYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(useJndiNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(connectionPropertiesScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
@@ -558,10 +542,6 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
                             .addComponent(loadTemplateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(saveTemplateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(deleteTemplateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(reconnectIntervalLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -763,8 +743,6 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
     private javax.swing.JLabel passwordLabel;
     private com.mirth.connect.client.ui.components.MirthTextField providerUrlField;
     private javax.swing.JLabel providerUrlLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField reconnectIntervalField;
-    private javax.swing.JLabel reconnectIntervalLabel;
     private com.mirth.connect.client.ui.components.MirthButton saveTemplateButton;
     private javax.swing.JList templateList;
     private javax.swing.JScrollPane templateScrollPane;

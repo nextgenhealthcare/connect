@@ -37,7 +37,6 @@
                   <Component id="initialContextFactoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="useJndiLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="destinationTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="clientIdLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="destinationNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -58,7 +57,6 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="useJndiNo" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="reconnectIntervalField" alignment="0" min="-2" pref="87" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="1" attributes="0">
                                   <Component id="connectionPropertiesScrollPane" pref="400" max="32767" attributes="0"/>
@@ -149,11 +147,6 @@
                           <Component id="deleteTemplateButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="reconnectIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="reconnectIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -369,16 +362,6 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Delete"/>
         <Property name="toolTipText" type="java.lang.String" value="Deletes the currently selected row from the list."/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="reconnectIntervalLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Reconnect Interval (ms):"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="reconnectIntervalField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value=""/>
       </Properties>
     </Component>
     <Component class="javax.swing.JPasswordField" name="passwordField">

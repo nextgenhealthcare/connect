@@ -26,7 +26,6 @@ public class JmsConnectorProperties extends ConnectorProperties {
     private String password;
     private String destinationName;
     private boolean topic;
-    private String reconnectIntervalMillis;
     private String clientId;
 
     protected JmsConnectorProperties() {
@@ -40,10 +39,9 @@ public class JmsConnectorProperties extends ConnectorProperties {
         password = "";
         destinationName = "";
         topic = false;
-        reconnectIntervalMillis = "10000";
         clientId = "";
     }
-    
+
     protected JmsConnectorProperties(JmsConnectorProperties props) {
         useJndi = props.isUseJndi();
         jndiProviderUrl = props.getJndiProviderUrl();
@@ -55,7 +53,6 @@ public class JmsConnectorProperties extends ConnectorProperties {
         password = props.getPassword();
         destinationName = props.getDestinationName();
         topic = props.isTopic();
-        reconnectIntervalMillis = props.getReconnectIntervalMillis();
         clientId = props.getClientId();
     }
 
@@ -188,14 +185,6 @@ public class JmsConnectorProperties extends ConnectorProperties {
 
     public void setTopic(boolean topic) {
         this.topic = topic;
-    }
-
-    public String getReconnectIntervalMillis() {
-        return reconnectIntervalMillis;
-    }
-
-    public void setReconnectIntervalMillis(String reconnectIntervalMillis) {
-        this.reconnectIntervalMillis = reconnectIntervalMillis;
     }
 
     public String getClientId() {

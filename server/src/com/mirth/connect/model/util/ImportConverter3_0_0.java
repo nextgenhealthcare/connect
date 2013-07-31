@@ -1033,7 +1033,6 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("username").setTextContent(convertReferences(oldProperties.getProperty("username", "")));
         properties.addChildElement("password").setTextContent(convertReferences(oldProperties.getProperty("password", "")));
         properties.addChildElement("destinationName").setTextContent(convertReferences(oldProperties.getProperty("host", "")));
-        properties.addChildElement("reconnectIntervalMillis").setTextContent("10000");
         properties.addChildElement("clientId").setTextContent("");
         properties.addChildElement("topic").setTextContent("false");
         properties.addChildElement("template").setTextContent(convertReferences(oldProperties.getProperty("template", "${message.encodedData}")));

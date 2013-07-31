@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.jms;
 
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
@@ -16,6 +17,7 @@ public class JmsListener extends ConnectorSettingsPanel {
     public JmsListener() {
         initComponents();
         jmsConnectorPanel.init(JmsConnectorPanel.TYPE_LISTENER, getConnectorName());
+        reconnectIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
     }
 
     @Override
@@ -27,6 +29,7 @@ public class JmsListener extends ConnectorSettingsPanel {
     public ConnectorProperties getProperties() {
         JmsReceiverProperties properties = (JmsReceiverProperties) jmsConnectorPanel.getProperties();
         properties.setSelector(selectorField.getText());
+        properties.setReconnectIntervalMillis(reconnectIntervalField.getText());
         return properties;
     }
 
@@ -35,6 +38,7 @@ public class JmsListener extends ConnectorSettingsPanel {
         jmsConnectorPanel.setProperties(properties);
         JmsReceiverProperties jmsReceiverProperties = (JmsReceiverProperties) properties;
         selectorField.setText(jmsReceiverProperties.getSelector());
+        reconnectIntervalField.setText(jmsReceiverProperties.getReconnectIntervalMillis());
     }
 
     @Override
@@ -65,6 +69,8 @@ public class JmsListener extends ConnectorSettingsPanel {
         selectorLabel = new javax.swing.JLabel();
         selectorField = new com.mirth.connect.client.ui.components.MirthTextField();
         jmsConnectorPanel = new com.mirth.connect.connectors.jms.JmsConnectorPanel();
+        reconnectIntervalField = new com.mirth.connect.client.ui.components.MirthTextField();
+        reconnectIntervalLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -73,15 +79,23 @@ public class JmsListener extends ConnectorSettingsPanel {
 
         selectorField.setToolTipText("<html>Enter a selector expression to select specific messages from the queue/topic.<br/>Leave blank to read all messages.</html>");
 
+        reconnectIntervalField.setToolTipText("<html>The number of milliseconds between reconnect attempts when a connection error occurs.</html>");
+
+        reconnectIntervalLabel.setText("Reconnect Interval (ms):");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jmsConnectorPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(selectorLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(reconnectIntervalLabel)
+                    .addComponent(selectorLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(selectorField, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(selectorField, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -90,12 +104,18 @@ public class JmsListener extends ConnectorSettingsPanel {
                 .addComponent(jmsConnectorPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(reconnectIntervalLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(selectorField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(selectorLabel)))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.connectors.jms.JmsConnectorPanel jmsConnectorPanel;
+    private com.mirth.connect.client.ui.components.MirthTextField reconnectIntervalField;
+    private javax.swing.JLabel reconnectIntervalLabel;
     private com.mirth.connect.client.ui.components.MirthTextField selectorField;
     private javax.swing.JLabel selectorLabel;
     // End of variables declaration//GEN-END:variables

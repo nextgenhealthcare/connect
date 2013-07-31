@@ -46,7 +46,7 @@ import com.mirth.connect.util.BeanUtil;
  */
 public class JmsClient implements ExceptionListener {
     private Connector connector;
-    private JmsConnectorProperties connectorProperties;
+    private JmsReceiverProperties connectorProperties;
     private String connectorName;
     private Connection connection;
     private Session session;
@@ -61,7 +61,7 @@ public class JmsClient implements ExceptionListener {
     private int intervalMillis;
     private Logger logger = Logger.getLogger(getClass());
 
-    public JmsClient(final Connector connector, JmsConnectorProperties connectorProperties, String connectorName) {
+    public JmsClient(final Connector connector, JmsReceiverProperties connectorProperties, String connectorName) {
         this.connector = connector;
         this.connectorProperties = connectorProperties;
         this.connectorName = connectorName;

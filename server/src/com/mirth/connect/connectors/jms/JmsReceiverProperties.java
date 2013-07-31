@@ -11,11 +11,13 @@ package com.mirth.connect.connectors.jms;
 
 public class JmsReceiverProperties extends JmsConnectorProperties {
     private String selector;
+    private String reconnectIntervalMillis;
     private boolean durableTopic;
 
     public JmsReceiverProperties() {
         super();
         selector = "";
+        reconnectIntervalMillis = "10000";
         durableTopic = false;
     }
 
@@ -46,6 +48,14 @@ public class JmsReceiverProperties extends JmsConnectorProperties {
 
     public void setSelector(String selector) {
         this.selector = selector;
+    }
+
+    public String getReconnectIntervalMillis() {
+        return reconnectIntervalMillis;
+    }
+
+    public void setReconnectIntervalMillis(String reconnectIntervalMillis) {
+        this.reconnectIntervalMillis = reconnectIntervalMillis;
     }
 
     public boolean isDurableTopic() {
