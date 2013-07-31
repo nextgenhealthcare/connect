@@ -3,28 +3,25 @@
 <queries>
 	<query id="createMessageTable">
 		CREATE TABLE d_m${localChannelId} (
-	        id bigint NOT NULL PRIMARY KEY,
+	        id bigint NOT NULL,
 	        server_id character varying(36) NOT NULL,
 	        received_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	        processed boolean NOT NULL DEFAULT FALSE,
 	        original_id bigint,
 	        import_id bigint,
-	        import_channel_id character varying(36)
+	        import_channel_id character varying(36),
+	        CONSTRAINT m${localChannelId}_pkey PRIMARY KEY(id)
 	    )
 	</query>
 	
 	<query id="createMessageTableIndex1">
-		CREATE INDEX d_m${localChannelId}_index1 ON d_m${localChannelId}(id)
-	</query>
-	
-	<query id="createMessageTableIndex2">
-		CREATE INDEX d_m${localChannelId}_index2 ON d_m${localChannelId}(id, server_id)
+		CREATE INDEX d_m${localChannelId}_index1 ON d_m${localChannelId}(id, server_id)
 	</query>
 	
 	<query id="createConnectorMessageTable">
 		CREATE TABLE d_mm${localChannelId} (
 	        id integer NOT NULL,
-	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE RESTRICT,
+	        message_id bigint NOT NULL,
 	        server_id character varying(36) NOT NULL,
 	        received_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	        status character(1) NOT NULL,
@@ -35,7 +32,8 @@
 	        error_code integer NOT NULL DEFAULT 0,
 	        chain_id integer NOT NULL,
 	        order_id integer NOT NULL,
-	        constraint mm${localChannelId}_pkey PRIMARY KEY(message_id, id)
+	        CONSTRAINT mm${localChannelId}_pkey PRIMARY KEY(message_id, id),
+	        CONSTRAINT mm${localChannelId}_fkey FOREIGN KEY(message_id) REFERENCES d_m${localChannelId}(id) ON DELETE RESTRICT
         )
 	</query>
 	
@@ -44,15 +42,15 @@
 	</query>
 	
 	<query id="createConnectorMessageTableIndex2">
-		CREATE INDEX d_mm${localChannelId}_index2 ON d_mm${localChannelId}(message_id, id)
+		CREATE INDEX d_mm${localChannelId}_index2 ON d_mm${localChannelId}(message_id, status)
 	</query>
 	
 	<query id="createConnectorMessageTableIndex3">
-		CREATE INDEX d_mm${localChannelId}_index3 ON d_mm${localChannelId}(message_id, status)
+		CREATE INDEX d_mm${localChannelId}_index3 ON d_mm${localChannelId}(message_id, id, status)
 	</query>
 	
 	<query id="createConnectorMessageTableIndex4">
-		CREATE INDEX d_mm${localChannelId}_index4 ON d_mm${localChannelId}(message_id, id, status)
+		CREATE INDEX d_mm${localChannelId}_index4 ON d_mm${localChannelId}(message_id, server_id, id)
 	</query>
 	
 	<query id="createMessageContentTable">
@@ -69,7 +67,7 @@
 	</query>
 	
 	<query id="createMessageContentTableIndex1">
-		CREATE INDEX d_mc${localChannelId}_index1 ON d_mc${localChannelId}(message_id, metadata_id, content_type)
+		CREATE INDEX d_mc${localChannelId}_index1 ON d_mc${localChannelId}(message_id, metadata_id)
 	</query>
 	
 	<query id="createMessageCustomMetaDataTable">
@@ -81,22 +79,15 @@
         )
 	</query>
 	
-	<query id="createMessageCustomMetaDataTableIndex1">
-		CREATE INDEX d_mcm${localChannelId}_index1 ON d_mcm${localChannelId}(message_id)
-	</query>
-	
-	<query id="createMessageCustomMetaDataTableIndex2">
-		CREATE INDEX d_mcm${localChannelId}_index2 ON d_mcm${localChannelId}(message_id, metadata_id)
-	</query>
-	
 	<query id="createMessageAttachmentTable">
 		CREATE TABLE d_ma${localChannelId} (
 	        id character varying(255) NOT NULL,
-	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE RESTRICT,
+	        message_id bigint NOT NULL,
 	        type character varying(40),
 	        segment_id integer NOT NULL,
 	        attachment_size integer NOT NULL,
-	        content blob
+	        content blob,
+	        CONSTRAINT ma${localChannelId}_fkey FOREIGN KEY(message_id) REFERENCES d_m${localChannelId}(id) ON DELETE RESTRICT
         )
 	</query>
 	
@@ -137,57 +128,35 @@
 	
 	<query id="createChannelsTable">
 		CREATE TABLE d_channels (
-	        local_channel_id bigint NOT NULL PRIMARY KEY,
+	        local_channel_id bigint NOT NULL,
 	        channel_id character varying(36) NOT NULL,
+	        CONSTRAINT d_channels_pkey PRIMARY KEY(local_channel_id),
 	        CONSTRAINT unique_channel_id UNIQUE (channel_id)
         )
 	</query>
 	
-	<query id="createChannelsTableIndex1">
-		CREATE INDEX d_channels_index1 ON d_channels(local_channel_id)
-	</query>
-	
 	<query id="createSequencesTable">
 		CREATE TABLE d_message_sequences (
-			local_channel_id bigint NOT NULL PRIMARY KEY,
-			id bigint NOT NULL DEFAULT 1
+			local_channel_id bigint NOT NULL,
+			id bigint NOT NULL DEFAULT 1,
+			CONSTRAINT d_message_sequences_pkey PRIMARY KEY(local_channel_id)
 		)
-	</query>
-	
-	<query id="createSequencesTableIndex1">
-		CREATE INDEX d_message_sequences_index ON d_channels(local_channel_id)
 	</query>
 	
 	<query id="addMetaDataColumnString">
 		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} character varying(255)
 	</query>
 	
-	<query id="addMetaDataColumnStringIndex">
-		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
-	</query>
-	
 	<query id="addMetaDataColumnNumber">
 		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} decimal(31, 15)
-	</query>
-	
-	<query id="addMetaDataColumnNumberIndex">
-		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
 	</query>
 	
 	<query id="addMetaDataColumnBoolean">
 		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} boolean
 	</query>
 	
-	<query id="addMetaDataColumnBooleanIndex">
-		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
-	</query>
-	
 	<query id="addMetaDataColumnTimestamp">
 		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} timestamp
-	</query>
-	
-	<query id="addMetaDataColumnTimestampIndex">
-		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit">

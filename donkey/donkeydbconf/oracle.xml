@@ -3,13 +3,14 @@
 <queries>
 	<query id="createMessageTable">
 		CREATE TABLE d_m${localChannelId} (
-	        id NUMBER(19) NOT NULL PRIMARY KEY,
+	        id NUMBER(19) NOT NULL,
 	        server_id NVARCHAR2(36) NOT NULL,
 	        received_date TIMESTAMP NOT NULL,
 	        processed CHAR(1) DEFAULT '0' CHECK (processed IN ('0','1')) NOT NULL,
 	        original_id NUMBER(19),
 	        import_id NUMBER(19),
-	        import_channel_id NVARCHAR2(36)
+	        import_channel_id NVARCHAR2(36),
+	        CONSTRAINT m${localChannelId}_pkey PRIMARY KEY(id)
 	    )
 	</query>
 	
@@ -44,6 +45,10 @@
 		CREATE INDEX d_mm${localChannelId}_index2 ON d_mm${localChannelId}(message_id, id, status)
 	</query>
 	
+	<query id="createConnectorMessageTableIndex3">
+		CREATE INDEX d_mm${localChannelId}_index3 ON d_mm${localChannelId}(message_id, server_id, id)
+	</query>
+	
 	<query id="createMessageContentTable">
 		CREATE TABLE d_mc${localChannelId} (
 	        metadata_id NUMBER(10) NOT NULL,
@@ -56,6 +61,10 @@
 	        CONSTRAINT mc${localChannelId}_fkey FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE CASCADE
         )
 	</query>
+	
+	<query id="createMessageContentTableIndex1">
+		CREATE INDEX d_mc${localChannelId}_index1 ON d_mc${localChannelId}(message_id, metadata_id)
+	</query>
 
 	<query id="createMessageCustomMetaDataTable">
 		CREATE TABLE d_mcm${localChannelId} (
@@ -64,10 +73,6 @@
 	        CONSTRAINT mcm${localChannelId}_pkey PRIMARY KEY(message_id, metadata_id),
 	        CONSTRAINT mcm${localChannelId}_fkey FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE CASCADE
         )
-	</query>
-	
-	<query id="createMessageCustomMetaDataTableIndex1">
-		CREATE INDEX d_mcm${localChannelId}_index1 ON d_mcm${localChannelId}(message_id)
 	</query>
 	
 	<query id="createMessageAttachmentTable">
@@ -119,8 +124,9 @@
 	
 	<query id="createChannelsTable">
 		CREATE TABLE d_channels (
-	        local_channel_id NUMBER(19) NOT NULL PRIMARY KEY,
+	        local_channel_id NUMBER(19) NOT NULL,
 	        channel_id NVARCHAR2(36) NOT NULL,
+	        CONSTRAINT d_channels_pkey PRIMARY KEY(local_channel_id),
 	        CONSTRAINT unique_channel_id UNIQUE (channel_id)
         )
 	</query>
@@ -165,32 +171,16 @@
 		ALTER TABLE d_mcm${localChannelId} ADD ("${columnName}" VARCHAR2(255 CHAR))
 	</query>
 	
-	<query id="addMetaDataColumnStringIndex">
-		CREATE INDEX "d_mcm${localChannelId}_${columnName}" ON d_mcm${localChannelId}("${columnName}")
-	</query>
-	
 	<query id="addMetaDataColumnNumber">
 		ALTER TABLE d_mcm${localChannelId} ADD ("${columnName}" NUMBER(31, 15))
-	</query>
-	
-	<query id="addMetaDataColumnNumberIndex">
-		CREATE INDEX "d_mcm${localChannelId}_${columnName}" ON d_mcm${localChannelId}("${columnName}")
 	</query>
 	
 	<query id="addMetaDataColumnBoolean">
 		ALTER TABLE d_mcm${localChannelId} ADD ("${columnName}" CHAR(1))
 	</query>
 	
-	<query id="addMetaDataColumnBooleanIndex">
-		CREATE INDEX "d_mcm${localChannelId}_${columnName}" ON d_mcm${localChannelId}("${columnName}")
-	</query>
-	
 	<query id="addMetaDataColumnTimestamp">
 		ALTER TABLE d_mcm${localChannelId} ADD ("${columnName}" TIMESTAMP)
-	</query>
-	
-	<query id="addMetaDataColumnTimestampIndex">
-		CREATE INDEX "d_mcm${localChannelId}_${columnName}" ON d_mcm${localChannelId}("${columnName}")
 	</query>
 	
 	<query id="markAsProcessed">
