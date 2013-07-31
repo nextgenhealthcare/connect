@@ -39,7 +39,7 @@ public abstract class MessageController {
     
     public abstract List<Attachment> getMessageAttachment(String channelId, Long messageId);
 
-    public abstract int removeMessages(String channelId, MessageFilter filter);
+    public abstract void removeMessages(String channelId, MessageFilter filter);
     
     public abstract void clearMessages(Set<String> channelIds, Boolean restartRunningChannels, Boolean clearStatistics) throws ControllerException;
 

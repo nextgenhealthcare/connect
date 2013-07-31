@@ -160,7 +160,6 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
                     selectStatement.setObject(objectIndex++, param);
                 }
 
-                // TODO consider supporting multiple ResultSets returned by the selectStatement
                 resultSet = selectStatement.executeQuery();
 
                 // if we are not caching the ResultSet, return it immediately

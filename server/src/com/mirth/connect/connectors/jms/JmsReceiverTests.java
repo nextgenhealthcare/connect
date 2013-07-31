@@ -215,16 +215,6 @@ public class JmsReceiverTests {
         runTest(connectorProperties, 100, 100, 100);
     }
 
-    // TODO this one doesn't work consistently, it's probably a problem with the test and not the connector
-//    @Test
-//    public final void testSelector() throws Exception {
-//        JmsReceiverProperties connectorProperties = getInitialProperties();
-//        connectorProperties.setDestinationName(selectorQueueName);
-//        connectorProperties.setTopic(false);
-//        connectorProperties.setSelector("messageNumber < 50");
-//        runTest(connectorProperties, 0, 100, 50);
-//    }
-
     @Test(expected = StartException.class)
     public final void testInvalidConnection() throws Exception {
         JmsReceiverProperties connectorProperties = getInitialProperties(true);

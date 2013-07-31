@@ -1208,7 +1208,6 @@ public class CommandLineInterface {
     private void commandResetstats(Token[] arguments) throws ClientException {
         List<DashboardStatus> channelStatuses = client.getChannelStatusList();
 
-        // TODO: separate this code into a utility method since this code is also duplicated in com.mirth.connect.client.ui.Frame.clearStats()
         Map<String, List<Integer>> channelConnectorMap = new HashMap<String, List<Integer>>();
 
         for (DashboardStatus status : channelStatuses) {

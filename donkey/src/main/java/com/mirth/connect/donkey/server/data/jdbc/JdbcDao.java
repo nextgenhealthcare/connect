@@ -1076,7 +1076,6 @@ public class JdbcDao implements DonkeyDao {
             }
 
             close(resultSet);
-            close(statement); //TODO when does this need to be closed?
 
             // Get the attachment data
             statement = prepareStatement("selectMessageAttachment", channelId);
@@ -1428,12 +1427,6 @@ public class JdbcDao implements DonkeyDao {
                     builder.append(",");
                 }
                 builder.append(status.toString() + " = 0");
-
-                if (transactionStats.getChannelStats(channelId).containsKey(metaDataId)) {
-                    //TODO Currently this will never get called becauses stats are never reset in a transaction that has transactional stat changes. 
-                    // Decide whether to remove this or not.
-                    transactionStats.getChannelStats(channelId).get(metaDataId).remove(status);
-                }
             }
             values.put("statuses", builder.toString());
 

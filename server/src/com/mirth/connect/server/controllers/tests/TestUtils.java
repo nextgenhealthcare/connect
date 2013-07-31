@@ -534,7 +534,7 @@ public class TestUtils {
         String database = (String) Donkey.getInstance().getConfiguration().getDatabaseProperties().get("database");
         Long maxId = null;
 
-        if (database.equals("derby")) {
+        if (database.equals("derby") || database.equals("mysql") || database.equals("sqlserver")) {
             Statement statement = null;
             ResultSet result = null;
 
@@ -553,8 +553,6 @@ public class TestUtils {
                 close(statement);
                 close(connection);
             }
-        } else {
-            // TODO
         }
 
         logger.debug("Message ID sequence updated to: " + maxId);

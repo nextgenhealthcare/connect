@@ -104,7 +104,6 @@ public class DefaultMigrationController extends MigrationController {
                     migrator.setDatabaseType(configurationController.getDatabaseType());
                     migrator.migrate();
                 } catch (MigrationException e) {
-                    // TODO return a list of the extensions that failed so that they can be automatically disabled?
                     logger.error("Failed to migrate extension", e);
                 }
             }

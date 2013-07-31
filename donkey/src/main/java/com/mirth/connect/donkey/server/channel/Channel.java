@@ -1462,36 +1462,47 @@ public class Channel implements Startable, Stoppable, Runnable {
          * - mark the message as processed
          */
         ThreadUtils.checkInterruptedStatus();
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = null;
 
-        if (storePostProcessorError) {
-            dao.updateErrors(sourceConnectorMessage);
-        }
-
-        if (markAsProcessed) {
-            if (storageSettings.isStoreMergedResponseMap()) {
-                ThreadUtils.checkInterruptedStatus();
-                dao.updateResponseMap(sourceConnectorMessage);
+        try {
+            if (storePostProcessorError) {
+                dao = daoFactory.getDao();
+                dao.updateErrors(sourceConnectorMessage);
+            }
+    
+            if (markAsProcessed) {
+                if (dao == null) {
+                    dao = daoFactory.getDao();
+                }
+                
+                if (storageSettings.isStoreMergedResponseMap()) {
+                    ThreadUtils.checkInterruptedStatus();
+                    dao.updateResponseMap(sourceConnectorMessage);
+                }
+    
+                dao.markAsProcessed(channelId, finalMessage.getMessageId());
+                finalMessage.setProcessed(true);
+    
+                boolean messageCompleted = messageController.isMessageCompleted(finalMessage);
+                if (messageCompleted) {
+                    if (storageSettings.isRemoveContentOnCompletion()) {
+                        dao.deleteMessageContent(channelId, finalMessage.getMessageId());
+                    }
+    
+                    if (storageSettings.isRemoveAttachmentsOnCompletion()) {
+                        dao.deleteMessageAttachments(channelId, finalMessage.getMessageId());
+                    }
+                }
             }
 
-            dao.markAsProcessed(channelId, finalMessage.getMessageId());
-            finalMessage.setProcessed(true);
-
-            boolean messageCompleted = messageController.isMessageCompleted(finalMessage);
-            if (messageCompleted) {
-                if (storageSettings.isRemoveContentOnCompletion()) {
-                    dao.deleteMessageContent(channelId, finalMessage.getMessageId());
-                }
-
-                if (storageSettings.isRemoveAttachmentsOnCompletion()) {
-                    dao.deleteMessageAttachments(channelId, finalMessage.getMessageId());
-                }
+            if (dao != null) {
+                dao.commit(storageSettings.isDurable());
+            }
+        } finally {
+            if (dao != null) {
+                dao.close();
             }
         }
-
-        // TODO this commit may be unnecessary if nothing was executed above
-        dao.commit(storageSettings.isDurable());
-        dao.close();
     }
 
     public void importMessage(Message message) throws DonkeyException {
@@ -1579,8 +1590,6 @@ public class Channel implements Startable, Stoppable, Runnable {
             if (storageSettings.isStoreProcessedResponse() && connectorMessage.getProcessedResponse() != null) {
                 dao.insertMessageContent(connectorMessage.getProcessedResponse());
             }
-
-            // TODO insert attachments?
         }
     }
 

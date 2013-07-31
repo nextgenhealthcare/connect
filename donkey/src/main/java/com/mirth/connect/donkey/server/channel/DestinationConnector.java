@@ -265,7 +265,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
     }
 
     private MessageContent getSentContent(ConnectorMessage message, ConnectorProperties connectorProperties) {
-        // TODO: store the serializer as a class variable?
         String content = Donkey.getInstance().getSerializer().serialize(connectorProperties);
         return new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.SENT, content, null, false);
     }

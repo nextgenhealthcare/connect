@@ -118,7 +118,7 @@ public class ImportConverter3_0_0 {
 
     private static void migrateChannel(DonkeyElement channel) throws MigrationException {
         logger.debug("Migrating channel to version " + VERSION_STRING);
-        channel.removeChild("version"); // TODO is it safe to remove the version property from the Channel class and other classes?
+        channel.removeChild("version");
 
         // migrate source connector
         DonkeyElement sourceConnector = channel.getChildElement("sourceConnector");
@@ -568,7 +568,6 @@ public class ImportConverter3_0_0 {
     private static String[] migrateTransformer(DonkeyElement transformer) {
         logger.debug("Migrating Transformer");
 
-        // TODO make sure that protocol/data type names haven't changed in 3.0.0
         DonkeyElement inboundDataTypeElement = transformer.getChildElement("inboundProtocol");
         DonkeyElement outboundDataTypeElement = transformer.getChildElement("outboundProtocol");
         inboundDataTypeElement.setNodeName("inboundDataType");

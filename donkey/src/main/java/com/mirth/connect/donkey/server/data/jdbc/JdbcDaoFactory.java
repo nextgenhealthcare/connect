@@ -119,7 +119,6 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
 
             Integer maxConnections = connectionPool.getMaxConnections();
 
-            // TODO: find a more efficient way of cleaning up old connections
             if (maxConnections == null || statementSources.size() > maxConnections) {
                 logger.debug("cleaning up prepared statement cache");
 

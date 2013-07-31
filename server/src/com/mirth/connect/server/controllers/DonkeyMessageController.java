@@ -229,7 +229,7 @@ public class DonkeyMessageController extends MessageController {
     }
 
     @Override
-    public int removeMessages(String channelId, MessageFilter filter) {
+    public void removeMessages(String channelId, MessageFilter filter) {
         // Perform the deletes in batches rather than all in one transaction.
         //TODO Tune the limit to use for each batch in the delete.
         Map<String, Object> params = getParameters(filter, channelId, 0, 100000);
@@ -276,8 +276,6 @@ public class DonkeyMessageController extends MessageController {
             // Invalidate the queue buffer to ensure stats are updated.
             channel.invalidateQueues();
         }
-        //TODO Decide what to return
-        return 0;
     }
 
     @Override

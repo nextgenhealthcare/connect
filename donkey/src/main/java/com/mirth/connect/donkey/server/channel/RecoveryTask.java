@@ -119,7 +119,6 @@ public class RecoveryTask implements Callable<List<Message>> {
                 ConnectorMessage sourceMessage = message.getConnectorMessages().get(0);
                 boolean finished = true;
 
-                //TODO will sourceMessage be null for any reason?
                 // merge responses from all of the destinations into the source connector's response map
                 for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
                     Status status = connectorMessage.getStatus();

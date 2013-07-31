@@ -176,7 +176,6 @@ public class JmsReceiver extends SourceConnector {
              * Use the message object's string representation as the raw message for other message
              * formats, such as MapMessage and StreamMessage.
              */
-            // TODO we could possibly transform MapMessages and/or StreamMessages into XML for the raw message
             return new RawMessage(message.toString());
         }
 
