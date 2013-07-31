@@ -677,31 +677,17 @@ public class Channel implements Startable, Stoppable, Runnable {
         stopSourceQueue = true;
         Throwable firstCause = null;
 
-        // If an exception occurs, then still proceed by stopping the rest of the connectors
-        for (Integer metaDataId : metaDataIds) {
-            ThreadUtils.checkInterruptedStatus();
-
-            try {
-                if (metaDataId == 0) {
-                    sourceConnector.stop();
-                } else {
-                    getDestinationConnector(metaDataId).stop();
-                }
-            } catch (Throwable t) {
-                if (metaDataId == 0) {
-                    logger.error("Error stopping Source connector for channel " + name + " (" + channelId + ").", t);
-                } else {
-                    logger.error("Error stopping destination connector \"" + getDestinationConnector(metaDataId).getDestinationName() + "\" for channel " + name + " (" + channelId + ").", t);
-                }
-
-                if (firstCause == null) {
-                    firstCause = t;
-                }
+        ThreadUtils.checkInterruptedStatus();
+        try {
+            sourceConnector.stop();
+        } catch (Throwable t) {
+            logger.error("Error stopping Source connector for channel " + name + " (" + channelId + ").", t);
+            if (firstCause == null) {
+                firstCause = t;
             }
         }
 
         ThreadUtils.checkInterruptedStatus();
-
         final int timeout = 10;
 
         while (true) {
@@ -721,6 +707,22 @@ public class Channel implements Startable, Stoppable, Runnable {
                 }
             }
             Thread.sleep(timeout);
+        }
+
+        // If an exception occurs, then still proceed by stopping the rest of the connectors
+        for (Integer metaDataId : metaDataIds) {
+            ThreadUtils.checkInterruptedStatus();
+
+            try {
+                if (metaDataId > 0) {
+                    getDestinationConnector(metaDataId).stop();
+                }
+            } catch (Throwable t) {
+                logger.error("Error stopping destination connector \"" + getDestinationConnector(metaDataId).getDestinationName() + "\" for channel " + name + " (" + channelId + ").", t);
+                if (firstCause == null) {
+                    firstCause = t;
+                }
+            }
         }
 
         if (queueThread != null) {

@@ -18,7 +18,6 @@ import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
@@ -59,7 +58,6 @@ public class TcpDispatcher extends DestinationConnector {
 
     private Map<String, StateAwareSocket> connectedSockets;
     private Map<String, Thread> timeoutThreads;
-    private AtomicInteger sending;
     private int sendTimeout;
 
     TransmissionModeProvider transmissionModeProvider;
@@ -92,7 +90,6 @@ public class TcpDispatcher extends DestinationConnector {
 
         connectedSockets = new ConcurrentHashMap<String, StateAwareSocket>();
         timeoutThreads = new ConcurrentHashMap<String, Thread>();
-        sending = new AtomicInteger(0);
         sendTimeout = parseInt(connectorProperties.getSendTimeout());
 
         eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
@@ -102,19 +99,13 @@ public class TcpDispatcher extends DestinationConnector {
     public void onUndeploy() throws UndeployException {}
 
     @Override
-    public void onStart() throws StartException {
-        sending.set(0);
-    }
+    public void onStart() throws StartException {}
 
     @Override
     public void onStop() throws StopException {
         StopException firstCause = null;
 
         try {
-            while (sending.get() != 0) {
-                Thread.sleep(100);
-            }
-
             // Interrupt and join the connector timeout threads
             for (String socketKey : timeoutThreads.keySet().toArray(new String[timeoutThreads.size()])) {
                 disposeThread(socketKey);
@@ -190,8 +181,6 @@ public class TcpDispatcher extends DestinationConnector {
         Thread timeoutThread = null;
 
         try {
-            sending.incrementAndGet();
-
             socket = connectedSockets.get(socketKey);
             timeoutThread = timeoutThreads.get(socketKey);
 
@@ -306,7 +295,6 @@ public class TcpDispatcher extends DestinationConnector {
 
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Error sending message via TCP.", e));
         } finally {
-            sending.decrementAndGet();
             eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket)));
         }
 
