@@ -22,6 +22,8 @@ import com.mirth.connect.donkey.util.DateParser;
 public enum MetaDataColumnType {
     STRING, NUMBER, BOOLEAN, TIMESTAMP;
 
+    private static final BigDecimal MAX_NUMBER_VALUE = new BigDecimal(10000000000000000L);
+
     public static MetaDataColumnType fromString(String columnType) {
         // @formatter:off
         if (columnType.equals("STRING")) return STRING;
@@ -67,30 +69,41 @@ public enum MetaDataColumnType {
 
         return null;
     }
-    
+
     /**
      * Returns an object for a metadata value that is casted to the correct type
      * 
-     * @throws MetaDataColumnException If an error occurred while attempting to cast the value
+     * @throws MetaDataColumnException
+     *             If an error occurred while attempting to cast the value
      */
     public Object castValue(Object value) throws MetaDataColumnException {
         if (value == null) {
             return null;
         }
-        
+
         try {
-            // @formatter:off
             switch (this) {
-                case BOOLEAN: return (Boolean) new BooleanConverter().convert(Boolean.class, value);
-                case NUMBER: return (BigDecimal) new BigDecimalConverter().convert(BigDecimal.class, value);
-                case STRING: return StringUtils.substring((String) new StringConverter().convert(String.class, value), 0, 255);
-                case TIMESTAMP: return new DateParser().parse(value.toString());
+                case BOOLEAN:
+                    return (Boolean) new BooleanConverter().convert(Boolean.class, value);
+                case NUMBER:
+                    BigDecimal number = (BigDecimal) new BigDecimalConverter().convert(BigDecimal.class, value);
+                    if (number.compareTo(MAX_NUMBER_VALUE) >= 0) {
+                        throw new Exception("Number " + String.valueOf(number) + " is greater than or equal to the maximum allowed value of 10^16.");
+                    }
+                    return number;
+                case STRING:
+                    String string = (String) new StringConverter().convert(String.class, value);
+                    if (string.length() > 255) {
+                        string = StringUtils.substring(string, 0, 255);
+                    }
+                    return string;
+                case TIMESTAMP:
+                    return new DateParser().parse(value.toString());
             }
-            // @formatter:on
         } catch (Exception e) {
             throw new MetaDataColumnException(e);
         }
-        
+
         throw new MetaDataColumnException("Unrecognized MetaDataColumnType");
     }
 }
