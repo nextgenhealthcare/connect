@@ -703,7 +703,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 text.append("Between " + messageFilter.getMessageIdLower() + " and " + messageFilter.getMessageIdUpper());
             }
         }
-        
+
         if (messageFilter.getOriginalIdLower() != null || messageFilter.getOriginalIdUpper() != null) {
             text.append(padding + "Original Id: ");
             if (messageFilter.getOriginalIdUpper() == null) {
@@ -2224,37 +2224,36 @@ public class MessageBrowser extends javax.swing.JPanel {
         attachmentTable = null;
         messageScrollPane = new javax.swing.JScrollPane();
         messageTreeTable = new com.mirth.connect.client.ui.components.MirthTreeTable();
-        jPanel1 = new javax.swing.JPanel();
-        pageNumberLabel = new javax.swing.JLabel();
+        statusBoxError = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        statusBoxQueued = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        statusBoxSent = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        statusBoxFiltered = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        statusBoxTransformed = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        statusBoxReceived = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        advSearchButton = new javax.swing.JButton();
+        filterButton = new javax.swing.JButton();
+        textSearchField = new javax.swing.JTextField();
+        mirthTimePicker2 = new com.mirth.connect.client.ui.components.MirthTimePicker();
+        mirthTimePicker1 = new com.mirth.connect.client.ui.components.MirthTimePicker();
         mirthDatePicker1 = new com.mirth.connect.client.ui.components.MirthDatePicker();
+        mirthDatePicker2 = new com.mirth.connect.client.ui.components.MirthDatePicker();
+        textSearchLabel = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         resultsLabel = new javax.swing.JLabel();
+        countButton = new com.mirth.connect.client.ui.components.MirthButton();
+        pageSizeLabel = new javax.swing.JLabel();
+        pageSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
+        previousPageButton = new javax.swing.JButton();
+        nextPageButton = new javax.swing.JButton();
+        pageGoButton = new javax.swing.JButton();
         lastSearchCriteriaPane = new javax.swing.JScrollPane();
         lastSearchCriteria = new javax.swing.JTextArea();
-        previousPageButton = new javax.swing.JButton();
-        statusBoxQueued = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        pageTotalLabel = new javax.swing.JLabel();
-        textSearchField = new javax.swing.JTextField();
-        pageNumberField = new com.mirth.connect.client.ui.components.MirthTextField();
-        jLabel2 = new javax.swing.JLabel();
-        textSearchLabel = new javax.swing.JLabel();
-        filterButton = new javax.swing.JButton();
-        statusBoxFiltered = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        pageSizeLabel = new javax.swing.JLabel();
-        statusBoxSent = new com.mirth.connect.client.ui.components.MirthCheckBox();
         resetButton = new javax.swing.JButton();
-        countButton = new com.mirth.connect.client.ui.components.MirthButton();
-        advSearchButton = new javax.swing.JButton();
-        pageSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
-        statusBoxError = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        mirthTimePicker2 = new com.mirth.connect.client.ui.components.MirthTimePicker();
-        statusBoxReceived = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        pageGoButton = new javax.swing.JButton();
-        statusBoxTransformed = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        mirthTimePicker1 = new com.mirth.connect.client.ui.components.MirthTimePicker();
-        jLabel3 = new javax.swing.JLabel();
         allDayCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        mirthDatePicker2 = new com.mirth.connect.client.ui.components.MirthDatePicker();
-        nextPageButton = new javax.swing.JButton();
+        pageNumberField = new com.mirth.connect.client.ui.components.MirthTextField();
+        pageNumberLabel = new javax.swing.JLabel();
+        pageTotalLabel = new javax.swing.JLabel();
 
         jList1.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -2439,7 +2438,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addGroup(ResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(responseStatusLabel)
                     .addComponent(responseLabel))
-                .addGap(0, 713, Short.MAX_VALUE))
+                .addGap(0, 650, Short.MAX_VALUE))
         );
         ResponseTextPaneLayout.setVerticalGroup(
             ResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2450,7 +2449,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addGap(12, 12, 12)
                 .addComponent(responseLabel)
                 .addGap(3, 3, 3)
-                .addComponent(ResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE))
+                .addComponent(ResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
         );
 
         MessagesCardPane.add(ResponseTextPane, "Response");
@@ -2488,7 +2487,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addGroup(ProcessedResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(processedResponseStatusLabel)
                     .addComponent(processedResponseLabel))
-                .addGap(0, 713, Short.MAX_VALUE))
+                .addGap(0, 650, Short.MAX_VALUE))
         );
         ProcessedResponseTextPaneLayout.setVerticalGroup(
             ProcessedResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2499,7 +2498,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addGap(12, 12, 12)
                 .addComponent(processedResponseLabel)
                 .addGap(3, 3, 3)
-                .addComponent(ProcessedResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE))
+                .addComponent(ProcessedResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
         );
 
         MessagesCardPane.add(ProcessedResponseTextPane, "Processed Response");
@@ -2520,7 +2519,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             .addGroup(MessagesPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(MessagesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(MessagesCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(MessagesCardPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(MessagesPanelLayout.createSequentialGroup()
                         .addComponent(formatXmlMessageCheckBox)
                         .addGap(0, 0, Short.MAX_VALUE))
@@ -2612,7 +2611,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(ErrorsCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(ErrorsRadioPane, javax.swing.GroupLayout.DEFAULT_SIZE, 773, Short.MAX_VALUE))
+                    .addComponent(ErrorsRadioPane, javax.swing.GroupLayout.DEFAULT_SIZE, 633, Short.MAX_VALUE))
                 .addContainerGap())
         );
         ErrorsPanelLayout.setVerticalGroup(
@@ -2621,7 +2620,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(ErrorsRadioPane, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ErrorsCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)
+                .addComponent(ErrorsCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -2637,31 +2636,12 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         jSplitPane1.setLeftComponent(messageScrollPane);
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-
-        pageNumberLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        pageNumberLabel.setText("Page");
-
-        resultsLabel.setForeground(new java.awt.Color(204, 0, 0));
-        resultsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        resultsLabel.setText("Results");
-
-        lastSearchCriteriaPane.setBorder(null);
-        lastSearchCriteriaPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
-        lastSearchCriteria.setEditable(false);
-        lastSearchCriteria.setColumns(20);
-        lastSearchCriteria.setForeground(new java.awt.Color(96, 96, 96));
-        lastSearchCriteria.setLineWrap(true);
-        lastSearchCriteria.setRows(5);
-        lastSearchCriteria.setAlignmentX(0.0F);
-        lastSearchCriteria.setDisabledTextColor(new java.awt.Color(255, 255, 255));
-        lastSearchCriteriaPane.setViewportView(lastSearchCriteria);
-
-        previousPageButton.setText("< Prev");
-        previousPageButton.addActionListener(new java.awt.event.ActionListener() {
+        statusBoxError.setBackground(new java.awt.Color(255, 255, 255));
+        statusBoxError.setText("ERROR");
+        statusBoxError.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxError.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                previousPageButtonActionPerformed(evt);
+                statusBoxErrorActionPerformed(evt);
             }
         });
 
@@ -2674,35 +2654,9 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
         });
 
-        pageTotalLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        pageTotalLabel.setText("of ?");
-        pageTotalLabel.setAlignmentY(0.0F);
-        pageTotalLabel.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-
-        textSearchField.setToolTipText("<html>\nSearch all message content for the given string. This process could take a long<br/>\ntime depending on the amount of message content currently stored. Any message<br/>\ncontent that was encrypted by this channel will not be searchable.\n</html>");
-
-        pageNumberField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        pageNumberField.setToolTipText("Enter a page number and press Enter to jump to that page.");
-        pageNumberField.setPreferredSize(new java.awt.Dimension(40, 22));
-        pageNumberField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pageNumberFieldActionPerformed(evt);
-            }
-        });
-
-        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel2.setText("End Time:");
-        jLabel2.setMaximumSize(new java.awt.Dimension(78, 15));
-
-        textSearchLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        textSearchLabel.setText("Text Search:");
-
-        filterButton.setText("Search");
-        filterButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                filterButtonActionPerformed(evt);
-            }
-        });
+        statusBoxSent.setBackground(new java.awt.Color(255, 255, 255));
+        statusBoxSent.setText("SENT");
+        statusBoxSent.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
 
         statusBoxFiltered.setBackground(new java.awt.Color(255, 255, 255));
         statusBoxFiltered.setText("FILTERED");
@@ -2715,51 +2669,11 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
         });
 
-        pageSizeLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        pageSizeLabel.setText("Page Size:");
-        pageSizeLabel.setMaximumSize(new java.awt.Dimension(78, 15));
-
-        statusBoxSent.setBackground(new java.awt.Color(255, 255, 255));
-        statusBoxSent.setText("SENT");
-        statusBoxSent.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
-
-        resetButton.setText("Reset");
-        resetButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                resetButtonActionPerformed(evt);
-            }
-        });
-
-        countButton.setText("Count");
-        countButton.setToolTipText("Count the number of overall messages for the current search criteria.");
-        countButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                countButtonActionPerformed(evt);
-            }
-        });
-
-        advSearchButton.setText("Advanced...");
-        advSearchButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                advSearchButtonActionPerformed(evt);
-            }
-        });
-
-        pageSizeField.setToolTipText("<html>\nAfter changing the page size, a new search must be performed for the changes to<br/>\ntake effect.  The default page size can also be configured on the Settings panel.\n</html>");
-        pageSizeField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pageSizeFieldActionPerformed(evt);
-            }
-        });
-
-        statusBoxError.setBackground(new java.awt.Color(255, 255, 255));
-        statusBoxError.setText("ERROR");
-        statusBoxError.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
-        statusBoxError.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                statusBoxErrorActionPerformed(evt);
-            }
-        });
+        statusBoxTransformed.setBackground(new java.awt.Color(255, 255, 255));
+        statusBoxTransformed.setText("TRANSFORMED");
+        statusBoxTransformed.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxTransformed.setMaximumSize(new java.awt.Dimension(83, 23));
+        statusBoxTransformed.setMinimumSize(new java.awt.Dimension(83, 23));
 
         statusBoxReceived.setBackground(new java.awt.Color(255, 255, 255));
         statusBoxReceived.setText("RECEIVED");
@@ -2771,30 +2685,60 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
         });
 
-        pageGoButton.setText("Go");
-        pageGoButton.setNextFocusableComponent(messageTreeTable);
-        pageGoButton.addActionListener(new java.awt.event.ActionListener() {
+        advSearchButton.setText("Advanced...");
+        advSearchButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pageGoButtonActionPerformed(evt);
+                advSearchButtonActionPerformed(evt);
             }
         });
 
-        statusBoxTransformed.setBackground(new java.awt.Color(255, 255, 255));
-        statusBoxTransformed.setText("TRANSFORMED");
-        statusBoxTransformed.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
-        statusBoxTransformed.setMaximumSize(new java.awt.Dimension(83, 23));
-        statusBoxTransformed.setMinimumSize(new java.awt.Dimension(83, 23));
+        filterButton.setText("Search");
+        filterButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filterButtonActionPerformed(evt);
+            }
+        });
+
+        textSearchField.setToolTipText("<html>\nSearch all message content for the given string. This process could take a long<br/>\ntime depending on the amount of message content currently stored. Any message<br/>\ncontent that was encrypted by this channel will not be searchable.\n</html>");
+
+        textSearchLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        textSearchLabel.setText("Text Search:");
+
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel2.setText("End Time:");
+        jLabel2.setMaximumSize(new java.awt.Dimension(78, 15));
 
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel3.setText("Start Time:");
         jLabel3.setMaximumSize(new java.awt.Dimension(78, 15));
 
-        allDayCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        allDayCheckBox.setText("All Day");
-        allDayCheckBox.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
-        allDayCheckBox.addActionListener(new java.awt.event.ActionListener() {
+        resultsLabel.setForeground(new java.awt.Color(204, 0, 0));
+        resultsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        resultsLabel.setText("Results");
+
+        countButton.setText("Count");
+        countButton.setToolTipText("Count the number of overall messages for the current search criteria.");
+        countButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                allDayCheckBoxActionPerformed(evt);
+                countButtonActionPerformed(evt);
+            }
+        });
+
+        pageSizeLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        pageSizeLabel.setText("Page Size:");
+        pageSizeLabel.setMaximumSize(new java.awt.Dimension(78, 15));
+
+        pageSizeField.setToolTipText("<html>\nAfter changing the page size, a new search must be performed for the changes to<br/>\ntake effect.  The default page size can also be configured on the Settings panel.\n</html>");
+        pageSizeField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pageSizeFieldActionPerformed(evt);
+            }
+        });
+
+        previousPageButton.setText("< Prev");
+        previousPageButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                previousPageButtonActionPerformed(evt);
             }
         });
 
@@ -2805,61 +2749,115 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        pageGoButton.setText("Go");
+        pageGoButton.setNextFocusableComponent(messageTreeTable);
+        pageGoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pageGoButtonActionPerformed(evt);
+            }
+        });
+
+        lastSearchCriteriaPane.setBorder(null);
+        lastSearchCriteriaPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        lastSearchCriteria.setColumns(20);
+        lastSearchCriteria.setEditable(false);
+        lastSearchCriteria.setForeground(new java.awt.Color(96, 96, 96));
+        lastSearchCriteria.setLineWrap(true);
+        lastSearchCriteria.setRows(5);
+        lastSearchCriteria.setAlignmentX(0.0F);
+        lastSearchCriteria.setDisabledTextColor(new java.awt.Color(255, 255, 255));
+        lastSearchCriteriaPane.setViewportView(lastSearchCriteria);
+
+        resetButton.setText("Reset");
+        resetButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                resetButtonActionPerformed(evt);
+            }
+        });
+
+        allDayCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        allDayCheckBox.setText("All Day");
+        allDayCheckBox.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        allDayCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                allDayCheckBoxActionPerformed(evt);
+            }
+        });
+
+        pageNumberField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        pageNumberField.setToolTipText("Enter a page number and press Enter to jump to that page.");
+        pageNumberField.setPreferredSize(new java.awt.Dimension(40, 22));
+        pageNumberField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pageNumberFieldActionPerformed(evt);
+            }
+        });
+
+        pageNumberLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        pageNumberLabel.setText("Page");
+
+        pageTotalLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        pageTotalLabel.setText("of ?");
+        pageTotalLabel.setAlignmentY(0.0F);
+        pageTotalLabel.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(pageSizeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(textSearchLabel))
+                    .addComponent(textSearchLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(pageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(advSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(resetButton, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                             .addComponent(mirthDatePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(mirthTimePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                             .addComponent(mirthDatePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(mirthTimePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addComponent(textSearchField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(allDayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(statusBoxQueued, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(statusBoxSent, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(statusBoxError, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(statusBoxReceived, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(statusBoxFiltered, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(statusBoxTransformed, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(lastSearchCriteriaPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(previousPageButton, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(nextPageButton, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(resultsLabel)
                         .addGap(5, 5, 5)
                         .addComponent(countButton, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(pageNumberLabel)
                         .addGap(4, 4, 4)
                         .addComponent(pageNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -2870,91 +2868,68 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addContainerGap())
         );
 
-        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {mirthTimePicker1, mirthTimePicker2});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {mirthTimePicker1, mirthTimePicker2});
 
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(4, 4, 4)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(mirthTimePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(mirthDatePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(7, 7, 7)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(mirthTimePicker2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(mirthDatePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(7, 7, 7)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(textSearchField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(textSearchLabel)))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(countButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(resultsLabel))
-                                .addGap(7, 7, 7)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(pageGoButton)
-                                    .addComponent(pageTotalLabel)
-                                    .addComponent(pageNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(pageNumberLabel))))
-                        .addGap(7, 7, 7)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                            .addComponent(nextPageButton)
-                            .addComponent(previousPageButton)
-                            .addComponent(filterButton)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(resetButton)
-                                .addComponent(advSearchButton)
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addGap(4, 4, 4)
-                                    .addComponent(pageSizeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addGap(1, 1, 1)
-                                    .addComponent(pageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(4, 4, 4)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lastSearchCriteriaPane, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(statusBoxReceived, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(allDayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(statusBoxTransformed, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(statusBoxFiltered, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(statusBoxQueued, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(statusBoxSent, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(statusBoxError, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1)
-            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 545, Short.MAX_VALUE))
+                .addGap(4, 4, 4)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(31, 31, 31)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(countButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(resultsLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(pageGoButton)
+                            .addComponent(pageTotalLabel)
+                            .addComponent(pageNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(pageNumberLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(nextPageButton)
+                            .addComponent(previousPageButton)))
+                    .addComponent(lastSearchCriteriaPane, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(mirthTimePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(mirthDatePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(mirthTimePicker2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(mirthDatePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(textSearchField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(textSearchLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(pageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(pageSizeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(advSearchButton)
+                            .addComponent(resetButton)
+                            .addComponent(filterButton)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(statusBoxReceived, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(allDayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(statusBoxTransformed, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(statusBoxFiltered, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(statusBoxQueued, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(statusBoxSent, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(statusBoxError, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -3157,7 +3132,6 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JList jList1;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTextArea lastSearchCriteria;
@@ -3182,6 +3156,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JLabel processedResponseLabel;
     private javax.swing.JLabel processedResponseStatusLabel;
     private javax.swing.JTextField processedResponseStatusTextField;
+    private javax.swing.JTextField textSearchField;
+    private javax.swing.JLabel textSearchLabel;
     private javax.swing.JButton resetButton;
     private javax.swing.JLabel responseLabel;
     private javax.swing.JLabel responseStatusLabel;
@@ -3193,7 +3169,5 @@ public class MessageBrowser extends javax.swing.JPanel {
     private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxReceived;
     private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxSent;
     private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxTransformed;
-    private javax.swing.JTextField textSearchField;
-    private javax.swing.JLabel textSearchLabel;
     // End of variables declaration//GEN-END:variables
 }
