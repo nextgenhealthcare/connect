@@ -1070,6 +1070,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         messageTreeTable.setAutoCreateColumnsFromModel(false);
         messageTreeTable.setColumnControlVisible(true);
         messageTreeTable.setShowGrid(true, true);
+        messageTreeTable.setHorizontalScrollEnabled(true);
 
         tableModel = new MessageBrowserTableModel(columnMap.size());
         // Add a blank column to the column initially, otherwise it return an exception on load
@@ -1288,20 +1289,6 @@ public class MessageBrowser extends javax.swing.JPanel {
 
             columnMenu.add(menuItem);
         }
-
-        columnMenu.addSeparator();
-
-        JCheckBoxMenuItem checkBoxMenuItem = new JCheckBoxMenuItem("Horizontal Scroll");
-        checkBoxMenuItem.setSelected(messageTreeTable.isHorizontalScrollEnabled());
-        checkBoxMenuItem.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                messageTreeTable.setHorizontalScrollEnabled(!messageTreeTable.isHorizontalScrollEnabled());
-            }
-
-        });
-        columnMenu.add(checkBoxMenuItem);
 
         columnMenu.addSeparator();
 
