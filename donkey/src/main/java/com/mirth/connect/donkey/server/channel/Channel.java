@@ -1067,7 +1067,13 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
 
         ThreadUtils.checkInterruptedStatus();
-        dao.insertConnectorMessage(sourceMessage, storageSettings.isStoreMaps());
+
+        /*
+         * If the raw message should be durable, then the channel map from the RawMessage needs to
+         * be persisted even if map storage is disabled. The only map that can be utilized at this
+         * point is the channel map, therefore we can simply tell the Dao to store all maps.
+         */
+        dao.insertConnectorMessage(sourceMessage, storageSettings.isStoreMaps() || storageSettings.isRawDurable());
 
         if (storageSettings.isStoreRaw()) {
             ThreadUtils.checkInterruptedStatus();
@@ -1606,7 +1612,7 @@ public class Channel implements Startable, Stoppable, Runnable {
              * that if queueing is
              * enabled, the current storage settings support it.
              */
-            if (!sourceConnector.isRespondAfterProcessing() && (!storageSettings.isEnabled() || !storageSettings.isStoreRaw() || !storageSettings.isStoreMaps())) {
+            if (!sourceConnector.isRespondAfterProcessing() && (!storageSettings.isEnabled() || !storageSettings.isStoreRaw() || (!storageSettings.isStoreMaps() && !storageSettings.isRawDurable()))) {
                 throw new DeployException("Failed to deploy channel " + name + " (" + channelId + "): the source connector has queueing enabled, but the current storage settings do not support queueing on the source connector.");
             }
 
