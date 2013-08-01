@@ -387,6 +387,9 @@
                     <TitledBorder title="Message Storage"/>
                   </Border>
                 </Property>
+                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="0" green="66" red="0" type="rgb"/>
+                </Property>
               </Properties>
 
               <Layout>
@@ -396,21 +399,23 @@
                           <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
                           <Component id="messageStorageSlider" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                                  <Group type="102" attributes="0">
-                                      <Component id="durableLabel" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="durableStatusLabel" max="32767" attributes="0"/>
-                                  </Group>
-                                  <Component id="removeContentCheckbox" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="encryptMessagesCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="performanceLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="storageModeLabel" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="storageLabel" alignment="0" max="32767" attributes="0"/>
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Group type="102" attributes="0">
+                                  <Component id="performanceLabel" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="messageStorageProgressBar" min="-2" pref="205" max="-2" attributes="0"/>
                               </Group>
+                              <Group type="102" alignment="1" attributes="0">
+                                  <Component id="durableLabel" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="durableStatusLabel" max="32767" attributes="0"/>
+                              </Group>
+                              <Component id="removeContentCheckbox" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="encryptMessagesCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="storageModeLabel" alignment="0" max="32767" attributes="0"/>
+                              <Component id="contentLabel" alignment="0" max="32767" attributes="0"/>
+                              <Component id="metadataLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="removeAttachmentsCheckbox" min="-2" max="-2" attributes="0"/>
-                              <Component id="messageStorageProgressBar" alignment="0" min="-2" pref="281" max="-2" attributes="0"/>
                               <Component id="queueWarningLabel" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
@@ -422,16 +427,19 @@
                       <Group type="102" attributes="0">
                           <Component id="storageModeLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="storageLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="contentLabel" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="metadataLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="durableLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="durableStatusLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="performanceLabel" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="messageStorageProgressBar" min="-2" pref="15" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="1" attributes="0">
+                              <Component id="messageStorageProgressBar" min="-2" pref="15" max="-2" attributes="0"/>
+                              <Component id="performanceLabel" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <EmptySpace max="32767" attributes="0"/>
                           <Component id="encryptMessagesCheckBox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -457,9 +465,14 @@
                     <Property name="text" type="java.lang.String" value="Development"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="storageLabel">
+                <Component class="javax.swing.JLabel" name="contentLabel">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Storage: "/>
+                    <Property name="text" type="java.lang.String" value="Content: "/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="metadataLabel">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Metadata:"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="durableLabel">
@@ -577,8 +590,8 @@
                       <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="metadataLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="contentLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="metadataPruningLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="contentPruningLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Group type="102" attributes="0">
                                   <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
@@ -603,14 +616,14 @@
                               <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="archiveCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace pref="78" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="metadataLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="metadataPruningLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="metadataPruningOffRadio" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -620,7 +633,7 @@
                               <Component id="metadataDaysLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="contentLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="contentPruningLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="contentPruningMetadataRadio" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -638,7 +651,7 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JLabel" name="metadataLabel">
+                <Component class="javax.swing.JLabel" name="metadataPruningLabel">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Metadata:"/>
                   </Properties>
@@ -697,7 +710,7 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contentPruningMetadataRadioActionPerformed"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JLabel" name="contentLabel">
+                <Component class="javax.swing.JLabel" name="contentPruningLabel">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Content:"/>
                   </Properties>
@@ -873,7 +886,7 @@
                                   <Component id="addMetaDataButton" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="deleteMetaDataButton" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace pref="30" max="32767" attributes="0"/>
+                                  <EmptySpace pref="32" max="32767" attributes="0"/>
                                   <Component id="revertMetaDataButton" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <Component id="metaDataTablePane" pref="0" max="32767" attributes="0"/>
@@ -958,7 +971,7 @@
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="summaryDescriptionScrollPane" pref="89" max="32767" attributes="0"/>
+                          <Component id="summaryDescriptionScrollPane" pref="83" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
