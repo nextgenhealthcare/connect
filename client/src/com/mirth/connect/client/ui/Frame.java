@@ -2184,13 +2184,13 @@ public class Frame extends JXFrame {
     }
 
     public boolean doSaveGlobalScripts() {
-        final String workingId = startWorking("Saving global scripts...");
-
         String validationMessage = globalScriptsPanel.validateAllScripts();
         if (validationMessage != null) {
             alertCustomError(this, validationMessage, CustomErrorDialog.ERROR_VALIDATING_GLOBAL_SCRIPTS);
             return false;
         }
+
+        final String workingId = startWorking("Saving global scripts...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
