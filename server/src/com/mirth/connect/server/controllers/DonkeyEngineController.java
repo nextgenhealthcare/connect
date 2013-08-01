@@ -551,7 +551,6 @@ public class DonkeyEngineController implements EngineController {
             case RAW:
                 storageSettings.setMessageRecoveryEnabled(false);
                 storageSettings.setDurable(false);
-                storageSettings.setStoreCustomMetaData(false);
                 storageSettings.setStoreMaps(false);
                 storageSettings.setStoreResponseMap(false);
                 storageSettings.setStoreMergedResponseMap(false);
