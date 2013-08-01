@@ -38,7 +38,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
                 column.setPreferredWidth(90);
-                column.setToolTipText("<html><body>The overall Id of the message.</body></html>");
+                column.setToolTipText("<html><body>The message id.</body></html>");
                 break;
 
             case MessageBrowser.CONNECTOR_COLUMN: // Connector Name
@@ -51,7 +51,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 renderer = new DefaultTableCellRenderer();
                 column.setMaxWidth(85);
                 column.setMinWidth(85);
-                column.setToolTipText("<html><body>The message status after being run through the connector.</body></html>");
+                column.setToolTipText("<html><body>The message status after being processed by the connector.</body></html>");
                 break;
 
             case MessageBrowser.ORIGINAL_RECEIVED_DATE_COLUMN: // Received Date
@@ -60,7 +60,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 renderer = dateCellRenderer;
                 column.setMaxWidth(140);
                 column.setMinWidth(140);
-                column.setToolTipText("<html><body>The date the original message was received. This value is<br>not updated when the message is reprocessed.</body></html>");
+                column.setToolTipText("<html><body>The date and time the original message was received. This value is<br>not updated when the message is reprocessed.</body></html>");
                 break;
 
             case MessageBrowser.RECEIVED_DATE_COLUMN: // Received Date
@@ -69,7 +69,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 renderer = dateCellRenderer;
                 column.setMaxWidth(140);
                 column.setMinWidth(140);
-                column.setToolTipText("<html><body>The date the message began processing through the connector.</body></html>");
+                column.setToolTipText("<html><body>The date and time the message began processing through the connector.</body></html>");
                 break;
 
             case MessageBrowser.SEND_ATTEMPTS_COLUMN: // Send Attempts:
@@ -77,7 +77,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
                 column.setPreferredWidth(90);
-                column.setToolTipText("<html><body>Source Connector: this is the number of times the connector<br>attempted to send the response back to the point of origin.<br>Destination Connector: this is the number of times the connector<br>attempted to send the message to its recipient.</body></html>");
+                column.setToolTipText("<html><body>Source Connector: The number of times the connector<br>attempted to send the response back to the point of origin.<br>Destination Connector: The number of times the connector<br>attempted to send the message to its recipient.</body></html>");
                 break;
 
             case MessageBrowser.SEND_DATE_COLUMN: // Send Date
@@ -86,7 +86,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 renderer = dateCellRenderer;
                 column.setMaxWidth(140);
                 column.setMinWidth(140);
-                column.setToolTipText("<html><body>Source Connector: this column is not used.<br>Destination Connector: this is the date right before the most recent send attempt.</body></html>");
+                column.setToolTipText("<html><body>Source Connector: N/A<br>Destination Connector: The date and time immediately before the most recent send attempt.</body></html>");
                 break;
 
             case MessageBrowser.RESPONSE_DATE_COLUMN: // Response Date
@@ -95,7 +95,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 renderer = dateCellRenderer;
                 column.setMaxWidth(140);
                 column.setMinWidth(140);
-                column.setToolTipText("<html><body>Source Connector: this is the date right before the connector<br>attempted to send the response back to the point of origin.<br>Destination Connector: this is the date immediately after the server<br>receives a response from the connector, which may be empty.</body></html>");
+                column.setToolTipText("<html><body>Source Connector: The date and time immediately before the connector<br>attempted to send the response back to the point of origin.<br>Destination Connector: The date and time immediately after the server<br>receives a response from the connector, which may be empty.</body></html>");
                 break;
 
             case MessageBrowser.ERRORS_COLUMN: // Error
@@ -109,7 +109,14 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 column.setMaxWidth(210);
                 column.setMinWidth(210);
                 renderer = new DefaultTableCellRenderer();
-                column.setToolTipText("<html><body>The Id of the server where the message was processed.</body></html>");
+                column.setToolTipText("<html><body>The id of the server that processed the message through the connector.</body></html>");
+                break;
+                
+            case MessageBrowser.ORIGINAL_SERVER_ID_COLUMN: // Original Server Id
+                column.setMaxWidth(210);
+                column.setMinWidth(210);
+                renderer = new DefaultTableCellRenderer();
+                column.setToolTipText("<html><body>The id of the server that received the message.</body></html>");
                 break;
 
             case MessageBrowser.ORIGINAL_ID_COLUMN: // Original ID:
@@ -117,7 +124,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
                 column.setPreferredWidth(90);
-                column.setToolTipText("<html><body>If a message was reprocessed, this column indicates the original<br>Message Id of the reprocessed message.</body></html>");
+                column.setToolTipText("<html><body>The original message id of a reprocessed message. This value<br>only exists for reprocessed messages.</body></html>");
                 break;
 
             case MessageBrowser.IMPORT_ID_COLUMN: // Import ID:
@@ -125,23 +132,16 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
                 column.setPreferredWidth(90);
-                column.setToolTipText("<html><body>If a message was imported, this column indicates the original<br>Message Id of the imported message.</body></html>");
+                column.setToolTipText("<html><body>The original message id of an imported message. This value<br>only exists for imported messages.</body></html>");
                 break;
 
             case MessageBrowser.IMPORT_CHANNEL_ID_COLUMN: // Server Id
                 column.setMaxWidth(210);
                 column.setMinWidth(210);
                 renderer = new DefaultTableCellRenderer();
-                column.setToolTipText("<html><body>If a message was imported from a different channel, this<br>column indivates the original channel Id.</body></html>");
+                column.setToolTipText("<html><body>The original channel id of an imported message. This value<br>only exists for messages imported from a different channel.</body></html>");
                 break;
                 
-            case MessageBrowser.ORIGINAL_SERVER_ID_COLUMN: // Original Server Id
-                column.setMaxWidth(210);
-                column.setMinWidth(210);
-                renderer = new DefaultTableCellRenderer();
-                column.setToolTipText("<html><body>The Id of the server where the message was originally processed.</body></html>");
-                break;
-
             default:
                 renderer = new DefaultTableCellRenderer();
                 break;
