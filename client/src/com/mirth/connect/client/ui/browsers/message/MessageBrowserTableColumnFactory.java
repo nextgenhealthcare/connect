@@ -24,6 +24,7 @@ import org.jdesktop.swingx.table.TableColumnExt;
 import com.mirth.connect.client.ui.DateCellRenderer;
 import com.mirth.connect.client.ui.NumberCellRenderer;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
+import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 
 public class MessageBrowserTableColumnFactory extends ColumnFactory {
     @Override
@@ -34,7 +35,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
 
         switch (index) {
             case MessageBrowser.ID_COLUMN: // Message ID: Needs to be able to grow since it is a long
-                renderer = new NumberCellRenderer();
+                renderer = new MessageBrowserNumberCellRenderer();
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
                 column.setPreferredWidth(90);
@@ -42,13 +43,13 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 break;
 
             case MessageBrowser.CONNECTOR_COLUMN: // Connector Name
-                renderer = new DefaultTableCellRenderer();
+                renderer = new MessageBrowserTextCellRenderer();
                 column.setMinWidth(90);
                 column.setToolTipText("<html><body>The historic name of the connector at the time the message was processed.</body></html>");
                 break;
 
             case MessageBrowser.STATUS_COLUMN: // Status
-                renderer = new DefaultTableCellRenderer();
+                renderer = new MessageBrowserTextCellRenderer();
                 column.setMaxWidth(85);
                 column.setMinWidth(85);
                 column.setToolTipText("<html><body>The message status after being processed by the connector.</body></html>");
@@ -73,7 +74,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 break;
 
             case MessageBrowser.SEND_ATTEMPTS_COLUMN: // Send Attempts:
-                renderer = new NumberCellRenderer();
+                renderer = new MessageBrowserNumberCellRenderer();
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
                 column.setPreferredWidth(90);
@@ -99,7 +100,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 break;
 
             case MessageBrowser.ERRORS_COLUMN: // Error
-                renderer = new DefaultTableCellRenderer();
+                renderer = new MessageBrowserTextCellRenderer();
                 column.setMaxWidth(85);
                 column.setMinWidth(85);
                 column.setToolTipText("<html><body>Indicates whether an error exists for this message. It is possible for<br>a message to have errors even if the message status is not ERROR.</body></html>");
@@ -108,19 +109,19 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
             case MessageBrowser.SERVER_ID_COLUMN: // Server Id
                 column.setMaxWidth(210);
                 column.setMinWidth(210);
-                renderer = new DefaultTableCellRenderer();
+                renderer = new MessageBrowserTextCellRenderer();
                 column.setToolTipText("<html><body>The id of the server that processed the message through the connector.</body></html>");
                 break;
-                
+
             case MessageBrowser.ORIGINAL_SERVER_ID_COLUMN: // Original Server Id
                 column.setMaxWidth(210);
                 column.setMinWidth(210);
-                renderer = new DefaultTableCellRenderer();
+                renderer = new MessageBrowserTextCellRenderer();
                 column.setToolTipText("<html><body>The id of the server that received the message.</body></html>");
                 break;
 
             case MessageBrowser.ORIGINAL_ID_COLUMN: // Original ID:
-                renderer = new NumberCellRenderer();
+                renderer = new MessageBrowserNumberCellRenderer();
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
                 column.setPreferredWidth(90);
@@ -128,7 +129,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 break;
 
             case MessageBrowser.IMPORT_ID_COLUMN: // Import ID:
-                renderer = new NumberCellRenderer();
+                renderer = new MessageBrowserNumberCellRenderer();
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
                 column.setPreferredWidth(90);
@@ -138,23 +139,90 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
             case MessageBrowser.IMPORT_CHANNEL_ID_COLUMN: // Server Id
                 column.setMaxWidth(210);
                 column.setMinWidth(210);
-                renderer = new DefaultTableCellRenderer();
+                renderer = new MessageBrowserTextCellRenderer();
                 column.setToolTipText("<html><body>The original channel id of an imported message. This value<br>only exists for messages imported from a different channel.</body></html>");
                 break;
-                
+
             default:
-                renderer = new DefaultTableCellRenderer();
+                renderer = new MessageBrowserTextCellRenderer();
                 break;
 
         }
-        column.setCellRenderer(new ItalicCellRenderer(renderer));
+        column.setCellRenderer(new MessageBrowserItalicCellRenderer(renderer));
         return column;
     }
 
-    private class ItalicCellRenderer implements TableCellRenderer {
+    public void configureCustomColumn(TableColumnExt column, MetaDataColumnType columnType) {
+        TableCellRenderer renderer;
+
+        switch (columnType) {
+            case NUMBER:
+                renderer = new MessageBrowserNumberCellRenderer();
+                column.setMaxWidth(500);
+                column.setMinWidth(90);
+                column.setPreferredWidth(90);
+                break;
+
+            case BOOLEAN:
+                renderer = new MessageBrowserTextCellRenderer();
+                column.setMaxWidth(500);
+                column.setMinWidth(90);
+                column.setPreferredWidth(90);
+                break;
+
+            case TIMESTAMP:
+                DateCellRenderer timestampRenderer = new DateCellRenderer();
+                timestampRenderer.setDateFormat(new SimpleDateFormat(MessageBrowser.DATE_FORMAT));
+                renderer = timestampRenderer;
+                column.setMaxWidth(140);
+                column.setMinWidth(140);
+                break;
+
+            default:
+                renderer = new MessageBrowserTextCellRenderer();
+                break;
+        }
+
+        column.setCellRenderer(new MessageBrowserItalicCellRenderer(renderer));
+    }
+    
+    private class MessageBrowserNumberCellRenderer extends NumberCellRenderer {
+        
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            if (value == null) {
+                label.setHorizontalAlignment(CENTER);
+                label.setText("--");
+            } else {
+                label.setHorizontalAlignment(RIGHT);
+            }
+
+            return label;
+        }
+    }
+    
+    private class MessageBrowserTextCellRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            if (value == null) {
+                label.setHorizontalAlignment(CENTER);
+                label.setText("--");
+            } else {
+                label.setHorizontalAlignment(LEFT);
+            }
+
+            return label;
+        }
+    }
+
+    private class MessageBrowserItalicCellRenderer implements TableCellRenderer {
         private TableCellRenderer delegateRenderer;
 
-        public ItalicCellRenderer(TableCellRenderer renderer) {
+        public MessageBrowserItalicCellRenderer(TableCellRenderer renderer) {
             this.delegateRenderer = renderer;
         }
 
@@ -162,13 +230,14 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             Component component = delegateRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-            if (value != null && component instanceof JLabel) {
+            if (component instanceof JLabel) {
                 JLabel label = (JLabel) component;
                 MessageBrowserTableNode messageNode = (MessageBrowserTableNode) ((MirthTreeTable) table).getPathForRow(row).getLastPathComponent();
                 if (!messageNode.isProcessed()) {
                     label.setText("<html><i><font color='gray'>" + label.getText() + "</font></i></html>");
                 }
             }
+
             return component;
         }
 

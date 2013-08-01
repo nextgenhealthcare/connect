@@ -27,19 +27,19 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
         active = false;
         processed = message.isProcessed();
         row[MessageBrowser.ID_COLUMN] = message.getMessageId();
-        row[MessageBrowser.CONNECTOR_COLUMN] = "--";
-        row[MessageBrowser.STATUS_COLUMN] = "--";
+        row[MessageBrowser.CONNECTOR_COLUMN] = null;
+        row[MessageBrowser.STATUS_COLUMN] = null;
         row[MessageBrowser.ORIGINAL_RECEIVED_DATE_COLUMN] = null;
         row[MessageBrowser.RECEIVED_DATE_COLUMN] = null;
         row[MessageBrowser.SEND_ATTEMPTS_COLUMN] = null;
         row[MessageBrowser.SEND_DATE_COLUMN] = null;
         row[MessageBrowser.RESPONSE_DATE_COLUMN] = null;
-        row[MessageBrowser.ERRORS_COLUMN] = "--";
-        row[MessageBrowser.SERVER_ID_COLUMN] = "--";
+        row[MessageBrowser.ERRORS_COLUMN] = null;
+        row[MessageBrowser.SERVER_ID_COLUMN] = null;
         row[MessageBrowser.ORIGINAL_ID_COLUMN] = message.getOriginalId();
         row[MessageBrowser.IMPORT_ID_COLUMN] = message.getImportId();
         row[MessageBrowser.IMPORT_CHANNEL_ID_COLUMN] = message.getImportChannelId();
-        row[MessageBrowser.ORIGINAL_SERVER_ID_COLUMN] = "--";
+        row[MessageBrowser.ORIGINAL_SERVER_ID_COLUMN] = null;
     }
 
     public MessageBrowserTableNode(int staticColumnCount, Message message, int metaDataId, MessageBrowserTableModel model) {
@@ -93,10 +93,6 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
             }
 
             error = "Postprocessor";
-        }
-
-        if (error == null) {
-            error = "--";
         }
 
         return error;

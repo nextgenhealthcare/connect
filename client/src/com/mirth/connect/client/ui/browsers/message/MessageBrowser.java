@@ -336,7 +336,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         tableModel.setColumnIdentifiers(columnList);
 
         // Create the column objects and add them to the message table
-        ColumnFactory columnFactory = messageTreeTable.getColumnFactory();
+        MessageBrowserTableColumnFactory columnFactory = (MessageBrowserTableColumnFactory) messageTreeTable.getColumnFactory();
         for (int modelIndex = 0; modelIndex < columnList.size(); modelIndex++) {
             TableColumnExt column = columnFactory.createAndConfigureTableColumn(messageTreeTable.getModel(), modelIndex);
             String columnName = column.getTitle();
@@ -352,39 +352,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             if (modelIndex < columnMap.size()) {
                 column.setVisible(Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserVisibleColumn" + columnName, defaultVisible));
             } else {
-                MetaDataColumn metaDataColumn = metaDataColumns.get(modelIndex - columnMap.size());
-
-                switch (metaDataColumn.getType()) {
-                    case NUMBER:
-                        column.setCellRenderer(new DefaultTableCellRenderer() {
-                            @Override
-                            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                                Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-                                if (value != null && value instanceof BigDecimal) {
-                                    setText(((BigDecimal) value).stripTrailingZeros().toString());
-                                } else {
-                                    setText("");
-                                }
-
-                                return component;
-                            }
-                        });
-
-                    case BOOLEAN:
-                        column.setMaxWidth(500);
-                        column.setMinWidth(90);
-                        column.setPreferredWidth(90);
-                        break;
-
-                    case TIMESTAMP:
-                        DateCellRenderer timestampRenderer = new DateCellRenderer();
-                        timestampRenderer.setDateFormat(new SimpleDateFormat(DATE_FORMAT));
-                        column.setCellRenderer(timestampRenderer);
-                        column.setMaxWidth(140);
-                        column.setMinWidth(140);
-                        break;
-                }
+                columnFactory.configureCustomColumn(column, metaDataColumns.get(modelIndex - columnMap.size()).getType());
 
                 column.setVisible(!hiddenCustomColumns.contains(columnName));
             }
