@@ -20,6 +20,7 @@ import com.mirth.connect.donkey.server.message.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.BatchMessageProcessor;
 import com.mirth.connect.donkey.server.message.BatchMessageProcessorException;
 import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.util.StringUtil;
 
 public class ER7BatchAdaptor implements BatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -29,7 +30,7 @@ public class ER7BatchAdaptor implements BatchAdaptor {
 
     public ER7BatchAdaptor(SerializerProperties properties) {
         HL7v2SerializationProperties serializationProperties = (HL7v2SerializationProperties) properties.getSerializationProperties();
-        segmentDelimiter = serializationProperties.getSegmentDelimiter();
+        segmentDelimiter = StringUtil.unescape(serializationProperties.getSegmentDelimiter());
 
         String pattern;
         if (serializationProperties.isConvertLineBreaks()) {
