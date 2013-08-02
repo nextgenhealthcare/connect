@@ -53,7 +53,7 @@ public class DICOMReceiverProperties extends ConnectorProperties implements List
 
     public DICOMReceiverProperties() {
         listenerConnectorProperties = new ListenerConnectorProperties("104");
-        responseConnectorProperties = new ResponseConnectorProperties(false);
+        responseConnectorProperties = new ResponseConnectorProperties();
 
         soCloseDelay = "50";
         releaseTo = "5";

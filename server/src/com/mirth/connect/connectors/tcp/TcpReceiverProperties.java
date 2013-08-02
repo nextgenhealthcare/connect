@@ -46,8 +46,7 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
 
     public TcpReceiverProperties() {
         listenerConnectorProperties = new ListenerConnectorProperties("6661");
-        responseConnectorProperties = new ResponseConnectorProperties();
-        responseConnectorProperties.setResponseVariable(ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
+        responseConnectorProperties = new ResponseConnectorProperties(ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
 
         FrameModeProperties frameModeProperties = new FrameModeProperties("MLLP");
         frameModeProperties.setStartOfMessageBytes(TcpUtil.DEFAULT_LLP_START_BYTES);

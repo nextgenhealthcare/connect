@@ -59,7 +59,7 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
 
     public FileReceiverProperties() {
         pollConnectorProperties = new PollConnectorProperties();
-        responseConnectorProperties = new ResponseConnectorProperties(true);
+        responseConnectorProperties = new ResponseConnectorProperties();
 
         scheme = FileScheme.FILE;
         host = "";

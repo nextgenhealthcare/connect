@@ -40,7 +40,7 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
 
     public DatabaseReceiverProperties() {
         pollConnectorProperties = new PollConnectorProperties();
-        responseConnectorProperties = new ResponseConnectorProperties(false);
+        responseConnectorProperties = new ResponseConnectorProperties();
         driver = DRIVER_DEFAULT;
         url = "";
         username = "";

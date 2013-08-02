@@ -11,8 +11,6 @@ package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.util.migration.Migratable;
 
@@ -58,34 +56,20 @@ public class ResponseConnectorProperties implements Serializable, Migratable {
     public static final Status[] RESPONSE_STATUS_PRECEDENCE = new Status[] { Status.ERROR,
             Status.QUEUED, Status.SENT, Status.FILTERED };
 
-    public static final String[] DEFAULT_QUEUE_ON_RESPONSES = new String[] { RESPONSE_NONE,
-            RESPONSE_AUTO_BEFORE };
-    public static final String[] DEFAULT_QUEUE_OFF_RESPONSES = ArrayUtils.addAll(DEFAULT_QUEUE_ON_RESPONSES, RESPONSE_SOURCE_TRANSFORMED, RESPONSE_DESTINATIONS_COMPLETED, RESPONSE_POST_PROCESSOR);
-
     private String responseVariable;
     private String[] defaultQueueOnResponses;
     private String[] defaultQueueOffResponses;
     private boolean respondAfterProcessing;
 
     public ResponseConnectorProperties() {
-        this(true);
+        this(RESPONSE_NONE);
     }
-
-    public ResponseConnectorProperties(boolean autoResponseEnabled) {
-        this(autoResponseEnabled, RESPONSE_NONE, DEFAULT_QUEUE_ON_RESPONSES, DEFAULT_QUEUE_OFF_RESPONSES);
-    }
-
-    private ResponseConnectorProperties(boolean autoResponseEnabled, String defaultResponse, String[] defaultQueueOnResponses, String[] defaultQueueOffResponses) {
-        if (autoResponseEnabled) {
-            this.responseVariable = defaultResponse;
-            this.defaultQueueOnResponses = defaultQueueOnResponses;
-            this.defaultQueueOffResponses = defaultQueueOffResponses;
-        } else {
-            this.responseVariable = RESPONSE_NONE;
-            this.defaultQueueOnResponses = new String[] { RESPONSE_NONE };
-            this.defaultQueueOffResponses = new String[] { RESPONSE_NONE };
-        }
-        this.setRespondAfterProcessing(true);
+    
+    public ResponseConnectorProperties(String defaultResponse) {
+        this.responseVariable = defaultResponse;
+        this.defaultQueueOnResponses = new String[] { RESPONSE_NONE, RESPONSE_AUTO_BEFORE };
+        this.defaultQueueOffResponses = new String[] { RESPONSE_NONE, RESPONSE_AUTO_BEFORE, RESPONSE_SOURCE_TRANSFORMED, RESPONSE_DESTINATIONS_COMPLETED, RESPONSE_POST_PROCESSOR };
+        this.respondAfterProcessing = true;
     }
 
     public String getResponseVariable() {
