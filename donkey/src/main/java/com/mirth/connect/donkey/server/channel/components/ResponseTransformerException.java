@@ -12,10 +12,6 @@ package com.mirth.connect.donkey.server.channel.components;
 import com.mirth.connect.donkey.model.DonkeyException;
 
 public class ResponseTransformerException extends DonkeyException {
-    public ResponseTransformerException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
     public ResponseTransformerException(String message, Throwable cause, String formattedError) {
         super(message, cause, formattedError);
     }

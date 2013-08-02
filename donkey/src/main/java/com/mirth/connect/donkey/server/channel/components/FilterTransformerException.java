@@ -12,10 +12,6 @@ package com.mirth.connect.donkey.server.channel.components;
 import com.mirth.connect.donkey.model.DonkeyException;
 
 public class FilterTransformerException extends DonkeyException {
-    public FilterTransformerException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
     public FilterTransformerException(String message, Throwable cause, String formattedError) {
         super(message, cause, formattedError);
     }

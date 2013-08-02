@@ -98,9 +98,9 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
             String responseStatusMessage = "Database write success";
             Status responseStatus = Status.SENT;
 
-            Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(scriptLogger, connector.getChannelId(), new ImmutableConnectorMessage(connectorMessage, true, connector.getDestinationNameMap()));
-
             try {
+                Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(scriptLogger, connector.getChannelId(), new ImmutableConnectorMessage(connectorMessage, true, connector.getDestinationNameMap()));
+
                 Object result = JavaScriptUtil.executeScript(this, scriptId, scope, connector.getChannelId(), connector.getDestinationName());
 
                 if (result != null && !(result instanceof Undefined)) {
@@ -135,6 +135,8 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
 
                 logger.error("Error evaluating " + connectorProperties.getName() + " (" + connectorProperties.getName() + " \"" + connector.getDestinationName() + "\" on channel " + connector.getChannelId() + ").", e);
                 eventController.dispatchEvent(new ErrorEvent(connector.getChannelId(), connector.getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connector.getDestinationName(), "Error evaluating " + connectorProperties.getName(), e));
+            } finally {
+                Context.exit();
             }
 
             return new Response(responseStatus, responseData, responseStatusMessage, responseError);

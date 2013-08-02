@@ -108,44 +108,43 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
             Logger scriptLogger = Logger.getLogger("filter");
             String phase = new String();
 
-            try {
-                // TODO: Get rid of template and phase
-                Scriptable scope = JavaScriptScopeUtil.getFilterTransformerScope(scriptLogger, new ImmutableConnectorMessage(message, true, destinationNameMap), template, phase);
+            // get the script from the cache and execute it
+            Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
 
-                // get the script from the cache and execute it
-                Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
-
-                if (compiledScript == null) {
-                    logger.debug("script could not be found in cache");
-                    return new FilterTransformerResult(false, null);
-                } else {
+            if (compiledScript == null) {
+                logger.debug("Could not find script " + scriptId + " in cache.");
+                throw new FilterTransformerException("Could not find script " + scriptId + " in cache.", null, ErrorMessageBuilder.buildErrorMessage("Filter/Transformer", "Could not find script " + scriptId + " in cache.", null));
+            } else {
+                try {
+                    // TODO: Get rid of template and phase
+                    Scriptable scope = JavaScriptScopeUtil.getFilterTransformerScope(scriptLogger, new ImmutableConnectorMessage(message, true, destinationNameMap), template, phase);
                     Object result = executeScript(compiledScript, scope);
 
                     String transformedData = JavaScriptScopeUtil.getTransformedDataFromScope(scope, StringUtils.isNotBlank(template));
 
                     return new FilterTransformerResult(!(Boolean) Context.jsToJava(result, java.lang.Boolean.class), transformedData);
-                }
-            } catch (Throwable t) {
-                if (t instanceof RhinoException) {
-                    try {
-                        String script = CompiledScriptCache.getInstance().getSourceScript(scriptId);
-                        int linenumber = ((RhinoException) t).lineNumber();
-                        String errorReport = JavaScriptUtil.getSourceCode(script, linenumber, 0);
-                        t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase.toUpperCase(), errorReport);
-                    } catch (Exception ee) {
-                        t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase.toUpperCase(), null);
+                } catch (Throwable t) {
+                    if (t instanceof RhinoException) {
+                        try {
+                            String script = CompiledScriptCache.getInstance().getSourceScript(scriptId);
+                            int linenumber = ((RhinoException) t).lineNumber();
+                            String errorReport = JavaScriptUtil.getSourceCode(script, linenumber, 0);
+                            t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase.toUpperCase(), errorReport);
+                        } catch (Exception ee) {
+                            t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase.toUpperCase(), null);
+                        }
                     }
-                }
 
-                if (phase.equals("filter")) {
-                    eventDispatcher.dispatchEvent(new ErrorEvent(message.getChannelId(), message.getMetaDataId(), ErrorEventType.FILTER, connectorName, "Error evaluating filter", t));
-                    throw new FilterTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.FILTER.toString(), "Error evaluating filter", t));
-                } else {
-                    eventDispatcher.dispatchEvent(new ErrorEvent(message.getChannelId(), message.getMetaDataId(), ErrorEventType.TRANSFORMER, connectorName, "Error evaluating transformer", t));
-                    throw new FilterTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.TRANSFORMER.toString(), "Error evaluating transformer", t));
+                    if (phase.equals("filter")) {
+                        eventDispatcher.dispatchEvent(new ErrorEvent(message.getChannelId(), message.getMetaDataId(), ErrorEventType.FILTER, connectorName, "Error evaluating filter", t));
+                        throw new FilterTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.FILTER.toString(), "Error evaluating filter", t));
+                    } else {
+                        eventDispatcher.dispatchEvent(new ErrorEvent(message.getChannelId(), message.getMetaDataId(), ErrorEventType.TRANSFORMER, connectorName, "Error evaluating transformer", t));
+                        throw new FilterTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.TRANSFORMER.toString(), "Error evaluating transformer", t));
+                    }
+                } finally {
+                    Context.exit();
                 }
-            } finally {
-                Context.exit();
             }
         }
     }

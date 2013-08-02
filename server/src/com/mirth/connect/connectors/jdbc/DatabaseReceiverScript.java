@@ -16,6 +16,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 
@@ -149,8 +150,12 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     private class SelectTask extends JavaScriptTask<Object> {
         @Override
         public Object call() throws Exception {
-            Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, connector.getChannelId());
-            return JavaScriptUtil.executeScript(this, selectScriptId, scope, connector.getChannelId(), "Source");
+            try {
+                Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, connector.getChannelId());
+                return JavaScriptUtil.executeScript(this, selectScriptId, scope, connector.getChannelId(), "Source");
+            } finally {
+                Context.exit();
+            }
         }
     }
 
@@ -165,19 +170,23 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
 
         @Override
         public Object call() throws Exception {
-            Scriptable scope = null;
+            try {
+                Scriptable scope = null;
 
-            if (mergedConnectorMessage == null) {
-                scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, connector.getChannelId());
-            } else {
-                scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, connector.getChannelId(), new ImmutableConnectorMessage(mergedConnectorMessage, true, connector.getDestinationNameMap()));
+                if (mergedConnectorMessage == null) {
+                    scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, connector.getChannelId());
+                } else {
+                    scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, connector.getChannelId(), new ImmutableConnectorMessage(mergedConnectorMessage, true, connector.getDestinationNameMap()));
+                }
+
+                if (resultMap != null) {
+                    scope.put("resultMap", scope, resultMap);
+                }
+
+                return JavaScriptUtil.executeScript(this, updateScriptId, scope, connector.getChannelId(), "Source");
+            } finally {
+                Context.exit();
             }
-
-            if (resultMap != null) {
-                scope.put("resultMap", scope, resultMap);
-            }
-
-            return JavaScriptUtil.executeScript(this, updateScriptId, scope, connector.getChannelId(), "Source");
         }
     }
 }

@@ -117,7 +117,6 @@ public class JavaScriptDispatcher extends DestinationConnector {
             String responseStatusMessage = "JavaScript evaluation successful.";
             Status responseStatus = Status.SENT;
 
-            Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(scriptLogger, getChannelId(), new ImmutableConnectorMessage(message, true, JavaScriptDispatcher.this.getDestinationNameMap()));
             Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
 
             if (compiledScript == null) {
@@ -129,6 +128,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
                 eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), "Script not found in cache", null));
             } else {
                 try {
+                    Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(scriptLogger, getChannelId(), new ImmutableConnectorMessage(message, true, JavaScriptDispatcher.this.getDestinationNameMap()));
                     Object result = executeScript(compiledScript, scope);
 
                     if (result != null && !(result instanceof Undefined)) {

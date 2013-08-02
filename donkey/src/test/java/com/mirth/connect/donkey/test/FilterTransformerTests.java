@@ -184,7 +184,7 @@ public class FilterTransformerTests {
         filterTransformerExecutor.setFilterTransformer(new TestFilterTransformer() {
             @Override
             public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
-                throw new FilterTransformerException("Failed to run filter/transformer.", new Exception());
+                throw new FilterTransformerException("Failed to run filter/transformer.", new Exception(), null);
             }
         });
         for (int i = 1; i <= TEST_SIZE; i++) {

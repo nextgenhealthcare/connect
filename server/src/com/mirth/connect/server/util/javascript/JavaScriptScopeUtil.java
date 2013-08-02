@@ -69,8 +69,11 @@ public class JavaScriptScopeUtil {
         }
     }
 
-    // Retrieves the Context for the current Thread; only initializes the shared scope if necessary
-    public static Context getContext() {
+    /*
+     * Retrieves the Context for the current Thread; only initializes the shared scope if necessary.
+     * The context must be cleaned up with Context.exit() when it is no longer needed.
+     */
+    protected static Context getContext() {
         initialize();
         Context context = ContextFactory.getGlobal().enterContext();
         context.setOptimizationLevel(rhinoOptimizationLevel);
@@ -205,14 +208,19 @@ public class JavaScriptScopeUtil {
      * Public Phase-specific Scopes
      */
 
+    /** 
+     * Since this method calls getContext(), anything calling it should wrap this method in a try-finally with Context.exit() in the finally block.
+     */
     public static Scriptable getAttachmentScope(Object logger, String channelId, String message, List<Attachment> attachments) {
-        Context context = getContext();
-        Scriptable scope = getBasicScope(context, logger, channelId);
+        Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addRawMessage(scope, message);
         scope.put("mirth_attachments", scope, attachments);
         return scope;
     }
 
+    /** 
+     * Since this method calls getContext(), anything calling it should wrap this method in a try-finally with Context.exit() in the finally block.
+     */
     public static Scriptable getPreprocessorScope(Object logger, String channelId, String message, ImmutableConnectorMessage connectorMessage) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addRawMessage(scope, message);
@@ -220,6 +228,9 @@ public class JavaScriptScopeUtil {
         return scope;
     }
 
+    /** 
+     * Since this method calls getContext(), anything calling it should wrap this method in a try-finally with Context.exit() in the finally block.
+     */
     public static Scriptable getPostprocessorScope(Object logger, String channelId, Message message) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addStatusValues(scope);
@@ -227,6 +238,9 @@ public class JavaScriptScopeUtil {
         return scope;
     }
 
+    /** 
+     * Since this method calls getContext(), anything calling it should wrap this method in a try-finally with Context.exit() in the finally block.
+     */
     public static Scriptable getPostprocessorScope(Object logger, String channelId, Message message, Response response) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addMessage(scope, message);
@@ -235,6 +249,9 @@ public class JavaScriptScopeUtil {
         return scope;
     }
 
+    /** 
+     * Since this method calls getContext(), anything calling it should wrap this method in a try-finally with Context.exit() in the finally block.
+     */
     public static Scriptable getFilterTransformerScope(Object logger, ImmutableConnectorMessage message, String template, String phase) {
         Scriptable scope = getBasicScope(getContext(), logger, message);
         addConnectorMessage(scope, message);
@@ -243,6 +260,9 @@ public class JavaScriptScopeUtil {
         return scope;
     }
 
+    /** 
+     * Since this method calls getContext(), anything calling it should wrap this method in a try-finally with Context.exit() in the finally block.
+     */
     public static Scriptable getResponseTransformerScope(Object logger, Response response, ImmutableConnectorMessage message, String template) {
         Scriptable scope = getBasicScope(getContext(), logger, message);
         addConnectorMessage(scope, message);
@@ -252,36 +272,53 @@ public class JavaScriptScopeUtil {
         return scope;
     }
 
+    /** 
+     * Since this method calls getContext(), anything calling it should wrap this method in a try-finally with Context.exit() in the finally block.
+     */
     public static Scriptable getDeployScope(Object logger, String channelId) {
         return getBasicScope(getContext(), logger, channelId);
     }
 
+    /** 
+     * Since this method calls getContext(), anything calling it should wrap this method in a try-finally with Context.exit() in the finally block.
+     */
     public static Scriptable getDeployScope(Object logger) {
         return getBasicScope(getContext(), logger);
     }
 
+    /** 
+     * Since this method calls getContext(), anything calling it should wrap this method in a try-finally with Context.exit() in the finally block.
+     */
     public static Scriptable getShutdownScope(Object logger, String channelId) {
         return getBasicScope(getContext(), logger, channelId);
     }
 
+    /** 
+     * Since this method calls getContext(), anything calling it should wrap this method in a try-finally with Context.exit() in the finally block.
+     */
     public static Scriptable getShutdownScope(Object logger) {
         return getBasicScope(getContext(), logger);
     }
 
-    public static Scriptable getMessageReceiverScope(Object logger) {
-        return getBasicScope(getContext(), logger);
-    }
-
+    /** 
+     * Since this method calls getContext(), anything calling it should wrap this method in a try-finally with Context.exit() in the finally block.
+     */
     public static Scriptable getMessageReceiverScope(Object logger, String channelId) {
         return getBasicScope(getContext(), logger, channelId);
     }
 
+    /** 
+     * Since this method calls getContext(), anything calling it should wrap this method in a try-finally with Context.exit() in the finally block.
+     */
     public static Scriptable getMessageReceiverScope(Object logger, String channelId, ImmutableConnectorMessage message) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addConnectorMessage(scope, message);
         return scope;
     }
 
+    /** 
+     * Since this method calls getContext(), anything calling it should wrap this method in a try-finally with Context.exit() in the finally block.
+     */
     public static Scriptable getMessageDispatcherScope(Object logger, String channelId, ImmutableConnectorMessage message) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addConnectorMessage(scope, message);
@@ -289,6 +326,9 @@ public class JavaScriptScopeUtil {
         return scope;
     }
 
+    /** 
+     * Since this method calls getContext(), anything calling it should wrap this method in a try-finally with Context.exit() in the finally block.
+     */
     public static Scriptable getBatchProcessorScope(Object logger, String channelId, Map<String, Object> scopeObjects) {
         Scriptable scope = getBasicScope(getContext(), logger);
 

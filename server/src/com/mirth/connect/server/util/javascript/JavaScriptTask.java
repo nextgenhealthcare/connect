@@ -19,22 +19,39 @@ import com.mirth.connect.donkey.util.ThreadUtils;
 
 public abstract class JavaScriptTask<T> implements Callable<T> {
     private Context context;
+    private boolean contextCreated = false;;
     
     protected Context getContext() {
         return context;
     }
 
     public Object executeScript(Script compiledScript, Scriptable scope) throws InterruptedException {
-        // if the executor is halting this task, we don't want to initialize the context yet
-        synchronized (this) {
-            ThreadUtils.checkInterruptedStatus();
-            context = JavaScriptScopeUtil.getContext();
+        try {
+            // if the executor is halting this task, we don't want to initialize the context yet
+            synchronized (this) {
+                ThreadUtils.checkInterruptedStatus();
+                context = Context.getCurrentContext();
 
-            if (context instanceof StoppableContext) {
-                ((StoppableContext) context).setRunning(true);
+                /*
+                 * This should never be called but exists in case executeScript is called from a
+                 * different thread than the one that entered the context.
+                 */
+                if (context == null) {
+                    contextCreated = true;
+                    context = JavaScriptScopeUtil.getContext();
+                }
+
+                if (context instanceof StoppableContext) {
+                    ((StoppableContext) context).setRunning(true);
+                }
+            }
+
+            return compiledScript.exec(context, scope);
+        } finally {
+            if (contextCreated) {
+                Context.exit();
+                contextCreated = false;
             }
         }
-
-        return compiledScript.exec(context, scope);
     }
 }

@@ -117,41 +117,40 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
         public String call() throws Exception {
             Logger scriptLogger = Logger.getLogger("response");
 
-            try {
-                Scriptable scope = JavaScriptScopeUtil.getResponseTransformerScope(scriptLogger, response, new ImmutableConnectorMessage(connectorMessage, true, destinationNameMap), template);
+            // Get the script from the cache
+            Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
 
-                // Get the script from the cache
-                Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
+            if (compiledScript == null) {
+                logger.debug("Could not find script " + scriptId + " in cache.");
+                throw new ResponseTransformerException("Could not find script " + scriptId + " in cache.", null, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.RESPONSE_TRANSFORMER.toString(), "Could not find script " + scriptId + " in cache.", null));
+            } else {
+                try {
+                    Scriptable scope = JavaScriptScopeUtil.getResponseTransformerScope(scriptLogger, response, new ImmutableConnectorMessage(connectorMessage, true, destinationNameMap), template);
+                    // Execute the script
+                    executeScript(compiledScript, scope);
 
-                if (compiledScript == null) {
-                    throw new Exception("Could not find script " + scriptId + " in cache.");
-                }
+                    // Set response status and errorMsg
+                    JavaScriptScopeUtil.getResponseDataFromScope(scope, response);
 
-                // Execute the script
-                executeScript(compiledScript, scope);
-
-                // Set response status and errorMsg
-                JavaScriptScopeUtil.getResponseDataFromScope(scope, response);
-
-                // Return the result
-                return JavaScriptScopeUtil.getTransformedDataFromScope(scope, StringUtils.isNotBlank(template));
-
-            } catch (Throwable t) {
-                if (t instanceof RhinoException) {
-                    try {
-                        String script = CompiledScriptCache.getInstance().getSourceScript(scriptId);
-                        int linenumber = ((RhinoException) t).lineNumber();
-                        String errorReport = JavaScriptUtil.getSourceCode(script, linenumber, 0);
-                        t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, "response", errorReport);
-                    } catch (Exception ee) {
-                        t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, "response", null);
+                    // Return the result
+                    return JavaScriptScopeUtil.getTransformedDataFromScope(scope, StringUtils.isNotBlank(template));
+                } catch (Throwable t) {
+                    if (t instanceof RhinoException) {
+                        try {
+                            String script = CompiledScriptCache.getInstance().getSourceScript(scriptId);
+                            int linenumber = ((RhinoException) t).lineNumber();
+                            String errorReport = JavaScriptUtil.getSourceCode(script, linenumber, 0);
+                            t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, "response", errorReport);
+                        } catch (Exception ee) {
+                            t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, "response", null);
+                        }
                     }
-                }
 
-                eventDispatcher.dispatchEvent(new ErrorEvent(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), ErrorEventType.RESPONSE_TRANSFORMER, connectorName, "Error evaluating response transformer", t));
-                throw new ResponseTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.RESPONSE_TRANSFORMER.toString(), "Error evaluating response transformer", t));
-            } finally {
-                Context.exit();
+                    eventDispatcher.dispatchEvent(new ErrorEvent(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), ErrorEventType.RESPONSE_TRANSFORMER, connectorName, "Error evaluating response transformer", t));
+                    throw new ResponseTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.RESPONSE_TRANSFORMER.toString(), "Error evaluating response transformer", t));
+                } finally {
+                    Context.exit();
+                }
             }
         }
     }

@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
@@ -111,8 +112,12 @@ public class JavaScriptReceiver extends PollConnector {
     private class JavaScriptReceiverTask extends JavaScriptTask<Object> {
         @Override
         public Object call() throws Exception {
-            Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(Logger.getLogger("js-connector"), getChannelId());
-            return JavaScriptUtil.executeScript(this, scriptId, scope, getChannelId(), "Source");
+            try {
+                Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(Logger.getLogger("js-connector"), getChannelId());
+                return JavaScriptUtil.executeScript(this, scriptId, scope, getChannelId(), "Source");
+            } finally {
+                Context.exit();
+            }
         }
     }
 

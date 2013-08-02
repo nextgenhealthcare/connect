@@ -86,8 +86,12 @@ public class JavaScriptUtil {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(ScriptController.ATTACHMENT_SCRIPT_KEY.toLowerCase());
-                    Scriptable scope = JavaScriptScopeUtil.getAttachmentScope(scriptLogger, channelId, message, attachments);
-                    return JavaScriptUtil.executeScript(this, ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channelId), scope, null, null);
+                    try {
+                        Scriptable scope = JavaScriptScopeUtil.getAttachmentScope(scriptLogger, channelId, message, attachments);
+                        return JavaScriptUtil.executeScript(this, ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channelId), scope, null, null);
+                    } finally {
+                        Context.exit();
+                    }
                 }
             });
         } catch (JavaScriptExecutorException e) {
@@ -146,8 +150,12 @@ public class JavaScriptUtil {
             Object result = null;
 
             if (compiledScriptCache.getCompiledScript(ScriptController.PREPROCESSOR_SCRIPT_KEY) != null) {
-                Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), message.getRaw().getContent(), new ImmutableConnectorMessage(message, true));
-                result = JavaScriptUtil.executeScript(task, ScriptController.PREPROCESSOR_SCRIPT_KEY, scope, null, null);
+                try {
+                    Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), message.getRaw().getContent(), new ImmutableConnectorMessage(message, true));
+                    result = JavaScriptUtil.executeScript(task, ScriptController.PREPROCESSOR_SCRIPT_KEY, scope, null, null);
+                } finally {
+                    Context.exit();
+                }
             }
 
             if (result != null) {
@@ -170,9 +178,13 @@ public class JavaScriptUtil {
             String scriptId = ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, message.getChannelId());
 
             if (compiledScriptCache.getCompiledScript(scriptId) != null) {
-                // Update the scope with the result from the global processor
-                Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), globalResult, new ImmutableConnectorMessage(message, true));
-                result = JavaScriptUtil.executeScript(task, scriptId, scope, null, null);
+                try {
+                    // Update the scope with the result from the global processor
+                    Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), globalResult, new ImmutableConnectorMessage(message, true));
+                    result = JavaScriptUtil.executeScript(task, scriptId, scope, null, null);
+                } finally {
+                    Context.exit();
+                }
             }
 
             if (result != null) {
@@ -227,8 +239,12 @@ public class JavaScriptUtil {
         try {
             String scriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, message.getChannelId());
             if (compiledScriptCache.getCompiledScript(scriptId) != null) {
-                Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message);
-                channelResponse = getPostprocessorResponse(JavaScriptUtil.executeScript(task, scriptId, scope, null, null));
+                try {
+                    Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message);
+                    channelResponse = getPostprocessorResponse(JavaScriptUtil.executeScript(task, scriptId, scope, null, null));
+                } finally {
+                    Context.exit();
+                }
             }
         } catch (Exception e) {
             logScriptError(ScriptController.POSTPROCESSOR_SCRIPT_KEY, message.getChannelId(), e);
@@ -238,11 +254,15 @@ public class JavaScriptUtil {
         Response response = channelResponse;
         try {
             if (compiledScriptCache.getCompiledScript(ScriptController.POSTPROCESSOR_SCRIPT_KEY) != null) {
-                Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message, channelResponse);
-                Response globalResponse = getPostprocessorResponse(JavaScriptUtil.executeScript(task, ScriptController.POSTPROCESSOR_SCRIPT_KEY, scope, null, null));
-
-                if (globalResponse != null) {
-                    response = globalResponse;
+                try {
+                    Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message, channelResponse);
+                    Response globalResponse = getPostprocessorResponse(JavaScriptUtil.executeScript(task, ScriptController.POSTPROCESSOR_SCRIPT_KEY, scope, null, null));
+    
+                    if (globalResponse != null) {
+                        response = globalResponse;
+                    }
+                } finally {
+                    Context.exit();
                 }
             }
         } catch (Exception e) {
@@ -294,9 +314,13 @@ public class JavaScriptUtil {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
-                    Scriptable scope = JavaScriptScopeUtil.getDeployScope(scriptLogger, channelId);
-                    JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
-                    return null;
+                    try {
+                        Scriptable scope = JavaScriptScopeUtil.getDeployScope(scriptLogger, channelId);
+                        JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
+                        return null;
+                    } finally {
+                        Context.exit();
+                    }
                 }
             });
         } catch (JavaScriptExecutorException e) {
@@ -320,9 +344,13 @@ public class JavaScriptUtil {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
-                    Scriptable scope = JavaScriptScopeUtil.getShutdownScope(scriptLogger, channelId);
-                    JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
-                    return null;
+                    try {
+                        Scriptable scope = JavaScriptScopeUtil.getShutdownScope(scriptLogger, channelId);
+                        JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
+                        return null;
+                    } finally {
+                        Context.exit();
+                    }
                 }
             });
         } catch (JavaScriptExecutorException e) {
@@ -344,9 +372,13 @@ public class JavaScriptUtil {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptId.toLowerCase());
-                    Scriptable scope = JavaScriptScopeUtil.getDeployScope(scriptLogger);
-                    JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
-                    return null;
+                    try {
+                        Scriptable scope = JavaScriptScopeUtil.getDeployScope(scriptLogger);
+                        JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
+                        return null;
+                    } finally {
+                        Context.exit();
+                    }
                 }
             });
         } catch (JavaScriptExecutorException e) {
@@ -368,9 +400,13 @@ public class JavaScriptUtil {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptId.toLowerCase());
-                    Scriptable scope = JavaScriptScopeUtil.getShutdownScope(scriptLogger);
-                    JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
-                    return null;
+                    try {
+                        Scriptable scope = JavaScriptScopeUtil.getShutdownScope(scriptLogger);
+                        JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
+                        return null;
+                    } finally {
+                        Context.exit();
+                    }
                 }
             });
         } catch (JavaScriptExecutorException e) {
@@ -431,8 +467,6 @@ public class JavaScriptUtil {
             }
 
             throw e;
-        } finally {
-            Context.exit();
         }
     }
 
@@ -519,11 +553,11 @@ public class JavaScriptUtil {
         // Note: If the defaultScript is NULL, this means that the script should
         // always be inserted without being compared.
 
-        Context context = JavaScriptScopeUtil.getContext();
         boolean scriptInserted = false;
         String generatedScript = null;
 
         try {
+            Context context = JavaScriptScopeUtil.getContext();
             logger.debug("compiling script " + scriptId);
             generatedScript = JavaScriptBuilder.generateScript(script, scriptOptions);
             Script compiledScript = compileScript(context, generatedScript, scriptId);

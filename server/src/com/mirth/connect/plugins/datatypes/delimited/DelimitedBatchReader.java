@@ -161,8 +161,12 @@ public class DelimitedBatchReader {
                         } else {
                             Logger scriptLogger = Logger.getLogger(ScriptController.BATCH_SCRIPT_KEY.toLowerCase());
                             
-                            Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(scriptLogger, batchScriptId, getScopeObjects(in, serializationProperties, skipHeader, batchSkipRecords));
-                            return Context.toString(executeScript(compiledScript, scope));
+                            try {
+                                Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(scriptLogger, batchScriptId, getScopeObjects(in, serializationProperties, skipHeader, batchSkipRecords));
+                                return Context.toString(executeScript(compiledScript, scope));
+                            } finally {
+                                Context.exit();
+                            }
                         }
                     }
                 });
