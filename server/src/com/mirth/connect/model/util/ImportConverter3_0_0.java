@@ -92,7 +92,7 @@ public class ImportConverter3_0_0 {
             } else if (expectedClass == AlertModel.class) {
                 migrateAlert(element);
             } else if (expectedClass == ChannelProperties.class) {
-                migrateChannelProperties(element, false);
+                migrateChannelProperties(element, false, false);
                 element.setNodeName("channelProperties");
             } else if (expectedClass == CodeTemplate.class) {
                 element = new DonkeyElement(ImportConverter.convertCodeTemplates(element.toXml()).getDocumentElement());
@@ -122,22 +122,27 @@ public class ImportConverter3_0_0 {
 
         // migrate source connector
         DonkeyElement sourceConnector = channel.getChildElement("sourceConnector");
-        boolean isDataTypeDICOM = (migrateConnector(sourceConnector, 0).equals("DICOM"));
+        boolean isDataTypeDICOM = migrateConnector(sourceConnector, 0).isDataTypeDICOM;
         DonkeyElement responseConnectorProperties = sourceConnector.getChildElement("properties").getChildElement("responseConnectorProperties");
 
-        // migrate channel properties
+        // Read old channel properties
         Properties oldProperties = readPropertiesElement(channel.getChildElement("properties"));
         String synchronous = oldProperties.getProperty("synchronous", "true"); // use this later to set "waitForPrevious" on destination connectors
-        migrateChannelProperties(channel.getChildElement("properties"), isDataTypeDICOM);
 
         // migrate destination connectors
         int metaDataId = 1;
+        boolean isQueuingEnabled = false;
 
         for (DonkeyElement destinationConnector : channel.getChildElement("destinationConnectors").getChildElements()) {
             // Before migrating, we clone the destination connector here in case we need to add a response channel writer later
             DonkeyElement oldDestinationConnector = new DonkeyElement((Element) destinationConnector.cloneNode(true));
 
-            String sendResponseToChannelId = migrateConnector(destinationConnector, metaDataId);
+            ConnectorMigrationMetaData connectorMetaData = migrateConnector(destinationConnector, metaDataId);
+
+            if (connectorMetaData.dispatcherMetaData.isQueueEnabled) {
+                isQueuingEnabled = true;
+            }
+
             String destinationName = destinationConnector.getChildElement("name").getTextContent();
             destinationConnector.getChildElement("waitForPrevious").setTextContent(synchronous);
 
@@ -147,6 +152,7 @@ public class ImportConverter3_0_0 {
             }
 
             // Add a destination connector if the previous one used the Send Response To option
+            String sendResponseToChannelId = connectorMetaData.dispatcherMetaData.sendResponseToChannelId;
             if (StringUtils.isNotBlank(sendResponseToChannelId) && !sendResponseToChannelId.equals("sink")) {
                 createResponseChannelWriter(oldDestinationConnector, metaDataId++, sendResponseToChannelId);
 
@@ -156,6 +162,9 @@ public class ImportConverter3_0_0 {
 
             metaDataId++;
         }
+
+        // Migrate channel properties
+        migrateChannelProperties(channel.getChildElement("properties"), isDataTypeDICOM, isQueuingEnabled);
 
         channel.addChildElement("nextMetaDataId").setTextContent(Integer.toString(metaDataId));
     }
@@ -223,7 +232,7 @@ public class ImportConverter3_0_0 {
         }
     }
 
-    private static String migrateConnector(DonkeyElement connector, Integer metaDataId) throws MigrationException {
+    private static ConnectorMigrationMetaData migrateConnector(DonkeyElement connector, Integer metaDataId) throws MigrationException {
         logger.debug("Migrating connector");
 
         connector.removeChild("version");
@@ -241,12 +250,12 @@ public class ImportConverter3_0_0 {
         DonkeyElement transportName = connector.getChildElement("transportName");
         String connectorName = transportName.getTextContent();
         DonkeyElement properties = connector.getChildElement("properties");
-        String sendResponseToChannelId = null;
+        DispatcherMigrationMetaData dispatcherMetaData = new DispatcherMigrationMetaData();
 
         if (connectorName.equals("Channel Reader")) {
             migrateVmReceiverProperties(properties);
         } else if (connectorName.equals("Channel Writer")) {
-            migrateVmDispatcherProperties(properties);
+            dispatcherMetaData = migrateVmDispatcherProperties(properties);
         } else if (connectorName.equals("Database Reader")) {
             migrateDatabaseReceiverProperties(properties);
         } else if (connectorName.equals("Database Writer")) {
@@ -264,7 +273,7 @@ public class ImportConverter3_0_0 {
         } else if (connectorName.equals("HTTP Listener")) {
             migrateHttpReceiverProperties(properties);
         } else if (connectorName.equals("HTTP Sender")) {
-            sendResponseToChannelId = migrateHttpDispatcherProperties(properties);
+            dispatcherMetaData = migrateHttpDispatcherProperties(properties);
         } else if (connectorName.equals("JavaScript Reader")) {
             migrateJavaScriptReceiverProperties(properties);
         } else if (connectorName.equals("JavaScript Writer")) {
@@ -295,17 +304,17 @@ public class ImportConverter3_0_0 {
 
             migrateLLPListenerProperties(properties);
         } else if (connectorName.equals("LLP Sender")) {
-            sendResponseToChannelId = migrateLLPSenderProperties(properties);
+            dispatcherMetaData = migrateLLPSenderProperties(properties);
         } else if (connectorName.equals("TCP Listener")) {
             migrateTCPListenerProperties(properties);
         } else if (connectorName.equals("TCP Sender")) {
-            sendResponseToChannelId = migrateTCPSenderProperties(properties);
+            dispatcherMetaData = migrateTCPSenderProperties(properties);
         } else if (connectorName.equals("SMTP Sender")) {
             migrateSmtpDispatcherProperties(properties);
         } else if (connectorName.equals("Web Service Listener")) {
             migrateWebServiceListenerProperties(properties);
         } else if (connectorName.equals("Web Service Sender")) {
-            sendResponseToChannelId = migrateWebServiceSenderProperties(properties);
+            dispatcherMetaData = migrateWebServiceSenderProperties(properties);
         } else if (connectorName.equals("Email Reader")) {
             try {
                 Class<?> migratorClass = Class.forName("com.mirth.connect.connectors.email.shared.EmailReceiverMigrate3_0_0");
@@ -350,17 +359,9 @@ public class ImportConverter3_0_0 {
         connector.addChildElement("waitForPrevious").setTextContent("true");
 
         /*
-         * Return the inbound data type if source connector, otherwise return
-         * the channel id to send
-         * the response to.
+         * Return some metadata back to the caller to set other higher-scope properties.
          */
-        if (metaDataId == null) {
-            return null;
-        } else if (metaDataId == 0) {
-            return dataTypes[0];
-        } else {
-            return sendResponseToChannelId;
-        }
+        return new ConnectorMigrationMetaData(dataTypes[0].equals("DICOM"), dispatcherMetaData);
     }
 
     /*
@@ -374,7 +375,7 @@ public class ImportConverter3_0_0 {
         return child;
     }
 
-    private static void migrateChannelProperties(DonkeyElement properties, boolean useDICOMAttachmentHandler) {
+    private static void migrateChannelProperties(DonkeyElement properties, boolean useDICOMAttachmentHandler, boolean isQueuingEnabled) {
         logger.debug("Migrating channel properties");
 
         Properties oldProperties = readPropertiesElement(properties);
@@ -382,15 +383,27 @@ public class ImportConverter3_0_0 {
 
         properties.addChildElement("clearGlobalChannelMap").setTextContent(oldProperties.getProperty("clearGlobalChannelMap", "true"));
 
-        if (oldProperties.getProperty("store_messages", "true").equals("true")) {
+        boolean storeMessages = oldProperties.getProperty("store_messages", "true").equals("true");
+
+        // Storage will be enabled if a destination queue was enabled
+        if (storeMessages) {
             properties.addChildElement("messageStorageMode").setTextContent("DEVELOPMENT");
+        } else if (isQueuingEnabled) {
+            properties.addChildElement("messageStorageMode").setTextContent("PRODUCTION");
         } else {
             properties.addChildElement("messageStorageMode").setTextContent("DISABLED");
         }
 
         properties.addChildElement("encryptData").setTextContent(oldProperties.getProperty("encryptData", "false"));
-        properties.addChildElement("removeContentOnCompletion").setTextContent(readBooleanProperty(oldProperties, "error_messages_only", false));
-        properties.addChildElement("removeAttachmentsOnCompletion").setTextContent(readBooleanProperty(oldProperties, "error_messages_only", false));
+
+        /*
+         * We want to remove data on completion if "With errors only" was checked, or if storage was
+         * disabled but a destination queue was enabled
+         */
+        String removeData = Boolean.toString(readBooleanValue(oldProperties, "error_messages_only", false) || (!storeMessages && isQueuingEnabled));
+        properties.addChildElement("removeContentOnCompletion").setTextContent(removeData);
+        properties.addChildElement("removeAttachmentsOnCompletion").setTextContent(removeData);
+
         properties.addChildElement("initialState").setTextContent((oldProperties.getProperty("initialState", "started").equals("started") ? "STARTED" : "STOPPED"));
         properties.addChildElement("tags").setAttribute("class", "linked-hash-set");
         properties.addChildElement("metaDataColumns");
@@ -649,7 +662,7 @@ public class ImportConverter3_0_0 {
         buildResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), oldProperties.getProperty("responseValue", "None"), true);
     }
 
-    private static void migrateVmDispatcherProperties(DonkeyElement properties) {
+    private static DispatcherMigrationMetaData migrateVmDispatcherProperties(DonkeyElement properties) {
         logger.debug("Migrating VmDispatcherProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.vm.VmDispatcherProperties");
@@ -666,6 +679,8 @@ public class ImportConverter3_0_0 {
 
         properties.addChildElement("channelId").setTextContent(host);
         properties.addChildElement("channelTemplate").setTextContent(convertReferences(oldProperties.getProperty("template", "${message.encodedData}")));
+
+        return new DispatcherMigrationMetaData(null, useQueue);
     }
 
     private static void migrateDICOMReceiverProperties(DonkeyElement properties) {
@@ -880,13 +895,14 @@ public class ImportConverter3_0_0 {
         }
     }
 
-    private static String migrateHttpDispatcherProperties(DonkeyElement properties) throws MigrationException {
+    private static DispatcherMigrationMetaData migrateHttpDispatcherProperties(DonkeyElement properties) throws MigrationException {
         logger.debug("Migrating HttpDispatcherProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.http.HttpDispatcherProperties");
         properties.removeChildren();
 
-        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), readBooleanProperty(oldProperties, "usePersistentQueues"), readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), null);
+        String useQueue = readBooleanProperty(oldProperties, "usePersistentQueues");
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), useQueue, readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), null);
 
         properties.addChildElement("host").setTextContent(convertReferences(oldProperties.getProperty("host", "")));
         properties.addChildElement("method").setTextContent(oldProperties.getProperty("dispatcherMethod", "post"));
@@ -928,7 +944,7 @@ public class ImportConverter3_0_0 {
                 entry.addChildElement("string", value);
             }
 
-            return oldProperties.getProperty("dispatcherReplyChannelId");
+            return new DispatcherMigrationMetaData(oldProperties.getProperty("dispatcherReplyChannelId"), Boolean.parseBoolean(useQueue));
         } catch (DonkeyElementException e) {
             throw new MigrationException("Failed to migrate HTTP Dispatcher properties", e);
         }
@@ -1218,13 +1234,14 @@ public class ImportConverter3_0_0 {
         return bytes.toByteArray();
     }
 
-    private static String migrateLLPSenderProperties(DonkeyElement properties) {
+    private static DispatcherMigrationMetaData migrateLLPSenderProperties(DonkeyElement properties) {
         logger.debug("Migrating LLPSenderProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.tcp.TcpDispatcherProperties");
         properties.removeChildren();
 
-        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), readBooleanProperty(oldProperties, "usePersistentQueues"), readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), oldProperties.getProperty("maxRetryCount"));
+        String useQueue = readBooleanProperty(oldProperties, "usePersistentQueues");
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), useQueue, readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), oldProperties.getProperty("maxRetryCount"));
 
         DonkeyElement transmissionModeProperties = properties.addChildElement("transmissionModeProperties");
         transmissionModeProperties.setAttribute("class", "com.mirth.connect.model.transmission.framemode.FrameModeProperties");
@@ -1262,7 +1279,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
         properties.addChildElement("template").setTextContent(convertReferences(oldProperties.getProperty("template", "${message.encodedData}")));
 
-        return oldProperties.getProperty("replyChannelId");
+        return new DispatcherMigrationMetaData(oldProperties.getProperty("replyChannelId"), Boolean.parseBoolean(useQueue));
     }
 
     private static void migrateTCPListenerProperties(DonkeyElement properties) {
@@ -1297,13 +1314,14 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("responsePort").setTextContent(oldProperties.getProperty("ackPort", ""));
     }
 
-    private static String migrateTCPSenderProperties(DonkeyElement properties) {
+    private static DispatcherMigrationMetaData migrateTCPSenderProperties(DonkeyElement properties) {
         logger.debug("Migrating TCPSenderProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.tcp.TcpDispatcherProperties");
         properties.removeChildren();
 
-        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), readBooleanProperty(oldProperties, "usePersistentQueues"), readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), oldProperties.getProperty("maxRetryCount"));
+        String useQueue = readBooleanProperty(oldProperties, "usePersistentQueues");
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), useQueue, readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), oldProperties.getProperty("maxRetryCount"));
 
         DonkeyElement transmissionModeProperties = properties.addChildElement("transmissionModeProperties");
         transmissionModeProperties.setAttribute("class", "com.mirth.connect.model.transmission.framemode.FrameModeProperties");
@@ -1330,7 +1348,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("charsetEncoding").setTextContent(oldProperties.getProperty("charsetEncoding", "DEFAULT_ENCODING"));
         properties.addChildElement("template").setTextContent(convertReferences(oldProperties.getProperty("template", "${message.encodedData}")));
 
-        return oldProperties.getProperty("replyChannelId");
+        return new DispatcherMigrationMetaData(oldProperties.getProperty("replyChannelId"), Boolean.parseBoolean(useQueue));
     }
 
     private static void migrateWebServiceListenerProperties(DonkeyElement properties) {
@@ -1351,13 +1369,14 @@ public class ImportConverter3_0_0 {
         convertList(properties.addChildElement("passwords"), oldProperties.getProperty("receiverPasswords", ""));
     }
 
-    private static String migrateWebServiceSenderProperties(DonkeyElement properties) {
+    private static DispatcherMigrationMetaData migrateWebServiceSenderProperties(DonkeyElement properties) {
         logger.debug("Migrating WebServiceSenderProperties");
         Properties oldProperties = readPropertiesElement(properties);
         properties.setAttribute("class", "com.mirth.connect.connectors.ws.WebServiceDispatcherProperties");
         properties.removeChildren();
 
-        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), readBooleanProperty(oldProperties, "usePersistentQueues"), readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), null);
+        String useQueue = readBooleanProperty(oldProperties, "usePersistentQueues");
+        buildQueueConnectorProperties(properties.addChildElement("queueConnectorProperties"), useQueue, readBooleanProperty(oldProperties, "rotateQueue"), oldProperties.getProperty("reconnectMillisecs"), null);
 
         properties.addChildElement("wsdlUrl").setTextContent(convertReferences(oldProperties.getProperty("dispatcherWsdlUrl", "")));
         properties.addChildElement("service").setTextContent(convertReferences(oldProperties.getProperty("dispatcherService", "")));
@@ -1376,7 +1395,7 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("wsdlCacheId").setTextContent("");
         convertList(properties.addChildElement("wsdlOperations"), oldProperties.getProperty("dispatcherWsdlOperations", "<list><string>Press Get Operations</string></list>"));
 
-        return oldProperties.getProperty("dispatcherReplyChannelId");
+        return new DispatcherMigrationMetaData(oldProperties.getProperty("dispatcherReplyChannelId"), Boolean.parseBoolean(useQueue));
     }
 
     private static void migrateDelimitedProperties(DonkeyElement properties) {
@@ -1802,5 +1821,29 @@ public class ImportConverter3_0_0 {
         }
 
         return missingDataTypes;
+    }
+
+    private static class DispatcherMigrationMetaData {
+        public String sendResponseToChannelId;
+        public boolean isQueueEnabled;
+
+        public DispatcherMigrationMetaData() {
+            this(null, false);
+        }
+
+        public DispatcherMigrationMetaData(String sendResponseToChannelId, boolean isQueueEnabled) {
+            this.sendResponseToChannelId = sendResponseToChannelId;
+            this.isQueueEnabled = isQueueEnabled;
+        }
+    }
+
+    private static class ConnectorMigrationMetaData {
+        public boolean isDataTypeDICOM;
+        public DispatcherMigrationMetaData dispatcherMetaData;
+
+        public ConnectorMigrationMetaData(boolean isDataTypeDICOM, DispatcherMigrationMetaData dispatcherMetaData) {
+            this.isDataTypeDICOM = isDataTypeDICOM;
+            this.dispatcherMetaData = dispatcherMetaData;
+        }
     }
 }
