@@ -9,16 +9,26 @@
 
 package com.mirth.connect.connectors.jms;
 
-public class JmsReceiverProperties extends JmsConnectorProperties {
+import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
+import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+
+public class JmsReceiverProperties extends JmsConnectorProperties implements ResponseConnectorPropertiesInterface {
+    private ResponseConnectorProperties responseConnectorProperties;
     private String selector;
     private String reconnectIntervalMillis;
     private boolean durableTopic;
 
     public JmsReceiverProperties() {
         super();
+        responseConnectorProperties = new ResponseConnectorProperties();
         selector = "";
         reconnectIntervalMillis = "10000";
         durableTopic = false;
+    }
+
+    @Override
+    public ResponseConnectorProperties getResponseConnectorProperties() {
+        return responseConnectorProperties;
     }
 
     @Override
