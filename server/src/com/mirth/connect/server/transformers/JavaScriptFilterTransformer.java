@@ -87,7 +87,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
                 throw (FilterTransformerException) cause;
             }
 
-            throw new FilterTransformerException(e.getMessage(), e);
+            throw new FilterTransformerException(cause.getMessage(), cause, ErrorMessageBuilder.buildErrorMessage("Filter/Transformer", null, cause));
         }
     }
 

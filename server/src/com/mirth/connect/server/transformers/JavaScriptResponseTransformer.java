@@ -87,7 +87,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                 throw (ResponseTransformerException) cause;
             }
 
-            throw new ResponseTransformerException(e.getMessage(), e);
+            throw new ResponseTransformerException(cause.getMessage(), cause, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.RESPONSE_TRANSFORMER.toString(), null, cause));
         }
     }
 
