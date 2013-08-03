@@ -31,6 +31,7 @@ import com.mirth.connect.plugins.DataTypeClientPlugin;
 import com.mirth.connect.plugins.FilterRulePlugin;
 import com.mirth.connect.plugins.SettingsPanelPlugin;
 import com.mirth.connect.plugins.TransformerStepPlugin;
+import com.mirth.connect.plugins.TransmissionModePlugin;
 
 public class LoadedExtensions {
 
@@ -46,6 +47,7 @@ public class LoadedExtensions {
     private Map<String, TransformerStepPlugin> transformerStepPlugins = new HashMap<String, TransformerStepPlugin>();
     private Map<String, CodeTemplatePlugin> codeTemplatePlugins = new HashMap<String, CodeTemplatePlugin>();
     private Map<String, DataTypeClientPlugin> dataTypePlugins = new TreeMap<String, DataTypeClientPlugin>();
+    private Map<String, TransmissionModePlugin> transmissionModePlugins = new TreeMap<String, TransmissionModePlugin>();
     private Map<String, ConnectorSettingsPanel> connectors = new TreeMap<String, ConnectorSettingsPanel>();
     private Map<String, ConnectorSettingsPanel> sourceConnectors = new TreeMap<String, ConnectorSettingsPanel>();
     private Map<String, ConnectorSettingsPanel> destinationConnectors = new TreeMap<String, ConnectorSettingsPanel>();
@@ -189,6 +191,10 @@ public class LoadedExtensions {
         if (plugin instanceof DataTypeClientPlugin) {
             dataTypePlugins.put(plugin.getPluginPointName(), (DataTypeClientPlugin) plugin);
         }
+
+        if (plugin instanceof TransmissionModePlugin) {
+            transmissionModePlugins.put(plugin.getPluginPointName(), (TransmissionModePlugin) plugin);
+        }
     }
 
     private void clearExtensionMaps() {
@@ -205,6 +211,7 @@ public class LoadedExtensions {
         transformerStepPlugins.clear();
         codeTemplatePlugins.clear();
         dataTypePlugins.clear();
+        transmissionModePlugins.clear();
 
         connectors.clear();
         sourceConnectors.clear();
@@ -257,6 +264,10 @@ public class LoadedExtensions {
 
     public Map<String, DataTypeClientPlugin> getDataTypePlugins() {
         return dataTypePlugins;
+    }
+
+    public Map<String, TransmissionModePlugin> getTransmissionModePlugins() {
+        return transmissionModePlugins;
     }
 
     public Map<String, ConnectorSettingsPanel> getConnectors() {

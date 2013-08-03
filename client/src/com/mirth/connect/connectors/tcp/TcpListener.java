@@ -11,8 +11,6 @@ package com.mirth.connect.connectors.tcp;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -28,7 +26,6 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.plugins.BasicModePlugin;
 import com.mirth.connect.plugins.ClientPlugin;
@@ -39,7 +36,6 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
 
     private Logger logger = Logger.getLogger(this.getClass());
     private Frame parent;
-    private Map<String, PluginMetaData> metaDataMap;
     private TransmissionModePlugin defaultPlugin;
     private TransmissionModePlugin transmissionModePlugin;
     private JComponent settingsPlaceHolder;
@@ -59,18 +55,10 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         model.addElement("Basic TCP");
         selectedMode = "Basic TCP";
 
-        metaDataMap = new HashMap<String, PluginMetaData>();
-        for (PluginMetaData metaData : parent.getPluginMetaData().values()) {
-            if (metaData.getName().startsWith("Transmission Mode - ")) {
-                String name = metaData.getName().substring(20);
-                metaDataMap.put(name, metaData);
-                model.addElement(name);
-            }
-        }
-
-        for (ClientPlugin plugin : LoadedExtensions.getInstance().getClientPlugins()) {
-            if (plugin.getPluginPointName().equals("MLLP")) {
-                defaultPlugin = (TransmissionModePlugin) plugin;
+        for (String pluginPointName : LoadedExtensions.getInstance().getTransmissionModePlugins().keySet()) {
+            model.addElement(pluginPointName);
+            if (pluginPointName.equals("MLLP")) {
+                defaultPlugin = LoadedExtensions.getInstance().getTransmissionModePlugins().get(pluginPointName);
             }
         }
 
@@ -122,7 +110,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
 
         TransmissionModeProperties modeProps = props.getTransmissionModeProperties();
         String name = "Basic TCP";
-        if (modeProps != null && metaDataMap.containsKey(modeProps.getPluginPointName())) {
+        if (modeProps != null && LoadedExtensions.getInstance().getTransmissionModePlugins().containsKey(modeProps.getPluginPointName())) {
             name = modeProps.getPluginPointName();
         }
 
@@ -674,7 +662,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
 
     private void transmissionModeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transmissionModeComboBoxActionPerformed
         String name = (String) transmissionModeComboBox.getSelectedItem();
-        
+
         if (!modeLock && transmissionModePlugin != null) {
             if (!transmissionModePlugin.getDefaultProperties().equals(transmissionModePlugin.getProperties())) {
                 if (JOptionPane.showConfirmDialog(parent, "Are you sure you would like to change the transmission mode and lose all of the current transmission properties?", "Select an Option", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
@@ -685,7 +673,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
                 }
             }
         }
-        
+
         selectedMode = name;
         if (name.equals("Basic TCP")) {
             transmissionModePlugin = new BasicModePlugin();
@@ -696,7 +684,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
                 }
             }
         }
-        
+
         if (transmissionModePlugin != null) {
             transmissionModePlugin.initialize(this);
             ((GroupLayout) getLayout()).replace(settingsPlaceHolder, transmissionModePlugin.getSettingsComponent());

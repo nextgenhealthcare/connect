@@ -11,8 +11,6 @@ package com.mirth.connect.connectors.tcp;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -30,7 +28,6 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.plugins.BasicModePlugin;
 import com.mirth.connect.plugins.ClientPlugin;
@@ -41,7 +38,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
     private Logger logger = Logger.getLogger(this.getClass());
     private Frame parent;
-    private Map<String, PluginMetaData> metaDataMap;
     private TransmissionModePlugin defaultPlugin;
     private TransmissionModePlugin transmissionModePlugin;
     private JComponent settingsPlaceHolder;
@@ -59,18 +55,10 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         model.addElement("Basic TCP");
         selectedMode = "Basic TCP";
 
-        metaDataMap = new HashMap<String, PluginMetaData>();
-        for (PluginMetaData metaData : parent.getPluginMetaData().values()) {
-            if (metaData.getName().startsWith("Transmission Mode - ")) {
-                String name = metaData.getName().substring(20);
-                metaDataMap.put(name, metaData);
-                model.addElement(name);
-            }
-        }
-
-        for (ClientPlugin plugin : LoadedExtensions.getInstance().getClientPlugins()) {
-            if (plugin.getPluginPointName().equals("MLLP")) {
-                defaultPlugin = (TransmissionModePlugin) plugin;
+        for (String pluginPointName : LoadedExtensions.getInstance().getTransmissionModePlugins().keySet()) {
+            model.addElement(pluginPointName);
+            if (pluginPointName.equals("MLLP")) {
+                defaultPlugin = LoadedExtensions.getInstance().getTransmissionModePlugins().get(pluginPointName);
             }
         }
 
@@ -121,7 +109,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
         TransmissionModeProperties modeProps = props.getTransmissionModeProperties();
         String name = "Basic TCP";
-        if (modeProps != null && metaDataMap.containsKey(modeProps.getPluginPointName())) {
+        if (modeProps != null && LoadedExtensions.getInstance().getTransmissionModePlugins().containsKey(modeProps.getPluginPointName())) {
             name = modeProps.getPluginPointName();
         }
 
