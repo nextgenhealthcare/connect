@@ -49,87 +49,68 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="jLabel28" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel10" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel29" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel27" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel14" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel15" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel17" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel19" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel20" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel21" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel18" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel23" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel26" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel32" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel31" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel12" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel13" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel11" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel8" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel33" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel21" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel23" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel27" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel31" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel28" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel12" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel13" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel10" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel29" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel11" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="fileContentsTextPane" alignment="0" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="ts1Yes" min="-2" max="-2" attributes="1"/>
+                          <Group type="102" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="keyStoreField" min="-2" pref="150" max="-2" attributes="1"/>
+                                  <Component id="truststoreField" min="-2" pref="150" max="-2" attributes="1"/>
+                              </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="ts1No" min="-2" max="-2" attributes="1"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="jLabel9" alignment="1" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel30" alignment="1" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="keyStorePasswordField" min="-2" pref="75" max="-2" attributes="1"/>
+                                  <Component id="truststorepwField" min="-2" pref="75" max="-2" attributes="1"/>
+                              </Group>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
+                          <Component id="keyPasswordField" min="-2" pref="150" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
                               <Component id="nossl2Yes" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="nossl2No" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
+                          <Group type="102" attributes="0">
                               <Component id="noclientauthYes" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="noclientauthNo" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="tcpdelayYes" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="tcpdelayNo" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="stgcmtYes" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="stgcmtNo" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="uidnegrspYes" min="-2" pref="36" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="uidnegrspNo" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="pdv1Yes" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="pdv1No" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="accepttoField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                          <Component id="passcodeField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                          <Component id="usernameField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="highPriority" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="mediumPriority" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="lowPriority" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
+                          <Group type="102" attributes="0">
                               <Component id="tls3des" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="tlsaes" min="-2" max="-2" attributes="0"/>
@@ -138,23 +119,18 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="tlsno" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="keyStoreField" alignment="0" min="-2" pref="150" max="-2" attributes="1"/>
-                                  <Component id="truststoreField" alignment="0" min="-2" pref="150" max="-2" attributes="1"/>
-                              </Group>
-                              <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel30" min="-2" max="-2" attributes="0"/>
-                              </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="ts1Yes" min="-2" max="-2" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="keyStorePasswordField" min="-2" pref="75" max="-2" attributes="1"/>
-                                  <Component id="truststorepwField" min="-2" pref="75" max="-2" attributes="1"/>
-                              </Group>
+                              <Component id="ts1No" min="-2" max="-2" attributes="1"/>
                           </Group>
-                          <Component id="asyncField" min="-2" pref="50" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="tcpdelayYes" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="tcpdelayNo" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="connecttoField" min="-2" pref="50" max="-2" attributes="0"/>
+                          <Component id="accepttoField" min="-2" pref="50" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="1" max="-2" attributes="0">
                                   <Group type="102" alignment="0" attributes="1">
@@ -180,38 +156,66 @@
                                   <Component id="localAddressField" alignment="0" min="-2" pref="124" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="keyPasswordField" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
-                          <Component id="connecttoField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                          <Component id="asyncField" min="-2" pref="50" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
+                              <Component id="highPriority" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="mediumPriority" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="lowPriority" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="usernameField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                          <Component id="passcodeField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="pdv1Yes" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="pdv1No" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="uidnegrspYes" min="-2" pref="36" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="uidnegrspNo" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="stgcmtYes" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="stgcmtNo" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="soclosedelayField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="rsptoField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                                          <Component id="releasetoField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                                          <Component id="reaperField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="1" attributes="0">
+                                          <Component id="jLabel22" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel16" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel25" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel24" alignment="1" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                  </Group>
                                   <Component id="shutdowndelayField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                                  <Component id="rsptoField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                                  <Component id="releasetoField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                                  <Component id="reaperField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="jLabel22" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel16" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel25" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel24" min="-2" max="-2" attributes="0"/>
+                                  <Component id="soclosedelayField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="sorcvbufField" min="-2" pref="50" max="-2" attributes="0"/>
                                   <Component id="sosndbufField" min="-2" pref="50" max="-2" attributes="0"/>
                                   <Group type="103" alignment="0" groupAlignment="0" attributes="0">
                                       <Component id="rcvpdulenField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
                                       <Component id="sndpdulenField" alignment="1" min="-2" pref="50" max="-2" attributes="0"/>
-                                      <Component id="bufsizeField" alignment="1" min="-2" pref="50" max="-2" attributes="0"/>
                                   </Group>
+                                  <Component id="sorcvbufField" min="-2" pref="50" max="-2" attributes="0"/>
+                                  <Component id="bufsizeField" min="-2" pref="50" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="43" max="32767" attributes="0"/>
                   </Group>
+                  <Component id="fileContentsTextPane" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -301,33 +305,6 @@
                           <Component id="jLabel20" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="rsptoField" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="jLabel23" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="soclosedelayField" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
-                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                              <Component id="jLabel21" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="shutdowndelayField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="50" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="accepttoField" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="75" pref="75" max="75" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="jLabel7" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="connecttoField" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
-                      </Group>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
@@ -345,7 +322,64 @@
                           <Component id="sosndbufField" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel25" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel21" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="shutdowndelayField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel23" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="soclosedelayField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="accepttoField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel7" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="connecttoField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel27" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="tcpdelayYes" alignment="3" min="-2" pref="15" max="-2" attributes="0"/>
+                          <Component id="tcpdelayNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel31" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="ts1Yes" alignment="3" min="-2" pref="15" max="-2" attributes="0"/>
+                          <Component id="ts1No" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel28" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="tls3des" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="tlsaes" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="tlswithout" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="tlsno" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="noclientauthYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="noclientauthNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel13" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="nossl2Yes" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="nossl2No" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="sorcvbufField" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel24" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -357,72 +391,34 @@
                       </Group>
                   </Group>
               </Group>
-              <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel27" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="tcpdelayYes" alignment="3" min="-2" pref="15" max="-2" attributes="0"/>
-                  <Component id="tcpdelayNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="keyStoreField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="keyStorePasswordField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel31" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="ts1Yes" alignment="3" min="-2" pref="15" max="-2" attributes="0"/>
-                  <Component id="ts1No" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel29" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="truststoreField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel30" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="truststorepwField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel28" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="tls3des" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="tlsaes" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="tlswithout" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="tlsno" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="noclientauthYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="noclientauthNo" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel13" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="nossl2Yes" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="nossl2No" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="keyPasswordField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jLabel10" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="keyStoreField" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="truststoreField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel29" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="keyPasswordField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
                   <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="keyStorePasswordField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="truststorepwField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel30" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
+                  <Component id="fileContentsTextPane" pref="105" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileContentsTextPane" alignment="0" pref="131" max="32767" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
