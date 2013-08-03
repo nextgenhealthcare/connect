@@ -9,7 +9,6 @@
 
 package com.mirth.connect.connectors.dimse;
 
-
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
@@ -19,12 +18,12 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 public class DICOMSender extends ConnectorSettingsPanel {
 
     private Frame parent;
-    
+
     public DICOMSender() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
     }
-    
+
     @Override
     public String getConnectorName() {
         return new DICOMDispatcherProperties().getName();
@@ -33,7 +32,7 @@ public class DICOMSender extends ConnectorSettingsPanel {
     @Override
     public ConnectorProperties getProperties() {
         DICOMDispatcherProperties properties = new DICOMDispatcherProperties();
-        
+
         properties.setHost(listenerAddressField.getText());
         properties.setPort(listenerPortField.getText());
         properties.setLocalHost(localAddressField.getText());
@@ -82,7 +81,7 @@ public class DICOMSender extends ConnectorSettingsPanel {
         properties.setTrustStorePW(truststorepwField.getText());
         properties.setTs1(ts1Yes.isSelected());
         properties.setUidnegrsp(uidnegrspYes.isSelected());
-        
+
         properties.setUsername(usernameField.getText());
         properties.setApplicationEntity(applicationEntityField.getText());
         properties.setLocalApplicationEntity(localApplicationEntityField.getText());
@@ -186,7 +185,7 @@ public class DICOMSender extends ConnectorSettingsPanel {
     @Override
     public boolean checkProperties(ConnectorProperties properties, boolean highlight) {
         DICOMDispatcherProperties props = (DICOMDispatcherProperties) properties;
-        
+
         boolean valid = true;
 
         if ((props.getHost()).length() <= 3) {
@@ -649,36 +648,37 @@ public class DICOMSender extends ConnectorSettingsPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel28)
+                    .addComponent(jLabel10)
+                    .addComponent(jLabel29)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel27)
+                    .addComponent(jLabel14)
+                    .addComponent(jLabel15)
+                    .addComponent(jLabel17)
+                    .addComponent(jLabel19)
+                    .addComponent(jLabel20)
+                    .addComponent(jLabel21)
+                    .addComponent(jLabel18)
+                    .addComponent(jLabel23)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel26)
+                    .addComponent(jLabel32)
+                    .addComponent(jLabel7)
+                    .addComponent(jLabel31)
+                    .addComponent(jLabel12)
+                    .addComponent(jLabel13)
+                    .addComponent(jLabel11)
+                    .addComponent(jLabel8)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel33)
+                    .addComponent(jLabel5))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel28)
-                            .addComponent(jLabel10)
-                            .addComponent(jLabel29)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel27)
-                            .addComponent(jLabel14)
-                            .addComponent(jLabel15)
-                            .addComponent(jLabel17)
-                            .addComponent(jLabel19)
-                            .addComponent(jLabel20)
-                            .addComponent(jLabel21)
-                            .addComponent(jLabel18)
-                            .addComponent(jLabel23)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel26)
-                            .addComponent(jLabel32)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel31)
-                            .addComponent(jLabel12)
-                            .addComponent(jLabel13)
-                            .addComponent(jLabel11)
-                            .addComponent(jLabel8)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel33)
-                            .addComponent(jLabel5))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(ts1Yes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -780,10 +780,8 @@ public class DICOMSender extends ConnectorSettingsPanel {
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(rcvpdulenField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(sndpdulenField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(bufsizeField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(206, 206, 206)
-                        .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)))
+                                        .addComponent(bufsizeField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -855,7 +853,6 @@ public class DICOMSender extends ConnectorSettingsPanel {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel20)
                             .addComponent(rsptoField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(25, 25, 25)
@@ -947,7 +944,7 @@ public class DICOMSender extends ConnectorSettingsPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3)
-                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE))
+                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -971,7 +968,6 @@ public class DICOMSender extends ConnectorSettingsPanel {
         jLabel10.setEnabled(false);
         jLabel29.setEnabled(false);
         jLabel11.setEnabled(false);
-
 
     }//GEN-LAST:event_tlsnoActionPerformed
 
