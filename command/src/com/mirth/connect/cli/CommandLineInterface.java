@@ -965,13 +965,13 @@ public class CommandLineInterface {
     }
 
     private void commandAllChannelStats(Token[] arguments) throws ClientException {
-        out.println("Received\tFiltered\tQueued\t\tSent\t\tErrored\t\tAlerted\t\tName");
+        out.println("Received\tFiltered\tQueued\t\tSent\t\tErrored\t\tName");
 
         List<DashboardStatus> channelStatuses = client.getChannelStatusList();
 
         for (DashboardStatus channelStatus : channelStatuses) {
             ChannelStatistics stats = client.getStatistics(channelStatus.getChannelId());
-            out.println(stats.getReceived() + "\t\t" + stats.getFiltered() + "\t\t" + channelStatus.getQueued() + "\t\t" + stats.getSent() + "\t\t" + stats.getError() + "\t\t" + stats.getAlerted() + "\t\t" + channelStatus.getName());
+            out.println(stats.getReceived() + "\t\t" + stats.getFiltered() + "\t\t" + channelStatus.getQueued() + "\t\t" + stats.getSent() + "\t\t" + stats.getError() + "\t\t" + channelStatus.getName());
         }
     }
 
@@ -1070,7 +1070,6 @@ public class CommandLineInterface {
             out.println("Queued: " + channel.getQueued());
             out.println("Sent: " + stats.getSent());
             out.println("Errored: " + stats.getError());
-            out.println("Alerted: " + stats.getAlerted());
         }
     }
 
@@ -1292,13 +1291,13 @@ public class CommandLineInterface {
 
         StringBuilder builder = new StringBuilder();
         builder.append("Mirth Channel Statistics Dump: " + (new Date()).toString() + "\n");
-        builder.append("Name, Received, Filtered, Queued, Sent, Errored, Alerted\n");
+        builder.append("Name, Received, Filtered, Queued, Sent, Errored\n");
 
         List<DashboardStatus> channelStatuses = client.getChannelStatusList();
 
         for (DashboardStatus channelStatus : channelStatuses) {
             ChannelStatistics stats = client.getStatistics(channelStatus.getChannelId());
-            builder.append(channelStatus.getName() + ", " + stats.getReceived() + ", " + stats.getFiltered() + ", " + channelStatus.getQueued() + ", " + stats.getSent() + ", " + stats.getError() + ", " + stats.getAlerted() + "\n");
+            builder.append(channelStatus.getName() + ", " + stats.getReceived() + ", " + stats.getFiltered() + ", " + channelStatus.getQueued() + ", " + stats.getSent() + ", " + stats.getError() + "\n");
         }
 
         File dumpFile = new File(dumpFilename);

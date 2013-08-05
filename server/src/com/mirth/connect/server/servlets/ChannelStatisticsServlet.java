@@ -64,7 +64,6 @@ public class ChannelStatisticsServlet extends MirthServlet {
                         ChannelStatistics channelStatistics = new ChannelStatistics();
                         channelStatistics.setChannelId(channelId);
                         channelStatistics.setServerId(ConfigurationController.getInstance().getServerId());
-                        channelStatistics.setAlerted(0L);
                         channelStatistics.setError(map.get(Status.ERROR));
                         channelStatistics.setFiltered(map.get(Status.FILTERED));
                         channelStatistics.setReceived(map.get(Status.RECEIVED));
