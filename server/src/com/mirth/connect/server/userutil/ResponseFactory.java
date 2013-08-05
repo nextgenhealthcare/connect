@@ -49,6 +49,16 @@ public class ResponseFactory {
         return new Response(Status.FILTERED, message);
     }
 
+    /**
+     * This method has been deprecated; use getQueuedResponse instead
+     */
+    // TODO: Remove in 3.1
+    @Deprecated
+    public static Response getQueudResponse(String message) {
+        logger.error("The getQueudResponse(message) method is deprecated and will soon be removed. Please use getQueuedResponse(message) instead.");
+        return new Response(Status.QUEUED, message);
+    }
+
     public static Response getQueuedResponse(String message) {
         return new Response(Status.QUEUED, message);
     }
