@@ -785,6 +785,15 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
      * void addNewStep() add a new step to the end of the list
      */
     public void addNewStep(String name, String variable, String mapping, String type) {
+        TransformerStepPlugin plugin;
+        
+        try {
+            plugin = getPlugin(type);
+        } catch (Exception e) {
+            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            return;
+        }
+        
         saveData(transformerTable.getSelectedRow());
 
         if (!invalidVar || transformerTable.getRowCount() == 0) {
@@ -819,17 +828,11 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             data.put("Variable", variable);
 
             step.setData(data);
-            TransformerStepPlugin plugin;
-            try {
-                plugin = getPlugin(type);
-                if (plugin.isProvideOwnStepName()) {
-                    plugin.setData(data);
-                    step.setName(plugin.getStepName());
-                    plugin.clearData();
-                }
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            
+            if (plugin.isProvideOwnStepName()) {
+                plugin.setData(data);
+                step.setName(plugin.getStepName());
+                plugin.clearData();
             }
 
             setRowData(step, rowCount, true);

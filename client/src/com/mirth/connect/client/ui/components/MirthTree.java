@@ -215,9 +215,7 @@ public class MirthTree extends JXTree implements DropTargetListener {
         }
     }
 
-    public void dragExit(DropTargetEvent dte) {
-        // TODO Auto-generated method stub
-    }
+    public void dragExit(DropTargetEvent dte) {}
 
     public void dragOver(DropTargetDragEvent dtde) {
         if (!dtde.isDataFlavorSupported(supportedDropFlavor)) {
@@ -266,9 +264,7 @@ public class MirthTree extends JXTree implements DropTargetListener {
 
     }
 
-    public void dropActionChanged(DropTargetDragEvent dtde) {
-        // TODO Auto-generated method stub
-    }
+    public void dropActionChanged(DropTargetDragEvent dtde) {}
 
     /**
      * Get the index of a node in relation to other nodes with the same name.

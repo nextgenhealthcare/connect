@@ -773,7 +773,6 @@ public class DICOMListener extends ConnectorSettingsPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tlsnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tlsnoActionPerformed
-// TODO add your handling code here:
         // disable
         keyStoreField.setEnabled(false);
         keyPasswordField.setEnabled(false);
@@ -796,7 +795,6 @@ public class DICOMListener extends ConnectorSettingsPanel {
     }//GEN-LAST:event_tlsnoActionPerformed
 
     private void tlswithoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tlswithoutActionPerformed
-// TODO add your handling code here:
         keyStoreField.setEnabled(true);
         keyPasswordField.setEnabled(true);
         keyStorePasswordField.setEnabled(true);
@@ -818,7 +816,6 @@ public class DICOMListener extends ConnectorSettingsPanel {
     }//GEN-LAST:event_tlswithoutActionPerformed
 
     private void tlsaesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tlsaesActionPerformed
-// TODO add your handling code here:
         keyStoreField.setEnabled(true);
         keyPasswordField.setEnabled(true);
         keyStorePasswordField.setEnabled(true);
@@ -840,7 +837,6 @@ public class DICOMListener extends ConnectorSettingsPanel {
     }//GEN-LAST:event_tlsaesActionPerformed
 
     private void tls3desActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tls3desActionPerformed
-// TODO add your handling code here:
         keyStoreField.setEnabled(true);
         keyPasswordField.setEnabled(true);
         keyStorePasswordField.setEnabled(true);
@@ -862,7 +858,6 @@ public class DICOMListener extends ConnectorSettingsPanel {
     }//GEN-LAST:event_tls3desActionPerformed
 
     private void nativeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nativeNoActionPerformed
-// TODO add your handling code here:
         if (bigendianNo.isSelected()) {
             jLabel29.setEnabled(true);
             deftsYes.setEnabled(true);
@@ -871,7 +866,6 @@ public class DICOMListener extends ConnectorSettingsPanel {
     }//GEN-LAST:event_nativeNoActionPerformed
 
     private void deftsNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deftsNoActionPerformed
-// TODO add your handling code here:
         jLabel31.setEnabled(true);
         nativeYes.setEnabled(true);
         nativeNo.setEnabled(true);
@@ -882,7 +876,6 @@ public class DICOMListener extends ConnectorSettingsPanel {
     }//GEN-LAST:event_deftsNoActionPerformed
 
     private void bigendianNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bigendianNoActionPerformed
-// TODO add your handling code here:
         if (nativeNo.isSelected()) {
             jLabel29.setEnabled(true);
             deftsYes.setEnabled(true);
@@ -891,7 +884,6 @@ public class DICOMListener extends ConnectorSettingsPanel {
     }//GEN-LAST:event_bigendianNoActionPerformed
 
     private void bigendianYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bigendianYesActionPerformed
-// TODO add your handling code here:
         jLabel29.setEnabled(false);
         deftsYes.setEnabled(false);
         deftsNo.setEnabled(false);
@@ -899,7 +891,6 @@ public class DICOMListener extends ConnectorSettingsPanel {
     }//GEN-LAST:event_bigendianYesActionPerformed
 
     private void deftsYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deftsYesActionPerformed
-// TODO add your handling code here:
         jLabel31.setEnabled(false);
         nativeYes.setEnabled(false);
         nativeNo.setEnabled(false);
@@ -912,7 +903,6 @@ public class DICOMListener extends ConnectorSettingsPanel {
     }//GEN-LAST:event_deftsYesActionPerformed
 
     private void nativeYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nativeYesActionPerformed
-// TODO add your handling code here:
         jLabel29.setEnabled(false);
         deftsYes.setEnabled(false);
         deftsNo.setEnabled(false);

@@ -1671,11 +1671,6 @@ public class ChannelSetup extends javax.swing.JPanel {
         clearGlobalChannelMapCheckBox.setText("Clear global channel map on deploy");
         clearGlobalChannelMapCheckBox.setToolTipText("Clear the global channel map on both single channel deploy and a full redeploy.");
         clearGlobalChannelMapCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        clearGlobalChannelMapCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                clearGlobalChannelMapCheckBoxActionPerformed(evt);
-            }
-        });
 
         summaryRevision.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         summaryRevision.setText("Revision: ");
@@ -2113,7 +2108,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                         .addComponent(addMetaDataButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(deleteMetaDataButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
                         .addComponent(revertMetaDataButton))
                     .addComponent(metaDataTablePane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
@@ -2136,7 +2131,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(summaryDescriptionScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
+                .addComponent(summaryDescriptionScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -2805,10 +2800,6 @@ public class ChannelSetup extends javax.swing.JPanel {
         parent.setSaveEnabled(true);
         updateStorageMode();
     }//GEN-LAST:event_removeAttachmentsCheckboxActionPerformed
-
-    private void clearGlobalChannelMapCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearGlobalChannelMapCheckBoxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_clearGlobalChannelMapCheckBoxActionPerformed
 
     private void attachmentStoreCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_attachmentStoreCheckBoxItemStateChanged
         attachmentWarningLabel.setVisible(evt.getStateChange() != ItemEvent.SELECTED && attachmentComboBox.getSelectedItem() != AttachmentHandlerType.NONE);

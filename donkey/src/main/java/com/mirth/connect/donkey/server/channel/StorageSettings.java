@@ -147,7 +147,6 @@ public class StorageSettings {
         this.storeSourceEncoded = storeEncoded;
     }
 
-    // TODO: this isn't being referenced anywhere yet
     public boolean isStoreDestinationEncoded() {
         return storeDestinationEncoded;
     }

@@ -69,7 +69,7 @@ public class TaskConstants {
     public static final String CHANNEL_NEW = "doNewChannel";
     public static final String CHANNEL_IMPORT = "doImport";
     public static final String CHANNEL_EXPORT_ALL = "doExportAll";
-    public static final String CHANNEL_EXPORT = "doExport";
+    public static final String CHANNEL_EXPORT = "doExportChannel";
     public static final String CHANNEL_DELETE = "doDeleteChannel";
     public static final String CHANNEL_CLONE = "doCloneChannel";
     public static final String CHANNEL_EDIT = "doEditChannel";

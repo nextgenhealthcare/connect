@@ -241,7 +241,6 @@ public class ExtensionInfoDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void urlLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_urlLabelMouseClicked
-        // TODO add your handling code here:
         BareBonesBrowserLaunch.openURL(urlLabel.getText());
     }//GEN-LAST:event_urlLabelMouseClicked
 

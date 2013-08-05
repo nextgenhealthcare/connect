@@ -120,7 +120,6 @@ public class MessageObjectServlet extends MirthServlet {
                 		serializer.serialize(messageController.getMessageContent(channelId, messageId), out);
                 	}
                 } else if (operation.equals(Operations.MESSAGE_REMOVE)) {
-                    // TODO: update calls to this servlet operation so that they pass channelId
                     String channelId = request.getParameter("channelId");
                     MessageFilter filter = serializer.deserialize(request.getParameter("filter"), MessageFilter.class);
                     

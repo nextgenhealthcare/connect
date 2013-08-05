@@ -249,7 +249,6 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
     }// </editor-fold>//GEN-END:initComponents
 
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileButtonActionPerformed
-// TODO add your handling code here:
         String content = parent.browseForFileString(null);
 
         if (content != null) {

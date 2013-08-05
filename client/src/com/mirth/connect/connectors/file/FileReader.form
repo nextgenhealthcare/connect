@@ -503,9 +503,6 @@
         </Property>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Selects the order in which files should be processed, if there are multiple files available to be processed.&lt;br&gt;Files can be processed by Date (oldest last modification date first), Size (smallest first) or name (a before z, etc.).&lt;/html&gt;"/>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sortByActionPerformed"/>
-      </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
       <Properties>

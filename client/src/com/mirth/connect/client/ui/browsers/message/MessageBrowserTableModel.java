@@ -44,22 +44,6 @@ public class MessageBrowserTableModel extends SortableTreeTableModel {
         return 0;
     }
 
-    @Override
-    public Class<?> getColumnClass(int column) {
-        // TODO This method doesn't seem to be used. Double check and remove if that is the case
-        /*
-         * switch (column) {
-         * case 0:
-         * return Calendar.class;
-         * case 2:
-         * return Status.class;
-         * default:
-         * return String.class;
-         * }
-         */
-        return null;
-    }
-
     public void addMessage(Message message) {
         Map<Integer, ConnectorMessage> connectorMessages = message.getConnectorMessages();
 

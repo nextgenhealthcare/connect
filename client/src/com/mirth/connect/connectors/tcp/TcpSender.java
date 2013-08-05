@@ -519,11 +519,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         queueOnResponseTimeoutYesRadio.setText("Yes");
         queueOnResponseTimeoutYesRadio.setToolTipText("<html>If enabled, the message is queued when a timeout occurs while waiting for a response.<br/>Otherwise, the message is set to errored when a timeout occurs while waiting for a response.<br/>This setting has no effect unless queuing is enabled for the connector.</html>");
         queueOnResponseTimeoutYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        queueOnResponseTimeoutYesRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                queueOnResponseTimeoutYesRadioActionPerformed(evt);
-            }
-        });
 
         queueOnResponseTimeoutNoRadio.setBackground(new java.awt.Color(255, 255, 255));
         queueOnResponseTimeoutNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -531,11 +526,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         queueOnResponseTimeoutNoRadio.setText("No");
         queueOnResponseTimeoutNoRadio.setToolTipText("<html>If enabled, the message is queued when a timeout occurs while waiting for a response.<br/>Otherwise, the message is set to errored when a timeout occurs while waiting for a response.<br/>This setting has no effect unless queuing is enabled for the connector.</html>");
         queueOnResponseTimeoutNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        queueOnResponseTimeoutNoRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                queueOnResponseTimeoutNoRadioActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -806,14 +796,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         localPortField.setEnabled(false);
         localPortLabel.setEnabled(false);
     }//GEN-LAST:event_overrideLocalBindingNoRadioActionPerformed
-
-    private void queueOnResponseTimeoutYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queueOnResponseTimeoutYesRadioActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_queueOnResponseTimeoutYesRadioActionPerformed
-
-    private void queueOnResponseTimeoutNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queueOnResponseTimeoutNoRadioActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_queueOnResponseTimeoutNoRadioActionPerformed
 
     private void charsetEncodingComboboxActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_charsetEncodingComboboxActionPerformed
     }// GEN-LAST:event_charsetEncodingComboboxActionPerformed

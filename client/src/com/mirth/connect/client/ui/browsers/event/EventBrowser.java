@@ -957,11 +957,6 @@ public class EventBrowser extends javax.swing.JPanel {
         });
 
         pageSizeField.setToolTipText("<html>\nAfter changing the page size, a new search must be performed for the changes to<br/>\ntake effect.  The default page size can also be configured on the Settings panel.\n</html>");
-        pageSizeField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pageSizeFieldActionPerformed(evt);
-            }
-        });
 
         previousPageButton.setText("< Prev");
         previousPageButton.addActionListener(new java.awt.event.ActionListener() {
@@ -973,11 +968,6 @@ public class EventBrowser extends javax.swing.JPanel {
         pageNumberField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         pageNumberField.setToolTipText("Enter a page number and press Enter to jump to that page.");
         pageNumberField.setPreferredSize(new java.awt.Dimension(40, 22));
-        pageNumberField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pageNumberFieldActionPerformed(evt);
-            }
-        });
 
         pageNumberLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         pageNumberLabel.setText("Page");
@@ -1029,11 +1019,6 @@ public class EventBrowser extends javax.swing.JPanel {
         levelBoxInformation.setText("INFORMATION");
         levelBoxInformation.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         levelBoxInformation.setPreferredSize(new java.awt.Dimension(90, 22));
-        levelBoxInformation.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                levelBoxInformationActionPerformed(evt);
-            }
-        });
 
         levelBoxWarning.setBackground(new java.awt.Color(255, 255, 255));
         levelBoxWarning.setText("WARNING");
@@ -1046,11 +1031,6 @@ public class EventBrowser extends javax.swing.JPanel {
         levelBoxError.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         levelBoxError.setMaximumSize(new java.awt.Dimension(83, 23));
         levelBoxError.setMinimumSize(new java.awt.Dimension(83, 23));
-        levelBoxError.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                levelBoxErrorActionPerformed(evt);
-            }
-        });
 
         pageTotalLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         pageTotalLabel.setText("of ?");
@@ -1179,7 +1159,7 @@ public class EventBrowser extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(4, 4, 4)
                         .addComponent(lastSearchCriteriaPane, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1200,17 +1180,9 @@ public class EventBrowser extends javax.swing.JPanel {
         jumpToPageNumber();
     }//GEN-LAST:event_pageGoButtonActionPerformed
 
-    private void pageSizeFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pageSizeFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_pageSizeFieldActionPerformed
-
     private void previousPageButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_previousPageButtonActionPerformed
         loadPageNumber(events.getPageNumber() - 1);
     }//GEN-LAST:event_previousPageButtonActionPerformed
-
-    private void pageNumberFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pageNumberFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_pageNumberFieldActionPerformed
 
     private void countButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_countButtonActionPerformed
         final String workingId = parent.startWorking("Counting search result size...");
@@ -1273,14 +1245,6 @@ public class EventBrowser extends javax.swing.JPanel {
 
         updateAdvancedSearchButtonFont();
     }//GEN-LAST:event_advSearchButtonActionPerformed
-
-    private void levelBoxInformationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_levelBoxInformationActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_levelBoxInformationActionPerformed
-
-    private void levelBoxErrorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_levelBoxErrorActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_levelBoxErrorActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton advSearchButton;

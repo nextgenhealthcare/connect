@@ -547,11 +547,6 @@ public class FileReader extends ConnectorSettingsPanel {
 
         sortBy.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Date", "Name", "Size" }));
         sortBy.setToolTipText("<html>Selects the order in which files should be processed, if there are multiple files available to be processed.<br>Files can be processed by Date (oldest last modification date first), Size (smallest first) or name (a before z, etc.).</html>");
-        sortBy.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sortByActionPerformed(evt);
-            }
-        });
 
         charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
         charsetEncodingCombobox.setToolTipText("If File Type ASCII is selected, select the character set encoding (ASCII, UTF-8, etc.) to be used in reading the contents of each file.");
@@ -1201,10 +1196,6 @@ public class FileReader extends ConnectorSettingsPanel {
             }
         }
     }//GEN-LAST:event_schemeComboBoxActionPerformed
-
-    private void sortByActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sortByActionPerformed
-// TODO add your handling code here:
-    }//GEN-LAST:event_sortByActionPerformed
 
     private void fileTypeASCIIActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_fileTypeASCIIActionPerformed
     {//GEN-HEADEREND:event_fileTypeASCIIActionPerformed

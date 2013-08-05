@@ -75,13 +75,9 @@ public class MirthTextField extends javax.swing.JTextField implements MirthTextI
                 }
             }
 
-            public void keyReleased(KeyEvent e) {
-                // TODO Auto-generated method stub
-            }
+            public void keyReleased(KeyEvent e) {}
 
-            public void keyTyped(KeyEvent e) {
-                // TODO Auto-generated method stub
-            }
+            public void keyTyped(KeyEvent e) {}
         });
         this.addMouseListener(new java.awt.event.MouseAdapter() {
 

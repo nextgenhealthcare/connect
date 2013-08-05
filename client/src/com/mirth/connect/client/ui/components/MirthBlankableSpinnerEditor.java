@@ -33,7 +33,6 @@ public class MirthBlankableSpinnerEditor extends DefaultEditor {
         
         super.propertyChange(e);
         
-        // TODO: find a better way to allow blank values to be entered, this is a bit of a hack
         if ((e.getSource() instanceof JFormattedTextField) && e.getPropertyName().equals("editValid")) {
             spinner.setValue("");
         }

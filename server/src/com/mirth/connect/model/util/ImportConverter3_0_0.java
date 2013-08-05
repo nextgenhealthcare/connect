@@ -107,7 +107,6 @@ public class ImportConverter3_0_0 {
                 migrateMetaData(element);
             }
         } catch (MigrationException e) {
-            // TODO if an exception occurs while migrating, and the expectedClass is a Channel, then we need to convert it to an InvalidChannel instead of re-throwing the exception
             throw e;
         } catch (Exception e) {
             throw new MigrationException(e);

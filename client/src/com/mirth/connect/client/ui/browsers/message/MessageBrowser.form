@@ -150,7 +150,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="MessagesRadioPane" min="-2" pref="17" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="MessagesCardPane" max="32767" attributes="0"/>
+                          <Component id="MessagesCardPane" pref="134" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="formatXmlMessageCheckBox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -420,7 +420,7 @@
                                   <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                                   <Component id="responseLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                                  <Component id="ResponseTextArea" pref="94" max="32767" attributes="0"/>
+                                  <Component id="ResponseTextArea" pref="67" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
@@ -444,9 +444,6 @@
                             </Property>
                             <Property name="opaque" type="boolean" value="false"/>
                           </Properties>
-                          <Events>
-                            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="responseStatusTextFieldActionPerformed"/>
-                          </Events>
                         </Component>
                         <Component class="javax.swing.JLabel" name="responseLabel">
                           <Properties>
@@ -515,7 +512,7 @@
                                   <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                                   <Component id="processedResponseLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                                  <Component id="ProcessedResponseTextArea" pref="94" max="32767" attributes="0"/>
+                                  <Component id="ProcessedResponseTextArea" pref="67" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
@@ -549,9 +546,6 @@
                             </Property>
                             <Property name="opaque" type="boolean" value="false"/>
                           </Properties>
-                          <Events>
-                            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="processedResponseStatusTextFieldActionPerformed"/>
-                          </Events>
                         </Component>
                         <Component class="javax.swing.JLabel" name="processedResponseLabel">
                           <Properties>
@@ -619,7 +613,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
                               <Component id="ErrorsCardPane" max="32767" attributes="0"/>
-                              <Component id="ErrorsRadioPane" pref="764" max="32767" attributes="0"/>
+                              <Component id="ErrorsRadioPane" pref="773" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -631,7 +625,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="ErrorsRadioPane" min="-2" pref="17" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="ErrorsCardPane" pref="179" max="32767" attributes="0"/>
+                          <Component id="ErrorsCardPane" pref="154" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -955,24 +949,25 @@
                       </Group>
                       <Group type="102" attributes="0">
                           <EmptySpace min="4" pref="4" max="-2" attributes="0"/>
-                          <Component id="lastSearchCriteriaPane" min="-2" pref="107" max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="4" pref="4" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="statusBoxReceived" alignment="3" min="-2" pref="16" max="-2" attributes="0"/>
-                              <Component id="allDayCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="lastSearchCriteriaPane" min="-2" pref="107" max="-2" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Group type="103" groupAlignment="3" attributes="0">
+                                      <Component id="statusBoxReceived" alignment="3" min="-2" pref="16" max="-2" attributes="0"/>
+                                      <Component id="allDayCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="statusBoxTransformed" min="-2" pref="16" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="statusBoxFiltered" pref="16" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="statusBoxQueued" min="-2" pref="16" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="statusBoxSent" min="-2" pref="16" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="statusBoxError" min="-2" pref="16" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="statusBoxTransformed" min="-2" pref="16" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="statusBoxFiltered" pref="16" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="statusBoxQueued" min="-2" pref="16" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="statusBoxSent" min="-2" pref="16" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="statusBoxError" min="-2" pref="16" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
@@ -1046,9 +1041,6 @@
               <Font name="Lucida Grande" size="11" style="0"/>
             </Property>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="statusBoxQueuedActionPerformed"/>
-          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="pageTotalLabel">
           <Properties>
@@ -1071,9 +1063,6 @@
               <Dimension value="[40, 22]"/>
             </Property>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pageNumberFieldActionPerformed"/>
-          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel2">
           <Properties>
@@ -1114,9 +1103,6 @@
               <Dimension value="[83, 23]"/>
             </Property>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="statusBoxFilteredActionPerformed"/>
-          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="pageSizeLabel">
           <Properties>
@@ -1170,9 +1156,6 @@
           <Properties>
             <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;After changing the page size, a new search must be performed for the changes to&lt;br/&gt;&#xa;take effect.  The default page size can also be configured on the Settings panel.&#xa;&lt;/html&gt;"/>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pageSizeFieldActionPerformed"/>
-          </Events>
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="statusBoxError">
           <Properties>
@@ -1184,9 +1167,6 @@
               <Font name="Lucida Grande" size="11" style="0"/>
             </Property>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="statusBoxErrorActionPerformed"/>
-          </Events>
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="mirthTimePicker2">
         </Component>
@@ -1203,9 +1183,6 @@
               <Dimension value="[90, 22]"/>
             </Property>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="statusBoxReceivedActionPerformed"/>
-          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="pageGoButton">
           <Properties>

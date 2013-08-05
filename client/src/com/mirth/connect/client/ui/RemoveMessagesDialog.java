@@ -70,18 +70,8 @@ public class RemoveMessagesDialog extends javax.swing.JDialog {
         messageLabel.setText("Are you sure you want to remove all messages (including QUEUED) for the selected stopped channel(s)?");
 
         clearStatsCheckBox.setText("Clear statistics for affected channel(s)");
-        clearStatsCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                clearStatsCheckBoxActionPerformed(evt);
-            }
-        });
 
         includeRunningChannels.setText("Include selected channels that are not stopped (channels will be temporarily stopped while messages are being removed) ");
-        includeRunningChannels.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                includeRunningChannelsActionPerformed(evt);
-            }
-        });
 
         yesButton.setText("Yes");
         yesButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -166,7 +156,7 @@ public class RemoveMessagesDialog extends javax.swing.JDialog {
                 parent.doRefreshStatuses(true);
                 
                 if (parent.currentContentPage == parent.messageBrowser) {
-                    parent.messageBrowser.refresh(1);
+                    parent.messageBrowser.refresh(1, true);
                 }
                 
                 parent.stopWorking(workingId);
@@ -176,14 +166,6 @@ public class RemoveMessagesDialog extends javax.swing.JDialog {
         worker.execute();
         setVisible(false);
     }//GEN-LAST:event_yesButtonActionPerformed
-
-    private void includeRunningChannelsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_includeRunningChannelsActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_includeRunningChannelsActionPerformed
-
-    private void clearStatsCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearStatsCheckBoxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_clearStatsCheckBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel buttonPanel;

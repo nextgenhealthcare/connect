@@ -320,10 +320,7 @@ public class AlertActionPane extends JPanel {
             }
 
             @Override
-            public void changedUpdate(DocumentEvent e) {
-                // TODO Auto-generated method stub
-                
-            }
+            public void changedUpdate(DocumentEvent e) {}
             
         });
 
@@ -347,10 +344,7 @@ public class AlertActionPane extends JPanel {
             }
 
             @Override
-            public void changedUpdate(DocumentEvent e) {
-                // TODO Auto-generated method stub
-                
-            }
+            public void changedUpdate(DocumentEvent e) {}
             
         });
         

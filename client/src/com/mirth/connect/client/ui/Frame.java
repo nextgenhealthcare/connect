@@ -3265,8 +3265,7 @@ public class Frame extends JXFrame {
         }
     }
 
-    // TODO: This should be doExportChannel
-    public boolean doExport() {
+    public boolean doExportChannel() {
         if (changesHaveBeenMade()) {
             if (alertOption(this, "This channel has been modified. You must save the channel changes before you can export. Would you like to save them now?")) {
                 if (!channelEditPanel.saveChanges()) {
@@ -3578,7 +3577,7 @@ public class Frame extends JXFrame {
     }
 
     public void doRefreshMessages() {
-        messageBrowser.refresh(null);
+        messageBrowser.refresh(null, true);
     }
 
     public void doSendMessage() {
@@ -3722,7 +3721,7 @@ public class Frame extends JXFrame {
                     if (currentContentPage == dashboardPanel) {
                         doRefreshStatuses(true);
                     } else if (currentContentPage == messageBrowser) {
-                        messageBrowser.refresh(1);
+                        messageBrowser.refresh(1, true);
                     }
                     stopWorking(workingId);
                 }
@@ -3761,7 +3760,7 @@ public class Frame extends JXFrame {
                     if (currentContentPage == dashboardPanel) {
                         doRefreshStatuses(true);
                     } else if (currentContentPage == messageBrowser) {
-                        messageBrowser.refresh(null);
+                        messageBrowser.refresh(null, false);
                     }
                     stopWorking(workingId);
                 }
@@ -4680,7 +4679,7 @@ public class Frame extends JXFrame {
 
                 boolean enabled = isSaveEnabled();
                 setSaveEnabled(false);
-                if (!doExport()) {
+                if (!doExportChannel()) {
                     setSaveEnabled(enabled);
                     return false;
                 }

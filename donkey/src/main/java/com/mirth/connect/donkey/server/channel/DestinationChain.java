@@ -204,7 +204,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                                 // the message is queued at this point
                                 message.setStatus(Status.QUEUED);
 
-                                if (storageSettings.isStoreSourceEncoded() && message.getEncoded() != null) {
+                                if (storageSettings.isStoreDestinationEncoded() && message.getEncoded() != null) {
                                     ThreadUtils.checkInterruptedStatus();
                                     dao.insertMessageContent(message.getEncoded());
                                 }

@@ -1582,8 +1582,6 @@ public class JdbcDao implements DonkeyDao {
             transactionAlteredChannels = false;
         }
 
-        // TODO: need to test for any thread synchronization problems with updating stats across multiple threads
-
         if (currentStats != null) {
             // reset stats for any connectors that need to be reset
             for (Entry<String, Map<Integer, Set<Status>>> entry : resetCurrentStats.entrySet()) {

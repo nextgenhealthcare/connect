@@ -361,11 +361,6 @@ public class DICOMSender extends ConnectorSettingsPanel {
         highPriority.setText("High");
         highPriority.setToolTipText("Priority of the C-STORE operation, MEDIUM by default.");
         highPriority.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        highPriority.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                highPriorityActionPerformed(evt);
-            }
-        });
 
         mediumPriority.setBackground(new java.awt.Color(255, 255, 255));
         mediumPriority.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -374,11 +369,6 @@ public class DICOMSender extends ConnectorSettingsPanel {
         mediumPriority.setText("Medium");
         mediumPriority.setToolTipText("Priority of the C-STORE operation, MEDIUM by default.");
         mediumPriority.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        mediumPriority.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                mediumPriorityActionPerformed(evt);
-            }
-        });
 
         lowPriority.setBackground(new java.awt.Color(255, 255, 255));
         lowPriority.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -386,11 +376,6 @@ public class DICOMSender extends ConnectorSettingsPanel {
         lowPriority.setText("Low");
         lowPriority.setToolTipText("Priority of the C-STORE operation, MEDIUM by default.");
         lowPriority.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        lowPriority.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                lowPriorityActionPerformed(evt);
-            }
-        });
 
         jLabel9.setText("Keystore Password:");
 
@@ -948,7 +933,6 @@ public class DICOMSender extends ConnectorSettingsPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tlsnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tlsnoActionPerformed
-// TODO add your handling code here:
         // disable
         keyStoreField.setEnabled(false);
         keyPasswordField.setEnabled(false);
@@ -970,7 +954,6 @@ public class DICOMSender extends ConnectorSettingsPanel {
     }//GEN-LAST:event_tlsnoActionPerformed
 
     private void tls3desActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tls3desActionPerformed
-// TODO add your handling code here:
         keyStoreField.setEnabled(true);
         keyPasswordField.setEnabled(true);
         keyStorePasswordField.setEnabled(true);
@@ -990,7 +973,6 @@ public class DICOMSender extends ConnectorSettingsPanel {
     }//GEN-LAST:event_tls3desActionPerformed
 
     private void tlsaesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tlsaesActionPerformed
-// TODO add your handling code here:
         keyStoreField.setEnabled(true);
         keyPasswordField.setEnabled(true);
         keyStorePasswordField.setEnabled(true);
@@ -1010,7 +992,6 @@ public class DICOMSender extends ConnectorSettingsPanel {
     }//GEN-LAST:event_tlsaesActionPerformed
 
     private void tlswithoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tlswithoutActionPerformed
-// TODO add your handling code here:
         keyStoreField.setEnabled(true);
         keyPasswordField.setEnabled(true);
         keyStorePasswordField.setEnabled(true);
@@ -1028,18 +1009,6 @@ public class DICOMSender extends ConnectorSettingsPanel {
         jLabel29.setEnabled(true);
         jLabel11.setEnabled(true);
     }//GEN-LAST:event_tlswithoutActionPerformed
-
-    private void lowPriorityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lowPriorityActionPerformed
-// TODO add your handling code here:
-    }//GEN-LAST:event_lowPriorityActionPerformed
-
-    private void mediumPriorityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mediumPriorityActionPerformed
-// TODO add your handling code here:
-    }//GEN-LAST:event_mediumPriorityActionPerformed
-
-    private void highPriorityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_highPriorityActionPerformed
-// TODO add your handling code here:
-    }//GEN-LAST:event_highPriorityActionPerformed
 
     private void ackOnNewConnectionNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionNoActionPerformed
     {// GEN-HEADEREND:event_ackOnNewConnectionNoActionPerformed

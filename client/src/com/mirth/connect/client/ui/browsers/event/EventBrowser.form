@@ -337,9 +337,6 @@
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;After changing the page size, a new search must be performed for the changes to&lt;br/&gt;&#xa;take effect.  The default page size can also be configured on the Settings panel.&#xa;&lt;/html&gt;"/>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pageSizeFieldActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="previousPageButton">
       <Properties>
@@ -357,9 +354,6 @@
           <Dimension value="[40, 22]"/>
         </Property>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pageNumberFieldActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="pageNumberLabel">
       <Properties>
@@ -463,9 +457,6 @@
           <Dimension value="[90, 22]"/>
         </Property>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="levelBoxInformationActionPerformed"/>
-      </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="levelBoxWarning">
       <Properties>
@@ -500,9 +491,6 @@
           <Dimension value="[83, 23]"/>
         </Property>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="levelBoxErrorActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="pageTotalLabel">
       <Properties>

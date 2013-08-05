@@ -58,7 +58,6 @@ public class ChannelStatisticsServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         response.setContentType(APPLICATION_XML);
-                        // TODO: update systems that call this servlet to read the new channel stats data structure introduced in 3.0, rather than converting into ChannelStatistics
                         Map<Status, Long> map = channelController.getStatistics().getConnectorStats(channelId, null);
 
                         ChannelStatistics channelStatistics = new ChannelStatistics();
