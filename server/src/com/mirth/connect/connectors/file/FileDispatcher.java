@@ -34,7 +34,7 @@ import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.util.AttachmentUtil;
+import com.mirth.connect.server.util.MessageAttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorMessageBuilder;
@@ -117,7 +117,7 @@ public class FileDispatcher extends DestinationConnector {
             String path = uri.getPath();
             String template = fileDispatcherProperties.getTemplate();
 
-            byte[] bytes = AttachmentUtil.reAttachMessage(template, connectorMessage, charsetEncoding, fileDispatcherProperties.isBinary());
+            byte[] bytes = MessageAttachmentUtil.reAttachMessage(template, connectorMessage, charsetEncoding, fileDispatcherProperties.isBinary());
 
             is = new ByteArrayInputStream(bytes);
 

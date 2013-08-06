@@ -12,20 +12,20 @@ package com.mirth.connect.server.userutil;
 import org.apache.commons.mail.EmailException;
 
 public class SMTPConnection {
-    private com.mirth.connect.server.util.SMTPConnection smtpConnection;
-    
+    private com.mirth.connect.server.util.ServerSMTPConnection smtpConnection;
+
     public SMTPConnection(String host, String port, int socketTimeout, boolean useAuthentication, String secure, String username, String password, String from) {
-        smtpConnection = new com.mirth.connect.server.util.SMTPConnection(host, port, socketTimeout, useAuthentication, secure, username, password, from);
+        smtpConnection = new com.mirth.connect.server.util.ServerSMTPConnection(host, port, socketTimeout, useAuthentication, secure, username, password, from);
     }
-    
+
     public SMTPConnection(String host, String port, boolean useAuthentication, String secure, String username, String password, String from) {
-        smtpConnection = new com.mirth.connect.server.util.SMTPConnection(host, port, useAuthentication, secure, username, password, from);
+        smtpConnection = new com.mirth.connect.server.util.ServerSMTPConnection(host, port, useAuthentication, secure, username, password, from);
     }
-    
-    SMTPConnection(com.mirth.connect.server.util.SMTPConnection smtpConnection) {
+
+    SMTPConnection(com.mirth.connect.server.util.ServerSMTPConnection smtpConnection) {
         this.smtpConnection = smtpConnection;
     }
-    
+
     public String getHost() {
         return smtpConnection.getHost();
     }

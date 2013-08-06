@@ -65,7 +65,7 @@ import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.server.migration.Migrator;
 import com.mirth.connect.server.util.DatabaseUtil;
-import com.mirth.connect.server.util.UUIDGenerator;
+import com.mirth.connect.server.util.ServerUUIDGenerator;
 
 public class DefaultExtensionController extends ExtensionController {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -403,7 +403,7 @@ public class DefaultExtensionController extends ExtensionController {
              * create a new temp file (in the install temp dir) to store the zip
              * file contents
              */
-            tempFile = File.createTempFile(UUIDGenerator.getUUID(), ".zip", installTempDir);
+            tempFile = File.createTempFile(ServerUUIDGenerator.getUUID(), ".zip", installTempDir);
             // write the contents of the multipart fileitem to the temp file
             fileItem.write(tempFile);
             // create a new zip file from the temp file

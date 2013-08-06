@@ -29,7 +29,7 @@ import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.util.CompiledScriptCache;
-import com.mirth.connect.server.util.UUIDGenerator;
+import com.mirth.connect.server.util.ServerUUIDGenerator;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
@@ -63,7 +63,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
              */
             if (StringUtils.isNotBlank(script)) {
                 logger.debug("compiling response transformer script");
-                this.scriptId = UUIDGenerator.getUUID();
+                this.scriptId = ServerUUIDGenerator.getUUID();
                 JavaScriptUtil.compileAndAddScript(scriptId, script, null, null);
             }
         } catch (Exception e) {

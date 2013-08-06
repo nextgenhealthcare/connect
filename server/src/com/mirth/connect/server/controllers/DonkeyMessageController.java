@@ -41,9 +41,9 @@ import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.server.mybatis.MessageSearchResult;
-import com.mirth.connect.server.util.AttachmentUtil;
-import com.mirth.connect.server.util.DICOMUtil;
+import com.mirth.connect.server.util.DICOMMessageUtil;
 import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.MessageAttachmentUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.MessageEncryptionUtil;
 import com.mirth.connect.util.MessageExporter;
@@ -398,9 +398,9 @@ public class DonkeyMessageController extends MessageController {
                 RawMessage rawMessage = null;
 
                 if (ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).isBinary()) {
-                    rawMessage = new RawMessage(DICOMUtil.getDICOMRawBytes(connectorMessage));
+                    rawMessage = new RawMessage(DICOMMessageUtil.getDICOMRawBytes(connectorMessage));
                 } else {
-                    rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(AttachmentUtil.reAttachMessage(rawContent.getContent(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
+                    rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(MessageAttachmentUtil.reAttachMessage(rawContent.getContent(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
                 }
 
                 rawMessage.setOverwrite(replace);

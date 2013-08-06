@@ -45,7 +45,7 @@ import com.mirth.connect.server.controllers.ScriptCompileException;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.userutil.Attachment;
 import com.mirth.connect.server.util.CompiledScriptCache;
-import com.mirth.connect.server.util.UUIDGenerator;
+import com.mirth.connect.server.util.ServerUUIDGenerator;
 
 public class JavaScriptUtil {
     private static Logger logger = Logger.getLogger(JavaScriptUtil.class);
@@ -257,7 +257,7 @@ public class JavaScriptUtil {
                 try {
                     Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message, channelResponse);
                     Response globalResponse = getPostprocessorResponse(JavaScriptUtil.executeScript(task, ScriptController.POSTPROCESSOR_SCRIPT_KEY, scope, null, null));
-    
+
                     if (globalResponse != null) {
                         response = globalResponse;
                     }
@@ -481,7 +481,7 @@ public class JavaScriptUtil {
      * Returns a compiled Script object from a String.
      */
     private static Script compileScript(Context context, String script) {
-        return compileScript(context, script, UUIDGenerator.getUUID());
+        return compileScript(context, script, ServerUUIDGenerator.getUUID());
     }
 
     private static Script compileScript(Context context, String script, String scriptId) {

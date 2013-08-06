@@ -44,8 +44,8 @@ import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.server.controllers.MessageController;
 
-public class DICOMUtil {
-    private static Logger logger = Logger.getLogger(DICOMUtil.class);
+public class DICOMMessageUtil {
+    private static Logger logger = Logger.getLogger(DICOMMessageUtil.class);
 
     public static String getDICOMRawData(ImmutableConnectorMessage message) {
         String mergedMessage = null;

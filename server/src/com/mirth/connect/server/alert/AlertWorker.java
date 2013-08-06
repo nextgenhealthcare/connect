@@ -37,7 +37,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.event.EventListener;
-import com.mirth.connect.server.util.SMTPConnectionFactory;
+import com.mirth.connect.server.util.ServerSMTPConnectionFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public abstract class AlertWorker extends EventListener {
@@ -49,50 +49,50 @@ public abstract class AlertWorker extends EventListener {
 
     private EngineController engineController = ControllerFactory.getFactory().createEngineController();
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
-    
+
     public AlertWorker() {
         super();
     }
-    
+
     public void enableAlert(AlertModel alertModel) {
         Alert alert = new Alert(alertModel);
         enabledAlerts.put(alertModel.getId(), alert);
-        
+
         alertEnabled(alert);
     }
 
     public void disableAlert(AlertModel alertModel) {
         Alert alert = enabledAlerts.remove(alertModel.getId());
-        
+
         if (alert != null) {
             alertDisabled(alert);
         }
     }
-    
+
     public AlertStatus getAlertStatus(String alertId) {
         Alert alert = enabledAlerts.get(alertId);
-        
+
         if (alert != null) {
             AlertStatus alertStatus = new AlertStatus();
             alertStatus.setAlertedCount(alert.getAlertedCount());
             return alertStatus;
         }
-        
+
         return null;
     }
-    
+
     public Alert getEnabledAlert(String alertId) {
         return enabledAlerts.get(alertId);
     }
-    
+
     protected abstract void alertEnabled(Alert alert);
-    
+
     protected abstract void alertDisabled(Alert alert);
-    
+
     public abstract Class<?> getTriggerClass();
-    
+
     protected abstract void triggerAction(Alert alert, Map<String, Object> context);
-    
+
     protected class ActionTask implements Callable<Void> {
 
         private AlertActionGroup actionGroup;
@@ -137,7 +137,7 @@ public abstract class AlertWorker extends EventListener {
             // Send the alert emails
             if (!emails.isEmpty()) {
                 try {
-                    SMTPConnectionFactory.createSMTPConnection().send(StringUtils.join(emails, ","), null, subject, body);
+                    ServerSMTPConnectionFactory.createSMTPConnection().send(StringUtils.join(emails, ","), null, subject, body);
                 } catch (ControllerException e) {
                     logger.error("Could not load default SMTP settings.", e);
                 } catch (EmailException e) {
@@ -152,7 +152,7 @@ public abstract class AlertWorker extends EventListener {
                     engineController.dispatchRawMessage(channel.getId(), new RawMessage(body));
                 }
             }
-            
+
             // Dispatch a server event to notify that an alert was dispatched
             ServerEvent serverEvent = new ServerEvent("Alert Dispatched");
             for (Entry<String, Object> entry : context.entrySet()) {
@@ -165,5 +165,5 @@ public abstract class AlertWorker extends EventListener {
         }
 
     }
-    
+
 }

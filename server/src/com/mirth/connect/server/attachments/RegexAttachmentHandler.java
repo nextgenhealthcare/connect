@@ -25,7 +25,7 @@ import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.util.StringUtil;
 import com.mirth.connect.model.attachments.AttachmentException;
-import com.mirth.connect.server.util.UUIDGenerator;
+import com.mirth.connect.server.util.ServerUUIDGenerator;
 
 public class RegexAttachmentHandler extends AttachmentHandler {
 
@@ -48,7 +48,7 @@ public class RegexAttachmentHandler extends AttachmentHandler {
             this.message = message;
             newMessage = "";
             offset = 0;
-    
+
             if (pattern != null) {
                 matcher = pattern.matcher(message);
                 //TODO Validate number of groups that the user can provide
@@ -58,7 +58,7 @@ public class RegexAttachmentHandler extends AttachmentHandler {
             throw new AttachmentException(t);
         }
     }
-    
+
     @Override
     public void initialize(byte[] bytes, Channel channel) throws AttachmentException {
         throw new AttachmentException("Binary data not supported for Regex attachment handler");
@@ -69,35 +69,35 @@ public class RegexAttachmentHandler extends AttachmentHandler {
         try {
             if (matcher != null) {
                 while (matcher.find()) {
-    
-                    String uuid = UUIDGenerator.getUUID();
+
+                    String uuid = ServerUUIDGenerator.getUUID();
                     String attachmentString = message.substring(matcher.start(group), matcher.end(group));
-                    
+
                     for (Entry<String, String> replacementEntry : replacements.entrySet()) {
-                    	String replaceKey = replacementEntry.getKey();
-                    	String replaceValue = replacementEntry.getValue();
-                    	
-                    	if (replaceKey != null && replaceValue != null) {
-                    		attachmentString = attachmentString.replace(replaceKey, replaceValue);
-                    	}
+                        String replaceKey = replacementEntry.getKey();
+                        String replaceValue = replacementEntry.getValue();
+
+                        if (replaceKey != null && replaceValue != null) {
+                            attachmentString = attachmentString.replace(replaceKey, replaceValue);
+                        }
                     }
-                    
+
                     // Don't store blank attachments.
                     if (StringUtils.isBlank(attachmentString)) {
                         return null;
                     }
-                    
+
                     Attachment attachment = new Attachment(uuid, StringUtil.getBytesUncheckedChunked(attachmentString, Constants.ATTACHMENT_CHARSET), mimeType);
-                    
+
                     attachmentString = null;
-    
+
                     newMessage += message.substring(offset, matcher.start(group)) + attachment.getAttachmentId();
                     offset = matcher.end(group);
-    
+
                     return attachment;
                 }
             }
-    
+
             return null;
         } catch (Throwable t) {
             throw new AttachmentException(t);
@@ -108,11 +108,11 @@ public class RegexAttachmentHandler extends AttachmentHandler {
     public String shutdown() throws AttachmentException {
         try {
             String finalMessage = newMessage + message.substring(offset);
-            
+
             newMessage = null;
             message = null;
             matcher = null;
-            
+
             return finalMessage;
         } catch (Throwable t) {
             throw new AttachmentException(t);
@@ -123,11 +123,11 @@ public class RegexAttachmentHandler extends AttachmentHandler {
     public void setProperties(AttachmentHandlerProperties attachmentProperties) {
         String regex = attachmentProperties.getProperties().get("regex.pattern");
         mimeType = attachmentProperties.getProperties().get("regex.mimetype");
-        
+
         int count = 0;
         while (attachmentProperties.getProperties().containsKey("regex.replaceKey" + count)) {
-        	replacements.put(StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("regex.replaceKey" + count)), StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("regex.replaceValue" + count)));
-        	count++;
+            replacements.put(StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("regex.replaceKey" + count)), StringEscapeUtils.unescapeJava(attachmentProperties.getProperties().get("regex.replaceValue" + count)));
+            count++;
         }
 
         if (StringUtils.isNotEmpty(regex)) {

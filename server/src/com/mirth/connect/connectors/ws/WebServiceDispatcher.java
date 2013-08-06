@@ -63,7 +63,7 @@ import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.util.AttachmentUtil;
+import com.mirth.connect.server.util.MessageAttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
@@ -204,9 +204,9 @@ public class WebServiceDispatcher extends DestinationConnector {
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {
         WebServiceDispatcherProperties webServiceDispatcherProperties = (WebServiceDispatcherProperties) connectorProperties;
-        
+
         eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.SENDING));
-        
+
         String responseData = null;
         String responseError = null;
         String responseStatusMessage = null;
@@ -250,7 +250,7 @@ public class WebServiceDispatcher extends DestinationConnector {
 
             // build the message
             logger.debug("Creating SOAP envelope.");
-            String content = AttachmentUtil.reAttachMessage(webServiceDispatcherProperties.getEnvelope(), connectorMessage);
+            String content = MessageAttachmentUtil.reAttachMessage(webServiceDispatcherProperties.getEnvelope(), connectorMessage);
             Source source = new StreamSource(new StringReader(content));
             SOAPMessage message = soapBinding.getMessageFactory().createMessage();
             message.getSOAPPart().setContent(source);
@@ -265,7 +265,7 @@ public class WebServiceDispatcher extends DestinationConnector {
                 for (int i = 0; i < attachmentIds.size(); i++) {
                     String attachmentContentId = attachmentIds.get(i);
                     String attachmentContentType = attachmentTypes.get(i);
-                    String attachmentContent = AttachmentUtil.reAttachMessage(attachmentContents.get(i), connectorMessage);
+                    String attachmentContent = MessageAttachmentUtil.reAttachMessage(attachmentContents.get(i), connectorMessage);
 
                     AttachmentPart attachment = message.createAttachmentPart();
                     attachment.setBase64Content(new ByteArrayInputStream(attachmentContent.getBytes("UTF-8")), attachmentContentType);

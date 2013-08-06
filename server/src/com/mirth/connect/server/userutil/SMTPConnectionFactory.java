@@ -13,6 +13,6 @@ import com.mirth.connect.server.controllers.ControllerException;
 
 public class SMTPConnectionFactory {
     public static SMTPConnection createSMTPConnection() throws ControllerException {
-        return new SMTPConnection(com.mirth.connect.server.util.SMTPConnectionFactory.createSMTPConnection());
+        return new SMTPConnection(com.mirth.connect.server.util.ServerSMTPConnectionFactory.createSMTPConnection());
     }
 }

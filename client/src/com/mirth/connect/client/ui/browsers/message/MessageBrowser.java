@@ -11,7 +11,6 @@ package com.mirth.connect.client.ui.browsers.message;
 
 import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -24,7 +23,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -53,7 +51,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
-import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -73,7 +70,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.table.ColumnControlButton;
-import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
@@ -83,7 +79,6 @@ import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.client.core.PaginatedMessageList;
 import com.mirth.connect.client.core.RequestAbortedException;
-import com.mirth.connect.client.ui.DateCellRenderer;
 import com.mirth.connect.client.ui.EditMessageDialog;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.LoadedExtensions;
@@ -118,7 +113,7 @@ import com.mirth.connect.model.filters.elements.ContentSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchOperator;
 import com.mirth.connect.plugins.AttachmentViewer;
-import com.mirth.connect.util.XmlUtil;
+import com.mirth.connect.util.MirthXmlUtil;
 
 /**
  * The message browser panel.
@@ -987,7 +982,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 newDoc.setTokenMarker(new XMLTokenMarker());
                 if (formatXmlMessageCheckBox.isSelected()) {
                     try {
-                        message = XmlUtil.prettyPrint(message);
+                        message = MirthXmlUtil.prettyPrint(message);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }

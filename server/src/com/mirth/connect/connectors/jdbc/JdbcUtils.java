@@ -19,7 +19,7 @@ import org.apache.commons.codec.binary.StringUtils;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.Constants;
-import com.mirth.connect.server.util.AttachmentUtil;
+import com.mirth.connect.server.util.MessageAttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class JdbcUtils {
@@ -99,8 +99,8 @@ public class JdbcUtils {
                 value = replacer.replaceValues(paramName, channelId);
             }
 
-            if (AttachmentUtil.hasAttachmentKeys(value.toString())) {
-                value = StringUtils.newString(AttachmentUtil.reAttachMessage(value.toString(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET);
+            if (MessageAttachmentUtil.hasAttachmentKeys(value.toString())) {
+                value = StringUtils.newString(MessageAttachmentUtil.reAttachMessage(value.toString(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET);
             }
 
             params[i++] = value;

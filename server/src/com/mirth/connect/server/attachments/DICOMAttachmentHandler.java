@@ -21,7 +21,7 @@ import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.attachments.AttachmentException;
 import com.mirth.connect.model.converters.DICOMConverter;
-import com.mirth.connect.server.util.UUIDGenerator;
+import com.mirth.connect.server.util.ServerUUIDGenerator;
 
 public class DICOMAttachmentHandler extends AttachmentHandler {
 
@@ -46,7 +46,7 @@ public class DICOMAttachmentHandler extends AttachmentHandler {
             throw new AttachmentException(t);
         }
     }
-    
+
     @Override
     public void initialize(byte[] bytes, Channel channel) throws AttachmentException {
         index = 0;
@@ -64,15 +64,15 @@ public class DICOMAttachmentHandler extends AttachmentHandler {
             if (dicomElement != null) {
                 if (dicomElement.hasItems()) {
                     if (index < dicomElement.countItems()) {
-                        return new Attachment(UUIDGenerator.getUUID(), dicomElement.getFragment(index++), "DICOM");
+                        return new Attachment(ServerUUIDGenerator.getUUID(), dicomElement.getFragment(index++), "DICOM");
                     }
                 } else {
-                    Attachment attachment = new Attachment(UUIDGenerator.getUUID(), dicomElement.getBytes(), "DICOM");
+                    Attachment attachment = new Attachment(ServerUUIDGenerator.getUUID(), dicomElement.getBytes(), "DICOM");
                     dicomElement = null;
                     return attachment;
                 }
             }
-    
+
             return null;
         } catch (Throwable t) {
             throw new AttachmentException(t);

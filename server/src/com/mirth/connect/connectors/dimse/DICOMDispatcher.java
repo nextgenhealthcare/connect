@@ -33,7 +33,7 @@ import com.mirth.connect.donkey.server.event.ConnectorEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.util.AttachmentUtil;
+import com.mirth.connect.server.util.MessageAttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
@@ -83,7 +83,7 @@ public class DICOMDispatcher extends DestinationConnector {
         try {
             File tempFile = File.createTempFile("temp", "tmp");
 
-            FileUtils.writeByteArrayToFile(tempFile, AttachmentUtil.reAttachMessage(dicomDispatcherProperties.getTemplate(), connectorMessage, null, true));
+            FileUtils.writeByteArrayToFile(tempFile, MessageAttachmentUtil.reAttachMessage(dicomDispatcherProperties.getTemplate(), connectorMessage, null, true));
 
             DcmSnd dcmSnd = new DcmSnd();
             dcmSnd.setCalledAET("DCMRCV");

@@ -11,8 +11,8 @@ package com.mirth.connect.server.util;
 
 import java.util.UUID;
 
-public class UUIDGenerator {
-	public static String getUUID() {
-		return UUID.randomUUID().toString();
-	}
+public class ServerUUIDGenerator {
+    public static String getUUID() {
+        return UUID.randomUUID().toString();
+    }
 }

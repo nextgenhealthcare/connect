@@ -24,47 +24,47 @@ public class AttachmentUtil {
     private static Logger logger = Logger.getLogger(AttachmentUtil.class);
 
     public static byte[] reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage, String charsetEncoding, boolean binary) {
-        return com.mirth.connect.server.util.AttachmentUtil.reAttachMessage(raw, connectorMessage, charsetEncoding, binary);
+        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(raw, connectorMessage, charsetEncoding, binary);
     }
 
     @Deprecated
     // TODO: Remove in 3.1
     public static String reAttachMessage(MessageObject messageObject) {
         logger.error("The reAttachMessage(messageObject) method is deprecated and will soon be removed. Please use reAttachMessage(connectorMessage) instead.");
-        return com.mirth.connect.server.util.AttachmentUtil.reAttachMessage(messageObject.getImmutableConnectorMessage());
+        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(messageObject.getImmutableConnectorMessage());
     }
 
     public static String reAttachMessage(ImmutableConnectorMessage message) {
-        return com.mirth.connect.server.util.AttachmentUtil.reAttachMessage(message);
+        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(message);
     }
 
     @Deprecated
     // TODO: Remove in 3.1
     public static String reAttachRawMessage(MessageObject messageObject) {
         logger.error("The reAttachRawMessage(messageObject) method is deprecated and will soon be removed. Please use reAttachMessage(raw, connectorMessage) instead.");
-        return com.mirth.connect.server.util.AttachmentUtil.reAttachMessage(messageObject.getRawData(), messageObject.getImmutableConnectorMessage());
+        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(messageObject.getRawData(), messageObject.getImmutableConnectorMessage());
     }
 
     @Deprecated
     // TODO: Remove in 3.1
     public static String reAttachRawMessage(ImmutableConnectorMessage message) {
         logger.error("The reAttachRawMessage(connectorMessage) method is deprecated and will soon be removed. Please use reAttachMessage(raw, connectorMessage) instead.");
-        return com.mirth.connect.server.util.AttachmentUtil.reAttachMessage(message.getRawData(), message);
+        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(message.getRawData(), message);
     }
 
     public static String reAttachMessage(String raw, ImmutableConnectorMessage message) {
-        return com.mirth.connect.server.util.AttachmentUtil.reAttachMessage(raw, message);
+        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(raw, message);
     }
 
     @Deprecated
     // TODO: Remove in 3.1
     public static List<Attachment> getMessageAttachments(MessageObject messageObject) throws XmlSerializerException {
         logger.error("The getMessageAttachments(messageObject) method is deprecated and will soon be removed. Please use getMessageAttachments(connectorMessage) instead.");
-        return convertList(com.mirth.connect.server.util.AttachmentUtil.getMessageAttachments(messageObject.getImmutableConnectorMessage()));
+        return convertList(com.mirth.connect.server.util.MessageAttachmentUtil.getMessageAttachments(messageObject.getImmutableConnectorMessage()));
     }
 
     public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage connectorMessage) throws XmlSerializerException {
-        return convertList(com.mirth.connect.server.util.AttachmentUtil.getMessageAttachments(connectorMessage));
+        return convertList(com.mirth.connect.server.util.MessageAttachmentUtil.getMessageAttachments(connectorMessage));
     }
 
     public static Attachment addAttachment(List<Attachment> attachments, Object data, String type) throws UnsupportedDataTypeException {

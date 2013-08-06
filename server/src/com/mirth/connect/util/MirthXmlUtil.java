@@ -27,7 +27,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.log4j.Logger;
 
-public class XmlUtil {
+public class MirthXmlUtil {
 
     private static Transformer normalizerTransformer = null;
     private static Transformer serializerTransformer = null;
@@ -37,7 +37,7 @@ public class XmlUtil {
     private static final String[] encoder = new String[0x100];
     private static final String[] encoderXml = new String[0x100];
 
-    private static Logger logger = Logger.getLogger(XmlUtil.class);
+    private static Logger logger = Logger.getLogger(MirthXmlUtil.class);
 
     private static final String prettyPrintingXslt = "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\"><xsl:output indent=\"no\" method=\"xml\" omit-xml-declaration=\"yes\"/><xsl:strip-space elements=\"*\"/><xsl:template match=\"/\"><xsl:copy-of select=\".\"/></xsl:template></xsl:stylesheet>";
 

@@ -44,7 +44,7 @@ import com.mirth.connect.plugins.BasicModeProvider;
 import com.mirth.connect.plugins.TransmissionModeProvider;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.util.AttachmentUtil;
+import com.mirth.connect.server.util.MessageAttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorMessageBuilder;
@@ -392,7 +392,7 @@ public class TcpDispatcher extends DestinationConnector {
         byte[] bytes = new byte[0];
 
         if (tcpSenderProperties.getTemplate() != null) {
-            bytes = AttachmentUtil.reAttachMessage(tcpSenderProperties.getTemplate(), connectorMessage, CharsetUtils.getEncoding(tcpSenderProperties.getCharsetEncoding()), tcpSenderProperties.isDataTypeBinary());
+            bytes = MessageAttachmentUtil.reAttachMessage(tcpSenderProperties.getTemplate(), connectorMessage, CharsetUtils.getEncoding(tcpSenderProperties.getCharsetEncoding()), tcpSenderProperties.isDataTypeBinary());
         }
 
         return bytes;

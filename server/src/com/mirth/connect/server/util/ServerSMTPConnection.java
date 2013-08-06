@@ -14,7 +14,7 @@ import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 
-public class SMTPConnection {
+public class ServerSMTPConnection {
     private String host;
     private String port;
     private boolean useAuthentication;
@@ -24,7 +24,7 @@ public class SMTPConnection {
     private String from;
     private int socketTimeout = 5000;
 
-    public SMTPConnection(String host, String port, int socketTimeout, boolean useAuthentication, String secure, String username, String password, String from) {
+    public ServerSMTPConnection(String host, String port, int socketTimeout, boolean useAuthentication, String secure, String username, String password, String from) {
         this.host = host;
         this.port = port;
         this.socketTimeout = socketTimeout;
@@ -35,7 +35,7 @@ public class SMTPConnection {
         this.from = from;
     }
 
-    public SMTPConnection(String host, String port, boolean useAuthentication, String secure, String username, String password, String from) {
+    public ServerSMTPConnection(String host, String port, boolean useAuthentication, String secure, String username, String password, String from) {
         this(host, port, 5000, useAuthentication, secure, username, password, from);
     }
 

@@ -36,7 +36,7 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MessageController;
-import com.mirth.connect.server.util.DICOMUtil;
+import com.mirth.connect.server.util.DICOMMessageUtil;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class MessageObjectServlet extends MirthServlet {
@@ -84,12 +84,14 @@ public class MessageObjectServlet extends MirthServlet {
 
                         try {
                             offset = Integer.parseInt(request.getParameter("offset"));
-                        } catch (NumberFormatException e) {}
-                        
+                        } catch (NumberFormatException e) {
+                        }
+
                         try {
                             limit = Integer.parseInt(request.getParameter("limit"));
-                        } catch (NumberFormatException e) {}
-                        
+                        } catch (NumberFormatException e) {
+                        }
+
                         Channel channel = ControllerFactory.getFactory().createEngineController().getDeployedChannel(channelId);
                         response.setContentType(APPLICATION_XML);
                         serializer.serialize(messageController.getMessages(filter, channel, includeContent, offset, limit), out);
@@ -97,7 +99,7 @@ public class MessageObjectServlet extends MirthServlet {
                 } else if (operation.equals(Operations.MESSAGE_GET_COUNT)) {
                     String channelId = request.getParameter("channelId");
                     MessageFilter filter = serializer.deserialize(request.getParameter("filter"), MessageFilter.class);
-                    
+
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("filter", filter);
 
@@ -109,20 +111,20 @@ public class MessageObjectServlet extends MirthServlet {
                         out.print(messageController.getMessageCount(filter, channel));
                     }
                 } else if (operation.equals(Operations.MESSAGE_GET_CONTENT)) {
-                	String channelId = request.getParameter("channelId");
-                	Long messageId = serializer.deserialize(request.getParameter("messageId"), Long.class);
-                	parameterMap.put("channelId", channelId);
-                	parameterMap.put("messageId", messageId);
-                	
-                	if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
-                		response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                	} else {
-                		serializer.serialize(messageController.getMessageContent(channelId, messageId), out);
-                	}
+                    String channelId = request.getParameter("channelId");
+                    Long messageId = serializer.deserialize(request.getParameter("messageId"), Long.class);
+                    parameterMap.put("channelId", channelId);
+                    parameterMap.put("messageId", messageId);
+
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        serializer.serialize(messageController.getMessageContent(channelId, messageId), out);
+                    }
                 } else if (operation.equals(Operations.MESSAGE_REMOVE)) {
                     String channelId = request.getParameter("channelId");
                     MessageFilter filter = serializer.deserialize(request.getParameter("filter"), MessageFilter.class);
-                    
+
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("filter", filter);
 
@@ -136,15 +138,15 @@ public class MessageObjectServlet extends MirthServlet {
                     Set<String> channelIds = serializer.deserialize(request.getParameter("channelIds"), Set.class);
                     Boolean restartRunningChannels = serializer.deserialize(request.getParameter("restartRunningChannels"), Boolean.class);
                     Boolean clearStatistics = serializer.deserialize(request.getParameter("clearStatistics"), Boolean.class);
-                    
+
                     parameterMap.put("channelIds", channelIds);
                     parameterMap.put("restartRunningChannels", restartRunningChannels);
                     parameterMap.put("clearStatistics", clearStatistics);
-                    
+
                     if (!isUserAuthorized(request, parameterMap) || hasUnauthorizedChannels(request, channelIds, authorizedChannelIds)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                    	messageController.clearMessages(channelIds, restartRunningChannels, clearStatistics);
+                        messageController.clearMessages(channelIds, restartRunningChannels, clearStatistics);
                     }
                 } else if (operation.equals(Operations.MESSAGE_REPROCESS)) {
                     final String channelId = request.getParameter("channelId");
@@ -164,7 +166,7 @@ public class MessageObjectServlet extends MirthServlet {
                                 messageController.reprocessMessages(channelId, filter, replace, reprocessMetaDataIds);
                             }
                         };
-                        
+
                         // Process the message on a new thread so the client is not waiting for it to complete.
                         new Thread(reprocessTask).start();
                     }
@@ -174,7 +176,7 @@ public class MessageObjectServlet extends MirthServlet {
 
                     @SuppressWarnings("unchecked")
                     List<Integer> metaDataIds = serializer.deserializeList(request.getParameter("metaDataIds"), Integer.class);
-                    
+
                     final RawMessage rawMessage = new RawMessage(rawData, metaDataIds);
 
                     parameterMap.put("channelId", channelId);
@@ -194,7 +196,7 @@ public class MessageObjectServlet extends MirthServlet {
                                 }
                             }
                         };
-                        
+
                         // Process the message on a new thread so the client is not waiting for it to complete.
                         new Thread(processTask).start();
                     }
@@ -212,11 +214,11 @@ public class MessageObjectServlet extends MirthServlet {
                     String channelId = request.getParameter("channelId");
                     String uri = request.getParameter("uri");
                     Boolean includeSubfolders = serializer.deserialize(request.getParameter("includeSubfolders"), Boolean.class);
-                    
+
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("uri", uri);
                     parameterMap.put("includeSubfolders", includeSubfolders);
-                    
+
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
@@ -228,12 +230,12 @@ public class MessageObjectServlet extends MirthServlet {
                     Integer pageSize = serializer.deserialize(request.getParameter("pageSize"), Integer.class);
                     Boolean includeAttachments = serializer.deserialize(request.getParameter("includeAttachments"), Boolean.class);
                     MessageWriterOptions writerOptions = serializer.deserialize(request.getParameter("writerOptions"), MessageWriterOptions.class);
-                    
+
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("messageFilter", messageFilter);
                     parameterMap.put("pageSize", pageSize);
                     parameterMap.put("writerOptions", writerOptions);
-                    
+
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
@@ -246,7 +248,7 @@ public class MessageObjectServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        String dicomMessage = DICOMUtil.getDICOMRawData(message);
+                        String dicomMessage = DICOMMessageUtil.getDICOMRawData(message);
                         out.println(dicomMessage);
                     }
                 } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID)) {
@@ -254,7 +256,7 @@ public class MessageObjectServlet extends MirthServlet {
                     Long messageId = serializer.deserialize(request.getParameter("messageId"), Long.class);
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("messageId", messageId);
-                    
+
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
@@ -265,7 +267,7 @@ public class MessageObjectServlet extends MirthServlet {
                     String attachmentId = request.getParameter("attachmentId");
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("attachmentId", attachmentId);
-                    
+
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
@@ -276,7 +278,7 @@ public class MessageObjectServlet extends MirthServlet {
                     Long messageId = serializer.deserialize(request.getParameter("messageId"), Long.class);
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("messageId", messageId);
-                    
+
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
@@ -293,7 +295,7 @@ public class MessageObjectServlet extends MirthServlet {
             }
         }
     }
-    
+
     private boolean hasUnauthorizedChannels(HttpServletRequest request, Collection<String> channelIds, List<String> authorizedChannelIds) throws ServletException {
         if (doesUserHaveChannelRestrictions(request)) {
             for (String channelId : channelIds) {
@@ -302,7 +304,7 @@ public class MessageObjectServlet extends MirthServlet {
                 }
             }
         }
-        
+
         return false;
     }
 }
