@@ -71,37 +71,33 @@ public class PassthruDao implements DonkeyDao {
 
     @Override
     public void commit(boolean durable) {
-        synchronized (currentStats) {
-            // reset stats for any connectors that need to be reset
-            for (Entry<String, Map<Integer, Set<Status>>> entry : resetStats.entrySet()) {
-                String channelId = entry.getKey();
-                Map<Integer, Set<Status>> metaDataIds = entry.getValue();
+        // reset stats for any connectors that need to be reset
+        for (Entry<String, Map<Integer, Set<Status>>> entry : resetStats.entrySet()) {
+            String channelId = entry.getKey();
+            Map<Integer, Set<Status>> metaDataIds = entry.getValue();
 
-                for (Entry<Integer, Set<Status>> metaDataEntry : metaDataIds.entrySet()) {
-                    Integer metaDataId = metaDataEntry.getKey();
-                    Set<Status> statuses = metaDataEntry.getValue();
+            for (Entry<Integer, Set<Status>> metaDataEntry : metaDataIds.entrySet()) {
+                Integer metaDataId = metaDataEntry.getKey();
+                Set<Status> statuses = metaDataEntry.getValue();
 
-                    currentStats.resetStats(channelId, metaDataId, statuses);
-                }
-            }
-
-            // update the in-memory stats with the stats we just saved in storage
-            currentStats.update(transactionStats);
-
-            // remove the in-memory stats for any channels that were removed
-            for (String channelId : removedChannelIds) {
-                currentStats.getStats().remove(channelId);
+                currentStats.resetStats(channelId, metaDataId, statuses);
             }
         }
 
-        synchronized (totalStats) {
-            // update the in-memory total stats with the stats we just saved in storage
-            totalStats.update(transactionStats);
+        // update the in-memory stats with the stats we just saved in storage
+        currentStats.update(transactionStats);
 
-            // remove the in-memory total stats for any channels that were removed
-            for (String channelId : removedChannelIds) {
-                totalStats.getStats().remove(channelId);
-            }
+        // remove the in-memory stats for any channels that were removed
+        for (String channelId : removedChannelIds) {
+            currentStats.getStats().remove(channelId);
+        }
+
+        // update the in-memory total stats with the stats we just saved in storage
+        totalStats.update(transactionStats);
+
+        // remove the in-memory total stats for any channels that were removed
+        for (String channelId : removedChannelIds) {
+            totalStats.getStats().remove(channelId);
         }
 
         if (statisticsUpdater != null) {
