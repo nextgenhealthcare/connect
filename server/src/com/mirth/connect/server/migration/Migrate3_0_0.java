@@ -37,11 +37,12 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
     
     @Override
     public void migrate() throws MigrationException {
-        executeScript(getDatabaseType() + "-9-3.0.0.sql");
+        executeScript(getDatabaseType() + "-9-3.0.0-1.sql");
         migrateChannelTable();
         migrateAlertTable();
         migrateCodeTemplateTable();
         migrateDataPrunerConfiguration();
+        executeScript(getDatabaseType() + "-9-3.0.0-2.sql");
     }
     
     @Override

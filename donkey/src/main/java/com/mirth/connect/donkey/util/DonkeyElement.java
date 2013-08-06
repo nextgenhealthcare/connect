@@ -100,9 +100,9 @@ public class DonkeyElement implements Element {
     }
     
     public DonkeyElement addChildElementFromXml(String xml) throws DonkeyElementException {
-        DonkeyElement child = fromXml(xml, element.getOwnerDocument());
-        element.appendChild(child.getElement());
-        return child;
+        Element child = fromXml(xml, element.getOwnerDocument());
+        element.appendChild(child);
+        return new DonkeyElement(child);
     }
 
     public DonkeyElement removeChild(String name) {
@@ -450,9 +450,9 @@ public class DonkeyElement implements Element {
         return writer.toString();
     }
 
-    private DonkeyElement fromXml(String xml, Document document) throws DonkeyElementException {
+    private Element fromXml(String xml, Document document) throws DonkeyElementException {
         try {
-            return new DonkeyElement(new DOM2XmlPullBuilder().parse(new StringReader(xml), document));
+            return new DOM2XmlPullBuilder().parse(new StringReader(xml), document);
         } catch (Exception e) {
             throw new DonkeyElementException(e);
         }
