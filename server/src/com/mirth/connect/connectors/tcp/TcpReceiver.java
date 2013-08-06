@@ -576,7 +576,7 @@ public class TcpReceiver extends SourceConnector {
                                 // Set the return value and send an alert
                                 t = new Exception("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                                 logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), "Error receiving message", e));
+                                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error receiving message", e));
                                 eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.FAILURE, "Error receiving message from " + SocketUtil.getLocalAddress(socket) + ": " + e.getMessage()));
                             }
                         } else {
@@ -588,7 +588,7 @@ public class TcpReceiver extends SourceConnector {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), "Error receiving message", e));
+                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error receiving message", e));
                 eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.FAILURE, "Error receiving message from " + SocketUtil.getLocalAddress(socket) + ": " + e.getMessage()));
             } finally {
                 logger.debug("Done with socket, closing (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")...");

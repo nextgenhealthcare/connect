@@ -88,10 +88,16 @@ public class DefaultAlertWorker extends AlertWorker {
                 boolean containsType = (errorEventTypes == null || errorEventTypes.contains(errorEvent.getType()));
                 boolean eventSourceEnabled = (metaDataId == null ? alertChannels.isChannelEnabled(channelId) : alertChannels.isConnectorEnabled(channelId, metaDataId));
 
+                /*
+                 * Check that this alert is listening for event's type, and check if this alert is
+                 * active for the channel that dispatched the event
+                 */
                 if (containsType && eventSourceEnabled) {
                     boolean trigger = true;
-                    String fullErrorMessage = ErrorMessageBuilder.buildErrorMessage(errorEvent.getType().toString(), errorEvent.getCustomMessage(), errorEvent.getThrowable());
+                    String errorSource = errorEvent.getConnectorType() != null ? errorEvent.getConnectorType() : errorEvent.getType().toString();
+                    String fullErrorMessage = ErrorMessageBuilder.buildErrorMessage(errorSource, errorEvent.getCustomMessage(), errorEvent.getThrowable());
 
+                    // If a regex is provided, check that it matches the full error message
                     if (StringUtils.isNotBlank(errorTrigger.getRegex())) {
                         Pattern pattern = (Pattern) alert.getProperties().get(PATTERN_KEY);
 
@@ -117,10 +123,11 @@ public class DefaultAlertWorker extends AlertWorker {
                         // Create and populate the context for template value replacement with trigger specific values
                         Map<String, Object> context = alert.createContext();
 
-                        context.put("systemTime", String.valueOf(errorEvent.getNanoTime()));
+                        context.put("systemTime", String.valueOf(errorEvent.getDateTime()));
                         context.put("channelId", channelId);
                         context.put("channelName", channelName);
                         context.put("connectorName", errorEvent.getConnectorName());
+                        context.put("connectorType", errorEvent.getConnectorType());
                         context.put("error", fullErrorMessage);
                         context.put("errorMessage", (errorEvent.getThrowable() == null) ? "No exception message." : errorEvent.getThrowable().getMessage());
                         context.put("errorType", errorEvent.getType());

@@ -151,6 +151,7 @@ public class DefaultAlertTriggerPane extends AlertTriggerPane {
         variables.add("channelId");
         variables.add("channelName");
         variables.add("connectorName");
+        variables.add("connectorType");
 
         return variables;
     }

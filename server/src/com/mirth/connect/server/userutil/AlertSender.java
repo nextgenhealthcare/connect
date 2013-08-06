@@ -32,6 +32,6 @@ public class AlertSender {
     }
 
     public void sendAlert(String errorMessage) {
-        eventController.dispatchEvent(new ErrorEvent(channelId, metaDataId, ErrorEventType.USER_DEFINED_TRANSFORMER, connectorName, errorMessage, null));
+        eventController.dispatchEvent(new ErrorEvent(channelId, metaDataId, ErrorEventType.USER_DEFINED_TRANSFORMER, connectorName, null, errorMessage, null));
     }
 }
