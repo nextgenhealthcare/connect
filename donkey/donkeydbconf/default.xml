@@ -121,20 +121,20 @@
 	</query>
 	
 	<query id="getChannelStatistics">
-		SELECT metadata_id, received, filtered, transformed, pending, sent, error
+		SELECT metadata_id, received, filtered, sent, error
 		FROM d_ms${localChannelId}
 		WHERE server_id = ?
 	</query>
 	
 	<query id="getChannelTotalStatistics">
-		SELECT metadata_id, received_lifetime AS received, filtered_lifetime AS filtered, transformed_lifetime AS transformed, pending_lifetime AS pending, sent_lifetime AS sent, error_lifetime AS error
+		SELECT metadata_id, received_lifetime AS received, filtered_lifetime AS filtered, sent_lifetime AS sent, error_lifetime AS error
 		FROM d_ms${localChannelId}
 		WHERE server_id = ?
 	</query>
 	
 	<query id="insertChannelStatistics">
-		INSERT INTO d_ms${localChannelId} (metadata_id, server_id, received, received_lifetime, filtered, filtered_lifetime, transformed, transformed_lifetime, pending, pending_lifetime, sent, sent_lifetime, error, error_lifetime)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO d_ms${localChannelId} (metadata_id, server_id, received, received_lifetime, filtered, filtered_lifetime, sent, sent_lifetime, error, error_lifetime)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</query>
 	
 	<query id="updateChannelStatistics">
@@ -143,10 +143,6 @@
 			received_lifetime = received_lifetime + ?,
 			filtered = filtered + ?,
 			filtered_lifetime = filtered_lifetime + ?,
-			transformed = transformed + ?,
-			transformed_lifetime = transformed_lifetime + ?,
-			pending = pending + ?,
-			pending_lifetime = pending_lifetime + ?,
 			sent = sent + ?,
 			sent_lifetime = sent_lifetime + ?,
 			error = error + ?,
@@ -162,10 +158,6 @@
 			received_lifetime = received_lifetime + ?,
 			filtered = filtered + ?,
 			filtered_lifetime = filtered_lifetime + ?,
-			transformed = transformed + ?,
-			transformed_lifetime = transformed_lifetime + ?,
-			pending = pending + ?,
-			pending_lifetime = pending_lifetime + ?,
 			sent = sent + ?,
 			sent_lifetime = sent_lifetime + ?,
 			error = error + ?,
@@ -193,10 +185,6 @@
 			received_lifetime = 0,
 			filtered = 0,
 			filtered_lifetime = 0,
-			transformed = 0,
-			transformed_lifetime = 0,
-			pending = 0,
-			pending_lifetime = 0,
 			sent = 0,
 			sent_lifetime = 0,
 			error = 0,

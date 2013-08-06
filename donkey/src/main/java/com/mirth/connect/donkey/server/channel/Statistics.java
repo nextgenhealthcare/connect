@@ -9,6 +9,7 @@
 
 package com.mirth.connect.donkey.server.channel;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,17 +35,23 @@ public class Statistics {
     }
     
     public void resetStats(String channelId, Integer metaDataId, Set<Status> statuses) {
+        Set<Status> trackedStatuses = getTrackedStatuses();
+        
         for (Status status : statuses) {
-            getChannelStats(channelId).get(metaDataId).put(status, 0L);
-            
-            if (sendEvents && metaDataId != null) {
-                MessageEventType type = MessageEventType.fromStatus(status);
-                if (type != null && status != Status.QUEUED) {
-                    // Dispatch a message event if the the status is in MessageEventType and the connector stat was updated
-                    if (eventDispatcher == null) {
-                        eventDispatcher = Donkey.getInstance().getEventDispatcher();
+            if (trackedStatuses.contains(status)) {
+                getChannelStats(channelId).get(metaDataId).put(status, 0L);
+                
+                if (sendEvents && metaDataId != null) {
+                    MessageEventType type = MessageEventType.fromStatus(status);
+                    
+                    if (type != null) {
+                        // Dispatch a message event if the the status is in MessageEventType and the connector stat was updated
+                        if (eventDispatcher == null) {
+                            eventDispatcher = Donkey.getInstance().getEventDispatcher();
+                        }
+                        
+                        eventDispatcher.dispatchEvent(new MessageEvent(channelId, metaDataId, type, 0L, true));
                     }
-                    eventDispatcher.dispatchEvent(new MessageEvent(channelId, metaDataId, type, 0L, true));
                 }
             }
         }
@@ -69,8 +76,6 @@ public class Statistics {
             connectorStats = new LinkedHashMap<Status, Long>();
             connectorStats.put(Status.RECEIVED, 0L);
             connectorStats.put(Status.FILTERED, 0L);
-            connectorStats.put(Status.TRANSFORMED, 0L);
-            connectorStats.put(Status.PENDING, 0L);
             connectorStats.put(Status.SENT, 0L);
             connectorStats.put(Status.ERROR, 0L);
 
@@ -98,18 +103,17 @@ public class Statistics {
     public void update(String channelId, int metaDataId, Map<Status, Long> statsDiff) {
         Map<Status, Long> channelStats = getConnectorStats(channelId, null);
         Map<Status, Long> connectorStats = getConnectorStats(channelId, metaDataId);
+        Set<Status> trackedStatuses = getTrackedStatuses();
 
         for (Entry<Status, Long> statsEntry : statsDiff.entrySet()) {
-            Status status = statsEntry.getKey();
             Long diff = statsEntry.getValue();
 
-            if (diff != 0) {
-                Long connectorCount = null;
+            if (trackedStatuses.contains(statsEntry.getKey()) && diff != 0) {
+                Status status = statsEntry.getKey();
+                Long connectorCount = connectorStats.get(status) + diff;
+                
                 // update the connector statistics
-                if (status != Status.QUEUED) {
-                    connectorCount = connectorStats.get(status) + diff;
-                    connectorStats.put(status, connectorCount);
-                }
+                connectorStats.put(status, connectorCount);
     
                 // update the channel statistics
                 switch (status) {
@@ -122,26 +126,22 @@ public class Statistics {
     
                     // update the following statuses based on the source and destination connectors
                     case FILTERED:
-                    case TRANSFORMED:
                     case ERROR:
                         channelStats.put(status, channelStats.get(status) + diff);
                         break;
     
                     // update the following statuses based on the destination connectors
-                    case PENDING:
                     case SENT:
                         if (metaDataId > 0) {
                             channelStats.put(status, channelStats.get(status) + diff);
                         }
                         break;
-    
-                    // Queued statistics are managed by the queue itself. Neither the channel nor connector should store them.
-                    // This case is added here for readability.
-                    case QUEUED:
+
+                    default:
                         break;
                 }
                 
-                if (sendEvents && connectorCount != null) {
+                if (sendEvents) {
                     MessageEventType type = MessageEventType.fromStatus(status);
                     if (type != null) {
                         // Dispatch a message event if the the status is in MessageEventType and the connector stat was updated
@@ -168,5 +168,15 @@ public class Statistics {
                 }
             }
         }
+    }
+
+    public static Set<Status> getTrackedStatuses() {
+        Set<Status> values = new HashSet<Status>();
+        values.add(Status.RECEIVED);
+        values.add(Status.FILTERED);
+        values.add(Status.SENT);
+        values.add(Status.ERROR);
+
+        return values;
     }
 }

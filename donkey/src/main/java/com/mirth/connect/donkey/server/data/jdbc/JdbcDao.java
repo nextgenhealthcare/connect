@@ -21,11 +21,9 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -314,20 +312,16 @@ public class JdbcDao implements DonkeyDao {
                     statement.setLong(2, connectorStats.get(Status.RECEIVED));
                     statement.setLong(3, connectorStats.get(Status.FILTERED));
                     statement.setLong(4, connectorStats.get(Status.FILTERED));
-                    statement.setLong(5, connectorStats.get(Status.TRANSFORMED));
-                    statement.setLong(6, connectorStats.get(Status.TRANSFORMED));
-                    statement.setLong(7, connectorStats.get(Status.PENDING));
-                    statement.setLong(8, connectorStats.get(Status.PENDING));
-                    statement.setLong(9, connectorStats.get(Status.SENT));
-                    statement.setLong(10, connectorStats.get(Status.SENT));
-                    statement.setLong(11, connectorStats.get(Status.ERROR));
-                    statement.setLong(12, connectorStats.get(Status.ERROR));
+                    statement.setLong(5, connectorStats.get(Status.SENT));
+                    statement.setLong(6, connectorStats.get(Status.SENT));
+                    statement.setLong(7, connectorStats.get(Status.ERROR));
+                    statement.setLong(8, connectorStats.get(Status.ERROR));
 
                     if (metaDataId != null) {
-                        statement.setInt(13, metaDataId);
-                        statement.setString(14, statsServerId);
+                        statement.setInt(9, metaDataId);
+                        statement.setString(10, statsServerId);
                     } else {
-                        statement.setString(13, statsServerId);
+                        statement.setString(9, statsServerId);
                     }
 
                     if (statement.executeUpdate() == 0) {
@@ -344,14 +338,10 @@ public class JdbcDao implements DonkeyDao {
                         statement.setLong(4, connectorStats.get(Status.RECEIVED));
                         statement.setLong(5, connectorStats.get(Status.FILTERED));
                         statement.setLong(6, connectorStats.get(Status.FILTERED));
-                        statement.setLong(7, connectorStats.get(Status.TRANSFORMED));
-                        statement.setLong(8, connectorStats.get(Status.TRANSFORMED));
-                        statement.setLong(9, connectorStats.get(Status.PENDING));
-                        statement.setLong(10, connectorStats.get(Status.PENDING));
-                        statement.setLong(11, connectorStats.get(Status.SENT));
-                        statement.setLong(12, connectorStats.get(Status.SENT));
-                        statement.setLong(13, connectorStats.get(Status.ERROR));
-                        statement.setLong(14, connectorStats.get(Status.ERROR));
+                        statement.setLong(7, connectorStats.get(Status.SENT));
+                        statement.setLong(8, connectorStats.get(Status.SENT));
+                        statement.setLong(9, connectorStats.get(Status.ERROR));
+                        statement.setLong(10, connectorStats.get(Status.ERROR));
                         statement.executeUpdate();
                     }
                 }
@@ -1470,7 +1460,7 @@ public class JdbcDao implements DonkeyDao {
             statement.setString(1, statsServerId);
             statement.executeUpdate();
             
-            Set<Status> statuses = new HashSet<Status>(Arrays.asList(Status.values()));
+            Set<Status> statuses = Statistics.getTrackedStatuses();
             
             Map<Integer, Set<Status>> metaDataIdsCurrent = resetCurrentStats.get(channelId);
             if (metaDataIdsCurrent == null) {
@@ -1532,8 +1522,6 @@ public class JdbcDao implements DonkeyDao {
                     Map<Status, Long> stats = new HashMap<Status, Long>();
                     stats.put(Status.RECEIVED, resultSet.getLong("received"));
                     stats.put(Status.FILTERED, resultSet.getLong("filtered"));
-                    stats.put(Status.TRANSFORMED, resultSet.getLong("transformed"));
-                    stats.put(Status.PENDING, resultSet.getLong("pending"));
                     stats.put(Status.SENT, resultSet.getLong("sent"));
                     stats.put(Status.ERROR, resultSet.getLong("error"));
 

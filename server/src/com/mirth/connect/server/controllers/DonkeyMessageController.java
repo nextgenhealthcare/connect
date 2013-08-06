@@ -36,6 +36,7 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.message.DataType;
@@ -284,17 +285,6 @@ public class DonkeyMessageController extends MessageController {
 
         try {
             EngineController engineController = ControllerFactory.getFactory().createEngineController();
-            Set<Status> statuses = null;
-
-            if (clearStatistics) {
-                statuses = new HashSet<Status>();
-
-                for (Status status : Status.values()) {
-                    if (!status.equals(Status.QUEUED)) {
-                        statuses.add(status);
-                    }
-                }
-            }
 
             for (String channelId : channelIds) {
                 Channel channel = engineController.getDeployedChannel(channelId);
@@ -338,6 +328,8 @@ public class DonkeyMessageController extends MessageController {
 
                             if (clearStatistics) {
                                 logger.debug("Clearing statistics for channel \"" + channel.getName() + "\"");
+                                
+                                Set<Status> statuses = Statistics.getTrackedStatuses();
                                 dao.resetStatistics(channelId, null, statuses);
 
                                 for (Integer metaDataId : channel.getMetaDataIds()) {
