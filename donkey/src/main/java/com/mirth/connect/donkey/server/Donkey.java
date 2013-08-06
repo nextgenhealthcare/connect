@@ -18,8 +18,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
@@ -56,7 +54,6 @@ public class Donkey {
 
     private Map<String, Channel> deployedChannels = new ConcurrentHashMap<String, Channel>();
     private DonkeyConfiguration donkeyConfiguration;
-    private ExecutorService donkeyExecutor = Executors.newCachedThreadPool();
     private DonkeyDaoFactory daoFactory;
     private Serializer serializer = new XStreamSerializer();
     private Encryptor encryptor;
@@ -267,52 +264,6 @@ public class Donkey {
         }
 
         channel.stopConnector(metaDataId);
-    }
-
-    public void restartChannel(final String channelId, final boolean forceStop) {
-        restartChannel(channelId, forceStop, 0);
-    }
-
-    public void restartChannel(final String channelId, final boolean forceStop, final int startDelayMillis) {
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                boolean retry;
-
-                do {
-                    retry = false;
-
-                    try {
-                        logger.info("Stopping channel " + channelId);
-                        //TODO update this
-                        if (forceStop) {
-                            haltChannel(channelId);
-                        } else {
-                            stopChannel(channelId);
-                        }
-
-                        if (startDelayMillis > 0) {
-                            logger.info("Waiting " + startDelayMillis + "ms");
-                            Thread.sleep(startDelayMillis);
-                        }
-
-                        logger.info("Starting channel " + channelId);
-                        startChannel(channelId);
-                    } catch (StartException e) {
-                        retry = true;
-                    } catch (StopException e) {
-                        retry = true;
-                    } catch (RuntimeException e) {
-                        retry = true;
-                    } catch (Throwable e) {
-                        logger.error(e);
-                    }
-                } while (retry);
-            }
-        };
-
-        logger.info("Restarting channel " + channelId);
-        donkeyExecutor.execute(runnable);
     }
 
     public Map<String, Channel> getDeployedChannels() {

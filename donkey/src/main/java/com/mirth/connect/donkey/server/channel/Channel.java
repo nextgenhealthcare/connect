@@ -917,8 +917,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     response = responseSelector.getResponse(sourceMessage, processedMessage);
                 }
             } catch (RuntimeException e) {
-                // TODO enable channel restart after it has been updated. Currently does not work
-                // Donkey.getInstance().restartChannel(channel.getChannelId(), true);
+                // TODO determine behavior if this occurs.
                 throw new ChannelException(true, e);
             } finally {
                 if (lockAcquired && (!sourceConnector.isRespondAfterProcessing() || persistedMessageId == null || Thread.currentThread().isInterrupted())) {
