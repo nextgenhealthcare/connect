@@ -131,8 +131,8 @@ public class JavaScriptReceiver extends PollConnector {
             if (object instanceof List<?>) {
                 // Allow the user to pass in RawMessage objects as well as strings
                 for (Object element : (List<Object>) object) {
-                    if (element instanceof RawMessage) {
-                        messages.add((RawMessage) element);
+                    if (element instanceof com.mirth.connect.server.userutil.RawMessage) {
+                        messages.add(convertRawMessage(element));
                     } else {
                         String rawData = element.toString();
                         if (StringUtils.isNotEmpty(rawData)) {
@@ -140,8 +140,8 @@ public class JavaScriptReceiver extends PollConnector {
                         }
                     }
                 }
-            } else if (object instanceof RawMessage) {
-                messages.add((RawMessage) object);
+            } else if (object instanceof com.mirth.connect.server.userutil.RawMessage) {
+                messages.add(convertRawMessage(object));
             } else {
                 // Assume it's a string
                 String rawData = object.toString();
@@ -159,5 +159,14 @@ public class JavaScriptReceiver extends PollConnector {
         }
 
         return messages;
+    }
+
+    private RawMessage convertRawMessage(Object object) {
+        com.mirth.connect.server.userutil.RawMessage rawMessage = (com.mirth.connect.server.userutil.RawMessage) object;
+        if (rawMessage.isBinary()) {
+            return new RawMessage(rawMessage.getRawBytes(), rawMessage.getDestinationMetaDataIds(), rawMessage.getChannelMap());
+        } else {
+            return new RawMessage(rawMessage.getRawData(), rawMessage.getDestinationMetaDataIds(), rawMessage.getChannelMap());
+        }
     }
 }

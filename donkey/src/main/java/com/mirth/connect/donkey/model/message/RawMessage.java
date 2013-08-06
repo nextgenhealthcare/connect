@@ -33,12 +33,12 @@ public class RawMessage {
 
     public RawMessage(String rawData, List<Integer> destinationMetaDataIds, Map<String, Object> channelMap) {
         this.rawData = rawData;
-        setDestinationMetaDataIds(destinationMetaDataIds);
 
         if (channelMap != null) {
             setChannelMap(channelMap);
         }
 
+        setDestinationMetaDataIds(destinationMetaDataIds);
         this.binary = false;
     }
 
@@ -52,12 +52,12 @@ public class RawMessage {
 
     public RawMessage(byte[] rawBytes, List<Integer> destinationMetaDataIds, Map<String, Object> channelMap) {
         this.rawBytes = rawBytes;
-        setDestinationMetaDataIds(destinationMetaDataIds);
 
         if (channelMap != null) {
             setChannelMap(channelMap);
         }
 
+        setDestinationMetaDataIds(destinationMetaDataIds);
         this.binary = true;
     }
 

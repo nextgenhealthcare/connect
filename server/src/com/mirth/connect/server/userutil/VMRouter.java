@@ -12,7 +12,6 @@ package com.mirth.connect.server.userutil;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
-import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.server.controllers.ChannelController;
@@ -68,13 +67,21 @@ public class VMRouter {
 
     public Response routeMessageByChannelId(String channelId, RawMessage rawMessage) {
         try {
-            return engineController.dispatchRawMessage(channelId, rawMessage).getSelectedResponse();
+            return engineController.dispatchRawMessage(channelId, convertRawMessage(rawMessage)).getSelectedResponse();
         } catch (Throwable e) {
             String message = "Error routing message to channel id: " + channelId;
             logger.error(message, e);
             String responseStatusMessage = ErrorMessageBuilder.buildErrorResponse(message, e);
             String responseError = ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), message, e);
             return new Response(Status.ERROR, null, responseStatusMessage, responseError);
+        }
+    }
+
+    private com.mirth.connect.donkey.model.message.RawMessage convertRawMessage(RawMessage message) {
+        if (message.isBinary()) {
+            return new com.mirth.connect.donkey.model.message.RawMessage(message.getRawBytes(), message.getDestinationMetaDataIds(), message.getChannelMap());
+        } else {
+            return new com.mirth.connect.donkey.model.message.RawMessage(message.getRawData(), message.getDestinationMetaDataIds(), message.getChannelMap());
         }
     }
 }
