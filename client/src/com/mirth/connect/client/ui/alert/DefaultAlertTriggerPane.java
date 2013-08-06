@@ -246,7 +246,7 @@ public class DefaultAlertTriggerPane extends AlertTriggerPane {
         regexPane.setLayout(new BorderLayout());
         regexPane.add(regexScrollPane);
 
-        add(errorPane, "width 220, height 100, growy, wrap");
+        add(errorPane, "width 180, height 100, growy, wrap");
 
         add(regexPane, "width 200, grow");
     }

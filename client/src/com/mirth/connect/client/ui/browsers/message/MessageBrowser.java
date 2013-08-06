@@ -1034,6 +1034,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         messageTreeTable.setColumnControlVisible(true);
         messageTreeTable.setShowGrid(true, true);
         messageTreeTable.setHorizontalScrollEnabled(true);
+        messageTreeTable.setPreferredScrollableViewportSize(messageTreeTable.getPreferredSize());
 
         tableModel = new MessageBrowserTableModel(columnMap.size());
         // Add a blank column to the column initially, otherwise it return an exception on load
@@ -2229,7 +2230,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         setRequestFocusEnabled(false);
 
         jSplitPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jSplitPane1.setDividerLocation(310);
+        jSplitPane1.setDividerLocation(265);
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
         descriptionTabbedPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -2239,7 +2240,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         MessagesPanel.setFocusable(false);
 
         MessagesRadioPane.setBackground(new java.awt.Color(255, 255, 255));
-        MessagesRadioPane.setLayout(new java.awt.FlowLayout(0, 5, 0));
+        MessagesRadioPane.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 5, 0));
 
         RawMessageRadioButton.setBackground(new java.awt.Color(255, 255, 255));
         messagesGroup.add(RawMessageRadioButton);
@@ -2384,7 +2385,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addGroup(ResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(responseStatusLabel)
                     .addComponent(responseLabel))
-                .addGap(0, 713, Short.MAX_VALUE))
+                .addGap(0, 720, Short.MAX_VALUE))
         );
         ResponseTextPaneLayout.setVerticalGroup(
             ResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2395,7 +2396,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addGap(12, 12, 12)
                 .addComponent(responseLabel)
                 .addGap(3, 3, 3)
-                .addComponent(ResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE))
+                .addComponent(ResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 64, Short.MAX_VALUE))
         );
 
         MessagesCardPane.add(ResponseTextPane, "Response");
@@ -2428,7 +2429,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addGroup(ProcessedResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(processedResponseStatusLabel)
                     .addComponent(processedResponseLabel))
-                .addGap(0, 713, Short.MAX_VALUE))
+                .addGap(0, 720, Short.MAX_VALUE))
         );
         ProcessedResponseTextPaneLayout.setVerticalGroup(
             ProcessedResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2439,7 +2440,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addGap(12, 12, 12)
                 .addComponent(processedResponseLabel)
                 .addGap(3, 3, 3)
-                .addComponent(ProcessedResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE))
+                .addComponent(ProcessedResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 64, Short.MAX_VALUE))
         );
 
         MessagesCardPane.add(ProcessedResponseTextPane, "Processed Response");
@@ -2491,7 +2492,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         ErrorsRadioPane.setBackground(new java.awt.Color(255, 255, 255));
         ErrorsRadioPane.setMinimumSize(new java.awt.Dimension(601, 19));
         ErrorsRadioPane.setPreferredSize(new java.awt.Dimension(601, 19));
-        ErrorsRadioPane.setLayout(new java.awt.FlowLayout(0, 5, 0));
+        ErrorsRadioPane.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 5, 0));
 
         ProcessingErrorRadioButton.setBackground(new java.awt.Color(255, 255, 255));
         errorsGroup.add(ProcessingErrorRadioButton);
@@ -2561,7 +2562,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(ErrorsRadioPane, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ErrorsCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)
+                .addComponent(ErrorsCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, 155, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -2864,7 +2865,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addGap(0, 0, 0)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 545, Short.MAX_VALUE))
+                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

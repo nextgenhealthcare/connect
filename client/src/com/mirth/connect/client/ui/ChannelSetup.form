@@ -31,12 +31,12 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="channelView" pref="899" max="32767" attributes="0"/>
+          <Component id="channelView" pref="816" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="channelView" alignment="1" pref="684" max="32767" attributes="0"/>
+          <Component id="channelView" alignment="1" pref="622" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>
@@ -98,7 +98,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="messagePruningPanel" max="32767" attributes="0"/>
-                                  <Component id="customMetadataPanel" pref="434" max="32767" attributes="0"/>
+                                  <Component id="customMetadataPanel" pref="399" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
@@ -181,7 +181,7 @@
                               <Group type="102" attributes="0">
                                   <Component id="clearGlobalChannelMapCheckBox" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
-                                  <Component id="lastModified" pref="298" max="32767" attributes="0"/>
+                                  <Component id="lastModified" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -613,7 +613,7 @@
                               <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="archiveCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="78" max="32767" attributes="0"/>
+                          <EmptySpace pref="43" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -768,9 +768,9 @@
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="channelTagsScrollPane" min="-2" pref="331" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
+                          <EmptySpace min="-2" max="-2" attributes="0"/>
+                          <Component id="channelTagsScrollPane" min="-2" pref="283" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="addTagButton" min="-2" pref="60" max="-2" attributes="0"/>
                               <Component id="deleteTagButton" min="-2" pref="60" max="-2" attributes="0"/>
@@ -785,7 +785,7 @@
                           <Component id="addTagButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="deleteTagButton" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="65" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="channelTagsScrollPane" pref="0" max="32767" attributes="0"/>
@@ -869,7 +869,7 @@
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
                               <Component id="addMetaDataButton" max="32767" attributes="0"/>
                               <Component id="deleteMetaDataButton" pref="60" max="32767" attributes="0"/>
-                              <Component id="revertMetaDataButton" alignment="0" pref="60" max="32767" attributes="0"/>
+                              <Component id="revertMetaDataButton" alignment="0" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
                       </Group>
@@ -883,7 +883,7 @@
                                   <Component id="addMetaDataButton" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="deleteMetaDataButton" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace pref="33" max="32767" attributes="0"/>
+                                  <EmptySpace pref="32" max="32767" attributes="0"/>
                                   <Component id="revertMetaDataButton" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <Component id="metaDataTablePane" pref="0" max="32767" attributes="0"/>
@@ -968,7 +968,7 @@
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="summaryDescriptionScrollPane" pref="98" max="32767" attributes="0"/>
+                          <Component id="summaryDescriptionScrollPane" pref="21" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -1019,12 +1019,12 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="sourceConnectorPane" pref="870" max="32767" attributes="0"/>
+                          <Component id="sourceConnectorPane" pref="787" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="sourceSourceLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="sourceSourceDropdown" min="-2" max="-2" attributes="2"/>
-                              <EmptySpace min="0" pref="546" max="32767" attributes="0"/>
+                              <EmptySpace min="0" pref="483" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -1040,7 +1040,7 @@
                           <Component id="sourceSourceDropdown" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="sourceConnectorPane" pref="605" max="32767" attributes="0"/>
+                      <Component id="sourceConnectorPane" pref="543" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -1117,9 +1117,9 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="destinationTablePane" alignment="0" pref="870" max="32767" attributes="0"/>
+                          <Component id="destinationTablePane" alignment="0" pref="787" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
-                              <Component id="destinationConnectorPane" pref="678" max="32767" attributes="0"/>
+                              <Component id="destinationConnectorPane" pref="595" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="destinationVariableList" min="-2" pref="186" max="-2" attributes="0"/>
                           </Group>
@@ -1129,7 +1129,7 @@
                               <Component id="destinationSourceDropdown" min="-2" max="-2" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="waitForPreviousCheckbox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="359" max="32767" attributes="0"/>
+                              <EmptySpace min="0" pref="308" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -1150,7 +1150,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="destinationVariableList" pref="0" max="32767" attributes="1"/>
-                          <Component id="destinationConnectorPane" alignment="0" pref="434" max="32767" attributes="1"/>
+                          <Component id="destinationConnectorPane" alignment="0" pref="372" max="32767" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
