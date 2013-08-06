@@ -112,6 +112,7 @@ public class ImportConverter3_0_0 {
             throw new MigrationException(e);
         }
 
+        element.setAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME, VERSION_STRING);
         return element;
     }
 
