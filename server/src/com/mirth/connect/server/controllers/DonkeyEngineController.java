@@ -366,9 +366,9 @@ public class DonkeyEngineController implements EngineController {
             // Just in case the channel no longer exists
             if (channelRevisions != null && channelRevisions.containsKey(channelId)) {
                 channelRevision = channelRevisions.get(channelId);
+                status.setDeployedRevisionDelta(channelRevision - deployedChannel.getRevision());
             }
 
-            status.setDeployedRevisionDelta(channelRevision - deployedChannel.getRevision());
             status.setStatistics(stats.getConnectorStats(channelId, null));
             status.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, null));
             status.setTags(deployedChannel.getProperties().getTags());

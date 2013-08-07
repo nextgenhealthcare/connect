@@ -38,7 +38,7 @@ public class DashboardStatus implements Serializable {
     private String channelId;
     private String name;
     private ChannelState state;
-    private int deployedRevisionDelta;
+    private Integer deployedRevisionDelta;
     private Calendar deployedDate;
     private Map<Status, Long> statistics;
     private Map<Status, Long> lifetimeStatistics;
@@ -82,11 +82,11 @@ public class DashboardStatus implements Serializable {
         return this.deployedDate;
     }
 
-    public void setDeployedRevisionDelta(int deployedRevisionDelta) {
+    public void setDeployedRevisionDelta(Integer deployedRevisionDelta) {
         this.deployedRevisionDelta = deployedRevisionDelta;
     }
 
-    public int getDeployedRevisionDelta() {
+    public Integer getDeployedRevisionDelta() {
         return this.deployedRevisionDelta;
     }
 
