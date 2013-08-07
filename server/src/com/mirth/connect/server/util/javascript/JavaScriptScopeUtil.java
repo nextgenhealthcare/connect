@@ -252,7 +252,7 @@ public class JavaScriptScopeUtil {
     /** 
      * Since this method calls getContext(), anything calling it should wrap this method in a try-finally with Context.exit() in the finally block.
      */
-    public static Scriptable getFilterTransformerScope(Object logger, ImmutableConnectorMessage message, String template, String phase) {
+    public static Scriptable getFilterTransformerScope(Object logger, ImmutableConnectorMessage message, String template, Object phase) {
         Scriptable scope = getBasicScope(getContext(), logger, message);
         addConnectorMessage(scope, message);
         scope.put("template", scope, template);

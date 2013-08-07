@@ -246,7 +246,7 @@ public class JavaScriptBuilder {
 
         if (filter.getRules().isEmpty()) {
             logger.debug("filter is empty, setting to accept all messages");
-            builder.append("function doFilter() { phase = 'filter'; return true; }");
+            builder.append("function doFilter() { phase[0] = 'filter'; return true; }");
         } else {
             for (ListIterator<Rule> iter = filter.getRules().listIterator(); iter.hasNext();) {
                 Rule rule = iter.next();
@@ -263,7 +263,7 @@ public class JavaScriptBuilder {
                 }
             }
 
-            builder.append("function doFilter() { phase = 'filter'; return !!(");
+            builder.append("function doFilter() { phase[0] = 'filter'; return !!(");
 
             // call each of the above functions in a big boolean expression
             for (ListIterator<Rule> iter = filter.getRules().listIterator(); iter.hasNext();) {
@@ -287,7 +287,7 @@ public class JavaScriptBuilder {
         logger.debug("building javascript transformer: step count=" + transformer.getSteps().size());
 
         // Set the phase and also reset the logger to transformer (it was filter before)
-        builder.append("function doTransform() { phase = 'transformer'; logger = Packages.org.apache.log4j.Logger.getLogger(phase);\n\n\n");
+        builder.append("function doTransform() { phase[0] = 'transformer'; logger = Packages.org.apache.log4j.Logger.getLogger(phase[0]);\n\n\n");
 
         for (Step step : transformer.getSteps()) {
             logger.debug("adding step: " + step.getName());

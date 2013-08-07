@@ -106,7 +106,8 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
         @Override
         public FilterTransformerResult call() throws Exception {
             Logger scriptLogger = Logger.getLogger("filter");
-            String phase = new String();
+            // Use an array to store the phase, otherwise java and javascript end up referencing two different objects.
+            String[] phase = { new String() };
 
             // get the script from the cache and execute it
             Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
@@ -129,13 +130,13 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
                             String script = CompiledScriptCache.getInstance().getSourceScript(scriptId);
                             int linenumber = ((RhinoException) t).lineNumber();
                             String errorReport = JavaScriptUtil.getSourceCode(script, linenumber, 0);
-                            t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase.toUpperCase(), errorReport);
+                            t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase[0].toUpperCase(), errorReport);
                         } catch (Exception ee) {
-                            t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase.toUpperCase(), null);
+                            t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase[0].toUpperCase(), null);
                         }
                     }
 
-                    if (phase.equals("filter")) {
+                    if (phase[0].equals("filter")) {
                         eventDispatcher.dispatchEvent(new ErrorEvent(message.getChannelId(), message.getMetaDataId(), ErrorEventType.FILTER, connectorName, null, "Error evaluating filter", t));
                         throw new FilterTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.FILTER.toString(), "Error evaluating filter", t));
                     } else {
