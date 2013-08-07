@@ -319,7 +319,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
     private MessageObject evaluateScript(MessageObject messageObject) throws TransformerException {
         Logger scriptLogger = Logger.getLogger("filter");
-        String phase = new String();
+        String[] phase = { new String() };
 
         try {
             Context context = JavaScriptUtil.getInstance().getContext();
@@ -395,13 +395,13 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
                     String script = CompiledScriptCache.getInstance().getSourceScript(scriptId);
                     int linenumber = ((RhinoException) t).lineNumber();
                     String errorReport = JavaScriptUtil.getInstance().getSourceCode(script, linenumber, 0);
-                    t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase.toUpperCase(), errorReport);
+                    t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase[0].toUpperCase(), errorReport);
                 } catch (Exception ee) {
-                    t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase.toUpperCase(), null);
+                    t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase[0].toUpperCase(), null);
                 }
             }
 
-            if (phase.equals("filter")) {
+            if (phase[0].equals("filter")) {
                 messageObjectController.setError(messageObject, Constants.ERROR_200, "Error evaluating filter", t, null);
             } else {
                 messageObjectController.setError(messageObject, Constants.ERROR_300, "Error evaluating transformer", t, null);
