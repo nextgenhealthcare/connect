@@ -25,7 +25,7 @@ public class SocketUtil {
     }
 
     public static StateAwareSocket createSocket(String host, int port) throws UnknownHostException, IOException {
-        return createSocket(host, port, "127.0.0.1");
+        return createSocket(host, port, null);
     }
 
     public static StateAwareSocket createSocket(String host, String port, String localAddr) throws UnknownHostException, IOException {
@@ -68,13 +68,12 @@ public class SocketUtil {
      */
     public static StateAwareSocket createSocket(String host, int port, String localAddr, int localPort) throws UnknownHostException, IOException {
         StateAwareSocket socket = new StateAwareSocket();
-        InetAddress localAddress = null;
 
         if (StringUtils.isNotEmpty(localAddr)) {
-            localAddress = InetAddress.getByName(TcpUtil.getFixedHost(localAddr));
+            InetAddress localAddress = InetAddress.getByName(TcpUtil.getFixedHost(localAddr));
+            socket.bind(new InetSocketAddress(localAddress, localPort));
         }
 
-        socket.bind(new InetSocketAddress(localAddress, localPort));
         socket.connect(new InetSocketAddress(InetAddress.getByName(TcpUtil.getFixedHost(host)), port));
         return socket;
     }
@@ -92,17 +91,17 @@ public class SocketUtil {
             socket.close();
         }
     }
-    
+
     public static String getInetAddress(StateAwareSocket socket) {
         String inetAddress = socket == null ? "" : socket.getInetAddress().toString() + ":" + socket.getPort();
 
         if (inetAddress.startsWith("/")) {
             inetAddress = inetAddress.substring(1);
         }
-        
+
         return inetAddress;
     }
-    
+
     public static String getLocalAddress(StateAwareSocket socket) {
         String localAddress = socket == null ? "" : socket.getLocalAddress().toString() + ":" + socket.getLocalPort();
 
@@ -110,7 +109,7 @@ public class SocketUtil {
         if (localAddress.startsWith("/")) {
             localAddress = localAddress.substring(1);
         }
-        
+
         return localAddress;
     }
 }
