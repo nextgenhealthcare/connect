@@ -12,6 +12,7 @@ package com.mirth.connect.server.servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -47,7 +48,7 @@ public class UserServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // MIRTH-1745
         response.setCharacterEncoding("UTF-8");
-        
+
         UserController userController = ControllerFactory.getFactory().createUserController();
         EventController eventController = ControllerFactory.getFactory().createEventController();
         PrintWriter out = response.getWriter();
@@ -176,25 +177,35 @@ public class UserServlet extends MirthServlet {
                 HttpSession session = request.getSession();
 
                 loginStatus = userController.authorizeUser(username, password);
-                
+
                 if ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD)) {
                     User user = new User();
                     user.setUsername(username);
-                    
-                    User validUser = userController.getUser(user).get(0);
 
-                    // set the sessions attributes
-                    session.setAttribute(SESSION_USER, validUser.getId());
-                    session.setAttribute(SESSION_AUTHORIZED, true);
+                    List<User> validUsers = userController.getUser(user);
 
-                    // this prevents the session from timing out
-                    session.setMaxInactiveInterval(-1);
+                    /*
+                     * There must be a user to login with and store in the session, even if an
+                     * Authorization Plugin returned a LoginStatus of SUCCESS
+                     */
+                    if (validUsers.size() < 1) {
+                        loginStatus = new LoginStatus(LoginStatus.Status.FAIL, "Could not find a valid user with username: " + username);
+                    } else {
+                        User validUser = validUsers.get(0);
 
-                    // set the user status to logged in in the database
-                    userController.loginUser(validUser);
+                        // set the sessions attributes
+                        session.setAttribute(SESSION_USER, validUser.getId());
+                        session.setAttribute(SESSION_AUTHORIZED, true);
 
-                    // add the user's session to to session map
-                    UserSessionCache.getInstance().registerSessionForUser(session, validUser);
+                        // this prevents the session from timing out
+                        session.setMaxInactiveInterval(-1);
+
+                        // set the user status to logged in in the database
+                        userController.loginUser(validUser);
+
+                        // add the user's session to to session map
+                        UserSessionCache.getInstance().registerSessionForUser(session, validUser);
+                    }
                 }
             }
 

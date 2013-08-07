@@ -18,6 +18,7 @@ import org.apache.commons.fileupload.FileItem;
 
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.plugins.AuthorizationPlugin;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.ServicePlugin;
@@ -217,4 +218,6 @@ public abstract class ExtensionController extends Controller {
     public abstract Map<String, ChannelPlugin> getChannelPlugins();
 
     public abstract Map<String, DataTypeServerPlugin> getDataTypePlugins();
+    
+    public abstract AuthorizationPlugin getAuthorizationPlugin();
 }

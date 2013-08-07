@@ -32,6 +32,8 @@ import com.mirth.connect.server.util.SqlConfig;
 
 public class DefaultUserController extends UserController {
     private Logger logger = Logger.getLogger(this.getClass());
+    private ExtensionController extensionController = null;
+    
     private static DefaultUserController instance = null;
 
     private DefaultUserController() {
@@ -158,6 +160,15 @@ public class DefaultUserController extends UserController {
 
     public LoginStatus authorizeUser(String username, String plainPassword) throws ControllerException {
         try {
+            // Invoke and return from the Authorization Plugin if one exists
+            if (extensionController == null) {
+                extensionController = ControllerFactory.getFactory().createExtensionController();
+            }
+            
+            if (extensionController.getAuthorizationPlugin() != null) {
+                return extensionController.getAuthorizationPlugin().authorizeUser(username, plainPassword);
+            }
+            
             Digester digester = ControllerFactory.getFactory().createConfigurationController().getDigester();
             LoginRequirementsChecker loginRequirementsChecker = new LoginRequirementsChecker(username);
             if (loginRequirementsChecker.isUserLockedOut()) {

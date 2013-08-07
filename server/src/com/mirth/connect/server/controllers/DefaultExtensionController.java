@@ -59,6 +59,7 @@ import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.plugins.AuthorizationPlugin;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.ServerPlugin;
@@ -83,6 +84,7 @@ public class DefaultExtensionController extends ExtensionController {
     private Map<String, ServicePlugin> servicePlugins = new HashMap<String, ServicePlugin>();
     private Map<String, ChannelPlugin> channelPlugins = new HashMap<String, ChannelPlugin>();
     private Map<String, DataTypeServerPlugin> dataTypePlugins = new HashMap<String, DataTypeServerPlugin>();
+    private AuthorizationPlugin authorizationPlugin = null;
 
     private static PropertiesConfiguration extensionProperties = null;
 
@@ -280,6 +282,18 @@ public class DefaultExtensionController extends ExtensionController {
                                 serverPlugins.add(dataTypePlugin);
                                 logger.debug("sucessfully loaded server data type plugin: " + serverPlugin.getPluginPointName());
                             }
+                            
+                            if (serverPlugin instanceof AuthorizationPlugin) {
+                                AuthorizationPlugin authorizationPlugin = (AuthorizationPlugin) serverPlugin;
+                                
+                                if (this.authorizationPlugin != null) {
+                                    throw new Exception("Multiple Authorization Plugins are not permitted.");
+                                }
+                                
+                                this.authorizationPlugin = authorizationPlugin;
+                                serverPlugins.add(authorizationPlugin);
+                                logger.debug("sucessfully loaded server authorization plugin: " + serverPlugin.getPluginPointName());
+                            }
                         } catch (Exception e) {
                             logger.error("Error instantiating plugin: " + pmd.getName(), e);
                         }
@@ -307,6 +321,11 @@ public class DefaultExtensionController extends ExtensionController {
     @Override
     public Map<String, DataTypeServerPlugin> getDataTypePlugins() {
         return dataTypePlugins;
+    }
+    
+    @Override
+    public AuthorizationPlugin getAuthorizationPlugin() {
+        return authorizationPlugin;
     }
 
     /* ********************************************************************** */
