@@ -62,12 +62,12 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
 
     @Override
     public int getMaxWidth() {
-        return 100;
+        return 104;
     }
 
     @Override
     public int getMinWidth() {
-        return 100;
+        return 104;
     }
 
     @Override
