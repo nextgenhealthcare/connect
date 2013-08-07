@@ -58,7 +58,7 @@ public class HL7v2ResponseValidator implements ResponseValidator {
                         response.setStatus(Status.SENT);
                     }
                 } catch (Exception e) {
-                    response.setStatus(Status.ERROR);
+                    response.setStatus(Status.QUEUED);
                     response.setStatusMessage("Error validating response: " + e.getMessage());
                     response.setError(ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), response.getStatusMessage(), e));
                 }
@@ -83,7 +83,7 @@ public class HL7v2ResponseValidator implements ResponseValidator {
                 }
             }
         } else {
-            response.setStatus(Status.ERROR);
+            response.setStatus(Status.QUEUED);
             response.setStatusMessage("Empty or blank response received.");
             response.setError(response.getStatusMessage());
         }
