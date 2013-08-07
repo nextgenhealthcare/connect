@@ -254,7 +254,7 @@
 		ORDER BY m.id
 	</query>
 	
-	<query id="getUnfinishedConnectorMessages">
+	<query id="getUnfinishedMessageConnectorMessages">
 		SELECT *
 		FROM d_mm${localChannelId} mm
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id

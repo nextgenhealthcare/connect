@@ -92,7 +92,7 @@ public interface DonkeyDao {
 
     public long getNextMessageId(String channelId);
 
-    public List<ConnectorMessage> getConnectorMessages(String channelId, String serverId, int metaDataId, Status status);
+    public List<ConnectorMessage> getUnfinishedConnectorMessages(String channelId, String serverId, int metaDataId, Status status);
 
     public List<ConnectorMessage> getConnectorMessages(String channelId, String serverId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId);
 

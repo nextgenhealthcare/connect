@@ -256,7 +256,7 @@ public class PassthruDao implements DonkeyDao {
     }
 
     @Override
-    public List<ConnectorMessage> getConnectorMessages(String channelId, String serverId, int metaDataId, Status status) {
+    public List<ConnectorMessage> getUnfinishedConnectorMessages(String channelId, String serverId, int metaDataId, Status status) {
         return new ArrayList<ConnectorMessage>();
     }
 

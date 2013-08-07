@@ -1111,11 +1111,11 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
-    public List<ConnectorMessage> getConnectorMessages(String channelId, String serverId, int metaDataId, Status status) {
+    public List<ConnectorMessage> getUnfinishedConnectorMessages(String channelId, String serverId, int metaDataId, Status status) {
         ResultSet resultSet = null;
 
         try {
-            PreparedStatement statement = prepareStatement("getConnectorMessagesByMetaDataIdAndStatus", channelId);
+            PreparedStatement statement = prepareStatement("getUnfinishedConnectorMessages", channelId);
             statement.setInt(1, metaDataId);
             statement.setString(2, Character.toString(status.getStatusCode()));
             statement.setString(3, serverId);
@@ -1256,7 +1256,7 @@ public class JdbcDao implements DonkeyDao {
             close(resultSet);
             close(statement);
 
-            statement = prepareStatement("getUnfinishedConnectorMessages", channelId);
+            statement = prepareStatement("getUnfinishedMessageConnectorMessages", channelId);
             statement.setString(1, serverId);
             resultSet = statement.executeQuery();
 

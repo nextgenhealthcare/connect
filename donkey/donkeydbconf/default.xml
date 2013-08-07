@@ -111,13 +111,22 @@
 		ORDER BY m.id
 	</query>
 	
-	<query id="getUnfinishedConnectorMessages">
+	<query id="getUnfinishedMessageConnectorMessages">
 		SELECT *
 		FROM d_mm${localChannelId} mm
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id
 		JOIN d_mm${localChannelId} mm0 ON mm0.message_id = mm.message_id AND mm0.id = 0
 		WHERE m.processed = FALSE AND mm0.server_id = ?
 		ORDER BY m.id, mm.id
+	</query>
+	
+	<query id="getUnfinishedConnectorMessages">
+		SELECT *
+		FROM d_mm${localChannelId} mm
+		JOIN d_m${localChannelId} m ON m.id = mm.message_id
+		JOIN d_mm${localChannelId} mm0 ON mm0.message_id = mm.message_id AND mm0.id = 0
+		WHERE mm.id = ? AND mm.status = ? AND mm0.server_id = ? AND m.processed = FALSE
+		ORDER BY mm.message_id
 	</query>
 	
 	<query id="getChannelStatistics">
@@ -224,13 +233,6 @@
 	<query id="insertMetaData">
 		INSERT INTO d_mcm${localChannelId} (METADATA_ID, MESSAGE_ID, ${metaDataColumnNames})
 		VALUES (?, ?, ${metaDataColumnPlaceholders})
-	</query>
-	
-	<query id="getConnectorMessagesByMetaDataIdAndStatus">
-		SELECT *
-		FROM d_mm${localChannelId}
-		WHERE id = ? AND status = ? AND server_id = ?
-		ORDER BY message_id
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit">

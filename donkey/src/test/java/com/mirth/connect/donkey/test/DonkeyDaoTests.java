@@ -1502,7 +1502,7 @@ public class DonkeyDaoTests {
             
             try {
                 dao = daoFactory.getDao();
-                databaseSourceMessages = dao.getConnectorMessages(channel.getChannelId(), channel.getServerId(), 0, Status.RECEIVED);
+                databaseSourceMessages = dao.getUnfinishedConnectorMessages(channel.getChannelId(), channel.getServerId(), 0, Status.RECEIVED);
             } finally {
                 TestUtils.close(dao);
             }
@@ -1525,8 +1525,8 @@ public class DonkeyDaoTests {
             
             try {
                 dao = daoFactory.getDao();
-                databaseSourceMessages = dao.getConnectorMessages(channel.getChannelId(), channel.getServerId(), 0, Status.TRANSFORMED);
-                databaseDestinationMessages = dao.getConnectorMessages(channel.getChannelId(), channel.getServerId(), 1, Status.SENT);
+                databaseSourceMessages = dao.getUnfinishedConnectorMessages(channel.getChannelId(), channel.getServerId(), 0, Status.TRANSFORMED);
+                databaseDestinationMessages = dao.getUnfinishedConnectorMessages(channel.getChannelId(), channel.getServerId(), 1, Status.SENT);
             } finally {
                 TestUtils.close(dao);
             }
