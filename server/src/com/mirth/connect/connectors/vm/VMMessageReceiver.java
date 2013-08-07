@@ -1,7 +1,7 @@
 /*
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
- *
+ * 
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
  * the LICENSE-MULE.txt file.
@@ -54,7 +54,7 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
     private ConnectorType connectorType = ConnectorType.LISTENER;
 
     public VMMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
-        super(connector, component, endpoint, new Long(1));  // sleep for 1ms between channel writer queued messages
+        super(connector, component, endpoint, new Long(1)); // sleep for 1ms between channel writer queued messages
         this.vmConnector = (VMConnector) connector;
         componentName = component.getDescriptor().getName() + "_source_connector";
         receiveMessagesInTransaction = endpoint.getTransactionConfig().isTransacted();
@@ -137,13 +137,14 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
             UMOMessage umoMessage = routeMessage(new MuleMessage(event.getMessage(), event.getProperties(), event.getMessage()), event.isSynchronous());
             VMResponse vmResponse = null;
             if (umoMessage != null) {
+                postProcessor.doPostProcess(umoMessage.getPayload());
                 vmResponse = new VMResponse();
-                
+
                 if (umoMessage.getExceptionPayload() != null) {
                     vmResponse.setException(umoMessage.getExceptionPayload().getException());
                 } else {
                     String respondFrom = vmConnector.getResponseValue();
-                    
+
                     if (respondFrom != null && !respondFrom.equalsIgnoreCase("None")) {
                         MessageObject messageObjectResponse = (MessageObject) umoMessage.getPayload();
                         Response response = (Response) messageObjectResponse.getResponseMap().get(respondFrom);
@@ -153,8 +154,6 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
                         }
                     }
                 }
-                
-                postProcessor.doPostProcess(umoMessage.getPayload());
             }
             return vmResponse;
         } catch (UMOException e) {
@@ -244,8 +243,8 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
      * (java.lang.Object)
      */
     protected void processMessage(Object msg) throws Exception {
-    // This method is never called as the
-    // message is processed when received
+        // This method is never called as the
+        // message is processed when received
     }
 
 }
