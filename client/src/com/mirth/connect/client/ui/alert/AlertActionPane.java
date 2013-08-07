@@ -10,21 +10,29 @@
 package com.mirth.connect.client.ui.alert;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.EventObject;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -42,16 +50,21 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTextArea;
 import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.components.MirthVariableList;
+import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.alert.AlertAction;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertActionProtocol;
 
 public class AlertActionPane extends JPanel {
 
-    private static String PROTOCOL_COLUMN_NAME = "Protocol";
-    private static String RECIPIENT_COLUMN_NAME = "Recipient";
+    private static final int PROTOCOL_COLUMN_INDEX = 0;
+    private static final int RECIPIENT_COLUMN_INDEX = 1;
+    private static final String PROTOCOL_COLUMN_NAME = "Protocol";
+    private static final String RECIPIENT_COLUMN_NAME = "Recipient";
     private static int PROTOCOL_COLUMN_WIDTH = 65;
-    
+
+    private Map<String, String> channelMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+
     private AlertActionGroup actionGroup;
 
     public AlertActionPane() {
@@ -78,26 +91,17 @@ public class AlertActionPane extends JPanel {
 
         actionTable.getColumnExt(PROTOCOL_COLUMN_NAME).setCellRenderer(new MirthComboBoxTableCellRenderer(AlertActionProtocol.values()));
 
-        actionTable.getColumnExt(RECIPIENT_COLUMN_NAME).setCellEditor(new TextFieldCellEditor() {
+        actionTable.getColumnExt(RECIPIENT_COLUMN_INDEX).setCellRenderer(new RecipientCellRenderer(new DefaultTableCellRenderer(), new MirthComboBoxTableCellRenderer(new Object[] {})));
 
-            @Override
-            public boolean isCellEditable(EventObject evt) {
-                boolean editable = super.isCellEditable(evt);
-
-                if (editable) {
-                    removeActionButton.setEnabled(false);
-                }
-
-                return editable;
-            }
-
+        TableCellEditor emailCellEditor = new TextFieldCellEditor() {
             @Override
             protected boolean valueChanged(String value) {
                 PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
-                removeActionButton.setEnabled(true);
                 return true;
             }
-        });
+        };
+
+        actionTable.getColumnExt(RECIPIENT_COLUMN_NAME).setCellEditor(new RecipientCellEditor(emailCellEditor, new MirthComboBoxTableCellEditor(actionTable, new Object[] {}, 1, false, null)));
 
         actionTable.setRowHeight(UIConstants.ROW_HEIGHT);
         actionTable.setSortable(false);
@@ -121,8 +125,55 @@ public class AlertActionPane extends JPanel {
     }
 
     private void updateActionTable(List<AlertAction> alertActions) {
+        // Make sure there aren't any cell editors still active
+        TableCellEditor cellEditor = actionTable.getCellEditor();
+
+        if (cellEditor != null) {
+            cellEditor.stopCellEditing();
+        }
+
+        // Clear old name->id map values
+        channelMap.clear();
+
+        // An id->name map is needed locally
+        Map<String, String> channelNameMap = new HashMap<String, String>();
+        
+        if (PlatformUI.MIRTH_FRAME.channels != null) {
+            for (Channel channel : PlatformUI.MIRTH_FRAME.channels.values()) {
+                // Sort the channels by channel name
+                channelMap.put(channel.getName(), channel.getId());
+                channelNameMap.put(channel.getId(), channel.getName());
+            }
+        }
+
+        // Update the recipient column renderer and editor with the current channel names
+        ((RecipientCellRenderer) actionTable.getColumnExt(RECIPIENT_COLUMN_INDEX).getCellRenderer()).setChannelCellRenderer(new MirthComboBoxTableCellRenderer(channelMap.keySet().toArray()));
+        ((RecipientCellEditor) actionTable.getColumnExt(RECIPIENT_COLUMN_NAME).getCellEditor()).setChannelCellEditor(new MirthComboBoxTableCellEditor(actionTable, channelMap.keySet().toArray(), 1, false, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox comboBox = (JComboBox) e.getSource();
+                if (comboBox.isPopupVisible() && actionTable.getCellEditor() != null) {
+                    actionTable.getCellEditor().stopCellEditing();
+                    PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
+                }
+            }
+
+        }));
+
+        // Generate the channel name values for the model
+        List<String> channelNames = new ArrayList<String>();
+        for (AlertAction action : alertActions) {
+            String channelName = null;
+            if (action.getProtocol() == AlertActionProtocol.CHANNEL && channelNameMap.containsKey(action.getRecipient())) {
+                channelName = channelNameMap.get(action.getRecipient());
+            }
+
+            channelNames.add(channelName);
+        }
+
         ActionTableModel model = (ActionTableModel) actionTable.getModel();
-        model.refreshData(alertActions);
+        model.refreshData(alertActions, channelNames);
         if (model.getRowCount() == 0) {
             actionTable.clearSelection();
             removeActionButton.setEnabled(false);
@@ -150,29 +201,114 @@ public class AlertActionPane extends JPanel {
         variableList.setListData(variables.toArray());
         variableScrollPane.setViewportView(variableList);
     }
-    
-    private class ActionTableModel extends AbstractTableModel {
-        
-        private List<AlertAction> actions = new ArrayList<AlertAction>();
-        private String[] columns = new String[] { "Protocol", "Recipient" };
-        
-        public ActionTableModel() {
-            
+
+    private class RecipientCellRenderer implements TableCellRenderer {
+
+        public TableCellRenderer emailCellRenderer;
+        public TableCellRenderer channelCellRenderer;
+        private AlertActionProtocol protocol;
+
+        public RecipientCellRenderer(TableCellRenderer emailCellRenderer, TableCellRenderer channelCellRenderer) {
+            this.emailCellRenderer = emailCellRenderer;
+            this.channelCellRenderer = channelCellRenderer;
         }
-        
-        public void refreshData(List<AlertAction> actions) {
+
+        public void setChannelCellRenderer(TableCellRenderer channelCellRenderer) {
+            this.channelCellRenderer = channelCellRenderer;
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            protocol = (AlertActionProtocol) table.getValueAt(row, PROTOCOL_COLUMN_INDEX);
+
+            if (protocol == AlertActionProtocol.EMAIL) {
+                return emailCellRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            } else if (protocol == AlertActionProtocol.CHANNEL) {
+                return channelCellRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            }
+
+            return null;
+        }
+
+    }
+
+    private class RecipientCellEditor extends AbstractCellEditor implements TableCellEditor {
+
+        private TableCellEditor emailCellEditor;
+        private TableCellEditor channelCellEditor;
+        private AlertActionProtocol protocol;
+
+        public RecipientCellEditor(TableCellEditor emailCellEditor, TableCellEditor channelCellEditor) {
+            this.emailCellEditor = emailCellEditor;
+            this.channelCellEditor = channelCellEditor;
+        }
+
+        public void setChannelCellEditor(TableCellEditor channelCellEditor) {
+            this.channelCellEditor = channelCellEditor;
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            protocol = (AlertActionProtocol) table.getValueAt(row, PROTOCOL_COLUMN_INDEX);
+
+            if (protocol == AlertActionProtocol.EMAIL) {
+                return emailCellEditor.getTableCellEditorComponent(table, value, isSelected, row, column);
+            } else if (protocol == AlertActionProtocol.CHANNEL) {
+                return channelCellEditor.getTableCellEditorComponent(table, value, isSelected, row, column);
+            }
+
+            return null;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            if (protocol == AlertActionProtocol.EMAIL) {
+                return emailCellEditor.getCellEditorValue();
+            } else if (protocol == AlertActionProtocol.CHANNEL) {
+                return channelCellEditor.getCellEditorValue();
+            }
+
+            return null;
+        }
+
+        @Override
+        public boolean stopCellEditing() {
+            if (protocol == AlertActionProtocol.EMAIL) {
+                emailCellEditor.stopCellEditing();
+            } else if (protocol == AlertActionProtocol.CHANNEL) {
+                channelCellEditor.stopCellEditing();
+            }
+
+            return super.stopCellEditing();
+        }
+    }
+
+    private class ActionTableModel extends AbstractTableModel {
+
+        private List<AlertAction> actions = new ArrayList<AlertAction>();
+        private List<String> channelNames = new ArrayList<String>();
+        private String[] columns = new String[] { PROTOCOL_COLUMN_NAME, RECIPIENT_COLUMN_NAME };
+
+        public ActionTableModel() {
+
+        }
+
+        public void refreshData(List<AlertAction> actions, List<String> channelNames) {
             this.actions = actions;
+            this.channelNames = channelNames;
             fireTableDataChanged();
         }
-        
+
         public void addRow(AlertAction action) {
             int row = actions.size();
             actions.add(action);
+            channelNames.add(null);
             fireTableRowsInserted(row, row);
         }
-        
+
         public void removeRow(int rowIndex) {
             actions.remove(rowIndex);
+            channelNames.remove(rowIndex);
             fireTableRowsDeleted(rowIndex, rowIndex);
         }
 
@@ -211,12 +347,18 @@ public class AlertActionPane extends JPanel {
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             AlertAction action = actions.get(rowIndex);
-            
+
             switch (columnIndex) {
-                case 0:
+                case PROTOCOL_COLUMN_INDEX:
                     return action.getProtocol();
-                case 1:
-                    return action.getRecipient();
+                case RECIPIENT_COLUMN_INDEX:
+                    String recipient = null;
+                    if (action.getProtocol() == AlertActionProtocol.EMAIL) {
+                        recipient = action.getRecipient();
+                    } else if (action.getProtocol() == AlertActionProtocol.CHANNEL) {
+                        recipient = channelNames.get(rowIndex);
+                    }
+                    return recipient;
                 default:
                     return null;
             }
@@ -225,19 +367,30 @@ public class AlertActionPane extends JPanel {
         @Override
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
             AlertAction action = actions.get(rowIndex);
-            
+
             switch (columnIndex) {
-                case 0:
-                    action.setProtocol((AlertActionProtocol) aValue);
+                case PROTOCOL_COLUMN_INDEX:
+                    AlertActionProtocol protocol = (AlertActionProtocol) aValue;
+                    if (!protocol.equals(action.getProtocol())) {
+                        action.setProtocol(protocol);
+                        action.setRecipient(null);
+                        channelNames.set(rowIndex, null);
+                    }
                     break;
-                case 1:
-                    action.setRecipient((String) aValue);
+                case RECIPIENT_COLUMN_INDEX:
+                    if (action.getProtocol() == AlertActionProtocol.EMAIL) {
+                        action.setRecipient((String) aValue);
+                    } else if (action.getProtocol() == AlertActionProtocol.CHANNEL) {
+                        String channelName = (String) aValue;
+                        channelNames.set(rowIndex, channelName);
+                        action.setRecipient(channelName == null ? null : channelMap.get(channelName));
+                    }
                     break;
                 default:
                     break;
             }
-            
-            fireTableCellUpdated(rowIndex, columnIndex);
+
+            fireTableRowsUpdated(rowIndex, rowIndex);
         }
 
     }
@@ -272,7 +425,11 @@ public class AlertActionPane extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (actionTable.getSelectedModelIndex() != -1 && !actionTable.isEditing()) {
+                if (actionTable.getSelectedModelIndex() != -1) {
+                    if (actionTable.isEditing()) {
+                        actionTable.getCellEditor().stopCellEditing();
+                    }
+
                     ActionTableModel model = (ActionTableModel) actionTable.getModel();
 
                     int selectedModelIndex = actionTable.getSelectedModelIndex();

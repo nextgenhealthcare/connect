@@ -123,14 +123,18 @@ public abstract class AlertWorker extends EventListener {
 
             // Split the recipients into separate lists for emails and channels
             for (AlertAction action : actionGroup.getActions()) {
-                switch (action.getProtocol()) {
-                    case EMAIL:
-                        emails.add(action.getRecipient());
-                        break;
+                String recipient = action.getRecipient();
 
-                    case CHANNEL:
-                        channels.add(action.getRecipient());
-                        break;
+                if (StringUtils.isNotBlank(recipient)) {
+                    switch (action.getProtocol()) {
+                        case EMAIL:
+                            emails.add(recipient);
+                            break;
+
+                        case CHANNEL:
+                            channels.add(recipient);
+                            break;
+                    }
                 }
             }
 
@@ -146,11 +150,8 @@ public abstract class AlertWorker extends EventListener {
             }
 
             // Route the alert message to the specified channels
-            for (String channelName : channels) {
-                Channel channel = channelController.getDeployedChannelByName(channelName);
-                if (channel != null) {
-                    engineController.dispatchRawMessage(channel.getId(), new RawMessage(body));
-                }
+            for (String channelId : channels) {
+                engineController.dispatchRawMessage(channelId, new RawMessage(body));
             }
 
             // Dispatch a server event to notify that an alert was dispatched
