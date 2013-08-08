@@ -985,7 +985,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
     }
 
-    private ConnectorMessage createAndStoreSourceMessage(DonkeyDao dao, RawMessage rawMessage) throws InterruptedException {
+    private ConnectorMessage createAndStoreSourceMessage(DonkeyDao dao, RawMessage rawMessage) throws ChannelException, InterruptedException {
         ThreadUtils.checkInterruptedStatus();
         Long messageId;
         Calendar receivedDate;
@@ -1057,6 +1057,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             } catch (AttachmentException e) {
                 eventDispatcher.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.ATTACHMENT_HANDLER, null, null, "Error processing attachments for channel " + channelId + ".", e));
                 logger.error("Error processing attachments for channel " + channelId + ".", e);
+                throw new ChannelException(false, e);
             }
         } else {
             if (rawMessage.isBinary()) {
@@ -1068,6 +1069,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     sourceMessage.getRaw().setContent(org.apache.commons.codec.binary.StringUtils.newStringUsAscii(rawBytes));
                 } catch (IOException e) {
                     logger.error("Error processing binary data for channel " + channelId + ".", e);
+                    throw new ChannelException(false, e);
                 }
 
             } else {
