@@ -992,7 +992,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         if (rawMessage.isOverwrite() && rawMessage.getOriginalMessageId() != null) {
             messageId = rawMessage.getOriginalMessageId();
-            List<Integer> metaDataIds = new ArrayList<Integer>();
+            Set<Integer> metaDataIds = new HashSet<Integer>();
 
             if (rawMessage.getDestinationMetaDataIds() != null) {
                 metaDataIds.addAll(rawMessage.getDestinationMetaDataIds());
@@ -1001,7 +1001,8 @@ public class Channel implements Startable, Stoppable, Runnable {
             }
 
             metaDataIds.add(0);
-            dao.deleteConnectorMessages(channelId, messageId, metaDataIds, true);
+            dao.deleteMessageStatistics(channelId, messageId, metaDataIds);
+            dao.deleteConnectorMessages(channelId, messageId, metaDataIds);
             dao.resetMessage(channelId, messageId);
             receivedDate = Calendar.getInstance();
         } else {

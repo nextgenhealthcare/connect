@@ -22,7 +22,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -507,14 +506,10 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
-    public void deleteMessage(String channelId, long messageId, boolean deleteStatistics) {
+    public void deleteMessage(String channelId, long messageId) {
         logger.debug(channelId + "/" + messageId + ": deleting message");
 
         try {
-            if (deleteStatistics) {
-                deleteMessageStatistics(channelId, getConnectorMessages(channelId, messageId).values());
-            }
-
             cascadeMessageDelete("deleteMessageCascadeAttachments", messageId, channelId);
             cascadeMessageDelete("deleteMessageCascadeMetadata", messageId, channelId);
             cascadeMessageDelete("deleteMessageCascadeContent", messageId, channelId);
@@ -529,16 +524,12 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
-    public void deleteConnectorMessages(String channelId, long messageId, List<Integer> metaDataIds, boolean deleteStatistics) {
+    public void deleteConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds) {
         logger.debug(channelId + "/" + messageId + ": deleting connector messages");
         long localChannelId = getLocalChannelId(channelId);
 
         try {
             if (metaDataIds == null) {
-                if (deleteStatistics) {
-                    deleteMessageStatistics(channelId, getConnectorMessages(channelId, messageId).values());
-                }
-
                 cascadeMessageDelete("deleteMessageCascadeMetadata", messageId, channelId);
                 cascadeMessageDelete("deleteMessageCascadeContent", messageId, channelId);
 
@@ -546,18 +537,6 @@ public class JdbcDao implements DonkeyDao {
                 statement.setLong(1, messageId);
                 statement.executeUpdate();
             } else {
-                List<ConnectorMessage> connectorMessages = new ArrayList<ConnectorMessage>();
-
-                for (Entry<Integer, ConnectorMessage> connectorMessageEntry : getConnectorMessages(channelId, messageId).entrySet()) {
-                    if (metaDataIds.contains(connectorMessageEntry.getKey())) {
-                        connectorMessages.add(connectorMessageEntry.getValue());
-                    }
-                }
-
-                if (deleteStatistics) {
-                    deleteMessageStatistics(channelId, connectorMessages);
-                }
-
                 Map<String, Object> values = new HashMap<String, Object>();
                 values.put("localChannelId", localChannelId);
                 values.put("metaDataIds", StringUtils.join(metaDataIds, ','));
@@ -577,6 +556,38 @@ public class JdbcDao implements DonkeyDao {
             }
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
+        }
+    }
+
+    @Override
+    public void deleteMessageStatistics(String channelId, long messageId, Set<Integer> metaDataIds) {
+        Map<Integer, ConnectorMessage> connectorMessages = getConnectorMessages(channelId, messageId);
+        ConnectorMessage sourceMessage = connectorMessages.get(0);
+
+        /*
+         * The server id on the source message indicates which server last processed/reprocessed the
+         * message. We only want to delete the statistics if the current stats server
+         * (statsServerId) is the server that last processed or reprocessed the message.
+         */
+        if (sourceMessage != null && sourceMessage.getServerId().equals(statsServerId)) {
+            for (Entry<Integer, ConnectorMessage> entry : connectorMessages.entrySet()) {
+                Integer metaDataId = entry.getKey();
+                ConnectorMessage connectorMessage = entry.getValue();
+
+                /*
+                 * We also test if each connector message belongs to the statsServerId before
+                 * deleting.
+                 */
+                if (connectorMessage.getServerId().equals(statsServerId) && (metaDataIds == null || metaDataIds.contains(metaDataId))) {
+                    Status status = connectorMessage.getStatus();
+
+                    Map<Status, Long> statsDiff = new HashMap<Status, Long>();
+                    statsDiff.put(Status.RECEIVED, -1L);
+                    statsDiff.put(status, -1L);
+
+                    transactionStats.update(channelId, metaDataId, statsDiff);
+                }
+            }
         }
     }
 
@@ -1903,19 +1914,6 @@ public class JdbcDao implements DonkeyDao {
         } finally {
             close(resultSet);
             close(statement);
-        }
-    }
-
-    private void deleteMessageStatistics(String channelId, Collection<ConnectorMessage> connectorMessages) {
-        for (ConnectorMessage connectorMessage : connectorMessages) {
-            Integer metaDataId = connectorMessage.getMetaDataId();
-            Status status = connectorMessage.getStatus();
-
-            Map<Status, Long> statsDiff = new HashMap<Status, Long>();
-            statsDiff.put(Status.RECEIVED, -1L);
-            statsDiff.put(status, -1L);
-
-            transactionStats.update(channelId, metaDataId, statsDiff);
         }
     }
 

@@ -286,10 +286,13 @@ public class PassthruDao implements DonkeyDao {
     }
 
     @Override
-    public void deleteMessage(String channelId, long messageId, boolean deleteStatistics) {}
+    public void deleteMessage(String channelId, long messageId) {}
 
     @Override
-    public void deleteConnectorMessages(String channelId, long messageId, List<Integer> metaDataIds, boolean deleteStatistics) {}
+    public void deleteConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds) {}
+
+    @Override
+    public void deleteMessageStatistics(String channelId, long messageId, Set<Integer> metaDataIds) {}
 
     @Override
     public void batchInsertMessageContent(MessageContent messageContent) {}

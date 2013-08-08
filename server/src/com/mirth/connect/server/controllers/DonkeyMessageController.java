@@ -270,7 +270,7 @@ public class DonkeyMessageController extends MessageController {
                         }
                     }
 
-                    com.mirth.connect.donkey.server.controllers.MessageController.getInstance().deleteMessages(channelId, messages, false);
+                    com.mirth.connect.donkey.server.controllers.MessageController.getInstance().deleteMessages(channelId, messages);
                 }
             } while (results.size() > 0);
 

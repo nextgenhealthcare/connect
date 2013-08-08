@@ -260,24 +260,35 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public void deleteMessage(String channelId, long messageId, boolean deleteStatistics) {
+    public void deleteMessage(String channelId, long messageId) {
         long startTime = System.currentTimeMillis();
 
         try {
-            dao.deleteMessage(channelId, messageId, deleteStatistics);
+            dao.deleteMessage(channelId, messageId);
         } finally {
             timer.log("deleteMessage", System.currentTimeMillis() - startTime);
         }
     }
 
     @Override
-    public void deleteConnectorMessages(String channelId, long messageId, List<Integer> metaDataIds, boolean deleteStatistics) {
+    public void deleteConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds) {
         long startTime = System.currentTimeMillis();
 
         try {
-            dao.deleteConnectorMessages(channelId, messageId, metaDataIds, deleteStatistics);
+            dao.deleteConnectorMessages(channelId, messageId, metaDataIds);
         } finally {
             timer.log("deleteConnectorMessages", System.currentTimeMillis() - startTime);
+        }
+    }
+
+    @Override
+    public void deleteMessageStatistics(String channelId, long messageId, Set<Integer> metaDataIds) {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            dao.deleteMessageStatistics(channelId, messageId, metaDataIds);
+        } finally {
+            timer.log("deleteMessageStatistics", System.currentTimeMillis() - startTime);
         }
     }
 

@@ -72,6 +72,10 @@ public class DonkeyDaoTests {
         Donkey donkey = Donkey.getInstance();
         donkey.startEngine(TestUtils.getDonkeyTestConfiguration());
 
+        if (donkey.getDaoFactory() instanceof JdbcDaoFactory) {
+            ((JdbcDaoFactory) donkey.getDaoFactory()).setStatsServerId(serverId);
+        }
+
         daoFactory = new BufferedDaoFactory(new TimedDaoFactory(donkey.getDaoFactory(), daoTimer));
         donkey.setDaoFactory(daoFactory);
         
@@ -801,7 +805,11 @@ public class DonkeyDaoTests {
 
         // Delete all the messages that were processed
         for (Message message : messages) {
-            dao.deleteMessage(message.getChannelId(), message.getMessageId(), deleteStatistics);
+            if (deleteStatistics) {
+                dao.deleteMessageStatistics(message.getChannelId(), message.getMessageId(), null);
+            }
+            
+            dao.deleteMessage(message.getChannelId(), message.getMessageId());
             dao.commit();
 
             // Assert that each message was successfully deleted
@@ -872,7 +880,7 @@ public class DonkeyDaoTests {
                 
                 try {
                     dao = daoFactory.getDao();
-                    dao.deleteConnectorMessages(channel.getChannelId(), message.getMessageId(), new ArrayList<Integer>(message.getConnectorMessages().keySet()), false);
+                    dao.deleteConnectorMessages(channel.getChannelId(), message.getMessageId(), message.getConnectorMessages().keySet());
                     dao.commit();
                 } finally {
                     TestUtils.close(dao);

@@ -9,7 +9,6 @@
 
 package com.mirth.connect.donkey.server.controllers;
 
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -91,7 +90,7 @@ public class MessageController {
         return true;
     }
 
-    public void deleteMessages(String channelId, Map<Long, Set<Integer>> messages, boolean deleteStatistics) {
+    public void deleteMessages(String channelId, Map<Long, Set<Integer>> messages) {
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 
         try {
@@ -100,9 +99,9 @@ public class MessageController {
                 Set<Integer> metaDataIds = messageEntry.getValue();
 
                 if (metaDataIds == null) {
-                    dao.deleteMessage(channelId, messageId, deleteStatistics);
+                    dao.deleteMessage(channelId, messageId);
                 } else {
-                    dao.deleteConnectorMessages(channelId, messageId, new ArrayList<Integer>(metaDataIds), deleteStatistics);
+                    dao.deleteConnectorMessages(channelId, messageId, metaDataIds);
                 }
             }
 
