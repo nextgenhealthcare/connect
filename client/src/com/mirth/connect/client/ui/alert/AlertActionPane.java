@@ -483,7 +483,7 @@ public class AlertActionPane extends JPanel {
 
         subjectPane = new JPanel();
         subjectPane.setBackground(UIConstants.BACKGROUND_COLOR);
-        subjectPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Subject (Only used for email messages)"));
+        subjectPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Subject (only used for email messages)"));
         subjectPane.setLayout(new BorderLayout());
         subjectPane.add(subjectTextField);
 

@@ -140,6 +140,11 @@ public abstract class AlertWorker extends EventListener {
 
             // Send the alert emails
             if (!emails.isEmpty()) {
+                // If there is no subject, set it to the default value
+                if (StringUtils.isEmpty(subject)) {
+                    subject = "Mirth Connect Alert";
+                }
+
                 try {
                     ServerSMTPConnectionFactory.createSMTPConnection().send(StringUtils.join(emails, ","), null, subject, body);
                 } catch (ControllerException e) {
