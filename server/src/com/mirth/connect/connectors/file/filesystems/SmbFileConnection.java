@@ -58,7 +58,11 @@ public class SmbFileConnection implements FileSystemConnection {
         }
 
         public long getSize() {
-            return this.theFile.getContentLength();
+            try {
+                return this.theFile.length();
+            } catch (SmbException e) {
+                return 0;
+            }
         }
 
         public long getLastModified() {
