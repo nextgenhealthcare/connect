@@ -154,7 +154,7 @@ public class JavaScriptBuilder {
         // Append doFilter() function
         appendFilterScript(builder, filter);
         // Append doTransform() function
-        appendTransformerScript(builder, transformer);
+        appendTransformerScript(builder, transformer, false);
         // Append doFilter/doTransform execution
         builder.append("if (doFilter() == true) { doTransform(); return true; } else { return false; }");
 
@@ -198,7 +198,7 @@ public class JavaScriptBuilder {
         }
 
         // Append doTransform() function
-        appendTransformerScript(builder, transformer);
+        appendTransformerScript(builder, transformer, true);
         // Append doTransform() execution
         builder.append("doTransform();");
 
@@ -283,11 +283,17 @@ public class JavaScriptBuilder {
         }
     }
 
-    private static void appendTransformerScript(StringBuilder builder, Transformer transformer) throws BuilderException {
+    private static void appendTransformerScript(StringBuilder builder, Transformer transformer, boolean response) throws BuilderException {
         logger.debug("building javascript transformer: step count=" + transformer.getSteps().size());
 
         // Set the phase and also reset the logger to transformer (it was filter before)
-        builder.append("function doTransform() { phase[0] = 'transformer'; logger = Packages.org.apache.log4j.Logger.getLogger(phase[0]);\n\n\n");
+        builder.append("function doTransform() {");
+
+        if (!response) {
+            builder.append(" phase[0] = 'transformer'; logger = Packages.org.apache.log4j.Logger.getLogger(phase[0]);");
+        }
+
+        builder.append("\n\n\n");
 
         for (Step step : transformer.getSteps()) {
             logger.debug("adding step: " + step.getName());
