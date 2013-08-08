@@ -35,7 +35,7 @@ public abstract class ChannelController extends Controller {
 
     public abstract Channel getChannelByName(String channelName);
 
-    public abstract String getDestinationName(String connectorId);
+    public abstract String getDestinationName(String channelId, int metaDataId);
     
     public abstract Set<String> getChannelIds();
     

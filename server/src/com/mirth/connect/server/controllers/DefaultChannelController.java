@@ -91,8 +91,8 @@ public class DefaultChannelController extends ChannelController {
     }
 
     @Override
-    public String getDestinationName(String connectorId) {
-        return channelCache.getCachedDestinationName(connectorId);
+    public String getDestinationName(String channelId, int metaDataId) {
+        return channelCache.getCachedDestinationName(channelId, metaDataId);
     }
 
     @Override
@@ -500,23 +500,19 @@ public class DefaultChannelController extends ChannelController {
             return channelCacheByName.get(channelName);
         }
 
-        private String getCachedDestinationName(String connectorId) {
+        private String getCachedDestinationName(String channelId, int metaDataId) {
             refreshCache();
-
-            // String format: channelid_destination_index
-            String destinationName = connectorId;
-            // if we can't parse the name, just use the id
-            String channelId = connectorId.substring(0, connectorId.indexOf('_'));
-            String strIndex = connectorId.substring(connectorId.indexOf("destination_") + 12, connectorId.indexOf("_connector"));
-            int index = Integer.parseInt(strIndex) - 1;
             Channel channel = channelCacheById.get(channelId);
 
             if (channel != null) {
-                if (index < channel.getDestinationConnectors().size())
-                    destinationName = channel.getDestinationConnectors().get(index).getName();
+                for (Connector connector : channel.getDestinationConnectors()) {
+                    if (connector.getMetaDataId() == metaDataId) {
+                        return connector.getName();
+                    }
+                }
             }
 
-            return destinationName;
+            return null;
         }
 
         private Set<String> getCachedChannelIds() {
