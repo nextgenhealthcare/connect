@@ -736,7 +736,13 @@ public class Channel implements Startable, Stoppable, Runnable {
         channelExecutor.shutdown();
 
         if (firstCause != null) {
-            updateCurrentState(ChannelState.STOPPED);
+            /*
+             * Only set the state to STOPPED here if the exception (or its cause) is not an
+             * InterruptedException (indicating that the channel was halted).
+             */
+            if (!(firstCause instanceof InterruptedException) && (firstCause.getCause() == null || !(firstCause.getCause() instanceof InterruptedException))) {
+                updateCurrentState(ChannelState.STOPPED);
+            }
             throw new StopException("Failed to stop channel " + name + " (" + channelId + "): One or more connectors failed to stop.", firstCause);
         }
     }
@@ -846,9 +852,9 @@ public class Channel implements Startable, Stoppable, Runnable {
             }
         } catch (HaltException e) {
             if (metaDataId == 0) {
-                logger.error("Error stopping Source connector for channel " + name + " (" + channelId + ").", e);
+                logger.error("Error halting Source connector for channel " + name + " (" + channelId + ").", e);
             } else {
-                logger.error("Error stopping destination connector \"" + getDestinationConnector(metaDataId).getDestinationName() + "\" for channel " + name + " (" + channelId + ").", e);
+                logger.error("Error halting destination connector \"" + getDestinationConnector(metaDataId).getDestinationName() + "\" for channel " + name + " (" + channelId + ").", e);
             }
             throw e;
         }
@@ -1485,26 +1491,26 @@ public class Channel implements Startable, Stoppable, Runnable {
                 dao = daoFactory.getDao();
                 dao.updateErrors(sourceConnectorMessage);
             }
-    
+
             if (markAsProcessed) {
                 if (dao == null) {
                     dao = daoFactory.getDao();
                 }
-                
+
                 if (storageSettings.isStoreMergedResponseMap()) {
                     ThreadUtils.checkInterruptedStatus();
                     dao.updateResponseMap(sourceConnectorMessage);
                 }
-    
+
                 dao.markAsProcessed(channelId, finalMessage.getMessageId());
                 finalMessage.setProcessed(true);
-    
+
                 boolean messageCompleted = messageController.isMessageCompleted(finalMessage);
                 if (messageCompleted) {
                     if (storageSettings.isRemoveContentOnCompletion()) {
                         dao.deleteMessageContent(channelId, finalMessage.getMessageId());
                     }
-    
+
                     if (storageSettings.isRemoveAttachmentsOnCompletion()) {
                         dao.deleteMessageAttachments(channelId, finalMessage.getMessageId());
                     }
@@ -1860,13 +1866,15 @@ public class Channel implements Startable, Stoppable, Runnable {
                         // If an exception occurred, then attempt to rollback by stopping all the connectors that were started
                         try {
                             stop(startedMetaDataIds);
-                        } catch (Throwable t2) {
-                            try {
-                                halt(startedMetaDataIds);
-                            } catch (Throwable t3) {
-                            }
-                        } finally {
                             updateCurrentState(ChannelState.STOPPED);
+                        } catch (Throwable t2) {
+                            /*
+                             * Only set the state to STOPPED here if the exception (or its cause) is
+                             * not an InterruptedException (indicating that the channel was halted).
+                             */
+                            if (!(t2 instanceof InterruptedException) && (t2.getCause() == null || !(t2.getCause() instanceof InterruptedException))) {
+                                updateCurrentState(ChannelState.STOPPED);
+                            }
                         }
 
                         throw new StartException(t);
