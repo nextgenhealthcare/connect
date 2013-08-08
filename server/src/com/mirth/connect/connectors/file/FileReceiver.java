@@ -274,11 +274,13 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 if ((now - lastMod) < fileAge)
                     return;
             }
-            
-            if (file.getSize() < fileSizeMinimum) {
+
+            long fileSize = file.getSize();
+
+            if (fileSize < fileSizeMinimum) {
                 return;
             }
-            if (!connectorProperties.isIgnoreFileSizeMaximum() && file.getSize() > fileSizeMaximum) {
+            if (!connectorProperties.isIgnoreFileSizeMaximum() && fileSize > fileSizeMaximum) {
                 return;
             }
 
