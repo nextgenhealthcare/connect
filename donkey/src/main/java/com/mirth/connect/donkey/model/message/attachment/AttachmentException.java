@@ -7,13 +7,13 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.model.attachments;
+package com.mirth.connect.donkey.model.message.attachment;
 
 public class AttachmentException extends Exception {
     public AttachmentException(Throwable cause) {
         super(cause);
     }
-    
+
     public AttachmentException(String message, Throwable cause) {
         super(message, cause);
     }

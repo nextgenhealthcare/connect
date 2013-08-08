@@ -13,10 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.server.channel.Channel;
-import com.mirth.connect.model.attachments.AttachmentException;
+import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 
 public class JavaScriptAttachmentHandler extends AttachmentHandler {
@@ -36,7 +37,11 @@ public class JavaScriptAttachmentHandler extends AttachmentHandler {
         try {
             newMessage = JavaScriptUtil.executeAttachmentScript(message, channel.getChannelId(), attachments);
         } catch (Throwable t) {
-            throw new AttachmentException(t);
+            if (t instanceof JavaScriptExecutorException) {
+                t = t.getCause();
+            }
+
+            throw new AttachmentException("Error running javascript attachment handler script", t);
         }
     }
 
@@ -69,5 +74,4 @@ public class JavaScriptAttachmentHandler extends AttachmentHandler {
     public void setProperties(AttachmentHandlerProperties attachmentProperties) {
 
     }
-
 }

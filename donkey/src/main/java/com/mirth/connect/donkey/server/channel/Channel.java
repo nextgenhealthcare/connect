@@ -40,6 +40,7 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.event.ChannelEventType;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
@@ -47,7 +48,9 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.DeployException;
@@ -67,6 +70,7 @@ import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.event.ChannelEvent;
 import com.mirth.connect.donkey.server.event.DeployEvent;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
@@ -181,7 +185,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     public void updateCurrentState(ChannelState state) {
         setCurrentState(state);
-        Donkey.getInstance().getEventDispatcher().dispatchEvent(new ChannelEvent(channelId, ChannelEventType.getTypeFromChannelState(state)));
+        eventDispatcher.dispatchEvent(new ChannelEvent(channelId, ChannelEventType.getTypeFromChannelState(state)));
     }
 
     public StorageSettings getStorageSettings() {
@@ -1044,8 +1048,9 @@ public class Channel implements Startable, Stoppable, Runnable {
                 String replacedMessage = attachmentHandler.shutdown();
 
                 sourceMessage.getRaw().setContent(replacedMessage);
-            } catch (Exception e) {
-                logger.error("Error processing attachments for channel " + channelId + ". " + e.getMessage());
+            } catch (AttachmentException e) {
+                eventDispatcher.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.ATTACHMENT_HANDLER, null, null, "Error processing attachments for channel " + channelId + ".", e));
+                logger.error("Error processing attachments for channel " + channelId + ".", e);
             }
         } else {
             if (rawMessage.isBinary()) {
@@ -1056,7 +1061,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     rawMessage.clearMessage();
                     sourceMessage.getRaw().setContent(org.apache.commons.codec.binary.StringUtils.newStringUsAscii(rawBytes));
                 } catch (IOException e) {
-                    logger.error("Error processing binary data for channel " + channelId + ". " + e.getMessage());
+                    logger.error("Error processing binary data for channel " + channelId + ".", e);
                 }
 
             } else {
@@ -1172,6 +1177,10 @@ public class Channel implements Startable, Stoppable, Runnable {
             try {
                 sourceFilterTransformerExecutor.processConnectorMessage(sourceMessage);
             } catch (DonkeyException e) {
+                if (e instanceof XmlSerializerException) {
+                    eventDispatcher.dispatchEvent(new ErrorEvent(channelId, 0, ErrorEventType.SERIALIZER, sourceConnector.getSourceName(), null, e.getMessage(), e));
+                }
+
                 sourceMessage.setStatus(Status.ERROR);
                 sourceMessage.setProcessingError(e.getFormattedError());
             }
@@ -1450,8 +1459,8 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         try {
             response = postProcessor.doPostProcess(finalMessage);
-        } catch (Exception e) {
-            sourceConnectorMessage.setPostProcessorError(e.getMessage());
+        } catch (DonkeyException e) {
+            sourceConnectorMessage.setPostProcessorError(e.getFormattedError());
             storePostProcessorError = true;
         }
 

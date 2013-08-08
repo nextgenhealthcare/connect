@@ -85,7 +85,7 @@ public class DefaultAlertWorker extends AlertWorker {
 
                 AlertChannels alertChannels = errorTrigger.getAlertChannels();
 
-                boolean containsType = (errorEventTypes == null || errorEventTypes.contains(errorEvent.getType()));
+                boolean containsType = (errorEventTypes.contains(errorEvent.getType()) || errorEventTypes.contains(ErrorEventType.ANY));
                 boolean eventSourceEnabled = (metaDataId == null ? alertChannels.isChannelEnabled(channelId) : alertChannels.isConnectorEnabled(channelId, metaDataId));
 
                 /*
@@ -94,7 +94,11 @@ public class DefaultAlertWorker extends AlertWorker {
                  */
                 if (containsType && eventSourceEnabled) {
                     boolean trigger = true;
-                    String errorSource = errorEvent.getConnectorType() != null ? errorEvent.getConnectorType() : errorEvent.getType().toString();
+                    String errorSource = errorEvent.getType().toString();
+                    if (errorEvent.getConnectorType() != null) {
+                        errorSource += " (" + errorEvent.getConnectorType() + ")";
+                    }
+
                     String fullErrorMessage = ErrorMessageBuilder.buildErrorMessage(errorSource, errorEvent.getCustomMessage(), errorEvent.getThrowable());
 
                     // If a regex is provided, check that it matches the full error message

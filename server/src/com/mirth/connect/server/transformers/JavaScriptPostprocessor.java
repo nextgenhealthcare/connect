@@ -9,20 +9,40 @@
 
 package com.mirth.connect.server.transformers;
 
+import com.mirth.connect.donkey.model.DonkeyException;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.server.channel.components.PostProcessor;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
+import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptPostprocessor implements PostProcessor {
 
     private JavaScriptPostProcessorTask task = new JavaScriptPostProcessorTask();
+    private EventController eventController= ControllerFactory.getFactory().createEventController();
 
     @Override
-    public Response doPostProcess(Message message) throws Exception {
-        task.setMessage(message);
-        return JavaScriptUtil.executeJavaScriptPostProcessorTask(task, message.getChannelId());
+    public Response doPostProcess(Message message) throws DonkeyException, InterruptedException {
+        try {
+            task.setMessage(message);
+            return JavaScriptUtil.executeJavaScriptPostProcessorTask(task, message.getChannelId());
+        } catch (InterruptedException e) {
+            throw e;
+        } catch (Exception e) {
+            Throwable t = e;
+            if (e instanceof JavaScriptExecutorException) {
+                t = e.getCause();
+            }
+
+            eventController.dispatchEvent(new ErrorEvent(message.getChannelId(), null, ErrorEventType.POSTPROCESSOR_SCRIPT, null, null, "Error running postprocessor scripts", t));
+            throw new DonkeyException(t, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.POSTPROCESSOR_SCRIPT.toString(), "Error running postprocessor scripts", t));
+        }
     }
 
     private class JavaScriptPostProcessorTask extends JavaScriptTask<Object> {

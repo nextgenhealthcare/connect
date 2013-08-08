@@ -15,11 +15,11 @@ import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.util.Base64Util;
-import com.mirth.connect.model.attachments.AttachmentException;
 import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.server.util.ServerUUIDGenerator;
 

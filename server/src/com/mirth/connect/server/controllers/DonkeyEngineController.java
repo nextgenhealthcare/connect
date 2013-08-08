@@ -27,6 +27,7 @@ import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.SerializationType;
@@ -59,6 +60,7 @@ import com.mirth.connect.donkey.server.channel.components.PreProcessor;
 import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
 import com.mirth.connect.donkey.server.data.passthru.DelayedStatisticsUpdater;
 import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
@@ -85,6 +87,7 @@ import com.mirth.connect.server.transformers.JavaScriptPreprocessor;
 import com.mirth.connect.server.transformers.JavaScriptResponseTransformer;
 import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
 import com.mirth.connect.server.util.GlobalVariableStore;
+import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 
 public class DonkeyEngineController implements EngineController {
@@ -164,7 +167,11 @@ public class DonkeyEngineController implements EngineController {
         }
 
         // Execute global deploy script before channel deploy script
-        scriptController.executeGlobalDeployScript();
+        try {
+            scriptController.executeGlobalDeployScript();
+        } catch (Exception e) {
+            logger.error("Error executing global deploy script.", e);
+        }
 
         // Execute the overall channel plugin deploy hook
         for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
@@ -212,6 +219,12 @@ public class DonkeyEngineController implements EngineController {
         try {
             scriptController.executeChannelDeployScript(channel.getId());
         } catch (Exception e) {
+            Throwable t = e;
+            if (e instanceof JavaScriptExecutorException) {
+                t = e.getCause();
+            }
+
+            eventController.dispatchEvent(new ErrorEvent(channel.getId(), null, ErrorEventType.DEPLOY_SCRIPT, null, null, "Error running channel deploy script", t));
             throw new StartException("Failed to deploy channel " + channelId + ".", e);
         }
         channelController.putDeployedChannelInCache(channel);
@@ -251,7 +264,11 @@ public class DonkeyEngineController implements EngineController {
         }
 
         // Execute global shutdown script
-        scriptController.executeGlobalShutdownScript();
+        try {
+            scriptController.executeGlobalShutdownScript();
+        } catch (Exception e) {
+            logger.error("Error executing global shutdown script.", e);
+        }
     }
 
     private synchronized void undeployChannel(String channelId, ServerEventContext context) throws StopException, UndeployException {
@@ -285,6 +302,12 @@ public class DonkeyEngineController implements EngineController {
         try {
             scriptController.executeChannelShutdownScript(channelId);
         } catch (Exception e) {
+            Throwable t = e;
+            if (e instanceof JavaScriptExecutorException) {
+                t = e.getCause();
+            }
+
+            eventController.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.SHUTDOWN_SCRIPT, null, null, "Error running channel shutdown script", t));
             logger.error("Error executing shutdown script for channel " + channelId + ".", e);
         }
 

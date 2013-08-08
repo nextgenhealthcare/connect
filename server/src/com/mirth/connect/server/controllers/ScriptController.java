@@ -100,13 +100,13 @@ public abstract class ScriptController extends Controller {
 
     // Deploy Script Execution
 
-    public abstract void executeGlobalDeployScript();
+    public abstract void executeGlobalDeployScript() throws Exception;
 
     public abstract void executeChannelDeployScript(String channelId) throws Exception;
 
     // Shutdown Script Execution
 
-    public abstract void executeGlobalShutdownScript() throws InterruptedException;
+    public abstract void executeGlobalShutdownScript() throws Exception;
 
     public abstract void executeChannelShutdownScript(String channelId) throws Exception;
 }

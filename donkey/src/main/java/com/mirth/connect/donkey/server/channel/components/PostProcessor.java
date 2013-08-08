@@ -9,9 +9,10 @@
 
 package com.mirth.connect.donkey.server.channel.components;
 
+import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 
 public interface PostProcessor {
-    public Response doPostProcess(Message message) throws Exception;
+    public Response doPostProcess(Message message) throws DonkeyException, InterruptedException;
 }

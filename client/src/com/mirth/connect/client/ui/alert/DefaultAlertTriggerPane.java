@@ -10,6 +10,7 @@
 package com.mirth.connect.client.ui.alert;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,9 +22,12 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -53,16 +57,13 @@ public class DefaultAlertTriggerPane extends AlertTriggerPane {
     }
 
     private void makeErrorTable() {
-        Object[][] tableData = new Object[ErrorEventType.values().length + 1][2];
-
-        tableData[0][0] = false;
-        tableData[0][1] = "Any Error";
+        Object[][] tableData = new Object[ErrorEventType.values().length][2];
 
         for (int i = 0; i < ErrorEventType.values().length; i++) {
             ErrorEventType type = ErrorEventType.values()[i];
 
-            tableData[i + 1][0] = false;
-            tableData[i + 1][1] = type;
+            tableData[i][0] = false;
+            tableData[i][1] = type;
         }
 
         errorTable.setModel(new RefreshTableModel(tableData, new String[] { "", "Error" }) {
@@ -71,27 +72,7 @@ public class DefaultAlertTriggerPane extends AlertTriggerPane {
 
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit[columnIndex];
-            }
-
-            @Override
-            public void setValueAt(Object aValue, int row, int column) {
-                super.setValueAt(aValue, row, column);
-
-                if (aValue instanceof Boolean) {
-                    boolean enabled = (Boolean) aValue;
-                    if (row == 0) {
-                        if (enabled) {
-                            for (int i = 1; i < errorTable.getRowCount(); i++) {
-                                setValueAt(aValue, i, 0);
-                            }
-                        }
-                    } else {
-                        if (!enabled) {
-                            setValueAt(false, 0, 0);
-                        }
-                    }
-                }
+                return canEdit[columnIndex] && (rowIndex == 0 || !(Boolean) errorTable.getValueAt(0, 0));
             }
         });
 
@@ -113,6 +94,36 @@ public class DefaultAlertTriggerPane extends AlertTriggerPane {
 
             }
 
+        });
+
+        errorTable.getColumnExt(SELECTION_COLUMN_NUMBER).setCellRenderer(new TableCellRenderer() {
+            private JCheckBox checkBox = new JCheckBox();
+
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                checkBox.setVerticalAlignment(SwingConstants.CENTER);
+                checkBox.setHorizontalAlignment(SwingConstants.CENTER);
+
+                if (value != null) {
+                    checkBox.setSelected((Boolean) value);
+                }
+
+                checkBox.setEnabled(row == 0 || !(Boolean) table.getValueAt(0, 0));
+                return checkBox;
+            }
+
+        });
+
+        errorTable.getColumnExt(ERROR_COLUMN_NUMBER).setCellRenderer(new DefaultTableCellRenderer() {
+
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                
+                component.setEnabled(row == 0 || !(Boolean) table.getValueAt(0, 0));
+                return component;
+            }
+            
         });
 
         errorTable.getColumnExt(SELECTION_COLUMN_NUMBER).setCellEditor(editor);
@@ -159,36 +170,24 @@ public class DefaultAlertTriggerPane extends AlertTriggerPane {
     public void updateErrorTable(Set<ErrorEventType> errorEventTypes) {
         RefreshTableModel tableModel = ((RefreshTableModel) errorTable.getModel());
 
-        boolean allEventTypes = (errorEventTypes == null);
-        tableModel.setValueAt(allEventTypes, 0, 0);
-
-        for (int i = 1; i < tableModel.getRowCount(); i++) {
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
             ErrorEventType type = (ErrorEventType) tableModel.getValueAt(i, 1);
 
-            if (allEventTypes) {
-                tableModel.setValueAt(true, i, 0);
-            } else {
-                tableModel.setValueAt(errorEventTypes.contains(type), i, 0);
-            }
+            tableModel.setValueAt(errorEventTypes.contains(type), i, 0);
         }
     }
 
     @Override
     public AlertTrigger getTrigger() {
-        Set<ErrorEventType> errorEventTypes = null;
+        Set<ErrorEventType> errorEventTypes = new HashSet<ErrorEventType>();
 
         RefreshTableModel tableModel = ((RefreshTableModel) errorTable.getModel());
 
-        boolean enabled = (Boolean) tableModel.getValueAt(0, 0);
-        if (!enabled) {
-            errorEventTypes = new HashSet<ErrorEventType>();
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            boolean enabled = (Boolean) tableModel.getValueAt(i, 0);
 
-            for (int i = 1; i < tableModel.getRowCount(); i++) {
-                enabled = (Boolean) tableModel.getValueAt(i, 0);
-
-                if (enabled) {
-                    errorEventTypes.add((ErrorEventType) tableModel.getValueAt(i, 1));
-                }
+            if (enabled) {
+                errorEventTypes.add((ErrorEventType) tableModel.getValueAt(i, 1));
             }
         }
 

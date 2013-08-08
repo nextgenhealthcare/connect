@@ -133,12 +133,8 @@ public class DefaultScriptController extends ScriptController {
     }
 
     @Override
-    public void executeGlobalDeployScript() {
-        try {
-            JavaScriptUtil.executeGlobalDeployScript(DEPLOY_SCRIPT_KEY);
-        } catch (Exception e) {
-            logger.error("Error executing global deploy script.", e);
-        }
+    public void executeGlobalDeployScript() throws Exception {
+        JavaScriptUtil.executeGlobalDeployScript(DEPLOY_SCRIPT_KEY);
     }
 
     @Override
@@ -147,12 +143,8 @@ public class DefaultScriptController extends ScriptController {
     }
 
     @Override
-    public void executeGlobalShutdownScript() {
-        try {
-            JavaScriptUtil.executeGlobalShutdownScript(SHUTDOWN_SCRIPT_KEY);
-        } catch (Exception e) {
-            logger.error("Error executing global shutdown script.", e);
-        }
+    public void executeGlobalShutdownScript() throws Exception {
+        JavaScriptUtil.executeGlobalShutdownScript(SHUTDOWN_SCRIPT_KEY);
     }
 
     @Override

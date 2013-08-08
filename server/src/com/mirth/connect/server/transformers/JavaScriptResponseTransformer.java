@@ -22,12 +22,12 @@ import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
-import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformerException;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
-import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.ServerUUIDGenerator;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
@@ -39,7 +39,7 @@ import com.mirth.connect.util.ErrorMessageBuilder;
 public class JavaScriptResponseTransformer implements ResponseTransformer {
     private Logger logger = Logger.getLogger(this.getClass());
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-    private EventDispatcher eventDispatcher = Donkey.getInstance().getEventDispatcher();
+    private EventController eventController= ControllerFactory.getFactory().createEventController();
 
     private String channelId;
     private String connectorName;
@@ -146,7 +146,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                         }
                     }
 
-                    eventDispatcher.dispatchEvent(new ErrorEvent(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), ErrorEventType.RESPONSE_TRANSFORMER, connectorName, null, "Error evaluating response transformer", t));
+                    eventController.dispatchEvent(new ErrorEvent(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), ErrorEventType.RESPONSE_TRANSFORMER, connectorName, null, "Error evaluating response transformer", t));
                     throw new ResponseTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.RESPONSE_TRANSFORMER.toString(), "Error evaluating response transformer", t));
                 } finally {
                     Context.exit();

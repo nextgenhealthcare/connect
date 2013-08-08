@@ -22,13 +22,17 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
 public class DestinationChain implements Callable<List<ConnectorMessage>> {
@@ -173,6 +177,10 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                             try {
                                 filterTransformerExecutors.get(metaDataId).processConnectorMessage(message);
                             } catch (DonkeyException e) {
+                                if (e instanceof XmlSerializerException) {
+                                    Donkey.getInstance().getEventDispatcher().dispatchEvent(new ErrorEvent(channelId, metaDataId, ErrorEventType.SERIALIZER, destinationConnector.getDestinationName(), null, e.getMessage(), e));
+                                }
+
                                 stopChain = true;
                                 message.setStatus(Status.ERROR);
                                 message.setProcessingError(e.getFormattedError());
