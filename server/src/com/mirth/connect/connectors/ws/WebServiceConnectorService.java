@@ -58,7 +58,7 @@ public class WebServiceConnectorService implements ConnectorService {
 
             WsdlInterface wsdlInterface = getWsdlInterface(wsdlUri, username, password);
             if (wsdlInterface != null) {
-                wsdlInterfaceCache.put(wsdlUrl, getWsdlInterface(wsdlUri, username, password));
+                wsdlInterfaceCache.put(wsdlUrl, wsdlInterface);
             } else {
                 throw new Exception("Could not find any definitions in " + wsdlUri);
             }
