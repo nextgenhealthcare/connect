@@ -214,8 +214,11 @@ public class TcpReceiver extends SourceConnector {
 
         synchronized (clientReaders) {
             disposing.set(true);
-            // Prevent any new client threads from being submitted to the executor
-            executor.shutdown();
+
+            if (executor != null) {
+                // Prevent any new client threads from being submitted to the executor
+                executor.shutdown();
+            }
         }
 
         if (serverSocket != null) {
