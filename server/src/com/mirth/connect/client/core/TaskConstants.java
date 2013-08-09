@@ -39,7 +39,7 @@ public class TaskConstants {
     // Settings Tasks
     public static final String SETTINGS_REFRESH = "doRefresh";
     public static final String SETTINGS_SAVE = "doSave";
-    
+
     // Server Settings Tasks
     public static final String SETTINGS_SERVER_BACKUP = "doBackup";
     public static final String SETTINGS_SERVER_RESTORE = "doRestore";
@@ -55,7 +55,7 @@ public class TaskConstants {
     public static final String ALERT_EDIT = "doEditAlert";
     public static final String ALERT_ENABLE = "doEnableAlert";
     public static final String ALERT_DISABLE = "doDisableAlert";
-    
+
     // Alert Edit Tasks
     public static final String ALERT_EDIT_SAVE = "doSaveAlerts";
     public static final String ALERT_EDIT_EXPORT = "doExportAlert";
@@ -75,7 +75,7 @@ public class TaskConstants {
     public static final String CHANNEL_EDIT = "doEditChannel";
     public static final String CHANNEL_ENABLE = "doEnableChannel";
     public static final String CHANNEL_DISABLE = "doDisableChannel";
-    
+
     // Channel Edit Tasks
     public static final String CHANNEL_EDIT_SAVE = "doSaveChannel";
     public static final String CHANNEL_EDIT_VALIDATE = "doValidate";
@@ -91,9 +91,9 @@ public class TaskConstants {
     public static final String CHANNEL_EDIT_RESPONSE_TRANSFORMER = "doEditResponseTransformer";
     public static final String CHANNEL_EDIT_IMPORT_CONNECTOR = "doImportConnector";
     public static final String CHANNEL_EDIT_EXPORT_CONNECTOR = "doExportConnector";
-    public static final String CHANNEL_EDIT_EXPORT = "doExport";
+    public static final String CHANNEL_EDIT_EXPORT = "doExportChannel";
     public static final String CHANNEL_EDIT_VALIDATE_SCRIPT = "doValidateChannelScripts";
-    
+
     // Dashboard Tasks
     public static final String DASHBOARD_REFRESH = "doRefreshStatuses";
     public static final String DASHBOARD_FILTER = "doFilter";
@@ -108,12 +108,12 @@ public class TaskConstants {
     public static final String DASHBOARD_START_CONNECTOR = "doStartConnector";
     public static final String DASHBOARD_STOP_CONNECTOR = "doStopConnector";
     public static final String DASHBOARD_UNDEPLOY = "doUndeployChannel";
-    
+
     // Event Tasks
     public static final String EVENT_REFRESH = "doRefreshEvents";
     public static final String EVENT_REMOVE_ALL = "doRemoveAllEvents";
     public static final String EVENT_EXPORT_ALL = "doExportAllEvents";
-    
+
     // Message Tasks
     public static final String MESSAGE_REFRESH = "doRefreshMessages";
     public static final String MESSAGE_SEND = "doSendMessage";
@@ -125,13 +125,13 @@ public class TaskConstants {
     public static final String MESSAGE_REPROCESS_FILTERED = "doReprocessFilteredMessages";
     public static final String MESSAGE_REPROCESS = "doReprocessMessage";
     public static final String MESSAGE_VIEW_IMAGE = "viewImage";
-    
+
     // User Tasks
     public static final String USER_REFRESH = "doRefreshUser";
     public static final String USER_NEW = "doNewUser";
     public static final String USER_EDIT = "doEditUser";
     public static final String USER_DELETE = "doDeleteUser";
-    
+
     // Code Template Tasks
     public static final String CODE_TEMPLATE_REFRESH = "doRefreshCodeTemplates";
     public static final String CODE_TEMPLATE_SAVE = "doSaveCodeTemplates";
@@ -140,13 +140,13 @@ public class TaskConstants {
     public static final String CODE_TEMPLATE_EXPORT = "doExportCodeTemplates";
     public static final String CODE_TEMPLATE_DELETE = "doDeleteCodeTemplate";
     public static final String CODE_TEMPLATE_VALIDATE = "doValidateCodeTemplate";
-    
+
     // Global Script Tasks
     public static final String GLOBAL_SCRIPT_SAVE = "doSaveGlobalScripts";
     public static final String GLOBAL_SCRIPT_VALIDATE = "doValidateCurrentGlobalScript";
     public static final String GLOBAL_SCRIPT_IMPORT = "doImportGlobalScripts";
     public static final String GLOBAL_SCRIPT_EXPORT = "doExportGlobalScripts";
-    
+
     // Extensions Tasks
     public static final String EXTENSIONS_REFRESH = "doRefreshExtensions";
     public static final String EXTENSIONS_CHECK_FOR_UPDATES = "doCheckForUpdates";
@@ -154,7 +154,7 @@ public class TaskConstants {
     public static final String EXTENSIONS_DISABLE = "doDisableExtension";
     public static final String EXTENSIONS_SHOW_PROPERTIES = "doShowExtensionProperties";
     public static final String EXTENSIONS_UNINSTALL = "doUninstallExtension";
-    
+
     // Other Tasks
     public static final String OTHER_HELP = "doHelp";
     public static final String OTHER_ABOUT = "goToAbout";
