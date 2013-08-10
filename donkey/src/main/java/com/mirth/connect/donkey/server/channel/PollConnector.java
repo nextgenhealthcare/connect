@@ -31,19 +31,8 @@ public abstract class PollConnector extends SourceConnector {
 
         terminated.set(false);
 
-        PollConnectorProperties connectorProperties = ((PollConnectorPropertiesInterface) getConnectorProperties()).getPollConnectorProperties();
-
         timer = new Timer();
-
-        if (connectorProperties.getPollingType().equals(PollConnectorProperties.POLLING_TYPE_INTERVAL)) {
-            // if polling type is interval, schedule the polling task to execute at the given frequency in milliseconds
-            task = new PollConnectorTask(this, false);
-            timer.schedule(task, 0, connectorProperties.getPollingFrequency());
-        } else if (connectorProperties.getPollingType().equals(PollConnectorProperties.POLLING_TYPE_TIME)) {
-            task = new PollConnectorTask(this, true);
-            // if polling type is time, schedule the polling task to execute at the given time, repeating every 24 hours
-            scheduleTimeBasedTask();
-        }
+        scheduleTask();
     }
 
     @Override
@@ -72,33 +61,44 @@ public abstract class PollConnector extends SourceConnector {
 
     protected abstract void poll() throws InterruptedException;
 
-    public void scheduleTimeBasedTask() {
+    public void scheduleTask() {
+        boolean firstTime = (task == null);
+        
+        task = new PollConnectorTask(this);
+
         PollConnectorProperties connectorProperties = ((PollConnectorPropertiesInterface) getConnectorProperties()).getPollConnectorProperties();
+        
+        if (connectorProperties.getPollingType().equals(PollConnectorProperties.POLLING_TYPE_INTERVAL)) {
+            if (firstTime) {
+                timer.schedule(task, 0);
+            } else {
+                timer.schedule(task, connectorProperties.getPollingFrequency());
+            }
+        } else if (connectorProperties.getPollingType().equals(PollConnectorProperties.POLLING_TYPE_TIME)) {
+            Calendar triggerTime = Calendar.getInstance();
+            triggerTime.setTimeInMillis(System.currentTimeMillis());
+            triggerTime.set(Calendar.HOUR, connectorProperties.getPollingHour());
+            triggerTime.set(Calendar.MINUTE, connectorProperties.getPollingMinute());
+            triggerTime.set(Calendar.SECOND, 0);
+            triggerTime.set(Calendar.MILLISECOND, 0);
 
-        Calendar triggerTime = Calendar.getInstance();
-        triggerTime.setTimeInMillis(System.currentTimeMillis());
-        triggerTime.set(Calendar.HOUR, connectorProperties.getPollingHour());
-        triggerTime.set(Calendar.MINUTE, connectorProperties.getPollingMinute());
-        triggerTime.set(Calendar.SECOND, 0);
-        triggerTime.set(Calendar.MILLISECOND, 0);
+            // if the scheduled time is in the past, set it to execute tomorrow
+            // 10000 milliseconds are added to allow sufficient time to schedule the task
+            if (triggerTime.getTimeInMillis() <= (System.currentTimeMillis() + 10000)) {
+                triggerTime.set(Calendar.DAY_OF_MONTH, triggerTime.get(Calendar.DAY_OF_MONTH) + 1);
+            }
 
-        // if the scheduled time is in the past, set it to execute tomorrow
-        // 10000 milliseconds are added to allow sufficient time to schedule the task
-        if (triggerTime.getTimeInMillis() <= (System.currentTimeMillis() + 10000)) {
-            triggerTime.set(Calendar.DAY_OF_MONTH, triggerTime.get(Calendar.DAY_OF_MONTH) + 1);
+            timer.schedule(task, triggerTime.getTime());
         }
 
-        timer.schedule(new PollConnectorTask(this, true), triggerTime.getTime());
     }
 
     private class PollConnectorTask extends TimerTask {
         private PollConnector pollConnector;
-        private boolean reschedule;
         private Thread thread;
 
-        public PollConnectorTask(PollConnector pollConnector, boolean reschedule) {
+        public PollConnectorTask(PollConnector pollConnector) {
             this.pollConnector = pollConnector;
-            this.reschedule = reschedule;
         }
 
         @Override
@@ -113,8 +113,8 @@ public abstract class PollConnector extends SourceConnector {
                         Thread.currentThread().interrupt();
                     }
 
-                    if (reschedule && !isTerminated()) {
-                        pollConnector.scheduleTimeBasedTask();
+                    if (!isTerminated()) {
+                        pollConnector.scheduleTask();
                     }
                 }
             }
