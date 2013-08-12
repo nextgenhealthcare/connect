@@ -14,7 +14,7 @@ public class Constants {
      * Reserved channel map key for the destination metadata ids that a message
      * is being sent through
      */
-    public static final String DESTINATION_META_DATA_IDS_KEY = "donkey.destinations";
+    public static final String DESTINATION_META_DATA_IDS_KEY = "mirth_destinations";
 
     /**
      * The number of milliseconds to wait for incoming messages on the source
