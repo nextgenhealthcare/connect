@@ -35,7 +35,7 @@ public interface EngineController {
     public void undeployChannels(Set<String> channelIds, ServerEventContext context) throws InterruptedException;
 
     public void redeployAllChannels() throws StopException, StartException, InterruptedException;
-    
+
     public boolean isDeployed(String channelId);
 
     public Channel getDeployedChannel(String channelId);
@@ -51,7 +51,7 @@ public interface EngineController {
      * @throws ControllerException
      */
     public void stopChannel(String channelId) throws StopException;
-    
+
     public void haltChannel(String channelId) throws HaltException;
 
     /**
@@ -76,13 +76,17 @@ public interface EngineController {
     public void stopConnector(String channelId, Integer metaDataId) throws StopException;
 
     /**
-     * Returns a list of ChannelStatus objects representing the running
-     * channels.
+     * Returns a list of DashboardStatus objects representing the running channels.
      * 
      * @return
      * @throws ControllerException
      */
     public List<DashboardStatus> getChannelStatusList();
+
+    /**
+     * Returns a DashboardStatus object representing a running channel.
+     */
+    public DashboardStatus getChannelStatus(String channelId);
 
     /**
      * Returns a list of deployed channel ids.

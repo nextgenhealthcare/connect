@@ -11,6 +11,7 @@ package com.mirth.connect.server.controllers;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -145,7 +146,7 @@ public class DonkeyEngineController implements EngineController {
                 eventController.dispatchEvent(event);
             }
         };
-        
+
         donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), donkeyEncryptor, eventDispatcher, configurationController.getServerId()));
     }
 
@@ -360,7 +361,20 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
+    public DashboardStatus getChannelStatus(String channelId) {
+        com.mirth.connect.donkey.server.channel.Channel donkeyChannel = donkey.getDeployedChannels().get(channelId);
+        if (donkeyChannel != null) {
+            return getDashboardStatuses(Collections.singleton(donkeyChannel)).get(0);
+        }
+        return null;
+    }
+
+    @Override
     public List<DashboardStatus> getChannelStatusList() {
+        return getDashboardStatuses(donkey.getDeployedChannels().values());
+    }
+
+    private List<DashboardStatus> getDashboardStatuses(Collection<com.mirth.connect.donkey.server.channel.Channel> donkeyChannels) {
         List<DashboardStatus> statuses = new ArrayList<DashboardStatus>();
 
         Map<String, Integer> channelRevisions = null;
@@ -370,7 +384,7 @@ public class DonkeyEngineController implements EngineController {
             logger.error("Error retrieving channel revisions", e);
         }
 
-        for (com.mirth.connect.donkey.server.channel.Channel donkeyChannel : donkey.getDeployedChannels().values()) {
+        for (com.mirth.connect.donkey.server.channel.Channel donkeyChannel : donkeyChannels) {
             Statistics stats = donkeyChannelController.getStatistics();
             Statistics lifetimeStats = donkeyChannelController.getTotalStatistics();
 

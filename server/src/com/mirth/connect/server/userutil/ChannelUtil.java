@@ -9,8 +9,7 @@
 
 package com.mirth.connect.server.userutil;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collections;
 
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.Channel;
@@ -24,150 +23,142 @@ public class ChannelUtil {
     private static EngineController engineController = ControllerFactory.getFactory().createEngineController();
     private static ChannelController channelController = ControllerFactory.getFactory().createChannelController();
 
-    public static void startChannel(String channelId) throws Exception {
-        engineController.startChannel(convertId(channelId));
+    public static void startChannel(String channelIdOrName) throws Exception {
+        engineController.startChannel(convertId(channelIdOrName));
     }
 
-    public static void stopChannel(String channelId) throws Exception {
-        engineController.stopChannel(convertId(channelId));
+    public static void stopChannel(String channelIdOrName) throws Exception {
+        engineController.stopChannel(convertId(channelIdOrName));
     }
 
-    public static void pauseChannel(String channelId) throws Exception {
-        engineController.pauseChannel(convertId(channelId));
+    public static void pauseChannel(String channelIdOrName) throws Exception {
+        engineController.pauseChannel(convertId(channelIdOrName));
     }
 
-    public static void resumeChannel(String channelId) throws Exception {
-        engineController.resumeChannel(convertId(channelId));
+    public static void resumeChannel(String channelIdOrName) throws Exception {
+        engineController.resumeChannel(convertId(channelIdOrName));
     }
 
-    public static void haltChannel(String channelId) throws Exception {
-        engineController.haltChannel(convertId(channelId));
+    public static void haltChannel(String channelIdOrName) throws Exception {
+        engineController.haltChannel(convertId(channelIdOrName));
     }
 
-    public static ChannelState getChannelState(String channelId) {
-        DashboardStatus dashboardStatus = getDashboardStatus(convertId(channelId), null);
+    public static ChannelState getChannelState(String channelIdOrName) {
+        DashboardStatus dashboardStatus = getDashboardStatus(channelIdOrName, null);
         return dashboardStatus != null ? convertChannelState(dashboardStatus.getState()) : null;
     }
 
-    public static void deployChannel(String channelId) {
-        Set<String> channelIds = new HashSet<String>();
-        channelIds.add(convertId(channelId));
-        engineController.deployChannels(channelIds, null);
+    public static void deployChannel(String channelIdOrName) {
+        engineController.deployChannels(Collections.singleton(convertId(channelIdOrName)), null);
     }
 
-    public static void undeployChannel(String channelId) throws Exception {
-        Set<String> channelIds = new HashSet<String>();
-        channelIds.add(convertId(channelId));
-        engineController.undeployChannels(channelIds, null);
+    public static void undeployChannel(String channelIdOrName) throws Exception {
+        engineController.undeployChannels(Collections.singleton(convertId(channelIdOrName)), null);
     }
 
-    public static boolean isChannelDeployed(String channelId) {
-        return engineController.getDeployedIds().contains(convertId(channelId));
+    public static boolean isChannelDeployed(String channelIdOrName) {
+        return engineController.getDeployedIds().contains(convertId(channelIdOrName));
     }
 
-    public void startConnector(String channelId, Integer metaDataId) throws Exception {
-        engineController.startConnector(channelId, metaDataId);
+    public void startConnector(String channelIdOrName, Integer metaDataId) throws Exception {
+        engineController.startConnector(convertId(channelIdOrName), metaDataId);
     }
 
-    public void stopConnector(String channelId, Integer metaDataId) throws Exception {
-        engineController.stopConnector(channelId, metaDataId);
+    public void stopConnector(String channelIdOrName, Integer metaDataId) throws Exception {
+        engineController.stopConnector(convertId(channelIdOrName), metaDataId);
     }
 
-    public static ChannelState getConnectorState(String channelId, Number metaDataId) {
-        DashboardStatus dashboardStatus = getDashboardStatus(convertId(channelId), metaDataId);
+    public static ChannelState getConnectorState(String channelIdOrName, Number metaDataId) {
+        DashboardStatus dashboardStatus = getDashboardStatus(channelIdOrName, metaDataId);
         return dashboardStatus != null ? convertChannelState(dashboardStatus.getState()) : null;
     }
 
-    public static Long getReceivedCount(String channelId) {
-        return getReceivedCount(channelId, null);
+    public static Long getReceivedCount(String channelIdOrName) {
+        return getReceivedCount(channelIdOrName, null);
     }
 
-    public static Long getReceivedCount(String channelId, Number metaDataId) {
-        return getStatisticByStatus(channelId, metaDataId, Status.RECEIVED);
+    public static Long getReceivedCount(String channelIdOrName, Number metaDataId) {
+        return getStatisticByStatus(channelIdOrName, metaDataId, Status.RECEIVED);
     }
 
-    public static Long getFilteredCount(String channelId) {
-        return getFilteredCount(channelId, null);
+    public static Long getFilteredCount(String channelIdOrName) {
+        return getFilteredCount(channelIdOrName, null);
     }
 
-    public static Long getFilteredCount(String channelId, Number metaDataId) {
-        return getStatisticByStatus(channelId, metaDataId, Status.FILTERED);
+    public static Long getFilteredCount(String channelIdOrName, Number metaDataId) {
+        return getStatisticByStatus(channelIdOrName, metaDataId, Status.FILTERED);
     }
 
-    public static Long getQueuedCount(String channelId) {
-        return getQueuedCount(channelId, null);
+    public static Long getQueuedCount(String channelIdOrName) {
+        return getQueuedCount(channelIdOrName, null);
     }
 
-    public static Long getQueuedCount(String channelId, Number metaDataId) {
-        return getStatisticByStatus(channelId, metaDataId, Status.QUEUED);
+    public static Long getQueuedCount(String channelIdOrName, Number metaDataId) {
+        return getStatisticByStatus(channelIdOrName, metaDataId, Status.QUEUED);
     }
 
-    public static Long getSentCount(String channelId) {
-        return getSentCount(channelId, null);
+    public static Long getSentCount(String channelIdOrName) {
+        return getSentCount(channelIdOrName, null);
     }
 
-    public static Long getSentCount(String channelId, Number metaDataId) {
-        return getStatisticByStatus(channelId, metaDataId, Status.SENT);
+    public static Long getSentCount(String channelIdOrName, Number metaDataId) {
+        return getStatisticByStatus(channelIdOrName, metaDataId, Status.SENT);
     }
 
-    public static Long getErrorCount(String channelId) {
-        return getErrorCount(channelId, null);
+    public static Long getErrorCount(String channelIdOrName) {
+        return getErrorCount(channelIdOrName, null);
     }
 
-    public static Long getErrorCount(String channelId, Number metaDataId) {
-        return getStatisticByStatus(channelId, metaDataId, Status.ERROR);
+    public static Long getErrorCount(String channelIdOrName, Number metaDataId) {
+        return getStatisticByStatus(channelIdOrName, metaDataId, Status.ERROR);
     }
 
-    private static String convertId(String channelId) {
-        if (!channelController.getChannelIds().contains(channelId)) {
+    private static String convertId(String channelIdOrName) {
+        if (!channelController.getChannelIds().contains(channelIdOrName)) {
             // Assume the name was passed in instead, check the deployed cache first
-            Channel channel = channelController.getDeployedChannelByName(channelId);
+            Channel channel = channelController.getDeployedChannelByName(channelIdOrName);
             if (channel != null) {
                 return channel.getId();
             }
 
             // Check the regular cache second
-            channel = channelController.getChannelByName(channelId);
+            channel = channelController.getChannelByName(channelIdOrName);
             if (channel != null) {
                 return channel.getId();
             }
         }
 
-        return channelId;
+        return channelIdOrName;
     }
 
-    private static DashboardStatus getDashboardStatus(String channelId, Number metaDataId) {
-        for (DashboardStatus dashboardStatus : engineController.getChannelStatusList()) {
-            if (dashboardStatus.getChannelId().equals(channelId)) {
-                if (metaDataId == null) {
-                    return dashboardStatus;
-                } else {
-                    for (DashboardStatus childStatus : dashboardStatus.getChildStatuses()) {
-                        if (childStatus.getMetaDataId().equals(toInteger(metaDataId))) {
-                            return childStatus;
-                        }
+    private static DashboardStatus getDashboardStatus(String channelIdOrName, Number metaDataId) {
+        DashboardStatus dashboardStatus = engineController.getChannelStatus(convertId(channelIdOrName));
+
+        if (dashboardStatus != null) {
+            if (metaDataId == null) {
+                return dashboardStatus;
+            } else {
+                metaDataId = metaDataId.intValue();
+
+                for (DashboardStatus childStatus : dashboardStatus.getChildStatuses()) {
+                    if (childStatus.getMetaDataId().equals(metaDataId)) {
+                        return childStatus;
                     }
                 }
             }
         }
+
         return null;
     }
 
-    private static Long getStatisticByStatus(String channelId, Number metaDataId, Status status) {
-        DashboardStatus dashboardStatus = getDashboardStatus(convertId(channelId), toInteger(metaDataId));
+    private static Long getStatisticByStatus(String channelIdOrName, Number metaDataId, Status status) {
+        DashboardStatus dashboardStatus = getDashboardStatus(channelIdOrName, metaDataId);
         if (dashboardStatus != null) {
             if (status == Status.QUEUED) {
                 return dashboardStatus.getQueued();
             } else {
                 return dashboardStatus.getStatistics().get(status);
             }
-        }
-        return null;
-    }
-
-    private static Integer toInteger(Number number) {
-        if (number != null) {
-            return number.intValue();
         }
         return null;
     }
