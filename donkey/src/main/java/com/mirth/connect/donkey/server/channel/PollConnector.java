@@ -76,21 +76,33 @@ public abstract class PollConnector extends SourceConnector {
             }
         } else if (connectorProperties.getPollingType().equals(PollConnectorProperties.POLLING_TYPE_TIME)) {
             Calendar triggerTime = Calendar.getInstance();
-            triggerTime.setTimeInMillis(System.currentTimeMillis());
-            triggerTime.set(Calendar.HOUR, connectorProperties.getPollingHour());
+
+            /*
+             * Save the current time to check against the trigger time later. We MUST check against
+             * the original time the calendar object was created since it is used to set the
+             * day/month/year. Otherwise it is possible to incorrectly advance the day of month.
+             */
+            long currentTime = triggerTime.getTimeInMillis();
+
+            triggerTime.set(Calendar.HOUR_OF_DAY, connectorProperties.getPollingHour());
             triggerTime.set(Calendar.MINUTE, connectorProperties.getPollingMinute());
             triggerTime.set(Calendar.SECOND, 0);
             triggerTime.set(Calendar.MILLISECOND, 0);
 
-            // if the scheduled time is in the past, set it to execute tomorrow
-            // 10000 milliseconds are added to allow sufficient time to schedule the task
-            if (triggerTime.getTimeInMillis() <= (System.currentTimeMillis() + 10000)) {
+            /*
+             * If the scheduled time is in the past, set it to execute the following day. This works
+             * correctly even at the end of the month.
+             */
+            if (triggerTime.getTimeInMillis() < currentTime) {
                 triggerTime.set(Calendar.DAY_OF_MONTH, triggerTime.get(Calendar.DAY_OF_MONTH) + 1);
             }
 
+            /*
+             * Schedule the task at the specified time. If the specified time was crossed between
+             * creating the triggerTime and scheduling it, it will be executed immediately.
+             */
             timer.schedule(task, triggerTime.getTime());
         }
-
     }
 
     private class PollConnectorTask extends TimerTask {
