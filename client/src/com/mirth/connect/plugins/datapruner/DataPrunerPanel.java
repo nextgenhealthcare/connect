@@ -408,6 +408,18 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
         scheduleButtonGroup = new javax.swing.ButtonGroup();
         pruneEventsButtonGroup = new javax.swing.ButtonGroup();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jPanel1 = new javax.swing.JPanel();
+        archiverContainerPanel = new javax.swing.JPanel();
+        pruneSettingsPanel = new javax.swing.JPanel();
+        blockSizeTextField = new com.mirth.connect.client.ui.components.MirthTextField();
+        blockSizeLabel = new javax.swing.JLabel();
+        pruneEventsLabel = new javax.swing.JLabel();
+        pruneEventsYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        pruneEventsNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        pruneEventAgeLabel = new javax.swing.JLabel();
+        pruneEventAgeTextField = new com.mirth.connect.client.ui.components.MirthTextField();
+        eventDaysLabel = new javax.swing.JLabel();
         pruningSchedulePanel = new javax.swing.JPanel();
         hourlyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         dailyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -421,7 +433,6 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         monthlyAtLabel = new javax.swing.JLabel();
         timeOfDayMonthly = new MirthTimePicker("hh:mm aa", Calendar.MINUTE);
         disabledRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        archiverContainerPanel = new javax.swing.JPanel();
         statusPanel = new javax.swing.JPanel();
         currentProcessLabel = new javax.swing.JLabel();
         nextProcessLabel = new javax.swing.JLabel();
@@ -431,17 +442,94 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         currentStateTextLabel = new javax.swing.JLabel();
         currentProcessTextLabel = new javax.swing.JLabel();
         currentStateLabel = new javax.swing.JLabel();
-        pruneSettingsPanel = new javax.swing.JPanel();
-        blockSizeTextField = new com.mirth.connect.client.ui.components.MirthTextField();
-        blockSizeLabel = new javax.swing.JLabel();
-        pruneEventsLabel = new javax.swing.JLabel();
-        pruneEventsYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        pruneEventsNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        pruneEventAgeLabel = new javax.swing.JLabel();
-        pruneEventAgeTextField = new com.mirth.connect.client.ui.components.MirthTextField();
-        eventDaysLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
+        setLayout(new java.awt.BorderLayout());
+
+        jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
+        jScrollPane1.setBorder(null);
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+
+        archiverContainerPanel.setBackground(new java.awt.Color(255, 255, 255));
+        archiverContainerPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Archive Settings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        archiverContainerPanel.setLayout(null);
+
+        pruneSettingsPanel.setBackground(new java.awt.Color(255, 255, 255));
+        pruneSettingsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Prune Settings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+
+        blockSizeTextField.setToolTipText("<html>If this number is 0, all messages are pruned in a single query. If the single query is slowing down<br>the system for too long, messages can be pruned in blocks of the specified size. Block pruning can<br>be a much longer process, but it will not slow down the system as much as a single query.</html>");
+
+        blockSizeLabel.setText("Block Size:");
+
+        pruneEventsLabel.setText("Prune Events:");
+
+        pruneEventsYes.setBackground(new java.awt.Color(255, 255, 255));
+        pruneEventsButtonGroup.add(pruneEventsYes);
+        pruneEventsYes.setText("Yes");
+        pruneEventsYes.setToolTipText("<html>If Yes, event records older than the Event Age will be pruned. If No, event records will not be pruned.</html>");
+        pruneEventsYes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pruneEventsYesActionPerformed(evt);
+            }
+        });
+
+        pruneEventsNo.setBackground(new java.awt.Color(255, 255, 255));
+        pruneEventsButtonGroup.add(pruneEventsNo);
+        pruneEventsNo.setText("No");
+        pruneEventsNo.setToolTipText("<html>If Yes, event records will be pruned in addition to messages. If No, event records will not be pruned.</html>");
+        pruneEventsNo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pruneEventsNoActionPerformed(evt);
+            }
+        });
+
+        pruneEventAgeLabel.setText("Prune Event Age:");
+
+        pruneEventAgeTextField.setToolTipText("<html>Events older than this number of days will be pruned if Prune Events is set to Yes.</html>");
+
+        eventDaysLabel.setText("days");
+
+        javax.swing.GroupLayout pruneSettingsPanelLayout = new javax.swing.GroupLayout(pruneSettingsPanel);
+        pruneSettingsPanel.setLayout(pruneSettingsPanelLayout);
+        pruneSettingsPanelLayout.setHorizontalGroup(
+            pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pruneSettingsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(pruneEventAgeLabel)
+                    .addComponent(pruneEventsLabel)
+                    .addComponent(blockSizeLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(pruneSettingsPanelLayout.createSequentialGroup()
+                        .addComponent(pruneEventsYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(pruneEventsNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(pruneEventAgeTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(blockSizeTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(eventDaysLabel)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        pruneSettingsPanelLayout.setVerticalGroup(
+            pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pruneSettingsPanelLayout.createSequentialGroup()
+                .addGroup(pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(blockSizeLabel)
+                    .addComponent(blockSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(pruneEventsLabel)
+                    .addComponent(pruneEventsYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(pruneEventsNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(pruneEventAgeLabel)
+                    .addComponent(pruneEventAgeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(eventDaysLabel))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         pruningSchedulePanel.setBackground(new java.awt.Color(255, 255, 255));
         pruningSchedulePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Schedule", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
@@ -539,7 +627,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(timeOfDayWeekly, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addComponent(disabledRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(541, Short.MAX_VALUE))
+                .addContainerGap(529, Short.MAX_VALUE))
         );
         pruningSchedulePanelLayout.setVerticalGroup(
             pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -566,10 +654,6 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
                     .addComponent(dayOfMonth, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-
-        archiverContainerPanel.setBackground(new java.awt.Color(255, 255, 255));
-        archiverContainerPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Archive Settings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
-        archiverContainerPanel.setLayout(null);
 
         statusPanel.setBackground(new java.awt.Color(255, 255, 255));
         statusPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Status", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
@@ -601,7 +685,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
                     .addComponent(nextProcessTextLabel)
                     .addComponent(lastProcessTextLabel)
                     .addComponent(currentProcessTextLabel))
-                .addGap(0, 640, Short.MAX_VALUE))
+                .addGap(0, 638, Short.MAX_VALUE))
         );
         statusPanelLayout.setVerticalGroup(
             statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -624,97 +708,22 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pruneSettingsPanel.setBackground(new java.awt.Color(255, 255, 255));
-        pruneSettingsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Prune Settings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
-
-        blockSizeTextField.setToolTipText("<html>If this number is 0, all messages are pruned in a single query. If the single query is slowing down<br>the system for too long, messages can be pruned in blocks of the specified size. Block pruning can<br>be a much longer process, but it will not slow down the system as much as a single query.</html>");
-
-        blockSizeLabel.setText("Block Size:");
-
-        pruneEventsLabel.setText("Prune Events:");
-
-        pruneEventsYes.setBackground(new java.awt.Color(255, 255, 255));
-        pruneEventsButtonGroup.add(pruneEventsYes);
-        pruneEventsYes.setText("Yes");
-        pruneEventsYes.setToolTipText("<html>If Yes, event records older than the Event Age will be pruned. If No, event records will not be pruned.</html>");
-        pruneEventsYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pruneEventsYesActionPerformed(evt);
-            }
-        });
-
-        pruneEventsNo.setBackground(new java.awt.Color(255, 255, 255));
-        pruneEventsButtonGroup.add(pruneEventsNo);
-        pruneEventsNo.setText("No");
-        pruneEventsNo.setToolTipText("<html>If Yes, event records will be pruned in addition to messages. If No, event records will not be pruned.</html>");
-        pruneEventsNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pruneEventsNoActionPerformed(evt);
-            }
-        });
-
-        pruneEventAgeLabel.setText("Prune Event Age:");
-
-        pruneEventAgeTextField.setToolTipText("<html>Events older than this number of days will be pruned if Prune Events is set to Yes.</html>");
-
-        eventDaysLabel.setText("days");
-
-        javax.swing.GroupLayout pruneSettingsPanelLayout = new javax.swing.GroupLayout(pruneSettingsPanel);
-        pruneSettingsPanel.setLayout(pruneSettingsPanelLayout);
-        pruneSettingsPanelLayout.setHorizontalGroup(
-            pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pruneSettingsPanelLayout.createSequentialGroup()
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(pruneEventAgeLabel)
-                    .addComponent(pruneEventsLabel)
-                    .addComponent(blockSizeLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(pruneSettingsPanelLayout.createSequentialGroup()
-                        .addComponent(pruneEventsYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(pruneEventsNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(pruneEventAgeTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(blockSizeTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(eventDaysLabel)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        pruneSettingsPanelLayout.setVerticalGroup(
-            pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pruneSettingsPanelLayout.createSequentialGroup()
-                .addGroup(pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(blockSizeLabel)
-                    .addComponent(blockSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(pruneEventsLabel)
-                    .addComponent(pruneEventsYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pruneEventsNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pruneSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(pruneEventAgeLabel)
-                    .addComponent(pruneEventAgeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(eventDaysLabel))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(archiverContainerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 813, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(archiverContainerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 801, Short.MAX_VALUE)
                     .addComponent(pruningSchedulePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(statusPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(pruneSettingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(pruneSettingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -725,6 +734,10 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
                 .addComponent(archiverContainerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
                 .addContainerGap())
         );
+
+        jScrollPane1.setViewportView(jPanel1);
+
+        add(jScrollPane1, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
     // @formatter:on
 
@@ -814,6 +827,8 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthRadioButton disabledRadio;
     private javax.swing.JLabel eventDaysLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton hourlyRadio;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lastProcessLabel;
     private javax.swing.JLabel lastProcessTextLabel;
     private javax.swing.JLabel monthlyAtLabel;
