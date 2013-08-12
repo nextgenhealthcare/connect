@@ -38,6 +38,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -1229,6 +1230,12 @@ public class CommandLineInterface {
                 }
 
                 metaDataIds.add(metaDataId);
+
+                if (CollectionUtils.isNotEmpty(status.getChildStatuses())) {
+                    for (DashboardStatus childStatus : status.getChildStatuses()) {
+                        metaDataIds.add(childStatus.getMetaDataId());
+                    }
+                }
             }
 
             client.clearStatistics(channelConnectorMap, true, true, true, true);
