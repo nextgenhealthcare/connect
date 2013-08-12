@@ -144,7 +144,7 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
             }
         });
 
-        okButton.setText("Ok");
+        okButton.setText("OK");
         okButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 okButtonActionPerformed(evt);
