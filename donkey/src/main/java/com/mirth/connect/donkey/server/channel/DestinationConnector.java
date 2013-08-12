@@ -248,7 +248,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 queueThreads.clear();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new HaltException("Failed to stop destination connector for channel: " + getChannelId(), e);
+                throw new HaltException("Failed to halt destination connector for channel: " + getChannelId(), e);
             } finally {
                 // Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
                 // unsynchronized with the data store.
