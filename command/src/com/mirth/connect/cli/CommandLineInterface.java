@@ -453,7 +453,7 @@ public class CommandLineInterface {
         out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel\n");
         out.println("channel list\n\tLists all Channels\n");
         out.println("clearallmessages\n\tRemoves all messages from all Channels (running channels will be restarted)\n");
-        out.println("resetstats\n\tRemoves all stats from all Channels\n");
+        out.println("resetstats [lifetime]\n\tRemoves all stats from all Channels. Optional 'lifetime' includes resetting lifetime stats.\n");
         out.println("dump stats|events \"path\"\n\tDumps stats or events to specified file\n");
         out.println("user list\n\tReturns a list of the current users\n");
         out.println("user add username \"password\" \"firstName\" \"lastName\" \"organization\" \"email\"\n\tAdds the specified user\n");
@@ -1205,31 +1205,32 @@ public class CommandLineInterface {
     }
 
     private void commandResetstats(Token[] arguments) throws ClientException {
-        List<DashboardStatus> channelStatuses = client.getChannelStatusList();
-
-        Map<String, List<Integer>> channelConnectorMap = new HashMap<String, List<Integer>>();
-
-        for (DashboardStatus status : channelStatuses) {
-            String channelId = status.getChannelId();
-            Integer metaDataId = status.getMetaDataId();
-
-            if (channelConnectorMap.containsKey(channelId)) {
-                List<Integer> metaDataIds = channelConnectorMap.get(channelId);
-
-                if (metaDataIds != null && metaDataId != null) {
-                    metaDataIds.add(metaDataId);
-                }
-            } else {
-                if (metaDataId == null) {
-                    channelConnectorMap.put(channelId, null);
-                } else {
-                    channelConnectorMap.put(channelId, new ArrayList<Integer>());
-                    channelConnectorMap.get(channelId).add(metaDataId);
-                }
-            }
+        boolean lifetime = false;
+        if (arguments.length >= 2 && arguments[1] == Token.LIFETIME) {
+            lifetime = true;
         }
 
-        for (DashboardStatus channelStatus : channelStatuses) {
+        if (lifetime) {
+            client.clearAllStatistics();
+        } else {
+            List<DashboardStatus> channelStatuses = client.getChannelStatusList();
+
+            Map<String, List<Integer>> channelConnectorMap = new HashMap<String, List<Integer>>();
+
+            for (DashboardStatus status : channelStatuses) {
+                String channelId = status.getChannelId();
+                Integer metaDataId = status.getMetaDataId();
+
+                List<Integer> metaDataIds = channelConnectorMap.get(channelId);
+
+                if (metaDataIds == null) {
+                    metaDataIds = new ArrayList<Integer>();
+                    channelConnectorMap.put(channelId, metaDataIds);
+                }
+
+                metaDataIds.add(metaDataId);
+            }
+
             client.clearStatistics(channelConnectorMap, true, true, true, true);
         }
     }

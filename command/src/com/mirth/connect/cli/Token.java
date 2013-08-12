@@ -64,6 +64,7 @@ public class Token {
 	static Token STATS = addKeyword("stats");
 	static Token CLEARALLMESSAGES = addKeyword("clearallmessages");
 	static Token RESETSTATS = addKeyword("resetstats");
+	static Token LIFETIME = addKeyword("lifetime");
 	static Token DUMP = addKeyword("dump");
 	static Token EVENTS = addKeyword("events");
 	static Token QUIT = addKeyword("quit");
