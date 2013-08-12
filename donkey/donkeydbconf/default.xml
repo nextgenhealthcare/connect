@@ -125,7 +125,7 @@
 		FROM d_mm${localChannelId} mm
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id
 		JOIN d_mm${localChannelId} mm0 ON mm0.message_id = mm.message_id AND mm0.id = 0
-		WHERE mm.id = ? AND mm.status = ? AND mm0.server_id = ? AND m.processed = FALSE
+		WHERE mm.id = ? AND mm.status = ? AND mm0.server_id = ? AND mm.server_id = mm0.server_id
 		ORDER BY mm.message_id
 	</query>
 	

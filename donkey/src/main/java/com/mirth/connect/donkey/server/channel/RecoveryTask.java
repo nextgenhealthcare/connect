@@ -51,6 +51,7 @@ public class RecoveryTask implements Callable<List<Message>> {
 
                     if (storageSettings.isMessageRecoveryEnabled()) {
                         ThreadUtils.checkInterruptedStatus();
+                        // Get connector messages for this server id that need to be recovered.
                         List<ConnectorMessage> recoveredConnectorMessages = dao.getUnfinishedConnectorMessages(channel.getChannelId(), channel.getServerId(), metaDataId, Status.RECEIVED);
                         ThreadUtils.checkInterruptedStatus();
                         recoveredConnectorMessages.addAll(dao.getUnfinishedConnectorMessages(channel.getChannelId(), channel.getServerId(), metaDataId, Status.PENDING));
@@ -58,6 +59,7 @@ public class RecoveryTask implements Callable<List<Message>> {
                         for (ConnectorMessage recoveredConnectorMessage : recoveredConnectorMessages) {
                             long messageId = recoveredConnectorMessage.getMessageId();
 
+                            // Get existing connector messages for this message regardless of server id, because we don't want to process that connector again regardless.
                             List<ConnectorMessage> existingConnectorMessages = dao.getConnectorMessages(channel.getChannelId(), messageId, new HashSet<Integer>(chainMetaDataIds), false);
                             Set<Integer> existingMetaDataIds = new HashSet<Integer>();
                             for (ConnectorMessage connectorMessage : existingConnectorMessages) {
