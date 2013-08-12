@@ -423,10 +423,13 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
+                private Exception exception = null;
+
                 public Void doInBackground() {
                     try {
                         getFrame().mirthClient.clearAllStatistics();
                     } catch (ClientException e) {
+                        exception = e;
                         getFrame().alertException(SettingsPanelServer.this, e.getStackTrace(), e.getMessage());
                     }
                     return null;
@@ -434,7 +437,10 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
                 public void done() {
                     getFrame().stopWorking(workingId);
-                    getFrame().alertInformation(SettingsPanelServer.this, "All current and lifetime statistics have been cleared for all channels.");
+
+                    if (exception == null) {
+                        getFrame().alertInformation(SettingsPanelServer.this, "All current and lifetime statistics have been cleared for all channels.");
+                    }
                 }
             };
 
