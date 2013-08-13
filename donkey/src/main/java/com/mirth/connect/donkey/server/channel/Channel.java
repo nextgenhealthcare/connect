@@ -301,8 +301,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     }
 
     /**
-     * Tell whether or not the channel is configured correctly and is able to be
-     * deployed
+     * Tell whether or not the channel is configured correctly and is able to be deployed
      */
     public boolean isConfigurationValid() {
         if (channelId == null || daoFactory == null || sourceConnector == null || sourceFilterTransformerExecutor == null) {
@@ -333,9 +332,8 @@ public class Channel implements Startable, Stoppable, Runnable {
     }
 
     /**
-     * Get a specific DestinationConnector by metadata id. A convenience method
-     * that searches the destination chains for the destination connector with
-     * the given metadata id.
+     * Get a specific DestinationConnector by metadata id. A convenience method that searches the
+     * destination chains for the destination connector with the given metadata id.
      */
     public DestinationConnector getDestinationConnector(int metaDataId) {
         for (DestinationChain chain : destinationChains) {
@@ -699,10 +697,8 @@ public class Channel implements Startable, Stoppable, Runnable {
                 if (dispatchThreads.size() == 0) {
                     shuttingDown = true;
                     /*
-                     * Once the thread count reaches zero, we want to make sure
-                     * that any calls to
-                     * finishDispatch complete (which should release the
-                     * channel's process lock and
+                     * Once the thread count reaches zero, we want to make sure that any calls to
+                     * finishDispatch complete (which should release the channel's process lock and
                      * allow us to acquire it here).
                      */
                     obtainProcessLock();
@@ -891,10 +887,8 @@ public class Channel implements Startable, Stoppable, Runnable {
 
                 /*
                  * TRANSACTION: Create Raw Message
-                 * - create a source connector message from the raw message and
-                 * set
-                 * the
-                 * status as RECEIVED
+                 * - create a source connector message from the raw message and set the status as
+                 * RECEIVED
                  * - store attachments
                  */
                 dao = daoFactory.getDao();
@@ -1112,13 +1106,13 @@ public class Channel implements Startable, Stoppable, Runnable {
     }
 
     /**
-     * Process a source message and return the final processed composite message
-     * once all destinations have completed and the post-processor has executed
+     * Process a source message and return the final processed composite message once all
+     * destinations have completed and the post-processor has executed
      * 
      * @param sourceMessage
      *            A source connector message
-     * @return The final processed composite message containing the source
-     *         message and all destination messages
+     * @return The final processed composite message containing the source message and all
+     *         destination messages
      * @throws InterruptedException
      */
     protected Message process(ConnectorMessage sourceMessage, boolean markAsProcessed) throws InterruptedException {
@@ -1156,8 +1150,7 @@ public class Channel implements Startable, Stoppable, Runnable {
          * - store transformed content
          * - store encoded content
          * - update source maps
-         * - create connector messages for each destination chain with RECEIVED
-         * status and maps
+         * - create connector messages for each destination chain with RECEIVED status and maps
          */
         ThreadUtils.checkInterruptedStatus();
         DonkeyDao dao = daoFactory.getDao();
@@ -1314,10 +1307,8 @@ public class Channel implements Startable, Stoppable, Runnable {
             dao.close();
 
             /*
-             * Construct a list of only the enabled destination chains. This is
-             * done because we
-             * don't know beforehand which destination chain will be the "last"
-             * one.
+             * Construct a list of only the enabled destination chains. This is done because we
+             * don't know beforehand which destination chain will be the "last" one.
              */
             List<DestinationChain> enabledChains = new ArrayList<DestinationChain>();
             for (DestinationChain chain : destinationChains) {
@@ -1384,15 +1375,10 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     private void addConnectorMessages(Message finalMessage, ConnectorMessage sourceMessage, List<ConnectorMessage> connectorMessages) {
         /*
-         * Check for null here in case DestinationChain.call() returned null,
-         * which
-         * indicates that the chain did not process and should be skipped. This
-         * would only
-         * happen in very rare circumstances, possibly if a message is sent to
-         * the chain and
-         * the destination connector that the message belongs to has been
-         * removed or
-         * disabled.
+         * Check for null here in case DestinationChain.call() returned null, which indicates that
+         * the chain did not process and should be skipped. This would only happen in very rare
+         * circumstances, possibly if a message is sent to the chain and the destination connector
+         * that the message belongs to has been removed or disabled.
          */
         if (connectorMessages != null) {
             for (ConnectorMessage connectorMessage : connectorMessages) {
@@ -1411,7 +1397,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
 
         // TODO: make sure we are catching out of memory errors correctly here
-        if (cause.getMessage().contains("Java heap space")) {
+        if (cause.getMessage() != null && cause.getMessage().contains("Java heap space")) {
             logger.error(cause.getMessage(), cause);
             throw new OutOfMemoryError();
         }
@@ -1482,8 +1468,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         /*
          * TRANSACTION: Post Process and Complete
-         * - store the merged response map as the source connector's response
-         * map
+         * - store the merged response map as the source connector's response map
          * - mark the message as processed
          */
         ThreadUtils.checkInterruptedStatus();
@@ -1625,8 +1610,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             ChannelController.getInstance().initChannelStorage(channelId);
 
             /*
-             * Before deploying, make sure the connector is deployable. Verify
-             * that if queueing is
+             * Before deploying, make sure the connector is deployable. Verify that if queueing is
              * enabled, the current storage settings support it.
              */
             if (!sourceConnector.isRespondAfterProcessing() && (!storageSettings.isEnabled() || !storageSettings.isStoreRaw() || (!storageSettings.isStoreMaps() && !storageSettings.isRawDurable()))) {
@@ -1795,8 +1779,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     updateCurrentState(ChannelState.STARTING);
 
                     /*
-                     * We can't guarantee the state of the semaphore when the
-                     * channel was stopped /
+                     * We can't guarantee the state of the semaphore when the channel was stopped /
                      * halted, so we just create a new one instead.
                      */
                     processLock = new Semaphore(1, true);
