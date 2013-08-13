@@ -561,6 +561,13 @@ public class ImportConverter3_0_0 {
                 }
             }
         }
+
+        DonkeyElement serverSettings = serverConfiguration.getChildElement("serverSettings");
+
+        if (serverSettings != null) {
+            serverSettings.removeChild("maxQueueSize");
+            serverSettings.addChildElement("queueBufferSize", "1000");
+        }
     }
 
     private static void migrateMetaData(DonkeyElement metaData) {
