@@ -62,4 +62,11 @@ public class ResponseFactory {
     public static Response getQueuedResponse(String message) {
         return new Response(Status.QUEUED, message);
     }
+
+    // TODO: Remove in 3.1
+    @Deprecated
+    public static Response getResponse(String message) {
+        logger.error("The getResponse(message) method is deprecated and will soon be removed. The UNKNOWN status has also been removed; this method will return a response with the SENT status instead.");
+        return new Response(Status.SENT, message);
+    }
 }
