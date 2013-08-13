@@ -41,6 +41,7 @@ public abstract class PollConnector extends SourceConnector {
 
         if (task != null) {
             task.terminate(false);
+            task = null;
         }
         super.stop();
     }
@@ -51,6 +52,7 @@ public abstract class PollConnector extends SourceConnector {
 
         if (task != null) {
             task.terminate(true);
+            task = null;
         }
         super.halt();
     }
