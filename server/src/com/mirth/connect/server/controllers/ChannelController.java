@@ -65,7 +65,5 @@ public abstract class ChannelController extends Controller {
 
     public abstract DeployedChannelInfo getDeployedChannelInfoById(String channelId);
 
-    public abstract String getDeployedDestinationName(String connectorId);
-
-    public abstract String getDeployedConnectorId(String channelId, String connectorName) throws Exception;
+    public abstract String getDeployedDestinationName(String channelId, int metaDataId);
 }

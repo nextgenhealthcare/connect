@@ -390,13 +390,8 @@ public class DefaultChannelController extends ChannelController {
     }
 
     @Override
-    public String getDeployedDestinationName(String connectorId) {
-        return deployedChannelCache.getDeployedDestinationName(connectorId);
-    }
-
-    @Override
-    public String getDeployedConnectorId(String channelId, String connectorName) throws Exception {
-        return deployedChannelCache.getDeployedConnectorId(channelId, connectorName);
+    public String getDeployedDestinationName(String channelId, int metaDataId) {
+        return deployedChannelCache.getDeployedDestinationName(channelId, metaDataId);
     }
 
     // ---------- CHANNEL CACHE ----------
@@ -614,49 +609,23 @@ public class DefaultChannelController extends ChannelController {
             }
         }
 
-        private String getDeployedDestinationName(String connectorId) {
+        private String getDeployedDestinationName(String channelId, int metaDataId) {
             try {
                 readLock.lock();
-
-                // String format: channelid_destination_index
-                String destinationName = connectorId;
-                // if we can't parse the name, just use the id
-                String channelId = connectorId.substring(0, connectorId.indexOf('_'));
-                String strIndex = connectorId.substring(connectorId.indexOf("destination_") + 12, connectorId.indexOf("_connector"));
-                int index = Integer.parseInt(strIndex) - 1;
                 Channel channel = getDeployedChannelById(channelId);
-
+    
                 if (channel != null) {
-                    if (index < channel.getDestinationConnectors().size())
-                        destinationName = channel.getDestinationConnectors().get(index).getName();
-                }
-
-                return destinationName;
-            } finally {
-                readLock.unlock();
-            }
-        }
-
-        private String getDeployedConnectorId(String channelId, String connectorName) throws Exception {
-            try {
-                readLock.lock();
-
-                Channel channel = getDeployedChannelById(channelId);
-                int index = 1;
-
-                for (Connector connector : channel.getDestinationConnectors()) {
-                    if (connector.getName().equals(connectorName)) {
-                        return String.valueOf(index);
-                    } else {
-                        index++;
+                    for (Connector connector : channel.getDestinationConnectors()) {
+                        if (connector.getMetaDataId() == metaDataId) {
+                            return connector.getName();
+                        }
                     }
                 }
 
-                throw new Exception("Connector name not found");
+                return null;
             } finally {
                 readLock.unlock();
             }
-
         }
     }
 }
