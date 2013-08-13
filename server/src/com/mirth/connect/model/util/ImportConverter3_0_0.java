@@ -832,7 +832,7 @@ public class ImportConverter3_0_0 {
 
         String afterProcessingAction = "NONE";
 
-        if (Boolean.parseBoolean(oldProperties.getProperty("autoDelete", "false"))) {
+        if (Boolean.parseBoolean(readBooleanProperty(oldProperties, "autoDelete", false))) {
             afterProcessingAction = "DELETE";
         } else if (!StringUtils.isBlank(moveToDirectory) || !StringUtils.isBlank(moveToFileName)) {
             afterProcessingAction = "MOVE";
