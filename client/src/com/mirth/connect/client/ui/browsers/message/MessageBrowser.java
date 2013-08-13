@@ -71,6 +71,7 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jdesktop.swingx.table.TableColumnExt;
+import org.jdesktop.swingx.table.TableColumnModelExt;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
@@ -160,6 +161,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private MessageExportDialog exportDialog;
     private JPopupMenu attachmentPopupMenu;
     private TreeMap<Integer, String> columnMap;
+    private Set<String> defaultVisibleColumns;
     // Worker used for loading a page and counting the total number of messages
     private SwingWorker<Void, Void> worker;
 
@@ -337,7 +339,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             String columnName = column.getTitle();
 
             boolean defaultVisible = false;
-            if (columnName.equals(columnMap.get(ID_COLUMN)) || columnName.equals(columnMap.get(CONNECTOR_COLUMN)) || columnName.equals(columnMap.get(STATUS_COLUMN)) || columnName.equals(columnMap.get(RECEIVED_DATE_COLUMN)) || columnName.equals(columnMap.get(RESPONSE_DATE_COLUMN)) || columnName.equals(columnMap.get(ERRORS_COLUMN))) {
+            if (defaultVisibleColumns.contains(columnName)) {
                 defaultVisible = true;
             }
 
@@ -1022,6 +1024,14 @@ public class MessageBrowser extends javax.swing.JPanel {
         columnMap.put(IMPORT_CHANNEL_ID_COLUMN, "Import Channel Id");
         columnMap.put(ORIGINAL_SERVER_ID_COLUMN, "Original Server Id");
 
+        defaultVisibleColumns = new HashSet<String>();
+        defaultVisibleColumns.add(columnMap.get(ID_COLUMN));
+        defaultVisibleColumns.add(columnMap.get(CONNECTOR_COLUMN));
+        defaultVisibleColumns.add(columnMap.get(STATUS_COLUMN));
+        defaultVisibleColumns.add(columnMap.get(RECEIVED_DATE_COLUMN));
+        defaultVisibleColumns.add(columnMap.get(RESPONSE_DATE_COLUMN));
+        defaultVisibleColumns.add(columnMap.get(ERRORS_COLUMN));
+
         messageTreeTable.setDragEnabled(false);
         //messageTreeTable.setFocusable(false);
         messageTreeTable.setSortable(false);
@@ -1273,6 +1283,35 @@ public class MessageBrowser extends javax.swing.JPanel {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 messageTreeTable.expandAll();
+            }
+
+        });
+        columnMenu.add(menuItem);
+        
+        columnMenu.addSeparator();
+
+        menuItem = new JMenuItem("Restore Default");
+        menuItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+
+                for (TableColumn column : ((TableColumnModelExt) messageTreeTable.getColumnModel()).getColumns(true)) {
+                    TableColumnExt columnExt = (TableColumnExt) column;
+                    String columnName = columnExt.getTitle();
+
+                    if (columnExt.getModelIndex() < columnMap.size()) {
+                        boolean enable = defaultVisibleColumns.contains(columnName);
+
+                        columnExt.setVisible(enable);
+                        Preferences.userNodeForPackage(Mirth.class).putBoolean("messageBrowserVisibleColumn" + columnName, enable);
+                    } else {
+                        columnExt.setVisible(true);
+
+                        Set<String> customHiddenColumns = customHiddenColumnMap.get(channelId);
+                        customHiddenColumns.remove(columnName);
+                    }
+                }
             }
 
         });
