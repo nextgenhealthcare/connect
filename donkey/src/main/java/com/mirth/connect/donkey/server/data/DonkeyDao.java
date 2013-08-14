@@ -22,10 +22,6 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.channel.Statistics;
 
 public interface DonkeyDao {
-    public void setEncryptData(boolean encryptData);
-
-    public void setDecryptData(boolean decryptData);
-
     public void insertMessage(Message message);
 
     public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps);
@@ -37,10 +33,6 @@ public interface DonkeyDao {
     public void executeBatchInsertMessageContent(String channelId);
 
     public void insertMessageAttachment(String channelId, long messageId, Attachment attachment);
-
-    public List<Attachment> getMessageAttachment(String channelId, long messageId);
-
-    public Attachment getMessageAttachment(String channelId, String attachmentId);
 
     public void insertMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns);
 
@@ -110,10 +102,18 @@ public interface DonkeyDao {
 
     public List<MetaDataColumn> getMetaDataColumns(String channelId);
 
+    public List<Attachment> getMessageAttachment(String channelId, long messageId);
+
+    public Attachment getMessageAttachment(String channelId, String attachmentId);
+    
     public Statistics getChannelStatistics(String serverId);
 
     public Statistics getChannelTotalStatistics(String serverId);
 
+    public void setEncryptData(boolean encryptData);
+
+    public void setDecryptData(boolean decryptData);
+    
     public void commit();
 
     public void commit(boolean durable);

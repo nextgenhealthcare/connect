@@ -589,9 +589,13 @@ public class TestUtils {
      * accuracy, so we don't test for it.
      */
     public static void assertDatesEqual(Calendar date1, Calendar date2) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        String date1String = format.format(date1.getTimeInMillis());
-        String date2String = format.format(date2.getTimeInMillis());
+        assertDatesEqual(date1.getTimeInMillis(), date2.getTimeInMillis());
+    }
+    
+    public static void assertDatesEqual(long timestamp1, long timestamp2) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+        String date1String = format.format(timestamp1);
+        String date2String = format.format(timestamp2);
         
         try {
             assertEquals(date1String, date2String);
@@ -889,24 +893,25 @@ public class TestUtils {
                 statement.setLong(1, messageId);
                 statement.setInt(2, metaDataId);
                 result = statement.executeQuery();
-                result.next();
 
-                for (MetaDataColumn column : columns) {
-                    result.getObject(column.getName());
-
-                    if (!result.wasNull()) {
-                        // @formatter:off
-                        switch (column.getType()) {
-                            case BOOLEAN: map.put(column.getName(), result.getBoolean(column.getName())); break;
-                            case NUMBER: map.put(column.getName(), result.getBigDecimal(column.getName())); break;
-                            case STRING: map.put(column.getName(), result.getString(column.getName())); break;
-                            case TIMESTAMP:
-                                Calendar calendar = Calendar.getInstance();
-                                calendar.setTimeInMillis(result.getTimestamp(column.getName()).getTime());
-                                map.put(column.getName(), calendar);
-                                break;
+                if (result.next()) {
+                    for (MetaDataColumn column : columns) {
+                        result.getObject(column.getName());
+    
+                        if (!result.wasNull()) {
+                            // @formatter:off
+                            switch (column.getType()) {
+                                case BOOLEAN: map.put(column.getName(), result.getBoolean(column.getName())); break;
+                                case NUMBER: map.put(column.getName(), result.getBigDecimal(column.getName())); break;
+                                case STRING: map.put(column.getName(), result.getString(column.getName())); break;
+                                case TIMESTAMP:
+                                    Calendar calendar = Calendar.getInstance();
+                                    calendar.setTimeInMillis(result.getTimestamp(column.getName()).getTime());
+                                    map.put(column.getName(), calendar);
+                                    break;
+                            }
+                            // @formatter:on
                         }
-                        // @formatter:on
                     }
                 }
             } finally {
@@ -1064,8 +1069,6 @@ public class TestUtils {
                 Map<Status, Long> connectorStats = new HashMap<Status, Long>();
                 connectorStats.put(Status.RECEIVED, result.getLong("received"));
                 connectorStats.put(Status.FILTERED, result.getLong("filtered"));
-                connectorStats.put(Status.TRANSFORMED, result.getLong("transformed"));
-                connectorStats.put(Status.PENDING, result.getLong("pending"));
                 connectorStats.put(Status.SENT, result.getLong("sent"));
                 connectorStats.put(Status.ERROR, result.getLong("error"));
                 Integer metaDataId = result.getInt("metadata_id");
@@ -1606,5 +1609,4 @@ public class TestUtils {
 
         return storageSettings;
     }
-
 }
