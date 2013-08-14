@@ -66,9 +66,36 @@ public class ER7Serializer implements IXMLSerializer {
             if (serializationSegmentDelimiter.equals("\r") || serializationSegmentDelimiter.equals("\n") || serializationSegmentDelimiter.equals("\r\n")) {
                 skipIntermediateDelimiter = true;
             }
+
+            if (serializationProperties.isUseStrictParser()) {
+                serializationPipeParser = new PipeParser();
+                serializationXmlParser = new DefaultXMLParser();
+
+                // turn off strict validation if needed
+                if (!serializationProperties.isUseStrictValidation()) {
+                    serializationPipeParser.setValidationContext(new NoValidation());
+                    serializationXmlParser.setValidationContext(new NoValidation());
+                }
+
+                serializationXmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
+            }
         }
+
         if (deserializationProperties != null) {
             deserializationSegmentDelimiter = StringUtil.unescape(deserializationProperties.getSegmentDelimiter());
+
+            if (deserializationProperties.isUseStrictParser()) {
+                deserializationPipeParser = new PipeParser();
+                deserializationXmlParser = new DefaultXMLParser();
+
+                // turn off strict validation if needed
+                if (!deserializationProperties.isUseStrictValidation()) {
+                    deserializationPipeParser.setValidationContext(new NoValidation());
+                    deserializationXmlParser.setValidationContext(new NoValidation());
+                }
+
+                deserializationXmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
+            }
         }
     }
 
@@ -154,19 +181,6 @@ public class ER7Serializer implements IXMLSerializer {
             }
 
             if (serializationProperties.isUseStrictParser()) {
-                if (serializationPipeParser == null || serializationXmlParser == null) {
-                    serializationPipeParser = new PipeParser();
-                    serializationXmlParser = new DefaultXMLParser();
-
-                    // turn off strict validation if needed
-                    if (!serializationProperties.isUseStrictValidation()) {
-                        serializationPipeParser.setValidationContext(new NoValidation());
-                        serializationXmlParser.setValidationContext(new NoValidation());
-                    }
-
-                    serializationXmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
-                }
-
                 Message message = null;
                 source = source.trim();
 
@@ -215,19 +229,6 @@ public class ER7Serializer implements IXMLSerializer {
     public String fromXML(String source) throws XmlSerializerException {
         try {
             if (deserializationProperties.isUseStrictParser()) {
-                if (deserializationPipeParser == null || deserializationXmlParser == null) {
-                    deserializationPipeParser = new PipeParser();
-                    deserializationXmlParser = new DefaultXMLParser();
-
-                    // turn off strict validation if needed
-                    if (!deserializationProperties.isUseStrictValidation()) {
-                        deserializationPipeParser.setValidationContext(new NoValidation());
-                        deserializationXmlParser.setValidationContext(new NoValidation());
-                    }
-
-                    deserializationXmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
-                }
-
                 return deserializationPipeParser.encode(deserializationXmlParser.parse(source));
             } else {
                 /*
