@@ -137,7 +137,7 @@ public class UIConstants {
     public static final ImageIcon ICON_WARNING = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/error.png"));
     public static final ImageIcon ICON_ERROR = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/exclamation.png"));
     // for privacy
-    public static final String PRIVACY_URL = "http://www.mirthcorp.com/company/about/privacy#mirthconnect";
+    public static final String PRIVACY_URL = "http://www.mirthcorp.com/company/about/privacy";
     public static final String PRIVACY_TOOLTIP = "Privacy Information";
 
     // FileUtils reading/writing
