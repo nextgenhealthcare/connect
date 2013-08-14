@@ -610,7 +610,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="provideUsageStatsMoreInfoLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;font color=blue&gt;&lt;u&gt;More Info&lt;/u&gt;&lt;/font&gt;&lt;/html&gt;"/>
+            <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;font color=blue&gt;&lt;u&gt;Privacy Policy&lt;/u&gt;&lt;/font&gt;&lt;/html&gt;"/>
           </Properties>
           <Events>
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="provideUsageStatsMoreInfoLabelMouseClicked"/>

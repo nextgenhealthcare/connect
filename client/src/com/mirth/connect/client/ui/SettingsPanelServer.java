@@ -719,7 +719,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         updateUrlLabel.setText("Update URL:");
 
-        provideUsageStatsMoreInfoLabel.setText("<html><font color=blue><u>More Info</u></font></html>");
+        provideUsageStatsMoreInfoLabel.setText("<html><font color=blue><u>Privacy Policy</u></font></html>");
         provideUsageStatsMoreInfoLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 provideUsageStatsMoreInfoLabelMouseClicked(evt);
