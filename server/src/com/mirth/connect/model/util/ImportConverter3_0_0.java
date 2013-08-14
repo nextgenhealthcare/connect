@@ -623,6 +623,16 @@ public class ImportConverter3_0_0 {
             outboundProperties = transformer.addChildElement("outboundProperties");
         }
 
+        DonkeyElement outboundTemplate = transformer.getChildElement("outboundTemplate");
+        // If the inbound and outbound data types are the same and there is no outbound template, use the inbound properties as the outbound properties.
+        if (inboundDataType.equals(outboundDataType) && (outboundTemplate == null || StringUtils.isEmpty(outboundTemplate.getTextContent()))) {
+            outboundProperties.removeChildren();
+
+            for (DonkeyElement propertyElement : inboundProperties.getChildElements()) {
+                outboundProperties.appendChild(propertyElement.cloneNode(true));
+            }
+        }
+
         migrateDataTypeProperties(inboundProperties, inboundDataType);
         migrateDataTypeProperties(outboundProperties, outboundDataType);
 
