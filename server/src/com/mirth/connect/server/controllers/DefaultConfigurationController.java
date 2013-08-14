@@ -442,7 +442,11 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
     
             if (serverConfiguration.getAlerts() != null) {
-                alertController.removeAlert(null);
+                // Remove all existing alerts
+                for (AlertModel alert : alertController.getAlerts()) {
+                    alertController.removeAlert(alert.getId());
+                }
+
                 for (AlertModel alert : serverConfiguration.getAlerts()) {
                     alertController.updateAlert(alert);
                 }
