@@ -498,6 +498,9 @@ public class ImportConverter3_0_0 {
             entryProperties.addChildElement("set").addChildElement("null");
         }
 
+        // Add all event types
+        triggerProperties.addChildElement("errorEventTypes").addChildElement("errorEventType", "ANY");
+
         // Add the regex element but don't copy from expression because the error codes are no longer used.
         triggerProperties.addChildElement("regex");
 
