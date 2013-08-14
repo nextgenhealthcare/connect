@@ -406,7 +406,11 @@ public class ImportConverter3_0_0 {
 
         properties.addChildElement("initialState").setTextContent((oldProperties.getProperty("initialState", "started").equals("started") ? "STARTED" : "STOPPED"));
         properties.addChildElement("tags").setAttribute("class", "linked-hash-set");
-        properties.addChildElement("metaDataColumns");
+
+        DonkeyElement metaDataColumns = properties.addChildElement("metaDataColumns");
+        addMetaDataColumn(metaDataColumns, "SOURCE", "STRING", "mirth_source");
+        addMetaDataColumn(metaDataColumns, "TYPE", "STRING", "mirth_type");
+
         properties.addChildElement("archiveEnabled").setTextContent("true");
 
         if (useDICOMAttachmentHandler) {
@@ -429,6 +433,13 @@ public class ImportConverter3_0_0 {
         if (!StringUtils.isBlank(maxMessageAge) && !maxMessageAge.equals("-1")) {
             properties.addChildElement("pruneMetaDataDays").setTextContent(maxMessageAge);
         }
+    }
+
+    private static void addMetaDataColumn(DonkeyElement metaDataColumns, String name, String type, String mappingName) {
+        DonkeyElement metaDataColumn = metaDataColumns.addChildElement("metaDataColumn");
+        metaDataColumn.addChildElement("name", name);
+        metaDataColumn.addChildElement("type", type);
+        metaDataColumn.addChildElement("mappingName", mappingName);
     }
 
     private static void migrateCodeTemplate(DonkeyElement codeTemplate) {
