@@ -4005,35 +4005,37 @@ public class Frame extends JXFrame {
     }
 
     public void doSaveAlerts() {
-        try {
-            ServerSettings serverSettings = mirthClient.getServerSettings();
-            if (StringUtils.isBlank(serverSettings.getSmtpHost()) || StringUtils.isBlank(serverSettings.getSmtpPort())) {
-                alertWarning(PlatformUI.MIRTH_FRAME, "The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
+        if (changesHaveBeenMade()) {
+            try {
+                ServerSettings serverSettings = mirthClient.getServerSettings();
+                if (StringUtils.isBlank(serverSettings.getSmtpHost()) || StringUtils.isBlank(serverSettings.getSmtpPort())) {
+                    alertWarning(PlatformUI.MIRTH_FRAME, "The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
+                }
+            } catch (ClientException e) {
+                if (!(e.getCause() instanceof UnauthorizedException)) {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                }
             }
-        } catch (ClientException e) {
-            if (!(e.getCause() instanceof UnauthorizedException)) {
-                alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-            }
-        }
 
-        final String workingId = startWorking("Saving alerts...");
+            final String workingId = startWorking("Saving alerts...");
 
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
-            public Void doInBackground() {
-                if (changesHaveBeenMade() && alertEditPanel.saveAlert()) {
-                    setSaveEnabled(false);
+                public Void doInBackground() {
+                    if (alertEditPanel.saveAlert()) {
+                        setSaveEnabled(false);
+                    }
+
+                    return null;
                 }
 
-                return null;
-            }
+                public void done() {
+                    stopWorking(workingId);
+                }
+            };
 
-            public void done() {
-                stopWorking(workingId);
-            }
-        };
-
-        worker.execute();
+            worker.execute();
+        }
     }
 
     public void doDeleteAlert() {
