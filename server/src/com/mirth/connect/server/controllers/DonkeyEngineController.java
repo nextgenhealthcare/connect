@@ -511,6 +511,7 @@ public class DonkeyEngineController implements EngineController {
         Map<String, String> destinationNameMap = new HashMap<String, String>();
 
         channel.setChannelId(channelId);
+        channel.setLocalChannelId(donkeyChannelController.getLocalChannelId(channelId));
         channel.setServerId(ConfigurationController.getInstance().getServerId());
         channel.setName(model.getName());
         channel.setEnabled(model.isEnabled());

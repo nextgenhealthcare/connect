@@ -79,6 +79,7 @@ import com.mirth.connect.donkey.util.ThreadUtils;
 
 public class Channel implements Startable, Stoppable, Runnable {
     private String channelId;
+    private long localChannelId;
     private String name;
     private String serverId;
     private int revision;
@@ -125,6 +126,14 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
+    }
+
+    public long getLocalChannelId() {
+        return localChannelId;
+    }
+
+    public void setLocalChannelId(long localChannelId) {
+        this.localChannelId = localChannelId;
     }
 
     public String getName() {

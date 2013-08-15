@@ -45,6 +45,7 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.Encryptor;
+import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
@@ -2084,12 +2085,18 @@ public class JdbcDao implements DonkeyDao {
     }
 
     protected long getLocalChannelId(String channelId) {
-        Long localChannelId = getLocalChannelIds().get(channelId);
+        Channel channel = Donkey.getInstance().getDeployedChannels().get(channelId);
 
-        if (localChannelId == null) {
-            throw new DonkeyDaoException("Channel ID " + channelId + " does not exist");
+        if (channel == null) {
+            Long localChannelId = getLocalChannelIds().get(channelId);
+
+            if (localChannelId == null) {
+                throw new DonkeyDaoException("Channel ID " + channelId + " does not exist");
+            } else {
+                return localChannelId;
+            }
+        } else {
+            return channel.getLocalChannelId();
         }
-
-        return localChannelId;
     }
 }
