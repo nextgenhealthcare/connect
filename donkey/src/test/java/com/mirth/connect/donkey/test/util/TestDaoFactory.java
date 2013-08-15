@@ -16,6 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.server.data.jdbc.CachedPreparedStatementSource;
 import com.mirth.connect.donkey.server.data.jdbc.ConnectionPool;
@@ -25,12 +27,19 @@ import com.mirth.connect.donkey.server.data.jdbc.PooledConnection;
 import com.mirth.connect.donkey.server.data.jdbc.PreparedStatementSource;
 
 public class TestDaoFactory extends JdbcDaoFactory {
+    private Donkey donkey;
+    private ChannelController channelController;
     private Logger logger = Logger.getLogger(getClass());
     private Map<Connection, PreparedStatementSource> statementSources = new ConcurrentHashMap<Connection, PreparedStatementSource>();
     private int errorPct = 0;
     private int hangPct = 0;
     private int hangMillis = 0;
 
+    public TestDaoFactory() {
+        donkey = Donkey.getInstance();
+        channelController = ChannelController.getInstance();
+    }
+    
     public int getErrorPct() {
         return errorPct;
     }
@@ -93,6 +102,6 @@ public class TestDaoFactory extends JdbcDaoFactory {
             }
         }
 
-        return new TestDao(connection, getQuerySource(), statementSource, getSerializer(), getStatsServerId(), errorPct, hangPct, hangMillis);
+        return new TestDao(donkey, connection, getQuerySource(), statementSource, getSerializer(), channelController.getStatistics(), channelController.getTotalStatistics(), getStatsServerId(), errorPct, hangPct, hangMillis);
     }
 }

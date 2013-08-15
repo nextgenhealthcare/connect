@@ -16,6 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.util.Serializer;
@@ -41,6 +43,8 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
         return new JdbcDaoFactory();
     }
 
+    private Donkey donkey;
+    private ChannelController channelController;
     private String statsServerId;
     private ConnectionPool connectionPool;
     private QuerySource querySource;
@@ -50,7 +54,10 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
     private Map<Connection, PreparedStatementSource> statementSources = new ConcurrentHashMap<Connection, PreparedStatementSource>();
     private Logger logger = Logger.getLogger(getClass());
 
-    protected JdbcDaoFactory() {}
+    protected JdbcDaoFactory() {
+        donkey = Donkey.getInstance();
+        channelController = ChannelController.getInstance();
+    }
 
     public String getStatsServerId() {
         return statsServerId;
@@ -134,6 +141,6 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
             }
         }
 
-        return new JdbcDao(connection, querySource, statementSource, serializer, encryptData, decryptData, statsServerId);
+        return new JdbcDao(donkey, connection, querySource, statementSource, serializer, encryptData, decryptData, channelController.getStatistics(), channelController.getTotalStatistics(), statsServerId);
     }
 }

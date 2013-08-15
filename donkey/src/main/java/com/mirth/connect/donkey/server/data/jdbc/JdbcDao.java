@@ -47,13 +47,13 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.Encryptor;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.Statistics;
-import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.util.MapUtil;
 import com.mirth.connect.donkey.util.Serializer;
 
 public class JdbcDao implements DonkeyDao {
+    private Donkey donkey;
     private Connection connection;
     private QuerySource querySource;
     private PreparedStatementSource statementSource;
@@ -74,20 +74,18 @@ public class JdbcDao implements DonkeyDao {
     private char quoteChar = '"';
     private Logger logger = Logger.getLogger(this.getClass());
 
-    protected JdbcDao(Connection connection, QuerySource querySource, PreparedStatementSource statementSource, Serializer serializer, boolean encryptData, boolean decryptData, String statsServerId) {
+    protected JdbcDao(Donkey donkey, Connection connection, QuerySource querySource, PreparedStatementSource statementSource, Serializer serializer, boolean encryptData, boolean decryptData, Statistics currentStats, Statistics totalStats, String statsServerId) {
+        this.donkey = donkey;
         this.connection = connection;
         this.querySource = querySource;
         this.statementSource = statementSource;
         this.serializer = serializer;
         this.encryptData = encryptData;
         this.decryptData = decryptData;
+        this.currentStats = currentStats;
+        this.totalStats = totalStats;
         this.statsServerId = statsServerId;
-
-        ChannelController channelController = ChannelController.getInstance();
-        currentStats = channelController.getStatistics();
-        totalStats = channelController.getTotalStatistics();
-
-        encryptor = Donkey.getInstance().getEncryptor();
+        encryptor = donkey.getEncryptor();
 
         logger.debug("Opened connection");
     }
@@ -2085,7 +2083,7 @@ public class JdbcDao implements DonkeyDao {
     }
 
     protected long getLocalChannelId(String channelId) {
-        Channel channel = Donkey.getInstance().getDeployedChannels().get(channelId);
+        Channel channel = donkey.getDeployedChannels().get(channelId);
 
         if (channel == null) {
             Long localChannelId = getLocalChannelIds().get(channelId);

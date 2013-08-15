@@ -14,6 +14,8 @@ import java.sql.Connection;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.server.data.jdbc.JdbcDao;
 import com.mirth.connect.donkey.server.data.jdbc.PreparedStatementSource;
@@ -25,8 +27,8 @@ public class TestDao extends JdbcDao {
     private int hangPct = 0;
     private int hangMillis = 0;
 
-    public TestDao(Connection connection, QuerySource querySource, PreparedStatementSource statementSource, Serializer serializer, String statsServerId, int errorPct, int hangPct, int hangMillis) {
-        super(connection, querySource, statementSource, serializer, false, true, statsServerId);
+    public TestDao(Donkey donkey, Connection connection, QuerySource querySource, PreparedStatementSource statementSource, Serializer serializer, Statistics currentStats, Statistics totalStats, String statsServerId, int errorPct, int hangPct, int hangMillis) {
+        super(donkey, connection, querySource, statementSource, serializer, false, true, currentStats, totalStats, statsServerId);
         this.errorPct = errorPct;
         this.hangPct = hangPct;
         this.hangMillis = hangMillis;
