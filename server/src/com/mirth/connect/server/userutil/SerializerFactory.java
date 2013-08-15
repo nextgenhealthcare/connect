@@ -82,6 +82,9 @@ public class SerializerFactory {
         serializationPropertiesMap.put("segmentDelimiter", "\\r");
         serializationPropertiesMap.put("convertLineBreaks", convertLFtoCR);
 
+        // The old serializer never stripped namespaces, so this must be set to false to match
+        serializationPropertiesMap.put("stripNamespaces", false);
+
         Map<String, Object> deserializationPropertiesMap = getDefaultDeserializationProperties(dataType);
         deserializationPropertiesMap.put("useStrictParser", useStrictParser);
         deserializationPropertiesMap.put("useStrictValidation", useStrictValidation);
