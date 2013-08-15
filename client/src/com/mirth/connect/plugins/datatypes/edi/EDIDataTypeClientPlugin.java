@@ -61,7 +61,7 @@ public class EDIDataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public void start() {
-        addConversionTemplates("default xml namespace = new Namespace('urn:mirthproject-org:edi:xml');", false);
+        addConversionTemplates(false);
     }
 
     @Override

@@ -21,7 +21,7 @@ public class HL7v2SerializationProperties extends SerializationProperties {
     private boolean handleSubcomponents = true;
     private boolean useStrictParser = false;
     private boolean useStrictValidation = false;
-    private boolean stripNamespaces = true; // Used in JST for strict parser
+    private boolean stripNamespaces = true;
     private String segmentDelimiter = "\\r";
     private boolean convertLineBreaks = true;
 

@@ -117,16 +117,15 @@ public abstract class DataTypeClientPlugin extends ClientPlugin {
         return nodeText;
     }
 
-    protected final void addConversionTemplates(String namespace, boolean defaultOnly) {
+    protected final void addConversionTemplates(boolean defaultOnly) {
         Map<String, ArrayList<CodeTemplate>> references = ReferenceListFactory.getInstance().getReferences();
         List<CodeTemplate> conversionTemplates = references.get(ListType.CONVERSION.getValue());
         String pluginName = getDataTypeDelegate().getName();
         String displayName = getDisplayName();
-        namespace = namespace == null ? "" : "\n" + namespace;
 
         conversionTemplates.add(new CodeTemplate("Convert " + displayName + " to XML (default parameters)", "Converts an encoded " + displayName + " string to XML with the default serializer parameters.", "SerializerFactory.getSerializer('" + pluginName + "').toXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         if (!defaultOnly) {
-            conversionTemplates.add(new CodeTemplate("Convert " + displayName + " to XML (custom parameters)", "Converts an encoded " + displayName + " string to XML with custom serializer parameters. " + getMapKeysToolTipText(), "var serializationProperties = SerializerFactory.getDefaultSerializationProperties('" + pluginName + "');\nSerializerFactory.getSerializer('" + pluginName + "', serializationProperties, null).toXML(message);" + namespace, CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
+            conversionTemplates.add(new CodeTemplate("Convert " + displayName + " to XML (custom parameters)", "Converts an encoded " + displayName + " string to XML with custom serializer parameters. " + getMapKeysToolTipText(), "var serializationProperties = SerializerFactory.getDefaultSerializationProperties('" + pluginName + "');\nSerializerFactory.getSerializer('" + pluginName + "', serializationProperties, null).toXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         }
 
         conversionTemplates.add(new CodeTemplate("Convert XML to " + displayName + " (default parameters)", "Converts an XML string to " + displayName + " with the default serializer parameters.", "SerializerFactory.getSerializer('" + pluginName + "').fromXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));

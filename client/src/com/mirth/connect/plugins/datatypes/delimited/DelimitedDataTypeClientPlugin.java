@@ -45,7 +45,7 @@ public class DelimitedDataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public void start() {
-        addConversionTemplates(null, false);
+        addConversionTemplates(false);
     }
 
     @Override

@@ -61,7 +61,7 @@ public class NCPDPDataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public void start() {
-        addConversionTemplates("default xml namespace = new Namespace('urn:mirthproject-org:ncpdp:xml');", false);
+        addConversionTemplates(false);
     }
 
     @Override

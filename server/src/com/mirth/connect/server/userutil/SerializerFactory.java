@@ -95,35 +95,35 @@ public class SerializerFactory {
     @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR, boolean handleSubcomponents) {
-        logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, handleSubcomponents) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
+        logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, handleSubcomponents) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
         return getHL7SerializerQuietly(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, handleSubcomponents);
     }
 
     @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR) {
-        logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
+        logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
         return getHL7SerializerQuietly(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, false);
     }
 
     @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions) {
-        logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
+        logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
         return getHL7SerializerQuietly(useStrictParser, useStrictValidation, handleRepetitions, true, false);
     }
 
     @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation) {
-        logger.error("The getHL7Serializer(useStrictParser, useStrictValidation) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
+        logger.error("The getHL7Serializer(useStrictParser, useStrictValidation) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
         return getHL7SerializerQuietly(useStrictParser, useStrictValidation, false, true, false);
     }
 
     @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getHL7Serializer() {
-        logger.error("The getHL7Serializer() method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
+        logger.error("The getHL7Serializer() method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
         return getHL7SerializerQuietly(false, false, false, true, false);
     }
 

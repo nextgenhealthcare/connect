@@ -46,7 +46,7 @@ public class HL7v2DataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public void start() {
-        addConversionTemplates("// Setting the default namespace is required when using the strict parser\ndefault xml namespace = new Namespace('urn:hl7-org:v2xml');", false);
+        addConversionTemplates(false);
     }
 
     @Override

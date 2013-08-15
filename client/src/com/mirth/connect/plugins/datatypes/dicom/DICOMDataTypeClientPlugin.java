@@ -47,7 +47,7 @@ public class DICOMDataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public void start() {
-        addConversionTemplates(null, true);
+        addConversionTemplates(true);
     }
 
     @Override
