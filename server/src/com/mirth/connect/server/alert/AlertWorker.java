@@ -25,7 +25,6 @@ import org.apache.commons.mail.EmailException;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.alert.AlertAction;
 import com.mirth.connect.model.alert.AlertActionGroup;
