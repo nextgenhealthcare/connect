@@ -289,58 +289,80 @@ public class JdbcDao implements DonkeyDao {
             throw new DonkeyDaoException(e);
         }
     }
-
+    
     @Override
     public void addChannelStatistics(Statistics statistics) {
         for (Entry<String, Map<Integer, Map<Status, Long>>> channelEntry : statistics.getStats().entrySet()) {
             String channelId = channelEntry.getKey();
 
             try {
-                PreparedStatement channelStatement = prepareStatement("updateChannelStatistics", channelId);
-                PreparedStatement connectorStatement = prepareStatement("updateConnectorStatistics", channelId);
+                PreparedStatement channelStatement = null;
+                PreparedStatement connectorStatement = null;
 
                 for (Entry<Integer, Map<Status, Long>> connectorEntry : channelEntry.getValue().entrySet()) {
                     Integer metaDataId = connectorEntry.getKey();
                     Map<Status, Long> connectorStats = connectorEntry.getValue();
+                    
+                    long received = connectorStats.get(Status.RECEIVED);
+                    long filtered = connectorStats.get(Status.FILTERED);
+                    long sent = connectorStats.get(Status.SENT);
+                    long error = connectorStats.get(Status.ERROR);
 
-                    logger.debug(channelId + "/" + metaDataId + ": saving statistics");
+                    if (received != 0 || filtered != 0 || sent != 0 || error != 0) {
+                        logger.debug(channelId + "/" + metaDataId + ": saving statistics");
 
-                    PreparedStatement statement = (metaDataId == null) ? channelStatement : connectorStatement;
-                    statement.setLong(1, connectorStats.get(Status.RECEIVED));
-                    statement.setLong(2, connectorStats.get(Status.RECEIVED));
-                    statement.setLong(3, connectorStats.get(Status.FILTERED));
-                    statement.setLong(4, connectorStats.get(Status.FILTERED));
-                    statement.setLong(5, connectorStats.get(Status.SENT));
-                    statement.setLong(6, connectorStats.get(Status.SENT));
-                    statement.setLong(7, connectorStats.get(Status.ERROR));
-                    statement.setLong(8, connectorStats.get(Status.ERROR));
-
-                    if (metaDataId != null) {
-                        statement.setInt(9, metaDataId);
-                        statement.setString(10, statsServerId);
-                    } else {
-                        statement.setString(9, statsServerId);
-                    }
-
-                    if (statement.executeUpdate() == 0) {
-                        statement = prepareStatement("insertChannelStatistics", channelId);
-
+                        PreparedStatement statement;
+                        
                         if (metaDataId == null) {
-                            statement.setNull(1, Types.INTEGER);
+                            if (channelStatement == null) {
+                                channelStatement = prepareStatement("updateChannelStatistics", channelId);
+                            }
+                            
+                            statement = channelStatement;
                         } else {
-                            statement.setInt(1, metaDataId);
+                            if (connectorStatement == null) {
+                                connectorStatement = prepareStatement("updateConnectorStatistics", channelId);
+                            }
+                            
+                            statement = connectorStatement;
                         }
-
-                        statement.setString(2, statsServerId);
-                        statement.setLong(3, connectorStats.get(Status.RECEIVED));
-                        statement.setLong(4, connectorStats.get(Status.RECEIVED));
-                        statement.setLong(5, connectorStats.get(Status.FILTERED));
-                        statement.setLong(6, connectorStats.get(Status.FILTERED));
-                        statement.setLong(7, connectorStats.get(Status.SENT));
-                        statement.setLong(8, connectorStats.get(Status.SENT));
-                        statement.setLong(9, connectorStats.get(Status.ERROR));
-                        statement.setLong(10, connectorStats.get(Status.ERROR));
-                        statement.executeUpdate();
+                        
+                        statement.setLong(1, received);
+                        statement.setLong(2, received);
+                        statement.setLong(3, filtered);
+                        statement.setLong(4, filtered);
+                        statement.setLong(5, sent);
+                        statement.setLong(6, sent);
+                        statement.setLong(7, error);
+                        statement.setLong(8, error);
+    
+                        if (metaDataId != null) {
+                            statement.setInt(9, metaDataId);
+                            statement.setString(10, statsServerId);
+                        } else {
+                            statement.setString(9, statsServerId);
+                        }
+    
+                        if (statement.executeUpdate() == 0) {
+                            statement = prepareStatement("insertChannelStatistics", channelId);
+    
+                            if (metaDataId == null) {
+                                statement.setNull(1, Types.INTEGER);
+                            } else {
+                                statement.setInt(1, metaDataId);
+                            }
+    
+                            statement.setString(2, statsServerId);
+                            statement.setLong(3, received);
+                            statement.setLong(4, received);
+                            statement.setLong(5, filtered);
+                            statement.setLong(6, filtered);
+                            statement.setLong(7, sent);
+                            statement.setLong(8, sent);
+                            statement.setLong(9, error);
+                            statement.setLong(10, error);
+                            statement.executeUpdate();
+                        }
                     }
                 }
             } catch (SQLException e) {
@@ -348,7 +370,7 @@ public class JdbcDao implements DonkeyDao {
             }
         }
     }
-
+    
     @Override
     public void insertMessageAttachment(String channelId, long messageId, Attachment attachment) {
         logger.debug(channelId + "/" + messageId + ": inserting message attachment");
