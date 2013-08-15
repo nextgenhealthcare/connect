@@ -14,7 +14,6 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.apache.log4j.Logger;
 import org.xmlpull.mxp1.MXParser;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -41,7 +40,6 @@ public class XStreamSerializer implements Serializer {
     }; // @formatter:on
 
     private XStream xstream;
-    private Logger logger = Logger.getLogger(getClass());
 
     public XStreamSerializer() {
         this(null);
@@ -71,7 +69,6 @@ public class XStreamSerializer implements Serializer {
         try {
             return xstream.toXML(object);
         } catch (Exception e) {
-            logger.error(e);
             throw new SerializerException(e);
         }
     }
@@ -81,7 +78,6 @@ public class XStreamSerializer implements Serializer {
         try {
             return (T) xstream.fromXML(serializedObject);
         } catch (Exception e) {
-            logger.error(e);
             throw new SerializerException(e);
         }
     }
@@ -91,7 +87,6 @@ public class XStreamSerializer implements Serializer {
         try {
             return HierarchicalStreams.readClassType(new XppReader(new StringReader(serializedObject), new MXParser()), getXStream().getMapper());
         } catch (Exception e) {
-            logger.error(e);
             throw new SerializerException(e);
         }
     }
