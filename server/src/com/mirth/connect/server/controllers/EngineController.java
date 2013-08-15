@@ -32,7 +32,7 @@ public interface EngineController {
 
     public void deployChannels(Set<String> channelIds, ServerEventContext context);
 
-    public void undeployChannels(Set<String> channelIds, ServerEventContext context) throws InterruptedException;
+    public void undeployChannels(Set<String> channelIds, ServerEventContext context);
 
     public void redeployAllChannels() throws StopException, StartException, InterruptedException;
 

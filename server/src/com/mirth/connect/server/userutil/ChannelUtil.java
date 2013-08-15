@@ -52,7 +52,7 @@ public class ChannelUtil {
         engineController.deployChannels(Collections.singleton(convertId(channelIdOrName)), null);
     }
 
-    public static void undeployChannel(String channelIdOrName) throws Exception {
+    public static void undeployChannel(String channelIdOrName) {
         engineController.undeployChannels(Collections.singleton(convertId(channelIdOrName)), null);
     }
 

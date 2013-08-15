@@ -250,7 +250,7 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public synchronized void undeployChannels(Set<String> channelIds, ServerEventContext context) throws InterruptedException {
+    public synchronized void undeployChannels(Set<String> channelIds, ServerEventContext context) {
         for (String channelId : channelIds) {
             try {
                 undeployChannel(channelId, context);
