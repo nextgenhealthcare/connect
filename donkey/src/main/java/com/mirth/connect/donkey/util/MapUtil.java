@@ -29,7 +29,7 @@ public class MapUtil {
                     serializer.serialize(value);
                     newMap.put(entry.getKey(), value);
                 } catch (Exception e2) {
-                    logger.error("Non-serializable value found in map, converting value to string with key: " + entry.getKey());
+                    logger.warn("Non-serializable value found in map, converting value to string with key: " + entry.getKey());
                     newMap.put(entry.getKey(), (value == null) ? "" : value.toString());
                 }
             }
