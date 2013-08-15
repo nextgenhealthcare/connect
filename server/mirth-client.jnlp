@@ -5,8 +5,8 @@
 		<homepage href="http://www.mirthcorp.com"/>
 		<description>Open Source Healthcare Integration Engine</description>
 		
-		<icon href="mirth_128_ico.png"/>
-		<icon href="splashscreen.png" kind="splash"/> 
+		<icon href="images/mirth_128_ico.png"/>
+		<icon href="images/splashscreen.png" kind="splash"/> 
 		
 		<offline-allowed/>
 
