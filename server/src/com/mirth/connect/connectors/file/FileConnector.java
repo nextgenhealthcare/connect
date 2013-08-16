@@ -12,11 +12,8 @@ package com.mirth.connect.connectors.file;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -338,26 +335,10 @@ public class FileConnector extends AbstractServiceEnabledConnector {
         // since we're about to actually use them.
         String username = replace(getUsername(), messageObject);
         String password = replace(getPassword(), messageObject);
-        URI uri = null;
+        URI uri;
 
         try {
-            String decodedURI = endpointUri.toString();
-            String encoding = "utf-8";
-            try {
-                decodedURI = URLDecoder.decode(decodedURI, encoding);
-            } catch (UnsupportedEncodingException e) {
-                try {
-                    decodedURI = URLDecoder.decode(decodedURI, encoding = "default");
-                } catch (UnsupportedEncodingException e1) {
-                    // should not get here
-                }
-            }
-
-            try {
-                uri = new URI(URLEncoder.encode(replace(decodedURI, messageObject), encoding));
-            } catch (UnsupportedEncodingException e) {
-                // Should not get here
-            }
+            uri = new URI(replace(endpointUri.toString(), messageObject));
         } catch (URISyntaxException e) {
             logger.error("Could not create URI from endpoint: " + endpointUri.toString());
             uri = endpointUri.getUri();
