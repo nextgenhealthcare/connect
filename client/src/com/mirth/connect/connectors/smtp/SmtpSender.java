@@ -23,6 +23,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.validator.routines.EmailValidator;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -50,6 +51,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
     private final String ATTACHMENTS_MIME_TYPE_COLUMN_NAME = "MIME type";
     private int headersLastIndex = -1;
     private int attachmentsLastIndex = -1;
+    private String errors;
 
     private Frame parent;
 
@@ -155,12 +157,15 @@ public class SmtpSender extends ConnectorSettingsPanel {
         SmtpDispatcherProperties props = (SmtpDispatcherProperties) properties;
 
         boolean valid = true;
+        StringBuilder errors = new StringBuilder();
 
         if (props.getSmtpHost().length() == 0) {
             valid = false;
             if (highlight) {
                 smtpHostField.setBackground(UIConstants.INVALID_COLOR);
             }
+
+            errors.append("\"SMTP Host\" is required\n");
         }
 
         if (props.getSmtpPort().length() == 0) {
@@ -168,6 +173,8 @@ public class SmtpSender extends ConnectorSettingsPanel {
             if (highlight) {
                 smtpPortField.setBackground(UIConstants.INVALID_COLOR);
             }
+
+            errors.append("\"SMTP Port\" is required\n");
         }
 
         if (props.getTimeout().length() == 0) {
@@ -175,6 +182,8 @@ public class SmtpSender extends ConnectorSettingsPanel {
             if (highlight) {
                 sendTimeoutField.setBackground(UIConstants.INVALID_COLOR);
             }
+
+            errors.append("\"Send Timeout\" is required\n");
         }
 
         if (props.getTo().length() == 0) {
@@ -182,7 +191,34 @@ public class SmtpSender extends ConnectorSettingsPanel {
             if (highlight) {
                 toField.setBackground(UIConstants.INVALID_COLOR);
             }
+
+            errors.append("\"To\" is required\n");
+        } else if (!EmailValidator.getInstance().isValid(props.getTo())) {
+            valid = false;
+            if (highlight) {
+                toField.setBackground(UIConstants.INVALID_COLOR);
+            }
+
+            errors.append("\"To\" must be a valid email address\n");
         }
+
+        if (props.getFrom().length() == 0) {
+            valid = false;
+            if (highlight) {
+                fromField.setBackground(UIConstants.INVALID_COLOR);
+            }
+
+            errors.append("\"From\" is required\n");
+        } else if (!EmailValidator.getInstance().isValid(props.getFrom())) {
+            valid = false;
+            if (highlight) {
+                fromField.setBackground(UIConstants.INVALID_COLOR);
+            }
+
+            errors.append("\"From\" must be a valid email address\n");
+        }
+
+        this.errors = errors.toString();
 
         return valid;
     }
@@ -193,6 +229,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
         smtpPortField.setBackground(null);
         sendTimeoutField.setBackground(null);
         toField.setBackground(null);
+        fromField.setBackground(null);
     }
 
     private void setHeaders(Map<String, String> headers) {
@@ -894,6 +931,11 @@ public class SmtpSender extends ConnectorSettingsPanel {
     }//GEN-LAST:event_useAuthenticationNoActionPerformed
 
     private void sendTestEmailButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendTestEmailButtonActionPerformed
+        if (!checkProperties(getProperties(), true)) {
+            parent.alertCustomError(this.parent, errors, "Please fix the following errors before sending a test email:");
+            return;
+        }
+
         final String workingId = parent.startWorking("Sending test email...");
 
         SwingWorker worker = new SwingWorker<Void, Void>() {

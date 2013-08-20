@@ -131,7 +131,9 @@ public class SmtpDispatcher extends DestinationConnector {
             }
 
             try {
-                email.setSocketConnectionTimeout(Integer.parseInt(smtpDispatcherProperties.getTimeout()));
+                int timeout = Integer.parseInt(smtpDispatcherProperties.getTimeout());
+                email.setSocketTimeout(timeout);
+                email.setSocketConnectionTimeout(timeout);
             } catch (NumberFormatException e) {
                 // Don't set if the value is invalid
             }

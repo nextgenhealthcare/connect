@@ -51,6 +51,14 @@ public class SmtpSenderService implements ConnectorService {
             email.setHostName(host);
             email.setSmtpPort(port);
 
+            try {
+                int timeout = Integer.parseInt(props.getTimeout());
+                email.setSocketTimeout(timeout);
+                email.setSocketConnectionTimeout(timeout);
+            } catch (NumberFormatException e) {
+                // Don't set if the value is invalid
+            }
+
             if ("SSL".equalsIgnoreCase(secure)) {
                 email.setSSL(true);
             } else if ("TLS".equalsIgnoreCase(secure)) {
