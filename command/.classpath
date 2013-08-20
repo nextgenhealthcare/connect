@@ -79,5 +79,6 @@
 	<classpathentry kind="lib" path="lib/not-yet-commons-ssl-0.3.11.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-1.4.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-jdk16-144.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
