@@ -624,6 +624,10 @@ public class CommandLineInterface {
     }
 
     private void commandExportConfig(Token[] arguments) throws ClientException {
+        if (hasInvalidNumberOfArguments(arguments, 1)) {
+            return;
+        }
+
         String path = arguments[1].getText();
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
@@ -644,6 +648,10 @@ public class CommandLineInterface {
     }
 
     private void commandImportConfig(Token[] arguments) throws ClientException {
+        if (hasInvalidNumberOfArguments(arguments, 1)) {
+            return;
+        }
+
         String path = arguments[1].getText();
         File fXml = new File(path);
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
@@ -659,6 +667,10 @@ public class CommandLineInterface {
     }
 
     private void commandImport(Token[] arguments) throws ClientException {
+        if (hasInvalidNumberOfArguments(arguments, 1)) {
+            return;
+        }
+
         String path = arguments[1].getText();
 
         boolean force = false;
@@ -671,6 +683,10 @@ public class CommandLineInterface {
     }
 
     private void commandImportAlerts(Token[] arguments) throws ClientException {
+        if (hasInvalidNumberOfArguments(arguments, 1)) {
+            return;
+        }
+
         String path = arguments[1].getText();
 
         boolean force = false;
@@ -786,8 +802,13 @@ public class CommandLineInterface {
         File fXml = new File(path);
 
         try {
-            client.updateCodeTemplates(ObjectXMLSerializer.getInstance().deserializeList(FileUtils.readFileToString(fXml), CodeTemplate.class));
-            out.println("Code Templates Import Complete");
+            List<CodeTemplate> codeTemplates = ObjectXMLSerializer.getInstance().deserializeList(FileUtils.readFileToString(fXml), CodeTemplate.class);
+            removeInvalidItems(codeTemplates, CodeTemplate.class);
+            client.updateCodeTemplates(codeTemplates);
+
+            if (codeTemplates.size() > 0) {
+                out.println("Code Templates Import Complete");
+            }
         } catch (IOException e) {
             error("cannot read " + path, e);
         } catch (SerializerException e) {
@@ -1389,6 +1410,8 @@ public class CommandLineInterface {
             return;
         }
 
+        removeInvalidItems(alertList, AlertModel.class);
+
         for (AlertModel importAlert : alertList) {
             String alertName = importAlert.getName();
             String tempId = client.getGuid();
@@ -1444,5 +1467,26 @@ public class CommandLineInterface {
     private String getTimeStamp() {
         Date currentTime = new Date();
         return formatter.format(currentTime);
+    }
+
+    /**
+     * Removes items from the list that are not of the expected class.
+     */
+    private void removeInvalidItems(List<?> list, Class<?> expectedClass) {
+        int originalSize = list.size();
+
+        for (int i = 0; i < list.size(); i++) {
+            if (!expectedClass.isInstance(list.get(i))) {
+                list.remove(i--);
+            }
+        }
+
+        if (list.size() < originalSize) {
+            if (list.size() == 0) {
+                out.println("The imported object(s) are not of the expected class: " + expectedClass.getSimpleName());
+            } else {
+                out.println("One or more imported objects were skipped, because they are not of the expected class: " + expectedClass.getSimpleName());
+            }
+        }
     }
 }

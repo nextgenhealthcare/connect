@@ -4283,6 +4283,8 @@ public class Frame extends JXFrame {
             return;
         }
 
+        removeInvalidItems(alertList, AlertModel.class);
+
         for (AlertModel importAlert : alertList) {
             try {
                 String alertName = importAlert.getName();
@@ -4311,14 +4313,10 @@ public class Frame extends JXFrame {
                         }
                     }
                 }
-            } catch (ClientException e) {
-                alertException(this, e.getStackTrace(), e.getMessage());
-            }
 
-            try {
                 mirthClient.updateAlert(importAlert);
             } catch (Exception e) {
-                alertException(this, e.getStackTrace(), e.getMessage());
+                alertException(this, e.getStackTrace(), "Error importing alert:\n" + e.getMessage());
             }
         }
 
@@ -4460,61 +4458,65 @@ public class Frame extends JXFrame {
 
                 List<CodeTemplate> newCodeTemplates = serializer.deserializeList(content, CodeTemplate.class);
 
-                if (codeTemplates != null && codeTemplates.size() > 0) {
-                    if (alertOption(this, "Would you like to append these code templates to the existing code templates?")) {
-                        append = true;
+                removeInvalidItems(newCodeTemplates, CodeTemplate.class);
+
+                if (newCodeTemplates.size() > 0) {
+                    if (codeTemplates != null && codeTemplates.size() > 0) {
+                        if (alertOption(this, "Would you like to append these code templates to the existing code templates?")) {
+                            append = true;
+                        }
                     }
-                }
 
-                if (append) {
-                    for (CodeTemplate newCodeTemplate : newCodeTemplates) {
-                        newCodeTemplate.setId(UUID.randomUUID().toString());
+                    if (append) {
+                        for (CodeTemplate newCodeTemplate : newCodeTemplates) {
+                            newCodeTemplate.setId(UUID.randomUUID().toString());
 
-                        // make sure the name doesn't already exist
-                        for (CodeTemplate codeTemplate : codeTemplates) {
-                            // If the name already exists, generate a new unique name
-                            if (codeTemplate.getName().equalsIgnoreCase(newCodeTemplate.getName())) {
-                                String newCodeTemplateName = "Template ";
+                            // make sure the name doesn't already exist
+                            for (CodeTemplate codeTemplate : codeTemplates) {
+                                // If the name already exists, generate a new unique name
+                                if (codeTemplate.getName().equalsIgnoreCase(newCodeTemplate.getName())) {
+                                    String newCodeTemplateName = "Template ";
 
-                                boolean uniqueName = false;
-                                int i = 0;
-                                while (!uniqueName) {
-                                    i++;
-                                    uniqueName = true;
-                                    for (CodeTemplate codeTemplateLookup : codeTemplates) {
-                                        if (codeTemplateLookup.getName().equalsIgnoreCase(newCodeTemplateName + i)) {
-                                            uniqueName = false;
+                                    boolean uniqueName = false;
+                                    int i = 0;
+                                    while (!uniqueName) {
+                                        i++;
+                                        uniqueName = true;
+                                        for (CodeTemplate codeTemplateLookup : codeTemplates) {
+                                            if (codeTemplateLookup.getName().equalsIgnoreCase(newCodeTemplateName + i)) {
+                                                uniqueName = false;
+                                            }
                                         }
                                     }
+
+                                    newCodeTemplate.setName(newCodeTemplateName + i);
                                 }
-
-                                newCodeTemplate.setName(newCodeTemplateName + i);
                             }
+
+                            codeTemplates.add(newCodeTemplate);
                         }
-
-                        codeTemplates.add(newCodeTemplate);
+                    } else {
+                        codeTemplates = newCodeTemplates;
                     }
-                } else {
-                    codeTemplates = newCodeTemplates;
+    
+                    alertInformation(this, "All code templates imported successfully.");
+    
+                    setSaveEnabled(true);
+
+                    // If appending, just deselect the rows, which saves 
+                    // the state of the last selected row.
+                    // If replacing, set isDeletingAlert so the state is 
+                    // not saved while the alert is being removed.
+                    if (append) {
+                        codeTemplatePanel.deselectCodeTemplateRows();
+                    } else {
+                        codeTemplatePanel.isDeleting = true;
+                        codeTemplatePanel.deselectCodeTemplateRows();
+                        codeTemplatePanel.isDeleting = false;
+                    }
+    
+                    codeTemplatePanel.updateCodeTemplateTable();
                 }
-
-                alertInformation(this, "All code templates imported successfully.");
-
-                setSaveEnabled(true);
-
-                // If appending, just deselect the rows, which saves 
-                // the state of the last selected row.
-                // If replacing, set isDeletingAlert so the state is 
-                // not saved while the alert is being removed.
-                if (append) {
-                    codeTemplatePanel.deselectCodeTemplateRows();
-                } else {
-                    codeTemplatePanel.isDeleting = true;
-                    codeTemplatePanel.deselectCodeTemplateRows();
-                    codeTemplatePanel.isDeleting = false;
-                }
-
-                codeTemplatePanel.updateCodeTemplateTable();
             } catch (Exception e) {
                 alertException(this, e.getStackTrace(), "Invalid code template file: " + e.getMessage());
             }
@@ -4851,5 +4853,26 @@ public class Frame extends JXFrame {
 
         message.append("You are using Mirth Connect version " + PlatformUI.SERVER_VERSION + ".\nWould you like to automatically convert the " + objectName + " to the " + PlatformUI.SERVER_VERSION + " format?");
         return JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this, message.toString(), "Select an Option", JOptionPane.YES_NO_OPTION);
+    }
+
+    /**
+     * Removes items from the list that are not of the expected class.
+     */
+    private void removeInvalidItems(List<?> list, Class<?> expectedClass) {
+        int originalSize = list.size();
+
+        for (int i = 0; i < list.size(); i++) {
+            if (!expectedClass.isInstance(list.get(i))) {
+                list.remove(i--);
+            }
+        }
+
+        if (list.size() < originalSize) {
+            if (list.size() == 0) {
+                alertError(this, "The imported object(s) are not of the expected class: " + expectedClass.getSimpleName());
+            } else {
+                alertError(this, "One or more imported objects were skipped, because they are not of the expected class: " + expectedClass.getSimpleName());
+            }
+        }
     }
 }
