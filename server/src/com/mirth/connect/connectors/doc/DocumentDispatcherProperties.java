@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.doc;
 
+import com.mirth.connect.connectors.file.FileScheme;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
@@ -112,7 +113,7 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
         StringBuilder builder = new StringBuilder();
         String newLine = "\n";
         builder.append("URI: ");
-        builder.append(host + outputPattern);
+        appendURIString(builder);
         builder.append(newLine);
 
         builder.append("DOCUMENT TYPE: ");
@@ -124,6 +125,20 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
         builder.append(newLine);
         builder.append(template);
         return builder.toString();
+    }
+
+    public String toURIString() {
+        StringBuilder builder = new StringBuilder();
+        appendURIString(builder);
+        return builder.toString();
+    }
+
+    private void appendURIString(StringBuilder builder) {
+        builder.append(host);
+        if (host.charAt(host.length() - 1) != '/') {
+            builder.append("/");
+        }
+        builder.append(outputPattern);
     }
 
     @Override
