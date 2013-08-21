@@ -66,8 +66,10 @@ public class FileWriterService implements ConnectorService {
 
             FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, username, password, addressHost, port, passive, secure, timeout);
 
+            FileSystemConnection connection = null;
+
             try {
-                FileSystemConnection connection = (FileSystemConnection) factory.makeObject();
+                connection = (FileSystemConnection) factory.makeObject();
 
                 if (connection.canWrite(dir)) {
                     return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to: " + fileHost);
@@ -76,6 +78,10 @@ public class FileWriterService implements ConnectorService {
                 }
             } catch (Exception e) {
                 return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Unable to connect to: " + fileHost + ", Reason: " + e.getMessage());
+            } finally {
+                if (connection != null) {
+                    connection.destroy();
+                }
             }
         }
 
