@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -63,8 +63,10 @@ public class FileWriterService implements ConnectorService {
 
             FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, username, password, host, port, passive, secure, timeout);
 
+            FileSystemConnection connection = null;
+
             try {
-                FileSystemConnection connection = (FileSystemConnection) factory.makeObject();
+                connection = (FileSystemConnection) factory.makeObject();
 
                 if (connection.canWrite(dir)) {
                     return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to: " + fileHost);
@@ -73,6 +75,10 @@ public class FileWriterService implements ConnectorService {
                 }
             } catch (Exception e) {
                 return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Unable to connect to: " + fileHost + ", Reason: " + e.getMessage());
+            } finally {
+                if (connection != null) {
+                    connection.destroy();
+                }
             }
         }
 
