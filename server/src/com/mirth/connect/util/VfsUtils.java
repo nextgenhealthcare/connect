@@ -13,8 +13,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileSystemManager;
+import org.apache.commons.vfs2.impl.StandardFileSystemManager;
+
 public class VfsUtils {
     private static Map<String, String> uriExtensionMap;
+    private static FileSystemManager fileSystemManager;
 
     static {
         /*
@@ -45,5 +50,25 @@ public class VfsUtils {
         }
 
         return path;
+    }
+
+    /**
+     * This method is a replacement for VFS.getManager() and provides a workaround for an existing
+     * bug in Commons VFS 2.0 (https://issues.apache.org/jira/browse/VFS-228). The
+     * ClassNotFoundException described in apache's jira issue occurs in the CLI (works fine in the
+     * administrator).
+     * 
+     * If/when the issue gets resolved in a future version of Commons VFS, then we can revert to
+     * using VFS.getManager().
+     */
+    public static FileSystemManager getManager() throws FileSystemException {
+        if (fileSystemManager == null) {
+            StandardFileSystemManager stdFileSystemManager = new StandardFileSystemManager();
+            stdFileSystemManager.setClassLoader(VfsUtils.class.getClassLoader());
+            stdFileSystemManager.init();
+            fileSystemManager = stdFileSystemManager;
+        }
+
+        return fileSystemManager;
     }
 }

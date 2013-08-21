@@ -17,7 +17,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
-import org.apache.commons.vfs2.VFS;
 
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -27,6 +26,7 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.MessageEncryptionUtil;
 import com.mirth.connect.util.ValueReplacer;
+import com.mirth.connect.util.VfsUtils;
 
 public class MessageWriterVfs implements MessageWriter {
     private String uri;
@@ -116,7 +116,7 @@ public class MessageWriterVfs implements MessageWriter {
                     }
 
                     currentFile = file;
-                    currentFileObject = VFS.getManager().resolveFile(file);
+                    currentFileObject = VfsUtils.getManager().resolveFile(file);
 
                     if (currentFileObject.getType() == FileType.FOLDER) {
                         throw new MessageWriterException("Cannot save message to file \"" + file + "\", it is a directory");

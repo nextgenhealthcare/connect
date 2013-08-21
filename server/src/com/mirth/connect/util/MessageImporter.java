@@ -19,7 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
-import org.apache.commons.vfs2.VFS;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.Message;
@@ -50,7 +49,7 @@ public class MessageImporter {
         int[] result = new int[] { 0, 0 };
 
         try {
-            FileObject file = VFS.getManager().resolveFile(uri);
+            FileObject file = VfsUtils.getManager().resolveFile(uri);
 
             switch (file.getType()) {
                 case FOLDER:
