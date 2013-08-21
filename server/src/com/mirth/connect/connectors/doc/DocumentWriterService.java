@@ -25,9 +25,11 @@ public class DocumentWriterService implements ConnectorService {
             String directory = replacer.replaceValues(props.getHost(), channelId);
 
             FileSystemConnectionFactory factory = new FileSystemConnectionFactory(FileScheme.FILE, null, null, directory, 0, false, false, 0);
-            FileSystemConnection connection = (FileSystemConnection) factory.makeObject();
+            FileSystemConnection connection = null;
 
             try {
+                connection = (FileSystemConnection) factory.makeObject();
+
                 if (connection.canWrite(directory)) {
                     return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to: " + directory);
                 } else {
@@ -35,6 +37,10 @@ public class DocumentWriterService implements ConnectorService {
                 }
             } catch (Exception e) {
                 return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Unable to connect to: " + directory + ", Reason: " + e.getMessage());
+            } finally {
+                if (connection != null) {
+                    connection.destroy();
+                }
             }
         }
 
