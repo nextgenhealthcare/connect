@@ -9,7 +9,7 @@
 
 package com.mirth.connect.donkey.model.event;
 
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 

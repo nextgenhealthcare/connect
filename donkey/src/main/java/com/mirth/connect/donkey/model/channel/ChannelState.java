@@ -9,7 +9,7 @@
 
 package com.mirth.connect.donkey.model.channel;
 
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 public enum ChannelState {
     STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED;

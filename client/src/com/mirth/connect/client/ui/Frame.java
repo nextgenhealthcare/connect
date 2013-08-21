@@ -426,7 +426,10 @@ public class Frame extends JXFrame {
             PlatformUI.BUILD_DATE = mirthClient.getBuildDate();
 
             // Initialize ObjectXMLSerializer once we know the server version
-            ObjectXMLSerializer.getInstance().init(PlatformUI.SERVER_VERSION);
+            try {
+                ObjectXMLSerializer.getInstance().init(PlatformUI.SERVER_VERSION);
+            } catch (Exception e) {
+            }
         } catch (ClientException e) {
             alertError(this, "Could not get server information.");
         }

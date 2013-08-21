@@ -10,7 +10,6 @@
 package com.mirth.connect.client.ui.alert;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.JLabel;
@@ -27,7 +26,6 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthCheckBox;
 import com.mirth.connect.client.ui.components.MirthTextField;
-import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertTrigger;
@@ -104,17 +102,7 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
 
     @Override
     public void addAlert() {
-        AlertModel alertModel = new AlertModel();
-        try {
-            alertModel.setId(parent.mirthClient.getGuid());
-        } catch (ClientException e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
-        }
-        alertModel.setEnabled(false);
-        alertModel.setTrigger(new DefaultTrigger(new HashSet<ErrorEventType>(), ""));
-        alertModel.getActionGroups().add(new AlertActionGroup());
-
-        editAlert(alertModel);
+        editAlert(new AlertModel(new DefaultTrigger(), new AlertActionGroup()));
 
         parent.setSaveEnabled(true);
     }
@@ -123,19 +111,19 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
     public boolean editAlert(AlertModel alertModel) {
         if (alertModel.getTrigger() instanceof DefaultTrigger) {
             nameTextField.setText(alertModel.getName());
-    
+
             enabledCheckBox.setSelected(alertModel.isEnabled());
-    
+
             alertActionPane.setActionGroup(alertModel.getActionGroups().get(0));
-    
+
             alertTriggerPane.setTrigger(alertModel.getTrigger());
             alertChannelPane.setChannels(((ChannelTrigger) alertModel.getTrigger()).getAlertChannels(), true);
-    
+
             updateVariableList();
-    
+
             this.alertModel = alertModel;
             updateTasks();
-            
+
             return true;
         } else {
             parent.alertError(parent, "This alert cannot be edited. Plugin may be missing.");

@@ -524,12 +524,12 @@ public class AlertActionPane extends JPanel {
         variablePane.setLayout(new BorderLayout());
         variablePane.add(variableScrollPane);
 
-        add(actionPane, "width 250:250:250, growy, wrap");
+        add(actionPane, "width 280:280:280, growy, wrap");
 
         add(subjectPane, "split, growx");
         add(templatePane, "grow, wrap");
 
-        add(variablePane, "width 170:170:170, growy");
+        add(variablePane, "width 140:140:140, growy");
     }
 
     private JPanel actionPane;

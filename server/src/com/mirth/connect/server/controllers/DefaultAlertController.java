@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.alert.AlertModel;
@@ -146,7 +147,7 @@ public class DefaultAlertController extends AlertController {
                 try {
                     alerts.add(serializer.deserialize((String) row.get("alert"), AlertModel.class));
                 } catch (Exception e) {
-                    logger.error("Failed to load alert " + row.get("id"), e);
+                    logger.warn("Failed to load alert " + row.get("id"), e);
                 }
             }
 
@@ -173,18 +174,18 @@ public class DefaultAlertController extends AlertController {
             }
         }
 
-        AlertModel matchingAlert = getAlert(alert.getId());
-
         try {
             ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+
+            boolean alertExists = CollectionUtils.isNotEmpty(SqlConfig.getSqlSessionManager().selectList("Alert.getAlert", alert.getId()));
             Map<String, Object> params = new HashMap<String, Object>();
 
             params.put("id", alert.getId());
             params.put("name", alert.getName());
             params.put("alert", serializer.serialize(alert));
 
-            if (matchingAlert != null) {
-                disableAlert(matchingAlert);
+            if (alertExists) {
+                disableAlert(alert.getId());
 
                 logger.debug("updating alert");
                 SqlConfig.getSqlSessionManager().update("Alert.updateAlert", params);
@@ -207,11 +208,7 @@ public class DefaultAlertController extends AlertController {
 
         try {
             if (alertId != null) {
-                AlertModel matchingAlert = getAlert(alertId);
-
-                if (matchingAlert != null) {
-                    disableAlert(matchingAlert);
-                }
+                disableAlert(alertId);
 
                 // Delete the alert record from the "alert" table
                 SqlConfig.getSqlSessionManager().delete("Alert.deleteAlert", alertId);
@@ -240,13 +237,13 @@ public class DefaultAlertController extends AlertController {
     }
 
     @Override
-    public void disableAlert(AlertModel alert) throws ControllerException {
+    public void disableAlert(String alertId) throws ControllerException {
         /*
          * Although we can look up the correct worker, we attempt to disable the alert on all
          * workers just in case any shenanigans have occurred.
          */
         for (AlertWorker worker : alertWorkers.values()) {
-            worker.disableAlert(alert);
+            worker.disableAlert(alertId);
         }
     }
 

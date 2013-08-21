@@ -39,7 +39,7 @@ public abstract class AlertController extends Controller {
 
     public abstract void enableAlert(AlertModel alert) throws ControllerException;
 
-    public abstract void disableAlert(AlertModel alert) throws ControllerException;
+    public abstract void disableAlert(String alertId) throws ControllerException;
 
     public abstract Alert getEnabledAlert(String alertId);
 }

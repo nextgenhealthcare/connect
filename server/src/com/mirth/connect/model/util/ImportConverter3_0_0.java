@@ -494,7 +494,8 @@ public class ImportConverter3_0_0 {
          * This matches the pre-3.x behavior.
          */
         DonkeyElement alertChannelsProperties = triggerProperties.addChildElement("alertChannels");
-        alertChannelsProperties.addChildElement("newChannel");
+        alertChannelsProperties.addChildElement("newChannelSource", "false");
+        alertChannelsProperties.addChildElement("newChannelDestination", "false");
 
         /*
          * Add each channel that was stored. Destinations created after the
@@ -502,12 +503,13 @@ public class ImportConverter3_0_0 {
          * pre-3.x behavior because alerts were active for a channel only, but
          * might have been filtered based on the connector type.
          */
-        DonkeyElement channelsProperties = alertChannelsProperties.addChildElement("channels");
+        DonkeyElement enabledChannelsProperties = alertChannelsProperties.addChildElement("enabledChannels");
         for (String channelId : channelList) {
-            DonkeyElement entryProperties = channelsProperties.addChildElement("entry");
-            entryProperties.addChildElement("string").setTextContent(channelId);
-            entryProperties.addChildElement("set").addChildElement("null");
+            enabledChannelsProperties.addChildElement("string", channelId);
         }
+
+        alertChannelsProperties.addChildElement("disabledChannels");
+        alertChannelsProperties.addChildElement("partialChannels");
 
         // Add all event types
         triggerProperties.addChildElement("errorEventTypes").addChildElement("errorEventType", "ANY");

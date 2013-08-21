@@ -214,28 +214,23 @@ public class AlertChannelPane extends JPanel {
 
         public AlertChannels getAlertChannels() {
             AlertChannels channels = new AlertChannels();
-            
+
             ChannelTreeTableNode channelNode = (ChannelTreeTableNode) modelRoot.getModelChildAt(0);
             channels.setNewChannel(((ConnectorTreeTableNode) channelNode.getModelChildAt(0)).isEnabled(), ((ConnectorTreeTableNode) channelNode.getModelChildAt(1)).isEnabled());
-            
+
             for (int i = 1; i < modelRoot.getModelChildCount(); i++) {
                 channelNode = (ChannelTreeTableNode) modelRoot.getModelChildAt(i);
                 String channelId = channelNode.getChannelId();
 
-                boolean newConnector = false;
                 Map<Integer, Boolean> connectors = new HashMap<Integer, Boolean>();
-                
+
                 for (int j = 0; j < channelNode.getModelChildCount(); j++) {
                     ConnectorTreeTableNode connectorNode = (ConnectorTreeTableNode) channelNode.getModelChildAt(j);
 
-                    if (connectorNode.getMetaDataId() == null) {
-                        newConnector = connectorNode.isEnabled();
-                    } else {
-                        connectors.put(connectorNode.getMetaDataId(), connectorNode.isEnabled());
-                    }
+                    connectors.put(connectorNode.getMetaDataId(), connectorNode.isEnabled());
                 }
-                
-                channels.addChannel(channelId, newConnector, connectors);
+
+                channels.addChannel(channelId, connectors);
             }
 
             return channels;

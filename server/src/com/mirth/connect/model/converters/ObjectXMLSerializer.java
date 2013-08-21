@@ -50,6 +50,7 @@ import com.mirth.connect.model.alert.AlertAction;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertActionProtocol;
 import com.mirth.connect.model.alert.AlertChannels;
+import com.mirth.connect.model.alert.AlertConnectors;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.alert.DefaultTrigger;
@@ -67,6 +68,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         AlertActionGroup.class,
         AlertActionProtocol.class,
         AlertChannels.class,
+        AlertConnectors.class,
         AlertModel.class,
         AlertStatus.class,
         ArchiveMetaData.class,
@@ -102,6 +104,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
     }; // @formatter:on
 
     private static final ObjectXMLSerializer instance = new ObjectXMLSerializer();
+    private String normalizedVersion;
 
     public static ObjectXMLSerializer getInstance() {
         return instance;
@@ -122,10 +125,18 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         getXStream().processAnnotations(classes);
     }
 
-    public void init(String currentVersion) {
-        String normalizedVersion = MigrationUtil.normalizeVersion(currentVersion, 3);
-        getXStream().registerConverter(new MigratableConverter(normalizedVersion, getXStream().getMapper()));
-        getXStream().registerConverter(new ChannelConverter(normalizedVersion, getXStream().getMapper()));
+    public void init(String currentVersion) throws Exception {
+        if (normalizedVersion == null) {
+            normalizedVersion = MigrationUtil.normalizeVersion(currentVersion, 3);
+            getXStream().registerConverter(new MigratableConverter(normalizedVersion, getXStream().getMapper()));
+            getXStream().registerConverter(new ChannelConverter(normalizedVersion, getXStream().getMapper()));
+        } else {
+            throw new Exception("Serializer has already been initialized.");
+        }
+    }
+
+    public String getNormalizedVersion() {
+        return normalizedVersion;
     }
 
     /**
@@ -242,7 +253,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
             return (T) new InvalidChannel(element, e, null);
         }
 
-        logger.error(e);
+//        logger.error(e);
         throw new SerializerException(e);
     }
 }

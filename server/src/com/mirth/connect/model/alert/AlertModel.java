@@ -11,6 +11,7 @@ package com.mirth.connect.model.alert;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -22,7 +23,19 @@ public class AlertModel implements Migratable {
     private String name;
     private boolean enabled;
     private AlertTrigger trigger;
-    private List<AlertActionGroup> actionGroups = new ArrayList<AlertActionGroup>();
+    private List<AlertActionGroup> actionGroups;
+
+    protected AlertModel() {
+        actionGroups = new ArrayList<AlertActionGroup>();
+    }
+
+    public AlertModel(AlertTrigger trigger, AlertActionGroup actionGroup) {
+        this();
+        id = UUID.randomUUID().toString();
+        enabled = false;
+        this.trigger = trigger;
+        actionGroups.add(actionGroup);
+    }
 
     public String getId() {
         return id;

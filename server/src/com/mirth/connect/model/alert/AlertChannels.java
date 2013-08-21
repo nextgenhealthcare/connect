@@ -20,92 +20,88 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("alertChannels")
 public class AlertChannels {
 
-    /**
-     * The default enabled setting for a channel.
-     */
-    private Set<Integer> newChannel = new HashSet<Integer>();
-    
-    /**
-     * Enabled settings for individual channels and connectors
-     */
-    private Map<String, Set<Integer>> channels = new HashMap<String, Set<Integer>>();
-    
+    private boolean newChannelSource = false;
+    private boolean newChannelDestination = false;
+    private Set<String> enabledChannels = new HashSet<String>();
+    private Set<String> disabledChannels = new HashSet<String>();
+    private Map<String, AlertConnectors> partialChannels = new HashMap<String, AlertConnectors>();
+
     public void setNewChannel(boolean source, boolean destinations) {
-        if (destinations) {
-            newChannel.add(null);
-        }
-        if (source != destinations) {
-            newChannel.add(0);
-        }
+        newChannelSource = source;
+        newChannelDestination = destinations;
     }
-    
-    public void addChannel(String channelId, boolean newConnector, Map<Integer, Boolean> connectorMap) {
-        boolean matchesNewChannel = (newChannel.contains(null) == newConnector);
-        
-        /*
-         * The new connector setting is stored in the set as null. If null is in the set, new connectors will be enabled.
-         */
-        Set<Integer> connectors = new HashSet<Integer>();
-        if (newConnector) {
-            connectors.add(null);
-        }
-        
+
+    public void addChannel(String channelId, Map<Integer, Boolean> connectorMap) {
+        AlertConnectors connectors = new AlertConnectors();
+
+        boolean allEnabled = true;
+        boolean allDisabled = true;
+        boolean matchesNewChannel = true;
+
         for (Entry<Integer, Boolean> entry : connectorMap.entrySet()) {
             Integer metaDataId = entry.getKey();
             boolean enabled = entry.getValue();
-            
-            /*
-             * The rest of the values in the set are exclusions for the new connector setting. 
-             * 
-             * If null is in the set, then new connectors are enabled, and all other metaDataIds in the set are disabled.
-             * If null is NOT in the set, then new connectors are disabled, and all other metaDataIds in the set are enabled.
-             */
-            if (enabled != newConnector) {
-                connectors.add(metaDataId);
+
+            if (enabled) {
+                allDisabled = false;
+                connectors.getEnabledConnectors().add(metaDataId);
+            } else {
+                allEnabled = false;
+                connectors.getDisabledConnectors().add(metaDataId);
             }
 
-            if (metaDataId != null && metaDataId > 0) {
-                metaDataId = null;
-            }
-            
-            if (newChannel.contains(metaDataId) != enabled) {
-                matchesNewChannel = false;
+            if (metaDataId == null || metaDataId > 0) {
+                // To match the new channel settings, all destinations must match newChannelDestination
+                if (enabled != newChannelDestination) {
+                    matchesNewChannel = false;
+                }
+            } else {
+                // To match the new channel settings, the source must match newChannelSource
+                if (enabled != newChannelSource) {
+                    matchesNewChannel = false;
+                }
             }
         }
-        
-        /*
-         * Only add this channel's settings if it differs from the new channel settings
-         */
+
+        // There is no need to add a channel's setting if it completely matches the new channel settings.
         if (!matchesNewChannel) {
-            channels.put(channelId, connectors);
+            if (allEnabled) {
+                enabledChannels.add(channelId);
+            } else if (allDisabled) {
+                disabledChannels.add(channelId);
+            } else {
+                partialChannels.put(channelId, connectors);
+            }
         }
     }
-    
+
     public boolean isChannelEnabled(String channelId) {
-        Set<Integer> connectors;
-        if (channels.containsKey(channelId)) {
-            connectors = channels.get(channelId);
+        if (enabledChannels.contains(channelId)) {
+            return true;
+        } else if (disabledChannels.contains(channelId)) {
+            return false;
+        } else if (partialChannels.containsKey(channelId)) {
+            Set<Integer> enabledConnectors = partialChannels.get(channelId).getEnabledConnectors();
+            return enabledConnectors.size() > 0;
         } else {
-            connectors = newChannel;
+            return newChannelSource || newChannelDestination;
         }
-        
-        return connectors.size() > 0;
     }
 
     public boolean isConnectorEnabled(String channelId, Integer metaDataId) {
-        Set<Integer> connectors;
-        if (channels.containsKey(channelId)) {
-            connectors = channels.get(channelId);
+        if (enabledChannels.contains(channelId)) {
+            return true;
+        } else if (disabledChannels.contains(channelId)) {
+            return false;
+        } else if (partialChannels.containsKey(channelId)) {
+            Set<Integer> enabledConnectors = partialChannels.get(channelId).getEnabledConnectors();
+            Set<Integer> disabledConnectors = partialChannels.get(channelId).getDisabledConnectors();
+
+            return enabledConnectors.contains(metaDataId) || (enabledConnectors.contains(null) && !disabledConnectors.contains(metaDataId));
+        } else if (metaDataId == null || metaDataId > 0) {
+            return newChannelDestination;
         } else {
-            connectors = newChannel;
-        }
-        
-        boolean newConnector = connectors.contains(null);
-        
-        if (metaDataId == null) {
-            return newConnector;
-        } else {
-            return connectors.contains(metaDataId) ? !newConnector : newConnector;
+            return newChannelSource;
         }
     }
 }

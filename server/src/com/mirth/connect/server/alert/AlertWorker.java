@@ -30,7 +30,6 @@ import com.mirth.connect.model.alert.AlertAction;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
-import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
@@ -47,7 +46,6 @@ public abstract class AlertWorker extends EventListener {
     protected EventController eventController = ControllerFactory.getFactory().createEventController();
 
     private EngineController engineController = ControllerFactory.getFactory().createEngineController();
-    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
 
     public AlertWorker() {
         super();
@@ -60,8 +58,8 @@ public abstract class AlertWorker extends EventListener {
         alertEnabled(alert);
     }
 
-    public void disableAlert(AlertModel alertModel) {
-        Alert alert = enabledAlerts.remove(alertModel.getId());
+    public void disableAlert(String alertId) {
+        Alert alert = enabledAlerts.remove(alertId);
 
         if (alert != null) {
             alertDisabled(alert);

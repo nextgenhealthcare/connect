@@ -9,6 +9,7 @@
 
 package com.mirth.connect.model.alert;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.mirth.connect.donkey.model.event.ErrorEventType;
@@ -19,6 +20,10 @@ public class DefaultTrigger extends ChannelTrigger implements AlertTrigger {
 
     private Set<ErrorEventType> errorEventTypes;
     private String regex;
+
+    public DefaultTrigger() {
+        this(new HashSet<ErrorEventType>(), "");
+    }
 
     public DefaultTrigger(Set<ErrorEventType> errorAlertTypes, String regex) {
         this.errorEventTypes = errorAlertTypes;

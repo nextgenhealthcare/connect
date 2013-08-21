@@ -167,7 +167,10 @@ public class CommandLineInterface {
             }
 
             String serverVersion = client.getVersion();
-            ObjectXMLSerializer.getInstance().init(serverVersion);
+            try {
+                ObjectXMLSerializer.getInstance().init(serverVersion);
+            } catch (Exception e) {
+            }
 
             out.println("Connected to Mirth Connect server @ " + server + " (" + serverVersion + ")");
             currentUser = user;

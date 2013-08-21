@@ -198,7 +198,10 @@ public class Mirth extends Thread {
      * 
      */
     public void startup() {
-        ObjectXMLSerializer.getInstance().init(versionProperties.getString("mirth.version"));
+        try {
+            ObjectXMLSerializer.getInstance().init(versionProperties.getString("mirth.version"));
+        } catch (Exception e) {
+        }
         Donkey.getInstance().setSerializer(ObjectXMLSerializer.getInstance());
 
         configurationController.initializeSecuritySettings();
