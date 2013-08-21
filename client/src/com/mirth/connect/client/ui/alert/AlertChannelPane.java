@@ -35,6 +35,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 
@@ -77,6 +79,21 @@ public class AlertChannelPane extends JPanel {
         channelTreeTable.setShowGrid(true, true);
         channelTreeTable.setTableHeader(null);
         channelTreeTable.setDragEnabled(false);
+
+        channelTreeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    boolean enabled = channelTreeTable.getSelectedRowCount() > 0;
+
+                    enableButton.setEnabled(enabled);
+                    disableButton.setEnabled(enabled);
+                }
+            }
+
+        });
+
         channelTreeTable.setTreeCellRenderer(new TreeCellRenderer() {
 
             private JLabel label = new JLabel();
@@ -167,6 +184,9 @@ public class AlertChannelPane extends JPanel {
             ChannelTreeTableModel model = (ChannelTreeTableModel) channelTreeTable.getTreeTableModel();
             model.addChannels(channelMap.values(), alertChannels, includeConnectors);
         }
+
+        enableButton.setEnabled(false);
+        disableButton.setEnabled(false);
     }
 
     private void updateFilter(String filterString) {
