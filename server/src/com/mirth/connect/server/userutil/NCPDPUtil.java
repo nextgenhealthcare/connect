@@ -9,13 +9,6 @@
 
 package com.mirth.connect.server.userutil;
 
-/**
- * Created by IntelliJ IDEA.
- * User: dans
- * Date: Aug 2, 2007
- * Time: 12:26:54 PM
- * To change this template use File | Settings | File Templates.
- */
 public class NCPDPUtil {
 
     public static String formatNCPDPNumber(String origNumber, int decimalPoints){
