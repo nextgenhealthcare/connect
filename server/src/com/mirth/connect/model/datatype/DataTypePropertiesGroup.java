@@ -23,8 +23,8 @@ public abstract class DataTypePropertiesGroup implements Serializable, Migratabl
     public final Map<String, Object> getProperties() {
         Map<String, Object> propertiesMap = new HashMap<String, Object>();
         Map<String, DataTypePropertyDescriptor> properties = getPropertyDescriptors();
-        for (String key : properties.keySet()) {
-            propertiesMap.put(key, properties.get(key).getValue());
+        for (Entry<String, DataTypePropertyDescriptor> entry : properties.entrySet()) {
+            propertiesMap.put(entry.getKey(), entry.getValue().getValue());
         }
         return propertiesMap;
     }
