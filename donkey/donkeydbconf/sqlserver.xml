@@ -10,7 +10,7 @@
 	        original_id BIGINT,
 	        import_id BIGINT,
 	        import_channel_id NVARCHAR(36),
-	        CONSTRAINT m${localChannelId}_pkey PRIMARY KEY(id)
+	        CONSTRAINT d_m${localChannelId}_pkey PRIMARY KEY(id)
 	    )
 	</query>
 	
@@ -32,8 +32,8 @@
 	        error_code INTEGER DEFAULT 0 NOT NULL,
 	        chain_id INTEGER NOT NULL,
 	        order_id INTEGER NOT NULL,
-	        CONSTRAINT mm${localChannelId}_pkey PRIMARY KEY(message_id, id),
-	        CONSTRAINT mm${localChannelId}_fkey FOREIGN KEY(message_id) REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE
+	        CONSTRAINT d_mm${localChannelId}_pkey PRIMARY KEY(message_id, id),
+	        CONSTRAINT d_mm${localChannelId}_fkey FOREIGN KEY(message_id) REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE
         )
 	</query>
 	
@@ -57,8 +57,8 @@
 	        content NVARCHAR(MAX),
 	        is_encrypted BIT NOT NULL,
 	        data_type NVARCHAR(255),
-	        CONSTRAINT mc${localChannelId}_pkey PRIMARY KEY(message_id, metadata_id, content_type),
-	        CONSTRAINT mc${localChannelId}_fkey FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE CASCADE
+	        CONSTRAINT d_mc${localChannelId}_pkey PRIMARY KEY(message_id, metadata_id, content_type),
+	        CONSTRAINT d_mc${localChannelId}_fkey FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE CASCADE
         )
 	</query>
 	
@@ -70,8 +70,8 @@
 		CREATE TABLE d_mcm${localChannelId} (
 	        metadata_id INTEGER NOT NULL,
 	        message_id BIGINT NOT NULL,
-	        CONSTRAINT mcm${localChannelId}_pkey PRIMARY KEY(message_id, metadata_id),
-	        CONSTRAINT mcm${localChannelId}_fkey FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE CASCADE
+	        CONSTRAINT d_mcm${localChannelId}_pkey PRIMARY KEY(message_id, metadata_id),
+	        CONSTRAINT d_mcm${localChannelId}_fkey FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE CASCADE
         )
 	</query>
 	
@@ -83,7 +83,7 @@
 	        segment_id INTEGER NOT NULL,
 	        attachment_size INTEGER NOT NULL,
 	        content IMAGE,
-	        CONSTRAINT ma${localChannelId}_fkey FOREIGN KEY(message_id) REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE
+	        CONSTRAINT d_ma${localChannelId}_fkey FOREIGN KEY(message_id) REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE
         )
 	</query>
 	
