@@ -239,6 +239,7 @@ public class DefaultAlertTriggerPane extends AlertTriggerPane {
         errorPane.add(errorScrollPane);
 
         regexTextArea = new MirthTextArea();
+        regexTextArea.setToolTipText("Only errors that match against this regular expression will trigger.");
         regexScrollPane = new JScrollPane(regexTextArea);
         regexPane = new JPanel();
         regexPane.setBackground(UIConstants.BACKGROUND_COLOR);
