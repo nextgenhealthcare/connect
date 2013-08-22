@@ -142,16 +142,7 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
 
         List<String> triggerValidationErrors = alertTriggerPane.doValidate();
         if (CollectionUtils.isNotEmpty(triggerValidationErrors)) {
-            String errorString = "";
-            for (String error : triggerValidationErrors) {
-                if (errorString.isEmpty()) {
-                    error += "\n";
-                }
-
-                errorString += error;
-            }
-
-            parent.alertWarning(parent, errorString);
+            parent.alertWarning(parent, StringUtils.join(triggerValidationErrors, "\n"));
             return false;
         }
 
