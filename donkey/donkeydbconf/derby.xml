@@ -61,8 +61,8 @@
 	        content clob,
 	        is_encrypted boolean NOT NULL,
 	        data_type character varying(255),
-	        CONSTRAINT d_mc${localChannelId}_PKEY PRIMARY KEY(message_id, metadata_id, content_type),
-	        CONSTRAINT d_mc${localChannelId}_FKEY FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE RESTRICT
+	        CONSTRAINT d_mc${localChannelId}_pkey PRIMARY KEY(message_id, metadata_id, content_type),
+	        CONSTRAINT d_mc${localChannelId}_fkey FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE RESTRICT
         )
 	</query>
 	
@@ -74,8 +74,8 @@
 		CREATE TABLE d_mcm${localChannelId} (
 	        METADATA_ID integer NOT NULL,
 	        MESSAGE_ID bigint NOT NULL,
-	        CONSTRAINT d_mcm${localChannelId}_PKEY PRIMARY KEY(message_id, metadata_id),
-	        CONSTRAINT d_mcm${localChannelId}_FKEY FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE RESTRICT
+	        CONSTRAINT d_mcm${localChannelId}_pkey PRIMARY KEY(message_id, metadata_id),
+	        CONSTRAINT d_mcm${localChannelId}_fkey FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE RESTRICT
         )
 	</query>
 	
