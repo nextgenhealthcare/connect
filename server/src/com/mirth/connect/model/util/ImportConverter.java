@@ -975,28 +975,18 @@ public class ImportConverter {
                 }
             }
 
-            Document attachmentDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader("<list></list>")));
+            DonkeyElement attachmentList = new DonkeyElement("<list/>");
 
             if (attachmentNames != null) {
                 for (int i = 0; i < attachmentNames.size(); i++) {
-                    Element attachment = attachmentDoc.createElement("com.mirth.connect.connectors.smtp.Attachment");
-                    attachmentDoc.appendChild(attachment);
-
-                    Element name = attachmentDoc.createElement("name");
-                    name.setTextContent(attachmentNames.get(i));
-                    attachment.appendChild(name);
-
-                    Element content = attachmentDoc.createElement("content");
-                    content.setTextContent(attachmentContents.get(i));
-                    attachment.appendChild(content);
-
-                    Element mimeType = attachmentDoc.createElement("mimeType");
-                    mimeType.setTextContent(attachmentTypes.get(i));
-                    attachment.appendChild(mimeType);
+                    DonkeyElement attachment = attachmentList.addChildElement("com.mirth.connect.connectors.smtp.Attachment");
+                    attachment.addChildElement("name", attachmentNames.get(i));
+                    attachment.addChildElement("content", attachmentContents.get(i));
+                    attachment.addChildElement("mimeType", attachmentTypes.get(i));
                 }
             }
 
-            propertyChanges.put("attachments", new DocumentSerializer().toXML(attachmentDoc));
+            propertyChanges.put("attachments", attachmentList.toXml());
 
             propertyChanges.put("DataType", "SMTP Sender");
 
