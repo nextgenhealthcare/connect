@@ -5,7 +5,7 @@
 		CREATE TABLE d_m${localChannelId} (
 	        id BIGINT NOT NULL,
 	        server_id NVARCHAR(36) NOT NULL,
-	        received_date DATETIME NOT NULL DEFAULT GETDATE(),
+	        received_date DATETIME DEFAULT NULL,
 	        processed BIT NOT NULL DEFAULT 0,
 	        original_id BIGINT,
 	        import_id BIGINT,
@@ -23,12 +23,12 @@
 	        id INTEGER NOT NULL,
 	        message_id BIGINT NOT NULL,
 	        server_id NVARCHAR(36) NOT NULL,
-	        received_date DATETIME NOT NULL DEFAULT GETDATE(),
+	        received_date DATETIME DEFAULT NULL,
 	        status CHAR(1) NOT NULL,
 	        connector_name NVARCHAR(MAX),
 	        send_attempts INTEGER DEFAULT 0 NOT NULL,
-	        send_date DATETIME,
-	        response_date DATETIME,
+	        send_date DATETIME DEFAULT NULL,
+	        response_date DATETIME DEFAULT NULL,
 	        error_code INTEGER DEFAULT 0 NOT NULL,
 	        chain_id INTEGER NOT NULL,
 	        order_id INTEGER NOT NULL,
@@ -192,7 +192,7 @@
 	</query>
 	
 	<query id="addMetaDataColumnTimestamp">
-		ALTER TABLE d_mcm${localChannelId} ADD "${columnName}" DATETIME
+		ALTER TABLE d_mcm${localChannelId} ADD "${columnName}" DATETIME DEFAULT NULL
 	</query>
 	
 	<query id="markAsProcessed">

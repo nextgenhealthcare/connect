@@ -5,7 +5,7 @@
 		CREATE TABLE d_m${localChannelId} (
 	        id bigint NOT NULL,
 	        server_id character varying(36) NOT NULL,
-	        received_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	        received_date timestamp DEFAULT NULL,
 	        processed boolean NOT NULL DEFAULT FALSE,
 	        original_id bigint,
 	        import_id bigint,
@@ -23,12 +23,12 @@
 	        id integer NOT NULL,
 	        message_id bigint NOT NULL,
 	        server_id character varying(36) NOT NULL,
-	        received_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	        received_date timestamp DEFAULT NULL,
 	        status character(1) NOT NULL,
 	        connector_name character varying(256),
 	        send_attempts integer NOT NULL DEFAULT 0,
-	        send_date timestamp,
-	        response_date timestamp,
+	        send_date timestamp DEFAULT NULL,
+	        response_date timestamp DEFAULT NULL,
 	        error_code integer NOT NULL DEFAULT 0,
 	        chain_id integer NOT NULL,
 	        order_id integer NOT NULL,
@@ -152,7 +152,7 @@
 	</query>
 	
 	<query id="addMetaDataColumnTimestamp">
-		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} timestamp
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} timestamp DEFAULT NULL
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit">
