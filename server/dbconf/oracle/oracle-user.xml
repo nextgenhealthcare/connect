@@ -52,8 +52,8 @@
 	</delete>
 
 	<insert id="insertUser" parameterType="java.util.Map">
-		INSERT INTO PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
-		VALUES (#{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR},
+		INSERT INTO PERSON (ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
+		VALUES (PERSON_SEQUENCE.NEXTVAL, #{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR},
 		#{organization,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},
 		#{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 0)
 	</insert>
