@@ -161,6 +161,8 @@ public class Donkey {
                 Set<Integer> connectorsToStart = new HashSet<Integer>(channel.getMetaDataIds());
                 connectorsToStart.remove(0);
                 channel.start(connectorsToStart);
+            } else {
+                channel.updateCurrentState(ChannelState.STOPPED);
             }
         } finally {
             channel.unlock();

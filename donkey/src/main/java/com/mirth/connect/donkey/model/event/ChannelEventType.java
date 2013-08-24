@@ -16,7 +16,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("channelEventType")
 public enum ChannelEventType {
-    DEPLOY, UNDEPLOY, STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED;
+    DEPLOYED, UNDEPLOYED, STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED;
 
     @Override
     public String toString() {

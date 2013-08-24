@@ -410,7 +410,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     }
                 }
 
-                eventDispatcher.dispatchEvent(new DeployEvent(channelId, connectorStatistics, ChannelEventType.DEPLOY));
+                eventDispatcher.dispatchEvent(new DeployEvent(channelId, connectorStatistics, ChannelEventType.DEPLOYED));
             }
         } catch (Throwable t) {
             Throwable cause = t.getCause();
@@ -441,7 +441,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             if (task != null) {
                 task.get();
-                eventDispatcher.dispatchEvent(new ChannelEvent(channelId, ChannelEventType.UNDEPLOY));
+                eventDispatcher.dispatchEvent(new ChannelEvent(channelId, ChannelEventType.UNDEPLOYED));
             }
         } catch (Throwable t) {
             Throwable cause = t.getCause();

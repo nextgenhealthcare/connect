@@ -25,12 +25,17 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertChannels;
 import com.mirth.connect.model.alert.DefaultTrigger;
+import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DefaultAlertWorker extends AlertWorker {
 
-    private static final int PATTERN_KEY = 0;
+    private enum Keys {
+        PATTERN
+    };
+
+    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
 
     @Override
     public Set<EventType> getEventTypes() {
@@ -103,11 +108,11 @@ public class DefaultAlertWorker extends AlertWorker {
 
                     // If a regex is provided, check that it matches the full error message
                     if (StringUtils.isNotBlank(errorTrigger.getRegex())) {
-                        Pattern pattern = (Pattern) alert.getProperties().get(PATTERN_KEY);
+                        Pattern pattern = (Pattern) alert.getProperties().get(Keys.PATTERN);
 
                         if (pattern == null) {
                             pattern = Pattern.compile(errorTrigger.getRegex());
-                            alert.getProperties().put(PATTERN_KEY, pattern);
+                            alert.getProperties().put(Keys.PATTERN, pattern);
                         }
 
                         trigger = pattern.matcher(fullErrorMessage).find();
@@ -117,7 +122,7 @@ public class DefaultAlertWorker extends AlertWorker {
                         String channelName = "";
 
                         if (channelId != null) {
-                            Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(channelId);
+                            Channel channel = channelController.getDeployedChannelById(channelId);
 
                             if (channel != null) {
                                 channelName = channel.getName();
