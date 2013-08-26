@@ -73,9 +73,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     /**
      * Returns a unique id that the dispatcher can use for thread safety.
-     * If queueing is disabled or if there is only 1 queue thread, returns -1. If there are multiple
-     * queue threads, returns the thread's id if the current thread is a queue thread, otherwise it
-     * returns -1.
+     * If queuing is disabled or if there is only 1 queue thread, returns -1.
+     * If there are multiple queue threads, returns the thread's id if the
+     * current thread is a queue thread, otherwise it returns -1.
      */
     public long getDispatcherId() {
         long threadId = Thread.currentThread().getId();
@@ -499,6 +499,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                         // Invalidate the queue's buffer if any errors occurred. If the message being processed by the queue was deleted,
                         // This will prevent the queue from trying to process that message repeatedly.
                         queue.invalidate(true);
+                        canAcquire = true;
                     } finally {
                         if (dao != null) {
                             dao.close();
