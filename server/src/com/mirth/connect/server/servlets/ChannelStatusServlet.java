@@ -58,12 +58,10 @@ public class ChannelStatusServlet extends MirthServlet {
             parameterMap.put("metaDataId", metaDataId);
         }
 
-        if ((!operation.equals(Operations.CHANNEL_GET_STATUS) && !isUserAuthorized(request, parameterMap)) || (operation.equals(Operations.CHANNEL_GET_STATUS) && (!isUserAuthorized(request, null)))) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-        }
-
         try {
-            if (operation.equals(Operations.CHANNEL_START)) {
+            if ((!operation.equals(Operations.CHANNEL_GET_STATUS) && !isUserAuthorized(request, parameterMap)) || (operation.equals(Operations.CHANNEL_GET_STATUS) && (!isUserAuthorized(request, null)))) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            } else if (operation.equals(Operations.CHANNEL_START)) {
                 engineController.startChannel(channelId);
             } else if (operation.equals(Operations.CHANNEL_STOP)) {
                 engineController.stopChannel(channelId);
