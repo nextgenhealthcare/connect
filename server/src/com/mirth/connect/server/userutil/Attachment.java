@@ -17,18 +17,47 @@ public class Attachment {
     private String type;
     private Logger logger = Logger.getLogger(getClass());
 
+    /**
+     * Instantiates a new Attachment with no ID, content, or MIME type.
+     */
     public Attachment() {}
 
+    /**
+     * Instantiates a new Attachment.
+     * 
+     * @param id
+     *            - The unique ID of the attachment.
+     * @param content
+     *            - The content (byte array) to store for the attachment.
+     * @param type
+     *            - The MIME type of the attachment.
+     */
     public Attachment(String id, byte[] content, String type) {
         this.id = id;
         this.content = content;
         this.type = type;
     }
 
+    /**
+     * Returns the unique replacement token for the attachment. This token
+     * should replace the attachment content in the message string, and will be
+     * used to re-attach the attachment content in the outbound message before
+     * it is sent to a downstream system.
+     */
     public String getAttachmentId() {
         return "${ATTACH:" + id + "}";
     }
 
+    /**
+     * <b>This method is deprecated and will soon be removed. Please use
+     * setId(id) instead.</b><br/>
+     * <br/>
+     * 
+     * Sets the unique ID for the attachment.
+     * 
+     * @param attachmentId
+     *            - The unique ID to use for the attachment.
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public void setAttachmentId(String attachmentId) {
@@ -36,14 +65,30 @@ public class Attachment {
         setId(attachmentId);
     }
 
+    /**
+     * Returns the unique ID for the attachment.
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Sets the unique ID for the attachment.
+     * 
+     * @param id
+     *            - The unique ID to use for the attachment.
+     */
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     * <b>This method is deprecated and will soon be removed. Please use
+     * getContent() instead.</b><br/>
+     * <br/>
+     * 
+     * Returns the content of the attachment as a byte array.
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public byte[] getData() {
@@ -51,6 +96,16 @@ public class Attachment {
         return getContent();
     }
 
+    /**
+     * <b>This method is deprecated and will soon be removed. Please use
+     * setContent(content) instead.</b><br/>
+     * <br/>
+     * 
+     * Sets the content of the attachment.
+     * 
+     * @param data
+     *            - The content (byte array) to use for the attachment.
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public void setData(byte[] data) {
@@ -58,14 +113,30 @@ public class Attachment {
         setContent(data);
     }
 
+    /**
+     * Returns the content of the attachment as a byte array.
+     */
     public byte[] getContent() {
         return content;
     }
 
+    /**
+     * Sets the content of the attachment.
+     * 
+     * @param content
+     *            - The content (byte array) to use for the attachment.
+     */
     public void setContent(byte[] content) {
         this.content = content;
     }
 
+    /**
+     * <b>This method is deprecated and will soon be removed. Please use
+     * getContent().length instead.</b><br/>
+     * <br/>
+     * 
+     * Returns the number of bytes in the attachment content.
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public int getSize() {
@@ -73,20 +144,37 @@ public class Attachment {
         return content != null ? content.length : 0;
     }
 
+    /**
+     * <b>The Attachment.setSize(size) method is deprecated and will soon be
+     * removed. This method no longer does anything.</b>
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public void setSize(int size) {
         logger.error("The Attachment.setSize(size) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
+    /**
+     * Returns the MIME type of the attachment.
+     */
     public String getType() {
         return type;
     }
 
+    /**
+     * Sets the MIME type for the attachment.
+     * 
+     * @param type
+     *            - The MIME type to set for the attachment.
+     */
     public void setType(String type) {
         this.type = type;
     }
 
+    /**
+     * <b>The Attachment.getMessageId() method is deprecated and will soon be
+     * removed. This method always returns an empty string.</b>
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public String getMessageId() {
@@ -94,6 +182,10 @@ public class Attachment {
         return "";
     }
 
+    /**
+     * <b>The Attachment.setMessageId(messageId) method is deprecated and will
+     * soon be removed. This method no longer does anything.</b>
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public void setMessageId(String messageId) {

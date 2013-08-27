@@ -21,16 +21,36 @@ public class AlertSender {
     private Integer metaDataId;
     private String connectorName;
 
+    /**
+     * Instantiates a new AlertSender.
+     * 
+     * @param channelId
+     *            - The ID of the channel to associate dispatched alert events
+     *            with.
+     */
     public AlertSender(String channelId) {
         this.channelId = channelId;
     }
 
+    /**
+     * Instantiates a new AlertSender.
+     * 
+     * @param connectorMessage
+     *            - The connector message to associate dispatched alert events
+     *            with.
+     */
     public AlertSender(ImmutableConnectorMessage connectorMessage) {
         channelId = connectorMessage.getChannelId();
         metaDataId = connectorMessage.getMetaDataId();
         connectorName = connectorMessage.getConnectorName();
     }
 
+    /**
+     * Dispatches an error event that can be alerted on.
+     * 
+     * @param errorMessage
+     *            - A custom error message to include with the error event.
+     */
     public void sendAlert(String errorMessage) {
         eventController.dispatchEvent(new ErrorEvent(channelId, metaDataId, ErrorEventType.USER_DEFINED_TRANSFORMER, connectorName, null, errorMessage, null));
     }

@@ -23,10 +23,47 @@ import com.mirth.connect.donkey.server.controllers.MessageController;
 public class AttachmentUtil {
     private static Logger logger = Logger.getLogger(AttachmentUtil.class);
 
+    private AttachmentUtil() {}
+
+    /**
+     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
+     * corresponding attachment content, and returns the full post-replacement
+     * message as a byte array.
+     * 
+     * @param raw
+     *            - The message string to re-attach attachments to.
+     * @param connectorMessage
+     *            - The connector message associated with the attachments.
+     * @param charsetEncoding
+     *            - The charset encoding to use when returning the re-attached
+     *            message
+     * @param binary
+     *            - If true, the message string passed in is assumed to be
+     *            Base64 encoded.
+     * @return The resulting message as a byte array, with all applicable
+     *         attachment content re-inserted.
+     */
     public static byte[] reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage, String charsetEncoding, boolean binary) {
         return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(raw, connectorMessage, charsetEncoding, binary);
     }
 
+    /**
+     * <b>This method is deprecated and will soon be removed. Please use
+     * reAttachMessage(connectorMessage) instead.</b><br/>
+     * <br/>
+     * 
+     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
+     * corresponding attachment content, and returns the full post-replacement
+     * message as a byte array.
+     * 
+     * @param messageObject
+     *            - The connector message associated with the attachments. The
+     *            encoded data will be used as the raw message string to
+     *            re-attach attachments to, if it exists. Otherwise, the
+     *            connector message's raw data will be used.
+     * @return The resulting message with all applicable attachment content
+     *         re-inserted.
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public static String reAttachMessage(MessageObject messageObject) {
@@ -34,10 +71,39 @@ public class AttachmentUtil {
         return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(messageObject.getImmutableConnectorMessage());
     }
 
-    public static String reAttachMessage(ImmutableConnectorMessage message) {
-        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(message);
+    /**
+     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
+     * corresponding attachment content, and returns the full post-replacement
+     * message as a byte array.
+     * 
+     * @param connectorMessage
+     *            - The connector message associated with the attachments. The
+     *            encoded data will be used as the raw message string to
+     *            re-attach attachments to, if it exists. Otherwise, the
+     *            connector message's raw data will be used.
+     * @return The resulting message with all applicable attachment content
+     *         re-inserted.
+     */
+    public static String reAttachMessage(ImmutableConnectorMessage connectorMessage) {
+        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(connectorMessage);
     }
 
+    /**
+     * <b>This method is deprecated and will soon be removed. Please use
+     * reAttachMessage(raw, connectorMessage) instead.</b><br/>
+     * <br/>
+     * 
+     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
+     * corresponding attachment content, and returns the full post-replacement
+     * message as a byte array.
+     * 
+     * @param messageObject
+     *            - The connector message associated with the attachments. The
+     *            raw data will be used as the raw message string to re-attach
+     *            attachments to.
+     * @return The resulting message with all applicable attachment content
+     *         re-inserted.
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public static String reAttachRawMessage(MessageObject messageObject) {
@@ -45,17 +111,58 @@ public class AttachmentUtil {
         return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(messageObject.getRawData(), messageObject.getImmutableConnectorMessage());
     }
 
+    /**
+     * <b>This method is deprecated and will soon be removed. Please use
+     * reAttachMessage(raw, connectorMessage) instead.</b><br/>
+     * <br/>
+     * 
+     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
+     * corresponding attachment content, and returns the full post-replacement
+     * message as a byte array.
+     * 
+     * @param connectorMessage
+     *            - The connector message associated with the attachments. The
+     *            raw data will be used as the raw message string to re-attach
+     *            attachments to.
+     * @return The resulting message with all applicable attachment content
+     *         re-inserted.
+     */
     @Deprecated
     // TODO: Remove in 3.1
-    public static String reAttachRawMessage(ImmutableConnectorMessage message) {
+    public static String reAttachRawMessage(ImmutableConnectorMessage connectorMessage) {
         logger.error("The reAttachRawMessage(connectorMessage) method is deprecated and will soon be removed. Please use reAttachMessage(raw, connectorMessage) instead.");
-        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(message.getRawData(), message);
+        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(connectorMessage.getRawData(), connectorMessage);
     }
 
-    public static String reAttachMessage(String raw, ImmutableConnectorMessage message) {
-        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(raw, message);
+    /**
+     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
+     * corresponding attachment content, and returns the full post-replacement
+     * message as a byte array.
+     * 
+     * @param raw
+     *            - The message string to re-attach attachments to.
+     * @param connectorMessage
+     *            - The connector message associated with the attachments. The
+     *            raw data will be used as the raw message string to re-attach
+     *            attachments to.
+     * @return The resulting message with all applicable attachment content
+     *         re-inserted.
+     */
+    public static String reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage) {
+        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(raw, connectorMessage);
     }
 
+    /**
+     * <b>This method is deprecated and will soon be removed. Please use
+     * getMessageAttachments(connectorMessage) instead.</b><br/>
+     * <br/>
+     * 
+     * Retrieves all attachments associated with a connector message.
+     * 
+     * @param messageObject
+     *            - The connector message associated with the attachments.
+     * @return A list of attachments associated with the connector message.
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public static List<Attachment> getMessageAttachments(MessageObject messageObject) throws XmlSerializerException {
@@ -63,18 +170,50 @@ public class AttachmentUtil {
         return convertList(com.mirth.connect.server.util.MessageAttachmentUtil.getMessageAttachments(messageObject.getImmutableConnectorMessage()));
     }
 
+    /**
+     * Retrieves all attachments associated with a connector message.
+     * 
+     * @param connectorMessage
+     *            - The connector message associated with the attachments.
+     * @return A list of attachments associated with the connector message.
+     */
     public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage connectorMessage) throws XmlSerializerException {
         return convertList(com.mirth.connect.server.util.MessageAttachmentUtil.getMessageAttachments(connectorMessage));
     }
 
-    public static Attachment addAttachment(List<Attachment> attachments, Object data, String type) throws UnsupportedDataTypeException {
-        Attachment userAttachment = convertAttachment(MessageController.getInstance().createAttachment(data, type));
+    /**
+     * Creates an Attachment and adds it to the provided list.
+     * 
+     * @param attachments
+     *            - The list of attachments to add to.
+     * @param content
+     *            - The attachment content (must be a string or byte array).
+     * @param type
+     *            - The MIME type of the attachment.
+     * @return The attachment added to the list.
+     * @throws UnsupportedDataTypeException
+     */
+    public static Attachment addAttachment(List<Attachment> attachments, Object content, String type) throws UnsupportedDataTypeException {
+        Attachment userAttachment = convertAttachment(MessageController.getInstance().createAttachment(content, type));
         attachments.add(userAttachment);
         return userAttachment;
     }
 
-    public static Attachment createAttachment(ImmutableConnectorMessage connectorMessage, Object data, String type) throws UnsupportedDataTypeException {
-        com.mirth.connect.donkey.model.message.attachment.Attachment attachment = MessageController.getInstance().createAttachment(data, type);
+    /**
+     * Creates an attachment associated with a given connector message, and
+     * inserts it into the database.
+     * 
+     * @param connectorMessage
+     *            - The connector message to be associated with the attachment.
+     * @param content
+     *            - The attachment content (must be a string or byte array).
+     * @param type
+     *            - The MIME type of the attachment.
+     * @return The attachment that was created and inserted.
+     * @throws UnsupportedDataTypeException
+     */
+    public static Attachment createAttachment(ImmutableConnectorMessage connectorMessage, Object content, String type) throws UnsupportedDataTypeException {
+        com.mirth.connect.donkey.model.message.attachment.Attachment attachment = MessageController.getInstance().createAttachment(content, type);
         MessageController.getInstance().insertAttachment(attachment, connectorMessage.getChannelId(), connectorMessage.getMessageId());
         return convertAttachment(attachment);
     }

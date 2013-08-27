@@ -13,10 +13,11 @@ import org.apache.commons.lang.WordUtils;
 
 /**
  * States of STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED
- *
  */
 public enum ChannelState {
     STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED;
+
+    private ChannelState() {}
 
     @Override
     public String toString() {
