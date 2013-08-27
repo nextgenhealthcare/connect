@@ -10,5 +10,5 @@
 package com.mirth.connect.donkey.server.event;
 
 public enum EventType {
-    GENERIC, ERROR, MESSAGE, CHANNEL, CONNECTOR, SERVER
+    GENERIC, ERROR, MESSAGE, DEPLOY_STATE, CONNECTION_STATUS, SERVER
 }

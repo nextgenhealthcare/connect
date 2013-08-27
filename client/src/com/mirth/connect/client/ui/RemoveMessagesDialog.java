@@ -15,7 +15,7 @@ import java.util.Set;
 import javax.swing.SwingWorker;
 
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.model.DashboardStatus;
 
 public class RemoveMessagesDialog extends javax.swing.JDialog {
@@ -38,7 +38,7 @@ public class RemoveMessagesDialog extends javax.swing.JDialog {
         for (final DashboardStatus channelStatus : selectedChannelStatuses) {
             channelIds.add(channelStatus.getChannelId());
 
-            if (!channelStatus.getState().equals(ChannelState.STOPPED) && !restartCheckboxEnabled) {
+            if (!channelStatus.getState().equals(DeployedState.STOPPED) && !restartCheckboxEnabled) {
                 restartCheckboxEnabled = true;
             }
         }

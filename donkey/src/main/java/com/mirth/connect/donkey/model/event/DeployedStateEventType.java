@@ -11,11 +11,11 @@ package com.mirth.connect.donkey.model.event;
 
 import org.apache.commons.lang3.text.WordUtils;
 
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
-@XStreamAlias("channelEventType")
-public enum ChannelEventType {
+@XStreamAlias("deployedStateEventType")
+public enum DeployedStateEventType {
     DEPLOYED, UNDEPLOYED, STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED;
 
     @Override
@@ -23,20 +23,20 @@ public enum ChannelEventType {
         return WordUtils.capitalizeFully(super.toString().replace("_", " "));
     }
 
-    public static ChannelEventType getTypeFromChannelState(ChannelState state) {
+    public static DeployedStateEventType getTypeFromDeployedState(DeployedState state) {
         switch (state) {
             case STARTING:
-                return ChannelEventType.STARTING;
+                return DeployedStateEventType.STARTING;
             case STARTED:
-                return ChannelEventType.STARTED;
+                return DeployedStateEventType.STARTED;
             case PAUSING:
-                return ChannelEventType.PAUSING;
+                return DeployedStateEventType.PAUSING;
             case PAUSED:
-                return ChannelEventType.PAUSED;
+                return DeployedStateEventType.PAUSED;
             case STOPPING:
-                return ChannelEventType.STOPPING;
+                return DeployedStateEventType.STOPPING;
             case STOPPED:
-                return ChannelEventType.STOPPED;
+                return DeployedStateEventType.STOPPED;
         }
 
         return null;

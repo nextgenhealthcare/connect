@@ -16,20 +16,20 @@ import org.apache.commons.lang3.text.WordUtils;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
-@XStreamAlias("connectorEventType")
-public enum ConnectorEventType {
+@XStreamAlias("connectionStatusEventType")
+public enum ConnectionStatusEventType {
     IDLE(true), READING(true), WRITING(true), POLLING(true), RECEIVING(true), SENDING(true), WAITING_FOR_RESPONSE(true), CONNECTED(true), CONNECTING(true), DISCONNECTED(false), INFO(false), FAILURE(false);
     
     private boolean state;
     
-    private ConnectorEventType(boolean state) {
+    private ConnectionStatusEventType(boolean state) {
         this.state = state;
     }
     
-    public List<ConnectorEventType> getConnectorStates() {
-        List<ConnectorEventType> states = new ArrayList<ConnectorEventType>();
+    public List<ConnectionStatusEventType> getConnectorStates() {
+        List<ConnectionStatusEventType> states = new ArrayList<ConnectionStatusEventType>();
         
-        for (ConnectorEventType type : ConnectorEventType.values()) {
+        for (ConnectionStatusEventType type : ConnectionStatusEventType.values()) {
             if (type.isState()) {
                 states.add(type);
             }

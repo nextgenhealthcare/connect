@@ -9,15 +9,15 @@
 
 package com.mirth.connect.server.userutil;
 
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 /**
  * States of STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED
  */
-public enum ChannelState {
+public enum DeployedState {
     STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED;
 
-    private ChannelState() {}
+    private DeployedState() {}
 
     @Override
     public String toString() {

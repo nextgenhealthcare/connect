@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.donkey.model.DonkeyException;
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
@@ -259,7 +259,7 @@ public class DonkeyMessageController extends MessageController {
                         }
 
                         // Allow unprocessed messages to be deleted only if the channel is stopped.
-                        if (channel.getCurrentState() == ChannelState.STOPPED || processed) {
+                        if (channel.getCurrentState() == DeployedState.STOPPED || processed) {
                             if (metaDataIds.contains(0)) {
                                 // Delete the entire message if the source connector message is to be deleted
                                 messages.put(messageId, null);
@@ -291,14 +291,14 @@ public class DonkeyMessageController extends MessageController {
 
                 if (channel != null) {
                     Set<Integer> connectorsToStart = new HashSet<Integer>();
-                    ChannelState priorState = channel.getCurrentState();
-                    if (priorState != ChannelState.PAUSED && priorState != ChannelState.PAUSING) {
+                    DeployedState priorState = channel.getCurrentState();
+                    if (priorState != DeployedState.PAUSED && priorState != DeployedState.PAUSING) {
                         connectorsToStart.add(0);
                     }
 
                     for (DestinationChain chain : channel.getDestinationChains()) {
                         for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
-                            if (destinationConnector.getCurrentState() != ChannelState.STOPPED && destinationConnector.getCurrentState() != ChannelState.STOPPING) {
+                            if (destinationConnector.getCurrentState() != DeployedState.STOPPED && destinationConnector.getCurrentState() != DeployedState.STOPPING) {
                                 connectorsToStart.add(destinationConnector.getMetaDataId());
                             }
                         }
@@ -306,12 +306,12 @@ public class DonkeyMessageController extends MessageController {
 
                     boolean startChannelAfter = false;
 
-                    if (priorState != ChannelState.STOPPED && restartRunningChannels) {
+                    if (priorState != DeployedState.STOPPED && restartRunningChannels) {
                         try {
                             logger.debug("Stopping channel \"" + channel.getName() + "\" prior to removing messages");
                             channel.stop();
 
-                            if (priorState != ChannelState.STOPPING) {
+                            if (priorState != DeployedState.STOPPING) {
                                 startChannelAfter = true;
                             }
                         } catch (StopException e) {
@@ -322,7 +322,7 @@ public class DonkeyMessageController extends MessageController {
                     // Prevent the delete from occurring at the same time as the channel being started. 
                     synchronized (channel) {
                         // Only allow the messages to be cleared if the channel is stopped.
-                        if (channel.getCurrentState() == ChannelState.STOPPED) {
+                        if (channel.getCurrentState() == DeployedState.STOPPED) {
                             logger.debug("Removing messages for channel \"" + channel.getName() + "\"");
                             dao.deleteAllMessages(channelId);
 

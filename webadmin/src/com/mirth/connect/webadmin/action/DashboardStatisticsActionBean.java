@@ -24,7 +24,7 @@ import org.json.simple.JSONObject;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.webadmin.utils.Constants;
@@ -158,18 +158,18 @@ public class DashboardStatisticsActionBean extends BaseActionBean {
         return value;
     }
 
-    private String checkState(ChannelState state) {
-        if (state == ChannelState.STARTING)
+    private String checkState(DeployedState state) {
+        if (state == DeployedState.STARTING)
             return "STARTING";
-        if (state == ChannelState.STARTED)
+        if (state == DeployedState.STARTED)
             return "STARTED";
-        if (state == ChannelState.PAUSING)
+        if (state == DeployedState.PAUSING)
             return "PAUSING";
-        if (state == ChannelState.PAUSED)
+        if (state == DeployedState.PAUSED)
             return "PAUSED";
-        if (state == ChannelState.STOPPING)
+        if (state == DeployedState.STOPPING)
             return "STOPPING";
-        if (state == ChannelState.STOPPED)
+        if (state == DeployedState.STOPPED)
             return "STOPPED";
         return null;
     }

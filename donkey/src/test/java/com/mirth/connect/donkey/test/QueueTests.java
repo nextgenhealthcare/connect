@@ -22,7 +22,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
@@ -266,7 +266,7 @@ public class QueueTests {
          * committing the message to the database and adding it to the channel's
          * queue. Meanwhile the asynchronous message should be queued
          */
-        while (sourceQueue.size() > 0 && channel.isQueueThreadRunning() && channel.getCurrentState() == ChannelState.STARTED) {
+        while (sourceQueue.size() > 0 && channel.isQueueThreadRunning() && channel.getCurrentState() == DeployedState.STARTED) {
             System.out.println("Waiting for queue to clear, size: " + sourceQueue.size());
             Thread.sleep(1000);
         }
@@ -284,7 +284,7 @@ public class QueueTests {
         channel.queue(sourceMessage);
 
         // Wait until the queue has cleared
-        while (sourceQueue.size() > 0 && channel.isQueueThreadRunning() && channel.getCurrentState() == ChannelState.STARTED) {
+        while (sourceQueue.size() > 0 && channel.isQueueThreadRunning() && channel.getCurrentState() == DeployedState.STARTED) {
             System.out.println("Waiting for queue to clear, size: " + sourceQueue.size());
             Thread.sleep(5000);
         }
@@ -396,7 +396,7 @@ public class QueueTests {
         }
 
         // Wait until the queue has cleared
-        while (sourceQueue.size() > 0 && channel.isQueueThreadRunning() && channel.getCurrentState() == ChannelState.STARTED) {
+        while (sourceQueue.size() > 0 && channel.isQueueThreadRunning() && channel.getCurrentState() == DeployedState.STARTED) {
             System.out.println("Waiting for queue to clear, size: " + sourceQueue.size());
             Thread.sleep(5000);
         }

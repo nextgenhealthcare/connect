@@ -11,7 +11,7 @@ package com.mirth.connect.donkey.model.channel;
 
 import org.apache.commons.lang3.text.WordUtils;
 
-public enum ChannelState {
+public enum DeployedState {
     STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED;
 
     @Override

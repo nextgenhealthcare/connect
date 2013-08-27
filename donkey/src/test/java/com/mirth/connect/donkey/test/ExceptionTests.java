@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.mirth.connect.donkey.model.DonkeyException;
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
@@ -128,7 +128,7 @@ public class ExceptionTests {
             assertNotNull(e);
 
             // Assert that the source connector is now stopped
-            assertFalse(channel.getSourceConnector().getCurrentState().equals(ChannelState.STOPPED));
+            assertFalse(channel.getSourceConnector().getCurrentState().equals(DeployedState.STOPPED));
 
             // Assert that pausing the channel while the source connector is stopped will throw an exception
             e = null;

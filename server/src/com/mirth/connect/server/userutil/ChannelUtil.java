@@ -92,11 +92,11 @@ public class ChannelUtil {
      * 
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
-     * @return The current ChannelState.
+     * @return The current DeployedState.
      */
-    public static ChannelState getChannelState(String channelIdOrName) {
+    public static DeployedState getChannelState(String channelIdOrName) {
         DashboardStatus dashboardStatus = getDashboardStatus(channelIdOrName, null);
-        return dashboardStatus != null ? convertChannelState(dashboardStatus.getState()) : null;
+        return dashboardStatus != null ? convertDeployedState(dashboardStatus.getState()) : null;
     }
 
     /**
@@ -167,11 +167,11 @@ public class ChannelUtil {
      * @param metaDataId
      *            The metadata id of the connector. Note that the source connector has a metadata id
      *            of 0.
-     * @return The current connector state returned as the ChannelState enumerator.
+     * @return The current connector state returned as the DeployedState enumerator.
      */
-    public static ChannelState getConnectorState(String channelIdOrName, Number metaDataId) {
+    public static DeployedState getConnectorState(String channelIdOrName, Number metaDataId) {
         DashboardStatus dashboardStatus = getDashboardStatus(channelIdOrName, metaDataId);
-        return dashboardStatus != null ? convertChannelState(dashboardStatus.getState()) : null;
+        return dashboardStatus != null ? convertDeployedState(dashboardStatus.getState()) : null;
     }
 
     /**
@@ -349,15 +349,15 @@ public class ChannelUtil {
         return null;
     }
 
-    private static ChannelState convertChannelState(com.mirth.connect.donkey.model.channel.ChannelState channelState) {
+    private static DeployedState convertDeployedState(com.mirth.connect.donkey.model.channel.DeployedState deployedState) {
         // @formatter:off
-        switch (channelState) {
-            case STARTING: return ChannelState.STARTING;
-            case STARTED: return ChannelState.STARTED;
-            case PAUSING: return ChannelState.PAUSING;
-            case PAUSED: return ChannelState.PAUSED;
-            case STOPPING: return ChannelState.STOPPING;
-            case STOPPED: return ChannelState.STOPPED;
+        switch (deployedState) {
+            case STARTING: return DeployedState.STARTING;
+            case STARTED: return DeployedState.STARTED;
+            case PAUSING: return DeployedState.PAUSING;
+            case PAUSED: return DeployedState.PAUSED;
+            case STOPPING: return DeployedState.STOPPING;
+            case STOPPED: return DeployedState.STOPPED;
             default: return null;
         }
         // @formatter:on

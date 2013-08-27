@@ -35,11 +35,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.DonkeyException;
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
-import com.mirth.connect.donkey.model.event.ChannelEventType;
+import com.mirth.connect.donkey.model.event.DeployedStateEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
@@ -68,8 +68,7 @@ import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
-import com.mirth.connect.donkey.server.event.ChannelEvent;
-import com.mirth.connect.donkey.server.event.DeployEvent;
+import com.mirth.connect.donkey.server.event.DeployedStateEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
@@ -86,8 +85,8 @@ public class Channel implements Startable, Stoppable, Runnable {
     private Calendar deployDate;
 
     private boolean enabled = false;
-    private ChannelState initialState;
-    private ChannelState currentState = ChannelState.STOPPED;
+    private DeployedState initialState;
+    private DeployedState currentState = DeployedState.STOPPED;
 
     private StorageSettings storageSettings = new StorageSettings();
     private DonkeyDaoFactory daoFactory;
@@ -176,25 +175,21 @@ public class Channel implements Startable, Stoppable, Runnable {
         this.enabled = enabled;
     }
 
-    public ChannelState getInitialState() {
+    public DeployedState getInitialState() {
         return initialState;
     }
 
-    public void setInitialState(ChannelState initialState) {
+    public void setInitialState(DeployedState initialState) {
         this.initialState = initialState;
     }
 
-    public ChannelState getCurrentState() {
+    public DeployedState getCurrentState() {
         return currentState;
     }
 
-    public void setCurrentState(ChannelState currentState) {
+    public void updateCurrentState(DeployedState currentState) {
         this.currentState = currentState;
-    }
-
-    public void updateCurrentState(ChannelState state) {
-        setCurrentState(state);
-        eventDispatcher.dispatchEvent(new ChannelEvent(channelId, ChannelEventType.getTypeFromChannelState(state)));
+        eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, null, DeployedStateEventType.getTypeFromDeployedState(currentState)));
     }
 
     public StorageSettings getStorageSettings() {
@@ -306,7 +301,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     }
 
     public boolean isActive() {
-        return currentState != ChannelState.STOPPED && currentState != ChannelState.STOPPING;
+        return currentState != DeployedState.STOPPED && currentState != DeployedState.STOPPING;
     }
 
     /**
@@ -410,7 +405,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     }
                 }
 
-                eventDispatcher.dispatchEvent(new DeployEvent(channelId, connectorStatistics, ChannelEventType.DEPLOYED));
+                eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, null, DeployedStateEventType.DEPLOYED, connectorStatistics));
             }
         } catch (Throwable t) {
             Throwable cause = t.getCause();
@@ -441,7 +436,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             if (task != null) {
                 task.get();
-                eventDispatcher.dispatchEvent(new ChannelEvent(channelId, ChannelEventType.UNDEPLOYED));
+                eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, null, DeployedStateEventType.UNDEPLOYED));
             }
         } catch (Throwable t) {
             Throwable cause = t.getCause();
@@ -746,7 +741,7 @@ public class Channel implements Startable, Stoppable, Runnable {
              * InterruptedException (indicating that the channel was halted).
              */
             if (!(firstCause instanceof InterruptedException) && (firstCause.getCause() == null || !(firstCause.getCause() instanceof InterruptedException))) {
-                updateCurrentState(ChannelState.STOPPED);
+                updateCurrentState(DeployedState.STOPPED);
             }
             throw new StopException("Failed to stop channel " + name + " (" + channelId + "): One or more connectors failed to stop.", firstCause);
         }
@@ -783,7 +778,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
 
         if (firstCause != null) {
-            updateCurrentState(ChannelState.STOPPED);
+            updateCurrentState(DeployedState.STOPPED);
             throw new HaltException("Failed to stop channel " + name + " (" + channelId + "): One or more connectors failed to stop.", firstCause);
         }
     }
@@ -866,7 +861,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     }
 
     protected DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
-        if (currentState == ChannelState.STOPPING || currentState == ChannelState.STOPPED) {
+        if (currentState == DeployedState.STOPPING || currentState == DeployedState.STOPPED) {
             throw new ChannelException(true);
         }
 
@@ -1782,10 +1777,10 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         @Override
         public Void call() throws Exception {
-            if (currentState != ChannelState.STARTED) {
+            if (currentState != DeployedState.STARTED) {
                 // Prevent the channel for being started while messages are being deleted.
                 synchronized (Channel.this) {
-                    updateCurrentState(ChannelState.STARTING);
+                    updateCurrentState(DeployedState.STARTING);
 
                     /*
                      * We can't guarantee the state of the semaphore when the channel was stopped /
@@ -1814,7 +1809,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                             for (Integer metaDataId : chain.getMetaDataIds()) {
                                 DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
 
-                                if (destinationConnector.getCurrentState() == ChannelState.STOPPED && (connectorsToStart == null || connectorsToStart.contains(metaDataId))) {
+                                if (destinationConnector.getCurrentState() == DeployedState.STOPPED && (connectorsToStart == null || connectorsToStart.contains(metaDataId))) {
                                     startedMetaDataIds.add(metaDataId);
                                     destinationConnector.start();
                                 }
@@ -1848,27 +1843,27 @@ public class Channel implements Startable, Stoppable, Runnable {
                         if (connectorsToStart == null || connectorsToStart.contains(0)) {
                             ThreadUtils.checkInterruptedStatus();
                             // start up the source connector
-                            if (sourceConnector.getCurrentState() == ChannelState.STOPPED) {
+                            if (sourceConnector.getCurrentState() == DeployedState.STOPPED) {
                                 startedMetaDataIds.add(0);
                                 sourceConnector.start();
                             }
 
-                            updateCurrentState(ChannelState.STARTED);
+                            updateCurrentState(DeployedState.STARTED);
                         } else {
-                            updateCurrentState(ChannelState.PAUSED);
+                            updateCurrentState(DeployedState.PAUSED);
                         }
                     } catch (Throwable t) {
                         // If an exception occurred, then attempt to rollback by stopping all the connectors that were started
                         try {
                             stop(startedMetaDataIds);
-                            updateCurrentState(ChannelState.STOPPED);
+                            updateCurrentState(DeployedState.STOPPED);
                         } catch (Throwable t2) {
                             /*
                              * Only set the state to STOPPED here if the exception (or its cause) is
                              * not an InterruptedException (indicating that the channel was halted).
                              */
                             if (!(t2 instanceof InterruptedException) && (t2.getCause() == null || !(t2.getCause() instanceof InterruptedException))) {
-                                updateCurrentState(ChannelState.STOPPED);
+                                updateCurrentState(DeployedState.STOPPED);
                             }
                         }
 
@@ -1887,8 +1882,8 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         @Override
         public Void call() throws Exception {
-            if (currentState != ChannelState.STOPPED) {
-                updateCurrentState(ChannelState.STOPPING);
+            if (currentState != DeployedState.STOPPED) {
+                updateCurrentState(DeployedState.STOPPING);
                 List<Integer> deployedMetaDataIds = new ArrayList<Integer>();
                 deployedMetaDataIds.add(0);
 
@@ -1899,7 +1894,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 }
 
                 stop(deployedMetaDataIds);
-                updateCurrentState(ChannelState.STOPPED);
+                updateCurrentState(DeployedState.STOPPED);
             } else {
                 logger.warn("Failed to stop channel " + name + " (" + channelId + "): The channel is already stopped.");
             }
@@ -1912,8 +1907,8 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         @Override
         public Void call() throws Exception {
-            if (currentState != ChannelState.STOPPED) {
-                updateCurrentState(ChannelState.STOPPING);
+            if (currentState != DeployedState.STOPPED) {
+                updateCurrentState(DeployedState.STOPPING);
                 List<Integer> deployedMetaDataIds = new ArrayList<Integer>();
                 deployedMetaDataIds.add(0);
 
@@ -1924,7 +1919,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 }
 
                 halt(deployedMetaDataIds);
-                updateCurrentState(ChannelState.STOPPED);
+                updateCurrentState(DeployedState.STOPPED);
             } else {
                 logger.warn("Failed to stop channel " + name + " (" + channelId + "): The channel is already stopped.");
             }
@@ -1937,17 +1932,17 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         @Override
         public Void call() throws Exception {
-            if (currentState == ChannelState.STARTED) {
+            if (currentState == DeployedState.STARTED) {
                 try {
-                    updateCurrentState(ChannelState.PAUSING);
+                    updateCurrentState(DeployedState.PAUSING);
                     sourceConnector.stop();
-                    updateCurrentState(ChannelState.PAUSED);
+                    updateCurrentState(DeployedState.PAUSED);
                 } catch (Throwable t) {
                     throw new PauseException("Failed to pause channel " + name + " (" + channelId + ").", t);
                 }
             } else {
                 //TODO what to do here?
-                if (currentState == ChannelState.PAUSED) {
+                if (currentState == DeployedState.PAUSED) {
                     logger.warn("Failed to pause channel " + name + " (" + channelId + "): The channel is already paused.");
                 } else {
                     logger.warn("Failed to pause channel " + name + " (" + channelId + "): The channel is currently " + currentState.toString().toLowerCase() + " and cannot be paused.");
@@ -1963,15 +1958,15 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         @Override
         public Void call() throws Exception {
-            if (currentState == ChannelState.PAUSED) {
+            if (currentState == DeployedState.PAUSED) {
                 try {
-                    updateCurrentState(ChannelState.STARTING);
+                    updateCurrentState(DeployedState.STARTING);
                     sourceConnector.start();
-                    updateCurrentState(ChannelState.STARTED);
+                    updateCurrentState(DeployedState.STARTED);
                 } catch (Throwable t) {
                     try {
                         sourceConnector.stop();
-                        updateCurrentState(ChannelState.PAUSED);
+                        updateCurrentState(DeployedState.PAUSED);
                     } catch (Throwable e2) {
                     }
 
@@ -1997,8 +1992,8 @@ public class Channel implements Startable, Stoppable, Runnable {
         public Void call() throws Exception {
             DestinationConnector destinationConnector = getDestinationConnector(metaDataId);
 
-            if (currentState == ChannelState.STARTED || currentState == ChannelState.PAUSED) {
-                if (destinationConnector.getCurrentState() != ChannelState.STARTED) {
+            if (currentState == DeployedState.STARTED || currentState == DeployedState.PAUSED) {
+                if (destinationConnector.getCurrentState() != DeployedState.STARTED) {
                     try {
                         destinationConnector.start();
                     } catch (Throwable t) {
@@ -2026,8 +2021,8 @@ public class Channel implements Startable, Stoppable, Runnable {
         public Void call() throws Exception {
             DestinationConnector destinationConnector = getDestinationConnector(metaDataId);
 
-            if (currentState == ChannelState.STARTED || currentState == ChannelState.PAUSED) {
-                if (destinationConnector.getCurrentState() != ChannelState.STOPPED) {
+            if (currentState == DeployedState.STARTED || currentState == DeployedState.PAUSED) {
+                if (destinationConnector.getCurrentState() != DeployedState.STOPPED) {
                     // Destination connectors can only be stopped individually if the queue is enabled.
                     if (destinationConnector.isQueueEnabled()) {
                         try {

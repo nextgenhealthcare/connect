@@ -49,7 +49,7 @@ import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ListHandlerException;
 import com.mirth.connect.client.core.PaginatedEventList;
 import com.mirth.connect.client.core.PaginatedMessageList;
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
@@ -1047,8 +1047,8 @@ public class CommandLineInterface {
 
     private void commandChannelStart(Token[] arguments) throws ClientException {
         for (DashboardStatus channel : getMatchingChannelStatuses(arguments[2])) {
-            if (channel.getState().equals(ChannelState.PAUSED) || channel.getState().equals(ChannelState.STOPPED)) {
-                if (channel.getState().equals(ChannelState.PAUSED)) {
+            if (channel.getState().equals(DeployedState.PAUSED) || channel.getState().equals(DeployedState.STOPPED)) {
+                if (channel.getState().equals(DeployedState.PAUSED)) {
                     client.resumeChannel(channel.getChannelId());
                     out.println("Channel '" + channel.getName() + "' Resumed");
                 } else {
@@ -1061,7 +1061,7 @@ public class CommandLineInterface {
 
     private void commandChannelStop(Token[] arguments) throws ClientException {
         for (DashboardStatus channel : getMatchingChannelStatuses(arguments[2])) {
-            if (channel.getState().equals(ChannelState.PAUSED) || channel.getState().equals(ChannelState.STARTED)) {
+            if (channel.getState().equals(DeployedState.PAUSED) || channel.getState().equals(DeployedState.STARTED)) {
                 client.stopChannel(channel.getChannelId());
                 out.println("Channel '" + channel.getName() + "' Stopped");
             }
@@ -1070,7 +1070,7 @@ public class CommandLineInterface {
 
     private void commandChannelPause(Token[] arguments) throws ClientException {
         for (DashboardStatus channel : getMatchingChannelStatuses(arguments[2])) {
-            if (channel.getState().equals(ChannelState.STARTED)) {
+            if (channel.getState().equals(DeployedState.STARTED)) {
                 client.pauseChannel(channel.getChannelId());
                 out.println("Channel '" + channel.getName() + "' Paused");
             }
@@ -1079,7 +1079,7 @@ public class CommandLineInterface {
 
     private void commandChannelResume(Token[] arguments) throws ClientException {
         for (DashboardStatus channel : getMatchingChannelStatuses(arguments[2])) {
-            if (channel.getState().equals(ChannelState.PAUSED)) {
+            if (channel.getState().equals(DeployedState.PAUSED)) {
                 client.resumeChannel(channel.getChannelId());
                 out.println("Channel '" + channel.getName() + "' Resumed");
             }

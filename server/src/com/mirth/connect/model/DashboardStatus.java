@@ -20,7 +20,7 @@ import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.message.Status;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -37,7 +37,7 @@ public class DashboardStatus implements Serializable {
 
     private String channelId;
     private String name;
-    private ChannelState state;
+    private DeployedState state;
     private Integer deployedRevisionDelta;
     private Calendar deployedDate;
     private Map<Status, Long> statistics;
@@ -66,11 +66,11 @@ public class DashboardStatus implements Serializable {
         this.name = name;
     }
 
-    public ChannelState getState() {
+    public DeployedState getState() {
         return this.state;
     }
 
-    public void setState(ChannelState state) {
+    public void setState(DeployedState state) {
         this.state = state;
     }
 

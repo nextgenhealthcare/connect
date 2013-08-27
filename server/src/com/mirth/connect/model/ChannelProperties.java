@@ -15,7 +15,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.util.migration.Migratable;
@@ -30,7 +30,7 @@ public class ChannelProperties implements Serializable, Migratable {
     private boolean encryptData;
     private boolean removeContentOnCompletion;
     private boolean removeAttachmentsOnCompletion;
-    private ChannelState initialState;
+    private DeployedState initialState;
     private boolean storeAttachments;
     private Set<String> tags;
     private List<MetaDataColumn> metaDataColumns;
@@ -43,7 +43,7 @@ public class ChannelProperties implements Serializable, Migratable {
         clearGlobalChannelMap = true;
         messageStorageMode = MessageStorageMode.DEVELOPMENT;
         encryptData = false;
-        initialState = ChannelState.STARTED;
+        initialState = DeployedState.STARTED;
         tags = new LinkedHashSet<String>();
         metaDataColumns = new ArrayList<MetaDataColumn>();
         attachmentProperties = AttachmentHandlerFactory.getDefaults(AttachmentHandlerType.NONE);
@@ -90,11 +90,11 @@ public class ChannelProperties implements Serializable, Migratable {
         this.removeAttachmentsOnCompletion = removeAttachmentsOnCompletion;
     }
 
-    public ChannelState getInitialState() {
+    public DeployedState getInitialState() {
         return initialState;
     }
 
-    public void setInitialState(ChannelState initialState) {
+    public void setInitialState(DeployedState initialState) {
         this.initialState = initialState;
     }
 

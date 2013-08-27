@@ -17,7 +17,7 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.event.ConnectorEventType;
+import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
@@ -31,7 +31,7 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
-import com.mirth.connect.donkey.server.event.ConnectorEvent;
+import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -61,17 +61,17 @@ public class VmDispatcher extends DestinationConnector {
 
     @Override
     public void onStart() throws StartException {
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
+        eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
     }
 
     @Override
     public void onStop() throws StopException {
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.DISCONNECTED));
+        eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.DISCONNECTED));
     }
 
     @Override
     public void onHalt() throws HaltException {
-        eventController.dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.DISCONNECTED));
+        eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.DISCONNECTED));
     }
 
     @Override
@@ -89,7 +89,7 @@ public class VmDispatcher extends DestinationConnector {
         String targetChannelId = vmDispatcherProperties.getChannelId();
         String currentChannelId = getChannelId();
 
-        eventController.dispatchEvent(new ConnectorEvent(currentChannelId, getMetaDataId(), getDestinationName(), ConnectorEventType.SENDING, "Target Channel: " + targetChannelId));
+        eventController.dispatchEvent(new ConnectionStatusEvent(currentChannelId, getMetaDataId(), getDestinationName(), ConnectionStatusEventType.SENDING, "Target Channel: " + targetChannelId));
 
         String responseData = null;
         String responseError = null;
@@ -153,7 +153,7 @@ public class VmDispatcher extends DestinationConnector {
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error routing message to channel id: " + targetChannelId, e);
             responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error routing message to channel id: " + targetChannelId, e);
         } finally {
-            eventController.dispatchEvent(new ConnectorEvent(currentChannelId, getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
+            eventController.dispatchEvent(new ConnectionStatusEvent(currentChannelId, getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);

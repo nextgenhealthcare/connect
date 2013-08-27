@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelLock;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
@@ -155,14 +155,14 @@ public class Donkey {
                 throw e;
             }
 
-            if (channel.getInitialState() == ChannelState.STARTED) {
+            if (channel.getInitialState() == DeployedState.STARTED) {
                 channel.start();
-            } else if (channel.getInitialState() == ChannelState.PAUSED) {
+            } else if (channel.getInitialState() == DeployedState.PAUSED) {
                 Set<Integer> connectorsToStart = new HashSet<Integer>(channel.getMetaDataIds());
                 connectorsToStart.remove(0);
                 channel.start(connectorsToStart);
             } else {
-                channel.updateCurrentState(ChannelState.STOPPED);
+                channel.updateCurrentState(DeployedState.STOPPED);
             }
         } finally {
             channel.unlock();

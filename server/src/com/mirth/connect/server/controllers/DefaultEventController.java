@@ -25,8 +25,8 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.event.Event;
-import com.mirth.connect.donkey.server.event.ChannelEvent;
-import com.mirth.connect.donkey.server.event.ConnectorEvent;
+import com.mirth.connect.donkey.server.event.DeployedStateEvent;
+import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.event.EventType;
 import com.mirth.connect.donkey.server.event.MessageEvent;
@@ -44,8 +44,8 @@ public class DefaultEventController extends EventController {
 
     private static Map<Object, BlockingQueue<Event>> messageEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
     private static Map<Object, BlockingQueue<Event>> errorEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
-    private static Map<Object, BlockingQueue<Event>> channelEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
-    private static Map<Object, BlockingQueue<Event>> connectorEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
+    private static Map<Object, BlockingQueue<Event>> deployedStateEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
+    private static Map<Object, BlockingQueue<Event>> connectionStatusEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
     private static Map<Object, BlockingQueue<Event>> serverEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
     private static Map<Object, BlockingQueue<Event>> genericEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
 
@@ -76,12 +76,12 @@ public class DefaultEventController extends EventController {
             errorEventQueues.put(listener, queue);
         }
 
-        if (types.contains(EventType.CHANNEL)) {
-            channelEventQueues.put(listener, queue);
+        if (types.contains(EventType.DEPLOY_STATE)) {
+            deployedStateEventQueues.put(listener, queue);
         }
 
-        if (types.contains(EventType.CONNECTOR)) {
-            connectorEventQueues.put(listener, queue);
+        if (types.contains(EventType.CONNECTION_STATUS)) {
+            connectionStatusEventQueues.put(listener, queue);
         }
         
         if (types.contains(EventType.SERVER)) {
@@ -97,8 +97,8 @@ public class DefaultEventController extends EventController {
     public void removeListener(EventListener listener) {
         messageEventQueues.remove(listener);
         errorEventQueues.remove(listener);
-        channelEventQueues.remove(listener);
-        connectorEventQueues.remove(listener);
+        deployedStateEventQueues.remove(listener);
+        connectionStatusEventQueues.remove(listener);
         serverEventQueues.remove(listener);
         genericEventQueues.remove(listener);
 
@@ -117,10 +117,10 @@ public class DefaultEventController extends EventController {
                 queues = messageEventQueues;
             } else if (event instanceof ErrorEvent) {
                 queues = errorEventQueues;
-            } else if (event instanceof ChannelEvent) {
-                queues = channelEventQueues;
-            } else if (event instanceof ConnectorEvent) {
-                queues = connectorEventQueues;
+            } else if (event instanceof DeployedStateEvent) {
+                queues = deployedStateEventQueues;
+            } else if (event instanceof ConnectionStatusEvent) {
+                queues = connectionStatusEventQueues;
             } else if (event instanceof ServerEvent) {
                 queues = serverEventQueues;
             } else {

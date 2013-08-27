@@ -20,11 +20,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.DonkeyException;
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
-import com.mirth.connect.donkey.model.event.ConnectorEventType;
+import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
@@ -38,7 +38,7 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
-import com.mirth.connect.donkey.server.event.ConnectorEvent;
+import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.donkey.util.ThreadUtils;
@@ -159,7 +159,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     @Override
     public void start() throws StartException {
-        setCurrentState(ChannelState.STARTING);
+        updateCurrentState(DeployedState.STARTING);
 
         if (isQueueEnabled()) {
             // Remove any items in the queue's buffer because they may be outdated and refresh the queue size
@@ -181,12 +181,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
          */
         forceQueue.set(false);
 
-        setCurrentState(ChannelState.STARTED);
+        updateCurrentState(DeployedState.STARTED);
     }
 
     @Override
     public void stop() throws StopException {
-        setCurrentState(ChannelState.STOPPING);
+        updateCurrentState(DeployedState.STOPPING);
 
         if (MapUtils.isNotEmpty(queueThreads)) {
             try {
@@ -207,7 +207,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
         try {
             onStop();
-            setCurrentState(ChannelState.STOPPED);
+            updateCurrentState(DeployedState.STOPPED);
         } catch (Throwable t) {
             Throwable cause = t;
 
@@ -220,7 +220,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
             // If the thread has been interrupted, we don't want to set the state here because halt() will do it
             if (!(cause instanceof InterruptedException)) {
-                setCurrentState(ChannelState.STOPPED);
+                updateCurrentState(DeployedState.STOPPED);
             }
 
             if (t instanceof StopException) {
@@ -233,7 +233,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     @Override
     public void halt() throws HaltException {
-        setCurrentState(ChannelState.STOPPING);
+        updateCurrentState(DeployedState.STOPPING);
 
         if (MapUtils.isNotEmpty(queueThreads)) {
             try {
@@ -259,8 +259,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
         try {
             onHalt();
         } finally {
-            Donkey.getInstance().getEventDispatcher().dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectorEventType.IDLE));
-            setCurrentState(ChannelState.STOPPED);
+            Donkey.getInstance().getEventDispatcher().dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
+            updateCurrentState(DeployedState.STOPPED);
         }
     }
 
@@ -512,7 +512,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                      */
                     Thread.sleep(Constants.DESTINATION_QUEUE_EMPTY_SLEEP_TIME);
                 }
-            } while (getCurrentState() == ChannelState.STARTED || getCurrentState() == ChannelState.STARTING);
+            } while (getCurrentState() == DeployedState.STARTED || getCurrentState() == DeployedState.STARTING);
         } catch (InterruptedException e) {
         } catch (Exception e) {
             logger.error(e);

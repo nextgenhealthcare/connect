@@ -18,8 +18,8 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.model.event.ConnectorEventType;
-import com.mirth.connect.donkey.server.event.ConnectorEvent;
+import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
+import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 
@@ -43,7 +43,7 @@ public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
 
     public void close(MessageContext mc) {
         logger.debug("Web Service connection closed.");
-        eventController.dispatchEvent(new ConnectorEvent(webServiceReceiver.getChannelId(), webServiceReceiver.getMetaDataId(), webServiceReceiver.getSourceName(), ConnectorEventType.IDLE));
+        eventController.dispatchEvent(new ConnectionStatusEvent(webServiceReceiver.getChannelId(), webServiceReceiver.getMetaDataId(), webServiceReceiver.getSourceName(), ConnectionStatusEventType.IDLE));
     }
 
     public boolean handleFault(SOAPMessageContext smc) {
@@ -55,7 +55,7 @@ public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
             Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
             if (!outbound) {
                 logger.debug("Web Service message received.");
-                eventController.dispatchEvent(new ConnectorEvent(webServiceReceiver.getChannelId(), webServiceReceiver.getMetaDataId(), webServiceReceiver.getSourceName(), ConnectorEventType.CONNECTED));
+                eventController.dispatchEvent(new ConnectionStatusEvent(webServiceReceiver.getChannelId(), webServiceReceiver.getMetaDataId(), webServiceReceiver.getSourceName(), ConnectionStatusEventType.CONNECTED));
             } else {
                 logger.debug("Web Service returning response.");
             }

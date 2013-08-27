@@ -12,7 +12,7 @@ package com.mirth.connect.client.ui;
 import java.util.List;
 import java.util.Map;
 
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
@@ -66,7 +66,7 @@ public class DashboardTableNode extends AbstractSortableTreeTableNode {
             }
         }
 
-        ChannelState state = status.getState();
+        DeployedState state = status.getState();
         
         if (state != null) {
             switch (state) {
@@ -150,9 +150,9 @@ public class DashboardTableNode extends AbstractSortableTreeTableNode {
 
     private boolean isStarted(List<DashboardStatus> statuses) {
         for (DashboardStatus status : statuses) {
-            ChannelState state = status.getState();
+            DeployedState state = status.getState();
             
-            if (state == null || state != ChannelState.STARTED || !isStarted(status.getChildStatuses())) {
+            if (state == null || state != DeployedState.STARTED || !isStarted(status.getChildStatuses())) {
                 return false;
             }
         }

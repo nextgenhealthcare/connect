@@ -16,8 +16,8 @@ import java.util.WeakHashMap;
 
 import org.xmlpull.mxp1.MXParser;
 
-import com.mirth.connect.donkey.model.event.ChannelEventType;
-import com.mirth.connect.donkey.model.event.ConnectorEventType;
+import com.mirth.connect.donkey.model.event.DeployedStateEventType;
+import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.event.MessageEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -38,8 +38,8 @@ public class XStreamSerializer implements Serializer {
 
     private static final Class<?>[] annotatedClasses = new Class<?>[] {// @formatter:off
         Attachment.class,
-        ChannelEventType.class,
-        ConnectorEventType.class,
+        DeployedStateEventType.class,
+        ConnectionStatusEventType.class,
         ConnectorMessage.class,
         ErrorEventType.class,
         Message.class,

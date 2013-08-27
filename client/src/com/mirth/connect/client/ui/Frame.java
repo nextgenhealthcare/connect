@@ -97,7 +97,7 @@ import com.mirth.connect.client.ui.browsers.message.MessageBrowser;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionUpdateDialog;
 import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
@@ -2472,7 +2472,7 @@ public class Frame extends JXFrame {
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                 public Void doInBackground() {
                     try {
-                        if (status.getState() == ChannelState.PAUSED) {
+                        if (status.getState() == DeployedState.PAUSED) {
                             mirthClient.resumeChannel(status.getChannelId());
                         } else {
                             mirthClient.startChannel(status.getChannelId());

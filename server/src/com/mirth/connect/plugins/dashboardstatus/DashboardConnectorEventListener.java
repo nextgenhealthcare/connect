@@ -25,10 +25,10 @@ import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.model.event.ConnectorEventType;
+import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.server.event.ConnectorCountEvent;
-import com.mirth.connect.donkey.server.event.ConnectorEvent;
+import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.EventType;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
@@ -57,30 +57,30 @@ public class DashboardConnectorEventListener extends EventListener {
     public Set<EventType> getEventTypes() {
         Set<EventType> EventTypes = new HashSet<EventType>();
 
-        EventTypes.add(EventType.CONNECTOR);
+        EventTypes.add(EventType.CONNECTION_STATUS);
 
         return EventTypes;
     }
 
     @Override
     protected void processEvent(Event event) {
-        if (event instanceof ConnectorEvent) {
-            ConnectorEvent connectorEvent = (ConnectorEvent) event;
-            String channelId = connectorEvent.getChannelId();
-            Integer metaDataId = connectorEvent.getMetaDataId();
-            String information = connectorEvent.getMessage();
+        if (event instanceof ConnectionStatusEvent) {
+            ConnectionStatusEvent connectionStatusEvent = (ConnectionStatusEvent) event;
+            String channelId = connectionStatusEvent.getChannelId();
+            Integer metaDataId = connectionStatusEvent.getMetaDataId();
+            String information = connectionStatusEvent.getMessage();
             Timestamp timestamp = new Timestamp(event.getDateTime());
 
             String connectorId = channelId + "_" + metaDataId;
 
-            ConnectorEventType eventType = connectorEvent.getState();
+            ConnectionStatusEventType eventType = connectionStatusEvent.getState();
 
-            ConnectorEventType connectorState = eventType;
+            ConnectionStatusEventType connectionStatusEventType = eventType;
             Integer connectorCount = null;
             Integer maximum = null;
 
             if (event instanceof ConnectorCountEvent) {
-                ConnectorCountEvent connectorCountEvent = (ConnectorCountEvent) connectorEvent;
+                ConnectorCountEvent connectorCountEvent = (ConnectorCountEvent) connectionStatusEvent;
 
                 maximum = connectorCountEvent.getMaximum();
                 Boolean increment = connectorCountEvent.isIncrement();
@@ -109,16 +109,16 @@ public class DashboardConnectorEventListener extends EventListener {
                 connectorCount = count.get();
 
                 if (connectorCount == 0) {
-                    connectorState = ConnectorEventType.IDLE;
+                    connectionStatusEventType = ConnectionStatusEventType.IDLE;
                 } else {
-                    connectorState = ConnectorEventType.CONNECTED;
+                    connectionStatusEventType = ConnectionStatusEventType.CONNECTED;
                 }
             }
 
             String stateString = null;
-            if (connectorState.isState()) {
-                Color color = getColor(connectorState);
-                stateString = connectorState.toString();
+            if (connectionStatusEventType.isState()) {
+                Color color = getColor(connectionStatusEventType);
+                stateString = connectionStatusEventType.toString();
                 if (connectorCount != null) {
                     if (maximum != null && connectorCount.equals(maximum)) {
                         stateString += " <font color='red'>(" + connectorCount + ")</font>";
@@ -163,7 +163,7 @@ public class DashboardConnectorEventListener extends EventListener {
                     }
                     channelLog.addFirst(new String[] { String.valueOf(logId), channelName,
                             dateFormat.format(timestamp), connectorType,
-                            ((ConnectorEvent) event).getState().toString(), information, channelId,
+                            ((ConnectionStatusEvent) event).getState().toString(), information, channelId,
                             Integer.toString(metaDataId) });
 
                     if (entireConnectorInfoLogs.size() == MAX_LOG_SIZE) {
@@ -171,7 +171,7 @@ public class DashboardConnectorEventListener extends EventListener {
                     }
                     entireConnectorInfoLogs.addFirst(new String[] { String.valueOf(logId),
                             channelName, dateFormat.format(timestamp), connectorType,
-                            ((ConnectorEvent) event).getState().toString(), information, channelId,
+                            ((ConnectionStatusEvent) event).getState().toString(), information, channelId,
                             Integer.toString(metaDataId) });
 
                     logId++;
@@ -332,7 +332,7 @@ public class DashboardConnectorEventListener extends EventListener {
         return null;
     }
 
-    public Color getColor(ConnectorEventType type) {
+    public Color getColor(ConnectionStatusEventType type) {
         switch (type) {
             case IDLE:
             case CONNECTING:

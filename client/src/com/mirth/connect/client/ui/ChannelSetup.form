@@ -258,7 +258,7 @@
                 <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="initialState">
                   <Properties>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="new javax.swing.DefaultComboBoxModel(new Object[] { ChannelState.STARTED, ChannelState.PAUSED, ChannelState.STOPPED })" type="code"/>
+                      <Connection code="new javax.swing.DefaultComboBoxModel(new Object[] { DeployedState.STARTED, DeployedState.PAUSED, DeployedState.STOPPED })" type="code"/>
                     </Property>
                   </Properties>
                 </Component>

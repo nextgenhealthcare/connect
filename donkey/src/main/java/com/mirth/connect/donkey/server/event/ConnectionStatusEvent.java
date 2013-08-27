@@ -9,22 +9,22 @@
 
 package com.mirth.connect.donkey.server.event;
 
-import com.mirth.connect.donkey.model.event.ConnectorEventType;
+import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.Event;
 
-public class ConnectorEvent extends Event {
+public class ConnectionStatusEvent extends Event {
 
     private String channelId;
     private Integer metaDataId;
     private String connectorName;
-    private ConnectorEventType state;
+    private ConnectionStatusEventType state;
     private String message;
 
-    public ConnectorEvent(String channelId, Integer metaDataId, String connectorName, ConnectorEventType state) {
+    public ConnectionStatusEvent(String channelId, Integer metaDataId, String connectorName, ConnectionStatusEventType state) {
         this(channelId, metaDataId, connectorName, state, "");
     }
 
-    public ConnectorEvent(String channelId, Integer metaDataId, String connectorName, ConnectorEventType state, String message) {
+    public ConnectionStatusEvent(String channelId, Integer metaDataId, String connectorName, ConnectionStatusEventType state, String message) {
         this.channelId = channelId;
         this.metaDataId = metaDataId;
         this.connectorName = connectorName;
@@ -56,11 +56,11 @@ public class ConnectorEvent extends Event {
         this.connectorName = connectorName;
     }
 
-    public ConnectorEventType getState() {
+    public ConnectionStatusEventType getState() {
         return state;
     }
 
-    public void setState(ConnectorEventType state) {
+    public void setState(ConnectionStatusEventType state) {
         this.state = state;
     }
 

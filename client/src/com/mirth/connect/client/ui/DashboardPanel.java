@@ -45,7 +45,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import com.mirth.connect.client.ui.components.MirthTreeTable;
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
@@ -351,7 +351,7 @@ public class DashboardPanel extends javax.swing.JPanel {
                 }
             } else if (selectedChannelNodes.size() == 0){
                 DashboardTableNode channelNode = (DashboardTableNode) node.getParent();
-                if (channelNode.getStatus().getState() != ChannelState.STARTED && channelNode.getStatus().getState() != ChannelState.PAUSED) {
+                if (channelNode.getStatus().getState() != DeployedState.STARTED && channelNode.getStatus().getState() != DeployedState.PAUSED) {
                     parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 10, 11, false);
                     break;
                 }
@@ -383,9 +383,9 @@ public class DashboardPanel extends javax.swing.JPanel {
      * @return
      */
     private boolean isHaltable(DashboardTableNode node) {
-        ChannelState nodeState = node.getStatus().getState();
+        DeployedState nodeState = node.getStatus().getState();
 
-        boolean haltable = (nodeState == ChannelState.STARTING || nodeState == ChannelState.STOPPING || nodeState == ChannelState.PAUSING);
+        boolean haltable = (nodeState == DeployedState.STARTING || nodeState == DeployedState.STOPPING || nodeState == DeployedState.PAUSING);
 
         if (haltable) {
             return true;

@@ -11,15 +11,19 @@ package com.mirth.connect.donkey.server.channel;
 
 import java.util.Map;
 
-import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DeployedState;
+import com.mirth.connect.donkey.model.event.DeployedStateEventType;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.Startable;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.Stoppable;
 import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.event.DeployedStateEvent;
+import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.message.DataType;
 
 public abstract class Connector implements Startable, Stoppable {
@@ -27,9 +31,10 @@ public abstract class Connector implements Startable, Stoppable {
     private int metaDataId;
     private DataType inboundDataType;
     private DataType outboundDataType;
-    private ChannelState currentState = ChannelState.STOPPED;
+    private DeployedState currentState = DeployedState.STOPPED;
     private ConnectorProperties connectorProperties;
     private Map<String, String> destinationNameMap;
+    private EventDispatcher eventDispatcher = Donkey.getInstance().getEventDispatcher();
 
     public abstract void onDeploy() throws DeployException;
 
@@ -38,9 +43,9 @@ public abstract class Connector implements Startable, Stoppable {
     public abstract void onStart() throws StartException;
 
     public abstract void onStop() throws StopException;
-    
+
     public abstract void onHalt() throws HaltException;
-    
+
     public String getChannelId() {
         return channelId;
     }
@@ -72,13 +77,14 @@ public abstract class Connector implements Startable, Stoppable {
     public void setOutboundDataType(DataType outboundDataType) {
         this.outboundDataType = outboundDataType;
     }
-    
-    public ChannelState getCurrentState() {
+
+    public DeployedState getCurrentState() {
         return currentState;
     }
 
-    public void setCurrentState(ChannelState currentState) {
+    public void updateCurrentState(DeployedState currentState) {
         this.currentState = currentState;
+        eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, metaDataId, DeployedStateEventType.getTypeFromDeployedState(currentState)));
     }
 
     public ConnectorProperties getConnectorProperties() {
@@ -88,12 +94,16 @@ public abstract class Connector implements Startable, Stoppable {
     public void setConnectorProperties(ConnectorProperties connectorProperties) {
         this.connectorProperties = connectorProperties;
     }
-    
+
     public Map<String, String> getDestinationNameMap() {
         return destinationNameMap;
     }
 
     public void setDestinationNameMap(Map<String, String> destinationNameMap) {
         this.destinationNameMap = destinationNameMap;
+    }
+
+    protected EventDispatcher getEventDispatcher() {
+        return eventDispatcher;
     }
 }

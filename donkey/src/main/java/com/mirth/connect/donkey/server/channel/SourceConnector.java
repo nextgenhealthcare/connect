@@ -15,8 +15,8 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.model.channel.ChannelState;
-import com.mirth.connect.donkey.model.event.ConnectorEventType;
+import com.mirth.connect.donkey.model.channel.DeployedState;
+import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
@@ -29,7 +29,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
-import com.mirth.connect.donkey.server.event.ConnectorEvent;
+import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.util.Serializer;
 
 /**
@@ -77,11 +77,11 @@ public abstract class SourceConnector extends Connector {
      */
     @Override
     public void start() throws StartException {
-        setCurrentState(ChannelState.STARTING);
+        updateCurrentState(DeployedState.STARTING);
 
         onStart();
 
-        setCurrentState(ChannelState.STARTED);
+        updateCurrentState(DeployedState.STARTED);
     }
 
     /**
@@ -90,11 +90,11 @@ public abstract class SourceConnector extends Connector {
     @Override
     public void stop() throws StopException {
         //TODO make this happen before the poll connector's stop method
-        setCurrentState(ChannelState.STOPPING);
+        updateCurrentState(DeployedState.STOPPING);
 
         try {
             onStop();
-            setCurrentState(ChannelState.STOPPED);
+            updateCurrentState(DeployedState.STOPPED);
         } catch (Throwable t) {
             Throwable cause = t;
 
@@ -107,7 +107,7 @@ public abstract class SourceConnector extends Connector {
 
             // If the thread has been interrupted, we don't want to set the state here because halt() will do it
             if (!(cause instanceof InterruptedException)) {
-                setCurrentState(ChannelState.STOPPED);
+                updateCurrentState(DeployedState.STOPPED);
             }
 
             if (t instanceof StopException) {
@@ -124,13 +124,13 @@ public abstract class SourceConnector extends Connector {
     @Override
     public void halt() throws HaltException {
         //TODO make this happen before the poll connector's stop method
-        setCurrentState(ChannelState.STOPPING);
+        updateCurrentState(DeployedState.STOPPING);
 
         try {
             onHalt();
         } finally {
-            Donkey.getInstance().getEventDispatcher().dispatchEvent(new ConnectorEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectorEventType.IDLE));
-            setCurrentState(ChannelState.STOPPED);
+            Donkey.getInstance().getEventDispatcher().dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
+            updateCurrentState(DeployedState.STOPPED);
         }
     }
 
@@ -148,7 +148,7 @@ public abstract class SourceConnector extends Connector {
      * @throws StoppingException
      */
     public DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
-        if (getCurrentState() == ChannelState.STOPPED) {
+        if (getCurrentState() == DeployedState.STOPPED) {
             ChannelException e = new ChannelException(true);
             logger.error("Source connector is currently stopped. Channel Id: " + channel.getChannelId(), e);
             throw e;

@@ -23,7 +23,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.mirth.connect.donkey.model.DonkeyException;
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
@@ -116,7 +116,7 @@ public class DestinationConnectorTests {
         // Assert that the destination connector has not been deployed
         assertFalse(destinationConnector.isDeployed());
         // Assert that the destination connector is not running
-        assertFalse(destinationConnector.getCurrentState() != ChannelState.STOPPED);
+        assertFalse(destinationConnector.getCurrentState() != DeployedState.STOPPED);
         // Assert that the destination connector queue thread is not running
         assertFalse(destinationConnector.isQueueThreadRunning());
 
@@ -129,7 +129,7 @@ public class DestinationConnectorTests {
         Thread.sleep(1000);
 
         // Assert that the destination connector is running
-        assertTrue(destinationConnector.getCurrentState() != ChannelState.STOPPED);
+        assertTrue(destinationConnector.getCurrentState() != DeployedState.STOPPED);
         // Assert that the destination connector queue thread is running
         assertTrue(destinationConnector.isQueueThreadRunning());
 
@@ -190,7 +190,7 @@ public class DestinationConnectorTests {
         // Assert that the destination connector has been deployed
         assertTrue(destinationConnector.isDeployed());
         // Assert that the destination connector is running
-        assertTrue(destinationConnector.getCurrentState() != ChannelState.STOPPED);
+        assertTrue(destinationConnector.getCurrentState() != DeployedState.STOPPED);
         // Assert that the destination connector queue thread is running
         assertTrue(destinationConnector.isQueueThreadRunning());
 
@@ -200,7 +200,7 @@ public class DestinationConnectorTests {
         // Assert that the destination connector has been undeployed
         assertFalse(destinationConnector.isDeployed());
         // Assert that the destination connector is not running
-        assertFalse(destinationConnector.getCurrentState() != ChannelState.STOPPED);
+        assertFalse(destinationConnector.getCurrentState() != DeployedState.STOPPED);
         // Assert that the destination connector queue thread is not running
         assertFalse(destinationConnector.isQueueThreadRunning());
 
@@ -211,7 +211,7 @@ public class DestinationConnectorTests {
         // Assert that the destination connector has been deployed
         assertTrue(destinationConnector.isDeployed());
         // Assert that the destination connector is running
-        assertTrue(destinationConnector.getCurrentState() != ChannelState.STOPPED);
+        assertTrue(destinationConnector.getCurrentState() != DeployedState.STOPPED);
         // Assert that the destination connector queue thread is running
         assertTrue(destinationConnector.isQueueThreadRunning());
 
@@ -221,7 +221,7 @@ public class DestinationConnectorTests {
         // Assert that the destination connector has been undeployed
         assertFalse(destinationConnector.isDeployed());
         // Assert that the destination connector is not running
-        assertFalse(destinationConnector.getCurrentState() != ChannelState.STOPPED);
+        assertFalse(destinationConnector.getCurrentState() != DeployedState.STOPPED);
         // Assert that the destination connector queue thread is not running
         assertFalse(destinationConnector.isQueueThreadRunning());
 

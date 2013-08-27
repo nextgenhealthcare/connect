@@ -9,20 +9,20 @@
 
 package com.mirth.connect.donkey.server.event;
 
-import com.mirth.connect.donkey.model.event.ConnectorEventType;
+import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 
-public class ConnectorCountEvent extends ConnectorEvent {
+public class ConnectorCountEvent extends ConnectionStatusEvent {
     
     private Integer maximum;
     private Boolean increment;
     
-    public ConnectorCountEvent(String channelId, Integer metaDataId, String connectorName, ConnectorEventType state, String message, Integer maximum) {
+    public ConnectorCountEvent(String channelId, Integer metaDataId, String connectorName, ConnectionStatusEventType state, String message, Integer maximum) {
         super(channelId, metaDataId, connectorName, state, message);
 
         this.maximum = maximum;
     }
 
-    public ConnectorCountEvent(String channelId, Integer metaDataId, String connectorName, ConnectorEventType state, String message, Boolean increment) {
+    public ConnectorCountEvent(String channelId, Integer metaDataId, String connectorName, ConnectionStatusEventType state, String message, Boolean increment) {
         super(channelId, metaDataId, connectorName, state, message);
 
         this.increment = increment;

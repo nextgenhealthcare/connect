@@ -57,7 +57,7 @@ import com.mirth.connect.client.ui.editors.filter.FilterPane;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.util.VariableListUtil;
-import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
@@ -1012,7 +1012,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         currentChannel.getProperties().setClearGlobalChannelMap(clearGlobalChannelMapCheckBox.isSelected());
         currentChannel.getProperties().setEncryptData(encryptMessagesCheckBox.isSelected());
-        currentChannel.getProperties().setInitialState((ChannelState) initialState.getSelectedItem());
+        currentChannel.getProperties().setInitialState((DeployedState) initialState.getSelectedItem());
         currentChannel.getProperties().setStoreAttachments(attachmentStoreCheckBox.isSelected());
 
         String validationMessage = checkAllForms(currentChannel);
@@ -1640,7 +1640,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
         });
 
-        initialState.setModel(new javax.swing.DefaultComboBoxModel(new Object[] { ChannelState.STARTED, ChannelState.PAUSED, ChannelState.STOPPED }));
+        initialState.setModel(new javax.swing.DefaultComboBoxModel(new Object[] { DeployedState.STARTED, DeployedState.PAUSED, DeployedState.STOPPED }));
 
         attachmentLabel.setText("Attachment:");
 

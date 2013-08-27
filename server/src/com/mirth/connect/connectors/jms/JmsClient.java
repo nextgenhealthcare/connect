@@ -26,13 +26,13 @@ import javax.naming.NamingException;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.model.channel.ChannelState;
-import com.mirth.connect.donkey.model.event.ConnectorEventType;
+import com.mirth.connect.donkey.model.channel.DeployedState;
+import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.Connector;
-import com.mirth.connect.donkey.server.event.ConnectorEvent;
+import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -223,7 +223,7 @@ public class JmsClient implements ExceptionListener {
      */
     public synchronized boolean beginReconnect(boolean force) {
         if (connected.get()) {
-            eventController.dispatchEvent(new ConnectorEvent(connector.getChannelId(), connector.getMetaDataId(), connectorName, ConnectorEventType.DISCONNECTED));
+            eventController.dispatchEvent(new ConnectionStatusEvent(connector.getChannelId(), connector.getMetaDataId(), connectorName, ConnectionStatusEventType.DISCONNECTED));
             connected.set(false);
         }
 
@@ -256,7 +256,7 @@ public class JmsClient implements ExceptionListener {
     private class ReconnectThread extends Thread {
         @Override
         public void run() {
-            while (!connected.get() && connector.getCurrentState() == ChannelState.STARTED) {
+            while (!connected.get() && connector.getCurrentState() == DeployedState.STARTED) {
                 try {
                     if (!connected.get()) {
                         doReconnect();
