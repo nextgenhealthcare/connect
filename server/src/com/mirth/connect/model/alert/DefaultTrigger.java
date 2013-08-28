@@ -13,10 +13,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.mirth.connect.donkey.model.event.ErrorEventType;
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("defaultTrigger")
-public class DefaultTrigger extends ChannelTrigger implements AlertTrigger {
+public class DefaultTrigger extends ChannelTrigger implements AlertTrigger, Migratable {
 
     private Set<ErrorEventType> errorEventTypes;
     private String regex;

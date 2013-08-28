@@ -12,10 +12,11 @@ package com.mirth.connect.model.alert;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("alertActionGroup")
-public class AlertActionGroup {
+public class AlertActionGroup implements Migratable {
 
     protected List<AlertAction> actions;
     protected String subject;

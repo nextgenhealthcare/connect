@@ -48,7 +48,6 @@ import com.mirth.connect.model.UsageData;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.alert.AlertAction;
 import com.mirth.connect.model.alert.AlertActionGroup;
-import com.mirth.connect.model.alert.AlertActionProtocol;
 import com.mirth.connect.model.alert.AlertChannels;
 import com.mirth.connect.model.alert.AlertConnectors;
 import com.mirth.connect.model.alert.AlertModel;
@@ -66,7 +65,6 @@ public class ObjectXMLSerializer extends XStreamSerializer {
     private static final Class<?>[] annotatedClasses = new Class<?>[] {//@formatter:off
         AlertAction.class,
         AlertActionGroup.class,
-        AlertActionProtocol.class,
         AlertChannels.class,
         AlertConnectors.class,
         AlertModel.class,

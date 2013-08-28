@@ -538,6 +538,9 @@ public class ImportConverter3_0_0 {
         alertActionGroupProperties.addChildElement("subject").setTextContent(subject);
         // Copy the template from the old alert.
         alertActionGroupProperties.addChildElement("template").setTextContent(template);
+
+        // Add an empty properties map
+        alert.addChildElement("properties");
     }
 
     private static void migrateServerConfiguration(DonkeyElement serverConfiguration) throws MigrationException {

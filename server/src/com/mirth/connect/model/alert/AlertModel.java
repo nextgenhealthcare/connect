@@ -10,7 +10,9 @@
 package com.mirth.connect.model.alert;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.mirth.connect.donkey.util.migration.Migratable;
@@ -24,17 +26,15 @@ public class AlertModel implements Migratable {
     private boolean enabled;
     private AlertTrigger trigger;
     private List<AlertActionGroup> actionGroups;
-
-    protected AlertModel() {
-        actionGroups = new ArrayList<AlertActionGroup>();
-    }
+    private Map<String, Object> properties;
 
     public AlertModel(AlertTrigger trigger, AlertActionGroup actionGroup) {
-        this();
         id = UUID.randomUUID().toString();
         enabled = false;
         this.trigger = trigger;
+        actionGroups = new ArrayList<AlertActionGroup>();
         actionGroups.add(actionGroup);
+        properties = new HashMap<String, Object>();
     }
 
     public String getId() {
@@ -75,6 +75,14 @@ public class AlertModel implements Migratable {
 
     public void setActionGroups(List<AlertActionGroup> actionGroups) {
         this.actionGroups = actionGroups;
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
     }
 
 }

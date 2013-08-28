@@ -9,10 +9,11 @@
 
 package com.mirth.connect.model.alert;
 
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("alertAction")
-public class AlertAction {
+public class AlertAction implements Migratable {
 
     private AlertActionProtocol protocol;
     private String recipient;

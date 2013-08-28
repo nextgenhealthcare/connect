@@ -15,10 +15,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("alertChannels")
-public class AlertChannels {
+public class AlertChannels implements Migratable {
 
     private boolean newChannelSource = false;
     private boolean newChannelDestination = false;
