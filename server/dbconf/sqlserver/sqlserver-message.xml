@@ -2,28 +2,28 @@
 
 <mapper namespace="Message">
 	<resultMap id="connectorMessage" type="ConnectorMessage">		
-		<id property="messageId" column="message_id" />
-		<id property="metaDataId" column="id" />
-		<result property="connectorName" column="connector_name" />
-		<result property="serverId" column="server_id" />
-		<result property="receivedDate" column="received_date" />
-		<result property="status" column="status" />
-		<result property="sendAttempts" column="send_attempts" />
-		<result property="sendDate" column="send_date" />
-		<result property="responseDate" column="response_date" />
-		<result property="errorCode" column="error_code" />
-		<result property="chainId" column="chain_id" />
-		<result property="orderId" column="order_id" />
-		<collection property="metaDataMap" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" ofType="map" select="selectCustomMetaData" />
+		<id property="messageId" column="MESSAGE_ID" />
+		<id property="metaDataId" column="ID" />
+		<result property="connectorName" column="CONNECTOR_NAME" />
+		<result property="serverId" column="SERVER_ID" />
+		<result property="receivedDate" column="RECEIVED_DATE" />
+		<result property="status" column="STATUS" />
+		<result property="sendAttempts" column="SEND_ATTEMPTS" />
+		<result property="sendDate" column="SEND_DATE" />
+		<result property="responseDate" column="RESPONSE_DATE" />
+		<result property="errorCode" column="ERROR_CODE" />
+		<result property="chainId" column="CHAIN_ID" />
+		<result property="orderId" column="ORDER_ID" />
+		<collection property="metaDataMap" column="{localChannelId=LOCAL_CHANNEL_ID,messageId=MESSAGE_ID,metaDataId=ID}" ofType="map" select="selectCustomMetaData" />
 	</resultMap>
 	
 	<resultMap id="messageContent" type="com.mirth.connect.donkey.model.message.MessageContent">
-		<id property="messageId" column="message_id" />
-		<id property="metaDataId" column="metadata_id" />
-		<result property="contentType" column="content_type" typeHandler="com.mirth.connect.server.sqlmap.extensions.ContentTypeHandler" />
-		<result property="content" column="content" />
-		<result property="dataType" column="data_type" />
-		<result property="encrypted" column="is_encrypted" />
+		<id property="messageId" column="MESSAGE_ID" />
+		<id property="metaDataId" column="METADATA_ID" />
+		<result property="contentType" column="CONTENT_TYPE" typeHandler="com.mirth.connect.server.sqlmap.extensions.ContentTypeHandler" />
+		<result property="content" column="CONTENT" />
+		<result property="dataType" column="DATA_TYPE" />
+		<result property="encrypted" column="IS_ENCRYPTED" />
 	</resultMap>
 	
 	<resultMap id="messageSearchResult" type="MessageSearchResult">
@@ -38,90 +38,90 @@
 	</resultMap>
 	
 	<resultMap id="message" type="Message">
-		<result property="messageId" column="id" />
-		<result property="serverId" column="server_id" />
-		<result property="receivedDate" column="received_date" />
-		<result property="processed" column="processed" />
-		<result property="originalId" column="original_id" />
-		<result property="importId" column="import_id" />
-		<result property="importChannelId" column="import_channel_id" />
+		<result property="messageId" column="ID" />
+		<result property="serverId" column="SERVER_ID" />
+		<result property="receivedDate" column="RECEIVED_DATE" />
+		<result property="processed" column="PROCESSED" />
+		<result property="originalId" column="ORIGINAL_ID" />
+		<result property="importId" column="IMPORT_ID" />
+		<result property="importChannelId" column="IMPORT_CHANNEL_ID" />
 	</resultMap>
 	
 	<resultMap id="pruner-message-map" type="map">
-		<result property="id" column="id" javaType="Long" />
-		<result property="server_id" column="server_id" javaType="String" />
-		<result property="received_date" column="received_date" javaType="java.util.Calendar" />
-		<result property="mm_received_date" column="mm_received_date" javaType="java.util.Calendar" />
-		<result property="processed" column="processed" javaType="Boolean" />
-		<result property="original_Id" column="original_id" javaType="Long" />
-		<result property="import_id" column="import_id" javaType="Long" />
-		<result property="import_channel_id" column="import_channel_id" javaType="String" />
+		<result property="id" column="ID" javaType="Long" />
+		<result property="server_id" column="SERVER_ID" javaType="String" />
+		<result property="received_date" column="RECEIVED_DATE" javaType="java.util.Calendar" />
+		<result property="mm_received_date" column="MM_RECEIVED_DATE" javaType="java.util.Calendar" />
+		<result property="processed" column="PROCESSED" javaType="Boolean" />
+		<result property="original_Id" column="ORIGINAL_ID" javaType="Long" />
+		<result property="import_id" column="IMPORT_ID" javaType="Long" />
+		<result property="import_channel_id" column="IMPORT_CHANNEL_ID" javaType="String" />
 	</resultMap>
 
 	<select id="searchMessagesUngrouped" parameterType="map" resultMap="messageSearchResult">
 		<if test="offset != null and limit != null">
-			SELECT a.* FROM (
+			SELECT A.* FROM (
 		</if>
 
 		SELECT
-			m.id,
-			m.server_id,
-			m.received_date,
-			m.processed,
-			m.original_id,
-			m.import_id,
-			m.import_channel_id,
-			mm.id AS metadata_id,
-			DENSE_RANK() OVER (ORDER BY m.id DESC) AS message_num
+			M.ID,
+			M.SERVER_ID,
+			M.RECEIVED_DATE,
+			M.PROCESSED,
+			M.ORIGINAL_ID,
+			M.IMPORT_ID,
+			M.IMPORT_CHANNEL_ID,
+			MM.ID AS METADATA_ID,
+			DENSE_RANK() OVER (ORDER BY M.ID DESC) AS MESSAGE_NUM
 
 		<include refid="searchMessagesBody" />
 
 		<if test="offset != null and limit != null">
-			) AS a WHERE a.message_num <![CDATA[ > ]]> ${offset} AND a.message_num <![CDATA[ <= ]]> (${offset} + ${limit})
+			) AS A WHERE A.MESSAGE_NUM <![CDATA[ > ]]> ${offset} AND A.MESSAGE_NUM <![CDATA[ <= ]]> (${offset} + ${limit})
 		</if>
 	</select>
 
 	<select id="searchMessagesCount" parameterType="map" resultType="long">
 		SELECT COUNT(*) FROM (
-			SELECT m.id
+			SELECT M.ID
 			<include refid="searchMessagesBody" />
-			GROUP BY m.id
+			GROUP BY M.ID
 		) subquery
 	</select>
 	
 	<select id="selectMessageIdsForReprocessing" parameterType="map" resultType="long">
-		SELECT DISTINCT m.id
+		SELECT DISTINCT M.ID
 		<include refid="searchMessagesBody" />
-		ORDER BY m.id ASC
+		ORDER BY M.ID ASC
 	</select>
 
 	<select id="selectMessageForReprocessing" parameterType="map" resultMap="messageContent">
-		SELECT message_id, metadata_id, content_type, content, data_type, is_encrypted
-		FROM d_mc${localChannelId}
-		WHERE message_id = #{messageId}
-		AND metadata_id = 0
-		AND content_type = 1
+		SELECT MESSAGE_ID, METADATA_ID, CONTENT_TYPE, CONTENT, DATA_TYPE, IS_ENCRYPTED
+		FROM D_MC${localChannelId}
+		WHERE MESSAGE_ID = #{messageId}
+		AND METADATA_ID = 0
+		AND CONTENT_TYPE = 1
 	</select>
 	
 	<sql id="searchMessagesBody">
-		FROM d_m${localChannelId} m
-		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id
+		FROM D_M${localChannelId} M
+		JOIN D_MM${localChannelId} MM ON MM.MESSAGE_ID = M.ID
 		
 		<if test="textSearch != null || metaDataSearch != null">
-			LEFT JOIN d_mcm${localChannelId} mcm ON mcm.message_id = mm.message_id AND mcm.metadata_id = mm.id
+			LEFT JOIN D_MCM${localChannelId} MCM ON MCM.MESSAGE_ID = MM.MESSAGE_ID AND MCM.METADATA_ID = MM.ID
 		</if>
 		
 		<if test="contentSearch != null">
 			<foreach item="element" collection="contentSearch">
-				LEFT JOIN d_mc${localChannelId} mc_${element.contentCode} ON mc_${element.contentCode}.message_id = m.id AND mc_${element.contentCode}.is_encrypted = 0
+				LEFT JOIN D_MC${localChannelId} MC_${element.contentCode} ON MC_${element.contentCode}.MESSAGE_ID = M.ID AND MC_${element.contentCode}.IS_ENCRYPTED = 0
 				
 				<choose>
 					<!-- If the content code is RAW, use the source ENCODED for destination RAW -->
 					<when test="element.contentCode == 1">
-						AND mc_${element.contentCode}.metadata_id = 0 AND ((mm.id = 0 AND mc_${element.contentCode}.content_type = 1) OR (mm.id > 0 AND mc_${element.contentCode}.content_type = 4))
+						AND MC_${element.contentCode}.METADATA_ID = 0 AND ((MM.ID = 0 AND MC_${element.contentCode}.CONTENT_TYPE = 1) OR (MM.ID > 0 AND MC_${element.contentCode}.CONTENT_TYPE = 4))
 					</when>
 					<otherwise>
-						AND mc_${element.contentCode}.metadata_id = mm.id AND mc_${element.contentCode}.content_type = #{element.contentCode}
+						AND MC_${element.contentCode}.METADATA_ID = MM.ID AND MC_${element.contentCode}.CONTENT_TYPE = #{element.contentCode}
 					</otherwise>
 				</choose>
 			</foreach>
@@ -129,65 +129,65 @@
 		
 		<where>
 			<if test="messageIdLower != null">
-				m.id <![CDATA[ >= ]]> #{messageIdLower}
+				M.ID <![CDATA[ >= ]]> #{messageIdLower}
 			</if>
 			<if test="messageIdUpper != null">
-				AND m.id <![CDATA[ <= ]]> #{messageIdUpper}
+				AND M.ID <![CDATA[ <= ]]> #{messageIdUpper}
 			</if>
 			<if test="maxMessageId != null">
-				AND m.id <![CDATA[ <= ]]> #{maxMessageId}
+				AND M.ID <![CDATA[ <= ]]> #{maxMessageId}
 			</if>
 			<if test="startDate != null">
-				AND m.received_date <![CDATA[ >= ]]> #{startDate}
+				AND M.RECEIVED_DATE <![CDATA[ >= ]]> #{startDate}
 			</if>
 			<if test="endDate != null">
-				AND m.received_date <![CDATA[ <= ]]> #{endDate}
+				AND M.RECEIVED_DATE <![CDATA[ <= ]]> #{endDate}
 			</if>
 			<if test="serverId != null">
-				AND m.server_id LIKE '%' + #{serverId} + '%'
+				AND M.SERVER_ID LIKE '%' + #{serverId} + '%'
 			</if>
 			<if test="originalIdLower != null">
-				AND m.original_id <![CDATA[ >= ]]> #{originalIdLower}
+				AND M.ORIGINAL_ID <![CDATA[ >= ]]> #{originalIdLower}
 			</if>
 			<if test="originalIdUpper != null">
-				AND m.original_id <![CDATA[ <= ]]> #{originalIdUpper}
+				AND M.ORIGINAL_ID <![CDATA[ <= ]]> #{originalIdUpper}
 			</if>
 			<if test="importIdLower != null">
-				AND m.import_id <![CDATA[ >= ]]> #{importIdLower}
+				AND M.IMPORT_ID <![CDATA[ >= ]]> #{importIdLower}
 			</if>
 			<if test="importIdUpper != null">
-				AND m.import_id <![CDATA[ <= ]]> #{importIdUpper}
+				AND M.IMPORT_ID <![CDATA[ <= ]]> #{importIdUpper}
 			</if>
 			<if test="textSearch != null">
 				AND (
-				CAST(m.id AS NVARCHAR) LIKE '%' + #{textSearch} + '%'
-				OR mm.connector_name LIKE '%' + #{textSearch} + '%'
+				CAST(M.ID AS NVARCHAR) LIKE '%' + #{textSearch} + '%'
+				OR MM.CONNECTOR_NAME LIKE '%' + #{textSearch} + '%'
 				
 				<if test="contentSearch != null">
 					<foreach item="element" collection="contentSearch">
-						OR mc_${element.contentCode}.content LIKE '%' + #{textSearch} + '%'
+						OR MC_${element.contentCode}.CONTENT LIKE '%' + #{textSearch} + '%'
 					</foreach>
 				</if>
 				
 				<foreach item="column" collection="textSearchMetaDataColumns">
-					OR mcm.${column} LIKE '%' + #{textSearch} + '%'
+					OR MCM.${column} LIKE '%' + #{textSearch} + '%'
 				</foreach>
 				)
 			</if>
 			<if test="statuses != null">
-				AND mm.status IN
+				AND MM.STATUS IN
 				<foreach item="status" collection="statuses" open="(" separator="," close=")">
 					#{status}
 				</foreach>
 			</if>
 			<if test="includedMetaDataIds != null">
-				AND mm.id IN
+				AND MM.ID IN
 				<foreach item="metaDataId" collection="includedMetaDataIds" open="(" separator="," close=")">
 					#{metaDataId}
 				</foreach>
 			</if>
 			<if test="excludedMetaDataIds != null">
-				AND mm.id NOT IN
+				AND MM.ID NOT IN
 				<foreach item="metaDataId" collection="excludedMetaDataIds" open="(" separator="," close=")">
 					#{metaDataId}
 				</foreach>
@@ -196,22 +196,22 @@
 			<if test="contentSearch != null">
 				<foreach item="element" collection="contentSearch">
 					<foreach item="searchString" collection="element.searches">
-						AND mc_${element.contentCode}.content LIKE '%' + #{searchString} + '%'
+						AND MC_${element.contentCode}.CONTENT LIKE '%' + #{searchString} + '%'
 					</foreach>
 				</foreach>
 			</if>
 			
 			<if test="sendAttemptsLower != null">
-				AND mm.send_attempts <![CDATA[ >= ]]> #{sendAttemptsLower}
+				AND MM.SEND_ATTEMPTS <![CDATA[ >= ]]> #{sendAttemptsLower}
 			</if>
 			<if test="sendAttemptsUpper != null">
-				AND mm.send_attempts <![CDATA[ <= ]]> #{sendAttemptsUpper}
+				AND MM.SEND_ATTEMPTS <![CDATA[ <= ]]> #{sendAttemptsUpper}
 			</if>
 			<if test="attachment != null and attachment == true">
-				AND EXISTS (SELECT 1 FROM d_ma${localChannelId} ma WHERE ma.message_id = m.id)
+				AND EXISTS (SELECT 1 FROM D_MA${localChannelId} MA WHERE MA.MESSAGE_ID = M.ID)
 			</if>
 			<if test="error != null and error == true">
-				AND mm.error_code <![CDATA[ > ]]> 0
+				AND MM.ERROR_CODE <![CDATA[ > ]]> 0
 			</if>
 			<if test="metaDataSearch != null">
 				<foreach item="element" collection="metaDataSearch">
@@ -219,10 +219,10 @@
 					
 					<choose>
 						<when test="element.ignoreCase">
-							UPPER(mcm.${element.columnName})
+							UPPER(MCM.${element.columnName})
 						</when>
 						<otherwise>
-							mcm.${element.columnName}
+							MCM.${element.columnName}
 						</otherwise>
 					</choose>
 
@@ -273,33 +273,33 @@
 	
 	<select id="selectMessageById" resultMap="message">
 		SELECT 
-			id,
-			server_id,
-			received_date,
-			processed,
-			original_id,
-			import_id,
-			import_channel_id
+			ID,
+			SERVER_ID,
+			RECEIVED_DATE,
+			PROCESSED,
+			ORIGINAL_ID,
+			IMPORT_ID,
+			IMPORT_CHANNEL_ID
 			
-		FROM d_m${localChannelId}
-		WHERE id = #{messageId}
+		FROM D_M${localChannelId}
+		WHERE ID = #{messageId}
 	</select>
 	
 	<select id="selectMessageContent" resultMap="messageContent">
-		SELECT metadata_id,	message_id,	content_type, content, data_type, encrypted
-		FROM d_mc${localChannelId}
-		WHERE message_id = #{messageId}
-		AND metadata_id IN
+		SELECT METADATA_ID,	MESSAGE_ID,	CONTENT_TYPE, CONTENT, DATA_TYPE, ENCRYPTED
+		FROM D_MC${localChannelId}
+		WHERE MESSAGE_ID = #{messageId}
+		AND METADATA_ID IN
 		<foreach item="metaDataId" collection="metaDataIds" open="(" separator="," close=")">
 			#{metaDataId}
 		</foreach>
 	</select>
 	
 	<select id="selectMessageAttachmentIds" parameterType="map" resultType="Attachment">
-		SELECT id, type
-		FROM d_ma${localChannelId}
-		WHERE message_id = #{messageId}
-		GROUP BY id, type
+		SELECT ID, TYPE
+		FROM D_MA${localChannelId}
+		WHERE MESSAGE_ID = #{messageId}
+		GROUP BY ID, TYPE
 	</select>
 	
 	
@@ -311,127 +311,127 @@
 	</update>
 
 	<delete id="pruneMessagesByIds" parameterType="map">
-		DELETE FROM d_m${localChannelId}
+		DELETE FROM D_M${localChannelId}
 		<where>
 			<if test="includeMessageList != null">
-				id IN (${includeMessageList})
+				ID IN (${includeMessageList})
 			</if>
 			
 			<if test="excludeMessageList != null">
-				AND id NOT IN (${excludeMessageList})
+				AND ID NOT IN (${excludeMessageList})
 			</if>
 			
 			<if test="includeMessageRanges != null">
 				AND
 				<foreach item="range" collection="includeMessageRanges" open="(" separator="OR" close=")">
-					id BETWEEN #{range[0]} AND #{range[1]}
+					ID BETWEEN #{range[0]} AND #{range[1]}
 				</foreach>
 			</if>
 			
 			<if test="excludeMessageRanges != null">
 				AND
 				<foreach item="range" collection="excludeMessageRanges" open="(" separator="AND" close=")">
-					id NOT BETWEEN #{range[0]} AND #{range[1]}
+					ID NOT BETWEEN #{range[0]} AND #{range[1]}
 				</foreach>
 			</if>
 	
 			<if test="minMessageId != null and maxMessageId != null">
-				AND id BETWEEN #{minMessageId} AND #{maxMessageId}
+				AND ID BETWEEN #{minMessageId} AND #{maxMessageId}
 			</if>
 		</where>
 	</delete>
 	
 	<delete id="pruneConnectorMessages" parameterType="map">
-		DELETE FROM d_mm${localChannelId}
+		DELETE FROM D_MM${localChannelId}
 		<where><include refid="pruneWhere" /></where>
 	</delete>
 	
 	<delete id="pruneMessageContent" parameterType="map">
-		DELETE FROM d_mc${localChannelId}
+		DELETE FROM D_MC${localChannelId}
 		<where><include refid="pruneWhere" /></where>
 	</delete>
 	
 	<delete id="pruneCustomMetaData" parameterType="map">
-		DELETE FROM d_mcm${localChannelId}
+		DELETE FROM D_MCM${localChannelId}
 		<where><include refid="pruneWhere" /></where>
 	</delete>
 	
 	<delete id="pruneAttachments" parameterType="map">
-		DELETE FROM d_ma${localChannelId}
+		DELETE FROM D_MA${localChannelId}
 		<where><include refid="pruneWhere" /></where>
 	</delete>
 	
 	<sql id="pruneWhere">
 		<if test="includeMessageList != null">
-			message_id IN (${includeMessageList})
+			MESSAGE_ID IN (${includeMessageList})
 		</if>
 		
 		<if test="excludeMessageList != null">
-			AND message_id NOT IN (${excludeMessageList})
+			AND MESSAGE_ID NOT IN (${excludeMessageList})
 		</if>
 		
 		<if test="includeMessageRanges != null">
 			AND
 			<foreach item="range" collection="includeMessageRanges" open="(" separator="OR" close=")">
-				message_id BETWEEN #{range[0]} AND #{range[1]}
+				MESSAGE_ID BETWEEN #{range[0]} AND #{range[1]}
 			</foreach>
 		</if>
 		
 		<if test="excludeMessageRanges != null">
 			AND
 			<foreach item="range" collection="excludeMessageRanges" open="(" separator="AND" close=")">
-				message_id NOT BETWEEN #{range[0]} AND #{range[1]}
+				MESSAGE_ID NOT BETWEEN #{range[0]} AND #{range[1]}
 			</foreach>
 		</if>
 
 		<if test="minMessageId != null and maxMessageId != null">
-			AND message_id BETWEEN #{minMessageId} AND #{maxMessageId}
+			AND MESSAGE_ID BETWEEN #{minMessageId} AND #{maxMessageId}
 		</if>
 	</sql>
 	
 	<select id="getMessagesToPrune" parameterType="map" resultMap="pruner-message-map">
 		<if test="offset != null and limit != null">
-			SELECT a.* FROM (
+			SELECT A.* FROM (
 		</if>
 			
 			SELECT
-				m.id,
-				m.server_id,
-				m.received_date,
-				m.processed,
-				m.original_id,
-				m.import_id,
-				m.import_channel_id,
-				mm.received_date AS mm_received_date,
-				ROW_NUMBER() OVER (ORDER BY m.id) AS rownum
+				M.ID,
+				M.SERVER_ID,
+				M.RECEIVED_DATE,
+				M.PROCESSED,
+				M.ORIGINAL_ID,
+				M.IMPORT_ID,
+				M.IMPORT_CHANNEL_ID,
+				MM.RECEIVED_DATE AS MM_RECEIVED_DATE,
+				ROW_NUMBER() OVER (ORDER BY M.ID) AS ROWNUM
 			
-			FROM d_m${localChannelId} m
-			JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0
+			FROM D_M${localChannelId} M
+			JOIN D_MM${localChannelId} MM ON MM.MESSAGE_ID = M.ID AND MM.ID = 0
 			
 			<if test="skipStatuses != null">
-				LEFT JOIN d_mm${localChannelId} mm_skip ON mm_skip.message_id = m.id AND mm_skip.status IN
+				LEFT JOIN D_MM${localChannelId} MM_SKIP ON MM_SKIP.MESSAGE_ID = M.ID AND MM_SKIP.STATUS IN
 				<foreach item="status" collection="skipStatuses" open="(" separator="," close=")">
 					#{status}
 				</foreach>
 			</if>
 		
-			WHERE mm.received_date <![CDATA[ < ]]> #{dateThreshold}
+			WHERE MM.RECEIVED_DATE <![CDATA[ < ]]> #{dateThreshold}
 			
 			<if test="skipIncomplete == true">
-				AND m.processed = 1
+				AND M.PROCESSED = 1
 			</if>
 			
 			<if test="skipStatuses != null">
-				AND mm_skip.id IS NULL
+				AND MM_SKIP.ID IS NULL
 			</if>
 			
 		<if test="offset != null and limit != null">
-			) AS a WHERE a.rownum <![CDATA[ > ]]> ${offset} AND a.rownum <![CDATA[ <= ]]> (${offset} + ${limit})
+			) AS A WHERE A.ROWNUM <![CDATA[ > ]]> ${offset} AND A.ROWNUM <![CDATA[ <= ]]> (${offset} + ${limit})
 		</if>
 	</select>
 	
 	<update id="pruneEvents" parameterType="map">
-		DELETE FROM event
-		WHERE date_created <![CDATA[ < ]]> #{dateThreshold}
+		DELETE FROM EVENT
+		WHERE DATE_CREATED <![CDATA[ < ]]> #{dateThreshold}
 	</update>
 </mapper>

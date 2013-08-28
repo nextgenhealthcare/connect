@@ -31,30 +31,30 @@
 	</sql>
 	
 	<select id="getMaxEventId" resultType="Integer">
-		SELECT COALESCE(MAX(id), 0)
-		FROM Event
+		SELECT COALESCE(MAX(ID), 0)
+		FROM EVENT
 	</select>
 	
 	<select id="searchEvents" parameterType="map" resultMap="event">
 		<if test="offset != null and limit != null">
-			SELECT a.* FROM (SELECT b.*, rownum b_rownum FROM (
+			SELECT A.* FROM (SELECT B.*, ROWNUM B_ROWNUM FROM (
 		</if>
 	
 		SELECT *
-		FROM Event
+		FROM EVENT
 		
 		<include refid="searchEventsBody" />
 		
-		ORDER BY id desc
+		ORDER BY ID DESC
 
 		<if test="offset != null and limit != null">
-			) b WHERE rownum <![CDATA[ <= ]]> (${offset} + ${limit})) a WHERE b_rownum > ${offset}
+			) B WHERE ROWNUM <![CDATA[ <= ]]> (${offset} + ${limit})) A WHERE B_ROWNUM > ${offset}
 		</if>
 	</select>
 	
 	<select id="searchEventsCount" parameterType="map" resultType="long">
-		SELECT COUNT(id)
-		FROM Event
+		SELECT COUNT(ID)
+		FROM EVENT
 		
 		<include refid="searchEventsBody" />
 	</select>

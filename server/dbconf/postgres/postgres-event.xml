@@ -31,17 +31,17 @@
 	</sql>
 	
 	<select id="getMaxEventId" resultType="Integer">
-		SELECT COALESCE(MAX(id), 0)
-		FROM Event
+		SELECT COALESCE(MAX(ID), 0)
+		FROM EVENT
 	</select>
 	
 	<select id="searchEvents" parameterType="map" resultMap="event">
 		SELECT *
-		FROM Event
+		FROM EVENT
 		
 		<include refid="searchEventsBody" />
 		
-		ORDER BY id desc
+		ORDER BY ID desc
 
 		<if test="offset != null">
 			OFFSET ${offset}
@@ -52,8 +52,8 @@
 	</select>
 	
 	<select id="searchEventsCount" parameterType="map" resultType="long">
-		SELECT COUNT(id)
-		FROM Event
+		SELECT COUNT(ID)
+		FROM EVENT
 		
 		<include refid="searchEventsBody" />
 	</select>

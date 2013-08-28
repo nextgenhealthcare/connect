@@ -2,204 +2,204 @@
 
 <queries>
 	<query id="insertMessage">
-		INSERT INTO d_m${localChannelId} (id, server_id, received_date, processed, original_id, import_id, import_channel_id)
+		INSERT INTO D_M${localChannelId} (ID, SERVER_ID, RECEIVED_DATE, PROCESSED, ORIGINAL_ID, IMPORT_ID, IMPORT_CHANNEL_ID)
 		VALUES (?, ?, ?, ?, ?, ?, ?)
 	</query>
 	
 	<query id="insertMessageContent">
-		INSERT INTO d_mc${localChannelId} (metadata_id, message_id, content_type, content, data_type, is_encrypted)
+		INSERT INTO D_MC${localChannelId} (METADATA_ID, MESSAGE_ID, CONTENT_TYPE, CONTENT, DATA_TYPE, IS_ENCRYPTED)
 		VALUES (?, ?, ?, ?, ?, ?)
 	</query>
 	
 	<query id="storeMessageContent">
-		UPDATE d_mc${localChannelId} SET content = ?, data_type = ?, is_encrypted = ?
-		WHERE metadata_id = ?
-		AND message_id = ?
-		AND content_type = ?
+		UPDATE D_MC${localChannelId} SET CONTENT = ?, DATA_TYPE = ?, IS_ENCRYPTED = ?
+		WHERE METADATA_ID = ?
+		AND MESSAGE_ID = ?
+		AND CONTENT_TYPE = ?
 	</query>
 	
 	<query id="insertMessageAttachment">
-		INSERT INTO d_ma${localChannelId} (id, message_id, type, segment_id, attachment_size, content)
+		INSERT INTO D_MA${localChannelId} (ID, MESSAGE_ID, TYPE, SEGMENT_ID, ATTACHMENT_SIZE, CONTENT)
 		VALUES (?, ?, ?, ?, ?, ?)
 	</query>
 	
 	<query id="selectMessageAttachmentSize">
-		SELECT sum(attachment_size) AS attachment_size
-		FROM d_ma${localChannelId}
-		WHERE id = ?
+		SELECT sum(ATTACHMENT_SIZE) AS ATTACHMENT_SIZE
+		FROM D_MA${localChannelId}
+		WHERE ID = ?
 	</query>
 	
 	<query id="selectMessageAttachmentSizeByMessageId">
-		SELECT id, sum(attachment_size) AS attachment_size
-		FROM d_ma${localChannelId}
-		WHERE message_id = ?
-		GROUP BY id
+		SELECT ID, sum(ATTACHMENT_SIZE) AS ATTACHMENT_SIZE
+		FROM D_MA${localChannelId}
+		WHERE MESSAGE_ID = ?
+		GROUP BY ID
 	</query>
 	
 	<query id="selectMessageAttachment">
-		SELECT type, segment_id, attachment_size, content
-		FROM d_ma${localChannelId}
-		WHERE id = ?
-		ORDER BY segment_id ASC
+		SELECT TYPE, SEGMENT_ID, ATTACHMENT_SIZE, CONTENT
+		FROM D_MA${localChannelId}
+		WHERE ID = ?
+		ORDER BY SEGMENT_ID ASC
 	</query>
 	
 	<query id="selectMessageAttachmentByMessageId">
-		SELECT id, type, segment_id, attachment_size, content
-		FROM d_ma${localChannelId}
-		WHERE message_id = ?
-		ORDER BY id, segment_id ASC
+		SELECT ID, TYPE, SEGMENT_ID, ATTACHMENT_SIZE, CONTENT
+		FROM D_MA${localChannelId}
+		WHERE MESSAGE_ID = ?
+		ORDER BY ID, SEGMENT_ID ASC
 	</query>
 	
 	<query id="insertConnectorMessage">
-		INSERT INTO d_mm${localChannelId} (id, message_id, server_id, received_date, status, connector_name, send_attempts, send_date, response_date, error_code, chain_id, order_id)
+		INSERT INTO D_MM${localChannelId} (ID, MESSAGE_ID, SERVER_ID, RECEIVED_DATE, STATUS, CONNECTOR_NAME, SEND_ATTEMPTS, SEND_DATE, RESPONSE_DATE, ERROR_CODE, CHAIN_ID, ORDER_ID)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</query>
 	
 	<query id="updateSourceResponse">
-		UPDATE d_mm${localChannelId}
-		SET send_attempts = ?, response_date = ?
-		WHERE id = 0 AND message_id = ? AND server_id = ?
+		UPDATE D_MM${localChannelId}
+		SET SEND_ATTEMPTS = ?, RESPONSE_DATE = ?
+		WHERE ID = 0 AND MESSAGE_ID = ? AND SERVER_ID = ?
 	</query>
 	
 	<query id="updateErrorCode">
-		UPDATE d_mm${localChannelId}
-		SET error_code = ?
-		WHERE id = ? AND message_id = ? AND server_id = ?
+		UPDATE D_MM${localChannelId}
+		SET ERROR_CODE = ?
+		WHERE ID = ? AND MESSAGE_ID = ? AND SERVER_ID = ?
 	</query>
 	
 	<query id="updateStatus">
-		UPDATE d_mm${localChannelId} SET status = ?, send_attempts = ?, send_date = ?, response_date = ?
-		WHERE id = ?
-		AND message_id = ?
-		AND server_id = ?
+		UPDATE D_MM${localChannelId} SET STATUS = ?, SEND_ATTEMPTS = ?, SEND_DATE = ?, RESPONSE_DATE = ?
+		WHERE ID = ?
+		AND MESSAGE_ID = ?
+		AND SERVER_ID = ?
 	</query>
 	
 	<query id="markAsProcessed">
-		UPDATE d_m${localChannelId} SET processed = TRUE
-		WHERE id = ?
+		UPDATE D_M${localChannelId} SET PROCESSED = TRUE
+		WHERE ID = ?
 	</query>
 	
 	<query id="resetMessage">
-		UPDATE d_m${localChannelId} SET processed = FALSE
-		WHERE id = ?
+		UPDATE D_M${localChannelId} SET PROCESSED = FALSE
+		WHERE ID = ?
 	</query>
 	
 	<query id="getLocalChannelIds">
-		SELECT channel_id, local_channel_id
-		FROM d_channels
+		SELECT CHANNEL_ID, LOCAL_CHANNEL_ID
+		FROM D_CHANNELS
 	</query>
 	
 	<query id="selectMaxLocalChannelId">
-		SELECT MAX(local_channel_id)
-		FROM d_channels
+		SELECT MAX(LOCAL_CHANNEL_ID)
+		FROM D_CHANNELS
 	</query>
 	
 	<query id="removeMetaDataColumn">
-		ALTER TABLE d_mcm${localChannelId} DROP COLUMN "${columnName}"
+		ALTER TABLE D_MCM${localChannelId} DROP COLUMN "${columnName}"
 	</query>
 	
 	<query id="getMaxMessageId">
-		SELECT COALESCE(MAX(id), 0)
-		FROM d_m${localChannelId}
+		SELECT COALESCE(MAX(ID), 0)
+		FROM D_M${localChannelId}
 	</query>
 	
 	<query id="getUnfinishedMessages">
-		SELECT m.*
-		FROM d_m${localChannelId} m
-		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0
-		WHERE m.processed = FALSE AND mm.server_id = ?
-		ORDER BY m.id
+		SELECT M.*
+		FROM D_M${localChannelId} M
+		JOIN D_MM${localChannelId} MM ON MM.MESSAGE_ID = M.ID AND MM.ID = 0
+		WHERE M.PROCESSED = FALSE AND MM.SERVER_ID = ?
+		ORDER BY M.ID
 	</query>
 	
 	<query id="getUnfinishedMessageConnectorMessages">
 		SELECT *
-		FROM d_mm${localChannelId} mm
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		JOIN d_mm${localChannelId} mm0 ON mm0.message_id = mm.message_id AND mm0.id = 0
-		WHERE m.processed = FALSE AND mm0.server_id = ?
-		ORDER BY m.id, mm.id
+		FROM D_MM${localChannelId} MM
+		JOIN D_M${localChannelId} M ON M.ID = MM.MESSAGE_ID
+		JOIN D_MM${localChannelId} MM0 ON MM0.MESSAGE_ID = MM.MESSAGE_ID AND MM0.ID = 0
+		WHERE M.PROCESSED = FALSE AND MM0.SERVER_ID = ?
+		ORDER BY M.ID, MM.ID
 	</query>
 	
 	<query id="getUnfinishedConnectorMessages">
 		SELECT *
-		FROM d_mm${localChannelId} mm
-		JOIN d_m${localChannelId} m ON m.id = mm.message_id
-		JOIN d_mm${localChannelId} mm0 ON mm0.message_id = mm.message_id AND mm0.id = 0
-		WHERE mm.id = ? AND mm.status = ? AND mm0.server_id = ? AND mm.server_id = mm0.server_id
-		ORDER BY mm.message_id
+		FROM D_MM${localChannelId} MM
+		JOIN D_M${localChannelId} M ON M.ID = MM.MESSAGE_ID
+		JOIN D_MM${localChannelId} MM0 ON MM0.MESSAGE_ID = MM.MESSAGE_ID AND MM0.ID = 0
+		WHERE MM.ID = ? AND MM.STATUS = ? AND MM0.SERVER_ID = ? AND MM.SERVER_ID = MM0.SERVER_ID
+		ORDER BY MM.MESSAGE_ID
 	</query>
 	
 	<query id="getChannelStatistics">
-		SELECT metadata_id, received, filtered, sent, error
-		FROM d_ms${localChannelId}
-		WHERE server_id = ?
+		SELECT METADATA_ID, RECEIVED, FILTERED, SENT, ERROR
+		FROM D_MS${localChannelId}
+		WHERE SERVER_ID = ?
 	</query>
 	
 	<query id="getChannelTotalStatistics">
-		SELECT metadata_id, received_lifetime AS received, filtered_lifetime AS filtered, sent_lifetime AS sent, error_lifetime AS error
-		FROM d_ms${localChannelId}
-		WHERE server_id = ?
+		SELECT METADATA_ID, RECEIVED_LIFETIME AS RECEIVED, FILTERED_LIFETIME AS FILTERED, SENT_LIFETIME AS SENT, ERROR_LIFETIME AS ERROR
+		FROM D_MS${localChannelId}
+		WHERE SERVER_ID = ?
 	</query>
 	
 	<query id="insertChannelStatistics">
-		INSERT INTO d_ms${localChannelId} (metadata_id, server_id, received, received_lifetime, filtered, filtered_lifetime, sent, sent_lifetime, error, error_lifetime)
+		INSERT INTO D_MS${localChannelId} (METADATA_ID, SERVER_ID, RECEIVED, RECEIVED_LIFETIME, FILTERED, FILTERED_LIFETIME, SENT, SENT_LIFETIME, ERROR, ERROR_LIFETIME)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</query>
 	
 	<query id="updateChannelStatistics">
-		UPDATE d_ms${localChannelId}
-		SET received = received + ?,
-			received_lifetime = received_lifetime + ?,
-			filtered = filtered + ?,
-			filtered_lifetime = filtered_lifetime + ?,
-			sent = sent + ?,
-			sent_lifetime = sent_lifetime + ?,
-			error = error + ?,
-			error_lifetime = error_lifetime + ?
+		UPDATE D_MS${localChannelId}
+		SET RECEIVED = RECEIVED + ?,
+			RECEIVED_LIFETIME = RECEIVED_LIFETIME + ?,
+			FILTERED = FILTERED + ?,
+			FILTERED_LIFETIME = FILTERED_LIFETIME + ?,
+			SENT = SENT + ?,
+			SENT_LIFETIME = SENT_LIFETIME + ?,
+			ERROR = ERROR + ?,
+			ERROR_LIFETIME = ERROR_LIFETIME + ?
 		
-		WHERE metadata_id IS NULL
-		AND server_id = ?
+		WHERE METADATA_ID IS NULL
+		AND SERVER_ID = ?
 	</query>
 	
 	<query id="updateConnectorStatistics">
-		UPDATE d_ms${localChannelId}
-		SET received = received + ?,
-			received_lifetime = received_lifetime + ?,
-			filtered = filtered + ?,
-			filtered_lifetime = filtered_lifetime + ?,
-			sent = sent + ?,
-			sent_lifetime = sent_lifetime + ?,
-			error = error + ?,
-			error_lifetime = error_lifetime + ?
+		UPDATE D_MS${localChannelId}
+		SET RECEIVED = RECEIVED + ?,
+			RECEIVED_LIFETIME = RECEIVED_LIFETIME + ?,
+			FILTERED = FILTERED + ?,
+			FILTERED_LIFETIME = FILTERED_LIFETIME + ?,
+			SENT = SENT + ?,
+			SENT_LIFETIME = SENT_LIFETIME + ?,
+			ERROR = ERROR + ?,
+			ERROR_LIFETIME = ERROR_LIFETIME + ?
 		
-		WHERE metadata_id = ?
-		AND server_id = ?
+		WHERE METADATA_ID = ?
+		AND SERVER_ID = ?
 	</query>
 	
 	<query id="resetConnectorStatistics">
-		UPDATE d_ms${localChannelId}
+		UPDATE D_MS${localChannelId}
 		SET ${statuses}
-		WHERE server_id = ? AND metadata_id = ?
+		WHERE SERVER_ID = ? AND METADATA_ID = ?
 	</query>
 	
 	<query id="resetChannelStatistics">
-		UPDATE d_ms${localChannelId}
+		UPDATE D_MS${localChannelId}
 		SET ${statuses}
-		WHERE server_id = ? AND metadata_id IS NULL
+		WHERE SERVER_ID = ? AND METADATA_ID IS NULL
 	</query>
 	
 	<query id="resetAllStatistics">
-		UPDATE d_ms${localChannelId}
-		SET received = 0,
-			received_lifetime = 0,
-			filtered = 0,
-			filtered_lifetime = 0,
-			sent = 0,
-			sent_lifetime = 0,
-			error = 0,
-			error_lifetime = 0
+		UPDATE D_MS${localChannelId}
+		SET RECEIVED = 0,
+			RECEIVED_LIFETIME = 0,
+			FILTERED = 0,
+			FILTERED_LIFETIME = 0,
+			SENT = 0,
+			SENT_LIFETIME = 0,
+			ERROR = 0,
+			ERROR_LIFETIME = 0
 
-		WHERE server_id = ?
+		WHERE SERVER_ID = ?
 	</query>
 	
 	<query id="deleteTestData">
@@ -212,73 +212,73 @@
 	</query>
 	
 	<query id="getMessageContent">
-		SELECT content, data_type, is_encrypted
-		FROM d_mc${localChannelId}
-		WHERE message_id = ?
-		AND metadata_id = ?
-		AND content_type = ?
+		SELECT CONTENT, DATA_TYPE, IS_ENCRYPTED
+		FROM D_MC${localChannelId}
+		WHERE MESSAGE_ID = ?
+		AND METADATA_ID = ?
+		AND CONTENT_TYPE = ?
 	</query>
 	
 	<query id="getMetaDataMap">
 		SELECT *
-		FROM d_mcm${localChannelId}
-		WHERE message_id = ?
-		AND metadata_id = ?
+		FROM D_MCM${localChannelId}
+		WHERE MESSAGE_ID = ?
+		AND METADATA_ID = ?
 	</query>
 
 	<query id="createChannel">
-		INSERT INTO d_channels (channel_id, local_channel_id) VALUES (?, ?)
+		INSERT INTO D_CHANNELS (CHANNEL_ID, LOCAL_CHANNEL_ID) VALUES (?, ?)
 	</query>
 
 	<query id="insertMetaData">
-		INSERT INTO d_mcm${localChannelId} (METADATA_ID, MESSAGE_ID, ${metaDataColumnNames})
+		INSERT INTO D_MCM${localChannelId} (METADATA_ID, MESSAGE_ID, ${metaDataColumnNames})
 		VALUES (?, ?, ${metaDataColumnPlaceholders})
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit">
 		SELECT *
-		FROM d_mm${localChannelId}
-		WHERE id = ? AND status = ? AND server_id = ?
-		ORDER BY message_id
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ? AND SERVER_ID = ?
+		ORDER BY MESSAGE_ID
 		LIMIT ${limit}
 		OFFSET ${offset}
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange">
 		SELECT *
-		FROM d_mm${localChannelId}
-		WHERE id = ? AND status = ? AND server_id = ?
-		AND message_id <![CDATA[ >= ]]> ? AND message_id <![CDATA[ <= ]]> ?
-		ORDER BY message_id
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ? AND SERVER_ID = ?
+		AND MESSAGE_ID <![CDATA[ >= ]]> ? AND MESSAGE_ID <![CDATA[ <= ]]> ?
+		ORDER BY MESSAGE_ID
 		LIMIT ${limit}
 		OFFSET ${offset}
 	</query>
 	
 	<query id="getConnectorMessagesByMessageId">
 		SELECT *
-		FROM d_mm${localChannelId}
-		WHERE message_id = ?
-		ORDER BY message_id
+		FROM D_MM${localChannelId}
+		WHERE MESSAGE_ID = ?
+		ORDER BY MESSAGE_ID
 	</query>
 	
 	<query id="getConnectorMessagesByMessageIdAndMetaDataIds">
 		SELECT *
-		FROM d_mm${localChannelId}
-		WHERE message_id = ?
-		AND id IN (${metaDataIds})
-		ORDER BY chain_id ASC, order_id ASC
+		FROM D_MM${localChannelId}
+		WHERE MESSAGE_ID = ?
+		AND ID IN (${metaDataIds})
+		ORDER BY CHAIN_ID ASC, ORDER_ID ASC
 	</query>
 	
 	<query id="getConnectorMessageCountByMetaDataIdAndStatus">
 		SELECT COUNT(*)
-		FROM d_mm${localChannelId}
-		WHERE id = ? AND status = ? AND server_id = ?
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ? AND SERVER_ID = ?
 	</query>
 	
 	<query id="getConnectorMessageMaxMessageIdByMetaDataIdAndStatus">
-		SELECT COALESCE(MAX(message_id), 0)
-		FROM d_mm${localChannelId}
-		WHERE id = ? AND status = ? AND server_id = ?
+		SELECT COALESCE(MAX(MESSAGE_ID), 0)
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ? AND SERVER_ID = ?
 	</query>
 	
 	
@@ -286,8 +286,8 @@
 	<!-- Delete Statements -->
 	
 	<query id="deleteMessage">
-		DELETE FROM d_m${localChannelId}
-		WHERE id = ?
+		DELETE FROM D_M${localChannelId}
+		WHERE ID = ?
 	</query>
 	
 	<!-- Optional cascade statements when not using ON DELETE CASCADE, define these in the database's xml file -->
@@ -297,29 +297,29 @@
 	<query id="deleteMessageCascadeAttachments"></query>
 
 	<query id="deleteConnectorMessages">
-		DELETE FROM d_mm${localChannelId}
-		WHERE message_id = ?
+		DELETE FROM D_MM${localChannelId}
+		WHERE MESSAGE_ID = ?
 	</query>
 	
 	<query id="deleteMessageContent">
-		DELETE FROM d_mc${localChannelId}
-		WHERE message_id = ?
+		DELETE FROM D_MC${localChannelId}
+		WHERE MESSAGE_ID = ?
 	</query>
 	
 	<query id="deleteMessageContentByMetaDataIdAndContentType">
-		DELETE FROM d_mc${localChannelId}
-		WHERE message_id = ?
-		AND metadata_id = ?
-		AND content_type = ?
+		DELETE FROM D_MC${localChannelId}
+		WHERE MESSAGE_ID = ?
+		AND METADATA_ID = ?
+		AND CONTENT_TYPE = ?
 	</query>
 	
 	<query id="deleteMessageAttachments">
-		DELETE FROM d_ma${localChannelId}
-		WHERE message_id = ?
+		DELETE FROM D_MA${localChannelId}
+		WHERE MESSAGE_ID = ?
 	</query>
 	
 	<query id="deleteAllMessages">
-		DELETE FROM d_m${localChannelId}
+		DELETE FROM D_M${localChannelId}
 	</query>
 	
 	<query id="deleteAllMessagesCascadeConnectorMessage"></query>
@@ -328,9 +328,9 @@
 	<query id="deleteAllMessagesCascadeAttachments"></query>
 	
 	<query id="deleteConnectorMessagesByMetaDataIds">
-		DELETE FROM d_mm${localChannelId}
-		WHERE message_id = ?
-		AND id IN (${metaDataIds})
+		DELETE FROM D_MM${localChannelId}
+		WHERE MESSAGE_ID = ?
+		AND ID IN (${metaDataIds})
 	</query>
 	
 	<query id="deleteConnectorMessagesByMetaDataIdsCascadeMetadata"></query>

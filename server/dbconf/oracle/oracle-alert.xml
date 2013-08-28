@@ -16,7 +16,7 @@
 			AND ID != #{id}
 		) THEN 1 ELSE 0 END
 
-		FROM dual
+		FROM DUAL
 	</select>
 
 	<select id="getAlert" parameterType="java.lang.String" resultMap="alert">
