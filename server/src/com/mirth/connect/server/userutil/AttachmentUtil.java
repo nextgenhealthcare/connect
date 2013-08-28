@@ -54,7 +54,7 @@ public class AttachmentUtil {
      * 
      * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
      * corresponding attachment content, and returns the full post-replacement
-     * message as a byte array.
+     * message.
      * 
      * @param messageObject
      *            - The connector message associated with the attachments. The
@@ -74,7 +74,7 @@ public class AttachmentUtil {
     /**
      * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
      * corresponding attachment content, and returns the full post-replacement
-     * message as a byte array.
+     * message.
      * 
      * @param connectorMessage
      *            - The connector message associated with the attachments. The
@@ -95,7 +95,7 @@ public class AttachmentUtil {
      * 
      * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
      * corresponding attachment content, and returns the full post-replacement
-     * message as a byte array.
+     * message.
      * 
      * @param messageObject
      *            - The connector message associated with the attachments. The
@@ -118,7 +118,7 @@ public class AttachmentUtil {
      * 
      * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
      * corresponding attachment content, and returns the full post-replacement
-     * message as a byte array.
+     * message.
      * 
      * @param connectorMessage
      *            - The connector message associated with the attachments. The
@@ -137,7 +137,7 @@ public class AttachmentUtil {
     /**
      * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
      * corresponding attachment content, and returns the full post-replacement
-     * message as a byte array.
+     * message.
      * 
      * @param raw
      *            - The message string to re-attach attachments to.

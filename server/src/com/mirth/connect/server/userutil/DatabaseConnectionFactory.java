@@ -15,6 +15,25 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class DatabaseConnectionFactory {
+
+    private DatabaseConnectionFactory() {}
+
+    /**
+     * Instantiates and returns a new DatabaseConnection object with the given
+     * connection parameters.
+     * 
+     * @param driver
+     *            - The JDBC driver class (as a string) to use to create the
+     *            connection with.
+     * @param address
+     *            - The server address to connect to.
+     * @param username
+     *            - The username to connect with.
+     * @param password
+     *            - The password to connect with.
+     * @return The created DatabaseConnection object.
+     * @throws SQLException
+     */
     public static DatabaseConnection createDatabaseConnection(String driver, String address, String username, String password) throws SQLException {
         try {
             Class.forName(driver);
@@ -28,6 +47,18 @@ public class DatabaseConnectionFactory {
         return new DatabaseConnection(address, info);
     }
 
+    /**
+     * Instantiates and returns a new DatabaseConnection object with the given
+     * connection parameters.
+     * 
+     * @param driver
+     *            - The JDBC driver class (as a string) to use to create the
+     *            connection with.
+     * @param address
+     *            - The server address to connect to.
+     * @return The created DatabaseConnection object.
+     * @throws SQLException
+     */
     public static DatabaseConnection createDatabaseConnection(String driver, String address) throws SQLException {
         try {
             Class.forName(driver);
@@ -38,6 +69,22 @@ public class DatabaseConnectionFactory {
         return new DatabaseConnection(address);
     }
 
+    /**
+     * Instantiates and returns a new java.sql.Connection object with the given
+     * connection parameters.
+     * 
+     * @param driver
+     *            - The JDBC driver class (as a string) to use to create the
+     *            connection with.
+     * @param address
+     *            - The server address to connect to.
+     * @param username
+     *            - The username to connect with.
+     * @param password
+     *            - The password to connect with.
+     * @return The created DatabaseConnection object.
+     * @throws SQLException
+     */
     public static Connection createConnection(String driver, String address, String username, String password) throws SQLException {
         try {
             Class.forName(driver);
@@ -52,9 +99,14 @@ public class DatabaseConnectionFactory {
         return DriverManager.getConnection(address, info);
     }
 
-    // Initializes the specified Driver. This is used for JS function that can't
-    // call
-    // "Class.forName"
+    /**
+     * Initializes the specified JDBC driver. This can be used in JavaScript
+     * contexts where "Class.forName" can't be called directly.
+     * 
+     * @param driver
+     *            - The JDBC driver class (as a string) to initialize.
+     * @throws Exception
+     */
     public static void initializeDriver(String driver) throws Exception {
         Class.forName(driver);
     }
