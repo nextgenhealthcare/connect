@@ -12,6 +12,9 @@ package com.mirth.connect.server.userutil;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Provides date/time utility methods.
+ */
 public class DateUtil {
     private DateUtil() {}
 

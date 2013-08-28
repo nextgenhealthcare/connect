@@ -16,7 +16,21 @@ import java.util.Map;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpParser;
 
+/**
+ * Provides HTTP utility methods.
+ */
 public class HTTPUtil {
+    private HTTPUtil() {}
+
+    /**
+     * Converts a block of HTTP header fields into a Map containing each header
+     * key and value.
+     * 
+     * @param str
+     *            - The block of HTTP header fields to convert.
+     * @return - The converted Map containing header key-value pairs.
+     * @throws Exception
+     */
     public static Map<String, String> parseHeaders(String str) throws Exception {
         Map<String, String> headersMap = new HashMap<String, String>();
         Header[] headers = HttpParser.parseHeaders(new ByteArrayInputStream(str.getBytes()), "UTF-8");

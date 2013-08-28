@@ -20,6 +20,10 @@ import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 
+/**
+ * Provides utility methods for creating, retrieving, and re-attaching message
+ * attachments.
+ */
 public class AttachmentUtil {
     private static Logger logger = Logger.getLogger(AttachmentUtil.class);
 

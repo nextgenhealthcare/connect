@@ -15,6 +15,9 @@ import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 
+/**
+ * Allows users to dispatch error events which can be alerted on.
+ */
 public class AlertSender {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private String channelId;

@@ -11,6 +11,10 @@ package com.mirth.connect.server.userutil;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Used to store and retrieve details about message attachments such as the ID,
+ * MIME type, and content.
+ */
 public class Attachment {
     private String id;
     private byte[] content;

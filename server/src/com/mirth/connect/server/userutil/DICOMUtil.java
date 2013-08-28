@@ -21,6 +21,9 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.server.util.MessageAttachmentUtil;
 
+/**
+ * Provides DICOM utility methods.
+ */
 public class DICOMUtil {
     private static Logger logger = Logger.getLogger(DICOMUtil.class);
 

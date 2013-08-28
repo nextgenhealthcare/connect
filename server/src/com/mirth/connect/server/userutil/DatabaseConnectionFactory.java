@@ -14,6 +14,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * Used to create database connection objects.
+ */
 public class DatabaseConnectionFactory {
 
     private DatabaseConnectionFactory() {}

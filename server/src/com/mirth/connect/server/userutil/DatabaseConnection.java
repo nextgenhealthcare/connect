@@ -26,6 +26,10 @@ import org.apache.log4j.Logger;
 
 import com.sun.rowset.CachedRowSetImpl;
 
+/**
+ * Provides the ability to run SQL queries again the database connection object
+ * instantiated using DatabaseConnectionFactory.
+ */
 public class DatabaseConnection {
     private Logger logger = Logger.getLogger(this.getClass());
     private Connection connection;
