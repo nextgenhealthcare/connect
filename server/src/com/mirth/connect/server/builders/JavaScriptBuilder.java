@@ -340,6 +340,25 @@ public class JavaScriptBuilder {
         builder.append("msgObj.insertChildAfter(segment[0], new XML('<' + name + '></' + name + '>'));");
         builder.append("return msgObj.child(segment[0].childIndex() + 1);");
         builder.append("}\n");
+
+        /*
+         * Since we use a sealed shared scope everywhere, importClass won't be
+         * available. To allow this to still work for migration, we override
+         * importClass to call importPackage instead.
+         */
+        builder.append("importClass = function() {\n");
+        builder.append("    logger.error('The importClass method has been deprecated and will soon be removed. Please use importPackage or the fully-qualified class name instead.');\n");
+        builder.append("    for each (argument in arguments) {\n");
+        builder.append("        var className = new Packages.java.lang.String(argument);\n");
+        builder.append("        if (className.startsWith('class ')) {\n");
+        builder.append("            className = className.substring(6);\n");
+        builder.append("        }\n");
+        builder.append("        eval('importPackage(' + Packages.java.lang.Class.forName(className).getPackage().getName() + ')');\n");
+        builder.append("    }\n");
+        builder.append("}\n");
+
+        // TODO: Replace the above with this in 3.1
+        // builder.append("importClass = undefined;\n");
     }
 
     private static void appendMapFunctions(StringBuilder builder) {
