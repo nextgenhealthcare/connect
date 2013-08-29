@@ -503,6 +503,7 @@ public class DefaultExtensionController extends ExtensionController {
                     try {
                         Migrator migrator = (Migrator) Class.forName(plugin.getMigratorClass()).newInstance();
                         migrator.setDatabaseType(ConfigurationController.getInstance().getDatabaseType());
+                        migrator.setDefaultScriptPath("extensions/" + plugin.getPath());
                         appendToUninstallScript(migrator.getUninstallStatements());
                     } catch (Exception e) {
                         logger.error("Failed to retrieve uninstall database statements for plugin: " + pluginPath, e);
