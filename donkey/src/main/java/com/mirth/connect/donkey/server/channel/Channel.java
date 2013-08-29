@@ -1000,6 +1000,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             metaDataIds.add(0);
             dao.deleteMessageStatistics(channelId, messageId, metaDataIds);
+            dao.deleteMessageAttachments(channelId, messageId);
             dao.deleteConnectorMessages(channelId, messageId, metaDataIds);
             dao.resetMessage(channelId, messageId);
             receivedDate = Calendar.getInstance();
