@@ -51,6 +51,7 @@ import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.client.core.PaginatedEventList;
 import com.mirth.connect.client.core.RequestAbortedException;
 import com.mirth.connect.client.ui.CellData;
+import com.mirth.connect.client.ui.DateCellRenderer;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.ImageCellRenderer;
 import com.mirth.connect.client.ui.Mirth;
@@ -70,6 +71,7 @@ import com.mirth.connect.model.User;
 import com.mirth.connect.model.filters.EventFilter;
 
 public class EventBrowser extends javax.swing.JPanel {
+    private final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
 
     private final String EVENT_ID_COLUMN_NAME = "ID";
     private final String EVENT_DATE_COLUMN_NAME = "Date & Time";
@@ -614,7 +616,7 @@ public class EventBrowser extends javax.swing.JPanel {
                     tableData[i][1] = new CellData(null, systemEvent.getLevel().toString());
                 }
 
-                tableData[i][2] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL", systemEvent.getEventTime());
+                tableData[i][2] = systemEvent.getEventTime();
 
                 tableData[i][3] = systemEvent.getName();
 
@@ -673,6 +675,10 @@ public class EventBrowser extends javax.swing.JPanel {
 
         eventTable.getColumnExt(EVENT_ID_COLUMN_NAME).setVisible(false);
 
+        DateCellRenderer dateCellRenderer = new DateCellRenderer();
+        dateCellRenderer.setDateFormat(new SimpleDateFormat(DATE_FORMAT));
+        
+        eventTable.getColumnExt(EVENT_DATE_COLUMN_NAME).setCellRenderer(dateCellRenderer);
         eventTable.getColumnExt(EVENT_DATE_COLUMN_NAME).setMinWidth(140);
         eventTable.getColumnExt(EVENT_DATE_COLUMN_NAME).setMaxWidth(140);
         eventTable.getColumnExt(EVENT_LEVEL_COLUMN_NAME).setMinWidth(50);
