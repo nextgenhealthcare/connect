@@ -150,6 +150,13 @@ public class DICOMSerializer implements IXMLSerializer {
 
             StringWriter output = new StringWriter();
             DicomInputStream dis = new DicomInputStream(new BufferedInputStream(new Base64InputStream(new ByteArrayInputStream(encodedMessage))));
+            /*
+             * This parameter was added in dcm4che 2.0.28. We use it to retain the memory allocation
+             * behavior from 2.0.25.
+             * http://www.mirthcorp.com/community/issues/browse/MIRTH-2166
+             * http://www.dcm4che.org/jira/browse/DCM-554
+             */
+            dis.setAllocateLimit(-1);
 
             try {
                 SAXTransformerFactory factory = (SAXTransformerFactory) TransformerFactory.newInstance();

@@ -40,6 +40,13 @@ public class DICOMConverter {
                 inputStream = bais;
             }
             dis = new DicomInputStream(inputStream);
+            /*
+             * This parameter was added in dcm4che 2.0.28. We use it to retain the memory allocation
+             * behavior from 2.0.25.
+             * http://www.mirthcorp.com/community/issues/browse/MIRTH-2166
+             * http://www.dcm4che.org/jira/browse/DCM-554
+             */
+            dis.setAllocateLimit(-1);
             dis.readDicomObject(basicDicomObject, -1);
         } catch (IOException e) {
             throw e;
@@ -53,11 +60,11 @@ public class DICOMConverter {
     public static byte[] dicomObjectToByteArray(DicomObject dicomObject) throws IOException {
         BasicDicomObject basicDicomObject = (BasicDicomObject) dicomObject;
         DicomOutputStream dos = null;
-        
+
         try {
             ByteCounterOutputStream bcos = new ByteCounterOutputStream();
             ByteArrayOutputStream baos;
-            
+
             if (basicDicomObject.fileMetaInfo().isEmpty()) {
                 try {
                     // Create a dicom output stream with the byte counter output stream.
@@ -67,12 +74,12 @@ public class DICOMConverter {
                 } finally {
                     IOUtils.closeQuietly(dos);
                 }
-                
+
                 // Create the actual byte array output stream with a buffer size equal to the number of bytes required.
                 baos = new ByteArrayOutputStream(bcos.size());
                 // Create a dicom output stream with the byte array output stream
                 dos = new DicomOutputStream(baos);
-                
+
                 // Create ACR/NEMA Dump
                 dos.writeDataset(basicDicomObject, TransferSyntax.ImplicitVRLittleEndian);
             } else {
@@ -84,19 +91,19 @@ public class DICOMConverter {
                 } finally {
                     IOUtils.closeQuietly(dos);
                 }
-                
+
                 // Create the actual byte array output stream with a buffer size equal to the number of bytes required.
                 baos = new ByteArrayOutputStream(bcos.size());
                 // Create a dicom output stream with the byte array output stream
                 dos = new DicomOutputStream(baos);
-                
+
                 // Create DICOM File
                 dos.writeDicomFile(basicDicomObject);
             }
-            
+
             // Memory Optimization since the dicom object is no longer needed at this point.
             dicomObject.clear();
-            
+
             return baos.toByteArray();
         } catch (IOException e) {
             throw e;
