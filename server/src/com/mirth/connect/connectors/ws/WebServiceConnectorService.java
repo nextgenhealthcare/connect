@@ -63,14 +63,14 @@ public class WebServiceConnectorService implements ConnectorService {
                 throw new Exception("Could not find any definitions in " + wsdlUri);
             }
         } else if (method.equals("isWsdlCached")) {
-            String id = (String) object;
+            String id = replacer.replaceValues((String) object, channelId);
             return (wsdlInterfaceCache.get(id) != null);
         } else if (method.equals("getOperations")) {
-            String id = (String) object;
+            String id = replacer.replaceValues((String) object, channelId);
             WsdlInterface wsdlInterface = wsdlInterfaceCache.get(id);
             return getOperations(wsdlInterface);
         } else if (method.equals("getService")) {
-            String id = (String) object;
+            String id = replacer.replaceValues((String) object, channelId);
             WsdlInterface wsdlInterface = wsdlInterfaceCache.get(id);
 
             if (MapUtils.isNotEmpty(wsdlInterface.getWsdlContext().getDefinition().getServices())) {
@@ -78,7 +78,7 @@ public class WebServiceConnectorService implements ConnectorService {
                 return service.getQName().toString();
             }
         } else if (method.equals("getPort")) {
-            String id = (String) object;
+            String id = replacer.replaceValues((String) object, channelId);
             WsdlInterface wsdlInterface = wsdlInterfaceCache.get(id);
 
             if (MapUtils.isNotEmpty(wsdlInterface.getWsdlContext().getDefinition().getServices())) {
@@ -89,13 +89,13 @@ public class WebServiceConnectorService implements ConnectorService {
             }
         } else if (method.equals("generateEnvelope")) {
             Map<String, String> params = (Map<String, String>) object;
-            String id = params.get("id");
+            String id = replacer.replaceValues(params.get("id"), channelId);
             String operationName = params.get("operation");
             WsdlInterface wsdlInterface = wsdlInterfaceCache.get(id);
             return buildEnvelope(wsdlInterface, operationName);
         } else if (method.equals("getSoapAction")) {
             Map<String, String> params = (Map<String, String>) object;
-            String id = params.get("id");
+            String id = replacer.replaceValues(params.get("id"), channelId);
             String operationName = params.get("operation");
             WsdlInterface wsdlInterface = wsdlInterfaceCache.get(id);
             return wsdlInterface.getOperationByName(operationName).getAction();
