@@ -24,10 +24,37 @@ public class VMRouter {
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private EngineController engineController = ControllerFactory.getFactory().createEngineController();
 
+    /**
+     * Instantiates a VMRouter object.
+     */
+    public VMRouter() {}
+
+    /**
+     * Dispatches a message to a channel, specified by the deployed channel
+     * name.
+     * 
+     * @param channelName
+     *            - The name of the deployed channel to dispatch the message to.
+     * @param message
+     *            - The message to dispatch to the channel.
+     * @return The Response object returned by the channel, if its source
+     *         connector is configured to return one.
+     */
     public Response routeMessage(String channelName, String message) {
         return routeMessage(channelName, new RawMessage(message));
     }
 
+    /**
+     * Dispatches a message to a channel, specified by the deployed channel
+     * name.
+     * 
+     * @param channelName
+     *            - The name of the deployed channel to dispatch the message to.
+     * @param rawMessage
+     *            - A RawMessage object to dispatch to the channel.
+     * @return The Response object returned by the channel, if its source
+     *         connector is configured to return one.
+     */
     public Response routeMessage(String channelName, RawMessage rawMessage) {
         com.mirth.connect.model.Channel channel = channelController.getDeployedChannelByName(channelName);
 
@@ -39,6 +66,28 @@ public class VMRouter {
         return routeMessageByChannelId(channel.getId(), rawMessage);
     }
 
+    /**
+     * <b>This method is deprecated and will soon be removed. Please use
+     * routeMessage(channelName, message) instead. The useQueue parameter will
+     * not be used. If you want the downstream channel to queue its message and
+     * return immediately upon receipt, enable the source queue on the source
+     * connector.</b><br/>
+     * <br/>
+     * 
+     * Dispatches a message to a channel, specified by the deployed channel
+     * name.
+     * 
+     * @param channelName
+     *            - The name of the deployed channel to dispatch the message to.
+     * @param message
+     *            - The message to dispatch to the channel.
+     * @param useQueue
+     *            - This parameter is no longer used. If you want the downstream
+     *            channel to queue its message and return immediately upon
+     *            receipt, enable the source queue on the source connector.
+     * @return The Response object returned by the channel, if its source
+     *         connector is configured to return one.
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public Response routeMessage(String channelName, String message, boolean useQueue) {
@@ -46,6 +95,27 @@ public class VMRouter {
         return routeMessage(channelName, message);
     }
 
+    /**
+     * <b>This method is deprecated and will soon be removed. Please use
+     * routeMessageByChannelId(channelId, message) instead. The useQueue
+     * parameter will not be used. If you want the downstream channel to queue
+     * its message and return immediately upon receipt, enable the source queue
+     * on the source connector.</b><br/>
+     * <br/>
+     * 
+     * Dispatches a message to a channel, specified by the deployed channel ID.
+     * 
+     * @param channelId
+     *            - The ID of the deployed channel to dispatch the message to.
+     * @param message
+     *            - The message to dispatch to the channel.
+     * @param useQueue
+     *            - This parameter is no longer used. If you want the downstream
+     *            channel to queue its message and return immediately upon
+     *            receipt, enable the source queue on the source connector.
+     * @return The Response object returned by the channel, if its source
+     *         connector is configured to return one.
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public Response routeMessageByChannelId(String channelId, Object message, boolean useQueue) {
@@ -61,10 +131,30 @@ public class VMRouter {
         }
     }
 
+    /**
+     * Dispatches a message to a channel, specified by the deployed channel ID.
+     * 
+     * @param channelId
+     *            - The ID of the deployed channel to dispatch the message to.
+     * @param message
+     *            - The message to dispatch to the channel.
+     * @return The Response object returned by the channel, if its source
+     *         connector is configured to return one.
+     */
     public Response routeMessageByChannelId(String channelId, String message) {
         return routeMessageByChannelId(channelId, new RawMessage(message));
     }
 
+    /**
+     * Dispatches a message to a channel, specified by the deployed channel ID.
+     * 
+     * @param channelId
+     *            - The ID of the deployed channel to dispatch the message to.
+     * @param rawMessage
+     *            - A RawMessage object to dispatch to the channel.
+     * @return The Response object returned by the channel, if its source
+     *         connector is configured to return one.
+     */
     public Response routeMessageByChannelId(String channelId, RawMessage rawMessage) {
         try {
             return engineController.dispatchRawMessage(channelId, convertRawMessage(rawMessage)).getSelectedResponse();

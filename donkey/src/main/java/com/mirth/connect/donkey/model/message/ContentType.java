@@ -11,10 +11,18 @@ package com.mirth.connect.donkey.model.message;
 
 import org.apache.commons.lang3.text.WordUtils;
 
+/**
+ * Denotes various types of content created by a channel. Available types are:
+ * 
+ * RAW, PROCESSED_RAW, TRANSFORMED, ENCODED, SENT, RESPONSE,
+ * RESPONSE_TRANSFORMED, PROCESSED_RESPONSE, CONNECTOR_MAP, CHANNEL_MAP,
+ * RESPONSE_MAP, PROCESSING_ERROR, POSTPROCESSOR_ERROR, RESPONSE_ERROR
+ */
 public enum ContentType {
     RAW(1), PROCESSED_RAW(2), TRANSFORMED(3), ENCODED(4), SENT(5), RESPONSE(6), RESPONSE_TRANSFORMED(
-            7), PROCESSED_RESPONSE(8), CONNECTOR_MAP(9), CHANNEL_MAP(10), RESPONSE_MAP(11), PROCESSING_ERROR(
-            12), POSTPROCESSOR_ERROR(13), RESPONSE_ERROR(14);
+            7), PROCESSED_RESPONSE(8), CONNECTOR_MAP(9), CHANNEL_MAP(10), RESPONSE_MAP(
+            11), PROCESSING_ERROR(12), POSTPROCESSOR_ERROR(13), RESPONSE_ERROR(
+            14);
 
     private static int PROCESSING_ERROR_CODE = 1 << 0;
     private static int POSTPROCESSOR_ERROR_CODE = 1 << 1;
@@ -25,14 +33,25 @@ public enum ContentType {
         this.contentType = contentType;
     }
 
+    /**
+     * Returns the integer code associated with this content type.
+     */
     public int getContentTypeCode() {
         return contentType;
     }
 
+    @Override
     public String toString() {
         return WordUtils.capitalize(super.toString().replace('_', ' ').toLowerCase());
     }
 
+    /**
+     * Converts an integer code into the appropriate content type.
+     * 
+     * @param contentType
+     *            - The integer code representing the content type.
+     * @return The associated ContentType instance, or null if none exists.
+     */
     public static ContentType fromCode(int contentType) {
         if (contentType == ContentType.RAW.getContentTypeCode())
             return RAW;
@@ -66,21 +85,36 @@ public enum ContentType {
         return null;
     }
 
+    /**
+     * Returns an array of message-specific content types:
+     * 
+     * RAW, PROCESSED_RAW, TRANSFORMED, ENCODED, SENT, RESPONSE,
+     * RESPONSE_TRANSFORMED, PROCESSED_RESPONSE
+     */
     public static ContentType[] getMessageTypes() {
-        return new ContentType[] { RAW, PROCESSED_RAW, TRANSFORMED, ENCODED, SENT, RESPONSE,
-                RESPONSE_TRANSFORMED, PROCESSED_RESPONSE };
+        return new ContentType[] { RAW, PROCESSED_RAW, TRANSFORMED, ENCODED, SENT, RESPONSE, RESPONSE_TRANSFORMED, PROCESSED_RESPONSE };
     }
 
+    /**
+     * Returns an array of map-specific content types: CONNECTOR_MAP,
+     * CHANNEL_MAP, RESPONSE_MAP
+     */
     public static ContentType[] getMapTypes() {
         return new ContentType[] { CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP };
     }
 
+    /**
+     * Returns an array of error-specific content types: PROCESSING_ERROR,
+     * POSTPROCESSOR_ERROR, RESPONSE_ERROR
+     */
     public static ContentType[] getErrorTypes() {
         return new ContentType[] { PROCESSING_ERROR, POSTPROCESSOR_ERROR, RESPONSE_ERROR };
     }
 
     /**
-     * Return the errorCode for the content type. Error codes are powers of 2.
+     * Returns the error code for the content type, used to uniquely identify
+     * different error types in a single integer value. Error codes are powers
+     * of 2.
      */
     public int getErrorCode() {
         if (contentType == ContentType.PROCESSING_ERROR.getContentTypeCode()) {
