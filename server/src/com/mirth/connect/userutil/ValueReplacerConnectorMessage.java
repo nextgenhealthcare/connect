@@ -17,54 +17,112 @@ import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.util.DefaultMetaData;
 
+/**
+ * This class represents a connector message and is used to retrieve details
+ * such as the message ID, metadata ID, status, and various content types.
+ */
 public class ValueReplacerConnectorMessage {
     private Logger logger = Logger.getLogger(getClass());
     private ImmutableConnectorMessage connectorMessage;
 
+    /**
+     * Instantiates an ValueReplacerConnectorMessage.
+     * 
+     * @param connectorMessage
+     *            - The connector message that this object will reference for
+     *            retrieving data.
+     */
     public ValueReplacerConnectorMessage(ImmutableConnectorMessage connectorMessage) {
         this.connectorMessage = connectorMessage;
     }
 
+    /**
+     * Returns the metadata ID of this connector message. Note that the source
+     * connector has a metadata ID of 0.
+     */
     public int getMetaDataId() {
         return connectorMessage.getMetaDataId();
     }
 
+    /**
+     * Returns the ID of the channel associated with this connector message.
+     */
     public String getChannelId() {
         return connectorMessage.getChannelId();
     }
 
+    /**
+     * Returns the name of the connector associated with this connector message.
+     */
     public String getConnectorName() {
         return connectorMessage.getConnectorName();
     }
 
+    /**
+     * Returns the ID of the server associated with this connector message.
+     */
     public String getServerId() {
         return connectorMessage.getServerId();
     }
 
+    /**
+     * Returns the date/time that this connector message was created by the
+     * channel.
+     */
     public Calendar getReceivedDate() {
         return connectorMessage.getReceivedDate();
     }
 
+    /**
+     * Returns the status (e.g. SENT) of this connector message.
+     */
     public Status getStatus() {
         return connectorMessage.getStatus();
     }
 
+    /**
+     * Retrieves raw content associated with this connector message.
+     * 
+     * @return The raw content, as a string.
+     */
     public String getRawData() {
         return connectorMessage.getRawData();
     }
 
+    /**
+     * Retrieves transformed content associated with this connector message.
+     * 
+     * @return The transformed content, as a string.
+     */
     public String getTransformedData() {
         return connectorMessage.getTransformedData();
     }
 
+    /**
+     * Retrieves encoded content associated with this connector message.
+     * 
+     * @return The encoded content, as a string.
+     */
     public String getEncodedData() {
         return connectorMessage.getEncodedData();
     }
 
+    /**
+     * Returns the sequential ID of the overall Message associated with this
+     * connector message.
+     */
     public long getMessageId() {
         return connectorMessage.getMessageId();
     }
 
+    /**
+     * <b>This method is deprecated and will soon be removed. Please use
+     * getMessageId() instead.</b><br/>
+     * <br/>
+     * 
+     * Returns the sequential ID of the overall Message associated with this
+     * connector message.
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public long getId() {
@@ -72,6 +130,14 @@ public class ValueReplacerConnectorMessage {
         return connectorMessage.getMessageId();
     }
 
+    /**
+     * <b>This method is deprecated and will soon be removed. Please use the
+     * {@value com.mirth.connect.model.util.DefaultMetaData#SOURCE_VARIABLE_MAPPING}
+     * variable in the connector map instead.</b><br/>
+     * <br/>
+     * 
+     * Returns the source of the message (dependent on the inbound data type).
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public String getSource() {
@@ -80,6 +146,14 @@ public class ValueReplacerConnectorMessage {
         return source != null ? source.toString() : "";
     }
 
+    /**
+     * <b>This method is deprecated and will soon be removed. Please use the
+     * {@value com.mirth.connect.model.util.DefaultMetaData#TYPE_VARIABLE_MAPPING}
+     * variable in the connector map instead.</b><br/>
+     * <br/>
+     * 
+     * Returns the type of the message (dependent on the inbound data type).
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public String getType() {
@@ -88,6 +162,14 @@ public class ValueReplacerConnectorMessage {
         return type != null ? type.toString() : "";
     }
 
+    /**
+     * <b>This method is deprecated and will soon be removed. Please use the
+     * {@value com.mirth.connect.model.util.DefaultMetaData#VERSION_VARIABLE_MAPPING}
+     * variable in the connector map instead.</b><br/>
+     * <br/>
+     * 
+     * Returns the version of the message (dependent on the inbound data type).
+     */
     @Deprecated
     // TODO: Remove in 3.1
     public String getVersion() {
@@ -96,6 +178,7 @@ public class ValueReplacerConnectorMessage {
         return version != null ? version.toString() : "";
     }
 
+    @Override
     public String toString() {
         return connectorMessage.toString();
     }

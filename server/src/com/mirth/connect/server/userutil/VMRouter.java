@@ -19,6 +19,9 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
+/**
+ * Utility class used to dispatch messages to channels.
+ */
 public class VMRouter {
     private Logger logger = Logger.getLogger(getClass());
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
