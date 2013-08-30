@@ -266,9 +266,9 @@ public class DICOMUtil {
      */
     @Deprecated
     // TODO: Remove in 3.1
-    public static String convertDICOM(String imageType, MessageObject message) {
+    public static String convertDICOM(String imageType, MessageObject messageObject) {
         logger.error("The convertDICOM(imageType, messageObject) method is deprecated and will soon be removed. Please use convertDICOM(imageType, connectorMessage) instead.");
-        return com.mirth.connect.server.util.DICOMMessageUtil.convertDICOM(imageType, message.getImmutableConnectorMessage(), 1, false);
+        return com.mirth.connect.server.util.DICOMMessageUtil.convertDICOM(imageType, messageObject.getImmutableConnectorMessage(), 1, false);
     }
 
     /**
