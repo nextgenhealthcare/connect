@@ -281,7 +281,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                     nextMessage.setRaw(new MessageContent(message.getChannelId(), message.getMessageId(), nextMetaDataId, ContentType.RAW, message.getRaw().getContent(), nextDestinationConnector.getInboundDataType().getType(), message.getRaw().isEncrypted()));
 
                     ThreadUtils.checkInterruptedStatus();
-                    dao.insertConnectorMessage(nextMessage, storageSettings.isStoreMaps());
+                    dao.insertConnectorMessage(nextMessage, storageSettings.isStoreMaps(), true);
                 }
 
                 ThreadUtils.checkInterruptedStatus();

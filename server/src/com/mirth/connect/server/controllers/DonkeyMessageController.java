@@ -369,9 +369,11 @@ public class DonkeyMessageController extends MessageController {
         Map<String, Object> params = getParameters(filter, channelId, null, null);
         params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
 
-        List<Long> messageIds = SqlConfig.getSqlSessionManager().selectList("Message.selectMessageIdsForReprocessing", params);
+        List<Map<String, Object>> results = SqlConfig.getSqlSessionManager().selectList("Message.selectMessageIdsForReprocessing", params);
 
-        for (Long messageId : messageIds) {
+        for (Map<String, Object> result : results) {
+            Long messageId = (Long) result.get("id");
+            Long importId = (Long) result.get("import_id");
             params.put("messageId", messageId);
             MessageContent rawContent = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageForReprocessing", params);
 
@@ -396,6 +398,7 @@ public class DonkeyMessageController extends MessageController {
                 }
 
                 rawMessage.setOverwrite(replace);
+                rawMessage.setImported(importId != null);
                 rawMessage.setOriginalMessageId(messageId);
 
                 rawMessage.setDestinationMetaDataIds(reprocessMetaDataIds);

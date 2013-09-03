@@ -478,7 +478,7 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
-    public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps) {
+    public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps, boolean updateStats) {
         logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": inserting connector message with" + (storeMaps ? "" : "out") + " maps");
 
         try {
@@ -520,7 +520,9 @@ public class JdbcDao implements DonkeyDao {
 
             updateErrors(connectorMessage);
 
-            transactionStats.update(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), connectorMessage.getStatus(), null);
+            if (updateStats) {
+                transactionStats.update(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), connectorMessage.getStatus(), null);
+            }
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         }

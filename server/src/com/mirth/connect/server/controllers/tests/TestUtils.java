@@ -372,7 +372,7 @@ public class TestUtils {
         ConnectorMessage sourceMessage = message.getConnectorMessages().get(0);
 
         dao.insertMessage(message);
-        dao.insertConnectorMessage(sourceMessage, true);
+        dao.insertConnectorMessage(sourceMessage, true, true);
         dao.insertMessageContent(sourceMessage.getRaw());
         return message;
     }
@@ -566,7 +566,7 @@ public class TestUtils {
         }
 
         for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
-            dao.insertConnectorMessage(connectorMessage, true);
+            dao.insertConnectorMessage(connectorMessage, true, true);
 
             for (ContentType contentType : ContentType.getMessageTypes()) {
                 MessageContent messageContent = connectorMessage.getMessageContent(contentType);

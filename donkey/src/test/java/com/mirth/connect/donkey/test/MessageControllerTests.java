@@ -153,7 +153,7 @@ public class MessageControllerTests {
             message.getConnectorMessages().put(0, sourceMessage);
             
             dao.insertMessage(message);
-            dao.insertConnectorMessage(sourceMessage, true);
+            dao.insertConnectorMessage(sourceMessage, true, true);
             dao.insertMessageContent(sourceMessage.getRaw());
             dao.commit();
         } finally {

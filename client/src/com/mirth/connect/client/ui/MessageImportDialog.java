@@ -21,6 +21,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JSeparator;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -53,6 +54,7 @@ public class MessageImportDialog extends JDialog {
     private JLabel fileLabel = new JLabel("File/Folder/Archive:");
     private MirthTextField fileTextField = new MirthTextField();
     private MirthCheckBox subfoldersCheckbox = new MirthCheckBox("Include Sub-folders");
+    private JLabel noteLabel = new JLabel("<html><i>Note: RECEIVED, QUEUED, or PENDING messages will be set to ERROR upon import.</i></html>");
     private MirthButton importButton = new MirthButton("Import");
     private MirthButton cancelButton = new MirthButton("Cancel");
 
@@ -61,13 +63,12 @@ public class MessageImportDialog extends JDialog {
         userPreferences = Frame.userPreferences;
 
         setTitle("Import Messages");
-        setSize(700, 138);
         setBackground(new Color(255, 255, 255));
         setLocationRelativeTo(null);
         setModal(true);
-        setResizable(false);
         initComponents();
         initLayout();
+        pack();
     }
 
     public void setChannelId(String channelId) {
@@ -164,7 +165,7 @@ public class MessageImportDialog extends JDialog {
     }
 
     private void initLayout() {
-        setLayout(new MigLayout("insets 12, wrap, fillx", "[right]12[left, grow]", ""));
+        setLayout(new MigLayout("insets 12, wrap", "[right]4[left, grow]", ""));
 
         add(importFromLabel);
         add(importServerRadio, "split 3");
@@ -176,8 +177,10 @@ public class MessageImportDialog extends JDialog {
 
         add(subfoldersCheckbox, "skip");
 
-        add(importButton, "skip, split 2, alignx right, width 70");
-        add(cancelButton, "width 70");
+        add(noteLabel, "skip, grow, pushy, wrap push");
+        add(new JSeparator(), "grow, gaptop 6, span");
+        add(importButton, "skip, split 2, gaptop 4, alignx right, width 60");
+        add(cancelButton, "width 60");
     }
 
     private void importMessages() {

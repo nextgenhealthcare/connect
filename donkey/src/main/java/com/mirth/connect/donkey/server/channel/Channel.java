@@ -999,7 +999,9 @@ public class Channel implements Startable, Stoppable, Runnable {
             }
 
             metaDataIds.add(0);
-            dao.deleteMessageStatistics(channelId, messageId, metaDataIds);
+            if (!rawMessage.isImported()) {
+                dao.deleteMessageStatistics(channelId, messageId, metaDataIds);
+            }
             dao.deleteMessageAttachments(channelId, messageId);
             dao.deleteConnectorMessages(channelId, messageId, metaDataIds);
             dao.resetMessage(channelId, messageId);
@@ -1085,7 +1087,7 @@ public class Channel implements Startable, Stoppable, Runnable {
          * be persisted even if map storage is disabled. The only map that can be utilized at this
          * point is the channel map, therefore we can simply tell the Dao to store all maps.
          */
-        dao.insertConnectorMessage(sourceMessage, storageSettings.isStoreMaps() || storageSettings.isRawDurable());
+        dao.insertConnectorMessage(sourceMessage, storageSettings.isStoreMaps() || storageSettings.isRawDurable(), true);
 
         if (storageSettings.isStoreRaw()) {
             ThreadUtils.checkInterruptedStatus();
@@ -1301,7 +1303,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     message.setRaw(raw);
 
                     // store the new message, but we don't need to store the content because we will reference the source's encoded content
-                    dao.insertConnectorMessage(message, storageSettings.isStoreMaps());
+                    dao.insertConnectorMessage(message, storageSettings.isStoreMaps(), true);
 
                     destinationMessages.put(metaDataId, message);
                 }
@@ -1545,6 +1547,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         message.setMessageId(messageId);
         message.setChannelId(channelId);
         message.setServerId(serverId);
+        message.setProcessed(true);
 
         dao.insertMessage(message);
 
@@ -1553,9 +1556,15 @@ public class Channel implements Startable, Stoppable, Runnable {
             connectorMessage.setChannelId(channelId);
             connectorMessage.setServerId(serverId);
 
+            Status status = connectorMessage.getStatus();
+            // If the message was exported and does not have a final status, set the status to error so it does not get picked up by the channel's queues or recovery
+            if (status != Status.FILTERED && status != Status.TRANSFORMED && status != Status.SENT && status != Status.ERROR) {
+                connectorMessage.setStatus(Status.ERROR);
+            }
+
             int metaDataId = connectorMessage.getMetaDataId();
 
-            dao.insertConnectorMessage(connectorMessage, true);
+            dao.insertConnectorMessage(connectorMessage, true, false);
 
             if (!connectorMessage.getMetaDataMap().isEmpty()) {
                 dao.insertMetaData(connectorMessage, metaDataColumns);

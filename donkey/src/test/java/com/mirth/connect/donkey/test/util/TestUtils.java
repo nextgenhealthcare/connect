@@ -1177,7 +1177,7 @@ public class TestUtils {
             message.getConnectorMessages().put(0, sourceMessage);
 
             dao.insertMessage(message);
-            dao.insertConnectorMessage(sourceMessage, true);
+            dao.insertConnectorMessage(sourceMessage, true, true);
             dao.insertMessageContent(sourceMessage.getRaw());
             dao.commit();
         } finally {
@@ -1195,7 +1195,7 @@ public class TestUtils {
         
         try {
             dao = daoFactory.getDao();
-            dao.insertConnectorMessage(connectorMessage, false);
+            dao.insertConnectorMessage(connectorMessage, false, true);
             dao.insertMessageContent(connectorMessage.getRaw());
             dao.commit();
         } finally {
@@ -1500,7 +1500,7 @@ public class TestUtils {
         }
 
         for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
-            dao.insertConnectorMessage(connectorMessage, true);
+            dao.insertConnectorMessage(connectorMessage, true, true);
 
             for (ContentType contentType : ContentType.getMessageTypes()) {
                 MessageContent messageContent = connectorMessage.getMessageContent(contentType);

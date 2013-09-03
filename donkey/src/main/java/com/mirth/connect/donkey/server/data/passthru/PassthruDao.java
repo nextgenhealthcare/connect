@@ -123,8 +123,10 @@ public class PassthruDao implements DonkeyDao {
     }
 
     @Override
-    public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps) {
-        transactionStats.update(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), connectorMessage.getStatus(), null);
+    public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps, boolean updateStats) {
+        if (updateStats) {
+            transactionStats.update(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), connectorMessage.getStatus(), null);
+        }
     }
 
     @Override

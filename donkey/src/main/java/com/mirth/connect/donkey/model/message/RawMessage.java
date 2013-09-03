@@ -17,6 +17,7 @@ import com.mirth.connect.donkey.server.Constants;
 
 public class RawMessage {
     private boolean overwrite;
+    private boolean imported;
     private Long originalMessageId;
     private String rawData;
     private byte[] rawBytes;
@@ -67,6 +68,14 @@ public class RawMessage {
 
     public void setOverwrite(boolean overwrite) {
         this.overwrite = overwrite;
+    }
+
+    public boolean isImported() {
+        return imported;
+    }
+
+    public void setImported(boolean imported) {
+        this.imported = imported;
     }
 
     public Long getOriginalMessageId() {

@@ -16,6 +16,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JSeparator;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -51,12 +52,12 @@ public class MessageExportDialog extends JDialog {
         messageExportPanel.setExportLocal(true);
 
         setTitle("Export Results");
-        setSize(800, 300);
         setBackground(new Color(255, 255, 255));
         setLocationRelativeTo(null);
         setModal(true);
         initComponents();
         initLayout();
+        pack();
     }
 
     public void setChannelId(String channelId) {
@@ -106,8 +107,9 @@ public class MessageExportDialog extends JDialog {
         setLayout(new MigLayout("insets 12, wrap", "[]", "[fill][]"));
 
         add(messageExportPanel, "grow,push");
-        add(exportButton, "split 2, alignx right, width 70");
-        add(cancelButton, "width 70");
+        add(new JSeparator(), "grow, gaptop 4, span");
+        add(exportButton, "split 2, gaptop 4, alignx right, width 60");
+        add(cancelButton, "width 60");
     }
 
     private void export() {

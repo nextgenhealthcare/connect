@@ -201,7 +201,7 @@
 	</query>
 	
 	<query id="resetMessage">
-		UPDATE D_M${localChannelId} SET PROCESSED = 0
+		UPDATE D_M${localChannelId} SET PROCESSED = 0, IMPORT_ID = NULL, IMPORT_CHANNEL_ID = NULL
 		WHERE ID = ?
 	</query>
 	

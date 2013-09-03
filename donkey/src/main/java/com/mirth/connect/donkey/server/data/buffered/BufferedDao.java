@@ -94,7 +94,7 @@ public class BufferedDao implements DonkeyDao {
                 // @formatter:off
                 switch (task.getTaskType()) {
                     case INSERT_MESSAGE: dao.insertMessage((Message) p[0]); break;
-                    case INSERT_CONNECTOR_MESSAGE: dao.insertConnectorMessage((ConnectorMessage) p[0], (Boolean) p[1]); break;
+                    case INSERT_CONNECTOR_MESSAGE: dao.insertConnectorMessage((ConnectorMessage) p[0], (Boolean) p[1], (Boolean) p[2]); break;
                     case INSERT_MESSAGE_CONTENT: dao.insertMessageContent((MessageContent) p[0]); break;
                     case BATCH_INSERT_MESSAGE_CONTENT: dao.batchInsertMessageContent((MessageContent) p[0]); break;
                     case EXECUTE_BATCH_INSERT_MESSAGE_CONTENT: dao.executeBatchInsertMessageContent((String) p[0]); break;
@@ -158,9 +158,9 @@ public class BufferedDao implements DonkeyDao {
     }
 
     @Override
-    public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps) {
+    public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps, boolean updateStats) {
         tasks.add(new DaoTask(DaoTaskType.INSERT_CONNECTOR_MESSAGE, new Object[] {
-                connectorMessage, storeMaps }));
+                connectorMessage, storeMaps, updateStats }));
     }
 
     @Override

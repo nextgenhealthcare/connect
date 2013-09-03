@@ -24,7 +24,7 @@ import com.mirth.connect.donkey.server.channel.Statistics;
 public interface DonkeyDao {
     public void insertMessage(Message message);
 
-    public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps);
+    public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps, boolean updateStats);
 
     public void insertMessageContent(MessageContent messageContent);
 

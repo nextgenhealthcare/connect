@@ -95,11 +95,11 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps) {
+    public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps, boolean updateStats) {
         long startTime = System.currentTimeMillis();
 
         try {
-            dao.insertConnectorMessage(connectorMessage, storeMaps);
+            dao.insertConnectorMessage(connectorMessage, storeMaps, updateStats);
         } finally {
             timer.log("insertConnectorMessage", System.currentTimeMillis() - startTime);
         }

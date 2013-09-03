@@ -209,7 +209,7 @@ public class DonkeyDaoTests {
                 
                 try {
                     dao = daoFactory.getDao();
-                    dao.insertConnectorMessage(connectorMessage, true);
+                    dao.insertConnectorMessage(connectorMessage, true, true);
                     dao.commit();
                 } finally {
                     TestUtils.close(dao);

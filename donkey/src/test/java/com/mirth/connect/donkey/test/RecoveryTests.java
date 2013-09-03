@@ -302,7 +302,7 @@ public class RecoveryTests {
 
         ConnectorMessage destinationMessage = new ConnectorMessage(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, sourceMessage.getServerId(), Calendar.getInstance(), status);
         destinationMessage.setChannelMap(sourceMessage.getChannelMap());
-        dao.insertConnectorMessage(destinationMessage, true);
+        dao.insertConnectorMessage(destinationMessage, true, true);
 
         destinationMessage.setMessageContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.RAW, sourceMessage.getEncoded().getContent(), null, false));
         destinationMessage.setMessageContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.PROCESSED_RAW, sourceMessage.getEncoded().getContent(), null, false));

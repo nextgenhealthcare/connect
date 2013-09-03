@@ -80,7 +80,7 @@
 	</query>
 	
 	<query id="resetMessage">
-		UPDATE D_M${localChannelId} SET PROCESSED = FALSE
+		UPDATE D_M${localChannelId} SET PROCESSED = FALSE, IMPORT_ID = NULL, IMPORT_CHANNEL_ID = NULL
 		WHERE ID = ?
 	</query>
 	

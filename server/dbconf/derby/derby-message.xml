@@ -57,6 +57,11 @@
 		<result property="import_id" column="IMPORT_ID" javaType="Long" />
 		<result property="import_channel_id" column="IMPORT_CHANNEL_ID" javaType="String" />
 	</resultMap>
+	
+	<resultMap id="reprocess-map" type="map">
+		<result property="id" column="ID" javaType="Long" />
+		<result property="import_id" column="IMPORT_ID" javaType="Long" />
+	</resultMap>
 
 	<select id="searchMessages" parameterType="map" resultMap="messageSearchResult">
 		SELECT 
@@ -98,8 +103,8 @@
 		) AS SUBQUERY
 	</select>
 	
-	<select id="selectMessageIdsForReprocessing" parameterType="map" resultType="long">
-		SELECT DISTINCT M.ID
+	<select id="selectMessageIdsForReprocessing" parameterType="map" resultMap="reprocess-map">
+		SELECT DISTINCT M.ID, M.IMPORT_ID
 		<include refid="searchMessagesBody" />
 		ORDER BY M.ID ASC
 	</select>
