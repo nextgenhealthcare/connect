@@ -35,8 +35,8 @@ public class SerializerFactory {
      * default values.
      * 
      * @param dataType
-     *            - The plugin point (e.g. "HL7V2") of the data type to create
-     *            the serializer for.
+     *            The plugin point (e.g. "HL7V2") of the data type to create the
+     *            serializer for.
      * @return The instantiated IXMLSerializer object.
      */
     public static IXMLSerializer getSerializer(String dataType) {
@@ -48,14 +48,14 @@ public class SerializerFactory {
      * type and properties.
      * 
      * @param dataType
-     *            - The plugin point (e.g. "HL7V2") of the data type to create
-     *            the serializer for.
+     *            The plugin point (e.g. "HL7V2") of the data type to create the
+     *            serializer for.
      * @param serializationPropertiesMap
-     *            - A Map of properties used to customize how serialization from
+     *            A Map of properties used to customize how serialization from
      *            the data type to XML is performed.
      * @param deserializationPropertiesMap
-     *            - A Map of properties used to customize how deserialization
-     *            from XML to the data type is performed.
+     *            A Map of properties used to customize how deserialization from
+     *            XML to the data type is performed.
      * @return The instantiated IXMLSerializer object.
      */
     public static IXMLSerializer getSerializer(String dataType, Map<String, Object> serializationPropertiesMap, Map<String, Object> deserializationPropertiesMap) {
@@ -142,34 +142,31 @@ public class SerializerFactory {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * getSerializer(dataType, serializationPropertiesMap,
-     * deserializationPropertiesMap) instead. The new method will now strip
-     * namespaces by default unless the 'stripNamespaces' property is set to
-     * false.</b><br/>
-     * <br/>
-     * 
      * Returns an HL7 v2.x serializer.
      * 
      * @param useStrictParser
-     *            - If true, messages will be parsed based upon strict HL7
+     *            If true, messages will be parsed based upon strict HL7
      *            specifications.
      * @param useStrictValidation
-     *            - If true, messages will be validated using HL7 specifications
+     *            If true, messages will be validated using HL7 specifications
      *            (applies to Strict Parser only).
      * @param handleRepetitions
-     *            - If true, field repetitions will be parsed (applies to
+     *            If true, field repetitions will be parsed (applies to
      *            Non-Strict Parser only).
      * @param convertLFtoCR
-     *            - If true, line feeds (\n) will be converted to carriage
-     *            returns (\r) automatically (applies to Non-Strict Parser
-     *            only).
+     *            If true, line feeds (\n) will be converted to carriage returns
+     *            (\r) automatically (applies to Non-Strict Parser only).
      * @param handleSubcomponents
-     *            - If true, subcomponents will be parsed (applies to Non-Strict
+     *            If true, subcomponents will be parsed (applies to Non-Strict
      *            Parser only).
      * @return The instantiated IXMLSerializer object.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use getSerializer(dataType, serializationPropertiesMap,
+     *             deserializationPropertiesMap) instead. The new method will
+     *             now strip namespaces by default unless the 'stripNamespaces'
+     *             property is set to false.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR, boolean handleSubcomponents) {
         logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, handleSubcomponents) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
@@ -177,31 +174,28 @@ public class SerializerFactory {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * getSerializer(dataType, serializationPropertiesMap,
-     * deserializationPropertiesMap) instead. The new method will now strip
-     * namespaces by default unless the 'stripNamespaces' property is set to
-     * false.</b><br/>
-     * <br/>
-     * 
      * Returns an HL7 v2.x serializer.
      * 
      * @param useStrictParser
-     *            - If true, messages will be parsed based upon strict HL7
+     *            If true, messages will be parsed based upon strict HL7
      *            specifications.
      * @param useStrictValidation
-     *            - If true, messages will be validated using HL7 specifications
+     *            If true, messages will be validated using HL7 specifications
      *            (applies to Strict Parser only).
      * @param handleRepetitions
-     *            - If true, field repetitions will be parsed (applies to
+     *            If true, field repetitions will be parsed (applies to
      *            Non-Strict Parser only).
      * @param convertLFtoCR
-     *            - If true, line feeds (\n) will be converted to carriage
-     *            returns (\r) automatically (applies to Non-Strict Parser
-     *            only).
+     *            If true, line feeds (\n) will be converted to carriage returns
+     *            (\r) automatically (applies to Non-Strict Parser only).
      * @return The instantiated IXMLSerializer object.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use getSerializer(dataType, serializationPropertiesMap,
+     *             deserializationPropertiesMap) instead. The new method will
+     *             now strip namespaces by default unless the 'stripNamespaces'
+     *             property is set to false.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR) {
         logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
@@ -209,27 +203,25 @@ public class SerializerFactory {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * getSerializer(dataType, serializationPropertiesMap,
-     * deserializationPropertiesMap) instead. The new method will now strip
-     * namespaces by default unless the 'stripNamespaces' property is set to
-     * false.</b><br/>
-     * <br/>
-     * 
      * Returns an HL7 v2.x serializer.
      * 
      * @param useStrictParser
-     *            - If true, messages will be parsed based upon strict HL7
+     *            If true, messages will be parsed based upon strict HL7
      *            specifications.
      * @param useStrictValidation
-     *            - If true, messages will be validated using HL7 specifications
+     *            If true, messages will be validated using HL7 specifications
      *            (applies to Strict Parser only).
      * @param handleRepetitions
-     *            - If true, field repetitions will be parsed (applies to
+     *            If true, field repetitions will be parsed (applies to
      *            Non-Strict Parser only).
      * @return The instantiated IXMLSerializer object.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use getSerializer(dataType, serializationPropertiesMap,
+     *             deserializationPropertiesMap) instead. The new method will
+     *             now strip namespaces by default unless the 'stripNamespaces'
+     *             property is set to false.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions) {
         logger.error("The getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
@@ -237,24 +229,22 @@ public class SerializerFactory {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * getSerializer(dataType, serializationPropertiesMap,
-     * deserializationPropertiesMap) instead. The new method will now strip
-     * namespaces by default unless the 'stripNamespaces' property is set to
-     * false.</b><br/>
-     * <br/>
-     * 
      * Returns an HL7 v2.x serializer.
      * 
      * @param useStrictParser
-     *            - If true, messages will be parsed based upon strict HL7
+     *            If true, messages will be parsed based upon strict HL7
      *            specifications.
      * @param useStrictValidation
-     *            - If true, messages will be validated using HL7 specifications
+     *            If true, messages will be validated using HL7 specifications
      *            (applies to Strict Parser only).
      * @return The instantiated IXMLSerializer object.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use getSerializer(dataType, serializationPropertiesMap,
+     *             deserializationPropertiesMap) instead. The new method will
+     *             now strip namespaces by default unless the 'stripNamespaces'
+     *             property is set to false.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation) {
         logger.error("The getHL7Serializer(useStrictParser, useStrictValidation) method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
@@ -262,18 +252,16 @@ public class SerializerFactory {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * getSerializer(dataType, serializationPropertiesMap,
-     * deserializationPropertiesMap) instead. The new method will now strip
-     * namespaces by default unless the 'stripNamespaces' property is set to
-     * false.</b><br/>
-     * <br/>
-     * 
      * Returns an HL7 v2.x serializer.
      * 
      * @return The instantiated IXMLSerializer object.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use getSerializer(dataType, serializationPropertiesMap,
+     *             deserializationPropertiesMap) instead. The new method will
+     *             now strip namespaces by default unless the 'stripNamespaces'
+     *             property is set to false.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getHL7Serializer() {
         logger.error("The getHL7Serializer() method is deprecated and will soon be removed. Please use the \"Convert HL7 v2.x\" templates from the References tab instead. Look at the tooltips to see the available property keys. The new method will strip namespaces by default unless the 'stripNamespaces' property is set to false.");
@@ -281,20 +269,18 @@ public class SerializerFactory {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * getSerializer(dataType, serializationPropertiesMap,
-     * deserializationPropertiesMap) instead.</b><br/>
-     * <br/>
-     * 
      * Returns an EDI / X12 serializer.
      * 
      * @param inferDelimiters
-     *            - This property only applies to X12 messages. If checked, the
+     *            This property only applies to X12 messages. If checked, the
      *            delimiters are inferred from the incoming message and the
      *            delimiter properties will not be used.
      * @return The instantiated IXMLSerializer object.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use getSerializer(dataType, serializationPropertiesMap,
+     *             deserializationPropertiesMap) instead.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getX12Serializer(boolean inferDelimiters) {
         logger.error("The getX12Serializer(inferDelimiters) method is deprecated and will soon be removed. Please use the \"Convert EDI / X12\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
@@ -307,22 +293,20 @@ public class SerializerFactory {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * getSerializer(dataType, serializationPropertiesMap,
-     * deserializationPropertiesMap) instead.</b><br/>
-     * <br/>
-     * 
      * Returns an EDI / X12 serializer.
      * 
      * @param segmentDelim
-     *            - Characters that delimit the segments in the message.
+     *            Characters that delimit the segments in the message.
      * @param elementDelim
-     *            - Characters that delimit the elements in the message.
+     *            Characters that delimit the elements in the message.
      * @param subelementDelim
-     *            - Characters that delimit the subelements in the message.
+     *            Characters that delimit the subelements in the message.
      * @return The instantiated IXMLSerializer object.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use getSerializer(dataType, serializationPropertiesMap,
+     *             deserializationPropertiesMap) instead.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getEDISerializer(String segmentDelim, String elementDelim, String subelementDelim) {
         logger.error("The getEDISerializer(segmentDelim, elementDelim, subelementDelim) method is deprecated and will soon be removed. Please use the \"Convert EDI / X12\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
@@ -356,24 +340,22 @@ public class SerializerFactory {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * getSerializer(dataType, serializationPropertiesMap,
-     * deserializationPropertiesMap) instead.</b><br/>
-     * <br/>
-     * 
      * Returns an NCPDP serializer.
      * 
      * @param segmentDelim
-     *            - Characters that delimit the segments in the message.
+     *            Characters that delimit the segments in the message.
      * @param groupDelim
-     *            - Characters that delimit the groups in the message.
+     *            Characters that delimit the groups in the message.
      * @param fieldDelim
-     *            - Characters that delimit the fields in the message.
+     *            Characters that delimit the fields in the message.
      * @param useStrictValidation
-     *            - Validates the NCPDP message against a schema.
+     *            Validates the NCPDP message against a schema.
      * @return The instantiated IXMLSerializer object.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use getSerializer(dataType, serializationPropertiesMap,
+     *             deserializationPropertiesMap) instead.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim, boolean useStrictValidation) {
         logger.error("The getNCPDPSerializer(segmentDelim, groupDelim, fieldDelim, useStrictValidation) method is deprecated and will soon be removed. Please use the \"Convert NCPDP\" templates from the References tab instead. Look at the tooltips to see the available property keys.");
@@ -381,22 +363,20 @@ public class SerializerFactory {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * getSerializer(dataType, serializationPropertiesMap,
-     * deserializationPropertiesMap) instead.</b><br/>
-     * <br/>
-     * 
      * Returns an NCPDP serializer.
      * 
      * @param segmentDelim
-     *            - Characters that delimit the segments in the message.
+     *            Characters that delimit the segments in the message.
      * @param groupDelim
-     *            - Characters that delimit the groups in the message.
+     *            Characters that delimit the groups in the message.
      * @param fieldDelim
-     *            - Characters that delimit the fields in the message.
+     *            Characters that delimit the fields in the message.
      * @return The instantiated IXMLSerializer object.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use getSerializer(dataType, serializationPropertiesMap,
+     *             deserializationPropertiesMap) instead.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public static IXMLSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim) {
         logger.error("The getNCPDPSerializer(segmentDelim, groupDelim, fieldDelim) method is deprecated and will soon be removed. Please use the \"Convert NCPDP\" templates from the References tab instead. Look at the tooltips to see the available property keys.");

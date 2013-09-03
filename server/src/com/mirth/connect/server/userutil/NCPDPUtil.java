@@ -21,9 +21,9 @@ public class NCPDPUtil {
      * appropriate decimal value.
      * 
      * @param origNumber
-     *            - The signed overpunch code to convert.
+     *            The signed overpunch code to convert.
      * @param decimalPoints
-     *            - The index at which to place a decimal point in the converted
+     *            The index at which to place a decimal point in the converted
      *            string. If this value is less than or equal to zero, or
      *            greater than or equal to the length of the overpunch code, a
      *            decimal point will not be inserted.

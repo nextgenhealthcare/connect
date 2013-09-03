@@ -49,7 +49,7 @@ public enum ContentType {
      * Converts an integer code into the appropriate content type.
      * 
      * @param contentType
-     *            - The integer code representing the content type.
+     *            The integer code representing the content type.
      * @return The associated ContentType instance, or null if none exists.
      */
     public static ContentType fromCode(int contentType) {

@@ -35,15 +35,15 @@ public class AttachmentUtil {
      * message as a byte array.
      * 
      * @param raw
-     *            - The message string to re-attach attachments to.
+     *            The message string to re-attach attachments to.
      * @param connectorMessage
-     *            - The connector message associated with the attachments.
+     *            The connector message associated with the attachments.
      * @param charsetEncoding
-     *            - The charset encoding to use when returning the re-attached
+     *            The charset encoding to use when returning the re-attached
      *            message
      * @param binary
-     *            - If true, the message string passed in is assumed to be
-     *            Base64 encoded.
+     *            If true, the message string passed in is assumed to be Base64
+     *            encoded.
      * @return The resulting message as a byte array, with all applicable
      *         attachment content re-inserted.
      */
@@ -52,23 +52,21 @@ public class AttachmentUtil {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * reAttachMessage(connectorMessage) instead.</b><br/>
-     * <br/>
-     * 
      * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
      * corresponding attachment content, and returns the full post-replacement
      * message.
      * 
      * @param messageObject
-     *            - The connector message associated with the attachments. The
+     *            The connector message associated with the attachments. The
      *            encoded data will be used as the raw message string to
      *            re-attach attachments to, if it exists. Otherwise, the
      *            connector message's raw data will be used.
      * @return The resulting message with all applicable attachment content
      *         re-inserted.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use reAttachMessage(connectorMessage) instead.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public static String reAttachMessage(MessageObject messageObject) {
         logger.error("The reAttachMessage(messageObject) method is deprecated and will soon be removed. Please use reAttachMessage(connectorMessage) instead.");
@@ -81,7 +79,7 @@ public class AttachmentUtil {
      * message.
      * 
      * @param connectorMessage
-     *            - The connector message associated with the attachments. The
+     *            The connector message associated with the attachments. The
      *            encoded data will be used as the raw message string to
      *            re-attach attachments to, if it exists. Otherwise, the
      *            connector message's raw data will be used.
@@ -93,22 +91,20 @@ public class AttachmentUtil {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * reAttachMessage(raw, connectorMessage) instead.</b><br/>
-     * <br/>
-     * 
      * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
      * corresponding attachment content, and returns the full post-replacement
      * message.
      * 
      * @param messageObject
-     *            - The connector message associated with the attachments. The
-     *            raw data will be used as the raw message string to re-attach
+     *            The connector message associated with the attachments. The raw
+     *            data will be used as the raw message string to re-attach
      *            attachments to.
      * @return The resulting message with all applicable attachment content
      *         re-inserted.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use reAttachMessage(raw, connectorMessage) instead.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public static String reAttachRawMessage(MessageObject messageObject) {
         logger.error("The reAttachRawMessage(messageObject) method is deprecated and will soon be removed. Please use reAttachMessage(raw, connectorMessage) instead.");
@@ -116,22 +112,20 @@ public class AttachmentUtil {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * reAttachMessage(raw, connectorMessage) instead.</b><br/>
-     * <br/>
-     * 
      * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
      * corresponding attachment content, and returns the full post-replacement
      * message.
      * 
      * @param connectorMessage
-     *            - The connector message associated with the attachments. The
-     *            raw data will be used as the raw message string to re-attach
+     *            The connector message associated with the attachments. The raw
+     *            data will be used as the raw message string to re-attach
      *            attachments to.
      * @return The resulting message with all applicable attachment content
      *         re-inserted.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use reAttachMessage(raw, connectorMessage) instead.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public static String reAttachRawMessage(ImmutableConnectorMessage connectorMessage) {
         logger.error("The reAttachRawMessage(connectorMessage) method is deprecated and will soon be removed. Please use reAttachMessage(raw, connectorMessage) instead.");
@@ -144,10 +138,10 @@ public class AttachmentUtil {
      * message.
      * 
      * @param raw
-     *            - The message string to re-attach attachments to.
+     *            The message string to re-attach attachments to.
      * @param connectorMessage
-     *            - The connector message associated with the attachments. The
-     *            raw data will be used as the raw message string to re-attach
+     *            The connector message associated with the attachments. The raw
+     *            data will be used as the raw message string to re-attach
      *            attachments to.
      * @return The resulting message with all applicable attachment content
      *         re-inserted.
@@ -157,17 +151,15 @@ public class AttachmentUtil {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * getMessageAttachments(connectorMessage) instead.</b><br/>
-     * <br/>
-     * 
      * Retrieves all attachments associated with a connector message.
      * 
      * @param messageObject
-     *            - The connector message associated with the attachments.
+     *            The connector message associated with the attachments.
      * @return A list of attachments associated with the connector message.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use getMessageAttachments(connectorMessage) instead.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public static List<Attachment> getMessageAttachments(MessageObject messageObject) throws XmlSerializerException {
         logger.error("The getMessageAttachments(messageObject) method is deprecated and will soon be removed. Please use getMessageAttachments(connectorMessage) instead.");
@@ -178,7 +170,7 @@ public class AttachmentUtil {
      * Retrieves all attachments associated with a connector message.
      * 
      * @param connectorMessage
-     *            - The connector message associated with the attachments.
+     *            The connector message associated with the attachments.
      * @return A list of attachments associated with the connector message.
      */
     public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage connectorMessage) throws XmlSerializerException {
@@ -189,11 +181,11 @@ public class AttachmentUtil {
      * Creates an Attachment and adds it to the provided list.
      * 
      * @param attachments
-     *            - The list of attachments to add to.
+     *            The list of attachments to add to.
      * @param content
-     *            - The attachment content (must be a string or byte array).
+     *            The attachment content (must be a string or byte array).
      * @param type
-     *            - The MIME type of the attachment.
+     *            The MIME type of the attachment.
      * @return The attachment added to the list.
      * @throws UnsupportedDataTypeException
      */
@@ -208,11 +200,11 @@ public class AttachmentUtil {
      * inserts it into the database.
      * 
      * @param connectorMessage
-     *            - The connector message to be associated with the attachment.
+     *            The connector message to be associated with the attachment.
      * @param content
-     *            - The attachment content (must be a string or byte array).
+     *            The attachment content (must be a string or byte array).
      * @param type
-     *            - The MIME type of the attachment.
+     *            The MIME type of the attachment.
      * @return The attachment that was created and inserted.
      * @throws UnsupportedDataTypeException
      */

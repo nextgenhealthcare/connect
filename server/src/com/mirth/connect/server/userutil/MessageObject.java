@@ -20,30 +20,27 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.util.DefaultMetaData;
 
 /**
- * <b>This class is deprecated and will soon be removed. Please refer to
- * ImmutableConnectorMessage instead.</b><br/>
- * <br/>
- * 
  * This class represents a connector message and is used to retrieve details
  * such as the message ID, metadata ID, status, and various content types.
  * 
  * @see com.mirth.connect.donkey.model.message.ImmutableConnectorMessage
+ * 
+ * @deprecated This class is deprecated and will soon be removed. Please refer
+ *             to ImmutableConnectorMessage instead.
  */
-@Deprecated
 // TODO: Remove in 3.1
 public class MessageObject {
     private Logger logger = Logger.getLogger(getClass());
     private ImmutableConnectorMessage connectorMessage;
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * Instantiates a MessageObject.
      * 
      * @param connectorMessage
-     *            - The connector message that this object will reference for
+     *            The connector message that this object will reference for
      *            retrieving data.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public MessageObject(ImmutableConnectorMessage connectorMessage) {
         this.connectorMessage = connectorMessage;
@@ -54,12 +51,12 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use the
-     * {@value com.mirth.connect.model.util.DefaultMetaData#SOURCE_VARIABLE_MAPPING}
-     * variable in the connector map instead.</b><br/>
-     * <br/>
-     * 
      * Returns the source of the message (dependent on the inbound data type).
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             the
+     *             {@value com.mirth.connect.model.util.DefaultMetaData#SOURCE_VARIABLE_MAPPING}
+     *             variable in the connector map instead.
      */
     public String getSource() {
         logger.error("The messageObject.getSource() method is deprecated and will soon be removed. Please use the \"" + DefaultMetaData.SOURCE_VARIABLE_MAPPING + "\" variable in the connector map instead.");
@@ -68,12 +65,12 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please set the
-     * {@value com.mirth.connect.model.util.DefaultMetaData#SOURCE_VARIABLE_MAPPING}
-     * variable in the connector map instead.</b><br/>
-     * <br/>
-     * 
      * Sets the source of the message.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please set
+     *             the
+     *             {@value com.mirth.connect.model.util.DefaultMetaData#SOURCE_VARIABLE_MAPPING}
+     *             variable in the connector map instead.
      */
     public void setSource(String source) {
         logger.error("The messageObject.setSource(source) method is deprecated and will soon be removed. Please set the \"" + DefaultMetaData.SOURCE_VARIABLE_MAPPING + "\" variable in the connector map instead.");
@@ -81,12 +78,12 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use the
-     * {@value com.mirth.connect.model.util.DefaultMetaData#TYPE_VARIABLE_MAPPING}
-     * variable in the connector map instead.</b><br/>
-     * <br/>
-     * 
      * Returns the type of the message (dependent on the inbound data type).
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             the
+     *             {@value com.mirth.connect.model.util.DefaultMetaData#TYPE_VARIABLE_MAPPING}
+     *             variable in the connector map instead.
      */
     public String getType() {
         logger.error("The messageObject.getType() method is deprecated and will soon be removed. Please use the \"" + DefaultMetaData.TYPE_VARIABLE_MAPPING + "\" variable in the connector map instead.");
@@ -95,12 +92,12 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please set the
-     * {@value com.mirth.connect.model.util.DefaultMetaData#TYPE_VARIABLE_MAPPING}
-     * variable in the connector map instead.</b><br/>
-     * <br/>
-     * 
      * Sets the type of the message.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please set
+     *             the
+     *             {@value com.mirth.connect.model.util.DefaultMetaData#TYPE_VARIABLE_MAPPING}
+     *             variable in the connector map instead.
      */
     public void setType(String type) {
         logger.error("The messageObject.setType(type) method is deprecated and will soon be removed. Please set the \"" + DefaultMetaData.TYPE_VARIABLE_MAPPING + "\" variable in the connector map instead.");
@@ -108,12 +105,11 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getMessageId() instead.</b><br/>
-     * <br/>
-     * 
      * Returns the sequential ID of the overall Message associated with this
      * connector message.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getMessageId() instead.
      */
     public String getId() {
         logger.error("The messageObject.getId() method is deprecated and will soon be removed. Please use connectorMessage.getMessageId() instead.");
@@ -121,22 +117,21 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setId(String id) {
         logger.error("The messageObject.setId(id) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use the
-     * {@value com.mirth.connect.model.util.DefaultMetaData#VERSION_VARIABLE_MAPPING}
-     * variable in the connector map instead.</b><br/>
-     * <br/>
-     * 
      * Returns the version of the message (dependent on the inbound data type).
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             the
+     *             {@value com.mirth.connect.model.util.DefaultMetaData#VERSION_VARIABLE_MAPPING}
+     *             variable in the connector map instead.
      */
     public String getVersion() {
         logger.error("The messageObject.getVersion() method is deprecated and will soon be removed. Please use the \"" + DefaultMetaData.VERSION_VARIABLE_MAPPING + "\" variable in the connector map instead.");
@@ -145,12 +140,12 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please set the
-     * {@value com.mirth.connect.model.util.DefaultMetaData#VERSION_VARIABLE_MAPPING}
-     * variable in the connector map instead.</b><br/>
-     * <br/>
-     * 
      * Sets the version of the message.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please set
+     *             the
+     *             {@value com.mirth.connect.model.util.DefaultMetaData#VERSION_VARIABLE_MAPPING}
+     *             variable in the connector map instead.
      */
     public void setVersion(String version) {
         logger.error("The messageObject.setVersion(version) method is deprecated and will soon be removed. Please set the \"" + DefaultMetaData.VERSION_VARIABLE_MAPPING + "\" variable in the connector map instead.");
@@ -158,11 +153,11 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getChannelId() or the variable "channelId" instead.</b><br/>
-     * <br/>
-     * 
      * Returns the ID of the channel associated with this connector message.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getChannelId() or the variable "channelId"
+     *             instead.
      */
     public String getChannelId() {
         logger.error("The messageObject.getChannelId() method is deprecated and will soon be removed. Please use connectorMessage.getChannelId() or the variable \"channelId\" instead.");
@@ -170,22 +165,20 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setChannelId(String channelId) {
         logger.error("The messageObject.setChannelId(channelId) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getStatus() instead. Note that the UNKNOWN and ACCEPTED
-     * statuses are no longer valid.</b><br/>
-     * <br/>
-     * 
      * Returns the status (e.g. SENT) of this connector message.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getStatus() instead. Note that the UNKNOWN
+     *             and ACCEPTED statuses are no longer valid.
      */
     public Status getStatus() {
         logger.error("The messageObject.getStatus() method is deprecated and will soon be removed. Please use connectorMessage.getStatus() instead. Note that the UNKNOWN and ACCEPTED statuses are no longer valid.");
@@ -193,22 +186,20 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setStatus(Status status) {
         logger.error("The messageObject.setStatus(status) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getReceivedDate() instead.</b><br/>
-     * <br/>
-     * 
      * Returns the date/time that this connector message was created by the
      * channel.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getReceivedDate() instead.
      */
     public Calendar getDateCreated() {
         logger.error("The messageObject.getDateCreated() method is deprecated and will soon be removed. Please use connectorMessage.getReceivedDate() instead.");
@@ -216,23 +207,21 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setDateCreated(Calendar dateCreated) {
         logger.error("The messageObject.setDateCreated(dateCreated) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getEncodedData() instead.</b><br/>
-     * <br/>
-     * 
      * Retrieves encoded content associated with this connector message.
      * 
      * @return The encoded content, as a string.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getEncodedData() instead.
      */
     public String getEncodedData() {
         logger.error("The messageObject.getEncodedData() method is deprecated and will soon be removed. Please use connectorMessage.getEncodedData() instead.");
@@ -240,22 +229,20 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setEncodedData(String encodedData) {
         logger.error("The messageObject.setEncodedData(encodedData) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getEncoded().getDataType() instead.</b><br/>
-     * <br/>
-     * 
      * Returns the data type (e.g. "HL7V2") of the encoded content associated
      * with this connector message.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getEncoded().getDataType() instead.
      */
     public String getEncodedDataProtocol() {
         logger.error("The messageObject.getEncodedDataProtocol() method is deprecated and will soon be removed. Please use connectorMessage.getEncoded().getDataType() instead.");
@@ -263,23 +250,21 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setEncodedDataProtocol(String encodedDataProtocol) {
         logger.error("The messageObject.setEncodedDataProtocol(encodedDataProtocol) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getRawData() instead.</b><br/>
-     * <br/>
-     * 
      * Retrieves raw content associated with this connector message.
      * 
      * @return The raw content, as a string.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getRawData() instead.
      */
     public String getRawData() {
         logger.error("The messageObject.getRawData() method is deprecated and will soon be removed. Please use connectorMessage.getRawData() instead.");
@@ -287,22 +272,20 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setRawData(String rawData) {
         logger.error("The messageObject.setRawData(rawData) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getRaw().getDataType() instead.</b><br/>
-     * <br/>
-     * 
      * Returns the data type (e.g. "HL7V2") of the raw content associated with
      * this connector message.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getRaw().getDataType() instead.
      */
     public String getRawDataProtocol() {
         logger.error("The messageObject.getRawDataProtocol() method is deprecated and will soon be removed. Please use connectorMessage.getRaw().getDataType() instead.");
@@ -310,23 +293,21 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setRawDataProtocol(String rawDataProtocol) {
         logger.error("The messageObject.setRawDataProtocol(rawDataProtocol) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getTransformedData() instead.</b><br/>
-     * <br/>
-     * 
      * Retrieves transformed content associated with this connector message.
      * 
      * @return The transformed content, as a string.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getTransformedData() instead.
      */
     public String getTransformedData() {
         logger.error("The messageObject.getTransformedData() method is deprecated and will soon be removed. Please use connectorMessage.getTransformedData() instead.");
@@ -334,22 +315,20 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setTransformedData(String transformedData) {
         logger.error("The messageObject.setTransformedData(transformedData) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getRaw().getDataType() instead.</b><br/>
-     * <br/>
-     * 
      * Returns the data type (e.g. "HL7V2") of the transformed content
      * associated with this connector message.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getRaw().getDataType() instead.
      */
     public String getTransformedDataProtocol() {
         logger.error("The messageObject.getTransformedDataProtocol() method is deprecated and will soon be removed. Please use connectorMessage.getTransformed().getDataType() instead.");
@@ -357,22 +336,20 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setTransformedDataProtocol(String transformedDataProtocol) {
         logger.error("The messageObject.setTransformedDataProtocol(transformedDataProtocol) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getConnectorMap() or the variable "connectorMap"
-     * instead.</b><br/>
-     * <br/>
-     * 
      * Returns the connector map.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getConnectorMap() or the variable
+     *             "connectorMap" instead.
      */
     public Map getConnectorMap() {
         logger.error("The messageObject.getConnectorMap() method is deprecated and will soon be removed. Please use connectorMessage.getConnectorMap() or the variable \"connectorMap\" instead.");
@@ -380,20 +357,18 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setConnectorMap(Map variableMap) {
         logger.error("The messageObject.setConnectorMap(variableMap) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method always returns false.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public boolean isEncrypted() {
         logger.error("The messageObject.isEncrypted() method is deprecated and will soon be removed. This method always returns false.");
@@ -401,22 +376,20 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setEncrypted(boolean encrypted) {
         logger.error("The messageObject.setEncrypted(encrypted) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getConnectorName() or the variable "connector"
-     * instead.</b><br/>
-     * <br/>
-     * 
      * Returns the name of the connector associated with this connector message.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getConnectorName() or the variable
+     *             "connector" instead.
      */
     public String getConnectorName() {
         logger.error("The messageObject.getConnectorName() method is deprecated and will soon be removed. Please use connectorMessage.getConnectorName() or the variable \"connector\" instead.");
@@ -424,22 +397,20 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setConnectorName(String connectorName) {
         logger.error("The messageObject.setConnectorName(connectorName) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getProcessingError() instead.</b><br/>
-     * <br/>
-     * 
      * Returns the processing error string associated with this connector
      * message, if it exists.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getProcessingError() instead.
      */
     public String getErrors() {
         logger.error("The messageObject.getErrors() method is deprecated and will soon be removed. Please use connectorMessage.getProcessingError() instead.");
@@ -447,22 +418,20 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setErrors(String errors) {
         logger.error("The messageObject.setErrors(errors) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getResponseMap() or the variable "responseMap"
-     * instead.</b><br/>
-     * <br/>
-     * 
      * Returns the response map.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getResponseMap() or the variable
+     *             "responseMap" instead.
      */
     public Map getResponseMap() {
         logger.error("The messageObject.getResponseMap() method is deprecated and will soon be removed. Please use connectorMessage.getResponseMap() or the variable \"responseMap\" instead.");
@@ -470,22 +439,20 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setResponseMap(Map responseMap) {
         logger.error("The messageObject.setResponseMap(responseMap) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getChannelMap() or the variable "channelMap"
-     * instead.</b><br/>
-     * <br/>
-     * 
      * Returns the channel map.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getChannelMap() or the variable "channelMap"
+     *             instead.
      */
     public Map getChannelMap() {
         logger.error("The messageObject.getChannelMap() method is deprecated and will soon be removed. Please use connectorMessage.getChannelMap() or the variable \"channelMap\" instead.");
@@ -493,21 +460,19 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setChannelMap(Map channelMap) {
         logger.error("The messageObject.setChannelMap(channelMap) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getServerId() instead.</b><br/>
-     * <br/>
-     * 
      * Returns the ID of the server associated with this connector message.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getServerId() instead.
      */
     public String getServerId() {
         logger.error("The messageObject.getServerId() method is deprecated and will soon be removed. Please use connectorMessage.getServerId() instead.");
@@ -515,20 +480,18 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setServerId(String serverId) {
         logger.error("The messageObject.setServerId(serverId) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method always returns false.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public boolean isAttachment() {
         logger.error("The messageObject.isAttachment() method is deprecated and will soon be removed. This method always returns false.");
@@ -536,20 +499,18 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setAttachment(boolean attachment) {
         logger.error("The messageObject.setAttachment(attachment) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method always returns null.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public Object clone() {
         logger.error("The messageObject.clone() method is deprecated and will soon be removed. This method always returns null.");
@@ -557,10 +518,9 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method always returns false.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public boolean equals(Object that) {
         logger.error("The messageObject.equals(that) method is deprecated and will soon be removed. This method always returns false.");
@@ -568,12 +528,11 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.getMessageId() instead.</b><br/>
-     * <br/>
-     * 
      * Returns the sequential ID of the overall Message associated with this
      * connector message.
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.getMessageId() instead.
      */
     public String getCorrelationId() {
         logger.error("The messageObject.getCorrelationId() method is deprecated and will soon be removed. Please use connectorMessage.getMessageId() instead.");
@@ -581,20 +540,18 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setCorrelationId(String correlationId) {
         logger.error("The messageObject.setCorrelationId(correlationId) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method always returns an empty map.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public Map<String, Object> getContext() {
         logger.error("The messageObject.getContext() method is deprecated and will soon be removed. This method always returns an empty map.");
@@ -602,23 +559,21 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed.</b><br/>
-     * <br/>
-     * 
      * This method no longer does anything.
+     * 
+     * @deprecated This class is deprecated and will soon be removed.
      */
     public void setContext(Map<String, Object> context) {
         logger.error("The messageObject.setContext(context) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.toString() instead.</b><br/>
-     * <br/>
-     * 
      * Returns a string representation of the object.
      * 
      * @see java.lang.Object#toString()
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.toString() instead.
      */
     @Override
     public String toString() {
@@ -627,13 +582,12 @@ public class MessageObject {
     }
 
     /**
-     * <b>This class is deprecated and will soon be removed. Please use
-     * connectorMessage.toString() instead.</b><br/>
-     * <br/>
-     * 
      * Returns a string representation of the object.
      * 
      * @see java.lang.Object#toString()
+     * 
+     * @deprecated This class is deprecated and will soon be removed. Please use
+     *             connectorMessage.toString() instead.
      */
     public String toAuditString() {
         logger.error("The messageObject.toAuditString() method is deprecated and will soon be removed. Please use connectorMessage.toString() instead.");

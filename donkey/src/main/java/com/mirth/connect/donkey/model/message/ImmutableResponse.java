@@ -20,7 +20,7 @@ public class ImmutableResponse {
      * Instantiates a new ImmutableResponse.
      * 
      * @param response
-     *            - The Response object that this object will reference for
+     *            The Response object that this object will reference for
      *            retrieving data.
      */
     public ImmutableResponse(Response response) {

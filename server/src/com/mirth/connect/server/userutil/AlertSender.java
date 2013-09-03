@@ -28,7 +28,7 @@ public class AlertSender {
      * Instantiates a new AlertSender.
      * 
      * @param channelId
-     *            - The ID of the channel to associate dispatched alert events
+     *            The ID of the channel to associate dispatched alert events
      *            with.
      */
     public AlertSender(String channelId) {
@@ -39,7 +39,7 @@ public class AlertSender {
      * Instantiates a new AlertSender.
      * 
      * @param connectorMessage
-     *            - The connector message to associate dispatched alert events
+     *            The connector message to associate dispatched alert events
      *            with.
      */
     public AlertSender(ImmutableConnectorMessage connectorMessage) {
@@ -52,7 +52,7 @@ public class AlertSender {
      * Dispatches an error event that can be alerted on.
      * 
      * @param errorMessage
-     *            - A custom error message to include with the error event.
+     *            A custom error message to include with the error event.
      */
     public void sendAlert(String errorMessage) {
         eventController.dispatchEvent(new ErrorEvent(channelId, metaDataId, ErrorEventType.USER_DEFINED_TRANSFORMER, connectorName, null, errorMessage, null));

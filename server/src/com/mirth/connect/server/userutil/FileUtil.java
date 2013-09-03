@@ -36,12 +36,12 @@ public class FileUtil {
      * 
      * @see org.apache.commons.io.FileUtils#writeStringToFile(File, String)
      * @param fileName
-     *            - The pathname string of the file to write to.
+     *            The pathname string of the file to write to.
      * @param append
-     *            - If true, the data will be added to the end of the file
-     *            rather than overwriting the file.
+     *            If true, the data will be added to the end of the file rather
+     *            than overwriting the file.
      * @param data
-     *            - The content to write to the file.
+     *            The content to write to the file.
      * @throws IOException
      */
     public static void write(String fileName, boolean append, String data) throws IOException {
@@ -52,8 +52,8 @@ public class FileUtil {
      * Decodes a Base64 string into octets.
      * 
      * @param data
-     *            - The Base64 string to decode.
-     * @return - The decoded data, as a byte array.s
+     *            The Base64 string to decode.
+     * @return The decoded data, as a byte array.s
      */
     public static byte[] decode(String data) {
         return Base64.decodeBase64(data.getBytes());
@@ -63,8 +63,8 @@ public class FileUtil {
      * Encoded binary data into a Base64 string.
      * 
      * @param data
-     *            - The binary data to encode (byte array).
-     * @return - The encoded Base64 string.
+     *            The binary data to encode (byte array).
+     * @return The encoded Base64 string.
      */
     public static String encode(byte[] data) {
         return new String(Base64.encodeBase64Chunked(data));
@@ -75,12 +75,12 @@ public class FileUtil {
      * 
      * @see org.apache.commons.io.FileUtils#writeByteArrayToFile(File, byte[])
      * @param fileName
-     *            - The pathname string of the file to write to.
+     *            The pathname string of the file to write to.
      * @param append
-     *            - If true, the data will be added to the end of the file
-     *            rather than overwriting the file.
+     *            If true, the data will be added to the end of the file rather
+     *            than overwriting the file.
      * @param bytes
-     *            - The binary content to write to the file.
+     *            The binary content to write to the file.
      * @throws IOException
      */
     public static void write(String fileName, boolean append, byte[] bytes) throws IOException {
@@ -92,7 +92,7 @@ public class FileUtil {
      * 
      * @see org.apache.commons.io.FileUtils#readFileToByteArray(File)
      * @param fileName
-     *            - The pathname string of the file to read from.
+     *            The pathname string of the file to read from.
      * @return The byte array representation of the file.
      * @throws IOException
      */
@@ -106,7 +106,7 @@ public class FileUtil {
      * 
      * @see org.apache.commons.io.FileUtils#readFileToString(File)
      * @param fileName
-     *            - The pathname string of the file to read from.
+     *            The pathname string of the file to read from.
      * @return The string representation of the file.
      * @throws IOException
      */
@@ -119,7 +119,7 @@ public class FileUtil {
      * File.delete() can't be called within Mirth directly.
      * 
      * @param file
-     *            - The File to delete.
+     *            The File to delete.
      * @return true if and only if the file or directory is successfully
      *         deleted; false otherwise
      * @throws SecurityException
@@ -132,11 +132,11 @@ public class FileUtil {
      * Converts an RTF into plain text using the Swing RTFEditorKit.
      * 
      * @param message
-     *            - The RTF message to convert.
+     *            The RTF message to convert.
      * @param replaceLinebreaksWith
-     *            - If not null, any line breaks in the converted message will
-     *            be replaced with this string.
-     * @return - The converted plain text message.
+     *            If not null, any line breaks in the converted message will be
+     *            replaced with this string.
+     * @return The converted plain text message.
      * @throws IOException
      * @throws BadLocationException
      */

@@ -26,7 +26,7 @@ public class ImmutableMessage {
      * Instantiates an ImmutableMessage object.
      * 
      * @param message
-     *            - The Message object that this object will reference for
+     *            The Message object that this object will reference for
      *            retrieving data.
      */
     public ImmutableMessage(Message message) {

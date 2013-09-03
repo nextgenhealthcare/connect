@@ -27,8 +27,8 @@ public class HTTPUtil {
      * key and value.
      * 
      * @param str
-     *            - The block of HTTP header fields to convert.
-     * @return - The converted Map containing header key-value pairs.
+     *            The block of HTTP header fields to convert.
+     * @return The converted Map containing header key-value pairs.
      * @throws Exception
      */
     public static Map<String, String> parseHeaders(String str) throws Exception {

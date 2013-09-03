@@ -43,7 +43,7 @@ public enum Status {
      * Converts a character code into the appropriate status.
      * 
      * @param status
-     *            - The character code to convert.
+     *            The character code to convert.
      * @return The associated Status instance, or null if none exists.
      */
     public static Status fromChar(char status) {

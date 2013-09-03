@@ -39,11 +39,11 @@ public class ACKGenerator {
      * message date/time.
      * 
      * @param message
-     *            - The inbound HL7 v2.x message to generate the ACK for.
+     *            The inbound HL7 v2.x message to generate the ACK for.
      * @param acknowledgementCode
-     *            - The MSA.1 ACK code to use (e.g. AA, AR, AE).
+     *            The MSA.1 ACK code to use (e.g. AA, AR, AE).
      * @param textMessage
-     *            - The MSA.3 text message to use.
+     *            The MSA.3 text message to use.
      * @return The generated HL7 v2.x acknowledgment.
      * @throws Exception
      */
@@ -52,33 +52,31 @@ public class ACKGenerator {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * generateAckResponse(message, isXML, acknowledgementCode, textMessage,
-     * dateFormat, errorMessage) instead.</b><br/>
-     * <br/>
-     * 
      * Generates an HL7 v2.x acknowledgment.
      * 
      * @param message
-     *            - The inbound HL7 v2.x message to generate the ACK for.
+     *            The inbound HL7 v2.x message to generate the ACK for.
      * @param dataType
-     *            - If "XML", assumes the inbound message is formatted in XML,
-     *            and the acknowledgment returned will also be XML.
+     *            If "XML", assumes the inbound message is formatted in XML, and
+     *            the acknowledgment returned will also be XML.
      * @param acknowledgementCode
-     *            - The MSA.1 ACK code to use (e.g. AA, AR, AE).
+     *            The MSA.1 ACK code to use (e.g. AA, AR, AE).
      * @param textMessage
-     *            - The MSA.3 text message to use.
+     *            The MSA.3 text message to use.
      * @param dateFormat
-     *            - The date/time format used to generate a timestamp for the
+     *            The date/time format used to generate a timestamp for the
      *            MSH.7 message date/time (e.g. "yyyyMMddHHmmss").
      * @param errorMessage
-     *            - The ERR.1 error message to use. If left blank, an ERR
-     *            segment will not be generated.
+     *            The ERR.1 error message to use. If left blank, an ERR segment
+     *            will not be generated.
      * @return The generated HL7 v2.x acknowledgment.
      * @throws Exception
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use generateAckResponse(message, isXML, acknowledgementCode,
+     *             textMessage, dateFormat, errorMessage) instead.
      */
     // TODO: Remove in 3.1
-    @Deprecated
     public String generateAckResponse(String message, String dataType, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
         logger.error("This generateAckResponse(message, dataType, acknowledgementCode, textMessage, dateFormat, errorMessage) method is deprecated and will soon be removed. Please use generateAckResponse(message, isXML, acknowledgementCode, textMessage, dateFormat, errorMessage) instead.");
         return generateAckResponse(message, dataType.equals("XML"), acknowledgementCode, textMessage, dateFormat, errorMessage);
@@ -88,20 +86,20 @@ public class ACKGenerator {
      * Generates an HL7 v2.x acknowledgment.
      * 
      * @param message
-     *            - The inbound HL7 v2.x message to generate the ACK for.
+     *            The inbound HL7 v2.x message to generate the ACK for.
      * @param isXML
-     *            - If true, assumes the inbound message is formatted in XML,
-     *            and the acknowledgment returned will also be XML.
+     *            If true, assumes the inbound message is formatted in XML, and
+     *            the acknowledgment returned will also be XML.
      * @param acknowledgementCode
-     *            - The MSA.1 ACK code to use (e.g. AA, AR, AE).
+     *            The MSA.1 ACK code to use (e.g. AA, AR, AE).
      * @param textMessage
-     *            - The MSA.3 text message to use.
+     *            The MSA.3 text message to use.
      * @param dateFormat
-     *            - The date/time format used to generate a timestamp for the
+     *            The date/time format used to generate a timestamp for the
      *            MSH.7 message date/time (e.g. "yyyyMMddHHmmss").
      * @param errorMessage
-     *            - The ERR.1 error message to use. If left blank, an ERR
-     *            segment will not be generated.
+     *            The ERR.1 error message to use. If left blank, an ERR segment
+     *            will not be generated.
      * @return The generated HL7 v2.x acknowledgment.
      * @throws Exception
      */

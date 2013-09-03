@@ -37,9 +37,9 @@ public class VMRouter {
      * name.
      * 
      * @param channelName
-     *            - The name of the deployed channel to dispatch the message to.
+     *            The name of the deployed channel to dispatch the message to.
      * @param message
-     *            - The message to dispatch to the channel.
+     *            The message to dispatch to the channel.
      * @return The Response object returned by the channel, if its source
      *         connector is configured to return one.
      */
@@ -52,9 +52,9 @@ public class VMRouter {
      * name.
      * 
      * @param channelName
-     *            - The name of the deployed channel to dispatch the message to.
+     *            The name of the deployed channel to dispatch the message to.
      * @param rawMessage
-     *            - A RawMessage object to dispatch to the channel.
+     *            A RawMessage object to dispatch to the channel.
      * @return The Response object returned by the channel, if its source
      *         connector is configured to return one.
      */
@@ -70,28 +70,26 @@ public class VMRouter {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * routeMessage(channelName, message) instead. The useQueue parameter will
-     * not be used. If you want the downstream channel to queue its message and
-     * return immediately upon receipt, enable the source queue on the source
-     * connector.</b><br/>
-     * <br/>
-     * 
      * Dispatches a message to a channel, specified by the deployed channel
      * name.
      * 
      * @param channelName
-     *            - The name of the deployed channel to dispatch the message to.
+     *            The name of the deployed channel to dispatch the message to.
      * @param message
-     *            - The message to dispatch to the channel.
+     *            The message to dispatch to the channel.
      * @param useQueue
-     *            - This parameter is no longer used. If you want the downstream
+     *            This parameter is no longer used. If you want the downstream
      *            channel to queue its message and return immediately upon
      *            receipt, enable the source queue on the source connector.
      * @return The Response object returned by the channel, if its source
      *         connector is configured to return one.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use routeMessage(channelName, message) instead. The useQueue
+     *             parameter will not be used. If you want the downstream
+     *             channel to queue its message and return immediately upon
+     *             receipt, enable the source queue on the source connector.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public Response routeMessage(String channelName, String message, boolean useQueue) {
         logger.error("The routeMessage(channelName, message, useQueue) method is deprecated and will soon be removed. Please use routeMessage(channelName, message) instead. The useQueue parameter will not be used. If you want the downstream channel to queue its message and return immediately upon receipt, enable the source queue on the source connector.");
@@ -99,27 +97,26 @@ public class VMRouter {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * routeMessageByChannelId(channelId, message) instead. The useQueue
-     * parameter will not be used. If you want the downstream channel to queue
-     * its message and return immediately upon receipt, enable the source queue
-     * on the source connector.</b><br/>
-     * <br/>
-     * 
      * Dispatches a message to a channel, specified by the deployed channel ID.
      * 
      * @param channelId
-     *            - The ID of the deployed channel to dispatch the message to.
+     *            The ID of the deployed channel to dispatch the message to.
      * @param message
-     *            - The message to dispatch to the channel.
+     *            The message to dispatch to the channel.
      * @param useQueue
-     *            - This parameter is no longer used. If you want the downstream
+     *            This parameter is no longer used. If you want the downstream
      *            channel to queue its message and return immediately upon
      *            receipt, enable the source queue on the source connector.
      * @return The Response object returned by the channel, if its source
      *         connector is configured to return one.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use routeMessageByChannelId(channelId, message) instead. The
+     *             useQueue parameter will not be used. If you want the
+     *             downstream channel to queue its message and return
+     *             immediately upon receipt, enable the source queue on the
+     *             source connector.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public Response routeMessageByChannelId(String channelId, Object message, boolean useQueue) {
         if (message instanceof MessageObject) {
@@ -138,9 +135,9 @@ public class VMRouter {
      * Dispatches a message to a channel, specified by the deployed channel ID.
      * 
      * @param channelId
-     *            - The ID of the deployed channel to dispatch the message to.
+     *            The ID of the deployed channel to dispatch the message to.
      * @param message
-     *            - The message to dispatch to the channel.
+     *            The message to dispatch to the channel.
      * @return The Response object returned by the channel, if its source
      *         connector is configured to return one.
      */
@@ -152,9 +149,9 @@ public class VMRouter {
      * Dispatches a message to a channel, specified by the deployed channel ID.
      * 
      * @param channelId
-     *            - The ID of the deployed channel to dispatch the message to.
+     *            The ID of the deployed channel to dispatch the message to.
      * @param rawMessage
-     *            - A RawMessage object to dispatch to the channel.
+     *            A RawMessage object to dispatch to the channel.
      * @return The Response object returned by the channel, if its source
      *         connector is configured to return one.
      */

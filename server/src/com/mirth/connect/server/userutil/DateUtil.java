@@ -23,9 +23,9 @@ public class DateUtil {
      * java.util.Date object.
      * 
      * @param pattern
-     *            - The SimpleDateFormat pattern to use (e.g. "yyyyMMddHHmmss").
+     *            The SimpleDateFormat pattern to use (e.g. "yyyyMMddHHmmss").
      * @param date
-     *            - The date string to parse.
+     *            The date string to parse.
      * @return A java.util.Date object representing the parsed date.
      * @throws Exception
      */
@@ -39,9 +39,9 @@ public class DateUtil {
      * pattern.
      * 
      * @param pattern
-     *            - The SimpleDateFormat pattern to use (e.g. "yyyyMMddHHmmss").
+     *            The SimpleDateFormat pattern to use (e.g. "yyyyMMddHHmmss").
      * @param date
-     *            - The java.util.Date object to format.
+     *            The java.util.Date object to format.
      * @return - The formatted date string.
      */
     public static String formatDate(String pattern, Date date) {
@@ -53,7 +53,7 @@ public class DateUtil {
      * Formats the current date into a string according to a specified pattern.
      * 
      * @param pattern
-     *            - The SimpleDateFormat pattern to use (e.g. "yyyyMMddHHmmss").
+     *            The SimpleDateFormat pattern to use (e.g. "yyyyMMddHHmmss").
      * @return - The current formatted date string.
      */
     public static String getCurrentDate(String pattern) {
@@ -65,13 +65,13 @@ public class DateUtil {
      * the date back to a string according to a specified output pattern.
      * 
      * @param inPattern
-     *            - The SimpleDateFormat pattern to use for parsing the inbound
+     *            The SimpleDateFormat pattern to use for parsing the inbound
      *            date string (e.g. "yyyyMMddHHmmss").
      * @param outPattern
-     *            - The SimpleDateFormat pattern to use for formatting the
+     *            The SimpleDateFormat pattern to use for formatting the
      *            outbound date string (e.g. "yyyyMMddHHmmss").
      * @param date
-     *            - The date string to convert.
+     *            The date string to convert.
      * @return - The converted date string.
      * @throws Exception
      */

@@ -39,7 +39,7 @@ public class DatabaseConnection {
      * Instantiates a new database connection with the given server address.
      * 
      * @param address
-     *            - The server address to connect to.
+     *            The server address to connect to.
      * @throws SQLException
      */
     public DatabaseConnection(String address) throws SQLException {
@@ -53,9 +53,9 @@ public class DatabaseConnection {
      * connection arguments.
      * 
      * @param address
-     *            - The server address to connect to.
+     *            The server address to connect to.
      * @param info
-     *            - A Properties object containing all applicable connection
+     *            A Properties object containing all applicable connection
      *            arguments.
      * @throws SQLException
      */
@@ -76,7 +76,7 @@ public class DatabaseConnection {
      * Executes a query on the database and returns a CachedRowSet.
      * 
      * @param expression
-     *            - The query expression to be executed.
+     *            The query expression to be executed.
      * @return The result of the query, as a CachedRowSet.
      * @throws SQLException
      */
@@ -102,7 +102,7 @@ public class DatabaseConnection {
      * Executes an INSERT/UPDATE on the database and returns the row count.
      * 
      * @param expression
-     *            - The statement to be executed.
+     *            The statement to be executed.
      * @return A count of the number of updated rows.
      * @throws SQLException
      */
@@ -130,9 +130,9 @@ public class DatabaseConnection {
      * the row count.
      * 
      * @param expression
-     *            - The prepared statement to be executed.
+     *            The prepared statement to be executed.
      * @param parameters
-     *            - The parameters for the prepared statement.
+     *            The parameters for the prepared statement.
      * @return A count of the number of updated rows.
      * @throws SQLException
      */
@@ -168,9 +168,9 @@ public class DatabaseConnection {
      * Executes a prepared query on the database and returns a CachedRowSet.
      * 
      * @param expression
-     *            - The prepared statement to be executed.
+     *            The prepared statement to be executed.
      * @param parameters
-     *            - The parameters for the prepared statement.
+     *            The parameters for the prepared statement.
      * @return The result of the query, as a CachedRowSet.
      * @throws SQLException
      */
@@ -217,8 +217,8 @@ public class DatabaseConnection {
      * Sets this connection's auto-commit mode to the given state.
      * 
      * @param autoCommit
-     *            - The value (true or false) to set the connection's
-     *            auto-commit mode to.
+     *            The value (true or false) to set the connection's auto-commit
+     *            mode to.
      * @throws SQLException
      */
     public void setAutoCommit(boolean autoCommit) throws SQLException {
@@ -251,7 +251,7 @@ public class DatabaseConnection {
      * CachedRowSet containing any generated keys.
      * 
      * @param expression
-     *            - The statement to be executed.
+     *            The statement to be executed.
      * @return A CachedRowSet containing any generated keys.
      * @throws SQLException
      */
@@ -277,9 +277,9 @@ public class DatabaseConnection {
      * CachedRowSet containing any generated keys.
      * 
      * @param expression
-     *            - The prepared statement to be executed.
+     *            The prepared statement to be executed.
      * @param parameters
-     *            - The parameters for the prepared statement.
+     *            The parameters for the prepared statement.
      * @return A CachedRowSet containing any generated keys.
      * @throws SQLException
      */

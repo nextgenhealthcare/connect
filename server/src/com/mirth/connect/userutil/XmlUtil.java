@@ -19,7 +19,7 @@ public class XmlUtil {
      * Formats an XML string with indented markup.
      * 
      * @param input
-     *            - The XML string to format.
+     *            The XML string to format.
      * @return The formatted XML string.
      */
     public static String prettyPrint(String input) {
@@ -31,7 +31,7 @@ public class XmlUtil {
      * character.
      * 
      * @param entity
-     *            - The XML/HTML entity to decode.
+     *            The XML/HTML entity to decode.
      * @return A string containing the decoded character.
      */
     public static String decode(String entity) {
@@ -42,7 +42,7 @@ public class XmlUtil {
      * Encodes a character into the corresponding XML/HTML entity.
      * 
      * @param s
-     *            - The character to encode.
+     *            The character to encode.
      * @return The encoded XML/HTML entity.
      */
     public static String encode(char s) {
@@ -54,7 +54,7 @@ public class XmlUtil {
      * entities as needed.
      * 
      * @param s
-     *            - The string to encode.
+     *            The string to encode.
      * @return The encoded string with replaced XML/HTML entities.
      */
     public static String encode(String s) {
@@ -66,11 +66,11 @@ public class XmlUtil {
      * XML/HTML entities as needed.
      * 
      * @param text
-     *            - The character array to encode.
+     *            The character array to encode.
      * @param start
-     *            - The index to start at in the character array.
+     *            The index to start at in the character array.
      * @param length
-     *            - The maximum amount of characters to read from the array.
+     *            The maximum amount of characters to read from the array.
      * @return The encoded string with replaced XML/HTML entities.
      */
     public static String encode(char[] text, int start, int length) {

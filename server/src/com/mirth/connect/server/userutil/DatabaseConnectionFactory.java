@@ -26,14 +26,14 @@ public class DatabaseConnectionFactory {
      * connection parameters.
      * 
      * @param driver
-     *            - The JDBC driver class (as a string) to use to create the
+     *            The JDBC driver class (as a string) to use to create the
      *            connection with.
      * @param address
-     *            - The server address to connect to.
+     *            The server address to connect to.
      * @param username
-     *            - The username to connect with.
+     *            The username to connect with.
      * @param password
-     *            - The password to connect with.
+     *            The password to connect with.
      * @return The created DatabaseConnection object.
      * @throws SQLException
      */
@@ -55,10 +55,10 @@ public class DatabaseConnectionFactory {
      * connection parameters.
      * 
      * @param driver
-     *            - The JDBC driver class (as a string) to use to create the
+     *            The JDBC driver class (as a string) to use to create the
      *            connection with.
      * @param address
-     *            - The server address to connect to.
+     *            The server address to connect to.
      * @return The created DatabaseConnection object.
      * @throws SQLException
      */
@@ -77,14 +77,14 @@ public class DatabaseConnectionFactory {
      * connection parameters.
      * 
      * @param driver
-     *            - The JDBC driver class (as a string) to use to create the
+     *            The JDBC driver class (as a string) to use to create the
      *            connection with.
      * @param address
-     *            - The server address to connect to.
+     *            The server address to connect to.
      * @param username
-     *            - The username to connect with.
+     *            The username to connect with.
      * @param password
-     *            - The password to connect with.
+     *            The password to connect with.
      * @return The created DatabaseConnection object.
      * @throws SQLException
      */
@@ -107,7 +107,7 @@ public class DatabaseConnectionFactory {
      * contexts where "Class.forName" can't be called directly.
      * 
      * @param driver
-     *            - The JDBC driver class (as a string) to initialize.
+     *            The JDBC driver class (as a string) to initialize.
      * @throws Exception
      */
     public static void initializeDriver(String driver) throws Exception {

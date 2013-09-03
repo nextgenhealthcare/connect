@@ -27,7 +27,7 @@ public class ValueReplacerMessage {
      * Instantiates an ValueReplacerMessage object.
      * 
      * @param message
-     *            - The ImmutableMessage object that this object will reference
+     *            The ImmutableMessage object that this object will reference
      *            for retrieving data.
      */
     public ValueReplacerMessage(ImmutableMessage message) {

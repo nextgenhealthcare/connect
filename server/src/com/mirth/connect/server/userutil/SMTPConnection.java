@@ -21,26 +21,26 @@ public class SMTPConnection {
      * Instantiates an SMTP connection used to send e-mail messages with.
      * 
      * @param host
-     *            - The SMTP server address.
+     *            The SMTP server address.
      * @param port
-     *            - The SMTP server port (e.g. 25, 587, 465).
+     *            The SMTP server port (e.g. 25, 587, 465).
      * @param socketTimeout
-     *            - The socket connection timeout value in milliseconds.
+     *            The socket connection timeout value in milliseconds.
      * @param useAuthentication
-     *            - Determines whether authentication is needed for the SMTP
+     *            Determines whether authentication is needed for the SMTP
      *            server.
      * @param secure
-     *            - The encryption security layer to use for the SMTP connection
+     *            The encryption security layer to use for the SMTP connection
      *            ("TLS" or "SSL"). If left blank, no encryption layer will be
      *            used.
      * @param username
-     *            - If authentication is required, the username to authenticate
+     *            If authentication is required, the username to authenticate
      *            with.
      * @param password
-     *            - If authentication is required, the password to authenticate
+     *            If authentication is required, the password to authenticate
      *            with.
      * @param from
-     *            - The FROM field to use for dispatched e-mail messages.
+     *            The FROM field to use for dispatched e-mail messages.
      */
     public SMTPConnection(String host, String port, int socketTimeout, boolean useAuthentication, String secure, String username, String password, String from) {
         smtpConnection = new com.mirth.connect.server.util.ServerSMTPConnection(host, port, socketTimeout, useAuthentication, secure, username, password, from);
@@ -50,24 +50,24 @@ public class SMTPConnection {
      * Instantiates an SMTP connection used to send e-mail messages with.
      * 
      * @param host
-     *            - The SMTP server address.
+     *            The SMTP server address.
      * @param port
-     *            - The SMTP server port (e.g. 25, 587, 465).
+     *            The SMTP server port (e.g. 25, 587, 465).
      * @param useAuthentication
-     *            - Determines whether authentication is needed for the SMTP
+     *            Determines whether authentication is needed for the SMTP
      *            server.
      * @param secure
-     *            - The encryption security layer to use for the SMTP connection
+     *            The encryption security layer to use for the SMTP connection
      *            ("TLS" or "SSL"). If left blank, no encryption layer will be
      *            used.
      * @param username
-     *            - If authentication is required, the username to authenticate
+     *            If authentication is required, the username to authenticate
      *            with.
      * @param password
-     *            - If authentication is required, the password to authenticate
+     *            If authentication is required, the password to authenticate
      *            with.
      * @param from
-     *            - The FROM field to use for the e-mail.
+     *            The FROM field to use for the e-mail.
      */
     public SMTPConnection(String host, String port, boolean useAuthentication, String secure, String username, String password, String from) {
         smtpConnection = new com.mirth.connect.server.util.ServerSMTPConnection(host, port, useAuthentication, secure, username, password, from);
@@ -88,7 +88,7 @@ public class SMTPConnection {
      * Sets the SMTP server address.
      * 
      * @param host
-     *            - The SMTP server address to use.
+     *            The SMTP server address to use.
      */
     public void setHost(String host) {
         smtpConnection.setHost(host);
@@ -105,7 +105,7 @@ public class SMTPConnection {
      * Sets the SMTP server port.
      * 
      * @param port
-     *            - The SMTP server port to use (e.g. 25, 587, 465).
+     *            The SMTP server port to use (e.g. 25, 587, 465).
      */
     public void setPort(String port) {
         smtpConnection.setPort(port);
@@ -123,7 +123,7 @@ public class SMTPConnection {
      * Sets whether authentication is needed for the SMTP server.
      * 
      * @param useAuthentication
-     *            - Determines whether authentication is needed for the SMTP
+     *            Determines whether authentication is needed for the SMTP
      *            server.
      */
     public void setUseAuthentication(boolean useAuthentication) {
@@ -142,7 +142,7 @@ public class SMTPConnection {
      * Sets the encryption security layer to use for the SMTP connection.
      * 
      * @param secure
-     *            - The encryption security layer to use for the SMTP connection
+     *            The encryption security layer to use for the SMTP connection
      *            ("TLS" or "SSL"). If left blank, no encryption layer will be
      *            used.
      */
@@ -161,7 +161,7 @@ public class SMTPConnection {
      * Sets the username to use to authenticate to the SMTP server.
      * 
      * @param username
-     *            - The username to authenticate with.
+     *            The username to authenticate with.
      */
     public void setUsername(String username) {
         smtpConnection.setUsername(username);
@@ -178,7 +178,7 @@ public class SMTPConnection {
      * Sets the password to use to authenticate to the SMTP server.
      * 
      * @param password
-     *            - The password to authenticate with.
+     *            The password to authenticate with.
      */
     public void setPassword(String password) {
         smtpConnection.setPassword(password);
@@ -195,7 +195,7 @@ public class SMTPConnection {
      * Sets the FROM field to use for dispatched e-mail messages.
      * 
      * @param from
-     *            - The FROM field to use for dispatched e-mail messages.
+     *            The FROM field to use for dispatched e-mail messages.
      */
     public void setFrom(String from) {
         smtpConnection.setFrom(from);
@@ -212,7 +212,7 @@ public class SMTPConnection {
      * Sets the socket connection timeout value.
      * 
      * @param socketTimeout
-     *            - The socket connection timeout value in milliseconds.
+     *            The socket connection timeout value in milliseconds.
      */
     public void setSocketTimeout(int socketTimeout) {
         smtpConnection.setSocketTimeout(socketTimeout);
@@ -222,19 +222,19 @@ public class SMTPConnection {
      * Sends an e-mail message.
      * 
      * @param toList
-     *            - A string representing a list of e-mail addresses to send the
+     *            A string representing a list of e-mail addresses to send the
      *            message to (separated by ",").
      * @param ccList
-     *            - A string representing a list of e-mail addresses to copy the
+     *            A string representing a list of e-mail addresses to copy the
      *            message to (separated by ",").
      * @param from
-     *            - The FROM field to use for the e-mail message.
+     *            The FROM field to use for the e-mail message.
      * @param subject
-     *            - The subject of the e-mail message.
+     *            The subject of the e-mail message.
      * @param body
-     *            - The content of the e-mail message.
+     *            The content of the e-mail message.
      * @param charset
-     *            - The charset encoding to use when sending the e-mail message.
+     *            The charset encoding to use when sending the e-mail message.
      * @throws EmailException
      */
     public void send(String toList, String ccList, String from, String subject, String body, String charset) throws EmailException {
@@ -245,17 +245,17 @@ public class SMTPConnection {
      * Sends an e-mail message.
      * 
      * @param toList
-     *            - A string representing a list of e-mail addresses to send the
+     *            A string representing a list of e-mail addresses to send the
      *            message to (separated by ",").
      * @param ccList
-     *            - A string representing a list of e-mail addresses to copy the
+     *            A string representing a list of e-mail addresses to copy the
      *            message to (separated by ",").
      * @param from
-     *            - The FROM field to use for the e-mail message.
+     *            The FROM field to use for the e-mail message.
      * @param subject
-     *            - The subject of the e-mail message.
+     *            The subject of the e-mail message.
      * @param body
-     *            - The content of the e-mail message.
+     *            The content of the e-mail message.
      * @throws EmailException
      */
     public void send(String toList, String ccList, String from, String subject, String body) throws EmailException {
@@ -266,15 +266,15 @@ public class SMTPConnection {
      * Sends an e-mail message.
      * 
      * @param toList
-     *            - A string representing a list of e-mail addresses to send the
+     *            A string representing a list of e-mail addresses to send the
      *            message to (separated by ",").
      * @param ccList
-     *            - A string representing a list of e-mail addresses to copy the
+     *            A string representing a list of e-mail addresses to copy the
      *            message to (separated by ",").
      * @param subject
-     *            - The subject of the e-mail message.
+     *            The subject of the e-mail message.
      * @param body
-     *            - The content of the e-mail message.
+     *            The content of the e-mail message.
      * @throws EmailException
      */
     public void send(String toList, String ccList, String subject, String body) throws EmailException {

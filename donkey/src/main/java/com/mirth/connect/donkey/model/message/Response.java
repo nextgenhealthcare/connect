@@ -38,7 +38,7 @@ public class Response implements Serializable {
      * Instantiates a new Response object.
      * 
      * @param message
-     *            - The actual response data.
+     *            The actual response data.
      */
     public Response(String message) {
         this(null, message);
@@ -48,9 +48,9 @@ public class Response implements Serializable {
      * Instantiates a new Response object.
      * 
      * @param status
-     *            - The status (e.g. SENT, ERROR) of the response.
+     *            The status (e.g. SENT, ERROR) of the response.
      * @param message
-     *            - The actual response data.
+     *            The actual response data.
      */
     public Response(Status status, String message) {
         this(status, message, new String());
@@ -60,12 +60,11 @@ public class Response implements Serializable {
      * Instantiates a new Response object.
      * 
      * @param status
-     *            - The status (e.g. SENT, ERROR) of the response.
+     *            The status (e.g. SENT, ERROR) of the response.
      * @param message
-     *            - The actual response data.
+     *            The actual response data.
      * @param statusMessage
-     *            - A brief message explaining the reason for the current
-     *            status.
+     *            A brief message explaining the reason for the current status.
      */
     public Response(Status status, String message, String statusMessage) {
         this(status, message, statusMessage, new String());
@@ -75,15 +74,13 @@ public class Response implements Serializable {
      * Instantiates a new Response object.
      * 
      * @param status
-     *            - The status (e.g. SENT, ERROR) of the response.
+     *            The status (e.g. SENT, ERROR) of the response.
      * @param message
-     *            - The actual response data.
+     *            The actual response data.
      * @param statusMessage
-     *            - A brief message explaining the reason for the current
-     *            status.
+     *            A brief message explaining the reason for the current status.
      * @param error
-     *            - The error string associated with this response, if
-     *            applicable.
+     *            The error string associated with this response, if applicable.
      */
     public Response(Status status, String message, String statusMessage, String error) {
         this.status = status;
@@ -103,7 +100,7 @@ public class Response implements Serializable {
      * Sets the response data.
      * 
      * @param message
-     *            - The response data (String) to use.
+     *            The response data (String) to use.
      */
     public void setMessage(String message) {
         /*
@@ -126,7 +123,7 @@ public class Response implements Serializable {
      * Sets the status of this response.
      * 
      * @param status
-     *            - The status (e.g. SENT, QUEUED) to use for this response.
+     *            The status (e.g. SENT, QUEUED) to use for this response.
      */
     public void setStatus(Status status) {
         this.status = status;
@@ -143,7 +140,7 @@ public class Response implements Serializable {
      * Sets the error string to be associated with this response.
      * 
      * @param error
-     *            - The error string to use.
+     *            The error string to use.
      */
     public void setError(String error) {
         this.error = error;
@@ -160,8 +157,7 @@ public class Response implements Serializable {
      * Sets the status message to use for this response.
      * 
      * @param statusMessage
-     *            - A brief message explaining the reason for the current
-     *            status.
+     *            A brief message explaining the reason for the current status.
      */
     public void setStatusMessage(String statusMessage) {
         this.statusMessage = statusMessage;
@@ -197,7 +193,7 @@ public class Response implements Serializable {
      * messaging engine and returns a string explaining why the change was made.
      * 
      * @param queueEnabled
-     *            - If false, the QUEUED status is considered invalid for this
+     *            If false, the QUEUED status is considered invalid for this
      *            response, and should be modified.
      * @return A reason string if the status was changed, otherwise null.
      */

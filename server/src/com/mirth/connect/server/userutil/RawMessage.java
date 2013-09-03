@@ -23,7 +23,7 @@ public class RawMessage {
      * Instantiates a RawMessage object to dispatch to a channel.
      * 
      * @param rawData
-     *            - The textual data to dispatch to the channel.
+     *            The textual data to dispatch to the channel.
      */
     public RawMessage(String rawData) {
         rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawData);
@@ -33,9 +33,9 @@ public class RawMessage {
      * Instantiates a RawMessage object to dispatch to a channel.
      * 
      * @param rawData
-     *            - The textual data to dispatch to the channel.
+     *            The textual data to dispatch to the channel.
      * @param destinationMetaDataIds
-     *            - A list of integers (metadata IDs) representing which
+     *            A list of integers (metadata IDs) representing which
      *            destinations to dispatch the message to.
      */
     public RawMessage(String rawData, List<Integer> destinationMetaDataIds) {
@@ -46,13 +46,13 @@ public class RawMessage {
      * Instantiates a RawMessage object to dispatch to a channel.
      * 
      * @param rawData
-     *            - The textual data to dispatch to the channel.
+     *            The textual data to dispatch to the channel.
      * @param destinationMetaDataIds
-     *            - A list of integers (metadata IDs) representing which
+     *            A list of integers (metadata IDs) representing which
      *            destinations to dispatch the message to.
      * @param channelMap
-     *            - Any values placed in this map will be populated in the
-     *            channel map at the beginning of the message's lifecycle.
+     *            Any values placed in this map will be populated in the channel
+     *            map at the beginning of the message's lifecycle.
      */
     public RawMessage(String rawData, List<Integer> destinationMetaDataIds, Map<String, Object> channelMap) {
         rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawData, destinationMetaDataIds, channelMap);
@@ -62,7 +62,7 @@ public class RawMessage {
      * Instantiates a RawMessage object to dispatch to a channel.
      * 
      * @param rawBytes
-     *            - The binary data (byte array) to dispatch to the channel.
+     *            The binary data (byte array) to dispatch to the channel.
      */
     public RawMessage(byte[] rawBytes) {
         rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawBytes);
@@ -72,9 +72,9 @@ public class RawMessage {
      * Instantiates a RawMessage object to dispatch to a channel.
      * 
      * @param rawBytes
-     *            - The binary data (byte array) to dispatch to the channel.
+     *            The binary data (byte array) to dispatch to the channel.
      * @param destinationMetaDataIds
-     *            - A list of integers (metadata IDs) representing which
+     *            A list of integers (metadata IDs) representing which
      *            destinations to dispatch the message to.
      */
     public RawMessage(byte[] rawBytes, List<Integer> destinationMetaDataIds) {
@@ -85,13 +85,13 @@ public class RawMessage {
      * Instantiates a RawMessage object to dispatch to a channel.
      * 
      * @param rawBytes
-     *            - The binary data (byte array) to dispatch to the channel.
+     *            The binary data (byte array) to dispatch to the channel.
      * @param destinationMetaDataIds
-     *            - A list of integers (metadata IDs) representing which
+     *            A list of integers (metadata IDs) representing which
      *            destinations to dispatch the message to.
      * @param channelMap
-     *            - Any values placed in this map will be populated in the
-     *            channel map at the beginning of the message's lifecycle.
+     *            Any values placed in this map will be populated in the channel
+     *            map at the beginning of the message's lifecycle.
      */
     public RawMessage(byte[] rawBytes, List<Integer> destinationMetaDataIds, Map<String, Object> channelMap) {
         rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawBytes, destinationMetaDataIds, channelMap);
@@ -123,7 +123,7 @@ public class RawMessage {
      * Sets which destinations to dispatch the message to.
      * 
      * @param destinationMetaDataIds
-     *            - A list of integers (metadata IDs) representing which
+     *            A list of integers (metadata IDs) representing which
      *            destinations to dispatch the message to.
      */
     public void setDestinationMetaDataIds(List<Integer> destinationMetaDataIds) {
@@ -142,8 +142,8 @@ public class RawMessage {
      * Sets the channel map to be used at the beginning of the channel dispatch.
      * 
      * @param channelMap
-     *            - Any values placed in this map will be populated in the
-     *            channel map at the beginning of the message's lifecycle.
+     *            Any values placed in this map will be populated in the channel
+     *            map at the beginning of the message's lifecycle.
      */
     public void setChannelMap(Map<String, Object> channelMap) {
         rawMessage.setChannelMap(channelMap);

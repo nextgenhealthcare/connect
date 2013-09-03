@@ -19,8 +19,8 @@ public class ImmutableMessageContent {
      * Instantiates an ImmutableMessageContent object.
      * 
      * @param messageContent
-     *            - The MessageContent object that this object will reference
-     *            for retrieving data.
+     *            The MessageContent object that this object will reference for
+     *            retrieving data.
      */
     public ImmutableMessageContent(MessageContent messageContent) {
         this.messageContent = messageContent;

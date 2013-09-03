@@ -29,7 +29,7 @@ public class ValueReplacerConnectorMessage {
      * Instantiates an ValueReplacerConnectorMessage.
      * 
      * @param connectorMessage
-     *            - The connector message that this object will reference for
+     *            The connector message that this object will reference for
      *            retrieving data.
      */
     public ValueReplacerConnectorMessage(ImmutableConnectorMessage connectorMessage) {
@@ -116,14 +116,12 @@ public class ValueReplacerConnectorMessage {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use
-     * getMessageId() instead.</b><br/>
-     * <br/>
-     * 
      * Returns the sequential ID of the overall Message associated with this
      * connector message.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use getMessageId() instead.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public long getId() {
         logger.error("The ${message.id} reference is deprecated and will soon be removed. Please use ${message.messageId} instead.");
@@ -131,14 +129,13 @@ public class ValueReplacerConnectorMessage {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use the
-     * {@value com.mirth.connect.model.util.DefaultMetaData#SOURCE_VARIABLE_MAPPING}
-     * variable in the connector map instead.</b><br/>
-     * <br/>
-     * 
      * Returns the source of the message (dependent on the inbound data type).
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use the
+     *             {@value com.mirth.connect.model.util.DefaultMetaData#SOURCE_VARIABLE_MAPPING}
+     *             variable in the connector map instead.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public String getSource() {
         logger.error("The ${message.source} reference is deprecated and will soon be removed. Please use the \"" + DefaultMetaData.SOURCE_VARIABLE_MAPPING + "\" variable in the connector map instead.");
@@ -147,14 +144,13 @@ public class ValueReplacerConnectorMessage {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use the
-     * {@value com.mirth.connect.model.util.DefaultMetaData#TYPE_VARIABLE_MAPPING}
-     * variable in the connector map instead.</b><br/>
-     * <br/>
-     * 
      * Returns the type of the message (dependent on the inbound data type).
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use the
+     *             {@value com.mirth.connect.model.util.DefaultMetaData#TYPE_VARIABLE_MAPPING}
+     *             variable in the connector map instead.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public String getType() {
         logger.error("The ${message.type} reference is deprecated and will soon be removed. Please use the \"" + DefaultMetaData.TYPE_VARIABLE_MAPPING + "\" variable in the connector map instead.");
@@ -163,14 +159,13 @@ public class ValueReplacerConnectorMessage {
     }
 
     /**
-     * <b>This method is deprecated and will soon be removed. Please use the
-     * {@value com.mirth.connect.model.util.DefaultMetaData#VERSION_VARIABLE_MAPPING}
-     * variable in the connector map instead.</b><br/>
-     * <br/>
-     * 
      * Returns the version of the message (dependent on the inbound data type).
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please
+     *             use the
+     *             {@value com.mirth.connect.model.util.DefaultMetaData#VERSION_VARIABLE_MAPPING}
+     *             variable in the connector map instead.
      */
-    @Deprecated
     // TODO: Remove in 3.1
     public String getVersion() {
         logger.error("The ${message.version} reference is deprecated and will soon be removed. Please use the \"" + DefaultMetaData.VERSION_VARIABLE_MAPPING + "\" variable in the connector map instead.");

@@ -28,7 +28,7 @@ public class ImmutableConnectorMessage {
      * Instantiates an ImmutableConnectorMessage.
      * 
      * @param connectorMessage
-     *            - The connector message that this object will reference for
+     *            The connector message that this object will reference for
      *            retrieving data.
      */
     public ImmutableConnectorMessage(ConnectorMessage connectorMessage) {
@@ -38,11 +38,11 @@ public class ImmutableConnectorMessage {
     /**
      * 
      * @param connectorMessage
-     *            - The connector message that this object will reference for
+     *            The connector message that this object will reference for
      *            retrieving data.
      * @param modifiableMaps
-     *            - If true, variable maps (e.g. connector/channel/response)
-     *            will be modifiable, and values may be set in them as well as
+     *            If true, variable maps (e.g. connector/channel/response) will
+     *            be modifiable, and values may be set in them as well as
      *            retrieved. Otherwise, data will only be able to be retrieved
      *            from the maps, and no updates will be allowed.
      */
@@ -53,15 +53,15 @@ public class ImmutableConnectorMessage {
     /**
      * 
      * @param connectorMessage
-     *            - The connector message that this object will reference for
+     *            The connector message that this object will reference for
      *            retrieving data.
      * @param modifiableMaps
-     *            - If true, variable maps (e.g. connector/channel/response)
-     *            will be modifiable, and values may be set in them as well as
+     *            If true, variable maps (e.g. connector/channel/response) will
+     *            be modifiable, and values may be set in them as well as
      *            retrieved. Otherwise, data will only be able to be retrieved
      *            from the maps, and no updates will be allowed.
      * @param destinationNameMap
-     *            - A map containing all applicable destination names in the
+     *            A map containing all applicable destination names in the
      *            channel and their corresponding "d#" response map keys. This
      *            is used so that the response map has the ability to get
      *            destination responses by name as well as by the proper "d#"
@@ -121,7 +121,7 @@ public class ImmutableConnectorMessage {
      * Retrieves content associated with this connector message.
      * 
      * @param contentType
-     *            - The ContentType (e.g. RAW, ENCODED) of the content to
+     *            The ContentType (e.g. RAW, ENCODED) of the content to
      *            retrieve.
      * @return The content, as an ImmutableMessageContent object.
      */
