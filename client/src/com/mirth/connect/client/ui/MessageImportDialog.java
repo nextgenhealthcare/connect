@@ -59,6 +59,7 @@ public class MessageImportDialog extends JDialog {
     private MirthButton cancelButton = new MirthButton("Cancel");
 
     public MessageImportDialog() {
+        super(PlatformUI.MIRTH_FRAME);
         parent = PlatformUI.MIRTH_FRAME;
         userPreferences = Frame.userPreferences;
 

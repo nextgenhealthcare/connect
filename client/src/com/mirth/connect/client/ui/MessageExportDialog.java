@@ -11,6 +11,7 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -47,11 +48,13 @@ public class MessageExportDialog extends JDialog {
     private JButton cancelButton = new JButton("Cancel");
 
     public MessageExportDialog() {
+        super(PlatformUI.MIRTH_FRAME);
         parent = PlatformUI.MIRTH_FRAME;
         messageExportPanel = new MessageExportPanel(Frame.userPreferences, false, true);
         messageExportPanel.setExportLocal(true);
 
         setTitle("Export Results");
+        setPreferredSize(new Dimension(800, 300));
         setBackground(new Color(255, 255, 255));
         setLocationRelativeTo(null);
         setModal(true);
