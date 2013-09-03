@@ -105,7 +105,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             throw new DeployException("Error creating URI.", e1);
         }
 
-        this.readDir = uri.getPath();
+        this.readDir = fileConnector.getPathPart(uri);
         this.moveToDirectory = connectorProperties.getMoveToDirectory();
         this.moveToFileName = connectorProperties.getMoveToFileName();
         this.errorMoveToDirectory = connectorProperties.getErrorMoveToDirectory();

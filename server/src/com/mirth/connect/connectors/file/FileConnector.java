@@ -133,6 +133,21 @@ public class FileConnector {
     }
 
     /**
+     * URI.getPath() does not retrieve the desired result for relative paths. The first directory
+     * would be omitted and the second directory would be used with the system's root as the base.
+     * Thus for connectors using the FILE scheme, we retrieve the path using an alternate method.
+     */
+    protected String getPathPart(URI uri) {
+        if (scheme == FileScheme.FILE) {
+            // In //xyz, return xyz.
+            return uri.getSchemeSpecificPart().substring(2);
+        } else {
+            // For the remaining cases, getPath seems to do the right thing.
+            return uri.getPath();
+        }
+    }
+
+    /**
      * Registers a listener for a particular directory The following properties
      * can be overriden in the endpoint declaration
      * <ul>

@@ -114,7 +114,7 @@ public class FileDispatcher extends DestinationConnector {
                 throw new IOException("Filename is null");
             }
 
-            String path = uri.getPath();
+            String path = fileConnector.getPathPart(uri);
             String template = fileDispatcherProperties.getTemplate();
 
             byte[] bytes = MessageAttachmentUtil.reAttachMessage(template, connectorMessage, charsetEncoding, fileDispatcherProperties.isBinary());
