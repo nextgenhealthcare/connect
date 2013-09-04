@@ -452,7 +452,7 @@ public class CommandLineInterface {
         out.println("importcodetemplates \"path\"\n\tImports code templates specified by <path>\n");
         out.println("exportcodetemplates \"path\"\n\tExports code templates to <path>\n");
         out.println("importmessages \"path\" id\n\tImports messages specified by <path> into the channel specified by <id>\n");
-        out.println("exportmessages \"path/file-pattern\" id [xml|raw|transformed|encoded] [pageSize]\n\tExports all messages for channel specified by <id> to <path>\n");
+        out.println("exportmessages \"path/file-pattern\" id [xml|raw|processedraw|transformed|encoded|response] [pageSize]\n\tExports all messages for channel specified by <id> to <path>\n");
         out.println("channel undeploy|deploy|start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
         out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel\n");
         out.println("channel list\n\tLists all Channels\n");
