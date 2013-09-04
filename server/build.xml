@@ -64,9 +64,10 @@
 		<delete dir="${setup}" />
 		<delete dir="${dist}" />
 		<delete dir="${extensions}" />
+		<delete dir="${docs.javadocs}" />
 	</target>
 
-	<target name="compile" depends="clean, init">
+	<target name="compile" depends="clean, init, create-javadocs">
 		<!-- compile the source -->
 		<mkdir dir="${classes}" />
 
@@ -860,6 +861,14 @@
 
 	<target name="create-dist" depends="create-extension-zips">
 		<mkdir dir="${dist}" />
+	</target>
+	
+	<target name="create-javadocs" depends="init">
+		<mkdir dir="${docs.javadocs}" />
+		
+		<javadoc sourcepath="${src}" destdir="${docs.javadocs.userapi}" packagenames="com.mirth.connect.server.userutil,com.mirth.connect.userutil">
+			<classpath refid="classpath" />
+		</javadoc>
 	</target>
 
 	<target name="create-derby-db" depends="compile">

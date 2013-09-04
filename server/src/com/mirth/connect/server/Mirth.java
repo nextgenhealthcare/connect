@@ -408,6 +408,16 @@ public class Mirth extends Thread {
             publicContextHandler.setResourceBase(publicPath);
             publicContextHandler.setHandler(new ResourceHandler());
             handlers.addHandler(publicContextHandler);
+            
+            // Create the javadocs context
+            ContextHandler javadocsContextHandler = new ContextHandler();
+            javadocsContextHandler.setContextPath(contextPath + "javadocs");
+            String javadocsPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "docs" + File.separator + "javadocs";
+            javadocsContextHandler.setResourceBase(javadocsPath);
+            ResourceHandler javadocsResourceHandler = new ResourceHandler();
+            javadocsResourceHandler.setDirectoriesListed(true);
+            javadocsContextHandler.setHandler(javadocsResourceHandler);
+            handlers.addHandler(javadocsContextHandler);
 
             // Create a normal servlet handler
             ServletContextHandler servletContextHandler = new ServletContextHandler();
@@ -480,7 +490,9 @@ public class Mirth extends Thread {
             handlers.addHandler(sslServletContextHandler);
 
             // add the default handler for misc requests (favicon, etc.)
-            handlers.addHandler(new DefaultHandler());
+            DefaultHandler defaultHandler = new DefaultHandler();
+            defaultHandler.setServeIcon(false);  // don't serve the Jetty favicon
+            handlers.addHandler(defaultHandler);
 
             webServer.setHandler(handlers);
             webServer.setConnectors(new Connector[] { connector, sslConnector });
