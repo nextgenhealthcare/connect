@@ -36,13 +36,13 @@ import org.dcm4che2.data.Tag;
 import org.dcm4che2.data.VR;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
-import com.mirth.connect.donkey.model.message.ImmutableMessageContent;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.server.controllers.MessageController;
+import com.mirth.connect.server.userutil.ImmutableConnectorMessage;
+import com.mirth.connect.server.userutil.ImmutableMessageContent;
 
 public class DICOMMessageUtil {
     private static Logger logger = Logger.getLogger(DICOMMessageUtil.class);

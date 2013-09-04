@@ -29,9 +29,9 @@ import org.apache.velocity.app.Velocity;
 import org.apache.velocity.tools.generic.DateTool;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
-import com.mirth.connect.donkey.model.message.ImmutableMessage;
 import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.server.userutil.ImmutableConnectorMessage;
+import com.mirth.connect.server.userutil.ImmutableMessage;
 import com.mirth.connect.userutil.ValueReplacerConnectorMessage;
 import com.mirth.connect.userutil.ValueReplacerMessage;
 import com.mirth.connect.userutil.XmlUtil;

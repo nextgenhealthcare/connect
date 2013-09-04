@@ -7,12 +7,16 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.donkey.model.message;
+package com.mirth.connect.server.userutil;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.Message;
 
 /**
  * This class represents an overall message and is used to retrieve details such
@@ -23,7 +27,7 @@ public class ImmutableMessage {
     private Message message;
 
     /**
-     * Instantiates an ImmutableMessage object.
+     * Instantiates a new ImmutableMessage object.
      * 
      * @param message
      *            The Message object that this object will reference for
@@ -110,14 +114,19 @@ public class ImmutableMessage {
         return new ImmutableConnectorMessage(message.getMergedConnectorMessage(), false, getDestinationNameMap());
     }
 
-    private Map<String, String> getDestinationNameMap() {
+    /**
+     * Returns a Map of destination connector names linked to their
+     * corresponding "d#" response map keys (where "#" is the destination
+     * connector metadata ID).
+     */
+    public Map<String, String> getDestinationNameMap() {
         Map<String, String> destinationNameMap = new HashMap<String, String>();
 
         for (ConnectorMessage destinationMessage : message.getConnectorMessages().values()) {
             destinationNameMap.put(destinationMessage.getConnectorName(), "d" + String.valueOf(destinationMessage.getMetaDataId()));
         }
 
-        return destinationNameMap;
+        return Collections.unmodifiableMap(destinationNameMap);
     }
 
     @Override

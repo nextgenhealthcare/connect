@@ -19,13 +19,13 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.donkey.util.StringUtil;
 import com.mirth.connect.server.controllers.MessageController;
+import com.mirth.connect.server.userutil.ImmutableConnectorMessage;
 
 public class MessageAttachmentUtil {
 

@@ -30,7 +30,6 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
@@ -44,6 +43,7 @@ import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ScriptCompileException;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.userutil.Attachment;
+import com.mirth.connect.server.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.ServerUUIDGenerator;
 
@@ -255,7 +255,7 @@ public class JavaScriptUtil {
         try {
             if (compiledScriptCache.getCompiledScript(ScriptController.POSTPROCESSOR_SCRIPT_KEY) != null) {
                 try {
-                    Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message, channelResponse);
+                    Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message, new com.mirth.connect.server.userutil.Response(channelResponse));
                     Response globalResponse = getPostprocessorResponse(JavaScriptUtil.executeScript(task, ScriptController.POSTPROCESSOR_SCRIPT_KEY, scope, null, null));
 
                     if (globalResponse != null) {
@@ -277,13 +277,13 @@ public class JavaScriptUtil {
         Response response = null;
 
         // Convert result of JavaScript execution to Response object
-        if (result instanceof Response) {
-            response = (Response) result;
+        if (result instanceof com.mirth.connect.server.userutil.Response) {
+            response = convertToDonkeyResponse(result);
         } else if (result instanceof NativeJavaObject) {
             Object object = ((NativeJavaObject) result).unwrap();
 
-            if (object instanceof Response) {
-                response = (Response) object;
+            if (object instanceof com.mirth.connect.server.userutil.Response) {
+                response = convertToDonkeyResponse(object);
             } else {
                 // Assume it's a string, and return a successful response
                 // TODO: is it okay that we use Status.SENT here?
@@ -297,6 +297,30 @@ public class JavaScriptUtil {
         }
 
         return response;
+    }
+
+    public static Response convertToDonkeyResponse(Object response) {
+        com.mirth.connect.server.userutil.Response userResponse = (com.mirth.connect.server.userutil.Response) response;
+        return new Response(convertToDonkeyStatus(userResponse.getStatus()), userResponse.getMessage(), userResponse.getStatusMessage(), userResponse.getError());
+    }
+
+    public static Status convertToDonkeyStatus(com.mirth.connect.server.userutil.Status status) {
+        switch (status) {
+            case RECEIVED:
+                return Status.RECEIVED;
+            case FILTERED:
+                return Status.FILTERED;
+            case TRANSFORMED:
+                return Status.TRANSFORMED;
+            case SENT:
+                return Status.SENT;
+            case QUEUED:
+                return Status.QUEUED;
+            case PENDING:
+                return Status.PENDING;
+            default:
+                return null;
+        }
     }
 
     /**

@@ -20,7 +20,6 @@ import org.mozilla.javascript.Scriptable;
 
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.server.channel.FilterTransformerResult;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
@@ -28,6 +27,7 @@ import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.ServerUUIDGenerator;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
@@ -58,7 +58,8 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
     private void initialize(String script) throws JavaScriptInitializationException {
         try {
             /*
-             * Scripts are not compiled if they are blank or do not exist in the database. Note that
+             * Scripts are not compiled if they are blank or do not exist in the
+             * database. Note that
              * in Oracle, a blank script is the same as a NULL script.
              */
             if (StringUtils.isNotBlank(script)) {

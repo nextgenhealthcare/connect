@@ -7,12 +7,13 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.donkey.model.message;
+package com.mirth.connect.server.userutil;
 
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Map;
 
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.Donkey;
 
 /**
@@ -25,7 +26,7 @@ public class ImmutableConnectorMessage {
     private Map<String, String> destinationNameMap;
 
     /**
-     * Instantiates an ImmutableConnectorMessage.
+     * Instantiates a new ImmutableConnectorMessage object.
      * 
      * @param connectorMessage
      *            The connector message that this object will reference for
@@ -36,6 +37,7 @@ public class ImmutableConnectorMessage {
     }
 
     /**
+     * Instantiates a new ImmutableConnectorMessage object.
      * 
      * @param connectorMessage
      *            The connector message that this object will reference for
@@ -51,6 +53,7 @@ public class ImmutableConnectorMessage {
     }
 
     /**
+     * Instantiates a new ImmutableConnectorMessage object.
      * 
      * @param connectorMessage
      *            The connector message that this object will reference for
@@ -114,7 +117,7 @@ public class ImmutableConnectorMessage {
      * Returns the status (e.g. SENT) of this connector message.
      */
     public Status getStatus() {
-        return connectorMessage.getStatus();
+        return Status.fromDonkeyStatus(connectorMessage.getStatus());
     }
 
     /**
@@ -126,8 +129,8 @@ public class ImmutableConnectorMessage {
      * @return The content, as an ImmutableMessageContent object.
      */
     public ImmutableMessageContent getContent(ContentType contentType) {
-        if (connectorMessage.getMessageContent(contentType) != null) {
-            return new ImmutableMessageContent(connectorMessage.getMessageContent(contentType));
+        if (connectorMessage.getMessageContent(contentType.toDonkeyContentType()) != null) {
+            return new ImmutableMessageContent(connectorMessage.getMessageContent(contentType.toDonkeyContentType()));
         }
 
         return null;
@@ -414,6 +417,15 @@ public class ImmutableConnectorMessage {
      */
     public String getResponseError() {
         return connectorMessage.getResponseError();
+    }
+
+    /**
+     * Returns a Map of destination connector names linked to their
+     * corresponding "d#" response map keys (where "#" is the destination
+     * connector metadata ID).
+     */
+    public Map<String, String> getDestinationNameMap() {
+        return Collections.unmodifiableMap(destinationNameMap);
     }
 
     @Override

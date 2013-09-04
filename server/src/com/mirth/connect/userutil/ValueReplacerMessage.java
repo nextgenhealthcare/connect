@@ -13,7 +13,7 @@ import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.mirth.connect.donkey.model.message.ImmutableMessage;
+import com.mirth.connect.server.userutil.ImmutableMessage;
 
 /**
  * This class represents an overall message and is used to retrieve details such

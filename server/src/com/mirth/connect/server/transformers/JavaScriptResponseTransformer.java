@@ -20,7 +20,6 @@ import org.mozilla.javascript.Scriptable;
 
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformerException;
@@ -28,6 +27,7 @@ import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.ServerUUIDGenerator;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
@@ -39,7 +39,7 @@ import com.mirth.connect.util.ErrorMessageBuilder;
 public class JavaScriptResponseTransformer implements ResponseTransformer {
     private Logger logger = Logger.getLogger(this.getClass());
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-    private EventController eventController= ControllerFactory.getFactory().createEventController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
 
     private String channelId;
     private String connectorName;
@@ -58,8 +58,9 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
     private void initialize(String script) throws JavaScriptInitializationException {
         try {
             /*
-             * Scripts are not compiled if they are blank or do not exist in the database. Note that
-             * in Oracle, a blank script is the same as a NULL script.
+             * Scripts are not compiled if they are blank or do not exist in the
+             * database. Note that in Oracle, a blank script is the same as a
+             * NULL script.
              */
             if (StringUtils.isNotBlank(script)) {
                 logger.debug("compiling response transformer script");
@@ -125,12 +126,13 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                 throw new ResponseTransformerException("Could not find script " + scriptId + " in cache.", null, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.RESPONSE_TRANSFORMER.toString(), "Could not find script " + scriptId + " in cache.", null));
             } else {
                 try {
-                    Scriptable scope = JavaScriptScopeUtil.getResponseTransformerScope(scriptLogger, response, new ImmutableConnectorMessage(connectorMessage, true, destinationNameMap), template);
+                    com.mirth.connect.server.userutil.Response userResponse = new com.mirth.connect.server.userutil.Response(response);
+                    Scriptable scope = JavaScriptScopeUtil.getResponseTransformerScope(scriptLogger, userResponse, new ImmutableConnectorMessage(connectorMessage, true, destinationNameMap), template);
                     // Execute the script
                     executeScript(compiledScript, scope);
 
                     // Set response status and errorMsg
-                    JavaScriptScopeUtil.getResponseDataFromScope(scope, response);
+                    JavaScriptScopeUtil.getResponseDataFromScope(scope, userResponse);
 
                     // Return the result
                     return JavaScriptScopeUtil.getTransformedDataFromScope(scope, StringUtils.isNotBlank(template));

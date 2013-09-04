@@ -10,7 +10,6 @@
 package com.mirth.connect.server.userutil;
 
 import com.mirth.connect.donkey.model.event.ErrorEventType;
-import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;

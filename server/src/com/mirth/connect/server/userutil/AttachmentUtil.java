@@ -16,7 +16,6 @@ import javax.activation.UnsupportedDataTypeException;
 
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 
@@ -163,7 +162,7 @@ public class AttachmentUtil {
     // TODO: Remove in 3.1
     public static List<Attachment> getMessageAttachments(MessageObject messageObject) throws XmlSerializerException {
         logger.error("The getMessageAttachments(messageObject) method is deprecated and will soon be removed. Please use getMessageAttachments(connectorMessage) instead.");
-        return convertList(com.mirth.connect.server.util.MessageAttachmentUtil.getMessageAttachments(messageObject.getImmutableConnectorMessage()));
+        return convertFromDonkeyAttachmentList(com.mirth.connect.server.util.MessageAttachmentUtil.getMessageAttachments(messageObject.getImmutableConnectorMessage()));
     }
 
     /**
@@ -174,7 +173,7 @@ public class AttachmentUtil {
      * @return A list of attachments associated with the connector message.
      */
     public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage connectorMessage) throws XmlSerializerException {
-        return convertList(com.mirth.connect.server.util.MessageAttachmentUtil.getMessageAttachments(connectorMessage));
+        return convertFromDonkeyAttachmentList(com.mirth.connect.server.util.MessageAttachmentUtil.getMessageAttachments(connectorMessage));
     }
 
     /**
@@ -190,7 +189,7 @@ public class AttachmentUtil {
      * @throws UnsupportedDataTypeException
      */
     public static Attachment addAttachment(List<Attachment> attachments, Object content, String type) throws UnsupportedDataTypeException {
-        Attachment userAttachment = convertAttachment(MessageController.getInstance().createAttachment(content, type));
+        Attachment userAttachment = convertFromDonkeyAttachment(MessageController.getInstance().createAttachment(content, type));
         attachments.add(userAttachment);
         return userAttachment;
     }
@@ -211,18 +210,30 @@ public class AttachmentUtil {
     public static Attachment createAttachment(ImmutableConnectorMessage connectorMessage, Object content, String type) throws UnsupportedDataTypeException {
         com.mirth.connect.donkey.model.message.attachment.Attachment attachment = MessageController.getInstance().createAttachment(content, type);
         MessageController.getInstance().insertAttachment(attachment, connectorMessage.getChannelId(), connectorMessage.getMessageId());
-        return convertAttachment(attachment);
+        return convertFromDonkeyAttachment(attachment);
     }
 
-    private static List<Attachment> convertList(List<com.mirth.connect.donkey.model.message.attachment.Attachment> attachments) {
+    static List<Attachment> convertFromDonkeyAttachmentList(List<com.mirth.connect.donkey.model.message.attachment.Attachment> attachments) {
         List<Attachment> list = new ArrayList<Attachment>();
         for (com.mirth.connect.donkey.model.message.attachment.Attachment attachment : attachments) {
-            list.add(convertAttachment(attachment));
+            list.add(convertFromDonkeyAttachment(attachment));
         }
         return list;
     }
 
-    private static Attachment convertAttachment(com.mirth.connect.donkey.model.message.attachment.Attachment attachment) {
+    static List<com.mirth.connect.donkey.model.message.attachment.Attachment> convertToDonkeyAttachmentList(List<Attachment> attachments) {
+        List<com.mirth.connect.donkey.model.message.attachment.Attachment> list = new ArrayList<com.mirth.connect.donkey.model.message.attachment.Attachment>();
+        for (Attachment attachment : attachments) {
+            list.add(convertToDonkeyAttachment(attachment));
+        }
+        return list;
+    }
+
+    static Attachment convertFromDonkeyAttachment(com.mirth.connect.donkey.model.message.attachment.Attachment attachment) {
         return new Attachment(attachment.getId(), attachment.getContent(), attachment.getType());
+    }
+
+    static com.mirth.connect.donkey.model.message.attachment.Attachment convertToDonkeyAttachment(Attachment attachment) {
+        return new com.mirth.connect.donkey.model.message.attachment.Attachment(attachment.getId(), attachment.getContent(), attachment.getType());
     }
 }

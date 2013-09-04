@@ -15,9 +15,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.dcm4che2.data.DicomObject;
 
-import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
-import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.server.util.MessageAttachmentUtil;
 
@@ -118,7 +116,7 @@ public class DICOMUtil {
     // TODO: Remove in 3.1
     public static byte[] mergeHeaderAttachments(MessageObject messageObject, List<Attachment> attachments) throws XmlSerializerException {
         logger.error("The mergeHeaderAttachments(messageObject, attachments) method is deprecated and will soon be removed. Please use mergeHeaderAttachments(connectorMessage, attachments) instead.");
-        return com.mirth.connect.server.util.DICOMMessageUtil.mergeHeaderAttachments(messageObject.getImmutableConnectorMessage(), attachments);
+        return com.mirth.connect.server.util.DICOMMessageUtil.mergeHeaderAttachments(messageObject.getImmutableConnectorMessage(), AttachmentUtil.convertToDonkeyAttachmentList(attachments));
     }
 
     /**
@@ -134,7 +132,7 @@ public class DICOMUtil {
      * @throws XmlSerializerException
      */
     public static byte[] mergeHeaderAttachments(ImmutableConnectorMessage connectorMessage, List<Attachment> attachments) throws XmlSerializerException {
-        return com.mirth.connect.server.util.DICOMMessageUtil.mergeHeaderAttachments(connectorMessage, attachments);
+        return com.mirth.connect.server.util.DICOMMessageUtil.mergeHeaderAttachments(connectorMessage, AttachmentUtil.convertToDonkeyAttachmentList(attachments));
     }
 
     /**
@@ -149,7 +147,7 @@ public class DICOMUtil {
      * @throws IOException
      */
     public static byte[] mergeHeaderPixelData(byte[] header, List<Attachment> attachments) throws IOException {
-        return com.mirth.connect.server.util.DICOMMessageUtil.mergeHeaderPixelData(header, attachments);
+        return com.mirth.connect.server.util.DICOMMessageUtil.mergeHeaderPixelData(header, AttachmentUtil.convertToDonkeyAttachmentList(attachments));
     }
 
     /**
@@ -166,7 +164,7 @@ public class DICOMUtil {
     // TODO: Remove in 3.1
     public static List<Attachment> getMessageAttachments(MessageObject messageObject) throws XmlSerializerException {
         logger.error("The DICOMUtil.getMessageAttachments(messageObject) method is deprecated and will soon be removed. Please use getAttachments() instead.");
-        return MessageAttachmentUtil.getMessageAttachments(messageObject.getImmutableConnectorMessage());
+        return AttachmentUtil.convertFromDonkeyAttachmentList(MessageAttachmentUtil.getMessageAttachments(messageObject.getImmutableConnectorMessage()));
     }
 
     /**
@@ -183,7 +181,7 @@ public class DICOMUtil {
     // TODO: Remove in 3.1
     public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage connectorMessage) throws XmlSerializerException {
         logger.error("The DICOMUtil.getMessageAttachments(connectorMessage) method is deprecated and will soon be removed. Please use getAttachments() instead.");
-        return MessageAttachmentUtil.getMessageAttachments(connectorMessage);
+        return AttachmentUtil.convertFromDonkeyAttachmentList(MessageAttachmentUtil.getMessageAttachments(connectorMessage));
     }
 
     /**

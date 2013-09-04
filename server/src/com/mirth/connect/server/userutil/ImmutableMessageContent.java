@@ -7,7 +7,9 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.donkey.model.message;
+package com.mirth.connect.server.userutil;
+
+import com.mirth.connect.donkey.model.message.MessageContent;
 
 /**
  * This class represents content associated with a connector message.
@@ -16,7 +18,7 @@ public class ImmutableMessageContent {
     private MessageContent messageContent;
 
     /**
-     * Instantiates an ImmutableMessageContent object.
+     * Instantiates a new ImmutableMessageContent object.
      * 
      * @param messageContent
      *            The MessageContent object that this object will reference for
@@ -30,7 +32,7 @@ public class ImmutableMessageContent {
      * Returns the ContentType of this message content (e.g. RAW, ENCODED).
      */
     public ContentType getContentType() {
-        return messageContent.getContentType();
+        return ContentType.fromDonkeyContentType(messageContent.getContentType());
     }
 
     /**

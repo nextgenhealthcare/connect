@@ -15,15 +15,13 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
-import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.util.DefaultMetaData;
 
 /**
  * This class represents a connector message and is used to retrieve details
  * such as the message ID, metadata ID, status, and various content types.
  * 
- * @see com.mirth.connect.donkey.model.message.ImmutableConnectorMessage
+ * @see ImmutableConnectorMessage
  * 
  * @deprecated This class is deprecated and will soon be removed. Please refer
  *             to ImmutableConnectorMessage instead.

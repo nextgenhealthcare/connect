@@ -23,4 +23,21 @@ public enum DeployedState {
     public String toString() {
         return WordUtils.capitalizeFully(super.toString());
     }
+
+    static DeployedState fromDonkeyDeployedState(com.mirth.connect.donkey.model.channel.DeployedState deployedState) {
+        switch (deployedState) {
+            case STARTING:
+                return STARTING;
+            case STARTED:
+                return STARTED;
+            case PAUSING:
+                return PAUSING;
+            case PAUSED:
+                return PAUSED;
+            case STOPPED:
+                return STOPPED;
+            default:
+                return null;
+        }
+    }
 }

@@ -42,7 +42,7 @@ public class DateUtil {
      *            The SimpleDateFormat pattern to use (e.g. "yyyyMMddHHmmss").
      * @param date
      *            The java.util.Date object to format.
-     * @return - The formatted date string.
+     * @return The formatted date string.
      */
     public static String formatDate(String pattern, Date date) {
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
@@ -54,7 +54,7 @@ public class DateUtil {
      * 
      * @param pattern
      *            The SimpleDateFormat pattern to use (e.g. "yyyyMMddHHmmss").
-     * @return - The current formatted date string.
+     * @return The current formatted date string.
      */
     public static String getCurrentDate(String pattern) {
         return formatDate(pattern, new Date());
@@ -72,7 +72,7 @@ public class DateUtil {
      *            outbound date string (e.g. "yyyyMMddHHmmss").
      * @param date
      *            The date string to convert.
-     * @return - The converted date string.
+     * @return The converted date string.
      * @throws Exception
      */
     public static String convertDate(String inPattern, String outPattern, String date) throws Exception {

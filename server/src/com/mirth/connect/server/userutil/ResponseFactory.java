@@ -11,9 +11,6 @@ package com.mirth.connect.server.userutil;
 
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.model.message.Response;
-import com.mirth.connect.donkey.model.message.Status;
-
 /**
  * Provides methods to create Response objects.
  */

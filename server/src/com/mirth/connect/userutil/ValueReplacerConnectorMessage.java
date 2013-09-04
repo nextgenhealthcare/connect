@@ -13,9 +13,9 @@ import java.util.Calendar;
 
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
-import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.util.DefaultMetaData;
+import com.mirth.connect.server.userutil.ImmutableConnectorMessage;
+import com.mirth.connect.server.userutil.Status;
 
 /**
  * This class represents a connector message and is used to retrieve details

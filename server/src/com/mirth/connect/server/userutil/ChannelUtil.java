@@ -11,7 +11,6 @@ package com.mirth.connect.server.userutil;
 
 import java.util.Collections;
 
-import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.server.controllers.ChannelController;
@@ -93,7 +92,7 @@ public class ChannelUtil {
      */
     public static DeployedState getChannelState(String channelIdOrName) {
         DashboardStatus dashboardStatus = getDashboardStatus(channelIdOrName, null);
-        return dashboardStatus != null ? convertDeployedState(dashboardStatus.getState()) : null;
+        return dashboardStatus != null ? DeployedState.fromDonkeyDeployedState(dashboardStatus.getState()) : null;
     }
 
     /**
@@ -169,7 +168,7 @@ public class ChannelUtil {
      */
     public static DeployedState getConnectorState(String channelIdOrName, Number metaDataId) {
         DashboardStatus dashboardStatus = getDashboardStatus(channelIdOrName, metaDataId);
-        return dashboardStatus != null ? convertDeployedState(dashboardStatus.getState()) : null;
+        return dashboardStatus != null ? DeployedState.fromDonkeyDeployedState(dashboardStatus.getState()) : null;
     }
 
     /**
@@ -347,19 +346,5 @@ public class ChannelUtil {
             }
         }
         return null;
-    }
-
-    private static DeployedState convertDeployedState(com.mirth.connect.donkey.model.channel.DeployedState deployedState) {
-        // @formatter:off
-        switch (deployedState) {
-            case STARTING: return DeployedState.STARTING;
-            case STARTED: return DeployedState.STARTED;
-            case PAUSING: return DeployedState.PAUSING;
-            case PAUSED: return DeployedState.PAUSED;
-            case STOPPING: return DeployedState.STOPPING;
-            case STOPPED: return DeployedState.STOPPED;
-            default: return null;
-        }
-        // @formatter:on
     }
 }

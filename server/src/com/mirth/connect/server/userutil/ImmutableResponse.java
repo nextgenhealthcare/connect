@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.donkey.model.message;
+package com.mirth.connect.server.userutil;
 
 /**
  * This class represents a destination response and is used to retrieve details
@@ -17,7 +17,7 @@ public class ImmutableResponse {
     private Response response;
 
     /**
-     * Instantiates a new ImmutableResponse.
+     * Instantiates a new ImmutableResponse object.
      * 
      * @param response
      *            The Response object that this object will reference for

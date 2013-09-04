@@ -25,7 +25,6 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.DeployException;
@@ -39,6 +38,7 @@ import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
@@ -141,17 +141,17 @@ public class JavaScriptDispatcher extends DestinationConnector {
                         if (result instanceof NativeJavaObject) {
                             Object object = ((NativeJavaObject) result).unwrap();
 
-                            if (object instanceof Response) {
-                                return (Response) object;
-                            } else if (object instanceof Status) {
-                                responseStatus = (Status) object;
+                            if (object instanceof com.mirth.connect.server.userutil.Response) {
+                                return JavaScriptUtil.convertToDonkeyResponse(object);
+                            } else if (object instanceof com.mirth.connect.server.userutil.Status) {
+                                responseStatus = JavaScriptUtil.convertToDonkeyStatus((com.mirth.connect.server.userutil.Status) object);
                             } else {
                                 responseData = object.toString();
                             }
-                        } else if (result instanceof Response) {
-                            return (Response) result;
-                        } else if (result instanceof Status) {
-                            responseStatus = (Status) result;
+                        } else if (result instanceof com.mirth.connect.server.userutil.Response) {
+                            return JavaScriptUtil.convertToDonkeyResponse(result);
+                        } else if (result instanceof com.mirth.connect.server.userutil.Status) {
+                            responseStatus = JavaScriptUtil.convertToDonkeyStatus((com.mirth.connect.server.userutil.Status) result);
                         } else {
                             responseData = (String) Context.jsToJava(result, java.lang.String.class);
                         }
