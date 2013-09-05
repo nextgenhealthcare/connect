@@ -485,6 +485,9 @@ public class Mirth extends Thread {
 
             // Use our special error handler so that we dont have ugly URL
             // encoding
+            sslServletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart.jnlp");
+            sslServletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart");
+            sslServletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart/extensions/*");
             sslServletContextHandler.addServlet(new ServletHolder(new AlertServlet()), "/alerts");
             sslServletContextHandler.addServlet(new ServletHolder(new ChannelServlet()), "/channels");
             sslServletContextHandler.addServlet(new ServletHolder(new ChannelStatisticsServlet()), "/channelstatistics");
