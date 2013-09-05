@@ -27,8 +27,7 @@ public class XmlUtil {
     }
 
     /**
-     * Converts an XML/HTML entity reference into a string with the literal
-     * character.
+     * Converts an XML/HTML entity reference into a string with the literal character.
      * 
      * @param entity
      *            The XML/HTML entity to decode.
@@ -50,8 +49,7 @@ public class XmlUtil {
     }
 
     /**
-     * Converts a string, encoding characters into the corresponding XML/HTML
-     * entities as needed.
+     * Converts a string, encoding characters into the corresponding XML/HTML entities as needed.
      * 
      * @param s
      *            The string to encode.
@@ -62,8 +60,8 @@ public class XmlUtil {
     }
 
     /**
-     * Converts a character array, encoding characters into the corresponding
-     * XML/HTML entities as needed.
+     * Converts a character array, encoding characters into the corresponding XML/HTML entities as
+     * needed.
      * 
      * @param text
      *            The character array to encode.

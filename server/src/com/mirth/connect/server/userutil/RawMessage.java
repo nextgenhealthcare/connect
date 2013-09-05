@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class represents a raw message as it is received by a channel, and is
- * used to retrieve details such as the raw data or channel map.
+ * This class represents a raw message as it is received by a channel, and is used to retrieve
+ * details such as the raw data or channel map.
  */
 public class RawMessage {
     private com.mirth.connect.donkey.model.message.RawMessage rawMessage;
@@ -35,8 +35,8 @@ public class RawMessage {
      * @param rawData
      *            The textual data to dispatch to the channel.
      * @param destinationMetaDataIds
-     *            A list of integers (metadata IDs) representing which
-     *            destinations to dispatch the message to.
+     *            A list of integers (metadata IDs) representing which destinations to dispatch the
+     *            message to.
      */
     public RawMessage(String rawData, List<Integer> destinationMetaDataIds) {
         rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawData, destinationMetaDataIds);
@@ -48,11 +48,11 @@ public class RawMessage {
      * @param rawData
      *            The textual data to dispatch to the channel.
      * @param destinationMetaDataIds
-     *            A list of integers (metadata IDs) representing which
-     *            destinations to dispatch the message to.
+     *            A list of integers (metadata IDs) representing which destinations to dispatch the
+     *            message to.
      * @param channelMap
-     *            Any values placed in this map will be populated in the channel
-     *            map at the beginning of the message's lifecycle.
+     *            Any values placed in this map will be populated in the channel map at the
+     *            beginning of the message's lifecycle.
      */
     public RawMessage(String rawData, List<Integer> destinationMetaDataIds, Map<String, Object> channelMap) {
         rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawData, destinationMetaDataIds, channelMap);
@@ -74,8 +74,8 @@ public class RawMessage {
      * @param rawBytes
      *            The binary data (byte array) to dispatch to the channel.
      * @param destinationMetaDataIds
-     *            A list of integers (metadata IDs) representing which
-     *            destinations to dispatch the message to.
+     *            A list of integers (metadata IDs) representing which destinations to dispatch the
+     *            message to.
      */
     public RawMessage(byte[] rawBytes, List<Integer> destinationMetaDataIds) {
         rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawBytes, destinationMetaDataIds);
@@ -87,11 +87,11 @@ public class RawMessage {
      * @param rawBytes
      *            The binary data (byte array) to dispatch to the channel.
      * @param destinationMetaDataIds
-     *            A list of integers (metadata IDs) representing which
-     *            destinations to dispatch the message to.
+     *            A list of integers (metadata IDs) representing which destinations to dispatch the
+     *            message to.
      * @param channelMap
-     *            Any values placed in this map will be populated in the channel
-     *            map at the beginning of the message's lifecycle.
+     *            Any values placed in this map will be populated in the channel map at the
+     *            beginning of the message's lifecycle.
      */
     public RawMessage(byte[] rawBytes, List<Integer> destinationMetaDataIds, Map<String, Object> channelMap) {
         rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawBytes, destinationMetaDataIds, channelMap);
@@ -112,8 +112,8 @@ public class RawMessage {
     }
 
     /**
-     * Returns the list of integers (metadata IDs) representing which
-     * destinations to dispatch the message to.
+     * Returns the list of integers (metadata IDs) representing which destinations to dispatch the
+     * message to.
      */
     public List<Integer> getDestinationMetaDataIds() {
         return rawMessage.getDestinationMetaDataIds();
@@ -123,16 +123,15 @@ public class RawMessage {
      * Sets which destinations to dispatch the message to.
      * 
      * @param destinationMetaDataIds
-     *            A list of integers (metadata IDs) representing which
-     *            destinations to dispatch the message to.
+     *            A list of integers (metadata IDs) representing which destinations to dispatch the
+     *            message to.
      */
     public void setDestinationMetaDataIds(List<Integer> destinationMetaDataIds) {
         rawMessage.setDestinationMetaDataIds(destinationMetaDataIds);
     }
 
     /**
-     * Returns the channel map to be used at the beginning of the channel
-     * dispatch.
+     * Returns the channel map to be used at the beginning of the channel dispatch.
      */
     public Map<String, Object> getChannelMap() {
         return rawMessage.getChannelMap();
@@ -142,24 +141,22 @@ public class RawMessage {
      * Sets the channel map to be used at the beginning of the channel dispatch.
      * 
      * @param channelMap
-     *            Any values placed in this map will be populated in the channel
-     *            map at the beginning of the message's lifecycle.
+     *            Any values placed in this map will be populated in the channel map at the
+     *            beginning of the message's lifecycle.
      */
     public void setChannelMap(Map<String, Object> channelMap) {
         rawMessage.setChannelMap(channelMap);
     }
 
     /**
-     * Returns a Boolean representing whether this object contains textual or
-     * binary data.
+     * Returns a Boolean representing whether this object contains textual or binary data.
      */
     public Boolean isBinary() {
         return rawMessage.isBinary();
     }
 
     /**
-     * Removes references to any data (textual or binary) currently stored by
-     * the raw message.
+     * Removes references to any data (textual or binary) currently stored by the raw message.
      */
     public void clearMessage() {
         rawMessage.clearMessage();

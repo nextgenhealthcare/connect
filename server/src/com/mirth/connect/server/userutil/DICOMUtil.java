@@ -29,15 +29,15 @@ public class DICOMUtil {
     private DICOMUtil() {}
 
     /**
-     * Re-attaches DICOM attachments with the header data in the connector
-     * message and returns the resulting merged data as a Base64-encoded string.
+     * Re-attaches DICOM attachments with the header data in the connector message and returns the
+     * resulting merged data as a Base64-encoded string.
      * 
      * @param messageObject
      *            The connector message to retrieve merged DICOM data for.
      * @return The merged DICOM data, Base64-encoded.
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use getDICOMRawData(connectorMessage) instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             getDICOMRawData(connectorMessage) instead.
      */
     // TODO: Remove in 3.1
     public static String getDICOMRawData(MessageObject messageObject) {
@@ -46,8 +46,8 @@ public class DICOMUtil {
     }
 
     /**
-     * Re-attaches DICOM attachments with the header data in the connector
-     * message and returns the resulting merged data as a Base64-encoded string.
+     * Re-attaches DICOM attachments with the header data in the connector message and returns the
+     * resulting merged data as a Base64-encoded string.
      * 
      * @param connectorMessage
      *            The connector message to retrieve merged DICOM data for.
@@ -58,8 +58,8 @@ public class DICOMUtil {
     }
 
     /**
-     * Re-attaches DICOM attachments with the header data in the connector
-     * message and returns the resulting merged data as a byte array.
+     * Re-attaches DICOM attachments with the header data in the connector message and returns the
+     * resulting merged data as a byte array.
      * 
      * @param connectorMessage
      *            The connector message to retrieve merged DICOM data for.
@@ -70,15 +70,15 @@ public class DICOMUtil {
     }
 
     /**
-     * Re-attaches DICOM attachments with the header data in the connector
-     * message and returns the resulting merged data as a byte array.
+     * Re-attaches DICOM attachments with the header data in the connector message and returns the
+     * resulting merged data as a byte array.
      * 
      * @param messageObject
      *            The connector message to retrieve merged DICOM data for.
      * @return The merged DICOM data as a byte array.
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use getDICOMMessage(connectorMessage) instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             getDICOMMessage(connectorMessage) instead.
      */
     // TODO: Remove in 3.1
     public static byte[] getDICOMMessage(MessageObject messageObject) {
@@ -87,8 +87,8 @@ public class DICOMUtil {
     }
 
     /**
-     * Re-attaches DICOM attachments with the header data in the connector
-     * message and returns the resulting merged data as a byte array.
+     * Re-attaches DICOM attachments with the header data in the connector message and returns the
+     * resulting merged data as a byte array.
      * 
      * @param connectorMessage
      *            The connector message to retrieve merged DICOM data for.
@@ -99,20 +99,18 @@ public class DICOMUtil {
     }
 
     /**
-     * Re-attaches DICOM attachments with the header data in the connector
-     * message and returns the resulting merged data as a byte array.
+     * Re-attaches DICOM attachments with the header data in the connector message and returns the
+     * resulting merged data as a byte array.
      * 
      * @param messageObject
-     *            The connector message containing header data to merge DICOM
-     *            attachments with.
+     *            The connector message containing header data to merge DICOM attachments with.
      * @param attachments
      *            The DICOM attachments to merge with the header data.
      * @return The merged DICOM data as a byte array.
      * @throws XmlSerializerException
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use mergeHeaderAttachments(connectorMessage, attachments)
-     *             instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             mergeHeaderAttachments(connectorMessage, attachments) instead.
      */
     // TODO: Remove in 3.1
     public static byte[] mergeHeaderAttachments(MessageObject messageObject, List<Attachment> attachments) throws XmlSerializerException {
@@ -121,12 +119,11 @@ public class DICOMUtil {
     }
 
     /**
-     * Re-attaches DICOM attachments with the header data in the connector
-     * message and returns the resulting merged data as a byte array.
+     * Re-attaches DICOM attachments with the header data in the connector message and returns the
+     * resulting merged data as a byte array.
      * 
      * @param connectorMessage
-     *            The connector message containing header data to merge DICOM
-     *            attachments with.
+     *            The connector message containing header data to merge DICOM attachments with.
      * @param attachments
      *            The DICOM attachments to merge with the header data.
      * @return The merged DICOM data as a byte array.
@@ -137,8 +134,8 @@ public class DICOMUtil {
     }
 
     /**
-     * Re-attaches DICOM attachments with the given header data and returns the
-     * resulting merged data as a byte array.
+     * Re-attaches DICOM attachments with the given header data and returns the resulting merged
+     * data as a byte array.
      * 
      * @param header
      *            The header data to merge DICOM attachments with.
@@ -159,8 +156,8 @@ public class DICOMUtil {
      * @return A list of attachments associated with the connector message.
      * @throws XmlSerializerException
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use getAttachments() instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use getAttachments()
+     *             instead.
      */
     // TODO: Remove in 3.1
     public static List<Attachment> getMessageAttachments(MessageObject messageObject) throws XmlSerializerException {
@@ -176,8 +173,8 @@ public class DICOMUtil {
      * @return A list of attachments associated with the connector message.
      * @throws XmlSerializerException
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use getAttachments() instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use getAttachments()
+     *             instead.
      */
     // TODO: Remove in 3.1
     public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage connectorMessage) throws XmlSerializerException {
@@ -186,8 +183,8 @@ public class DICOMUtil {
     }
 
     /**
-     * Returns the number of slices in the fully-merged DICOM data associated
-     * with a given connector message.
+     * Returns the number of slices in the fully-merged DICOM data associated with a given connector
+     * message.
      * 
      * @param connectorMessage
      *            The connector message to retrieve DICOM data for.
@@ -198,21 +195,18 @@ public class DICOMUtil {
     }
 
     /**
-     * Converts merged DICOM data associated with a connector message into a
-     * specified image format.
+     * Converts merged DICOM data associated with a connector message into a specified image format.
      * 
      * @param imageType
      *            The image format to convert the DICOM data to (e.g. "jpg").
      * @param messageObject
      *            The connector message to retrieve merged DICOM data for.
      * @param autoThreshold
-     *            If true, automatically sets the lower and upper threshold
-     *            levels.
+     *            If true, automatically sets the lower and upper threshold levels.
      * @return The converted image, as a Base64-encoded string.
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use convertDICOM(imageType, connectorMessage, autoThreshold)
-     *             instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             convertDICOM(imageType, connectorMessage, autoThreshold) instead.
      */
     // TODO: Remove in 3.1
     public static String convertDICOM(String imageType, MessageObject messageObject, boolean autoThreshold) {
@@ -221,16 +215,14 @@ public class DICOMUtil {
     }
 
     /**
-     * Converts merged DICOM data associated with a connector message into a
-     * specified image format.
+     * Converts merged DICOM data associated with a connector message into a specified image format.
      * 
      * @param imageType
      *            The image format to convert the DICOM data to (e.g. "jpg").
      * @param connectorMessage
      *            The connector message to retrieve merged DICOM data for.
      * @param autoThreshold
-     *            If true, automatically sets the lower and upper threshold
-     *            levels.
+     *            If true, automatically sets the lower and upper threshold levels.
      * @return The converted image, as a Base64-encoded string.
      */
     public static String convertDICOM(String imageType, ImmutableConnectorMessage connectorMessage, boolean autoThreshold) {
@@ -238,8 +230,7 @@ public class DICOMUtil {
     }
 
     /**
-     * Converts merged DICOM data associated with a connector message into a
-     * specified image format.
+     * Converts merged DICOM data associated with a connector message into a specified image format.
      * 
      * @param imageType
      *            The image format to convert the DICOM data to (e.g. "jpg").
@@ -247,8 +238,8 @@ public class DICOMUtil {
      *            The connector message to retrieve merged DICOM data for.
      * @return The converted image, as a Base64-encoded string.
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use convertDICOM(imageType, connectorMessage) instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             convertDICOM(imageType, connectorMessage) instead.
      */
     // TODO: Remove in 3.1
     public static String convertDICOM(String imageType, MessageObject messageObject) {
@@ -257,8 +248,7 @@ public class DICOMUtil {
     }
 
     /**
-     * Converts merged DICOM data associated with a connector message into a
-     * specified image format.
+     * Converts merged DICOM data associated with a connector message into a specified image format.
      * 
      * @param imageType
      *            The image format to convert the DICOM data to (e.g. "jpg").
@@ -271,16 +261,15 @@ public class DICOMUtil {
     }
 
     /**
-     * Converts merged DICOM data associated with a connector message into a
-     * specified image format.
+     * Converts merged DICOM data associated with a connector message into a specified image format.
      * 
      * @param imageType
      *            The image format to convert the DICOM data to (e.g. "jpg").
      * @param connectorMessage
      *            The connector message to retrieve merged DICOM data for.
      * @param sliceIndex
-     *            If there are multiple slices in the DICOM data, this indicates
-     *            which one to use (the first slice has an index of 1).
+     *            If there are multiple slices in the DICOM data, this indicates which one to use
+     *            (the first slice has an index of 1).
      * @return The converted image, as a Base64-encoded string.
      */
     public static String convertDICOM(String imageType, ImmutableConnectorMessage connectorMessage, int sliceIndex) {
@@ -288,19 +277,17 @@ public class DICOMUtil {
     }
 
     /**
-     * Converts merged DICOM data associated with a connector message into a
-     * specified image format.
+     * Converts merged DICOM data associated with a connector message into a specified image format.
      * 
      * @param imageType
      *            The image format to convert the DICOM data to (e.g. "jpg").
      * @param connectorMessage
      *            The connector message to retrieve merged DICOM data for.
      * @param sliceIndex
-     *            If there are multiple slices in the DICOM data, this indicates
-     *            which one to use (the first slice has an index of 1).
+     *            If there are multiple slices in the DICOM data, this indicates which one to use
+     *            (the first slice has an index of 1).
      * @param autoThreshold
-     *            If true, automatically sets the lower and upper threshold
-     *            levels.
+     *            If true, automatically sets the lower and upper threshold levels.
      * @return The converted image, as a Base64-encoded string.
      */
     public static String convertDICOM(String imageType, ImmutableConnectorMessage connectorMessage, int sliceIndex, boolean autoThreshold) {
@@ -308,8 +295,7 @@ public class DICOMUtil {
     }
 
     /**
-     * Converts merged DICOM data associated with a connector message into a
-     * specified image format.
+     * Converts merged DICOM data associated with a connector message into a specified image format.
      * 
      * @param imageType
      *            The image format to convert the DICOM data to (e.g. "jpg").
@@ -322,16 +308,15 @@ public class DICOMUtil {
     }
 
     /**
-     * Converts merged DICOM data associated with a connector message into a
-     * specified image format.
+     * Converts merged DICOM data associated with a connector message into a specified image format.
      * 
      * @param imageType
      *            The image format to convert the DICOM data to (e.g. "jpg").
      * @param connectorMessage
      *            The connector message to retrieve merged DICOM data for.
      * @param sliceIndex
-     *            If there are multiple slices in the DICOM data, this indicates
-     *            which one to use (the first slice has an index of 1).
+     *            If there are multiple slices in the DICOM data, this indicates which one to use
+     *            (the first slice has an index of 1).
      * @return The converted image, as a byte array.
      */
     public static byte[] convertDICOMToByteArray(String imageType, ImmutableConnectorMessage connectorMessage, int sliceIndex) {
@@ -339,19 +324,17 @@ public class DICOMUtil {
     }
 
     /**
-     * Converts merged DICOM data associated with a connector message into a
-     * specified image format.
+     * Converts merged DICOM data associated with a connector message into a specified image format.
      * 
      * @param imageType
      *            The image format to convert the DICOM data to (e.g. "jpg").
      * @param connectorMessage
      *            The connector message to retrieve merged DICOM data for.
      * @param sliceIndex
-     *            If there are multiple slices in the DICOM data, this indicates
-     *            which one to use (the first slice has an index of 1).
+     *            If there are multiple slices in the DICOM data, this indicates which one to use
+     *            (the first slice has an index of 1).
      * @param autoThreshold
-     *            If true, automatically sets the lower and upper threshold
-     *            levels.
+     *            If true, automatically sets the lower and upper threshold levels.
      * @return The converted image, as a byte array.
      */
     public static byte[] convertDICOMToByteArray(String imageType, ImmutableConnectorMessage connectorMessage, int sliceIndex, boolean autoThreshold) {
@@ -359,20 +342,17 @@ public class DICOMUtil {
     }
 
     /**
-     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
-     * corresponding attachment content, and returns the full post-replacement
-     * message.
+     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the corresponding attachment
+     * content, and returns the full post-replacement message.
      * 
      * @param messageObject
-     *            The connector message associated with the attachments. The
-     *            encoded data will be used as the raw message string to
-     *            re-attach attachments to, if it exists. Otherwise, the
-     *            connector message's raw data will be used.
-     * @return The resulting message with all applicable attachment content
-     *         re-inserted.
+     *            The connector message associated with the attachments. The encoded data will be
+     *            used as the raw message string to re-attach attachments to, if it exists.
+     *            Otherwise, the connector message's raw data will be used.
+     * @return The resulting message with all applicable attachment content re-inserted.
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use AttachmentUtil.reAttachMessage(connectorMessage) instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             AttachmentUtil.reAttachMessage(connectorMessage) instead.
      */
     // TODO: Remove in 3.1
     public static String reAttachMessage(MessageObject messageObject) {
@@ -381,20 +361,17 @@ public class DICOMUtil {
     }
 
     /**
-     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
-     * corresponding attachment content, and returns the full post-replacement
-     * message.
+     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the corresponding attachment
+     * content, and returns the full post-replacement message.
      * 
      * @param connectorMessage
-     *            The connector message associated with the attachments. The
-     *            encoded data will be used as the raw message string to
-     *            re-attach attachments to, if it exists. Otherwise, the
-     *            connector message's raw data will be used.
-     * @return The resulting message with all applicable attachment content
-     *         re-inserted.
+     *            The connector message associated with the attachments. The encoded data will be
+     *            used as the raw message string to re-attach attachments to, if it exists.
+     *            Otherwise, the connector message's raw data will be used.
+     * @return The resulting message with all applicable attachment content re-inserted.
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use AttachmentUtil.reAttachMessage(connectorMessage) instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             AttachmentUtil.reAttachMessage(connectorMessage) instead.
      */
     // TODO: Remove in 3.1
     public static String reAttachMessage(ImmutableConnectorMessage connectorMessage) {
@@ -403,22 +380,20 @@ public class DICOMUtil {
     }
 
     /**
-     * Converts merged DICOM data associated with a connector message into a
-     * JPEG image.
+     * Converts merged DICOM data associated with a connector message into a JPEG image.
      * 
      * @param sliceIndex
-     *            If there are multiple slices in the DICOM data, this indicates
-     *            which one to use (the first slice has an index of 1).
+     *            If there are multiple slices in the DICOM data, this indicates which one to use
+     *            (the first slice has an index of 1).
      * @param messageObject
      *            The connector message to retrieve merged DICOM data for.
      * @param autoThreshold
-     *            If true, automatically sets the lower and upper threshold
-     *            levels.
+     *            If true, automatically sets the lower and upper threshold levels.
      * @return The converted JPEG image, as a byte array.
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use convertDICOMToByteArray(imageType, connectorMessage,
-     *             sliceIndex, autoThreshold) instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             convertDICOMToByteArray(imageType, connectorMessage, sliceIndex, autoThreshold)
+     *             instead.
      */
     // TODO: Remove in 3.1
     public static byte[] dicomToJpg(int sliceIndex, MessageObject messageObject, boolean autoThreshold) {
@@ -427,22 +402,20 @@ public class DICOMUtil {
     }
 
     /**
-     * Converts merged DICOM data associated with a connector message into a
-     * JPEG image.
+     * Converts merged DICOM data associated with a connector message into a JPEG image.
      * 
      * @param sliceIndex
-     *            If there are multiple slices in the DICOM data, this indicates
-     *            which one to use (the first slice has an index of 1).
+     *            If there are multiple slices in the DICOM data, this indicates which one to use
+     *            (the first slice has an index of 1).
      * @param connectorMessage
      *            The connector message to retrieve merged DICOM data for.
      * @param autoThreshold
-     *            If true, automatically sets the lower and upper threshold
-     *            levels.
+     *            If true, automatically sets the lower and upper threshold levels.
      * @return The converted JPEG image, as a byte array.
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use convertDICOMToByteArray(imageType, connectorMessage,
-     *             sliceIndex, autoThreshold) instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             convertDICOMToByteArray(imageType, connectorMessage, sliceIndex, autoThreshold)
+     *             instead.
      */
     // TODO: Remove in 3.1
     public static byte[] dicomToJpg(int sliceIndex, ImmutableConnectorMessage connectorMessage, boolean autoThreshold) {

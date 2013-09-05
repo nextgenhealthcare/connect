@@ -21,8 +21,7 @@ import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
 
 /**
- * Provides utility methods for creating, retrieving, and re-attaching message
- * attachments.
+ * Provides utility methods for creating, retrieving, and re-attaching message attachments.
  */
 public class AttachmentUtil {
     private static Logger logger = Logger.getLogger(AttachmentUtil.class);
@@ -30,42 +29,36 @@ public class AttachmentUtil {
     private AttachmentUtil() {}
 
     /**
-     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
-     * corresponding attachment content, and returns the full post-replacement
-     * message as a byte array.
+     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the corresponding attachment
+     * content, and returns the full post-replacement message as a byte array.
      * 
      * @param raw
      *            The message string to re-attach attachments to.
      * @param connectorMessage
      *            The connector message associated with the attachments.
      * @param charsetEncoding
-     *            The charset encoding to use when returning the re-attached
-     *            message
+     *            The charset encoding to use when returning the re-attached message
      * @param binary
-     *            If true, the message string passed in is assumed to be Base64
-     *            encoded.
-     * @return The resulting message as a byte array, with all applicable
-     *         attachment content re-inserted.
+     *            If true, the message string passed in is assumed to be Base64 encoded.
+     * @return The resulting message as a byte array, with all applicable attachment content
+     *         re-inserted.
      */
     public static byte[] reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage, String charsetEncoding, boolean binary) {
         return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(raw, connectorMessage, charsetEncoding, binary);
     }
 
     /**
-     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
-     * corresponding attachment content, and returns the full post-replacement
-     * message.
+     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the corresponding attachment
+     * content, and returns the full post-replacement message.
      * 
      * @param messageObject
-     *            The connector message associated with the attachments. The
-     *            encoded data will be used as the raw message string to
-     *            re-attach attachments to, if it exists. Otherwise, the
-     *            connector message's raw data will be used.
-     * @return The resulting message with all applicable attachment content
-     *         re-inserted.
+     *            The connector message associated with the attachments. The encoded data will be
+     *            used as the raw message string to re-attach attachments to, if it exists.
+     *            Otherwise, the connector message's raw data will be used.
+     * @return The resulting message with all applicable attachment content re-inserted.
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use reAttachMessage(connectorMessage) instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             reAttachMessage(connectorMessage) instead.
      */
     // TODO: Remove in 3.1
     public static String reAttachMessage(MessageObject messageObject) {
@@ -74,36 +67,30 @@ public class AttachmentUtil {
     }
 
     /**
-     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
-     * corresponding attachment content, and returns the full post-replacement
-     * message.
+     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the corresponding attachment
+     * content, and returns the full post-replacement message.
      * 
      * @param connectorMessage
-     *            The connector message associated with the attachments. The
-     *            encoded data will be used as the raw message string to
-     *            re-attach attachments to, if it exists. Otherwise, the
-     *            connector message's raw data will be used.
-     * @return The resulting message with all applicable attachment content
-     *         re-inserted.
+     *            The connector message associated with the attachments. The encoded data will be
+     *            used as the raw message string to re-attach attachments to, if it exists.
+     *            Otherwise, the connector message's raw data will be used.
+     * @return The resulting message with all applicable attachment content re-inserted.
      */
     public static String reAttachMessage(ImmutableConnectorMessage connectorMessage) {
         return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(connectorMessage);
     }
 
     /**
-     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
-     * corresponding attachment content, and returns the full post-replacement
-     * message.
+     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the corresponding attachment
+     * content, and returns the full post-replacement message.
      * 
      * @param messageObject
-     *            The connector message associated with the attachments. The raw
-     *            data will be used as the raw message string to re-attach
-     *            attachments to.
-     * @return The resulting message with all applicable attachment content
-     *         re-inserted.
+     *            The connector message associated with the attachments. The raw data will be used
+     *            as the raw message string to re-attach attachments to.
+     * @return The resulting message with all applicable attachment content re-inserted.
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use reAttachMessage(raw, connectorMessage) instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             reAttachMessage(raw, connectorMessage) instead.
      */
     // TODO: Remove in 3.1
     public static String reAttachRawMessage(MessageObject messageObject) {
@@ -112,19 +99,16 @@ public class AttachmentUtil {
     }
 
     /**
-     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
-     * corresponding attachment content, and returns the full post-replacement
-     * message.
+     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the corresponding attachment
+     * content, and returns the full post-replacement message.
      * 
      * @param connectorMessage
-     *            The connector message associated with the attachments. The raw
-     *            data will be used as the raw message string to re-attach
-     *            attachments to.
-     * @return The resulting message with all applicable attachment content
-     *         re-inserted.
+     *            The connector message associated with the attachments. The raw data will be used
+     *            as the raw message string to re-attach attachments to.
+     * @return The resulting message with all applicable attachment content re-inserted.
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use reAttachMessage(raw, connectorMessage) instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             reAttachMessage(raw, connectorMessage) instead.
      */
     // TODO: Remove in 3.1
     public static String reAttachRawMessage(ImmutableConnectorMessage connectorMessage) {
@@ -133,18 +117,15 @@ public class AttachmentUtil {
     }
 
     /**
-     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the
-     * corresponding attachment content, and returns the full post-replacement
-     * message.
+     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the corresponding attachment
+     * content, and returns the full post-replacement message.
      * 
      * @param raw
      *            The message string to re-attach attachments to.
      * @param connectorMessage
-     *            The connector message associated with the attachments. The raw
-     *            data will be used as the raw message string to re-attach
-     *            attachments to.
-     * @return The resulting message with all applicable attachment content
-     *         re-inserted.
+     *            The connector message associated with the attachments. The raw data will be used
+     *            as the raw message string to re-attach attachments to.
+     * @return The resulting message with all applicable attachment content re-inserted.
      */
     public static String reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage) {
         return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(raw, connectorMessage);
@@ -157,8 +138,8 @@ public class AttachmentUtil {
      *            The connector message associated with the attachments.
      * @return A list of attachments associated with the connector message.
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use getMessageAttachments(connectorMessage) instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             getMessageAttachments(connectorMessage) instead.
      */
     // TODO: Remove in 3.1
     public static List<Attachment> getMessageAttachments(MessageObject messageObject) throws XmlSerializerException {
@@ -196,8 +177,8 @@ public class AttachmentUtil {
     }
 
     /**
-     * Creates an attachment associated with a given connector message, and
-     * inserts it into the database.
+     * Creates an attachment associated with a given connector message, and inserts it into the
+     * database.
      * 
      * @param connectorMessage
      *            The connector message to be associated with the attachment.

@@ -19,8 +19,7 @@ public class DateUtil {
     private DateUtil() {}
 
     /**
-     * Parses a date string according to the specified pattern and returns a
-     * java.util.Date object.
+     * Parses a date string according to the specified pattern and returns a java.util.Date object.
      * 
      * @param pattern
      *            The SimpleDateFormat pattern to use (e.g. "yyyyMMddHHmmss").
@@ -35,8 +34,7 @@ public class DateUtil {
     }
 
     /**
-     * Formats a java.util.Date object into a string according to a specified
-     * pattern.
+     * Formats a java.util.Date object into a string according to a specified pattern.
      * 
      * @param pattern
      *            The SimpleDateFormat pattern to use (e.g. "yyyyMMddHHmmss").
@@ -61,15 +59,15 @@ public class DateUtil {
     }
 
     /**
-     * Parses a date string according to a specified input pattern, and formats
-     * the date back to a string according to a specified output pattern.
+     * Parses a date string according to a specified input pattern, and formats the date back to a
+     * string according to a specified output pattern.
      * 
      * @param inPattern
-     *            The SimpleDateFormat pattern to use for parsing the inbound
-     *            date string (e.g. "yyyyMMddHHmmss").
+     *            The SimpleDateFormat pattern to use for parsing the inbound date string (e.g.
+     *            "yyyyMMddHHmmss").
      * @param outPattern
-     *            The SimpleDateFormat pattern to use for formatting the
-     *            outbound date string (e.g. "yyyyMMddHHmmss").
+     *            The SimpleDateFormat pattern to use for formatting the outbound date string (e.g.
+     *            "yyyyMMddHHmmss").
      * @param date
      *            The date string to convert.
      * @return The converted date string.

@@ -18,8 +18,8 @@ import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 /**
- * This class represents a connector message and is used to retrieve details
- * such as the message ID, metadata ID, status, and various content types.
+ * This class represents a connector message and is used to retrieve details such as the message ID,
+ * metadata ID, status, and various content types.
  */
 public class ImmutableConnectorMessage {
     private ConnectorMessage connectorMessage;
@@ -31,8 +31,7 @@ public class ImmutableConnectorMessage {
      * Instantiates a new ImmutableConnectorMessage object.
      * 
      * @param connectorMessage
-     *            The connector message that this object will reference for
-     *            retrieving data.
+     *            The connector message that this object will reference for retrieving data.
      */
     public ImmutableConnectorMessage(ConnectorMessage connectorMessage) {
         this(connectorMessage, false);
@@ -42,13 +41,11 @@ public class ImmutableConnectorMessage {
      * Instantiates a new ImmutableConnectorMessage object.
      * 
      * @param connectorMessage
-     *            The connector message that this object will reference for
-     *            retrieving data.
+     *            The connector message that this object will reference for retrieving data.
      * @param modifiableMaps
-     *            If true, variable maps (e.g. connector/channel/response) will
-     *            be modifiable, and values may be set in them as well as
-     *            retrieved. Otherwise, data will only be able to be retrieved
-     *            from the maps, and no updates will be allowed.
+     *            If true, variable maps (e.g. connector/channel/response) will be modifiable, and
+     *            values may be set in them as well as retrieved. Otherwise, data will only be able
+     *            to be retrieved from the maps, and no updates will be allowed.
      */
     public ImmutableConnectorMessage(ConnectorMessage connectorMessage, boolean modifiableMaps) {
         this(connectorMessage, modifiableMaps, null);
@@ -58,18 +55,15 @@ public class ImmutableConnectorMessage {
      * Instantiates a new ImmutableConnectorMessage object.
      * 
      * @param connectorMessage
-     *            The connector message that this object will reference for
-     *            retrieving data.
+     *            The connector message that this object will reference for retrieving data.
      * @param modifiableMaps
-     *            If true, variable maps (e.g. connector/channel/response) will
-     *            be modifiable, and values may be set in them as well as
-     *            retrieved. Otherwise, data will only be able to be retrieved
-     *            from the maps, and no updates will be allowed.
+     *            If true, variable maps (e.g. connector/channel/response) will be modifiable, and
+     *            values may be set in them as well as retrieved. Otherwise, data will only be able
+     *            to be retrieved from the maps, and no updates will be allowed.
      * @param destinationNameMap
-     *            A map containing all applicable destination names in the
-     *            channel and their corresponding "d#" response map keys. This
-     *            is used so that the response map has the ability to get
-     *            destination responses by name as well as by the proper "d#"
+     *            A map containing all applicable destination names in the channel and their
+     *            corresponding "d#" response map keys. This is used so that the response map has
+     *            the ability to get destination responses by name as well as by the proper "d#"
      *            key.
      */
     public ImmutableConnectorMessage(ConnectorMessage connectorMessage, boolean modifiableMaps, Map<String, String> destinationNameMap) {
@@ -82,8 +76,8 @@ public class ImmutableConnectorMessage {
     }
 
     /**
-     * Returns the metadata ID of this connector message. Note that the source
-     * connector has a metadata ID of 0.
+     * Returns the metadata ID of this connector message. Note that the source connector has a
+     * metadata ID of 0.
      */
     public int getMetaDataId() {
         return connectorMessage.getMetaDataId();
@@ -111,8 +105,7 @@ public class ImmutableConnectorMessage {
     }
 
     /**
-     * Returns the date/time that this connector message was created by the
-     * channel.
+     * Returns the date/time that this connector message was created by the channel.
      */
     public Calendar getReceivedDate() {
         return (Calendar) connectorMessage.getReceivedDate().clone();
@@ -129,8 +122,7 @@ public class ImmutableConnectorMessage {
      * Retrieves content associated with this connector message.
      * 
      * @param contentType
-     *            The ContentType (e.g. RAW, ENCODED) of the content to
-     *            retrieve.
+     *            The ContentType (e.g. RAW, ENCODED) of the content to retrieve.
      * @return The content, as an ImmutableMessageContent object.
      */
     public ImmutableMessageContent getContent(ContentType contentType) {
@@ -298,11 +290,9 @@ public class ImmutableConnectorMessage {
     }
 
     /**
-     * Retrieves transformed response content associated with this connector
-     * message.
+     * Retrieves transformed response content associated with this connector message.
      * 
-     * @return The transformed response content, as an ImmutableMessageContent
-     *         object.
+     * @return The transformed response content, as an ImmutableMessageContent object.
      */
     public ImmutableMessageContent getResponseTransformed() {
         if (connectorMessage.getResponseTransformed() != null) {
@@ -313,8 +303,7 @@ public class ImmutableConnectorMessage {
     }
 
     /**
-     * Retrieves transformed response content associated with this connector
-     * message.
+     * Retrieves transformed response content associated with this connector message.
      * 
      * @return The transformed response content, as a string.
      */
@@ -327,11 +316,9 @@ public class ImmutableConnectorMessage {
     }
 
     /**
-     * Retrieves processed response content associated with this connector
-     * message.
+     * Retrieves processed response content associated with this connector message.
      * 
-     * @return The processed response content, as an ImmutableMessageContent
-     *         object.
+     * @return The processed response content, as an ImmutableMessageContent object.
      */
     public ImmutableMessageContent getProcessedResponse() {
         if (connectorMessage.getProcessedResponse() != null) {
@@ -342,8 +329,7 @@ public class ImmutableConnectorMessage {
     }
 
     /**
-     * Retrieves processed response content associated with this connector
-     * message.
+     * Retrieves processed response content associated with this connector message.
      * 
      * @return The processed response content, as a string.
      */
@@ -356,18 +342,16 @@ public class ImmutableConnectorMessage {
     }
 
     /**
-     * Returns the sequential ID of the overall Message associated with this
-     * connector message.
+     * Returns the sequential ID of the overall Message associated with this connector message.
      */
     public long getMessageId() {
         return connectorMessage.getMessageId();
     }
 
     /**
-     * Returns the connector map. If this connector message was instantiated
-     * with a 'true' value for modifiableMaps, then this map will allow both
-     * data retrieval and updates. Otherwise, the map will be unmodifiable and
-     * only data retrieval will be allowed.
+     * Returns the connector map. If this connector message was instantiated with a 'true' value for
+     * modifiableMaps, then this map will allow both data retrieval and updates. Otherwise, the map
+     * will be unmodifiable and only data retrieval will be allowed.
      */
     public Map<String, Object> getConnectorMap() {
         if (modifiableMaps) {
@@ -378,10 +362,9 @@ public class ImmutableConnectorMessage {
     }
 
     /**
-     * Returns the channel map. If this connector message was instantiated with
-     * a 'true' value for modifiableMaps, then this map will allow both data
-     * retrieval and updates. Otherwise, the map will be unmodifiable and only
-     * data retrieval will be allowed.
+     * Returns the channel map. If this connector message was instantiated with a 'true' value for
+     * modifiableMaps, then this map will allow both data retrieval and updates. Otherwise, the map
+     * will be unmodifiable and only data retrieval will be allowed.
      */
     public Map<String, Object> getChannelMap() {
         if (modifiableMaps) {
@@ -392,13 +375,11 @@ public class ImmutableConnectorMessage {
     }
 
     /**
-     * Returns the response map. If this connector message was instantiated with
-     * a 'true' value for modifiableMaps, then this map will allow both data
-     * retrieval and updates. Otherwise, the map will be unmodifiable and only
-     * data retrieval will be allowed. In addition, if this connector message
-     * was instantiated with the destinationNameMap parameter, the map will
-     * check destination names as well as the proper "d#" keys when retrieving
-     * data.
+     * Returns the response map. If this connector message was instantiated with a 'true' value for
+     * modifiableMaps, then this map will allow both data retrieval and updates. Otherwise, the map
+     * will be unmodifiable and only data retrieval will be allowed. In addition, if this connector
+     * message was instantiated with the destinationNameMap parameter, the map will check
+     * destination names as well as the proper "d#" keys when retrieving data.
      */
     public Map<String, Object> getResponseMap() {
         if (modifiableMaps) {
@@ -409,25 +390,22 @@ public class ImmutableConnectorMessage {
     }
 
     /**
-     * Returns the processing error string associated with this connector
-     * message, if it exists.
+     * Returns the processing error string associated with this connector message, if it exists.
      */
     public String getProcessingError() {
         return connectorMessage.getProcessingError();
     }
 
     /**
-     * Returns the response error string associated with this connector message,
-     * if it exists.
+     * Returns the response error string associated with this connector message, if it exists.
      */
     public String getResponseError() {
         return connectorMessage.getResponseError();
     }
 
     /**
-     * Returns a Map of destination connector names linked to their
-     * corresponding "d#" response map keys (where "#" is the destination
-     * connector metadata ID).
+     * Returns a Map of destination connector names linked to their corresponding "d#" response map
+     * keys (where "#" is the destination connector metadata ID).
      */
     public Map<String, String> getDestinationNameMap() {
         return Collections.unmodifiableMap(destinationNameMap);

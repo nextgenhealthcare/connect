@@ -27,18 +27,14 @@ public class SMTPConnection {
      * @param socketTimeout
      *            The socket connection timeout value in milliseconds.
      * @param useAuthentication
-     *            Determines whether authentication is needed for the SMTP
-     *            server.
+     *            Determines whether authentication is needed for the SMTP server.
      * @param secure
-     *            The encryption security layer to use for the SMTP connection
-     *            ("TLS" or "SSL"). If left blank, no encryption layer will be
-     *            used.
+     *            The encryption security layer to use for the SMTP connection ("TLS" or "SSL"). If
+     *            left blank, no encryption layer will be used.
      * @param username
-     *            If authentication is required, the username to authenticate
-     *            with.
+     *            If authentication is required, the username to authenticate with.
      * @param password
-     *            If authentication is required, the password to authenticate
-     *            with.
+     *            If authentication is required, the password to authenticate with.
      * @param from
      *            The FROM field to use for dispatched e-mail messages.
      */
@@ -54,18 +50,14 @@ public class SMTPConnection {
      * @param port
      *            The SMTP server port (e.g. 25, 587, 465).
      * @param useAuthentication
-     *            Determines whether authentication is needed for the SMTP
-     *            server.
+     *            Determines whether authentication is needed for the SMTP server.
      * @param secure
-     *            The encryption security layer to use for the SMTP connection
-     *            ("TLS" or "SSL"). If left blank, no encryption layer will be
-     *            used.
+     *            The encryption security layer to use for the SMTP connection ("TLS" or "SSL"). If
+     *            left blank, no encryption layer will be used.
      * @param username
-     *            If authentication is required, the username to authenticate
-     *            with.
+     *            If authentication is required, the username to authenticate with.
      * @param password
-     *            If authentication is required, the password to authenticate
-     *            with.
+     *            If authentication is required, the password to authenticate with.
      * @param from
      *            The FROM field to use for the e-mail.
      */
@@ -112,8 +104,7 @@ public class SMTPConnection {
     }
 
     /**
-     * Returns true if authentication is needed for the SMTP server, otherwise
-     * returns false.
+     * Returns true if authentication is needed for the SMTP server, otherwise returns false.
      */
     public boolean isUseAuthentication() {
         return smtpConnection.isUseAuthentication();
@@ -123,16 +114,15 @@ public class SMTPConnection {
      * Sets whether authentication is needed for the SMTP server.
      * 
      * @param useAuthentication
-     *            Determines whether authentication is needed for the SMTP
-     *            server.
+     *            Determines whether authentication is needed for the SMTP server.
      */
     public void setUseAuthentication(boolean useAuthentication) {
         smtpConnection.setUseAuthentication(useAuthentication);
     }
 
     /**
-     * Returns the encryption security layer being used for the SMTP connection
-     * (e.g "TLS" or "SSL").
+     * Returns the encryption security layer being used for the SMTP connection (e.g "TLS" or
+     * "SSL").
      */
     public String getSecure() {
         return smtpConnection.getSecure();
@@ -142,9 +132,8 @@ public class SMTPConnection {
      * Sets the encryption security layer to use for the SMTP connection.
      * 
      * @param secure
-     *            The encryption security layer to use for the SMTP connection
-     *            ("TLS" or "SSL"). If left blank, no encryption layer will be
-     *            used.
+     *            The encryption security layer to use for the SMTP connection ("TLS" or "SSL"). If
+     *            left blank, no encryption layer will be used.
      */
     public void setSecure(String secure) {
         smtpConnection.setSecure(secure);
@@ -222,11 +211,11 @@ public class SMTPConnection {
      * Sends an e-mail message.
      * 
      * @param toList
-     *            A string representing a list of e-mail addresses to send the
-     *            message to (separated by ",").
+     *            A string representing a list of e-mail addresses to send the message to (separated
+     *            by ",").
      * @param ccList
-     *            A string representing a list of e-mail addresses to copy the
-     *            message to (separated by ",").
+     *            A string representing a list of e-mail addresses to copy the message to (separated
+     *            by ",").
      * @param from
      *            The FROM field to use for the e-mail message.
      * @param subject
@@ -245,11 +234,11 @@ public class SMTPConnection {
      * Sends an e-mail message.
      * 
      * @param toList
-     *            A string representing a list of e-mail addresses to send the
-     *            message to (separated by ",").
+     *            A string representing a list of e-mail addresses to send the message to (separated
+     *            by ",").
      * @param ccList
-     *            A string representing a list of e-mail addresses to copy the
-     *            message to (separated by ",").
+     *            A string representing a list of e-mail addresses to copy the message to (separated
+     *            by ",").
      * @param from
      *            The FROM field to use for the e-mail message.
      * @param subject
@@ -266,11 +255,11 @@ public class SMTPConnection {
      * Sends an e-mail message.
      * 
      * @param toList
-     *            A string representing a list of e-mail addresses to send the
-     *            message to (separated by ",").
+     *            A string representing a list of e-mail addresses to send the message to (separated
+     *            by ",").
      * @param ccList
-     *            A string representing a list of e-mail addresses to copy the
-     *            message to (separated by ",").
+     *            A string representing a list of e-mail addresses to copy the message to (separated
+     *            by ",").
      * @param subject
      *            The subject of the e-mail message.
      * @param body

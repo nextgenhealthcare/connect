@@ -21,8 +21,7 @@ public class ImmutableMessageContent {
      * Instantiates a new ImmutableMessageContent object.
      * 
      * @param messageContent
-     *            The MessageContent object that this object will reference for
-     *            retrieving data.
+     *            The MessageContent object that this object will reference for retrieving data.
      */
     public ImmutableMessageContent(MessageContent messageContent) {
         this.messageContent = messageContent;
@@ -43,16 +42,15 @@ public class ImmutableMessageContent {
     }
 
     /**
-     * Returns the sequential ID of the overall Message associated with this
-     * message content.
+     * Returns the sequential ID of the overall Message associated with this message content.
      */
     public long getMessageId() {
         return messageContent.getMessageId();
     }
 
     /**
-     * Returns the metadata ID of the connector associated with this message
-     * content. Note that the source connector has a metadata ID of 0.
+     * Returns the metadata ID of the connector associated with this message content. Note that the
+     * source connector has a metadata ID of 0.
      */
     public int getMetaDataId() {
         return messageContent.getMetaDataId();

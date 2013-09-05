@@ -27,8 +27,8 @@ import org.apache.log4j.Logger;
 import com.sun.rowset.CachedRowSetImpl;
 
 /**
- * Provides the ability to run SQL queries again the database connection object
- * instantiated using DatabaseConnectionFactory.
+ * Provides the ability to run SQL queries again the database connection object instantiated using
+ * DatabaseConnectionFactory.
  */
 public class DatabaseConnection {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -49,14 +49,13 @@ public class DatabaseConnection {
     }
 
     /**
-     * Instantiates a new database connection with the given server address and
-     * connection arguments.
+     * Instantiates a new database connection with the given server address and connection
+     * arguments.
      * 
      * @param address
      *            The server address to connect to.
      * @param info
-     *            A Properties object containing all applicable connection
-     *            arguments.
+     *            A Properties object containing all applicable connection arguments.
      * @throws SQLException
      */
     public DatabaseConnection(String address, Properties info) throws SQLException {
@@ -126,8 +125,7 @@ public class DatabaseConnection {
     }
 
     /**
-     * Executes a prepared INSERT/UPDATE statement on the database and returns
-     * the row count.
+     * Executes a prepared INSERT/UPDATE statement on the database and returns the row count.
      * 
      * @param expression
      *            The prepared statement to be executed.
@@ -217,8 +215,7 @@ public class DatabaseConnection {
      * Sets this connection's auto-commit mode to the given state.
      * 
      * @param autoCommit
-     *            The value (true or false) to set the connection's auto-commit
-     *            mode to.
+     *            The value (true or false) to set the connection's auto-commit mode to.
      * @throws SQLException
      */
     public void setAutoCommit(boolean autoCommit) throws SQLException {
@@ -226,8 +223,8 @@ public class DatabaseConnection {
     }
 
     /**
-     * Undoes all changes made in the current transaction and releases any
-     * database locks currently held by this Connection object.
+     * Undoes all changes made in the current transaction and releases any database locks currently
+     * held by this Connection object.
      * 
      * @throws SQLException
      */
@@ -236,9 +233,8 @@ public class DatabaseConnection {
     }
 
     /**
-     * Makes all changes made since the previous commit/rollback permanent and
-     * releases any database locks currently held by this DatabaseConnection
-     * object.
+     * Makes all changes made since the previous commit/rollback permanent and releases any database
+     * locks currently held by this DatabaseConnection object.
      * 
      * @throws SQLException
      */
@@ -247,8 +243,8 @@ public class DatabaseConnection {
     }
 
     /**
-     * Executes an INSERT/UPDATE statement on the database and returns a
-     * CachedRowSet containing any generated keys.
+     * Executes an INSERT/UPDATE statement on the database and returns a CachedRowSet containing any
+     * generated keys.
      * 
      * @param expression
      *            The statement to be executed.
@@ -273,8 +269,8 @@ public class DatabaseConnection {
     }
 
     /**
-     * Executes a prepared INSERT/UPDATE statement on the database and returns a
-     * CachedRowSet containing any generated keys.
+     * Executes a prepared INSERT/UPDATE statement on the database and returns a CachedRowSet
+     * containing any generated keys.
      * 
      * @param expression
      *            The prepared statement to be executed.
@@ -311,8 +307,7 @@ public class DatabaseConnection {
     }
 
     /**
-     * Returns the database connection (java.sql.Connection) this class is
-     * using.
+     * Returns the database connection (java.sql.Connection) this class is using.
      */
     public Connection getConnection() {
         return this.connection;

@@ -17,16 +17,14 @@ public class NCPDPUtil {
     private NCPDPUtil() {}
 
     /**
-     * Converts a signed overpunch code into a string representing the
-     * appropriate decimal value.
+     * Converts a signed overpunch code into a string representing the appropriate decimal value.
      * 
      * @param origNumber
      *            The signed overpunch code to convert.
      * @param decimalPoints
-     *            The index at which to place a decimal point in the converted
-     *            string. If this value is less than or equal to zero, or
-     *            greater than or equal to the length of the overpunch code, a
-     *            decimal point will not be inserted.
+     *            The index at which to place a decimal point in the converted string. If this value
+     *            is less than or equal to zero, or greater than or equal to the length of the
+     *            overpunch code, a decimal point will not be inserted.
      * @return The string representation of the converted decimal value.
      */
     public static String formatNCPDPNumber(String origNumber, int decimalPoints) {

@@ -20,13 +20,13 @@ import com.mirth.connect.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.userutil.Status;
 
 /**
- * This class represents a connector message and is used to retrieve details
- * such as the message ID, metadata ID, status, and various content types.
+ * This class represents a connector message and is used to retrieve details such as the message ID,
+ * metadata ID, status, and various content types.
  * 
  * @see ImmutableConnectorMessage
  * 
- * @deprecated This class is deprecated and will soon be removed. Please refer
- *             to ImmutableConnectorMessage instead.
+ * @deprecated This class is deprecated and will soon be removed. Please refer to
+ *             ImmutableConnectorMessage instead.
  */
 // TODO: Remove in 3.1
 public class MessageObject {
@@ -37,8 +37,7 @@ public class MessageObject {
      * Instantiates a MessageObject.
      * 
      * @param connectorMessage
-     *            The connector message that this object will reference for
-     *            retrieving data.
+     *            The connector message that this object will reference for retrieving data.
      * 
      * @deprecated This class is deprecated and will soon be removed.
      */
@@ -53,8 +52,7 @@ public class MessageObject {
     /**
      * Returns the source of the message (dependent on the inbound data type).
      * 
-     * @deprecated This class is deprecated and will soon be removed. Please use
-     *             the
+     * @deprecated This class is deprecated and will soon be removed. Please use the
      *             {@value com.mirth.connect.model.util.DefaultMetaData#SOURCE_VARIABLE_MAPPING}
      *             variable in the connector map instead.
      */
@@ -67,8 +65,7 @@ public class MessageObject {
     /**
      * Sets the source of the message.
      * 
-     * @deprecated This class is deprecated and will soon be removed. Please set
-     *             the
+     * @deprecated This class is deprecated and will soon be removed. Please set the
      *             {@value com.mirth.connect.model.util.DefaultMetaData#SOURCE_VARIABLE_MAPPING}
      *             variable in the connector map instead.
      */
@@ -80,8 +77,7 @@ public class MessageObject {
     /**
      * Returns the type of the message (dependent on the inbound data type).
      * 
-     * @deprecated This class is deprecated and will soon be removed. Please use
-     *             the
+     * @deprecated This class is deprecated and will soon be removed. Please use the
      *             {@value com.mirth.connect.model.util.DefaultMetaData#TYPE_VARIABLE_MAPPING}
      *             variable in the connector map instead.
      */
@@ -94,8 +90,7 @@ public class MessageObject {
     /**
      * Sets the type of the message.
      * 
-     * @deprecated This class is deprecated and will soon be removed. Please set
-     *             the
+     * @deprecated This class is deprecated and will soon be removed. Please set the
      *             {@value com.mirth.connect.model.util.DefaultMetaData#TYPE_VARIABLE_MAPPING}
      *             variable in the connector map instead.
      */
@@ -105,8 +100,7 @@ public class MessageObject {
     }
 
     /**
-     * Returns the sequential ID of the overall Message associated with this
-     * connector message.
+     * Returns the sequential ID of the overall Message associated with this connector message.
      * 
      * @deprecated This class is deprecated and will soon be removed. Please use
      *             connectorMessage.getMessageId() instead.
@@ -128,8 +122,7 @@ public class MessageObject {
     /**
      * Returns the version of the message (dependent on the inbound data type).
      * 
-     * @deprecated This class is deprecated and will soon be removed. Please use
-     *             the
+     * @deprecated This class is deprecated and will soon be removed. Please use the
      *             {@value com.mirth.connect.model.util.DefaultMetaData#VERSION_VARIABLE_MAPPING}
      *             variable in the connector map instead.
      */
@@ -142,8 +135,7 @@ public class MessageObject {
     /**
      * Sets the version of the message.
      * 
-     * @deprecated This class is deprecated and will soon be removed. Please set
-     *             the
+     * @deprecated This class is deprecated and will soon be removed. Please set the
      *             {@value com.mirth.connect.model.util.DefaultMetaData#VERSION_VARIABLE_MAPPING}
      *             variable in the connector map instead.
      */
@@ -156,8 +148,7 @@ public class MessageObject {
      * Returns the ID of the channel associated with this connector message.
      * 
      * @deprecated This class is deprecated and will soon be removed. Please use
-     *             connectorMessage.getChannelId() or the variable "channelId"
-     *             instead.
+     *             connectorMessage.getChannelId() or the variable "channelId" instead.
      */
     public String getChannelId() {
         logger.error("The messageObject.getChannelId() method is deprecated and will soon be removed. Please use connectorMessage.getChannelId() or the variable \"channelId\" instead.");
@@ -177,8 +168,8 @@ public class MessageObject {
      * Returns the status (e.g. SENT) of this connector message.
      * 
      * @deprecated This class is deprecated and will soon be removed. Please use
-     *             connectorMessage.getStatus() instead. Note that the UNKNOWN
-     *             and ACCEPTED statuses are no longer valid.
+     *             connectorMessage.getStatus() instead. Note that the UNKNOWN and ACCEPTED statuses
+     *             are no longer valid.
      */
     public Status getStatus() {
         logger.error("The messageObject.getStatus() method is deprecated and will soon be removed. Please use connectorMessage.getStatus() instead. Note that the UNKNOWN and ACCEPTED statuses are no longer valid.");
@@ -195,8 +186,7 @@ public class MessageObject {
     }
 
     /**
-     * Returns the date/time that this connector message was created by the
-     * channel.
+     * Returns the date/time that this connector message was created by the channel.
      * 
      * @deprecated This class is deprecated and will soon be removed. Please use
      *             connectorMessage.getReceivedDate() instead.
@@ -238,8 +228,8 @@ public class MessageObject {
     }
 
     /**
-     * Returns the data type (e.g. "HL7V2") of the encoded content associated
-     * with this connector message.
+     * Returns the data type (e.g. "HL7V2") of the encoded content associated with this connector
+     * message.
      * 
      * @deprecated This class is deprecated and will soon be removed. Please use
      *             connectorMessage.getEncoded().getDataType() instead.
@@ -281,8 +271,8 @@ public class MessageObject {
     }
 
     /**
-     * Returns the data type (e.g. "HL7V2") of the raw content associated with
-     * this connector message.
+     * Returns the data type (e.g. "HL7V2") of the raw content associated with this connector
+     * message.
      * 
      * @deprecated This class is deprecated and will soon be removed. Please use
      *             connectorMessage.getRaw().getDataType() instead.
@@ -324,8 +314,8 @@ public class MessageObject {
     }
 
     /**
-     * Returns the data type (e.g. "HL7V2") of the transformed content
-     * associated with this connector message.
+     * Returns the data type (e.g. "HL7V2") of the transformed content associated with this
+     * connector message.
      * 
      * @deprecated This class is deprecated and will soon be removed. Please use
      *             connectorMessage.getRaw().getDataType() instead.
@@ -348,8 +338,7 @@ public class MessageObject {
      * Returns the connector map.
      * 
      * @deprecated This class is deprecated and will soon be removed. Please use
-     *             connectorMessage.getConnectorMap() or the variable
-     *             "connectorMap" instead.
+     *             connectorMessage.getConnectorMap() or the variable "connectorMap" instead.
      */
     public Map getConnectorMap() {
         logger.error("The messageObject.getConnectorMap() method is deprecated and will soon be removed. Please use connectorMessage.getConnectorMap() or the variable \"connectorMap\" instead.");
@@ -388,8 +377,7 @@ public class MessageObject {
      * Returns the name of the connector associated with this connector message.
      * 
      * @deprecated This class is deprecated and will soon be removed. Please use
-     *             connectorMessage.getConnectorName() or the variable
-     *             "connector" instead.
+     *             connectorMessage.getConnectorName() or the variable "connector" instead.
      */
     public String getConnectorName() {
         logger.error("The messageObject.getConnectorName() method is deprecated and will soon be removed. Please use connectorMessage.getConnectorName() or the variable \"connector\" instead.");
@@ -406,8 +394,7 @@ public class MessageObject {
     }
 
     /**
-     * Returns the processing error string associated with this connector
-     * message, if it exists.
+     * Returns the processing error string associated with this connector message, if it exists.
      * 
      * @deprecated This class is deprecated and will soon be removed. Please use
      *             connectorMessage.getProcessingError() instead.
@@ -430,8 +417,7 @@ public class MessageObject {
      * Returns the response map.
      * 
      * @deprecated This class is deprecated and will soon be removed. Please use
-     *             connectorMessage.getResponseMap() or the variable
-     *             "responseMap" instead.
+     *             connectorMessage.getResponseMap() or the variable "responseMap" instead.
      */
     public Map getResponseMap() {
         logger.error("The messageObject.getResponseMap() method is deprecated and will soon be removed. Please use connectorMessage.getResponseMap() or the variable \"responseMap\" instead.");
@@ -451,8 +437,7 @@ public class MessageObject {
      * Returns the channel map.
      * 
      * @deprecated This class is deprecated and will soon be removed. Please use
-     *             connectorMessage.getChannelMap() or the variable "channelMap"
-     *             instead.
+     *             connectorMessage.getChannelMap() or the variable "channelMap" instead.
      */
     public Map getChannelMap() {
         logger.error("The messageObject.getChannelMap() method is deprecated and will soon be removed. Please use connectorMessage.getChannelMap() or the variable \"channelMap\" instead.");
@@ -528,8 +513,7 @@ public class MessageObject {
     }
 
     /**
-     * Returns the sequential ID of the overall Message associated with this
-     * connector message.
+     * Returns the sequential ID of the overall Message associated with this connector message.
      * 
      * @deprecated This class is deprecated and will soon be removed. Please use
      *             connectorMessage.getMessageId() instead.

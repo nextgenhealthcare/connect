@@ -23,8 +23,7 @@ public class HTTPUtil {
     private HTTPUtil() {}
 
     /**
-     * Converts a block of HTTP header fields into a Map containing each header
-     * key and value.
+     * Converts a block of HTTP header fields into a Map containing each header key and value.
      * 
      * @param str
      *            The block of HTTP header fields to convert.

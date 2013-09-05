@@ -12,15 +12,13 @@ package com.mirth.connect.server.userutil;
 import com.mirth.connect.server.controllers.ControllerException;
 
 /**
- * Utility class used to create SMTPConnection object using the server's default
- * SMTP settings.
+ * Utility class used to create SMTPConnection object using the server's default SMTP settings.
  */
 public class SMTPConnectionFactory {
     private SMTPConnectionFactory() {}
 
     /**
-     * Creates an create SMTPConnection object using the server's default SMTP
-     * settings.
+     * Creates an create SMTPConnection object using the server's default SMTP settings.
      * 
      * @return The instantiated SMTPConnection object.
      * @throws ControllerException

@@ -14,9 +14,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A wrapper class for the response map which allows users to retrieve values
- * using the proper "d#" key (where "#" is the destination connector's metadata
- * ID), or by using the actual destination name.
+ * A wrapper class for the response map which allows users to retrieve values using the proper "d#"
+ * key (where "#" is the destination connector's metadata ID), or by using the actual destination
+ * name.
  */
 public class ResponseMap implements Map<String, Object> {
 
@@ -29,9 +29,8 @@ public class ResponseMap implements Map<String, Object> {
      * @param delegate
      *            The underlying Map to reference for retrieving/setting data.
      * @param destinationNameMap
-     *            A Map of destination names and their corresponding "d#"
-     *            response map keys (where "#" is the destination connector
-     *            metadata ID).
+     *            A Map of destination names and their corresponding "d#" response map keys (where
+     *            "#" is the destination connector metadata ID).
      */
     public ResponseMap(Map<String, Object> delegate, Map<String, String> destinationNameMap) {
         this.delegate = delegate;
@@ -64,10 +63,9 @@ public class ResponseMap implements Map<String, Object> {
     }
 
     /**
-     * Returns the value to which the specified key is mapped, or null if this
-     * map contains no mapping for the key. If the given key is not contained in
-     * the underlying map, this object will traverse the destination name map in
-     * an attempt to find the correct key.
+     * Returns the value to which the specified key is mapped, or null if this map contains no
+     * mapping for the key. If the given key is not contained in the underlying map, this object
+     * will traverse the destination name map in an attempt to find the correct key.
      */
     @Override
     public Object get(Object key) {

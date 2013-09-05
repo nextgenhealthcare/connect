@@ -31,15 +31,14 @@ public class FileUtil {
     private FileUtil() {}
 
     /**
-     * Writes a string to a specified file, creating the file if it does not
-     * exist.
+     * Writes a string to a specified file, creating the file if it does not exist.
      * 
      * @see org.apache.commons.io.FileUtils#writeStringToFile(File, String)
      * @param fileName
      *            The pathname string of the file to write to.
      * @param append
-     *            If true, the data will be added to the end of the file rather
-     *            than overwriting the file.
+     *            If true, the data will be added to the end of the file rather than overwriting the
+     *            file.
      * @param data
      *            The content to write to the file.
      * @throws IOException
@@ -77,8 +76,8 @@ public class FileUtil {
      * @param fileName
      *            The pathname string of the file to write to.
      * @param append
-     *            If true, the data will be added to the end of the file rather
-     *            than overwriting the file.
+     *            If true, the data will be added to the end of the file rather than overwriting the
+     *            file.
      * @param bytes
      *            The binary content to write to the file.
      * @throws IOException
@@ -101,8 +100,7 @@ public class FileUtil {
     }
 
     /**
-     * Returns the contents of the file as a string, using the system default
-     * charset encoding.
+     * Returns the contents of the file as a string, using the system default charset encoding.
      * 
      * @see org.apache.commons.io.FileUtils#readFileToString(File)
      * @param fileName
@@ -115,13 +113,12 @@ public class FileUtil {
     }
 
     /**
-     * Deletes a specified File. In Rhino and E4X 'delete' is a keyword, so
-     * File.delete() can't be called within Mirth directly.
+     * Deletes a specified File. In Rhino and E4X 'delete' is a keyword, so File.delete() can't be
+     * called within Mirth directly.
      * 
      * @param file
      *            The File to delete.
-     * @return true if and only if the file or directory is successfully
-     *         deleted; false otherwise
+     * @return true if and only if the file or directory is successfully deleted; false otherwise
      * @throws SecurityException
      */
     public static boolean deleteFile(File file) throws SecurityException {
@@ -134,8 +131,8 @@ public class FileUtil {
      * @param message
      *            The RTF message to convert.
      * @param replaceLinebreaksWith
-     *            If not null, any line breaks in the converted message will be
-     *            replaced with this string.
+     *            If not null, any line breaks in the converted message will be replaced with this
+     *            string.
      * @return The converted plain text message.
      * @throws IOException
      * @throws BadLocationException

@@ -28,8 +28,7 @@ public class AlertSender {
      * Instantiates a new AlertSender.
      * 
      * @param channelId
-     *            The ID of the channel to associate dispatched alert events
-     *            with.
+     *            The ID of the channel to associate dispatched alert events with.
      */
     public AlertSender(String channelId) {
         this.channelId = channelId;
@@ -39,8 +38,7 @@ public class AlertSender {
      * Instantiates a new AlertSender.
      * 
      * @param connectorMessage
-     *            The connector message to associate dispatched alert events
-     *            with.
+     *            The connector message to associate dispatched alert events with.
      */
     public AlertSender(ImmutableConnectorMessage connectorMessage) {
         channelId = connectorMessage.getChannelId();

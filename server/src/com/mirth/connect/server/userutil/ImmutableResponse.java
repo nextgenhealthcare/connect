@@ -13,8 +13,8 @@ import com.mirth.connect.userutil.Response;
 import com.mirth.connect.userutil.Status;
 
 /**
- * This class represents a destination response and is used to retrieve details
- * such as the response data, message status, and errors.
+ * This class represents a destination response and is used to retrieve details such as the response
+ * data, message status, and errors.
  */
 public class ImmutableResponse {
     private Response response;
@@ -23,8 +23,7 @@ public class ImmutableResponse {
      * Instantiates a new ImmutableResponse object.
      * 
      * @param response
-     *            The Response object that this object will reference for
-     *            retrieving data.
+     *            The Response object that this object will reference for retrieving data.
      */
     public ImmutableResponse(Response response) {
         this.response = response;
@@ -38,8 +37,8 @@ public class ImmutableResponse {
     }
 
     /**
-     * Returns the Status (e.g. SENT, QUEUED) of this response, which will be
-     * used to set the status of the corresponding connector message.
+     * Returns the Status (e.g. SENT, QUEUED) of this response, which will be used to set the status
+     * of the corresponding connector message.
      */
     public Status getNewMessageStatus() {
         return response.getStatus();

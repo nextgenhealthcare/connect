@@ -9,10 +9,9 @@
 
 package com.mirth.connect.userutil;
 
-
 /**
- * This class represents a channel or destination response and is used to
- * retrieve details such as the response data, message status, and errors.
+ * This class represents a channel or destination response and is used to retrieve details such as
+ * the response data, message status, and errors.
  */
 public class Response {
     private com.mirth.connect.donkey.model.message.Response response;

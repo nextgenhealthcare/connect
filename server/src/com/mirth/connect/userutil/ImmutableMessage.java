@@ -19,9 +19,8 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 
 /**
- * This class represents an overall message and is used to retrieve details such
- * as the message ID, specific connector messages, or the merged connector
- * message.
+ * This class represents an overall message and is used to retrieve details such as the message ID,
+ * specific connector messages, or the merged connector message.
  */
 public class ImmutableMessage {
     private Message message;
@@ -30,8 +29,7 @@ public class ImmutableMessage {
      * Instantiates a new ImmutableMessage object.
      * 
      * @param message
-     *            The Message object that this object will reference for
-     *            retrieving data.
+     *            The Message object that this object will reference for retrieving data.
      */
     public ImmutableMessage(Message message) {
         this.message = message;
@@ -59,32 +57,28 @@ public class ImmutableMessage {
     }
 
     /**
-     * Returns the original date/time that this message was created by the
-     * channel. If the message is reprocessed at a later point, this date will
-     * remain the same and instead the connector message received dates will be
-     * updated.
+     * Returns the original date/time that this message was created by the channel. If the message
+     * is reprocessed at a later point, this date will remain the same and instead the connector
+     * message received dates will be updated.
      */
     public Calendar getReceivedDate() {
         return (Calendar) message.getReceivedDate().clone();
     }
 
     /**
-     * Returns whether this message has finished processing through a channel. A
-     * message is considered "processed" if it correctly flows through each
-     * applicable connector and the postprocessor script finishes. Even if a
-     * non-fatal error occurs on a particular connector message and the status
-     * ends up as ERROR, or if a message is queued by a destination and has not
-     * yet been sent to the outbound system, it can still be considered
-     * processed.
+     * Returns whether this message has finished processing through a channel. A message is
+     * considered "processed" if it correctly flows through each applicable connector and the
+     * postprocessor script finishes. Even if a non-fatal error occurs on a particular connector
+     * message and the status ends up as ERROR, or if a message is queued by a destination and has
+     * not yet been sent to the outbound system, it can still be considered processed.
      */
     public boolean isProcessed() {
         return message.isProcessed();
     }
 
     /**
-     * Returns a map of connector messages associated with this message. The
-     * keys are the metadata IDs (as Integer objects), and the values are the
-     * connector messages themselves.
+     * Returns a map of connector messages associated with this message. The keys are the metadata
+     * IDs (as Integer objects), and the values are the connector messages themselves.
      */
     public Map<Integer, ImmutableConnectorMessage> getConnectorMessages() {
         // MIRTH-2523: Overriding the get method to allow doubles to be passed in
@@ -105,19 +99,17 @@ public class ImmutableMessage {
     }
 
     /**
-     * Returns a "merged" connector message containing data from all connector
-     * messages combined. The raw and processed raw content is copied from the
-     * source connector, while values in the channel and response maps are
-     * copied from all connectors.
+     * Returns a "merged" connector message containing data from all connector messages combined.
+     * The raw and processed raw content is copied from the source connector, while values in the
+     * channel and response maps are copied from all connectors.
      */
     public ImmutableConnectorMessage getMergedConnectorMessage() {
         return new ImmutableConnectorMessage(message.getMergedConnectorMessage(), false, getDestinationNameMap());
     }
 
     /**
-     * Returns a Map of destination connector names linked to their
-     * corresponding "d#" response map keys (where "#" is the destination
-     * connector metadata ID).
+     * Returns a Map of destination connector names linked to their corresponding "d#" response map
+     * keys (where "#" is the destination connector metadata ID).
      */
     public Map<String, String> getDestinationNameMap() {
         Map<String, String> destinationNameMap = new HashMap<String, String>();

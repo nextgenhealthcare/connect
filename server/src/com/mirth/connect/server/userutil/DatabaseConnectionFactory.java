@@ -22,12 +22,11 @@ public class DatabaseConnectionFactory {
     private DatabaseConnectionFactory() {}
 
     /**
-     * Instantiates and returns a new DatabaseConnection object with the given
-     * connection parameters.
+     * Instantiates and returns a new DatabaseConnection object with the given connection
+     * parameters.
      * 
      * @param driver
-     *            The JDBC driver class (as a string) to use to create the
-     *            connection with.
+     *            The JDBC driver class (as a string) to use to create the connection with.
      * @param address
      *            The server address to connect to.
      * @param username
@@ -51,12 +50,11 @@ public class DatabaseConnectionFactory {
     }
 
     /**
-     * Instantiates and returns a new DatabaseConnection object with the given
-     * connection parameters.
+     * Instantiates and returns a new DatabaseConnection object with the given connection
+     * parameters.
      * 
      * @param driver
-     *            The JDBC driver class (as a string) to use to create the
-     *            connection with.
+     *            The JDBC driver class (as a string) to use to create the connection with.
      * @param address
      *            The server address to connect to.
      * @return The created DatabaseConnection object.
@@ -73,12 +71,11 @@ public class DatabaseConnectionFactory {
     }
 
     /**
-     * Instantiates and returns a new java.sql.Connection object with the given
-     * connection parameters.
+     * Instantiates and returns a new java.sql.Connection object with the given connection
+     * parameters.
      * 
      * @param driver
-     *            The JDBC driver class (as a string) to use to create the
-     *            connection with.
+     *            The JDBC driver class (as a string) to use to create the connection with.
      * @param address
      *            The server address to connect to.
      * @param username
@@ -103,8 +100,8 @@ public class DatabaseConnectionFactory {
     }
 
     /**
-     * Initializes the specified JDBC driver. This can be used in JavaScript
-     * contexts where "Class.forName" can't be called directly.
+     * Initializes the specified JDBC driver. This can be used in JavaScript contexts where
+     * "Class.forName" can't be called directly.
      * 
      * @param driver
      *            The JDBC driver class (as a string) to initialize.

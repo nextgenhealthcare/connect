@@ -40,8 +40,8 @@ public class ResponseFactory {
      *            The response data to store.
      * @return The instantiated Response object.
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use getSentResponse(message) instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             getSentResponse(message) instead.
      */
     // TODO: Remove in 3.1
     public static Response getSuccessResponse(String message) {
@@ -67,8 +67,8 @@ public class ResponseFactory {
      *            The response data to store.
      * @return The instantiated Response object.
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use getErrorResponse(message) instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             getErrorResponse(message) instead.
      */
     // TODO: Remove in 3.1
     public static Response getFailureResponse(String message) {
@@ -94,8 +94,8 @@ public class ResponseFactory {
      *            The response data to store.
      * @return The instantiated Response object.
      * 
-     * @deprecated This method is deprecated and will soon be removed. Please
-     *             use getQueuedResponse(message) instead.
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             getQueuedResponse(message) instead.
      */
     // TODO: Remove in 3.1
     public static Response getQueudResponse(String message) {
@@ -121,9 +121,8 @@ public class ResponseFactory {
      *            The response data to store.
      * @return The instantiated Response object.
      * 
-     * @deprecated This method is deprecated and will soon be removed. The
-     *             UNKNOWN status has also been removed; this method will return
-     *             a response with the SENT status instead.
+     * @deprecated This method is deprecated and will soon be removed. The UNKNOWN status has also
+     *             been removed; this method will return a response with the SENT status instead.
      */
     // TODO: Remove in 3.1
     public static Response getResponse(String message) {

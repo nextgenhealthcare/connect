@@ -19,8 +19,8 @@ import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.userutil.Status;
 
 /**
- * This utility class allows the user to query information from channels or to
- * perform actions on channels.
+ * This utility class allows the user to query information from channels or to perform actions on
+ * channels.
  */
 public class ChannelUtil {
 
@@ -152,8 +152,8 @@ public class ChannelUtil {
      * @param channelIdOrName
      *            The channel id or current name of the channel.
      * @param metaDataId
-     *            The metadata id of the connector. Note that the source
-     *            connector has a metadata id of 0.
+     *            The metadata id of the connector. Note that the source connector has a metadata id
+     *            of 0.
      * @throws Exception
      */
     public void startConnector(String channelIdOrName, Integer metaDataId) throws Exception {
@@ -166,8 +166,8 @@ public class ChannelUtil {
      * @param channelIdOrName
      *            The channel id or current name of the channel.
      * @param metaDataId
-     *            The metadata id of the connector. Note that the source
-     *            connector has a metadata id of 0.
+     *            The metadata id of the connector. Note that the source connector has a metadata id
+     *            of 0.
      * @throws Exception
      */
     public void stopConnector(String channelIdOrName, Integer metaDataId) throws Exception {
@@ -180,10 +180,9 @@ public class ChannelUtil {
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
      * @param metaDataId
-     *            The metadata id of the connector. Note that the source
-     *            connector has a metadata id of 0.
-     * @return The current connector state returned as the DeployedState
-     *         enumerator.
+     *            The metadata id of the connector. Note that the source connector has a metadata id
+     *            of 0.
+     * @return The current connector state returned as the DeployedState enumerator.
      */
     public static DeployedState getConnectorState(String channelIdOrName, Number metaDataId) {
         DashboardStatus dashboardStatus = getDashboardStatus(channelIdOrName, metaDataId);
@@ -207,10 +206,9 @@ public class ChannelUtil {
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
      * @param metaDataId
-     *            The metadata id of the connector. Note that the source
-     *            connector has a metadata id of 0.
-     * @return The received count statistic as a Long for the specified
-     *         connector.
+     *            The metadata id of the connector. Note that the source connector has a metadata id
+     *            of 0.
+     * @return The received count statistic as a Long for the specified connector.
      */
     public static Long getReceivedCount(String channelIdOrName, Number metaDataId) {
         return getStatisticByStatus(channelIdOrName, metaDataId, Status.RECEIVED);
@@ -233,10 +231,9 @@ public class ChannelUtil {
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
      * @param metaDataId
-     *            The metadata id of the connector. Note that the source
-     *            connector has a metadata id of 0.
-     * @return The filtered count statistic as a Long for the specified
-     *         connector.
+     *            The metadata id of the connector. Note that the source connector has a metadata id
+     *            of 0.
+     * @return The filtered count statistic as a Long for the specified connector.
      */
     public static Long getFilteredCount(String channelIdOrName, Number metaDataId) {
         return getStatisticByStatus(channelIdOrName, metaDataId, Status.FILTERED);
@@ -259,8 +256,8 @@ public class ChannelUtil {
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
      * @param metaDataId
-     *            The metadata id of the connector. Note that the source
-     *            connector has a metadata id of 0.
+     *            The metadata id of the connector. Note that the source connector has a metadata id
+     *            of 0.
      * @return The queued count statistic as a Long for the specified connector.
      */
     public static Long getQueuedCount(String channelIdOrName, Number metaDataId) {
@@ -284,8 +281,8 @@ public class ChannelUtil {
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
      * @param metaDataId
-     *            The metadata id of the connector. Note that the source
-     *            connector has a metadata id of 0.
+     *            The metadata id of the connector. Note that the source connector has a metadata id
+     *            of 0.
      * @return The sent count statistic as a Long for the specified connector.
      */
     public static Long getSentCount(String channelIdOrName, Number metaDataId) {
@@ -309,8 +306,8 @@ public class ChannelUtil {
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
      * @param metaDataId
-     *            The metadata id of the connector. Note that the source
-     *            connector has a metadata id of 0.
+     *            The metadata id of the connector. Note that the source connector has a metadata id
+     *            of 0.
      * @return The error count statistic as a Long for the specified connector.
      */
     public static Long getErrorCount(String channelIdOrName, Number metaDataId) {
