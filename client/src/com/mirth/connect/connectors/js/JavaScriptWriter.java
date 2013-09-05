@@ -138,7 +138,7 @@ public class JavaScriptWriter extends ConnectorSettingsPanel {
     private void initComponents() {
 
         jsLabel = new javax.swing.JLabel();
-        javaScriptTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);
+        javaScriptTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true);
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));

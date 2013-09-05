@@ -65,7 +65,7 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true);"/>
       </AuxValues>
     </Component>
   </SubComponents>

@@ -159,7 +159,7 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
         jPanel1 = new javax.swing.JPanel();
         cancelButton = new javax.swing.JButton();
         validateScriptButton = new javax.swing.JButton();
-        scriptContent = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        scriptContent = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true);
         openFileButton = new javax.swing.JButton();
         okButton = new javax.swing.JButton();
 

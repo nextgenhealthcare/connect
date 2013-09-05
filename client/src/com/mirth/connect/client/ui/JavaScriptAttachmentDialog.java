@@ -79,7 +79,7 @@ public class JavaScriptAttachmentDialog extends javax.swing.JDialog {
         jPanel1 = new javax.swing.JPanel();
         cancelButton = new javax.swing.JButton();
         validateScriptButton = new javax.swing.JButton();
-        scriptContent = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        scriptContent = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true);
         okButton = new javax.swing.JButton();
         functionList1 = new com.mirth.connect.client.ui.FunctionList(ContextType.CHANNEL_CONTEXT.getContext());
         jSeparator1 = new javax.swing.JSeparator();

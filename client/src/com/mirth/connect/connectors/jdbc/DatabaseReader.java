@@ -415,8 +415,8 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         runUpdateLabel = new javax.swing.JLabel();
         dbVarScrollPane = new javax.swing.JScrollPane();
         dbVarList = new com.mirth.connect.client.ui.components.MirthVariableList();
-        selectTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);
-        updateTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);
+        selectTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true);
+        updateTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true);
         useScriptLabel = new javax.swing.JLabel();
         useScriptYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         useScriptNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
