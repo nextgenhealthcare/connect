@@ -33,9 +33,9 @@ public class HL7v2ResponseValidationProperties extends ResponseValidationPropert
     public Map<String, DataTypePropertyDescriptor> getPropertyDescriptors() {
         Map<String, DataTypePropertyDescriptor> properties = new LinkedHashMap<String, DataTypePropertyDescriptor>();
 
-        properties.put("successfulACKCode", new DataTypePropertyDescriptor(successfulACKCode, "Successful ACK Code", "The ACK code to respond with when the message processes successfully. This option has no effect unless an \"Auto Respond\" item has been selected in the response settings.", PropertyEditorType.STRING));
-        properties.put("errorACKCode", new DataTypePropertyDescriptor(errorACKCode, "Error ACK Code", "The ACK code to respond with when an error occurs during message processing. This option has no effect unless an \"Auto Respond\" item has been selected in the response settings.", PropertyEditorType.STRING));
-        properties.put("rejectedACKCode", new DataTypePropertyDescriptor(rejectedACKCode, "Rejected ACK Code", "The ACK code to respond with when the message is filtered. This option has no effect unless an \"Auto Respond\" item has been selected in the response settings.", PropertyEditorType.STRING));
+        properties.put("successfulACKCode", new DataTypePropertyDescriptor(successfulACKCode, "Successful ACK Code", "The ACK code to expect when the message is accepted by the downstream system. By default, the message status will be set to SENT.", PropertyEditorType.STRING));
+        properties.put("errorACKCode", new DataTypePropertyDescriptor(errorACKCode, "Error ACK Code", "The ACK code to expect when an error occurs on the downstream system. By default, the message status will be set to ERROR.", PropertyEditorType.STRING));
+        properties.put("rejectedACKCode", new DataTypePropertyDescriptor(rejectedACKCode, "Rejected ACK Code", "The ACK code to expect when the message is rejected by the downstream system. By default, the message status will be set to ERROR.", PropertyEditorType.STRING));
 
         return properties;
     }
