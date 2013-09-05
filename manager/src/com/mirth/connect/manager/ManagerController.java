@@ -177,12 +177,8 @@ public class ManagerController {
             if (!serviceController.startService()) {
                 errorMessage = "The Mirth Connect Service could not be started.  Please verify that it is installed and not already started.";
             } else {
-                // Load the context path property and remove the last char
-                // if it is a '/'.
-                String contextPath = getServerProperties().getString(ManagerConstants.PROPERTY_HTTP_CONTEXT_PATH);
-                if (contextPath.lastIndexOf('/') == (contextPath.length() - 1)) {
-                    contextPath = contextPath.substring(0, contextPath.length() - 1);
-                }
+                String contextPath = getContextPath();
+
                 Client client = new Client(ManagerConstants.CMD_TEST_JETTY_PREFIX + getServerProperties().getString("https.port") + contextPath);
 
                 int retriesLeft = 30;
@@ -302,8 +298,10 @@ public class ManagerController {
 
     public void launchAdministrator() {
         String port = getServerProperties().getString(ManagerConstants.SERVER_WEBSTART_PORT);
+        String contextPath = getContextPath();
+        
         try {
-            String cmd = ManagerConstants.CMD_WEBSTART_PREFIX + port + ManagerConstants.CMD_WEBSTART_SUFFIX + "?time=" + new Date().getTime();
+            String cmd = ManagerConstants.CMD_WEBSTART_PREFIX + port + contextPath + ManagerConstants.CMD_WEBSTART_SUFFIX + "?time=" + new Date().getTime();
 
             if (CmdUtil.execCmd(new String[] { cmd }, false) != 0) {
                 PlatformUI.MANAGER_TRAY.alertError("The Mirth Connect Administator could not be launched.");
@@ -488,5 +486,27 @@ public class ManagerController {
         } else {
             return false;
         }
+    }
+    
+    /**
+     * Get the context path property from the server, adding a starting slash if one does not exist,
+     * and then removing a trailing slash if one exists.
+     * 
+     * @return Either "" or "/contextPath"
+     */
+    private String getContextPath() {
+        String contextPath = getServerProperties().getString(ManagerConstants.PROPERTY_HTTP_CONTEXT_PATH, "");
+
+        // Add a starting slash if one does not exist
+        if (!contextPath.startsWith("/")) {
+            contextPath = "/" + contextPath;
+        }
+
+        // Remove a trailing slash if one exists
+        if (contextPath.endsWith("/")) {
+            contextPath = contextPath.substring(0, contextPath.length() - 1);
+        }
+
+        return contextPath;
     }
 }
