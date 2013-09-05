@@ -10,6 +10,7 @@
 package com.mirth.connect.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -23,6 +24,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.util.ThreadUtils;
+import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
@@ -36,20 +38,21 @@ public class MessageImporter {
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private Logger logger = Logger.getLogger(getClass());
 
-    /**
-     * 
-     * @param uri
-     * @param recursive
-     * @param messageWriter
-     * @return
-     * @throws InterruptedException
-     * @throws MessageImportException
-     */
-    public int[] importMessages(String uri, Boolean recursive, MessageWriter messageWriter) throws InterruptedException, MessageImportException {
+    public MessageImportResult importMessages(String path, Boolean recursive, MessageWriter messageWriter, String baseDir) throws InterruptedException, MessageImportException, MessageImportInvalidPathException {
         int[] result = new int[] { 0, 0 };
 
+        if (baseDir == null) {
+            baseDir = System.getProperty("user.dir");
+        }
+
         try {
-            FileObject file = VfsUtils.getManager().resolveFile(uri);
+            path = FilenameUtils.getAbsolutePath(new File(baseDir), path);
+
+            if (!new File(path).canRead()) {
+                throw new MessageImportInvalidPathException("The file/folder was not found or is not readable: " + path);
+            }
+
+            FileObject file = VfsUtils.getManager().resolveFile(VfsUtils.pathToUri(path));
 
             switch (file.getType()) {
                 case FOLDER:
@@ -77,7 +80,7 @@ public class MessageImporter {
             }
         }
 
-        return result;
+        return new MessageImportResult(result[0], result[1]);
     }
 
     private void importVfsFileRecursive(FileObject file, MessageWriter messageWriter, int[] result) throws InterruptedException, MessageImportException {
@@ -178,6 +181,12 @@ public class MessageImporter {
         
         public MessageImportException(String message, Throwable cause) {
             super(message, cause);
+        }
+    }
+
+    public static class MessageImportInvalidPathException extends Exception {
+        public MessageImportInvalidPathException(String message) {
+            super(message);
         }
     }
 }

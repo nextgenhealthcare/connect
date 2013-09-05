@@ -40,6 +40,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -59,6 +60,7 @@ import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.LoginStatus;
+import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.User;
@@ -69,7 +71,7 @@ import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.util.MessageExporter;
 import com.mirth.connect.util.MessageImporter;
 import com.mirth.connect.util.MessageImporter.MessageImportException;
-import com.mirth.connect.util.VfsUtils;
+import com.mirth.connect.util.MessageImporter.MessageImportInvalidPathException;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
 import com.mirth.connect.util.messagewriter.MessageWriterFactory;
@@ -827,11 +829,6 @@ public class CommandLineInterface {
         String path = arguments[1].getText();
         final String channelId = arguments[2].getText();
 
-        if (!new File(path).canRead()) {
-            error("cannot read " + path, null);
-            return;
-        }
-
         MessageWriter importer = new MessageWriter() {
             @Override
             public boolean write(Message message) throws MessageWriterException {
@@ -849,12 +846,14 @@ public class CommandLineInterface {
         };
 
         try {
-            int[] result = new MessageImporter().importMessages(VfsUtils.pathToUri(path), true, importer);
-            out.println(result[1] + " out of " + result[0] + " messages imported successfully.");
+            MessageImportResult result = new MessageImporter().importMessages(path, true, importer, new File(".").getAbsolutePath());
+            out.println(result.getSuccessCount() + " out of " + result.getTotalCount() + " messages imported successfully.");
         } catch (InterruptedException e) {
             error("Message import was interrupted.", null);
         } catch (MessageImportException e) {
             error("An error occurred while attempting to import messages", e);
+        } catch (MessageImportInvalidPathException e) {
+            error(e.getMessage(), e);
         }
     }
 
@@ -916,11 +915,12 @@ public class CommandLineInterface {
             messageList.setPageSize(pageSize);
 
             MessageWriterOptions writerOptions = new MessageWriterOptions();
+            writerOptions.setBaseFolder(new File(".").getPath());
             writerOptions.setContentType(contentType);
             writerOptions.setDestinationContent(false);
             writerOptions.setEncrypt(false);
-            writerOptions.setRootFolder("/");
-            writerOptions.setFilePattern(fXml.getAbsolutePath());
+            writerOptions.setRootFolder(FilenameUtils.getFullPath(fXml.getAbsolutePath()));
+            writerOptions.setFilePattern(FilenameUtils.getName(fXml.getAbsolutePath()));
             writerOptions.setArchiveFormat(null);
             writerOptions.setCompressFormat(null);
 

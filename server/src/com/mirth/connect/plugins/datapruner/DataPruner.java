@@ -549,6 +549,7 @@ public class DataPruner implements Runnable {
 
         try {
             MessageWriterOptions messageWriterOptions = SerializationUtils.clone(archiverOptions);
+            messageWriterOptions.setBaseFolder(System.getProperty("user.dir"));
 
             if (messageWriterOptions.getArchiveFormat() == null) {
                 messageWriterOptions.setRootFolder(tempChannelFolder);

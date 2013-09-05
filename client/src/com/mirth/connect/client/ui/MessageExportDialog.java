@@ -22,6 +22,7 @@ import javax.swing.JSeparator;
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.client.core.PaginatedMessageList;
@@ -141,6 +142,8 @@ public class MessageExportDialog extends JDialog {
                 messageList.setPageSize(pageSize);
                 messageList.setIncludeContent(true);
 
+                writerOptions.setBaseFolder(SystemUtils.getUserHome().getAbsolutePath());
+                
                 MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, encryptor);
                 exportCount = new MessageExporter().exportMessages(messageList, messageWriter);
                 messageWriter.close();
@@ -150,7 +153,7 @@ public class MessageExportDialog extends JDialog {
 
             setVisible(false);
             setCursor(Cursor.getDefaultCursor());
-            parent.alertInformation(parent, exportCount + " message" + ((exportCount == 1) ? " has" : "s have") + " been successfully exported to " + writerOptions.getRootFolder());
+            parent.alertInformation(parent, exportCount + " message" + ((exportCount == 1) ? " has" : "s have") + " been successfully exported to: " + writerOptions.getRootFolder());
         } catch (Exception e) {
             setCursor(Cursor.getDefaultCursor());
             Throwable cause = (e.getCause() == null) ? e : e.getCause();

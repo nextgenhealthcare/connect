@@ -9,6 +9,8 @@
 
 package com.mirth.connect.util;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.util.ThreadUtils;
 import com.mirth.connect.util.messagewriter.MessageWriter;
@@ -57,7 +59,8 @@ public class MessageExporter {
 
                     numProcessed++;
                 } catch (Exception e) {
-                    throw new MessageExportException("Failed to export message", e);
+                    Throwable cause = ExceptionUtils.getRootCause(e);
+                    throw new MessageExportException("Failed to export message: " + cause.getMessage(), cause);
                 }
             }
         } while (messageList.hasNextPage());

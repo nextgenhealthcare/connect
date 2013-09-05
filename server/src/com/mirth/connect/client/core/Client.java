@@ -39,6 +39,7 @@ import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.LoginStatus;
+import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerConfiguration;
@@ -825,9 +826,9 @@ public class Client {
         serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params);
     }
     
-    public int[] importMessagesServer(String channelId, String uri, boolean includeSubfolders) throws ClientException {
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_IMPORT_SERVER.getName()), new NameValuePair("channelId", channelId), new NameValuePair("uri", uri), new NameValuePair("includeSubfolders", serializer.serialize(includeSubfolders)) };
-        return serializer.deserialize(serverConnection.executePostMethodAsync(Client.MESSAGE_SERVLET, params), int[].class);
+    public MessageImportResult importMessagesServer(String channelId, String path, boolean includeSubfolders) throws ClientException {
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_IMPORT_SERVER.getName()), new NameValuePair("channelId", channelId), new NameValuePair("path", path), new NameValuePair("includeSubfolders", serializer.serialize(includeSubfolders)) };
+        return serializer.deserialize(serverConnection.executePostMethodAsync(Client.MESSAGE_SERVLET, params), MessageImportResult.class);
     }
 
     public int exportMessagesServer(final String channelId, final MessageFilter filter, final int pageSize, final boolean includeAttachments, final MessageWriterOptions writerOptions) throws ClientException {

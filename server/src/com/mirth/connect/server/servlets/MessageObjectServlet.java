@@ -212,17 +212,17 @@ public class MessageObjectServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.MESSAGE_IMPORT_SERVER)) {
                     String channelId = request.getParameter("channelId");
-                    String uri = request.getParameter("uri");
+                    String path = request.getParameter("path");
                     Boolean includeSubfolders = serializer.deserialize(request.getParameter("includeSubfolders"), Boolean.class);
 
                     parameterMap.put("channelId", channelId);
-                    parameterMap.put("uri", uri);
+                    parameterMap.put("path", path);
                     parameterMap.put("includeSubfolders", includeSubfolders);
 
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        serializer.serialize(messageController.importMessagesServer(channelId, uri, includeSubfolders), out);
+                        serializer.serialize(messageController.importMessagesServer(channelId, path, includeSubfolders), out);
                     }
                 } else if (operation.equals(Operations.MESSAGE_EXPORT)) {
                     String channelId = request.getParameter("channelId");
@@ -230,6 +230,7 @@ public class MessageObjectServlet extends MirthServlet {
                     Integer pageSize = serializer.deserialize(request.getParameter("pageSize"), Integer.class);
                     Boolean includeAttachments = serializer.deserialize(request.getParameter("includeAttachments"), Boolean.class);
                     MessageWriterOptions writerOptions = serializer.deserialize(request.getParameter("writerOptions"), MessageWriterOptions.class);
+                    writerOptions.setBaseFolder(System.getProperty("user.dir"));
 
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("messageFilter", messageFilter);

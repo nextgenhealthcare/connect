@@ -17,6 +17,7 @@ public class MessageWriterOptions implements Serializable {
     private ContentType contentType;
     private boolean destinationContent;
     private boolean encrypt;
+    private String baseFolder;
     private String rootFolder;
     private String filePattern;
     private String archiveFileName;
@@ -60,6 +61,18 @@ public class MessageWriterOptions implements Serializable {
      */
     public void setEncrypt(boolean encrypt) {
         this.encrypt = encrypt;
+    }
+    
+    public String getBaseFolder() {
+        return baseFolder;
+    }
+
+    /**
+     * @param baseDir
+     *            The base directory to use when resolving relative paths in the root folder.
+     */
+    public void setBaseFolder(String baseDir) {
+        this.baseFolder = baseDir;
     }
 
     public String getRootFolder() {

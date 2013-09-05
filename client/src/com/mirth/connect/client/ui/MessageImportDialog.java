@@ -26,8 +26,8 @@ import javax.swing.JSeparator;
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
-import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.browsers.message.MessageBrowser;
 import com.mirth.connect.client.ui.components.MirthButton;
@@ -36,8 +36,9 @@ import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.util.DialogUtils;
 import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.util.MessageImporter;
-import com.mirth.connect.util.VfsUtils;
+import com.mirth.connect.util.MessageImporter.MessageImportInvalidPathException;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
 
@@ -192,17 +193,10 @@ public class MessageImportDialog extends JDialog {
         }
 
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        int[] result;
+        MessageImportResult result;
 
         try {
             if (importLocalRadio.isSelected()) {
-                if (!new File(fileTextField.getText()).canRead()) {
-                    setCursor(Cursor.getDefaultCursor());
-                    parent.alertError(parent, "The file/folder was not found or is not readable.");
-                    setVisible(true);
-                    return;
-                }
-
                 MessageWriter messageWriter = new MessageWriter() {
                     @Override
                     public boolean write(Message message) throws MessageWriterException {
@@ -219,22 +213,29 @@ public class MessageImportDialog extends JDialog {
                     public void close() throws MessageWriterException {}
                 };
 
-                result = new MessageImporter().importMessages(VfsUtils.pathToUri(fileTextField.getText()), subfoldersCheckbox.isSelected(), messageWriter);
+                try {
+                    result = new MessageImporter().importMessages(fileTextField.getText(), subfoldersCheckbox.isSelected(), messageWriter, SystemUtils.getUserHome().getAbsolutePath());
+                } catch (MessageImportInvalidPathException e) {
+                    setCursor(Cursor.getDefaultCursor());
+                    parent.alertError(parent, e.getMessage());
+                    setVisible(true);
+                    return;
+                }
             } else {
-                result = parent.mirthClient.importMessagesServer(channelId, VfsUtils.pathToUri(fileTextField.getText()), subfoldersCheckbox.isSelected());
+                result = parent.mirthClient.importMessagesServer(channelId, fileTextField.getText(), subfoldersCheckbox.isSelected());
             }
 
             setVisible(false);
             setCursor(Cursor.getDefaultCursor());
 
-            if (result[0] == 0 && result[1] == 0) {
+            if (result.getSuccessCount() == 0 && result.getTotalCount() == 0) {
                 parent.alertInformation(parent, "No messages were found to import");
             } else {
-                if (result[0] > 0 && messageBrowser != null) {
+                if (result.getSuccessCount() > 0 && messageBrowser != null) {
                     messageBrowser.updateFilterButtonFont(Font.BOLD);
                 }
 
-                parent.alertInformation(parent, result[0] + " out of " + result[1] + " message(s) have been successfully imported from " + fileTextField.getText() + ".");
+                parent.alertInformation(parent, result.getSuccessCount() + " out of " + result.getTotalCount() + " message(s) have been successfully imported from " + fileTextField.getText() + ".");
             }
         } catch (Exception e) {
             setCursor(Cursor.getDefaultCursor());
@@ -243,26 +244,26 @@ public class MessageImportDialog extends JDialog {
         }
     }
 
-    public static void main(String[] args) {
-        Mirth.initUIManager();
-
-        PlatformUI.MIRTH_FRAME = new Frame() {
-            public Client mirthClient;
-
-            public void setSaveEnabled(boolean enabled) {}
-        };
-
-        PlatformUI.MIRTH_FRAME.mirthClient = new Client(null) {
-            public void importMessage(String channelId, Message message) throws ClientException {}
-
-            public int[] importMessagesServer(String channelId, String folder, boolean includeSubfolders) throws ClientException {
-                return new int[] { 3, 3 };
-            }
-        };
-
-        JDialog dialog = new MessageImportDialog();
-        dialog.setLocationRelativeTo(null);
-        dialog.setVisible(true);
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-    }
+//    public static void main(String[] args) {
+//        Mirth.initUIManager();
+//
+//        PlatformUI.MIRTH_FRAME = new Frame() {
+//            public Client mirthClient;
+//
+//            public void setSaveEnabled(boolean enabled) {}
+//        };
+//
+//        PlatformUI.MIRTH_FRAME.mirthClient = new Client(null) {
+//            public void importMessage(String channelId, Message message) throws ClientException {}
+//
+//            public MessageImportResult importMessagesServer(String channelId, String folder, boolean includeSubfolders) throws ClientException {
+//                return new MessageImportResult(3, 3, System.getProperty("user.dir"));
+//            }
+//        };
+//
+//        JDialog dialog = new MessageImportDialog();
+//        dialog.setLocationRelativeTo(null);
+//        dialog.setVisible(true);
+//        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+//    }
 }

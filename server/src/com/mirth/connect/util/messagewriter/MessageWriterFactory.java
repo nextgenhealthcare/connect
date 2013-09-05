@@ -15,10 +15,10 @@ import java.util.Calendar;
 
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.mirth.commons.encryption.Encryptor;
+import com.mirth.connect.util.FilenameUtils;
 
 public class MessageWriterFactory {
     public final static String ARCHIVE_DATE_PATTERN = "yyyy-MM-dd-HH-mm-ss";
@@ -38,7 +38,7 @@ public class MessageWriterFactory {
     private MessageWriterFactory() {}
 
     public MessageWriter getMessageWriter(MessageWriterOptions options, Encryptor encryptor) throws MessageWriterException {
-        String rootFolder = FilenameUtils.normalizeNoEndSeparator(options.getRootFolder());
+        String rootFolder = FilenameUtils.getAbsolutePath(new File(options.getBaseFolder()), options.getRootFolder());
         String filePattern = options.getFilePattern();
 
         if (filePattern.substring(0, 1).equals(IOUtils.DIR_SEPARATOR)) {

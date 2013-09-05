@@ -15,9 +15,11 @@ import java.util.Set;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.channel.Channel;
+import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.util.MessageExporter.MessageExportException;
 import com.mirth.connect.util.MessageImporter.MessageImportException;
+import com.mirth.connect.util.MessageImporter.MessageImportInvalidPathException;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public abstract class MessageController {
@@ -47,7 +49,7 @@ public abstract class MessageController {
 
     public abstract void importMessage(String channelId, Message message) throws MessageImportException;
     
-    public abstract int[] importMessagesServer(String channelId, String folder, boolean includeSubfolders) throws MessageImportException, InterruptedException;
+    public abstract MessageImportResult importMessagesServer(String channelId, String path, boolean includeSubfolders) throws MessageImportException, InterruptedException, MessageImportInvalidPathException;
     
     public abstract int exportMessages(final String channelId, final MessageFilter messageFilter, int pageSize, boolean includeAttachments, MessageWriterOptions options) throws MessageExportException, InterruptedException;
 }

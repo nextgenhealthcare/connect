@@ -41,6 +41,7 @@ import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.message.DataType;
+import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.server.mybatis.MessageSearchResult;
 import com.mirth.connect.server.util.DICOMMessageUtil;
@@ -52,6 +53,7 @@ import com.mirth.connect.util.MessageExporter;
 import com.mirth.connect.util.MessageExporter.MessageExportException;
 import com.mirth.connect.util.MessageImporter;
 import com.mirth.connect.util.MessageImporter.MessageImportException;
+import com.mirth.connect.util.MessageImporter.MessageImportInvalidPathException;
 import com.mirth.connect.util.PaginatedList;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
@@ -467,7 +469,7 @@ public class DonkeyMessageController extends MessageController {
     }
 
     @Override
-    public int[] importMessagesServer(final String channelId, final String uri, boolean includeSubfolders) throws MessageImportException, InterruptedException {
+    public MessageImportResult importMessagesServer(final String channelId, String path, boolean includeSubfolders) throws MessageImportException, InterruptedException, MessageImportInvalidPathException {
         Channel channel = Donkey.getInstance().getDeployedChannels().get(channelId);
 
         if (channel == null) {
@@ -475,7 +477,7 @@ public class DonkeyMessageController extends MessageController {
         }
 
         MessageWriter messageWriter = new MessageWriterChannel(channel);
-        return new MessageImporter().importMessages(uri, includeSubfolders, messageWriter);
+        return new MessageImporter().importMessages(path, includeSubfolders, messageWriter, System.getProperty("user.dir"));
     }
 
     private List<MessageSearchResult> searchMessages(SqlSession session, Map<String, Object> params) {
