@@ -340,7 +340,17 @@ public class Mirth extends Thread {
             contextFactory.setExcludeCipherSuites(new String[] { "SSL_RSA_WITH_DES_CBC_SHA", "SSL_DHE_RSA_WITH_DES_CBC_SHA", "SSL_DHE_DSS_WITH_DES_CBC_SHA", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA", "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA", "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA" });
 
             HandlerList handlers = new HandlerList();
-            String contextPath = mirthProperties.getString("http.contextpath");
+            String contextPath = mirthProperties.getString("http.contextpath", "");
+            
+            // Add a starting slash if one does not exist
+            if (!contextPath.startsWith("/")) {
+                contextPath = "/" + contextPath;
+            }
+            
+            // Remove a trailing slash if one exists
+            if (contextPath.endsWith("/")) {
+                contextPath = contextPath.substring(0, contextPath.length() - 1);
+            }
 
             // find the client-lib path
             String clientLibPath = null;
@@ -353,14 +363,14 @@ public class Mirth extends Thread {
             
             // Create the lib context
             ContextHandler libContextHandler = new ContextHandler();
-            libContextHandler.setContextPath(contextPath + "webstart/client-lib");
+            libContextHandler.setContextPath(contextPath + "/webstart/client-lib");
             libContextHandler.setResourceBase(clientLibPath);
             libContextHandler.setHandler(new ResourceHandler());
             handlers.addHandler(libContextHandler);
 
             // Create the extensions context
             ContextHandler extensionsContextHandler = new ContextHandler();
-            extensionsContextHandler.setContextPath(contextPath + "webstart/extensions/libs");
+            extensionsContextHandler.setContextPath(contextPath + "/webstart/extensions/libs");
             String extensionsPath = new File(ExtensionController.getExtensionsPath()).getPath();
             extensionsContextHandler.setResourceBase(extensionsPath);
             extensionsContextHandler.setHandler(new ResourceHandler());
