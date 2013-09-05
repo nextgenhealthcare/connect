@@ -18,6 +18,7 @@ import org.dcm4che2.data.DicomObject;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.server.util.MessageAttachmentUtil;
+import com.mirth.connect.userutil.ImmutableConnectorMessage;
 
 /**
  * Provides DICOM utility methods.

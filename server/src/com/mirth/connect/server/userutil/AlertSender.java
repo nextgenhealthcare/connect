@@ -13,6 +13,7 @@ import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.userutil.ImmutableConnectorMessage;
 
 /**
  * Allows users to dispatch error events which can be alerted on.

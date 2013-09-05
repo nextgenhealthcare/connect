@@ -28,17 +28,17 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.server.userutil.AlertSender;
 import com.mirth.connect.server.userutil.Attachment;
-import com.mirth.connect.server.userutil.ImmutableConnectorMessage;
-import com.mirth.connect.server.userutil.ImmutableMessage;
 import com.mirth.connect.server.userutil.ImmutableResponse;
 import com.mirth.connect.server.userutil.MessageObject;
-import com.mirth.connect.server.userutil.Response;
-import com.mirth.connect.server.userutil.ResponseMap;
-import com.mirth.connect.server.userutil.Status;
 import com.mirth.connect.server.userutil.VMRouter;
 import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
 import com.mirth.connect.server.util.GlobalVariableStore;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.userutil.ImmutableConnectorMessage;
+import com.mirth.connect.userutil.ImmutableMessage;
+import com.mirth.connect.userutil.Response;
+import com.mirth.connect.userutil.ResponseMap;
+import com.mirth.connect.userutil.Status;
 import com.mirth.connect.util.PropertyLoader;
 
 public class JavaScriptScopeUtil {

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.userutil;
+package com.mirth.connect.userutil;
 
 import java.util.Calendar;
 import java.util.Collections;

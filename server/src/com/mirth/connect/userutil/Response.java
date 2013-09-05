@@ -7,7 +7,8 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.userutil;
+package com.mirth.connect.userutil;
+
 
 /**
  * This class represents a channel or destination response and is used to

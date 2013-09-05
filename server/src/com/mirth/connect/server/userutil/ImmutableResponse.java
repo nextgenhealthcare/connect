@@ -9,6 +9,9 @@
 
 package com.mirth.connect.server.userutil;
 
+import com.mirth.connect.userutil.Response;
+import com.mirth.connect.userutil.Status;
+
 /**
  * This class represents a destination response and is used to retrieve details
  * such as the response data, message status, and errors.

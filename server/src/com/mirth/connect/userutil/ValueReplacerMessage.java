@@ -13,8 +13,6 @@ import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.mirth.connect.server.userutil.ImmutableMessage;
-
 /**
  * This class represents an overall message and is used to retrieve details such
  * as the message ID, specific connector messages, or the merged connector

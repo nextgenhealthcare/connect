@@ -16,6 +16,8 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.util.DefaultMetaData;
+import com.mirth.connect.userutil.ImmutableConnectorMessage;
+import com.mirth.connect.userutil.Status;
 
 /**
  * This class represents a connector message and is used to retrieve details

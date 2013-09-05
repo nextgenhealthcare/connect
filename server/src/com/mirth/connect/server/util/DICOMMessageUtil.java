@@ -41,8 +41,8 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.server.controllers.MessageController;
-import com.mirth.connect.server.userutil.ImmutableConnectorMessage;
-import com.mirth.connect.server.userutil.ImmutableMessageContent;
+import com.mirth.connect.userutil.ImmutableConnectorMessage;
+import com.mirth.connect.userutil.ImmutableMessageContent;
 
 public class DICOMMessageUtil {
     private static Logger logger = Logger.getLogger(DICOMMessageUtil.class);

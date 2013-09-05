@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.server.controllers.MessageController;
+import com.mirth.connect.userutil.ImmutableConnectorMessage;
 
 /**
  * Provides utility methods for creating, retrieving, and re-attaching message

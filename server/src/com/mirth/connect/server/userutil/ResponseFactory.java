@@ -11,6 +11,9 @@ package com.mirth.connect.server.userutil;
 
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.userutil.Response;
+import com.mirth.connect.userutil.Status;
+
 /**
  * Provides methods to create Response objects.
  */

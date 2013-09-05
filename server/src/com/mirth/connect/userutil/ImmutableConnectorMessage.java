@@ -7,14 +7,15 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.userutil;
+package com.mirth.connect.userutil;
 
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Map;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 /**
  * This class represents a connector message and is used to retrieve details
@@ -24,6 +25,7 @@ public class ImmutableConnectorMessage {
     private ConnectorMessage connectorMessage;
     private boolean modifiableMaps;
     private Map<String, String> destinationNameMap;
+    private Serializer serializer;
 
     /**
      * Instantiates a new ImmutableConnectorMessage object.
@@ -74,6 +76,9 @@ public class ImmutableConnectorMessage {
         this.connectorMessage = connectorMessage;
         this.modifiableMaps = modifiableMaps;
         this.destinationNameMap = destinationNameMap;
+
+        // NOTE: this serializer must always be the same type of serializer that is set via Donkey.setSerializer() in Mirth.startup()
+        this.serializer = ObjectXMLSerializer.getInstance();
     }
 
     /**
@@ -286,7 +291,7 @@ public class ImmutableConnectorMessage {
      */
     public Response getResponseData() {
         if (connectorMessage.getResponse() != null) {
-            return Donkey.getInstance().getSerializer().deserialize(connectorMessage.getResponse().getContent(), Response.class);
+            return serializer.deserialize(connectorMessage.getResponse().getContent(), Response.class);
         } else {
             return null;
         }
@@ -344,7 +349,7 @@ public class ImmutableConnectorMessage {
      */
     public Response getProcessedResponseData() {
         if (connectorMessage.getProcessedResponse() != null) {
-            return Donkey.getInstance().getSerializer().deserialize(connectorMessage.getProcessedResponse().getContent(), Response.class);
+            return serializer.deserialize(connectorMessage.getProcessedResponse().getContent(), Response.class);
         } else {
             return null;
         }

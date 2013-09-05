@@ -27,13 +27,13 @@ import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.ServerUUIDGenerator;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
+import com.mirth.connect.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptResponseTransformer implements ResponseTransformer {
@@ -126,7 +126,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                 throw new ResponseTransformerException("Could not find script " + scriptId + " in cache.", null, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.RESPONSE_TRANSFORMER.toString(), "Could not find script " + scriptId + " in cache.", null));
             } else {
                 try {
-                    com.mirth.connect.server.userutil.Response userResponse = new com.mirth.connect.server.userutil.Response(response);
+                    com.mirth.connect.userutil.Response userResponse = new com.mirth.connect.userutil.Response(response);
                     Scriptable scope = JavaScriptScopeUtil.getResponseTransformerScope(scriptLogger, userResponse, new ImmutableConnectorMessage(connectorMessage, true, destinationNameMap), template);
                     // Execute the script
                     executeScript(compiledScript, scope);

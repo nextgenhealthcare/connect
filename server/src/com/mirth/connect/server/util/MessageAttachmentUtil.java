@@ -25,7 +25,7 @@ import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.donkey.util.StringUtil;
 import com.mirth.connect.server.controllers.MessageController;
-import com.mirth.connect.server.userutil.ImmutableConnectorMessage;
+import com.mirth.connect.userutil.ImmutableConnectorMessage;
 
 public class MessageAttachmentUtil {
 

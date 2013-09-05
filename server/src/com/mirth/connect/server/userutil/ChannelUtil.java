@@ -16,6 +16,7 @@ import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
+import com.mirth.connect.userutil.Status;
 
 /**
  * This utility class allows the user to query information from channels or to

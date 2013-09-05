@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.userutil;
+package com.mirth.connect.userutil;
 
 /**
  * Denotes the status of a connector message or response. Available statuses:

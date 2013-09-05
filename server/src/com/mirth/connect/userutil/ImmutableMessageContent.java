@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.userutil;
+package com.mirth.connect.userutil;
 
 import com.mirth.connect.donkey.model.message.MessageContent;
 
