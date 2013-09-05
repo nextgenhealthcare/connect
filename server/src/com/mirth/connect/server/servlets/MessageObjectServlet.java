@@ -190,7 +190,7 @@ public class MessageObjectServlet extends MirthServlet {
                             @Override
                             public void run() {
                                 try {
-                                    ControllerFactory.getFactory().createEngineController().dispatchRawMessage(channelId, rawMessage);
+                                    ControllerFactory.getFactory().createEngineController().dispatchRawMessage(channelId, rawMessage, true);
                                 } catch (ChannelException e) {
                                     // Do nothing. An error should have been logged.
                                 }

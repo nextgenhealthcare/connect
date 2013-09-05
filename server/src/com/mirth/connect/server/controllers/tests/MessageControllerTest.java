@@ -56,7 +56,7 @@ public class MessageControllerTest {
         logger.info("Dispatching " + testSize + " messages into the test channel");
 
         for (int i = 0; i < testSize; i++) {
-            engineController.dispatchRawMessage(channelId, new RawMessage(TestUtils.TEST_HL7_MESSAGE));
+            engineController.dispatchRawMessage(channelId, new RawMessage(TestUtils.TEST_HL7_MESSAGE), false);
         }
 
         // start re-processing messages

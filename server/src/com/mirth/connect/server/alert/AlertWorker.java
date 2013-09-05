@@ -153,7 +153,7 @@ public abstract class AlertWorker extends EventListener {
 
             // Route the alert message to the specified channels
             for (String channelId : channels) {
-                engineController.dispatchRawMessage(channelId, new RawMessage(body));
+                engineController.dispatchRawMessage(channelId, new RawMessage(body), false);
             }
 
             // Dispatch a server event to notify that an alert was dispatched

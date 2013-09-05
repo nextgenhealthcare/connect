@@ -34,6 +34,7 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.Channel;
+import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.Statistics;
@@ -404,7 +405,13 @@ public class DonkeyMessageController extends MessageController {
                 rawMessage.setDestinationMetaDataIds(reprocessMetaDataIds);
 
                 try {
-                    engineController.dispatchRawMessage(channelId, rawMessage);
+                    engineController.dispatchRawMessage(channelId, rawMessage, true);
+                } catch (ChannelException e) {
+                    if (e.isStopped()) {
+                        // This should only return true if the entire channel is stopped, since we are forcing the message even if the source connector is stopped.
+                        logger.error("Reprocessing job cancelled because the channel is stopping or stopped.");
+                        break;
+                    }
                 } catch (Throwable e) {
                     // Do nothing. An error should have been logged.
                 }

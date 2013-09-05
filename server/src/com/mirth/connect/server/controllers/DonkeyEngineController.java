@@ -482,7 +482,7 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public DispatchResult dispatchRawMessage(String channelId, RawMessage rawMessage) throws ChannelException {
+    public DispatchResult dispatchRawMessage(String channelId, RawMessage rawMessage, boolean force) throws ChannelException {
         if (!isDeployed(channelId)) {
             ChannelException e = new ChannelException(true);
             logger.error("Could not find channel to route to: " + channelId, e);
@@ -493,7 +493,7 @@ public class DonkeyEngineController implements EngineController {
         DispatchResult dispatchResult = null;
 
         try {
-            dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
+            dispatchResult = sourceConnector.dispatchRawMessage(rawMessage, force);
         } finally {
             sourceConnector.finishDispatch(dispatchResult, true, null);
         }

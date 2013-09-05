@@ -138,7 +138,7 @@ public class VmDispatcher extends DestinationConnector {
                 // Remove the reference to the raw message so its doesn't hold the entire message in memory.
                 data = null;
 
-                DispatchResult dispatchResult = ControllerFactory.getFactory().createEngineController().dispatchRawMessage(targetChannelId, rawMessage);
+                DispatchResult dispatchResult = ControllerFactory.getFactory().createEngineController().dispatchRawMessage(targetChannelId, rawMessage, false);
 
                 if (dispatchResult.getSelectedResponse() != null) {
                     // If a response was returned from the channel then use that message

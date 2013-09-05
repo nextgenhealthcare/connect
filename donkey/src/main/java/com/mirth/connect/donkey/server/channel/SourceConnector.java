@@ -135,20 +135,34 @@ public abstract class SourceConnector extends Connector {
     }
 
     /**
-     * Takes a raw message and processes it if the connector is set to wait for
-     * the destination
-     * connectors to complete, otherwise it queues the message for processing
+     * Takes a raw message and processes it if the connector is set to wait for the destination
+     * connectors to complete, otherwise it queues the message for processing.
      * 
      * @param rawMessage
      *            A raw message
      * @return The MessageResponse, containing the message id and a response if
      *         one was received
-     * @throws StoppedException
-     * @throws ChannelErrorException
-     * @throws StoppingException
+     * @throws ChannelException
      */
     public DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
-        if (getCurrentState() == DeployedState.STOPPED) {
+        return dispatchRawMessage(rawMessage, false);
+    }
+
+    /**
+     * Takes a raw message and processes it if the connector is set to wait for the destination
+     * connectors to complete, otherwise it queues the message for processing.
+     * 
+     * @param rawMessage
+     *            A raw message
+     * @param force
+     *            If true, dispatch the message to the channel even if the source connector is
+     *            stopped
+     * @return The MessageResponse, containing the message id and a response if
+     *         one was received
+     * @throws ChannelException
+     */
+    public DispatchResult dispatchRawMessage(RawMessage rawMessage, boolean force) throws ChannelException {
+        if (!force && getCurrentState() == DeployedState.STOPPED) {
             ChannelException e = new ChannelException(true);
             logger.error("Source connector is currently stopped. Channel Id: " + channel.getChannelId(), e);
             throw e;
@@ -157,7 +171,7 @@ public abstract class SourceConnector extends Connector {
         return channel.dispatchRawMessage(rawMessage);
     }
 
-    /**
+ /**
      * Handles a response generated for a message that was recovered by the
      * channel
      * 

@@ -157,7 +157,7 @@ public class VMRouter {
      */
     public Response routeMessageByChannelId(String channelId, RawMessage rawMessage) {
         try {
-            return new Response(engineController.dispatchRawMessage(channelId, convertRawMessage(rawMessage)).getSelectedResponse());
+            return new Response(engineController.dispatchRawMessage(channelId, convertRawMessage(rawMessage), false).getSelectedResponse());
         } catch (Throwable e) {
             String message = "Error routing message to channel id: " + channelId;
             logger.error(message, e);

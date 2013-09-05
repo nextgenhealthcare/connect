@@ -40,7 +40,7 @@ public interface EngineController {
 
     public Channel getDeployedChannel(String channelId);
 
-    public DispatchResult dispatchRawMessage(String channelId, RawMessage rawMessage) throws ChannelException;
+    public DispatchResult dispatchRawMessage(String channelId, RawMessage rawMessage, boolean force) throws ChannelException;
 
     public void startChannel(String channelId) throws StartException, StopException;
 
