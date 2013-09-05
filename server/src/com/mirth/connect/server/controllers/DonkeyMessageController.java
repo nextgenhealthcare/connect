@@ -409,7 +409,7 @@ public class DonkeyMessageController extends MessageController {
                 } catch (ChannelException e) {
                     if (e.isStopped()) {
                         // This should only return true if the entire channel is stopped, since we are forcing the message even if the source connector is stopped.
-                        logger.error("Reprocessing job cancelled because the channel is stopping or stopped.");
+                        logger.error("Reprocessing job cancelled because the channel is stopping or stopped.", e);
                         break;
                     }
                 } catch (Throwable e) {
