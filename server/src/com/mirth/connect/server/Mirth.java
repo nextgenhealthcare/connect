@@ -375,8 +375,18 @@ public class Mirth extends Thread {
                     "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA" });
 
             HandlerList handlers = new HandlerList();
-            String contextPath = mirthProperties.getString("http.contextpath");
-
+            String contextPath = mirthProperties.getString("http.contextpath", "");
+            
+            // Add a starting slash if one does not exist
+            if (!contextPath.startsWith("/")) {
+                contextPath = "/" + contextPath;
+            }
+            
+            // Remove a trailing slash if one exists
+            if (contextPath.endsWith("/")) {
+                contextPath = contextPath.substring(0, contextPath.length() - 1);
+            }
+            
             // find the client-lib path
             String clientLibPath = null;
 
@@ -388,14 +398,14 @@ public class Mirth extends Thread {
 
             // Create the lib context
             ContextHandler libContextHandler = new ContextHandler();
-            libContextHandler.setContextPath(contextPath + "webstart/client-lib");
+            libContextHandler.setContextPath(contextPath + "/webstart/client-lib");
             libContextHandler.setResourceBase(clientLibPath);
             libContextHandler.setHandler(new ResourceHandler());
             handlers.addHandler(libContextHandler);
 
             // Create the extensions context
             ContextHandler extensionsContextHandler = new ContextHandler();
-            extensionsContextHandler.setContextPath(contextPath + "webstart/extensions/libs");
+            extensionsContextHandler.setContextPath(contextPath + "/webstart/extensions/libs");
             String extensionsPath = new File(ExtensionController.getExtensionsPath()).getPath();
             extensionsContextHandler.setResourceBase(extensionsPath);
             extensionsContextHandler.setHandler(new ResourceHandler());
@@ -411,7 +421,7 @@ public class Mirth extends Thread {
             
             // Create the javadocs context
             ContextHandler javadocsContextHandler = new ContextHandler();
-            javadocsContextHandler.setContextPath(contextPath + "javadocs");
+            javadocsContextHandler.setContextPath(contextPath + "/javadocs");
             String javadocsPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "docs" + File.separator + "javadocs";
             javadocsContextHandler.setResourceBase(javadocsPath);
             ResourceHandler javadocsResourceHandler = new ResourceHandler();
@@ -457,7 +467,7 @@ public class Mirth extends Thread {
                     logger.debug("webApp File Path: " + file.getAbsolutePath());
 
                     WebAppContext webapp = new WebAppContext();
-                    webapp.setContextPath(contextPath + file.getName().substring(0, file.getName().length() - 4));
+                    webapp.setContextPath(contextPath + "/" + file.getName().substring(0, file.getName().length() - 4));
 
                     logger.debug("webApp Context Path: " + webapp.getContextPath());
 

@@ -111,10 +111,15 @@ public class WebStartServlet extends HttpServlet {
             server = mirthProperties.getString("server.url");
         } else {
             int httpsPort = mirthProperties.getInt("https.port", 8443);
-            String contextPathProp = mirthProperties.getString("http.contextpath");
+            String contextPathProp = mirthProperties.getString("http.contextpath", "");
 
-            // strip the trailing forward slash
-            if (contextPathProp.lastIndexOf('/') == (contextPathProp.length() - 1)) {
+            // Add a starting slash if one does not exist
+            if (!contextPathProp.startsWith("/")) {
+                contextPathProp = "/" + contextPathProp;
+            }
+            
+            // Remove a trailing slash if one exists
+            if (contextPathProp.endsWith("/")) {
                 contextPathProp = contextPathProp.substring(0, contextPathProp.length() - 1);
             }
 
