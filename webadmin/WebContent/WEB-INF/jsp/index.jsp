@@ -149,7 +149,7 @@
         </script>
         <script type="text/javascript">
        		function launchAdministrator(){
-        		window.location.href = 'http://' + window.location.hostname + ':${actionBean.context.httpPort}/webstart.jnlp?time=' + new Date().getTime(); 
+        		window.location.href = '../webstart.jnlp?time=' + new Date().getTime(); 
        		}
         </script>
     </body>

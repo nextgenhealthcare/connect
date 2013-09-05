@@ -14,6 +14,8 @@ import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.mirth.connect.webadmin.utils.Constants;
+
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
@@ -33,6 +35,6 @@ public class SecureAccessActionBean extends BaseActionBean {
             // Ignore
         }
 
-        return new RedirectResolution("https://" + hostName + ":" + getContext().getHttpsPort() + "/webadmin/Index.action", false);
+        return new RedirectResolution("https://" + hostName + ":" + getContext().getHttpsPort() + request.getContextPath() + Constants.INDEX_PAGE, false);
     }
 }

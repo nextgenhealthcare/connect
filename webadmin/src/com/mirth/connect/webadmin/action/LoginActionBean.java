@@ -33,13 +33,13 @@ public class LoginActionBean extends BaseActionBean {
 
         try {
             StringBuffer fullPath = getContext().getRequest().getRequestURL();
-            String requestUri = getContext().getRequest().getRequestURI();
-            String serverAddress = fullPath.toString().replaceAll(requestUri, "");
+            // Strip off the context path of the /webadmin app, but leave the server context path
+            String serverAddress = fullPath.toString().substring(0, fullPath.toString().lastIndexOf("/webadmin"));
 
             client = new Client(serverAddress);
             loginStatus = client.login(username, password, version);
         } catch (Exception e) {
-            return new RedirectResolution(Constants.INDEX_PAGE, false).addParameter("showAlert", true);
+            return new RedirectResolution(Constants.INDEX_PAGE).addParameter("showAlert", true);
         }
 
         if ((loginStatus != null) && ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD))) {
@@ -61,10 +61,10 @@ public class LoginActionBean extends BaseActionBean {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                return new RedirectResolution(Constants.INDEX_PAGE, false).addParameter("showAlert", true);
+                return new RedirectResolution(Constants.INDEX_PAGE).addParameter("showAlert", true);
             }
         } else {
-            return new RedirectResolution(Constants.INDEX_PAGE, false).addParameter("showAlert", true);
+            return new RedirectResolution(Constants.INDEX_PAGE).addParameter("showAlert", true);
         }
     }
 }
