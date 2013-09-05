@@ -23,8 +23,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.mirth.connect.donkey.model.DonkeyException;
-import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;

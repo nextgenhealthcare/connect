@@ -9,7 +9,6 @@
 
 package com.mirth.connect.connectors.doc;
 
-import com.mirth.connect.connectors.file.FileScheme;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;

@@ -14,11 +14,11 @@ import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.mirth.connect.webadmin.utils.Constants;
-
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
+
+import com.mirth.connect.webadmin.utils.Constants;
 
 public class SecureAccessActionBean extends BaseActionBean {
     @DefaultHandler

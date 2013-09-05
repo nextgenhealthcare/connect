@@ -25,8 +25,8 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.event.Event;
-import com.mirth.connect.donkey.server.event.DeployedStateEvent;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
+import com.mirth.connect.donkey.server.event.DeployedStateEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.event.EventType;
 import com.mirth.connect.donkey.server.event.MessageEvent;
