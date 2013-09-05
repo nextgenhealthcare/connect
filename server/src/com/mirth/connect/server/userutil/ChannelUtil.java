@@ -129,7 +129,6 @@ public class ChannelUtil {
      * 
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
-     * @throws Exception
      */
     public static void undeployChannel(String channelIdOrName) {
         engineController.undeployChannels(Collections.singleton(convertId(channelIdOrName)), null);
