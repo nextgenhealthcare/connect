@@ -73,18 +73,8 @@ public class UIConstants {
 
     // issue link
     public static final String ISSUE_TRACKER_LOCATION = "http://www.mirthcorp.com/community/issues/";
-    // help links
-    public static final String ALERTS_HELP_LOCATION = "Alerts";
-    public static final String CHANNEL_HELP_LOCATION = "Edit+Channel";
-    public static final String TRANFORMER_HELP_LOCATION = "Transformers";
-    public static final String FILTER_HELP_LOCATION = "Filters";
-    public static final String CHANNELS_HELP_LOCATION = "Channels";
-    public static final String DASHBOARD_HELP_LOCATION = "Dashboard";
-    public static final String MESSAGE_BROWSER_HELP_LOCATION = "Message+Browser";
-    public static final String SYSTEM_EVENT_HELP_LOCATION = "Events";
-    public static final String SETTINGS_HELP_LOCATION = "Settings";
-    public static final String USERS_HELP_LOCATION = "Users";
-    public static final String EXTENSIONS_HELP_LOCATION = "Extensions";
+    // help link
+    public static String HELP_LOCATION = "http://www.mirthcorp.com/community/wiki/display/mirth";
     // for JTrees
     public static final ImageIcon LEAF_ICON = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_green.png"));
     public static final ImageIcon OPEN_ICON = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_yellow.png"));
