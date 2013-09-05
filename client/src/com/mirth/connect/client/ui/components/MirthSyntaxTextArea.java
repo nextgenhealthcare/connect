@@ -34,6 +34,7 @@ import com.mirth.connect.client.ui.actions.SelectAllAction;
 import com.mirth.connect.client.ui.actions.ShowLineEndingsAction;
 import com.mirth.connect.client.ui.actions.SnippetAction;
 import com.mirth.connect.client.ui.actions.UndoAction;
+import com.mirth.connect.client.ui.actions.ViewUserApiAction;
 import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
 import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory.ListType;
 import com.mirth.connect.model.CodeTemplate;
@@ -58,6 +59,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
     private ShowLineEndingsAction showLineEndingsAction;
     private JMenu varlist;
     private JMenu funclist;
+    private ViewUserApiAction viewUserApiAction;
     private boolean saveDisabled;
     protected boolean showSnippets;
 
@@ -122,6 +124,10 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
             popup.addSeparator();
             popup.add(varlist);
             popup.add(funclist);
+            popup.addSeparator();
+            
+            viewUserApiAction = new ViewUserApiAction(this);
+            popup.add(viewUserApiAction);
         }
 
         this.popupHandler = new PopUpHandler() {
@@ -144,6 +150,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
                 if (showSnippets) {
                     menu.getComponent(12).setEnabled(varlist.isEnabled());
                     menu.getComponent(13).setEnabled(funclist.isEnabled());
+                    menu.getComponent(14).setEnabled(viewUserApiAction.isEnabled());
                 }
                 menu.show(evt.getComponent(), evt.getX(), evt.getY());
             }

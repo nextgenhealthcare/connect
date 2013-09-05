@@ -75,6 +75,8 @@ public class UIConstants {
     public static final String ISSUE_TRACKER_LOCATION = "http://www.mirthcorp.com/community/issues/";
     // help link
     public static String HELP_LOCATION = "http://www.mirthcorp.com/community/wiki/display/mirth";
+    // user api
+    public static String USER_API_LOCATION = "/javadocs/user-api/";
     // for JTrees
     public static final ImageIcon LEAF_ICON = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_green.png"));
     public static final ImageIcon OPEN_ICON = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_yellow.png"));
