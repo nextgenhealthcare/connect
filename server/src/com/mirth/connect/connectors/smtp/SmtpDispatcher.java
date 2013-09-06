@@ -140,6 +140,7 @@ public class SmtpDispatcher extends DestinationConnector {
 
             if ("SSL".equalsIgnoreCase(smtpDispatcherProperties.getEncryption())) {
                 email.setSSL(true);
+                email.setSslSmtpPort(smtpDispatcherProperties.getSmtpPort());
             } else if ("TLS".equalsIgnoreCase(smtpDispatcherProperties.getEncryption())) {
                 email.setTLS(true);
             }
@@ -149,9 +150,8 @@ public class SmtpDispatcher extends DestinationConnector {
             }
 
             /*
-             * NOTE: There seems to be a bug when calling setTo with a List
-             * (throws a java.lang.ArrayStoreException), so we are using addTo
-             * instead.
+             * NOTE: There seems to be a bug when calling setTo with a List (throws a
+             * java.lang.ArrayStoreException), so we are using addTo instead.
              */
 
             for (String to : StringUtils.split(smtpDispatcherProperties.getTo(), ",")) {
@@ -191,10 +191,9 @@ public class SmtpDispatcher extends DestinationConnector {
             }
 
             /*
-             * If the MIME type for the attachment is missing, we display a
-             * warning and set the content anyway. If the MIME type is of type
-             * "text" or "application/xml", then we add the content. If it is
-             * anything else, we assume it should be Base64 decoded first.
+             * If the MIME type for the attachment is missing, we display a warning and set the
+             * content anyway. If the MIME type is of type "text" or "application/xml", then we add
+             * the content. If it is anything else, we assume it should be Base64 decoded first.
              */
             for (Attachment attachment : smtpDispatcherProperties.getAttachments()) {
                 String name = attachment.getName();

@@ -124,6 +124,7 @@ public class ServerSMTPConnection {
             email.setTLS(true);
         } else if (StringUtils.equalsIgnoreCase(secure, "SSL")) {
             email.setSSL(true);
+            email.setSslSmtpPort(port);
         }
 
         for (String to : StringUtils.split(toList, ",")) {
