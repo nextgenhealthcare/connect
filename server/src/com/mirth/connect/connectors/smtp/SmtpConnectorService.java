@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ * 
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.mirth.connect.connectors.smtp;
 
 import java.util.Properties;
@@ -46,6 +55,7 @@ public class SmtpConnectorService implements ConnectorService {
 
             if ("SSL".equalsIgnoreCase(secure)) {
                 email.setSSL(true);
+                email.setSslSmtpPort(props.getProperty(SmtpSenderProperties.SMTP_PORT));
             } else if ("TLS".equalsIgnoreCase(secure)) {
                 email.setTLS(true);
             }
@@ -60,7 +70,7 @@ public class SmtpConnectorService implements ConnectorService {
                 for (String toAddress : StringUtils.split(to, ",")) {
                     email.addTo(toAddress);
                 }
-                
+
                 email.setFrom(from);
                 email.setMsg("Receipt of this email confirms that mail originating from this Mirth Connect Server is capable of reaching its intended destination.\n\nSMTP Configuration:\n- Host: " + host + "\n- Port: " + port);
 

@@ -69,8 +69,10 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 
             email.setHostName(replacer.replaceValues(connector.getSmtpHost(), mo));
 
+            String smtpPort = replacer.replaceValues(connector.getSmtpPort(), mo);
+
             try {
-                email.setSmtpPort(Integer.parseInt(replacer.replaceValues(connector.getSmtpPort(), mo)));
+                email.setSmtpPort(Integer.parseInt(smtpPort));
             } catch (NumberFormatException e) {
                 // Don't set if the value is invalid
             }
@@ -83,6 +85,7 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 
             if ("SSL".equalsIgnoreCase(connector.getEncryption())) {
                 email.setSSL(true);
+                email.setSslSmtpPort(smtpPort);
             } else if ("TLS".equalsIgnoreCase(connector.getEncryption())) {
                 email.setTLS(true);
             }
@@ -92,9 +95,8 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
             }
 
             /*
-             * NOTE: There seems to be a bug when calling setTo with a List
-             * (throws a java.lang.ArrayStoreException), so we are using addTo
-             * instead.
+             * NOTE: There seems to be a bug when calling setTo with a List (throws a
+             * java.lang.ArrayStoreException), so we are using addTo instead.
              */
 
             for (String to : replaceValuesAndSplit(connector.getTo(), mo)) {
@@ -134,10 +136,9 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
             }
 
             /*
-             * If the MIME type for the attachment is missing, we display a
-             * warning and set the content anyway. If the MIME type is of type
-             * "text" or "application/xml", then we add the content. If it is
-             * anything else, we assume it should be Base64 decoded first.
+             * If the MIME type for the attachment is missing, we display a warning and set the
+             * content anyway. If the MIME type is of type "text" or "application/xml", then we add
+             * the content. If it is anything else, we assume it should be Base64 decoded first.
              */
             for (Attachment attachment : connector.getAttachments()) {
                 String name = replacer.replaceValues(attachment.getName(), mo);
@@ -177,15 +178,14 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
     }
 
     /**
-     * Takes a comma-separated list of email addresses and returns a String[] of
-     * individual addresses with replaced values.
+     * Takes a comma-separated list of email addresses and returns a String[] of individual
+     * addresses with replaced values.
      * 
      * @param addresses
      *            A comma-separated list of email addresses
      * @param mo
      *            A MessageObject
-     * @return A String[] of individual adresses, or an empty String[] if
-     *         addresses is blank
+     * @return A String[] of individual adresses, or an empty String[] if addresses is blank
      */
     private String[] replaceValuesAndSplit(String addresses, MessageObject mo) {
         if (StringUtils.isNotBlank(addresses)) {
