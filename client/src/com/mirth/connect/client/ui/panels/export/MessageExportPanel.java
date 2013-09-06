@@ -223,6 +223,8 @@ public class MessageExportPanel extends JPanel {
     }
 
     public boolean validate(boolean highlight) {
+        resetInvalidProperties();
+        
         if (!isEnabled() || archiveNo.isSelected()) {
             return true;
         }
