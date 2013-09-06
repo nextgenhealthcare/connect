@@ -187,9 +187,12 @@ public class MessageImportDialog extends JDialog {
 
     private void importMessages() {
         if (StringUtils.isBlank(fileTextField.getText())) {
+            fileTextField.setBackground(UIConstants.INVALID_COLOR);
             parent.alertError(parent, "Please enter a file/folder to import.");
             setVisible(true);
             return;
+        } else {
+            fileTextField.setBackground(null);
         }
 
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
