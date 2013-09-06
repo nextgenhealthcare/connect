@@ -60,8 +60,8 @@
 	
 	<insert id='insertEvent' parameterType='com.mirth.connect.model.ServerEvent'>
 		INSERT INTO
-		EVENT (NAME, EVENT_LEVEL, OUTCOME, ATTRIBUTES, USER_ID, IP_ADDRESS)
-		VALUES (#{name}, #{level}, #{outcome}, #{attributes,typeHandler=MapTypeHandler}, #{userId}, #{ipAddress})
+		EVENT (NAME, EVENT_LEVEL, OUTCOME, ATTRIBUTES, USER_ID, IP_ADDRESS, DATE_CREATED)
+		VALUES (#{name}, #{level}, #{outcome}, #{attributes,typeHandler=MapTypeHandler}, #{userId}, #{ipAddress}, #{eventTime})
 	</insert>
 	
 	<delete id='deleteAllEvents'>

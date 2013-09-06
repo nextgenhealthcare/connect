@@ -49,8 +49,8 @@
 	</delete>
    <insert id='insertUser' parameterType='java.util.Map'>
 		INSERT INTO
-		PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
-		VALUES (#{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, FALSE)
+		PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN, LAST_LOGIN)
+		VALUES (#{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, FALSE, NULL)
 	</insert>
    <update id='updateUser' parameterType='java.util.Map'>
 		UPDATE PERSON
@@ -65,8 +65,8 @@
 	</update>
    <insert id='updateUserPassword' parameterType='java.util.Map'>
 		INSERT INTO
-		PERSON_PASSWORD (PERSON_ID, PASSWORD)
-		VALUES (#{id}, #{password})
+		PERSON_PASSWORD (PERSON_ID, PASSWORD, PASSWORD_DATE)
+		VALUES (#{id}, #{password}, #{passwordDate})
 	</insert>
    <delete id='deleteUser' parameterType='com.mirth.connect.model.User'>
 		DELETE FROM PERSON
@@ -74,21 +74,21 @@
          <if test='id != null'>AND ID=#{id}</if>
       </where>
 	  </delete>
-   <update id='startGracePeriod' parameterType='java.lang.Integer'>
+   <update id='startGracePeriod' parameterType='java.util.Map'>
 		UPDATE PERSON
-		SET GRACE_PERIOD_START = CURRENT_TIMESTAMP
-		WHERE ID = #{value}
+		SET GRACE_PERIOD_START = #{gracePeriodStart}
+		WHERE ID = #{id}
 	</update>
    <update id='clearGracePeriod' parameterType='java.lang.Integer'>
 		UPDATE PERSON
 		SET GRACE_PERIOD_START = NULL
 		WHERE ID = #{value}
 	</update>
-   <!-- Login/Logout Procedures --><update id='loginUser' parameterType='java.lang.Integer'>
+   <!-- Login/Logout Procedures --><update id='loginUser' parameterType='java.util.Map'>
 		UPDATE PERSON
 		SET LOGGED_IN = TRUE,
-		LAST_LOGIN = CURRENT_TIMESTAMP
-		WHERE ID = #{value}
+		LAST_LOGIN = #{lastLogin}
+		WHERE ID = #{id}
 	</update>
    <update id='logoutUser' parameterType='java.lang.Integer'>
 		UPDATE PERSON

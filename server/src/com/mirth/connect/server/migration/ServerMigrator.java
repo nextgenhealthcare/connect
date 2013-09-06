@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -175,6 +176,24 @@ public class ServerMigrator extends Migrator {
         // If missing this table we can assume that they don't have the schema installed
         if (!tableExists("CONFIGURATION")) {
             executeScript("/" + getDatabaseType() + "/" + getDatabaseType() + "-database.sql");
+
+            /*
+             * We must update the password date for the initial user. Previously we let the database
+             * set this via CURRENT_TIMESTAMP, however this could create problems if the database is
+             * running on a separate machine in a different timezone. (MIRTH-2902)
+             */
+            PreparedStatement statement = null;
+
+            try {
+                statement = getConnection().prepareStatement("UPDATE PERSON_PASSWORD SET PASSWORD_DATE = ?");
+                statement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new MigrationException(e);
+            } finally {
+                DbUtils.closeQuietly(statement);
+            }
+
             updateVersion(Version.getLatest());
         }
     }

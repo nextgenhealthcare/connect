@@ -128,6 +128,7 @@ public class DefaultUserController extends UserController {
             Map<String, Object> userPasswordMap = new HashMap<String, Object>();
             userPasswordMap.put("id", userId);
             userPasswordMap.put("password", digester.digest(plainPassword));
+            userPasswordMap.put("passwordDate", Calendar.getInstance());
             SqlConfig.getSqlSessionManager().insert("User.updateUserPassword", userPasswordMap);
 
             return null;
@@ -222,7 +223,12 @@ public class DefaultUserController extends UserController {
                             long gracePeriodStartTime;
                             if (validUser.getGracePeriodStart() == null) {
                                 gracePeriodStartTime = currentTime;
-                                SqlConfig.getSqlSessionManager().update("User.startGracePeriod", validUser.getId());
+
+                                Map<String, Object> gracePeriodMap = new HashMap<String, Object>();
+                                gracePeriodMap.put("id", validUser.getId());
+                                gracePeriodMap.put("gracePeriodStart", Calendar.getInstance());
+
+                                SqlConfig.getSqlSessionManager().update("User.startGracePeriod", gracePeriodMap);
                             } else {
                                 gracePeriodStartTime = validUser.getGracePeriodStart().getTimeInMillis();
                             }
@@ -282,7 +288,11 @@ public class DefaultUserController extends UserController {
 
     public void loginUser(User user) throws ControllerException {
         try {
-            SqlConfig.getSqlSessionManager().update("User.loginUser", user.getId());
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("id", user.getId());
+            params.put("lastLogin", Calendar.getInstance());
+
+            SqlConfig.getSqlSessionManager().update("User.loginUser", params);
         } catch (Exception e) {
             throw new ControllerException(e);
         }

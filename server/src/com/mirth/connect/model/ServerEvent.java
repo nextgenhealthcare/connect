@@ -47,11 +47,15 @@ public class ServerEvent extends Event {
     private String ipAddress;
 
     public ServerEvent() {
-
+        eventTime = Calendar.getInstance();
+        eventTime.setTimeInMillis(getDateTime());
     }
 
     public ServerEvent(String name) {
         this.name = name;
+
+        eventTime = Calendar.getInstance();
+        eventTime.setTimeInMillis(getDateTime());
     }
 
     public ServerEvent(String name, Level level, Outcome outcome, Map<String, String> attributes) {
@@ -59,6 +63,9 @@ public class ServerEvent extends Event {
         this.level = level;
         this.outcome = outcome;
         this.attributes = attributes;
+
+        eventTime = Calendar.getInstance();
+        eventTime.setTimeInMillis(getDateTime());
     }
 
     public int getId() {

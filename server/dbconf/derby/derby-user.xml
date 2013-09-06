@@ -53,8 +53,8 @@
 	
 	<insert id="insertUser" parameterType="java.util.Map">
 		INSERT INTO
-		PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
-		VALUES (#{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 0)
+		PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN, LAST_LOGIN)
+		VALUES (#{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 0, NULL)
 	</insert>
 	
 	<update id="updateUser" parameterType="java.util.Map">
@@ -71,8 +71,8 @@
 	
 	<insert id="updateUserPassword" parameterType="java.util.Map">
 		INSERT INTO
-		PERSON_PASSWORD (PERSON_ID, PASSWORD)
-		VALUES (#{id}, #{password})
+		PERSON_PASSWORD (PERSON_ID, PASSWORD, PASSWORD_DATE)
+		VALUES (#{id}, #{password}, #{passwordDate})
 	</insert>
 	
 	<delete id="deleteUser" parameterType="com.mirth.connect.model.User">
@@ -82,9 +82,9 @@
       	</where>
 	</delete>
 	
-	<update id="startGracePeriod" parameterType="java.lang.Integer">
+	<update id="startGracePeriod" parameterType="java.util.Map">
 		UPDATE PERSON
-		SET GRACE_PERIOD_START = CURRENT_TIMESTAMP
+		SET GRACE_PERIOD_START = #{gracePeriodStart}
 		WHERE ID = #{id}
 	</update>
 	
@@ -96,10 +96,10 @@
 	
 	<!-- Login/Logout Procedures -->
 
-	<update id="loginUser" parameterType="java.lang.Integer">
+	<update id="loginUser" parameterType="java.util.Map">
 		UPDATE PERSON
 		SET LOGGED_IN = 1,
-		LAST_LOGIN = CURRENT_TIMESTAMP
+		LAST_LOGIN = #{lastLogin}
 		WHERE ID = #{id}
 	</update>
 

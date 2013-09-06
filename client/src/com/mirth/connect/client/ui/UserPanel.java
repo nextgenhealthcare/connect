@@ -157,7 +157,11 @@ public class UserPanel extends javax.swing.JPanel {
                 tableData[i][3] = temp.getOrganization();
                 tableData[i][4] = temp.getEmail();
                 tableData[i][5] = temp.getPhoneNumber();
-                tableData[i][6] = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(temp.getLastLogin().getTime());
+
+                if (temp.getLastLogin() != null) {
+                    tableData[i][6] = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(temp.getLastLogin().getTime());
+                }
+
                 tableData[i][7] = temp.getDescription();
             }
         }
