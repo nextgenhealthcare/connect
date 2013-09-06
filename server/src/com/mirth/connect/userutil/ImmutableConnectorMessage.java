@@ -408,7 +408,7 @@ public class ImmutableConnectorMessage {
      * keys (where "#" is the destination connector metadata ID).
      */
     public Map<String, String> getDestinationNameMap() {
-        return Collections.unmodifiableMap(destinationNameMap);
+        return destinationNameMap != null ? Collections.unmodifiableMap(destinationNameMap) : null;
     }
 
     @Override
