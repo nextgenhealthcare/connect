@@ -121,9 +121,9 @@ public class ServerSMTPConnection {
         }
 
         if (StringUtils.equalsIgnoreCase(secure, "TLS")) {
-            email.setTLS(true);
+            email.setStartTLSEnabled(true);
         } else if (StringUtils.equalsIgnoreCase(secure, "SSL")) {
-            email.setSSL(true);
+            email.setSSLOnConnect(true);
             email.setSslSmtpPort(port);
         }
 

@@ -60,10 +60,10 @@ public class SmtpSenderService implements ConnectorService {
             }
 
             if ("SSL".equalsIgnoreCase(secure)) {
-                email.setSSL(true);
+                email.setSSLOnConnect(true);
                 email.setSslSmtpPort(portString);
             } else if ("TLS".equalsIgnoreCase(secure)) {
-                email.setTLS(true);
+                email.setStartTLSEnabled(true);
             }
 
             if (authentication) {

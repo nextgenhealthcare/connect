@@ -139,10 +139,10 @@ public class SmtpDispatcher extends DestinationConnector {
             }
 
             if ("SSL".equalsIgnoreCase(smtpDispatcherProperties.getEncryption())) {
-                email.setSSL(true);
+                email.setSSLOnConnect(true);
                 email.setSslSmtpPort(smtpDispatcherProperties.getSmtpPort());
             } else if ("TLS".equalsIgnoreCase(smtpDispatcherProperties.getEncryption())) {
-                email.setTLS(true);
+                email.setStartTLSEnabled(true);
             }
 
             if (smtpDispatcherProperties.isAuthentication()) {
