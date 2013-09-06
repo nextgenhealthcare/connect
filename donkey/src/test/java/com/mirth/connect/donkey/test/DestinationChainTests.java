@@ -92,6 +92,7 @@ public class DestinationChainTests {
 
         TestSourceConnector sourceConnector = (TestSourceConnector) TestUtils.createDefaultSourceConnector();
         sourceConnector.setRespondAfterProcessing(true);
+        sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         sourceConnector.setMetaDataReplacer(new MetaDataReplacer());
 

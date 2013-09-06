@@ -13,17 +13,13 @@ import java.util.Map;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DeployedState;
-import com.mirth.connect.donkey.model.event.DeployedStateEventType;
 import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.Startable;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.Stoppable;
 import com.mirth.connect.donkey.server.UndeployException;
-import com.mirth.connect.donkey.server.event.DeployedStateEvent;
-import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.message.DataType;
 
 public abstract class Connector implements Startable, Stoppable {
@@ -34,7 +30,6 @@ public abstract class Connector implements Startable, Stoppable {
     private DeployedState currentState = DeployedState.STOPPED;
     private ConnectorProperties connectorProperties;
     private Map<String, String> destinationNameMap;
-    private EventDispatcher eventDispatcher = Donkey.getInstance().getEventDispatcher();
 
     public abstract void onDeploy() throws DeployException;
 
@@ -82,9 +77,8 @@ public abstract class Connector implements Startable, Stoppable {
         return currentState;
     }
 
-    public void updateCurrentState(DeployedState currentState) {
+    public void setCurrentState(DeployedState currentState) {
         this.currentState = currentState;
-        eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, metaDataId, DeployedStateEventType.getTypeFromDeployedState(currentState)));
     }
 
     public ConnectorProperties getConnectorProperties() {
@@ -101,9 +95,5 @@ public abstract class Connector implements Startable, Stoppable {
 
     public void setDestinationNameMap(Map<String, String> destinationNameMap) {
         this.destinationNameMap = destinationNameMap;
-    }
-
-    protected EventDispatcher getEventDispatcher() {
-        return eventDispatcher;
     }
 }

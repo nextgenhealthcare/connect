@@ -564,7 +564,7 @@ public class DonkeyEngineController implements EngineController {
                     connector.setMetaDataId(metaDataId);
                 }
 
-                chain.addDestination(connector.getMetaDataId(), createFilterTransformerExecutor(channelId, connector, destinationNameMap), createDestinationConnector(channelId, connector, storageSettings, destinationNameMap));
+                chain.addDestination(connector.getMetaDataId(), createFilterTransformerExecutor(channelId, connector, destinationNameMap), createDestinationConnector(channel, connector, storageSettings, destinationNameMap));
             }
         }
 
@@ -835,17 +835,18 @@ public class DonkeyEngineController implements EngineController {
         return chain;
     }
 
-    private DestinationConnector createDestinationConnector(String channelId, Connector model, StorageSettings storageSettings, Map<String, String> destinationNameMap) throws Exception {
+    private DestinationConnector createDestinationConnector(com.mirth.connect.donkey.server.channel.Channel donkeyChannel, Connector model, StorageSettings storageSettings, Map<String, String> destinationNameMap) throws Exception {
         ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
         ConnectorProperties connectorProperties = model.getProperties();
         ConnectorMetaData connectorMetaData = extensionController.getConnectorMetaData().get(connectorProperties.getName());
         String className = connectorMetaData.getServerClassName();
         DestinationConnector destinationConnector = (DestinationConnector) Class.forName(className).newInstance();
 
-        setCommonConnectorProperties(channelId, destinationConnector, model, destinationNameMap);
+        setCommonConnectorProperties(donkeyChannel.getChannelId(), destinationConnector, model, destinationNameMap);
+        destinationConnector.setChannel(donkeyChannel);
 
         destinationConnector.setDestinationName(model.getName());
-        destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(channelId, model, destinationNameMap));
+        destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(donkeyChannel.getChannelId(), model, destinationNameMap));
 
         ConnectorMessageQueue queue = new ConnectorMessageQueue();
         queue.setBufferCapacity(queueBufferSize);

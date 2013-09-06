@@ -24,6 +24,8 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelLock;
+import com.mirth.connect.donkey.server.channel.DestinationChain;
+import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.data.jdbc.DBCPConnectionPool;
@@ -159,10 +161,17 @@ public class Donkey {
                 channel.start();
             } else if (channel.getInitialState() == DeployedState.PAUSED) {
                 Set<Integer> connectorsToStart = new HashSet<Integer>(channel.getMetaDataIds());
+                channel.getSourceConnector().updateCurrentState(DeployedState.STOPPED);
                 connectorsToStart.remove(0);
                 channel.start(connectorsToStart);
             } else {
                 channel.updateCurrentState(DeployedState.STOPPED);
+                channel.getSourceConnector().updateCurrentState(DeployedState.STOPPED);
+                for (DestinationChain destinationChain : channel.getDestinationChains()) {
+                    for (DestinationConnector destinationConnector : destinationChain.getDestinationConnectors().values()) {
+                        destinationConnector.updateCurrentState(DeployedState.STOPPED);
+                    }
+                }
             }
         } finally {
             channel.unlock();

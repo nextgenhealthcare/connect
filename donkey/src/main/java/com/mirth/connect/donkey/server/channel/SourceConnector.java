@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
+import com.mirth.connect.donkey.model.event.DeployedStateEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
@@ -30,6 +31,7 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
+import com.mirth.connect.donkey.server.event.DeployedStateEvent;
 import com.mirth.connect.donkey.util.Serializer;
 
 /**
@@ -45,7 +47,6 @@ public abstract class SourceConnector extends Connector {
 
     public void setChannel(Channel channel) {
         this.channel = channel;
-        setChannelId(channel.getChannelId());
     }
 
     public boolean isRespondAfterProcessing() {
@@ -70,6 +71,11 @@ public abstract class SourceConnector extends Connector {
 
     public void setSourceName(String sourceName) {
         this.sourceName = sourceName;
+    }
+
+    public void updateCurrentState(DeployedState currentState) {
+        setCurrentState(currentState);
+        channel.getEventDispatcher().dispatchEvent(new DeployedStateEvent(getChannelId(), channel.getName(), getMetaDataId(), sourceName, DeployedStateEventType.getTypeFromDeployedState(currentState)));
     }
 
     /**

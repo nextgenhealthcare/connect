@@ -98,6 +98,7 @@ public class ExceptionTests {
         sourceConnector.setOutboundDataType(new TestDataType());
         sourceConnector.setMetaDataReplacer(new MetaDataReplacer());
 
+        sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
         channel.setResponseSelector(new ResponseSelector(sourceConnector.getInboundDataType()));

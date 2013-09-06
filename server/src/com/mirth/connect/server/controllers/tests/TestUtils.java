@@ -201,6 +201,7 @@ public class TestUtils {
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
         channel.setSourceFilterTransformer(filterTransformer);
 
+        sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
 
         DestinationChain chain = new DestinationChain();
@@ -240,6 +241,7 @@ public class TestUtils {
 
         // create source connector
         TestSourceConnector sourceConnector = new TestSourceConnector();
+        sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         sourceConnector.setRespondAfterProcessing(respondAfterProcessing);
         sourceConnector.setMetaDataReplacer(new MetaDataReplacer());

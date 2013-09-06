@@ -448,6 +448,7 @@ public class QueueTests {
         channel.setPostProcessor(new TestPostProcessor());
 
         TestSourceConnector sourceConnector = (TestSourceConnector) TestUtils.createDefaultSourceConnector();
+        sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
         channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());

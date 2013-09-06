@@ -18,17 +18,21 @@ import com.mirth.connect.donkey.model.message.Status;
 public class DeployedStateEvent extends Event {
 
     private String channelId;
+    private String channelName;
     private Integer metaDataId;
+    private String connectorName;
     private DeployedStateEventType state;
     private Map<Integer, Map<Status, Long>> connectorStatistics;
 
-    public DeployedStateEvent(String channelId, Integer metaDataId, DeployedStateEventType state) {
-        this(channelId, metaDataId, state, null);
+    public DeployedStateEvent(String channelId, String channelName, Integer metaDataId, String connectorName, DeployedStateEventType state) {
+        this(channelId, channelName, metaDataId, connectorName, state, null);
     }
 
-    public DeployedStateEvent(String channelId, Integer metaDataId, DeployedStateEventType state, Map<Integer, Map<Status, Long>> connectorStatistics) {
+    public DeployedStateEvent(String channelId, String channelName, Integer metaDataId, String connectorName, DeployedStateEventType state, Map<Integer, Map<Status, Long>> connectorStatistics) {
         this.channelId = channelId;
+        this.channelName = channelName;
         this.metaDataId = metaDataId;
+        this.connectorName = connectorName;
         this.state = state;
         this.connectorStatistics = connectorStatistics;
     }
@@ -41,12 +45,28 @@ public class DeployedStateEvent extends Event {
         this.channelId = channelId;
     }
 
+    public String getChannelName() {
+        return channelName;
+    }
+
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
+    }
+
     public Integer getMetaDataId() {
         return metaDataId;
     }
 
     public void setMetaDataId(Integer metaDataId) {
         this.metaDataId = metaDataId;
+    }
+
+    public String getConnectorName() {
+        return connectorName;
+    }
+
+    public void setConnectorName(String connectorName) {
+        this.connectorName = connectorName;
     }
 
     public DeployedStateEventType getState() {

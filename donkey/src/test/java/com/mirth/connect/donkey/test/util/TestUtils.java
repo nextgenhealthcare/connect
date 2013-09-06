@@ -125,6 +125,7 @@ public class TestUtils {
         channel.setPostProcessor(new TestPostProcessor());
 
         TestSourceConnector sourceConnector = (TestSourceConnector) TestUtils.createDefaultSourceConnector();
+        sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
         channel.setResponseSelector(new ResponseSelector(sourceConnector.getInboundDataType()));
@@ -174,6 +175,7 @@ public class TestUtils {
 
         TestSourceConnector sourceConnector = (TestSourceConnector) TestUtils.createDefaultSourceConnector();
         sourceConnector.setRespondAfterProcessing(respondAfterProcessing);
+        sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
 
         channel.setSourceConnector(sourceConnector);

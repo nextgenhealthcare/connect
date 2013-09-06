@@ -189,7 +189,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     public void updateCurrentState(DeployedState currentState) {
         this.currentState = currentState;
-        eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, null, DeployedStateEventType.getTypeFromDeployedState(currentState)));
+        eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, name, null, null, DeployedStateEventType.getTypeFromDeployedState(currentState)));
     }
 
     public StorageSettings getStorageSettings() {
@@ -405,7 +405,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     }
                 }
 
-                eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, null, DeployedStateEventType.DEPLOYED, connectorStatistics));
+                eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, name, null, null, DeployedStateEventType.DEPLOYED, connectorStatistics));
             }
         } catch (Throwable t) {
             Throwable cause = t.getCause();
@@ -436,7 +436,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             if (task != null) {
                 task.get();
-                eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, null, DeployedStateEventType.UNDEPLOYED));
+                eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, name, null, null, DeployedStateEventType.UNDEPLOYED));
             }
         } catch (Throwable t) {
             Throwable cause = t.getCause();

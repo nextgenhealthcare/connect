@@ -25,6 +25,7 @@ import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
+import com.mirth.connect.donkey.model.event.DeployedStateEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
@@ -39,6 +40,7 @@ import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
+import com.mirth.connect.donkey.server.event.DeployedStateEvent;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.donkey.util.ThreadUtils;
@@ -46,6 +48,7 @@ import com.mirth.connect.donkey.util.ThreadUtils;
 public abstract class DestinationConnector extends Connector implements Runnable {
     private final static String QUEUED_RESPONSE = "Message queued successfully";
 
+    private Channel channel;
     private Integer orderId;
     private Map<Long, Thread> queueThreads = new HashMap<Long, Thread>();
     private QueueConnectorProperties queueProperties;
@@ -84,6 +87,10 @@ public abstract class DestinationConnector extends Connector implements Runnable
         }
 
         return threadId;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
     }
 
     public String getDestinationName() {
@@ -155,6 +162,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
      */
     public boolean isQueueRotate() {
         return (queueProperties != null && queueProperties.isRotate());
+    }
+
+    public void updateCurrentState(DeployedState currentState) {
+        setCurrentState(currentState);
+        channel.getEventDispatcher().dispatchEvent(new DeployedStateEvent(getChannelId(), channel.getName(), getMetaDataId(), destinationName, DeployedStateEventType.getTypeFromDeployedState(currentState)));
     }
 
     @Override

@@ -83,6 +83,7 @@ public class ConnectorTests {
         sourceConnector.setInboundDataType(new TestDataType());
         sourceConnector.setOutboundDataType(new TestDataType());
         sourceConnector.setMetaDataReplacer(new MetaDataReplacer());
+        sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
         channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());

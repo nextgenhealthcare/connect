@@ -96,6 +96,7 @@ public class DestinationConnectorTests {
         channel.setPostProcessor(new TestPostProcessor());
 
         TestSourceConnector sourceConnector = (TestSourceConnector) TestUtils.createDefaultSourceConnector();
+        sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
         channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
@@ -166,6 +167,7 @@ public class DestinationConnectorTests {
         channel.setPostProcessor(new TestPostProcessor());
 
         TestSourceConnector sourceConnector = (TestSourceConnector) TestUtils.createDefaultSourceConnector();
+        sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
         channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
@@ -280,6 +282,7 @@ public class DestinationConnectorTests {
         channel.setPostProcessor(new TestPostProcessor());
 
         TestSourceConnector sourceConnector = (TestSourceConnector) TestUtils.createDefaultSourceConnector();
+        sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
         channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
@@ -395,6 +398,7 @@ public class DestinationConnectorTests {
         channel.setPostProcessor(new TestPostProcessor());
 
         final TestSourceConnector sourceConnector = (TestSourceConnector) TestUtils.createDefaultSourceConnector();
+        sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
         channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());

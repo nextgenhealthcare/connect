@@ -45,6 +45,7 @@ public class DummyChannel extends Channel {
         setServerId(serverId);
 
         if (sourceConnector != null) {
+            sourceConnector.setChannelId(this.getChannelId());
             sourceConnector.setChannel(this);
             setSourceConnector(sourceConnector);
         }

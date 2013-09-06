@@ -294,6 +294,7 @@ public class JmsReceiverTests {
     }
 
     private void initSourceConnector(SourceConnector sourceConnector) {
+        sourceConnector.setChannelId(testChannel.getChannelId());
         sourceConnector.setChannel(testChannel);
         sourceConnector.setMetaDataReplacer(new MirthMetaDataReplacer());
         sourceConnector.setRespondAfterProcessing(true);
