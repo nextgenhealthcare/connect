@@ -93,6 +93,7 @@ public class CommandLineInterface {
     }
 
     public static void main(String[] args) {
+        System.setProperty("log4j.configuration", "log4j-cli.properties");
         new CommandLineInterface(args);
     }
 

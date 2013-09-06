@@ -25,9 +25,12 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.log4j.Logger;
 
 public class CommandLineLauncher {
-    private static Logger logger = Logger.getLogger(CommandLineLauncher.class);
+    private static Logger logger;
 
     public static void main(String[] args) {
+        System.setProperty("log4j.configuration", "log4j-cli.properties");
+        logger = Logger.getLogger(CommandLineLauncher.class);
+
         try {
             ManifestFile mirthCliJar = new ManifestFile("cli-lib/mirth-cli.jar");
             ManifestFile mirthClientCoreJar = new ManifestFile("cli-lib/mirth-client-core.jar");
