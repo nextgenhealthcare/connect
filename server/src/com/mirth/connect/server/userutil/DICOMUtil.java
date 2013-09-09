@@ -10,12 +10,14 @@
 package com.mirth.connect.server.userutil;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.dcm4che2.data.DicomObject;
 
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.server.util.MessageAttachmentUtil;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
@@ -100,52 +102,61 @@ public class DICOMUtil {
 
     /**
      * Re-attaches DICOM attachments with the header data in the connector message and returns the
-     * resulting merged data as a byte array.
+     * resulting merged data as a Base-64 encoded String.
      * 
      * @param messageObject
      *            The connector message containing header data to merge DICOM attachments with.
      * @param attachments
      *            The DICOM attachments to merge with the header data.
-     * @return The merged DICOM data as a byte array.
+     * @return The merged DICOM data as a Base-64 encoded String.
      * @throws XmlSerializerException
+     * @throws IOException
      * 
      * @deprecated This method is deprecated and will soon be removed. Please use
      *             mergeHeaderAttachments(connectorMessage, attachments) instead.
      */
     // TODO: Remove in 3.1
-    public static byte[] mergeHeaderAttachments(MessageObject messageObject, List<Attachment> attachments) throws XmlSerializerException {
+    public static String mergeHeaderAttachments(MessageObject messageObject, List<Attachment> attachments) throws XmlSerializerException, IOException {
         logger.error("The mergeHeaderAttachments(messageObject, attachments) method is deprecated and will soon be removed. Please use mergeHeaderAttachments(connectorMessage, attachments) instead.");
-        return com.mirth.connect.server.util.DICOMMessageUtil.mergeHeaderAttachments(messageObject.getImmutableConnectorMessage(), AttachmentUtil.convertToDonkeyAttachmentList(attachments));
+        return new String(Base64Util.encodeBase64(com.mirth.connect.server.util.DICOMMessageUtil.mergeHeaderAttachments(messageObject.getImmutableConnectorMessage(), AttachmentUtil.convertToDonkeyAttachmentList(attachments))));
     }
 
     /**
      * Re-attaches DICOM attachments with the header data in the connector message and returns the
-     * resulting merged data as a byte array.
+     * resulting merged data as a Base-64 encoded String.
      * 
      * @param connectorMessage
      *            The connector message containing header data to merge DICOM attachments with.
      * @param attachments
      *            The DICOM attachments to merge with the header data.
-     * @return The merged DICOM data as a byte array.
+     * @return The merged DICOM data as a Base-64 encoded String.
      * @throws XmlSerializerException
+     * @throws IOException
      */
-    public static byte[] mergeHeaderAttachments(ImmutableConnectorMessage connectorMessage, List<Attachment> attachments) throws XmlSerializerException {
-        return com.mirth.connect.server.util.DICOMMessageUtil.mergeHeaderAttachments(connectorMessage, AttachmentUtil.convertToDonkeyAttachmentList(attachments));
+    public static String mergeHeaderAttachments(ImmutableConnectorMessage connectorMessage, List<Attachment> attachments) throws XmlSerializerException, IOException {
+        return new String(Base64Util.encodeBase64(com.mirth.connect.server.util.DICOMMessageUtil.mergeHeaderAttachments(connectorMessage, AttachmentUtil.convertToDonkeyAttachmentList(attachments))));
     }
 
     /**
      * Re-attaches DICOM attachments with the given header data and returns the resulting merged
-     * data as a byte array.
+     * data as a Base-64 encoded String.
      * 
      * @param header
      *            The header data to merge DICOM attachments with.
-     * @param attachments
-     *            The DICOM attachments to merge with the header data.
-     * @return The merged DICOM data as a byte array.
+     * @param images
+     *            The DICOM attachments as byte arrays to merge with the header data.
+     * @return The merged DICOM data as a Base-64 encoded String.
      * @throws IOException
      */
-    public static byte[] mergeHeaderPixelData(byte[] header, List<Attachment> attachments) throws IOException {
-        return com.mirth.connect.server.util.DICOMMessageUtil.mergeHeaderPixelData(header, AttachmentUtil.convertToDonkeyAttachmentList(attachments));
+    public static String mergeHeaderPixelData(byte[] header, List<byte[]> images) throws IOException {
+        List<Attachment> attachments = new ArrayList<Attachment>();
+        for (byte[] image : images) {
+            Attachment attachment = new Attachment();
+            attachment.setContent(image);
+            attachments.add(attachment);
+        }
+
+        return new String(Base64Util.encodeBase64(com.mirth.connect.server.util.DICOMMessageUtil.mergeHeaderPixelData(header, AttachmentUtil.convertToDonkeyAttachmentList(attachments))));
     }
 
     /**
