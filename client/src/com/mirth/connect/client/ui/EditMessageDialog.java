@@ -38,26 +38,29 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
     private Frame parent;
     private String channelId;
 
+    public EditMessageDialog() {
+        super(PlatformUI.MIRTH_FRAME);
+        this.parent = PlatformUI.MIRTH_FRAME;
+        initComponents();
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setModalityType(ModalityType.DOCUMENT_MODAL);
+        pack();
+        new DropTarget(messageContent, this);
+    }
+
     /**
      * 
      * @param message
      * @param dataType
      * @param channelId
      * @param selectedMetaDataIds
-     *            The connectors that will be pre-selected for processing the
-     *            message. If null, all connectors will be pre-selected.
+     *            The connectors that will be pre-selected for processing the message. If null, all
+     *            connectors will be pre-selected.
      */
-    public EditMessageDialog(String message, String dataType, String channelId, Map<Integer, String> destinationConnectors, List<Integer> selectedMetaDataIds) {
-        super(PlatformUI.MIRTH_FRAME);
-        this.parent = PlatformUI.MIRTH_FRAME;
+    public void setPropertiesAndShow(String message, String dataType, String channelId, Map<Integer, String> destinationConnectors, List<Integer> selectedMetaDataIds) {
         this.channelId = channelId;
-        initComponents();
-        setCorrectDocument(messageContent, message, dataType);
-        messageContent.setCaretPosition(0);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setModal(true);
-        pack();
-        new DropTarget(messageContent, this);
+        setMessage(message, dataType);
+
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
         Point loc = parent.getLocation();
@@ -70,6 +73,11 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
 
         initDestinationConnectorTable(destinationConnectors, selectedMetaDataIds);
         setVisible(true);
+    }
+
+    public void setMessage(String message, String dataType) {
+        setCorrectDocument(messageContent, message, dataType);
+        messageContent.setCaretPosition(0);
     }
 
     private void initDestinationConnectorTable(Map<Integer, String> destinationConnectors, List<Integer> selectedMetaDataIds) {
@@ -159,11 +167,12 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
         closeButton = new javax.swing.JButton();
         processMessageButton = new javax.swing.JButton();
         messageContent = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
-        openTextFileButton = new javax.swing.JButton();
-        openBinaryFileButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         mirthTable1 = new com.mirth.connect.client.ui.components.MirthTable();
         jLabel1 = new javax.swing.JLabel();
+        buttonPanel = new javax.swing.JPanel();
+        openBinaryFileButton = new javax.swing.JButton();
+        openTextFileButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Message");
@@ -188,13 +197,11 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
 
         messageContent.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        openTextFileButton.setText("Open Text File...");
-        openTextFileButton.setToolTipText("Open a text file into the editor above.");
-        openTextFileButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                openTextFileButtonActionPerformed(evt);
-            }
-        });
+        jScrollPane1.setViewportView(mirthTable1);
+
+        jLabel1.setText("Send to the following destination(s):");
+
+        buttonPanel.setBackground(new java.awt.Color(255, 255, 255));
 
         openBinaryFileButton.setText("Open Binary File...");
         openBinaryFileButton.setToolTipText("<html>Open a binary file into the editor above.<br>The file will be encoded and displayed as Base64.</html>");
@@ -204,9 +211,30 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
             }
         });
 
-        jScrollPane1.setViewportView(mirthTable1);
+        openTextFileButton.setText("Open Text File...");
+        openTextFileButton.setToolTipText("Open a text file into the editor above.");
+        openTextFileButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openTextFileButtonActionPerformed(evt);
+            }
+        });
 
-        jLabel1.setText("Send to the following destination(s):");
+        javax.swing.GroupLayout buttonPanelLayout = new javax.swing.GroupLayout(buttonPanel);
+        buttonPanel.setLayout(buttonPanelLayout);
+        buttonPanelLayout.setHorizontalGroup(
+            buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, buttonPanelLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(openTextFileButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(openBinaryFileButton))
+        );
+        buttonPanelLayout.setVerticalGroup(
+            buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(openBinaryFileButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(openTextFileButton))
+        );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -214,32 +242,27 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(messageContent, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 354, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1)
+                    .addComponent(messageContent, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(processMessageButton)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(closeButton))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addComponent(openTextFileButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(openBinaryFileButton)))))
+                            .addComponent(buttonPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(messageContent, javax.swing.GroupLayout.DEFAULT_SIZE, 329, Short.MAX_VALUE)
+                .addComponent(messageContent, javax.swing.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(openBinaryFileButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(openTextFileButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(buttonPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -300,6 +323,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
         this.dispose();
     }//GEN-LAST:event_processMessageButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    public javax.swing.JPanel buttonPanel;
     private javax.swing.JButton closeButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;

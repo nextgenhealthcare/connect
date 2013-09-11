@@ -80,7 +80,6 @@ import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.client.core.PaginatedMessageList;
 import com.mirth.connect.client.core.RequestAbortedException;
-import com.mirth.connect.client.ui.EditMessageDialog;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.MessageExportDialog;
@@ -166,8 +165,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private SwingWorker<Void, Void> worker;
 
     /**
-     * Constructs the new message browser and sets up its default
-     * information/layout
+     * Constructs the new message browser and sets up its default information/layout
      */
     @SuppressWarnings("serial")
     public MessageBrowser() {
@@ -448,8 +446,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
 
     /**
-     * Constructs the MessageFilter (this.filter) based on the current form
-     * selections
+     * Constructs the MessageFilter (this.filter) based on the current form selections
      */
     private boolean generateMessageFilter() {
         messageFilter = new MessageFilter();
@@ -881,8 +878,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
 
     /**
-     * Refreshes the panel with the current filter information and clears the
-     * message cache if needed
+     * Refreshes the panel with the current filter information and clears the message cache if
+     * needed
      */
     public void refresh(Integer page, boolean clearCache) {
         if (clearCache) {
@@ -902,8 +899,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
 
     /**
-     * Shows or hides message tabs depending on what part of the message is
-     * selected
+     * Shows or hides message tabs depending on what part of the message is selected
      */
     public void updateDescriptionTabs(boolean hasErrors, boolean attachment) {
         //Save the current open tab
@@ -1004,8 +1000,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
 
     /**
-     * Sets the properties and adds the listeners for the Message Table. No data
-     * is loaded at this point.
+     * Sets the properties and adds the listeners for the Message Table. No data is loaded at this
+     * point.
      */
     private void makeMessageTable() {
         columnMap = new TreeMap<Integer, String>();
@@ -1103,7 +1099,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                             }
 
                             if (connectorMessage.getRaw() != null) {
-                                new EditMessageDialog(connectorMessage.getRaw().getContent(), connectorMessage.getRaw().getDataType(), channelId, parent.dashboardPanel.getDestinationConnectorNames(channelId), selectedMetaDataIds);
+                                parent.editMessageDialog.setPropertiesAndShow(connectorMessage.getRaw().getContent(), connectorMessage.getRaw().getDataType(), channelId, parent.dashboardPanel.getDestinationConnectorNames(channelId), selectedMetaDataIds);
                             }
                         }
                     }
@@ -1169,31 +1165,23 @@ public class MessageBrowser extends javax.swing.JPanel {
 
                     //TODO Disabling sorting for now. Revisit the question once custom columns are added.
                     /*
-                     * JTableHeader h = (JTableHeader) e.getSource();
-                     * TableColumnModel columnModel = h.getColumnModel();
+                     * JTableHeader h = (JTableHeader) e.getSource(); TableColumnModel columnModel =
+                     * h.getColumnModel();
                      * 
-                     * int viewColumn = h.columnAtPoint(e.getPoint());
-                     * int column =
+                     * int viewColumn = h.columnAtPoint(e.getPoint()); int column =
                      * columnModel.getColumn(viewColumn).getModelIndex();
                      * 
-                     * if (column != -1 &&
-                     * messageTreeTable.getColumnExt(messageTreeTable
-                     * .getTreeTableModel().getColumnName(column)).isSortable())
-                     * {
-                     * // Toggle sort order (ascending <-> descending)
-                     * SortableTreeTableModel model = (SortableTreeTableModel)
-                     * messageTreeTable.getTreeTableModel();
+                     * if (column != -1 && messageTreeTable.getColumnExt(messageTreeTable
+                     * .getTreeTableModel().getColumnName(column)).isSortable()) { // Toggle sort
+                     * order (ascending <-> descending) SortableTreeTableModel model =
+                     * (SortableTreeTableModel) messageTreeTable.getTreeTableModel();
                      * model.setColumnAndToggleSortOrder(column);
                      * 
-                     * // Set sorting icon and current column index
-                     * ((SortableHeaderCellRenderer)
+                     * // Set sorting icon and current column index ((SortableHeaderCellRenderer)
+                     * messageTreeTable.getTableHeader ().getDefaultRenderer()).setSortingIcon
+                     * (model.getSortOrder()); ((SortableHeaderCellRenderer)
                      * messageTreeTable.getTableHeader
-                     * ().getDefaultRenderer()).setSortingIcon
-                     * (model.getSortOrder());
-                     * ((SortableHeaderCellRenderer)
-                     * messageTreeTable.getTableHeader
-                     * ().getDefaultRenderer()).setColumnIndex(column);
-                     * }
+                     * ().getDefaultRenderer()).setColumnIndex(column); }
                      */
                 } else if (SwingUtilities.isRightMouseButton(e)) {
                     // Show the popup menu at the mouse clicked location
@@ -1287,7 +1275,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         });
         columnMenu.add(menuItem);
-        
+
         columnMenu.addSeparator();
 
         menuItem = new JMenuItem("Restore Default");
@@ -1321,9 +1309,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
 
     /**
-     * Sets the properties and adds the listeners for the Mappings Table. No
-     * data
-     * is loaded at this point.
+     * Sets the properties and adds the listeners for the Mappings Table. No data is loaded at this
+     * point.
      */
     private void makeMappingsTable() {
         updateMappingsTable(null, true);
@@ -1538,8 +1525,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
 
     /**
-     * Shows the popup menu when the trigger button (right-click) has been
-     * pushed. Deselects the rows if no row was selected.
+     * Shows the popup menu when the trigger button (right-click) has been pushed. Deselects the
+     * rows if no row was selected.
      */
     private void checkMessageSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
         int row = messageTreeTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
@@ -1556,8 +1543,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
 
     /**
-     * Shows the popup menu when the trigger button (right-click) has been
-     * pushed. Deselects the rows if no row was selected.
+     * Shows the popup menu when the trigger button (right-click) has been pushed. Deselects the
+     * rows if no row was selected.
      */
     private void checkAttachmentSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
         int row = attachmentTable.rowAtPoint(new Point(evt.getX(), evt.getY()));

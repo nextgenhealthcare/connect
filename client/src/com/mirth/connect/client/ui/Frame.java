@@ -127,8 +127,7 @@ import com.mirth.connect.plugins.DataTypeClientPlugin;
 import com.mirth.connect.util.MigrationUtil;
 
 /**
- * The main content frame for the Mirth Client Application. Extends JXFrame and
- * sets up all content.
+ * The main content frame for the Mirth Client Application. Extends JXFrame and sets up all content.
  */
 public class Frame extends JXFrame {
 
@@ -162,6 +161,7 @@ public class Frame extends JXFrame {
     public Component currentContentPage = null;
     public JXTaskPaneContainer currentTaskPaneContainer = null;
     public JScrollPane container;
+    public EditMessageDialog editMessageDialog = null;
 
     // Task panes and popup menus
     public JXTaskPane viewPane;
@@ -269,8 +269,7 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * Prepares the list of the encodings. This method is called from the Frame
-     * class.
+     * Prepares the list of the encodings. This method is called from the Frame class.
      * 
      */
     public void setCharsetEncodings() {
@@ -310,9 +309,8 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * Sets the combobox for the string previously selected. If the server can't
-     * support the encoding, the default one is selected. This method is called
-     * from each connector.
+     * Sets the combobox for the string previously selected. If the server can't support the
+     * encoding, the default one is selected. This method is called from each connector.
      */
     public void setPreviousSelectedEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox, String selectedCharset) {
         if (this.availableCharsetEncodings == null) {
@@ -357,6 +355,9 @@ public class Frame extends JXFrame {
     public void setupFrame(Client mirthClient) {
 
         LoginPanel login = LoginPanel.getInstance();
+
+        // Initialize the send message dialog
+        editMessageDialog = new EditMessageDialog();
 
         this.mirthClient = mirthClient;
         login.setStatus("Loading extensions...");
@@ -540,8 +541,8 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * Changes the current content page to the Channel Editor with the new
-     * channel specified as the loaded one.
+     * Changes the current content page to the Channel Editor with the new channel specified as the
+     * loaded one.
      */
     public void setupChannel(Channel channel) {
         setBold(viewPane, UIConstants.ERROR_CONSTANT);
@@ -552,8 +553,8 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * Edits a channel at a specified index, setting that channel as the current
-     * channel in the editor.
+     * Edits a channel at a specified index, setting that channel as the current channel in the
+     * editor.
      */
     public void editChannel(Channel channel) {
         setBold(viewPane, UIConstants.ERROR_CONSTANT);
@@ -564,8 +565,8 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * Changes the current content page to the Alert Editor with the new
-     * alert specified as the loaded one.
+     * Changes the current content page to the Alert Editor with the new alert specified as the
+     * loaded one.
      */
     public void setupAlert() {
         setBold(viewPane, UIConstants.ERROR_CONSTANT);
@@ -576,8 +577,7 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * Edits an alert at a specified index, setting that alert as the current
-     * alert in the editor.
+     * Edits an alert at a specified index, setting that alert as the current alert in the editor.
      */
     public void editAlert(AlertModel alertModel) {
         if (alertEditPanel.editAlert(alertModel)) {
@@ -1027,8 +1027,8 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * Initializes the bound method call for the task pane actions and adds them
-     * to the taskpane/popupmenu.
+     * Initializes the bound method call for the task pane actions and adds them to the
+     * taskpane/popupmenu.
      */
     public void addTask(String callbackMethod, String displayName, String toolTip, String shortcutKey, ImageIcon icon, JXTaskPane pane, JPopupMenu menu) {
         BoundAction boundAction = ActionFactory.createBoundAction(callbackMethod, displayName, shortcutKey);
@@ -1097,8 +1097,7 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * Alerts the user with an error dialog with the passed in 'message' and a
-     * 'question'.
+     * Alerts the user with an error dialog with the passed in 'message' and a 'question'.
      */
     public void alertCustomError(Component parentComponent, String message, String question) {
         parentComponent = getVisibleComponent(parentComponent);
@@ -1237,8 +1236,8 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * Sets the visible task panes to the specified 'panes'.
-     * Also allows setting the 'Mirth' and 'Other' panes.
+     * Sets the visible task panes to the specified 'panes'. Also allows setting the 'Mirth' and
+     * 'Other' panes.
      */
     public void setFocus(JXTaskPane[] panes, boolean mirthPane, boolean otherPane) {
         taskPaneContainer.getComponent(0).setVisible(mirthPane);
@@ -1269,9 +1268,9 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * Sets the visible tasks in the given 'pane' and 'menu'. The method takes
-     * an interval of indices (end index should be -1 to go to the end), as
-     * well as a whether they should be set to visible or not-visible.
+     * Sets the visible tasks in the given 'pane' and 'menu'. The method takes an interval of
+     * indices (end index should be -1 to go to the end), as well as a whether they should be set to
+     * visible or not-visible.
      */
     public void setVisibleTasks(JXTaskPane pane, JPopupMenu menu, int startIndex, int endIndex, boolean visible) {
         // If the endIndex is -1, disregard it, otherwise stop there.
@@ -1295,8 +1294,7 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * A prompt to ask the user if he would like to save the changes made before
-     * leaving the page.
+     * A prompt to ask the user if he would like to save the changes made before leaving the page.
      */
     public boolean confirmLeave() {
         if ((currentContentPage == channelEditPanel || currentContentPage == channelEditPanel.transformerPane || currentContentPage == channelEditPanel.filterPane) && isSaveEnabled()) {
@@ -1382,8 +1380,8 @@ public class Frame extends JXFrame {
 
         if (StringUtils.isNotEmpty(newPassword)) {
             /*
-             * If a new user is being passed in (null user id), the password
-             * will only be checked right now.
+             * If a new user is being passed in (null user id), the password will only be checked
+             * right now.
              */
             if (!checkOrUpdateUserPassword(parentComponent, updateUser, newPassword)) {
                 stopWorking(workingId);
@@ -1399,9 +1397,8 @@ public class Frame extends JXFrame {
                     retrieveUsers();
 
                     /*
-                     * If the user id was null, a new user was being created and
-                     * the password was only checked. Get the created user with
-                     * the id and then update the password.
+                     * If the user id was null, a new user was being created and the password was
+                     * only checked. Get the created user with the id and then update the password.
                      */
                     if (updateUser.getId() == null) {
                         User newUser = null;
@@ -1434,9 +1431,8 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * If the current user is being updated, it needs to be done in the main
-     * thread so that the username can be changed, re-logged in, and the current
-     * user information can be updated.
+     * If the current user is being updated, it needs to be done in the main thread so that the
+     * username can be changed, re-logged in, and the current user information can be updated.
      * 
      * @param parentComponent
      * @param currentUser
@@ -1450,9 +1446,8 @@ public class Frame extends JXFrame {
         boolean changingUsername = !currentUser.getUsername().equals(PlatformUI.USER_NAME);
 
         /*
-         * If there is a new password, update it. If not, make sure that the
-         * username is not being changed, since the password must be updated
-         * when the username is changed.
+         * If there is a new password, update it. If not, make sure that the username is not being
+         * changed, since the password must be updated when the username is changed.
          */
         if (StringUtils.isNotEmpty(newPassword)) {
             if (!checkOrUpdateUserPassword(parentComponent, currentUser, newPassword)) {
@@ -3231,10 +3226,9 @@ public class Frame extends JXFrame {
             final Channel importChannelFinal = importChannel;
 
             /*
-             * MIRTH-2048 - This is a hack to fix the memory access error
-             * that only occurs on OS X. The block of code that edits the
-             * channel needs to be invoked later so that the screen does not
-             * change before the drag/drop action of a channel finishes.
+             * MIRTH-2048 - This is a hack to fix the memory access error that only occurs on OS X.
+             * The block of code that edits the channel needs to be invoked later so that the screen
+             * does not change before the drag/drop action of a channel finishes.
              */
             SwingUtilities.invokeLater(new Runnable() {
 
@@ -3410,8 +3404,7 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * Creates a File with the default defined file filter type, but does not
-     * yet write to it.
+     * Creates a File with the default defined file filter type, but does not yet write to it.
      * 
      * @param defaultFileName
      * @param fileExtension
@@ -3609,7 +3602,7 @@ public class Frame extends JXFrame {
             return;
         }
 
-        new EditMessageDialog("", channel.getSourceConnector().getTransformer().getInboundDataType(), channel.getId(), dashboardPanel.getDestinationConnectorNames(channelId), selectedMetaDataIds);
+        editMessageDialog.setPropertiesAndShow("", channel.getSourceConnector().getTransformer().getInboundDataType(), channel.getId(), dashboardPanel.getDestinationConnectorNames(channelId), selectedMetaDataIds);
     }
 
     public void doExportMessages() {
@@ -4496,9 +4489,9 @@ public class Frame extends JXFrame {
                     } else {
                         codeTemplates = newCodeTemplates;
                     }
-    
+
                     alertInformation(this, "All code templates imported successfully.");
-    
+
                     setSaveEnabled(true);
 
                     // If appending, just deselect the rows, which saves 
@@ -4512,7 +4505,7 @@ public class Frame extends JXFrame {
                         codeTemplatePanel.deselectCodeTemplateRows();
                         codeTemplatePanel.isDeleting = false;
                     }
-    
+
                     codeTemplatePanel.updateCodeTemplateTable();
                 }
             } catch (Exception e) {
@@ -4792,8 +4785,7 @@ public class Frame extends JXFrame {
     }
 
     /**
-     * Checks to see if the serialized object version is current, and prompts
-     * the user if it is not.
+     * Checks to see if the serialized object version is current, and prompts the user if it is not.
      */
     private boolean promptObjectMigration(String content, String objectName) {
         String version = null;
