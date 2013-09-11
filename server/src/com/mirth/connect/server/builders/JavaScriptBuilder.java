@@ -52,9 +52,8 @@ public class JavaScriptBuilder {
         script.append("qname = new QName();\n");
 
         /*
-         * Ignore whitespace so blank lines are removed when deleting elements.
-         * This also involves changing XmlProcessor.java in Rhino to account for
-         * Rhino issue 369394 and MIRTH-1405
+         * Ignore whitespace so blank lines are removed when deleting elements. This also involves
+         * changing XmlProcessor.java in Rhino to account for Rhino issue 369394 and MIRTH-1405
          */
         script.append("XML.ignoreWhitespace=true;");
         // Setting prettyPrinting to true causes HL7 to break when converting back from HL7.
@@ -74,7 +73,6 @@ public class JavaScriptBuilder {
     public static String generateScript(String script, CodeTemplate.ContextType context, Set<String> scriptOptions) {
         StringBuilder builder = new StringBuilder();
 
-        appendImports(builder, scriptOptions);
         appendMapFunctions(builder);
         appendAttachmentFunctions(builder, scriptOptions);
         appendCodeTemplates(builder, context);
@@ -342,9 +340,8 @@ public class JavaScriptBuilder {
         builder.append("}\n");
 
         /*
-         * Since we use a sealed shared scope everywhere, importClass won't be
-         * available. To allow this to still work for migration, we override
-         * importClass to call importPackage instead.
+         * Since we use a sealed shared scope everywhere, importClass won't be available. To allow
+         * this to still work for migration, we override importClass to call importPackage instead.
          */
         builder.append("importClass = function() {\n");
         builder.append("    logger.error('The importClass method has been deprecated and will soon be removed. Please use importPackage or the fully-qualified class name instead.');\n");
@@ -396,12 +393,6 @@ public class JavaScriptBuilder {
             builder.append("function addAttachment(data, type) {\n");
             builder.append("return AttachmentUtil.createAttachment(connectorMessage, data, type);\n");
             builder.append("}\n");
-        }
-    }
-
-    private static void appendImports(StringBuilder builder, Set<String> scriptOptions) {
-        if (scriptOptions != null && scriptOptions.contains("importUtilPackage")) {
-            builder.append("importPackage(Packages.com.mirth.connect.util);\n");
         }
     }
 

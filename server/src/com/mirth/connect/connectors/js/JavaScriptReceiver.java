@@ -10,9 +10,7 @@
 package com.mirth.connect.connectors.js;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -51,11 +49,9 @@ public class JavaScriptReceiver extends PollConnector {
         this.connectorProperties = (JavaScriptReceiverProperties) getConnectorProperties();
 
         String scriptId = UUID.randomUUID().toString();
-        Set<String> scriptOptions = new HashSet<String>();
-        scriptOptions.add("importUtilPackage");
 
         try {
-            JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getScript(), scriptOptions, null);
+            JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getScript(), null, null);
         } catch (Exception e) {
             throw new DeployException("Error compiling " + connectorProperties.getName() + " script " + scriptId + ".", e);
         }

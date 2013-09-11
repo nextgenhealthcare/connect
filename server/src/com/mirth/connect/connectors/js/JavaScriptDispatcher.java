@@ -9,8 +9,6 @@
 
 package com.mirth.connect.connectors.js;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
@@ -59,11 +57,9 @@ public class JavaScriptDispatcher extends DestinationConnector {
         this.connectorProperties = (JavaScriptDispatcherProperties) getConnectorProperties();
 
         String scriptId = UUID.randomUUID().toString();
-        Set<String> scriptOptions = new HashSet<String>();
-        scriptOptions.add("importUtilPackage");
 
         try {
-            JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getScript(), scriptOptions, null);
+            JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getScript(), null, null);
         } catch (Exception e) {
             throw new DeployException("Error compiling/adding script.", e);
         }
@@ -133,10 +129,9 @@ public class JavaScriptDispatcher extends DestinationConnector {
 
                     if (result != null && !(result instanceof Undefined)) {
                         /*
-                         * If the script return value is a response, return it
-                         * as-is. If it's a status, only update the response
-                         * status. Otherwise, set the response data to the
-                         * string representation of the object.
+                         * If the script return value is a response, return it as-is. If it's a
+                         * status, only update the response status. Otherwise, set the response data
+                         * to the string representation of the object.
                          */
                         if (result instanceof NativeJavaObject) {
                             Object object = ((NativeJavaObject) result).unwrap();
