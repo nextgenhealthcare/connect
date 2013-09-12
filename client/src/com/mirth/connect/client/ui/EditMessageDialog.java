@@ -37,6 +37,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
 
     private Frame parent;
     private String channelId;
+    private String dataType;
 
     public EditMessageDialog() {
         super(PlatformUI.MIRTH_FRAME);
@@ -75,7 +76,12 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
         setVisible(true);
     }
 
+    public String getDataType() {
+        return dataType;
+    }
+
     public void setMessage(String message, String dataType) {
+        this.dataType = dataType;
         setCorrectDocument(messageContent, message, dataType);
         messageContent.setCaretPosition(0);
     }
