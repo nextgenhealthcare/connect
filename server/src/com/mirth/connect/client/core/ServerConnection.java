@@ -158,7 +158,7 @@ public final class ServerConnection {
         abortTask.incrementRequestsInQueue();
         
         synchronized(abortExecutor) { 
-            if (!abortTask.isRunning()) {
+            if (!abortExecutor.isShutdown() && !abortTask.isRunning()) {
                 abortExecutor.execute(abortTask);
             }
             
@@ -313,12 +313,16 @@ public final class ServerConnection {
         }
     }
 
-    public void shutdownTimeoutThread() {
+    public void shutdown() {
+        // Shutdown the timeout thread
         if (idleConnectionTimeoutThread != null) {
             idleConnectionTimeoutThread.shutdown();
         }
+
+        // Shutdown the abort thread
+        abortExecutor.shutdownNow();
     }
-    
+
     public class AbortTask implements Runnable {
         private final AtomicBoolean running = new AtomicBoolean(false);
         private int requestsInQueue = 0;

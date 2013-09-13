@@ -100,7 +100,7 @@ public class Client {
 
     public void cleanup() {
         if (serverConnection != null)
-            serverConnection.shutdownTimeoutThread();
+            serverConnection.shutdown();
     }
 
     public ServerConnection getServerConnection() {
