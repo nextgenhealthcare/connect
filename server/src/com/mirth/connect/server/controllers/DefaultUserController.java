@@ -167,7 +167,16 @@ public class DefaultUserController extends UserController {
             }
             
             if (extensionController.getAuthorizationPlugin() != null) {
-                return extensionController.getAuthorizationPlugin().authorizeUser(username, plainPassword);
+                LoginStatus loginStatus = extensionController.getAuthorizationPlugin().authorizeUser(username, plainPassword);
+
+                /*
+                 * A null return value indicates that the authorization plugin is disabled or is
+                 * otherwise delegating control back to the UserController to perform
+                 * authentication.
+                 */
+                if (loginStatus != null) {
+                    return loginStatus;
+                }
             }
             
             Digester digester = ControllerFactory.getFactory().createConfigurationController().getDigester();
