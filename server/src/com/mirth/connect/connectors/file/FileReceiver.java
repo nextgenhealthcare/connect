@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -82,13 +83,13 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
     private String charsetEncoding;
     private String batchScriptId;
     private URI uri;
-    
+
     private long fileSizeMinimum;
     private long fileSizeMaximum;
 
     @Override
     public void onDeploy() throws DeployException {
-        this.connectorProperties = (FileReceiverProperties) getConnectorProperties();
+        this.connectorProperties = (FileReceiverProperties) SerializationUtils.clone(getConnectorProperties());
 
         this.charsetEncoding = CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding(), System.getProperty("ca.uhn.hl7v2.llp.charset"));
 
@@ -128,7 +129,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 throw new DeployException("Error compiling " + connectorProperties.getName() + " script " + batchScriptId + ".", e);
             }
         }
-        
+
         fileSizeMinimum = NumberUtils.toLong(connectorProperties.getFileSizeMinimum(), 0);
         fileSizeMaximum = NumberUtils.toLong(connectorProperties.getFileSizeMaximum(), 0);
 
@@ -182,9 +183,9 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 Set<String> visitedDirectories = new HashSet<String>();
                 Stack<String> directoryStack = new Stack<String>();
                 directoryStack.push(readDir);
-                
+
                 FileInfo[] files;
-                
+
                 while ((files = listFilesRecursively(visitedDirectories, directoryStack)) != null) {
                     processFiles(files);
                 }
@@ -198,30 +199,30 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
         }
     }
-    
+
     private FileInfo[] listFilesRecursively(Set<String> visitedDirectories, Stack<String> directoryStack) throws Exception {
         while (!directoryStack.isEmpty()) {
             // Get the current directory
             String fromDir = directoryStack.pop();
-            
+
             if (!visitedDirectories.contains(fromDir)) {
                 visitedDirectories.add(fromDir);
-                
+
                 // Add any subdirectories to the stack
                 List<String> directories = listDirectories(fromDir);
-                
+
                 for (int i = directories.size() - 1; i >= 0; i--) {
                     directoryStack.push(directories.get(i));
                 }
-                
+
                 // Return the files from the current directory
                 return listFiles(fromDir);
             }
         }
-        
+
         return null;
     }
-    
+
     private void processFiles(FileInfo[] files) {
         // sort files by specified attribute before processing
         sortFiles(files);
@@ -375,7 +376,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                     } else {
                         destinationName = originalFilename;
                     }
-                    
+
                     if (!filesEqual(file.getParent(), originalFilename, destinationDir, destinationName)) {
                         if (shouldUseErrorFields) {
                             logger.error("Moving file to error directory: " + destinationDir);
@@ -547,7 +548,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             fileConnector.releaseConnection(uri, con, null, connectorProperties);
         }
     }
-    
+
     /**
      * Get a list of subdirectories within a directory.
      * 
