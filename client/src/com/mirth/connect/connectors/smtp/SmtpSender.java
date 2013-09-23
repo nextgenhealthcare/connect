@@ -23,7 +23,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import org.apache.commons.validator.routines.EmailValidator;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -193,13 +192,6 @@ public class SmtpSender extends ConnectorSettingsPanel {
             }
 
             errors.append("\"To\" is required\n");
-        } else if (!EmailValidator.getInstance().isValid(props.getTo())) {
-            valid = false;
-            if (highlight) {
-                toField.setBackground(UIConstants.INVALID_COLOR);
-            }
-
-            errors.append("\"To\" must be a valid email address\n");
         }
 
         if (props.getFrom().length() == 0) {
@@ -209,13 +201,6 @@ public class SmtpSender extends ConnectorSettingsPanel {
             }
 
             errors.append("\"From\" is required\n");
-        } else if (!EmailValidator.getInstance().isValid(props.getFrom())) {
-            valid = false;
-            if (highlight) {
-                fromField.setBackground(UIConstants.INVALID_COLOR);
-            }
-
-            errors.append("\"From\" must be a valid email address\n");
         }
 
         this.errors = errors.toString();
