@@ -112,6 +112,24 @@ public class ImmutableConnectorMessage {
     }
 
     /**
+     * Returns the date/time immediately before this connector message's most recent send attempt.
+     * Only valid for destination connectors in the response transformer or postprocessor. Returns
+     * null otherwise.
+     */
+    public Calendar getSendDate() {
+        return connectorMessage.getSendDate() == null ? null : (Calendar) connectorMessage.getSendDate().clone();
+    }
+
+    /**
+     * Returns the date/time immediately after this connector message's response is received. Only
+     * valid for destination connectors in the response transformer or postprocessor. Returns null
+     * otherwise.
+     */
+    public Calendar getResponseDate() {
+        return connectorMessage.getResponseDate() == null ? null : (Calendar) connectorMessage.getResponseDate().clone();
+    }
+
+    /**
      * Returns the status (e.g. SENT) of this connector message.
      */
     public Status getStatus() {
