@@ -29,7 +29,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.TokenMarker;

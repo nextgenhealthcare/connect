@@ -19,7 +19,7 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public abstract class MirthTableTransferHandler extends TransferHandler {
 

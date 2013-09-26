@@ -9,7 +9,7 @@
 
 package com.mirth.connect.donkey.server.channel;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;

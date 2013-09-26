@@ -9,7 +9,7 @@
 
 package com.mirth.connect.model.alert;
 
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 public enum AlertActionProtocol {
     EMAIL, CHANNEL;

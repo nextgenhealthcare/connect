@@ -26,8 +26,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
 
-import org.apache.commons.lang.SerializationUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
