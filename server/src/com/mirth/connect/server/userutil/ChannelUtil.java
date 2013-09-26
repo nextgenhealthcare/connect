@@ -155,7 +155,7 @@ public class ChannelUtil {
      *            of 0.
      * @throws Exception
      */
-    public void startConnector(String channelIdOrName, Integer metaDataId) throws Exception {
+    public static void startConnector(String channelIdOrName, Integer metaDataId) throws Exception {
         engineController.startConnector(convertId(channelIdOrName), metaDataId);
     }
 
@@ -169,7 +169,7 @@ public class ChannelUtil {
      *            of 0.
      * @throws Exception
      */
-    public void stopConnector(String channelIdOrName, Integer metaDataId) throws Exception {
+    public static void stopConnector(String channelIdOrName, Integer metaDataId) throws Exception {
         engineController.stopConnector(convertId(channelIdOrName), metaDataId);
     }
 
