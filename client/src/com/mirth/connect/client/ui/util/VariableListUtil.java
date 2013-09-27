@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Rule;
@@ -145,6 +145,6 @@ public class VariableListUtil {
         if (key == null) {
             key = matcher.group(SHORT_NAME_MATCHER_INDEX);
         }
-        return StringEscapeUtils.unescapeJavaScript(key);
+        return StringEscapeUtils.unescapeEcmaScript(key);
     }
 }

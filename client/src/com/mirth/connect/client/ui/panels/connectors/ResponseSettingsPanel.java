@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.DefaultComboBoxModel;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.mirth.connect.client.ui.ChannelSetup;
 import com.mirth.connect.client.ui.Frame;
@@ -208,7 +208,7 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
         if (key == null) {
             key = matcher.group(SHORT_NAME_MATCHER_INDEX);
         }
-        return StringEscapeUtils.unescapeJavaScript(key);
+        return StringEscapeUtils.unescapeEcmaScript(key);
     }
 
     private void setSelectedItem(Object selectedItem) {
