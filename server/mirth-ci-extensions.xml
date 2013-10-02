@@ -1,0 +1,19 @@
+<project name="mirth-ci-extensions" default="create-dist">
+	<target name="create-dist">
+		<property environment="env" />
+		<property file="version.properties" />
+		<property name="upstreamProjectName" value="connect" />
+		<property name="upstreamProjectRoot" value="../../${upstreamProjectName}" />
+
+		<ant dir="../../../${env.JOB_NAME}/workspace/" antfile="build.xml" target="dist">
+			<property name="key.keystore" value="/opt/mirthcodecert/MirthCorporation.jks" />
+			<property name="keystore_property_file" value="/opt/mirthcodecert/keystore.properties" />
+			<property name="schemaVersion" value="${schema.version}" />
+			<property name="version" value="${mirth.version}.b${env.BUILD_NUMBER}" />
+			<property name="server" value="${upstreamProjectRoot}/workspace/server/" />
+            <property name="MIRTH_HOME" value="${upstreamProjectRoot}/workspace/" />
+            <property name="client" value="${upstreamProjectRoot}/workspace/client/" />
+            <property name="manager" value="${upstreamProjectRoot}/workspace/manager/" />
+		</ant>
+	</target>
+</project>

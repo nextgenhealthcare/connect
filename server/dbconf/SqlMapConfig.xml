@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<settings cacheModelsEnabled="true" enhancementEnabled="true" lazyLoadingEnabled="true" maxRequests="32" maxSessions="10" maxTransactions="5" useStatementNamespaces="true" />
+	<typeHandler javaType="com.mirth.connect.model.MessageObject$Protocol" callback="com.mirth.connect.server.sqlmap.extensions.MessageProtocolTypeHandler" />
+	<typeHandler javaType="com.mirth.connect.model.MessageObject$Status" callback="com.mirth.connect.server.sqlmap.extensions.MessageStatusTypeHandler" />
+	<typeHandler javaType="com.mirth.connect.model.CodeTemplate$CodeSnippetType" callback="com.mirth.connect.server.sqlmap.extensions.CodeSnippetTypeHandler" />
+	<typeHandler javaType="com.mirth.connect.model.Event$Level" callback="com.mirth.connect.server.sqlmap.extensions.EventLevelTypeHandler" />
+	<typeHandler javaType="com.mirth.connect.model.Event$Outcome" callback="com.mirth.connect.server.sqlmap.extensions.EventOutcomeTypeHandler" />
+	<typeHandler javaType="com.mirth.connect.model.Connector" callback="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
+	<typeHandler javaType="java.util.List" callback="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
+	<typeHandler javaType="java.util.Properties" callback="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
+	<typeHandler javaType="java.util.Map" callback="com.mirth.connect.server.sqlmap.extensions.MapTypeHandler" />
+	<typeHandler javaType="java.util.Calendar" callback="com.mirth.connect.server.sqlmap.extensions.CalendarTypeHandler" />
+	
+	<transactionManager type="JDBC">
+		<dataSource type="DBCP">
+			<property name="driverClassName" value="${database.driver}" />
+			<property name="url" value="${database.url}" />
+			<property name="username" value="${database.username}" />
+			<property name="password" value="${database.password}" />
+			<property name="defaultAutoCommit" value="true" />
+			<property name="maxActive" value="32" />
+		</dataSource>
+	</transactionManager>
+	
+	<sqlMap resource="${database}/${database}-user.xml" />
+	<sqlMap resource="${database}/${database}-channel.xml" />
+	<sqlMap resource="${database}/${database}-message.xml" />
+	<sqlMap resource="${database}/${database}-script.xml" />
+	<sqlMap resource="${database}/${database}-template.xml" />
+	<sqlMap resource="${database}/${database}-configuration.xml" />
+	<sqlMap resource="${database}/${database}-event.xml" />
+	<sqlMap resource="${database}/${database}-statistic.xml" />
+	<sqlMap resource="${database}/${database}-alert.xml" />
+	<sqlMap resource="${database}/${database}-codeTemplate.xml" />
+</sqlMapConfig>
