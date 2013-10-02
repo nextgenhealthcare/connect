@@ -357,9 +357,30 @@ public class ChannelUtil {
             if (status == Status.QUEUED) {
                 return dashboardStatus.getQueued();
             } else {
-                return dashboardStatus.getStatistics().get(status);
+                return dashboardStatus.getStatistics().get(convertStatus(status));
             }
         }
         return null;
+    }
+
+    private static com.mirth.connect.donkey.model.message.Status convertStatus(Status status) {
+        switch (status) {
+            case RECEIVED:
+                return com.mirth.connect.donkey.model.message.Status.RECEIVED;
+            case FILTERED:
+                return com.mirth.connect.donkey.model.message.Status.FILTERED;
+            case TRANSFORMED:
+                return com.mirth.connect.donkey.model.message.Status.TRANSFORMED;
+            case SENT:
+                return com.mirth.connect.donkey.model.message.Status.SENT;
+            case QUEUED:
+                return com.mirth.connect.donkey.model.message.Status.QUEUED;
+            case ERROR:
+                return com.mirth.connect.donkey.model.message.Status.ERROR;
+            case PENDING:
+                return com.mirth.connect.donkey.model.message.Status.PENDING;
+            default:
+                return null;
+        }
     }
 }
