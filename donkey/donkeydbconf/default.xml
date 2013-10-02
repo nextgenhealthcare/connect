@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<queries>
+	<query id="insertMessage">
+		INSERT INTO D_M${localChannelId} (ID, SERVER_ID, RECEIVED_DATE, PROCESSED, ORIGINAL_ID, IMPORT_ID, IMPORT_CHANNEL_ID)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
+	</query>
+	
+	<query id="insertMessageContent">
+		INSERT INTO D_MC${localChannelId} (METADATA_ID, MESSAGE_ID, CONTENT_TYPE, CONTENT, DATA_TYPE, IS_ENCRYPTED)
+		VALUES (?, ?, ?, ?, ?, ?)
+	</query>
+	
+	<query id="storeMessageContent">
+		UPDATE D_MC${localChannelId} SET CONTENT = ?, DATA_TYPE = ?, IS_ENCRYPTED = ?
+		WHERE METADATA_ID = ?
+		AND MESSAGE_ID = ?
+		AND CONTENT_TYPE = ?
+	</query>
+	
+	<query id="insertMessageAttachment">
+		INSERT INTO D_MA${localChannelId} (ID, MESSAGE_ID, TYPE, SEGMENT_ID, ATTACHMENT_SIZE, CONTENT)
+		VALUES (?, ?, ?, ?, ?, ?)
+	</query>
+	
+	<query id="selectMessageAttachmentSize">
+		SELECT sum(ATTACHMENT_SIZE) AS ATTACHMENT_SIZE
+		FROM D_MA${localChannelId}
+		WHERE ID = ?
+	</query>
+	
+	<query id="selectMessageAttachmentSizeByMessageId">
+		SELECT ID, sum(ATTACHMENT_SIZE) AS ATTACHMENT_SIZE
+		FROM D_MA${localChannelId}
+		WHERE MESSAGE_ID = ?
+		GROUP BY ID
+	</query>
+	
+	<query id="selectMessageAttachment">
+		SELECT TYPE, SEGMENT_ID, ATTACHMENT_SIZE, CONTENT
+		FROM D_MA${localChannelId}
+		WHERE ID = ?
+		ORDER BY SEGMENT_ID ASC
+	</query>
+	
+	<query id="selectMessageAttachmentByMessageId">
+		SELECT ID, TYPE, SEGMENT_ID, ATTACHMENT_SIZE, CONTENT
+		FROM D_MA${localChannelId}
+		WHERE MESSAGE_ID = ?
+		ORDER BY ID, SEGMENT_ID ASC
+	</query>
+	
+	<query id="insertConnectorMessage">
+		INSERT INTO D_MM${localChannelId} (ID, MESSAGE_ID, SERVER_ID, RECEIVED_DATE, STATUS, CONNECTOR_NAME, SEND_ATTEMPTS, SEND_DATE, RESPONSE_DATE, ERROR_CODE, CHAIN_ID, ORDER_ID)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	</query>
+	
+	<query id="updateSourceResponse">
+		UPDATE D_MM${localChannelId}
+		SET SEND_ATTEMPTS = ?, RESPONSE_DATE = ?
+		WHERE ID = 0 AND MESSAGE_ID = ? AND SERVER_ID = ?
+	</query>
+	
+	<query id="updateErrorCode">
+		UPDATE D_MM${localChannelId}
+		SET ERROR_CODE = ?
+		WHERE ID = ? AND MESSAGE_ID = ? AND SERVER_ID = ?
+	</query>
+	
+	<query id="updateStatus">
+		UPDATE D_MM${localChannelId} SET STATUS = ?, SEND_ATTEMPTS = ?, SEND_DATE = ?, RESPONSE_DATE = ?
+		WHERE ID = ?
+		AND MESSAGE_ID = ?
+		AND SERVER_ID = ?
+	</query>
+	
+	<query id="markAsProcessed">
+		UPDATE D_M${localChannelId} SET PROCESSED = TRUE
+		WHERE ID = ?
+	</query>
+	
+	<query id="resetMessage">
+		UPDATE D_M${localChannelId} SET PROCESSED = FALSE, IMPORT_ID = NULL, IMPORT_CHANNEL_ID = NULL
+		WHERE ID = ?
+	</query>
+	
+	<query id="getLocalChannelIds">
+		SELECT CHANNEL_ID, LOCAL_CHANNEL_ID
+		FROM D_CHANNELS
+	</query>
+	
+	<query id="selectMaxLocalChannelId">
+		SELECT MAX(LOCAL_CHANNEL_ID)
+		FROM D_CHANNELS
+	</query>
+	
+	<query id="removeMetaDataColumn">
+		ALTER TABLE D_MCM${localChannelId} DROP COLUMN "${columnName}"
+	</query>
+	
+	<query id="getMaxMessageId">
+		SELECT COALESCE(MAX(ID), 0)
+		FROM D_M${localChannelId}
+	</query>
+	
+	<query id="getUnfinishedMessages">
+		SELECT M.*
+		FROM D_M${localChannelId} M
+		JOIN D_MM${localChannelId} MM ON MM.MESSAGE_ID = M.ID AND MM.ID = 0
+		WHERE M.PROCESSED = FALSE AND MM.SERVER_ID = ?
+		ORDER BY M.ID
+	</query>
+	
+	<query id="getUnfinishedMessageConnectorMessages">
+		SELECT *
+		FROM D_MM${localChannelId} MM
+		JOIN D_M${localChannelId} M ON M.ID = MM.MESSAGE_ID
+		JOIN D_MM${localChannelId} MM0 ON MM0.MESSAGE_ID = MM.MESSAGE_ID AND MM0.ID = 0
+		WHERE M.PROCESSED = FALSE AND MM0.SERVER_ID = ?
+		ORDER BY M.ID, MM.ID
+	</query>
+	
+	<query id="getUnfinishedConnectorMessages">
+		SELECT *
+		FROM D_MM${localChannelId} MM
+		JOIN D_M${localChannelId} M ON M.ID = MM.MESSAGE_ID
+		JOIN D_MM${localChannelId} MM0 ON MM0.MESSAGE_ID = MM.MESSAGE_ID AND MM0.ID = 0
+		WHERE MM.ID = ? AND MM.STATUS = ? AND MM0.SERVER_ID = ? AND MM.SERVER_ID = MM0.SERVER_ID
+		ORDER BY MM.MESSAGE_ID
+	</query>
+	
+	<query id="getChannelStatistics">
+		SELECT METADATA_ID, RECEIVED, FILTERED, SENT, ERROR
+		FROM D_MS${localChannelId}
+		WHERE SERVER_ID = ?
+	</query>
+	
+	<query id="getChannelTotalStatistics">
+		SELECT METADATA_ID, RECEIVED_LIFETIME AS RECEIVED, FILTERED_LIFETIME AS FILTERED, SENT_LIFETIME AS SENT, ERROR_LIFETIME AS ERROR
+		FROM D_MS${localChannelId}
+		WHERE SERVER_ID = ?
+	</query>
+	
+	<query id="insertChannelStatistics">
+		INSERT INTO D_MS${localChannelId} (METADATA_ID, SERVER_ID, RECEIVED, RECEIVED_LIFETIME, FILTERED, FILTERED_LIFETIME, SENT, SENT_LIFETIME, ERROR, ERROR_LIFETIME)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	</query>
+	
+	<query id="updateChannelStatistics">
+		UPDATE D_MS${localChannelId}
+		SET RECEIVED = RECEIVED + ?,
+			RECEIVED_LIFETIME = RECEIVED_LIFETIME + ?,
+			FILTERED = FILTERED + ?,
+			FILTERED_LIFETIME = FILTERED_LIFETIME + ?,
+			SENT = SENT + ?,
+			SENT_LIFETIME = SENT_LIFETIME + ?,
+			ERROR = ERROR + ?,
+			ERROR_LIFETIME = ERROR_LIFETIME + ?
+		
+		WHERE METADATA_ID IS NULL
+		AND SERVER_ID = ?
+	</query>
+	
+	<query id="updateConnectorStatistics">
+		UPDATE D_MS${localChannelId}
+		SET RECEIVED = RECEIVED + ?,
+			RECEIVED_LIFETIME = RECEIVED_LIFETIME + ?,
+			FILTERED = FILTERED + ?,
+			FILTERED_LIFETIME = FILTERED_LIFETIME + ?,
+			SENT = SENT + ?,
+			SENT_LIFETIME = SENT_LIFETIME + ?,
+			ERROR = ERROR + ?,
+			ERROR_LIFETIME = ERROR_LIFETIME + ?
+		
+		WHERE METADATA_ID = ?
+		AND SERVER_ID = ?
+	</query>
+	
+	<query id="resetConnectorStatistics">
+		UPDATE D_MS${localChannelId}
+		SET ${statuses}
+		WHERE SERVER_ID = ? AND METADATA_ID = ?
+	</query>
+	
+	<query id="resetChannelStatistics">
+		UPDATE D_MS${localChannelId}
+		SET ${statuses}
+		WHERE SERVER_ID = ? AND METADATA_ID IS NULL
+	</query>
+	
+	<query id="resetAllStatistics">
+		UPDATE D_MS${localChannelId}
+		SET RECEIVED = 0,
+			RECEIVED_LIFETIME = 0,
+			FILTERED = 0,
+			FILTERED_LIFETIME = 0,
+			SENT = 0,
+			SENT_LIFETIME = 0,
+			ERROR = 0,
+			ERROR_LIFETIME = 0
+
+		WHERE SERVER_ID = ?
+	</query>
+	
+	<query id="deleteTestData">
+		TRUNCATE test_table
+	</query>
+	
+	<query id="testSimpleInsert">
+		INSERT INTO test_table (id, string)
+		VALUES (?, ?)
+	</query>
+	
+	<query id="getMessageContent">
+		SELECT CONTENT, DATA_TYPE, IS_ENCRYPTED
+		FROM D_MC${localChannelId}
+		WHERE MESSAGE_ID = ?
+		AND METADATA_ID = ?
+		AND CONTENT_TYPE = ?
+	</query>
+	
+	<query id="getMetaDataMap">
+		SELECT *
+		FROM D_MCM${localChannelId}
+		WHERE MESSAGE_ID = ?
+		AND METADATA_ID = ?
+	</query>
+
+	<query id="createChannel">
+		INSERT INTO D_CHANNELS (CHANNEL_ID, LOCAL_CHANNEL_ID) VALUES (?, ?)
+	</query>
+
+	<query id="insertMetaData">
+		INSERT INTO D_MCM${localChannelId} (METADATA_ID, MESSAGE_ID, ${metaDataColumnNames})
+		VALUES (?, ?, ${metaDataColumnPlaceholders})
+	</query>
+	
+	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit">
+		SELECT *
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ? AND SERVER_ID = ?
+		ORDER BY MESSAGE_ID
+		LIMIT ${limit}
+		OFFSET ${offset}
+	</query>
+	
+	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange">
+		SELECT *
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ? AND SERVER_ID = ?
+		AND MESSAGE_ID <![CDATA[ >= ]]> ? AND MESSAGE_ID <![CDATA[ <= ]]> ?
+		ORDER BY MESSAGE_ID
+		LIMIT ${limit}
+		OFFSET ${offset}
+	</query>
+	
+	<query id="getConnectorMessagesByMessageId">
+		SELECT *
+		FROM D_MM${localChannelId}
+		WHERE MESSAGE_ID = ?
+		ORDER BY MESSAGE_ID
+	</query>
+	
+	<query id="getConnectorMessagesByMessageIdAndMetaDataIds">
+		SELECT *
+		FROM D_MM${localChannelId}
+		WHERE MESSAGE_ID = ?
+		AND ID IN (${metaDataIds})
+		ORDER BY CHAIN_ID ASC, ORDER_ID ASC
+	</query>
+	
+	<query id="getConnectorMessageCountByMetaDataIdAndStatus">
+		SELECT COUNT(*)
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ? AND SERVER_ID = ?
+	</query>
+	
+	<query id="getConnectorMessageMaxMessageIdByMetaDataIdAndStatus">
+		SELECT COALESCE(MAX(MESSAGE_ID), 0)
+		FROM D_MM${localChannelId}
+		WHERE ID = ? AND STATUS = ? AND SERVER_ID = ?
+	</query>
+	
+	
+	
+	<!-- Delete Statements -->
+	
+	<query id="deleteMessage">
+		DELETE FROM D_M${localChannelId}
+		WHERE ID = ?
+	</query>
+	
+	<!-- Optional cascade statements when not using ON DELETE CASCADE, define these in the database's xml file -->
+	<query id="deleteMessageCascadeConnectorMessage"></query>
+	<query id="deleteMessageCascadeContent"></query>
+	<query id="deleteMessageCascadeMetadata"></query>
+	<query id="deleteMessageCascadeAttachments"></query>
+
+	<query id="deleteConnectorMessages">
+		DELETE FROM D_MM${localChannelId}
+		WHERE MESSAGE_ID = ?
+	</query>
+	
+	<query id="deleteMessageContent">
+		DELETE FROM D_MC${localChannelId}
+		WHERE MESSAGE_ID = ?
+	</query>
+	
+	<query id="deleteMessageContentByMetaDataIdAndContentType">
+		DELETE FROM D_MC${localChannelId}
+		WHERE MESSAGE_ID = ?
+		AND METADATA_ID = ?
+		AND CONTENT_TYPE = ?
+	</query>
+	
+	<query id="deleteMessageAttachments">
+		DELETE FROM D_MA${localChannelId}
+		WHERE MESSAGE_ID = ?
+	</query>
+	
+	<query id="deleteAllMessages">
+		DELETE FROM D_M${localChannelId}
+	</query>
+	
+	<query id="deleteAllMessagesCascadeConnectorMessage"></query>
+	<query id="deleteAllMessagesCascadeContent"></query>
+	<query id="deleteAllMessagesCascadeMetadata"></query>
+	<query id="deleteAllMessagesCascadeAttachments"></query>
+	
+	<query id="deleteConnectorMessagesByMetaDataIds">
+		DELETE FROM D_MM${localChannelId}
+		WHERE MESSAGE_ID = ?
+		AND ID IN (${metaDataIds})
+	</query>
+	
+	<query id="deleteConnectorMessagesByMetaDataIdsCascadeMetadata"></query>
+	<query id="deleteConnectorMessagesByMetaDataIdsCascadeContent"></query>
+	
+	
+
+	<!-- These queries must be defined in each database's xml file -->
+	<query id="createMessageTable"></query>
+	<query id="createConnectorMessageTable"></query>
+	<query id="createMessageContentTable"></query>
+	<query id="createMessageCustomMetaDataTable"></query>
+	<query id="createMessageAttachmentTable"></query>
+	<query id="createMessageStatisticsTable"></query>
+	<query id="createMessageSequence"></query>
+	<query id="createChannelsTable"></query>
+	<query id="getNextMessageId"></query>
+	<query id="addMetaDataColumnString"></query>
+	<query id="addMetaDataColumnStringIndex"></query>
+	<query id="addMetaDataColumnBoolean"></query>
+	<query id="addMetaDataColumnBooleanIndex"></query>
+	<query id="addMetaDataColumnDate"></query>
+	<query id="addMetaDataColumnDateIndex"></query>
+	<query id="addMetaDataColumnDouble"></query>
+	<query id="addMetaDataColumnDoubleIndex"></query>
+	<query id="addMetaDataColumnLong"></query>
+	<query id="addMetaDataColumnLongIndex"></query>
+	<query id="addMetaDataColumnTime"></query>
+	<query id="addMetaDataColumnTimeIndex"></query>
+	<query id="addMetaDataColumnTimestamp"></query>
+	<query id="addMetaDataColumnTimestampIndex"></query>
+	<query id="dropMessageTable"></query>
+	<query id="dropMessageMetadataTable"></query>
+	<query id="dropMessageContentTable"></query>
+	<query id="dropCustomMetadataTable"></query>
+	<query id="dropAttachmentsTable"></query>
+	<query id="dropStatisticsTable"></query>
+	<query id="dropMessageSequence"></query>
+	<query id="deleteChannel"></query>
+</queries>

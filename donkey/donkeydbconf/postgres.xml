@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<queries>
+	<query id="createMessageTable">
+		CREATE TABLE D_M${localChannelId} (
+	        ID BIGINT NOT NULL,
+	        SERVER_ID CHARACTER VARYING(36) NOT NULL,
+	        RECEIVED_DATE TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+	        PROCESSED BOOLEAN NOT NULL DEFAULT FALSE,
+	        ORIGINAL_ID BIGINT,
+	        IMPORT_ID BIGINT,
+	        IMPORT_CHANNEL_ID CHARACTER VARYING(36),
+	        CONSTRAINT D_M${localChannelId}_PKEY PRIMARY KEY(ID)
+	    );
+	</query>
+	
+	<query id="createMessageTableIndex1">
+		CREATE INDEX D_M${localChannelId}_INDEX1 ON D_M${localChannelId} USING BTREE (ID, SERVER_ID)
+	</query>
+	
+	<query id="createConnectorMessageTable">
+		CREATE TABLE D_MM${localChannelId} (
+	        ID INTEGER NOT NULL,
+	        MESSAGE_ID BIGINT NOT NULL,
+	        SERVER_ID CHARACTER VARYING(36) NOT NULL,
+	        RECEIVED_DATE TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+	        STATUS CHARACTER(1) NOT NULL,
+	        CONNECTOR_NAME TEXT,
+	        SEND_ATTEMPTS INTEGER NOT NULL DEFAULT 0,
+	        SEND_DATE TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+	        RESPONSE_DATE TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+	        ERROR_CODE INTEGER NOT NULL DEFAULT 0,
+	        CHAIN_ID INTEGER NOT NULL,
+	        ORDER_ID INTEGER NOT NULL,
+	        CONSTRAINT D_MM${localChannelId}_PKEY PRIMARY KEY(MESSAGE_ID, ID),
+	        CONSTRAINT D_MM${localChannelId}_FKEY FOREIGN KEY(MESSAGE_ID) REFERENCES D_M${localChannelId}(ID) ON DELETE CASCADE
+        );
+	</query>
+	
+	<query id="createConnectorMessageTableIndex1">
+		CREATE INDEX D_MM${localChannelId}_INDEX1 ON D_MM${localChannelId} USING BTREE (MESSAGE_ID, ID, STATUS)
+	</query>
+	
+	<query id="createConnectorMessageTableIndex2">
+		CREATE INDEX D_MM${localChannelId}_INDEX2 ON D_MM${localChannelId} USING BTREE (MESSAGE_ID, SERVER_ID, ID)
+	</query>
+	
+	<query id="createConnectorMessageTableIndex3">
+		CREATE INDEX D_MM${localChannelId}_FKI ON D_MM${localChannelId} USING BTREE (MESSAGE_ID)
+	</query>
+	
+	<query id="createMessageContentTable">
+		CREATE TABLE D_MC${localChannelId} (
+	        METADATA_ID INTEGER NOT NULL,
+	        MESSAGE_ID BIGINT NOT NULL,
+	        CONTENT_TYPE INTEGER NOT NULL,
+	        CONTENT TEXT,
+	        IS_ENCRYPTED BOOLEAN NOT NULL,
+	        DATA_TYPE CHARACTER VARYING(255),
+	        CONSTRAINT D_MC${localChannelId}_PKEY PRIMARY KEY(MESSAGE_ID, METADATA_ID, CONTENT_TYPE),
+	        CONSTRAINT D_MC${localChannelId}_FKEY FOREIGN KEY(MESSAGE_ID, METADATA_ID) REFERENCES D_MM${localChannelId}(MESSAGE_ID, ID) ON DELETE CASCADE
+        );
+	</query>
+	
+	<query id="createMessageContentTableIndex1">
+		CREATE INDEX D_MC${localChannelId}_FKI ON D_MC${localChannelId} USING BTREE (MESSAGE_ID, METADATA_ID)
+	</query>
+	
+	<query id="createMessageCustomMetaDataTable">
+		CREATE TABLE D_MCM${localChannelId} (
+	        METADATA_ID INTEGER NOT NULL,
+	        MESSAGE_ID BIGINT NOT NULL,
+	        CONSTRAINT D_MCM${localChannelId}_PKEY PRIMARY KEY(MESSAGE_ID, METADATA_ID),
+	        CONSTRAINT D_MCM${localChannelId}_FKEY FOREIGN KEY(MESSAGE_ID, METADATA_ID) REFERENCES D_MM${localChannelId}(MESSAGE_ID, ID) ON DELETE CASCADE
+        );
+	</query>
+	
+	<query id="createMessageAttachmentTable">
+		CREATE TABLE D_MA${localChannelId} (
+	        ID CHARACTER VARYING(255) NOT NULL,
+	        MESSAGE_ID BIGINT NOT NULL,
+	        TYPE CHARACTER VARYING(40),
+	        SEGMENT_ID INTEGER NOT NULL,
+	        ATTACHMENT_SIZE INTEGER NOT NULL,
+	        CONTENT BYTEA,
+	        CONSTRAINT D_MA${localChannelId}_FKEY FOREIGN KEY(MESSAGE_ID) REFERENCES D_M${localChannelId}(ID) ON DELETE CASCADE
+        );
+	</query>
+	
+	<query id="createMessageAttachmentTableIndex1">
+		CREATE INDEX D_MA${localChannelId}_INDEX1 ON D_MA${localChannelId} USING BTREE (ID)
+	</query>
+	
+	<query id="createMessageAttachmentTableIndex2">
+		CREATE INDEX D_MA${localChannelId}_FKI ON D_MA${localChannelId} USING BTREE (MESSAGE_ID)
+	</query>
+	
+	<query id="createMessageStatisticsTable">
+		CREATE TABLE D_MS${localChannelId} (
+	        METADATA_ID INTEGER,
+	        SERVER_ID CHARACTER VARYING(36) NOT NULL,
+	        RECEIVED BIGINT NOT NULL DEFAULT 0,
+	        RECEIVED_LIFETIME BIGINT NOT NULL DEFAULT 0,
+	        FILTERED BIGINT NOT NULL DEFAULT 0,
+	        FILTERED_LIFETIME BIGINT NOT NULL DEFAULT 0,
+	        SENT BIGINT NOT NULL DEFAULT 0,
+	        SENT_LIFETIME BIGINT NOT NULL DEFAULT 0,
+	        ERROR BIGINT NOT NULL DEFAULT 0,
+	        ERROR_LIFETIME BIGINT NOT NULL DEFAULT 0
+        );
+	</query>
+	
+	<query id="createMessageStatisticsTableIndex1">
+		CREATE INDEX D_MS${localChannelId}_INDEX1 ON D_MS${localChannelId} USING BTREE (METADATA_ID, SERVER_ID)
+	</query>
+	
+	<query id="createMessageSequence">
+		CREATE SEQUENCE D_MSQ${localChannelId}
+		INCREMENT 1
+		MINVALUE 1
+		MAXVALUE 9223372036854775807
+		START 1
+		CACHE 1
+	</query>
+	
+	<query id="createChannelsTable">
+		CREATE TABLE D_CHANNELS (
+	        LOCAL_CHANNEL_ID BIGINT NOT NULL,
+	        CHANNEL_ID CHARACTER VARYING(36) NOT NULL,
+	        CONSTRAINT D_CHANNELS_PKEY PRIMARY KEY(LOCAL_CHANNEL_ID),
+	        CONSTRAINT UNIQUE_CHANNEL_ID UNIQUE (CHANNEL_ID)
+        )
+	</query>
+	
+	<query id="dropMessageTable">
+		DROP TABLE D_M${localChannelId}
+	</query>
+	
+	<query id="dropMessageMetadataTable">
+		DROP TABLE D_MM${localChannelId}
+	</query>
+	
+	<query id="dropMessageContentTable">
+		DROP TABLE D_MC${localChannelId}
+	</query>
+	
+	<query id="dropCustomMetadataTable">
+		DROP TABLE D_MCM${localChannelId}
+	</query>
+	
+	<query id="dropAttachmentsTable">
+		DROP TABLE D_MA${localChannelId}
+	</query>
+	
+	<query id="dropStatisticsTable">
+		DROP TABLE D_MS${localChannelId}
+	</query>
+	
+	<query id="dropMessageSequence">
+		DROP SEQUENCE D_MSQ${localChannelId}
+	</query>
+	
+	<query id="deleteChannel">
+        DELETE FROM D_CHANNELS WHERE LOCAL_CHANNEL_ID = ${localChannelId}
+	</query>
+	
+	<query id="getNextMessageId">
+		SELECT NEXTVAL('D_MSQ${localChannelId}')
+	</query>
+	
+	<query id="addMetaDataColumnString">
+		ALTER TABLE D_MCM${localChannelId} ADD COLUMN "${columnName}" CHARACTER VARYING(255);
+	</query>
+	
+	<query id="addMetaDataColumnNumber">
+		ALTER TABLE D_MCM${localChannelId} ADD COLUMN "${columnName}" NUMERIC(31, 15);
+	</query>
+	
+	<query id="addMetaDataColumnBoolean">
+		ALTER TABLE D_MCM${localChannelId} ADD COLUMN "${columnName}" BOOLEAN;
+	</query>
+	
+	<query id="addMetaDataColumnTimestamp">
+		ALTER TABLE D_MCM${localChannelId} ADD COLUMN "${columnName}" TIMESTAMP WITHOUT TIME ZONE DEFAULT NULL;
+	</query>
+	
+	<!-- Note: TRUNCATE will execute outside of the transaction and cannot be rolled back -->
+	<query id="deleteAllMessages">
+        TRUNCATE TABLE D_M${localChannelId} CASCADE;
+	</query>
+</queries>
