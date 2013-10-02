@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>RMI</name>
+    <description>Risk Management Incident</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RMI.1</name>
+            <description>Risk Management Incident Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RMI.2</name>
+            <description>Date/Time Incident</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RMI.3</name>
+            <description>Incident Type Code</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

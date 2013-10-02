@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>RSPK25</name>
+    <description>Personnel Information by Segment Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0">ERR</segment>
+        <segment>QAK</segment>
+        <segment>QPD</segment>
+        <segment>RCP</segment>
+        <group maxOccurs="unbounded">
+            <segment>STF</segment>
+            <segment minOccurs="0">PRA</segment>
+            <segment minOccurs="0">ORG</segment>
+            <segment minOccurs="0">AFF</segment>
+            <segment minOccurs="0">LAN</segment>
+            <segment minOccurs="0">EDU</segment>
+        </group>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

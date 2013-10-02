@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CP</name>
+    <description>Composite Price</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CP.1</name>
+            <description>Price</description>
+            <datatype>MO</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CP.2</name>
+            <description>Price Type</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CP.3</name>
+            <description>From Value</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CP.4</name>
+            <description>To Value</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CP.5</name>
+            <description>Range Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CP.6</name>
+            <description>Range Type</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

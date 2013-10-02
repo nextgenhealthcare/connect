@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>ORC</name>
+    <description>Common Order</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>ORC.1</name>
+            <description>Order Control</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORC.2</name>
+            <description>Placer Order #</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORC.3</name>
+            <description>Filler Order #</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORC.4</name>
+            <description>Placer Group #</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORC.5</name>
+            <description>Order Status</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORC.6</name>
+            <description>Response Flag</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORC.7</name>
+            <description>Timing/Quantity</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORC.8</name>
+            <description>Parent</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORC.9</name>
+            <description>Date/Time of Transaction</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORC.10</name>
+            <description>Entered By</description>
+            <datatype>CN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORC.11</name>
+            <description>Verified By</description>
+            <datatype>CN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORC.12</name>
+            <description>Ordering Provider</description>
+            <datatype>CN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORC.13</name>
+            <description>Enterer's Location</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="2">
+            <name>ORC.14</name>
+            <description>Call Back Phone Number</description>
+            <datatype>TN</datatype>
+        </field>
+    </elements>
+</segment>

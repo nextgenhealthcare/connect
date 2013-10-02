@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>NA</name>
+    <description>Numeric Array</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NA.1</name>
+            <description>Value1</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NA.2</name>
+            <description>Value2</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NA.3</name>
+            <description>Value3</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NA.4</name>
+            <description>Value4</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NA.5</name>
+            <description>Value5</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NA.6</name>
+            <description>Value6</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NA.7</name>
+            <description>Value7</description>
+            <datatype>NM</datatype>
+        </field>
+    </elements>
+</segment>

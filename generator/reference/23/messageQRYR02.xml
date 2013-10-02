@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>QRYR02</name>
+    <description>Query For Results of Observation Observational Report (Response Is R04)</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>QRD</segment>
+        <segment>QRF</segment>
+    </segments>
+</message>

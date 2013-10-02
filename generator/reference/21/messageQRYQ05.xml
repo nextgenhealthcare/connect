@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>QRYQ05</name>
+    <description>No Description.</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>URD</segment>
+        <segment minOccurs="0">URS</segment>
+        <segment maxOccurs="unbounded">DSP</segment>
+        <segment>DSC</segment>
+    </segments>
+</message>

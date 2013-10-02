@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>GT1</name>
+    <description>Guarantor</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>GT1.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.2</name>
+            <description>Guarantor Number</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>GT1.3</name>
+            <description>Guarantor Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.4</name>
+            <description>Guarantor Spouse Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.5</name>
+            <description>Guarantor Address</description>
+            <datatype>XAD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.6</name>
+            <description>Guarantor Ph Num - Home</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.7</name>
+            <description>Guarantor Ph Num - Business</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.8</name>
+            <description>Guarantor Date/Time of Birth</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.9</name>
+            <description>Guarantor Administrative Sex</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.10</name>
+            <description>Guarantor Type</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.11</name>
+            <description>Guarantor Relationship</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.12</name>
+            <description>Guarantor SSN</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.13</name>
+            <description>Guarantor Date - Begin</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.14</name>
+            <description>Guarantor Date - End</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.15</name>
+            <description>Guarantor Priority</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.16</name>
+            <description>Guarantor Employer Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.17</name>
+            <description>Guarantor Employer Address</description>
+            <datatype>XAD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.18</name>
+            <description>Guarantor Employer Phone Number</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.19</name>
+            <description>Guarantor Employee ID Number</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.20</name>
+            <description>Guarantor Employment Status</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.21</name>
+            <description>Guarantor Organization Name</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.22</name>
+            <description>Guarantor Billing Hold Flag</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.23</name>
+            <description>Guarantor Credit Rating Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.24</name>
+            <description>Guarantor Death Date and Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.25</name>
+            <description>Guarantor Death Flag</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.26</name>
+            <description>Guarantor Charge Adjustment Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.27</name>
+            <description>Guarantor Household Annual Income</description>
+            <datatype>CP</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.28</name>
+            <description>Guarantor Household Size</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.29</name>
+            <description>Guarantor Employer ID Number</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.30</name>
+            <description>Guarantor Marital Status Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.31</name>
+            <description>Guarantor Hire Effective Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.32</name>
+            <description>Employment Stop Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.33</name>
+            <description>Living Dependency</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.34</name>
+            <description>Ambulatory Status</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.35</name>
+            <description>Citizenship</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.36</name>
+            <description>Primary Language</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.37</name>
+            <description>Living Arrangement</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.38</name>
+            <description>Publicity Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.39</name>
+            <description>Protection Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.40</name>
+            <description>Student Indicator</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.41</name>
+            <description>Religion</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.42</name>
+            <description>Mother's Maiden Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.43</name>
+            <description>Nationality</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.44</name>
+            <description>Ethnic Group</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.45</name>
+            <description>Contact Person's Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.46</name>
+            <description>Contact Person's Telephone Number</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.47</name>
+            <description>Contact Reason</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.48</name>
+            <description>Contact Relationship</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.49</name>
+            <description>Job Title</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.50</name>
+            <description>Job Code/Class</description>
+            <datatype>JCC</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.51</name>
+            <description>Guarantor Employer's Organization Name</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.52</name>
+            <description>Handicap</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.53</name>
+            <description>Job Status</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.54</name>
+            <description>Guarantor Financial Class</description>
+            <datatype>FC</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GT1.55</name>
+            <description>Guarantor Race</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

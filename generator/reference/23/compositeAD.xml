@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>AD</name>
+    <description>Address</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AD.1</name>
+            <description>Street Address</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AD.2</name>
+            <description>Other Designation</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AD.3</name>
+            <description>City</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AD.4</name>
+            <description>State or Province</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AD.5</name>
+            <description>Zip or Postal Code</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AD.6</name>
+            <description>Country </description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AD.7</name>
+            <description>Address Type</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AD.8</name>
+            <description>Other Geographic Designation</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

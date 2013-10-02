@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>FC</name>
+    <description>Financial Class</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FC.1</name>
+            <description>Financial Class</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FC.2</name>
+            <description>Effective Date</description>
+            <datatype>TS</datatype>
+        </field>
+    </elements>
+</segment>
