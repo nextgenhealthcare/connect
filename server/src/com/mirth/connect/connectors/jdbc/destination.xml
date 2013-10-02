@@ -1,0 +1,17 @@
+<connectorMetaData path="jdbc">
+	<name>Database Writer</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.0.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This connector allows Mirth to write to any JDBC-compatabile database with Insert, Update or JavaScript statements.</description>
+	<clientClassName>com.mirth.connect.connectors.jdbc.DatabaseWriter</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.jdbc.DatabaseDispatcher</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.jdbc.DatabaseDispatcherProperties</sharedClassName>
+	<serviceClassName>com.mirth.connect.connectors.jdbc.DatabaseConnectorService</serviceClassName>
+	<library type="CLIENT" path="jdbc-client.jar" />
+	<library type="SHARED" path="jdbc-shared.jar" />
+	<library type="SERVER" path="jdbc-server.jar" />
+	<protocol>jdbc</protocol>
+	<type>DESTINATION</type>
+</connectorMetaData>

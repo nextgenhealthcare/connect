@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
+
+<mapper namespace='Alert'>
+	<resultMap id="alert" type="map">
+		<id property="id" column="ID" javaType="String" />
+		<result property="name" column="NAME" javaType="String" />
+		<result property="alert" column="ALERT" javaType="String" />
+	</resultMap>
+
+	<select id='getAlertNameExists' parameterType='map' resultType='java.lang.Boolean'>
+		SELECT EXISTS (
+			SELECT 1
+			FROM ALERT
+			WHERE NAME = #{name}
+			AND ID != #{id}
+		)
+	</select>
+
+	<select id='getAlert' parameterType='java.lang.String' resultMap='alert'>
+		SELECT ID, NAME, ALERT
+		FROM ALERT
+		<where>
+			<if test='value != null'>
+				ID = #{value}
+			</if>
+		</where>
+	</select>
+
+	<insert id='insertAlert' parameterType='map'>
+		INSERT INTO ALERT (ID,
+		NAME, ALERT)
+		VALUES (#{id}, #{name}, #{alert})
+	</insert>
+
+	<update id='updateAlert' parameterType='map'>
+		UPDATE ALERT
+		SET ALERT = #{alert}
+		<if test='name != null'>
+			, NAME = #{name}
+		</if>
+		WHERE ID = #{id}
+	</update>
+
+	<delete id='deleteAlert' parameterType='java.lang.String'>
+		DELETE FROM ALERT
+		<where>
+			<if test='value != null'>
+				ID=#{value}
+			</if>
+		</where>
+	</delete>
+</mapper>

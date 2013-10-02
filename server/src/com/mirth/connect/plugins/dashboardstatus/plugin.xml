@@ -1,0 +1,16 @@
+<pluginMetaData path="dashboardstatus">
+	<name>Dashboard Connector Status Monitor</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.0.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides a real-time connection status column on the Mirth Connect client</description>
+	<serverClasses>
+		<string>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusMonitor</string>
+	</serverClasses>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusColumn</string>
+		<string>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusClient</string>
+	</clientClasses>
+	<library type="SERVER" path="dashboardstatus-server.jar" />
+</pluginMetaData>

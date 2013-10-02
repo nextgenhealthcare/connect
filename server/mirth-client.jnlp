@@ -1,0 +1,33 @@
+<jnlp>
+	<information>
+		<title>Mirth Connect Administrator</title>
+		<vendor>Mirth Corporation</vendor>
+		<homepage href="http://www.mirthcorp.com"/>
+		<description>Open Source Healthcare Integration Engine</description>
+		
+		<icon href="images/mirth_128_ico.png"/>
+		<icon href="images/splashscreen.png" kind="splash"/> 
+		
+		<offline-allowed/>
+
+		<shortcut online="true">
+            <!-- put a shortcut on the desktop -->
+            <desktop/>
+            <!-- put shortcut in start menu too -->
+            <menu submenu="Mirth Connect"/>
+    	</shortcut>
+    	
+	</information>
+	
+	<security>
+		<all-permissions/>
+	</security>
+	
+	<update check="timeout" policy="always"/>
+	
+	<resources>
+		<j2se href="http://java.sun.com/products/autodl/j2se" version="1.6+" max-heap-size="256m"/>
+	</resources>
+	
+	<application-desc main-class="com.mirth.connect.client.ui.Mirth"/>
+</jnlp>

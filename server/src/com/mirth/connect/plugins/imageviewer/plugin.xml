@@ -1,0 +1,12 @@
+<pluginMetaData path="imageviewer">
+	<name>Image Viewer</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.0.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides image attachment viewing capability in message browser.</description>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.imageviewer.ImageViewer</string>
+	</clientClasses>
+	<library type="CLIENT" path="imageviewer-client.jar" />
+</pluginMetaData>

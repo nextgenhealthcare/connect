@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
+
+<mapper namespace="CodeTemplate">
+	<resultMap id="code-template" type="map">
+		<result property="id" column="ID" javaType="String" />
+		<result property="codeTemplate" column="CODE_TEMPLATE" javaType="String" />
+	</resultMap>
+	
+	<select id="getCodeTemplate" parameterType="String" resultMap="code-template">
+		SELECT ID, CODE_TEMPLATE
+		FROM CODE_TEMPLATE
+		<where>
+			<if test='value != null'>ID = #{value}</if>
+		</where>
+	</select>
+	
+	<update id="updateCodeTemplate" parameterType="map">
+		UPDATE CODE_TEMPLATE
+		SET CODE_TEMPLATE = #{codeTemplate}
+		WHERE ID = #{id}
+	</update>
+
+	<insert id='insertCodeTemplate' parameterType='map'>
+		INSERT INTO
+		CODE_TEMPLATE (ID, CODE_TEMPLATE)
+		VALUES (#{id}, #{codeTemplate})
+	</insert>
+	
+	<delete id='deleteCodeTemplate' parameterType='String'>
+		DELETE FROM CODE_TEMPLATE
+		<where>
+			<if test='value != null'>ID=#{value}</if>
+		</where>
+	</delete>
+	
+	<select id="vacuumCodeTemplateTable" statementType="CALLABLE">
+		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'CODE_TEMPLATE', 0)}
+	</select>
+</mapper>

@@ -1,0 +1,18 @@
+<connectorMetaData path="jms">
+	<name>JMS Listener</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.0.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This connector allows Mirth to read messages from a JMS queue.</description>
+	<clientClassName>com.mirth.connect.connectors.jms.JmsListener</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.jms.JmsReceiver</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.jms.JmsReceiverProperties</sharedClassName>
+	<serviceClassName>com.mirth.connect.connectors.jms.JmsConnectorService</serviceClassName>
+	<transformers></transformers>
+	<protocol>jms</protocol>
+	<type>SOURCE</type>
+	<library type="CLIENT" path="jms-client.jar" />
+	<library type="SHARED" path="jms-shared.jar" />
+	<library type="SERVER" path="jms-server.jar" />
+</connectorMetaData>

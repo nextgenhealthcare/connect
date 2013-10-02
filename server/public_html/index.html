@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="x-ua-compatible" content="IE=edge">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="cache-control" content="no-store">
+	
+	<title>Mirth Connect Administrator</title>
+	
+	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+	<link rel="stylesheet" type="text/css" href="css/main.css" />
+	
+	<script type="text/javascript">
+		/* Break out of frame if inside a frame. */
+		if (window != window.top) {
+			window.top.location = window.location;
+		}
+	</script>
+
+	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+</head>
+
+<body id="body" style="display:none;" class="subpage">
+	<div id="centerWrapper">
+		<div class="row">
+			<div style="padding: 10px; text-align: center;">
+				<img id="mirthLogo" src="images/mirthconnectlogowide.png"/>
+			</div>
+			
+			<div id="mcadministrator" class="span9">
+				<h1 style="text-align: center;">Mirth Connect Administrator</h1>
+
+				<div class="help-block">
+					<strong>Overview of Web Start:</strong><br /> Java Web Start is a framework developed by Sun Microsystems
+					that enables launching Java applications directly from a browser.
+					Unlike Java applets, Web Start applications do not run inside the
+					browser. 
+				</div>				
+				<div class="help-block">
+					<br/>Click the big green button below to launch the Mirth Connect
+					Administrator using Java Web Start.
+				</div>
+				
+				<div style="text-align: center; margin-top: 10px;">
+					<a class="btn btn-large btn-themebutton" type="submit" href="javascript:launchAdministrator()">Launch Mirth Connect Administrator</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<footer class="smallSubPage" style="width:100%;">
+		<table>
+			<tr>
+				<td style="text-align: center;">&copy; 2013 Mirth Corporation | Mirth Connect</td>
+			</tr>
+		</table>
+	</footer>
+
+ 	<script type="text/javascript">
+		$(document).ready(function() {			
+			$.ajax({
+			    type: 'HEAD',
+			    url: 'webadmin/Index.action',
+				success: function() {
+					window.location.replace("webadmin/Index.action");
+				},
+				error: function() {
+					$("#body").css("display", "inline");
+				} 
+			});
+		}); 
+	</script>
+	
+    <script type="text/javascript">
+   		function launchAdministrator(){
+    		window.location.href = 'webstart.jnlp?time=' + new Date().getTime(); 
+   		}
+	</script>
+</body>
+</html>

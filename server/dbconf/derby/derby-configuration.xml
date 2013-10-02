@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
+
+<mapper namespace="Configuration">
+	<select id="selectPropertiesForCategory" parameterType="java.lang.String" resultType="KeyValuePair">
+		SELECT NAME AS "key", VALUE AS "value"
+		FROM CONFIGURATION
+		WHERE CATEGORY = #{category}
+	</select>
+
+	<select id="selectProperty" parameterType="java.util.Map" resultType="java.lang.String">
+		SELECT VALUE
+		FROM CONFIGURATION
+		WHERE CATEGORY = #{category} AND NAME = #{name}
+	</select>
+	
+	<insert id="insertProperty" parameterType="java.util.Map">
+		INSERT INTO
+		CONFIGURATION (CATEGORY, NAME, VALUE)
+		VALUES (#{category}, #{name}, #{value})
+	</insert>
+
+	<update id="updateProperty" parameterType="java.util.Map">
+		UPDATE CONFIGURATION
+		SET VALUE = #{value}
+		WHERE CATEGORY = #{category} AND NAME = #{name}
+	</update>
+
+	<delete id="deleteProperty" parameterType="java.util.Map">
+		DELETE FROM CONFIGURATION
+		WHERE CATEGORY = #{category}
+		<if test='name != null'>
+			AND NAME = #{name}
+		</if>
+	</delete>
+
+	<select id="vacuumConfigurationTable" statementType="CALLABLE">
+		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'CONFIGURATION', 0)}
+	</select>
+</mapper>

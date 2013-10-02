@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
+
+<mapper namespace="Channel">
+	<resultMap id="channel-serialized-data" type="map">
+		<result property="id" column="ID" javaType="String" />
+		<result property="channel" column="CHANNEL" javaType="String" />
+	</resultMap>
+	
+	<resultMap id="channel-revision-data" type="map">
+		<result property="id" column="ID" javaType="String" />
+		<result property="revision" column="REVISION" javaType="Integer" />
+	</resultMap>
+	
+	<select id="getChannel" parameterType="String" resultType="com.mirth.connect.model.Channel">
+		SELECT CHANNEL
+		FROM CHANNEL
+		WHERE ID = #{value}
+	</select>
+	
+	<select id="getSerializedChannelData" resultMap="channel-serialized-data">
+		SELECT ID, CHANNEL
+		FROM CHANNEL
+	</select>
+	
+	<update id="updateSerializedChannelData" parameterType="map">
+		UPDATE CHANNEL
+		SET CHANNEL = #{channel}
+		WHERE ID = #{id}
+	</update>
+	
+	<select id='getChannelRevision' resultMap='channel-revision-data'>
+		SELECT ID, REVISION
+		FROM CHANNEL WITH UR
+	</select>
+	
+	<insert id='insertChannel' parameterType='map'>
+		INSERT INTO
+		CHANNEL (ID, NAME, REVISION, CHANNEL)
+		VALUES (#{id}, #{name}, #{revision}, #{channel})
+	</insert>
+	
+	<update id='updateChannel' parameterType='map'>
+		UPDATE CHANNEL
+		SET NAME = #{name},
+		REVISION = #{revision},
+		CHANNEL = #{channel}
+		WHERE ID = #{id}
+	</update>
+	
+	<delete id='deleteChannel' parameterType='String'>
+		DELETE FROM CHANNEL
+		<where>
+			<if test='value != null'>ID=#{value}</if>
+		</where>
+	</delete>
+	
+	<select id="vacuumChannelTable" statementType="CALLABLE">
+		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'CHANNEL', 0)}
+	</select>
+</mapper>

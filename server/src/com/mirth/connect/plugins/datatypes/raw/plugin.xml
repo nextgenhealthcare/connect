@@ -1,0 +1,17 @@
+<pluginMetaData path="datatype-raw">
+	<name>Raw Data Type</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.0.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides support for the raw data type</description>
+	<serverClasses>
+		<string>com.mirth.connect.plugins.datatypes.raw.RawDataTypeServerPlugin</string>
+	</serverClasses>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.datatypes.raw.RawDataTypeClientPlugin</string>
+	</clientClasses>
+	<library type="CLIENT" path="datatype-raw-client.jar" />
+	<library type="SHARED" path="datatype-raw-shared.jar" />
+	<library type="SERVER" path="datatype-raw-server.jar" />
+</pluginMetaData>

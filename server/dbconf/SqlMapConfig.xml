@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<settings>
+		<setting name="cacheEnabled" value="true" />
+		<setting name="jdbcTypeForNull" value="VARCHAR" />
+	</settings>
+	
+	<typeAliases>
+		<typeAlias alias="MapTypeHandler" type="com.mirth.connect.server.sqlmap.extensions.MapTypeHandler" />
+		<package name="com.mirth.connect.donkey.model.message" />
+		<package name="com.mirth.connect.donkey.model.message.attachment" />
+		<package name="com.mirth.connect.server.mybatis" />
+	</typeAliases>
+
+	<typeHandlers>
+		<typeHandler javaType="byte[]" handler="org.apache.ibatis.type.ByteArrayTypeHandler" />
+		<typeHandler javaType="java.sql.Clob" handler="org.apache.ibatis.type.ClobTypeHandler" />
+		<typeHandler javaType="java.util.Calendar" handler="com.mirth.connect.server.sqlmap.extensions.CalendarTypeHandler" />
+		<typeHandler javaType="java.util.GregorianCalendar" handler="com.mirth.connect.server.sqlmap.extensions.CalendarTypeHandler" />
+		<typeHandler javaType="Status" handler="com.mirth.connect.server.sqlmap.extensions.StatusTypeHandler" />
+		<typeHandler javaType="ContentType" handler="com.mirth.connect.server.sqlmap.extensions.ContentTypeHandler" />
+		<typeHandler javaType="com.mirth.connect.model.ServerEvent$Level" handler="com.mirth.connect.server.sqlmap.extensions.EventLevelTypeHandler" />
+		<typeHandler javaType="com.mirth.connect.model.ServerEvent$Outcome" handler="com.mirth.connect.server.sqlmap.extensions.EventOutcomeTypeHandler" />
+		<typeHandler javaType="com.mirth.connect.model.Channel" handler="com.mirth.connect.server.sqlmap.extensions.ChannelTypeHandler" />
+		<typeHandler javaType="com.mirth.connect.model.InvalidChannel" handler="com.mirth.connect.server.sqlmap.extensions.ChannelTypeHandler" />
+		<typeHandler javaType="java.util.Properties" handler="com.mirth.connect.server.sqlmap.extensions.PropertiesTypeHandler" />
+	</typeHandlers>
+
+	<environments default="all">
+		<environment id="all">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="${database.driver}" />
+				<property name="url" value="${database.url}" />
+				<property name="username" value="${database.username}" />
+				<property name="password" value="${database.password}" />
+				<property name="poolMaximumActiveConnections" value="32" />
+			</dataSource>
+		</environment>
+	</environments>
+
+	<mappers>
+		<mapper resource="${database}/${database}-user.xml" />
+		<mapper resource="${database}/${database}-channel.xml" />
+		<mapper resource="${database}/${database}-message.xml" />
+		<mapper resource="${database}/${database}-script.xml" />
+		<mapper resource="${database}/${database}-configuration.xml" />
+		<mapper resource="${database}/${database}-event.xml" />
+		<mapper resource="${database}/${database}-alert.xml" />
+		<mapper resource="${database}/${database}-codeTemplate.xml" />
+	</mappers>
+</configuration>

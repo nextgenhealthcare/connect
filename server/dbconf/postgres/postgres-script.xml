@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
+<mapper namespace='Script'>
+	<resultMap id='get-script-result' type='java.lang.String'>
+		<result property='script' column='SCRIPT' />
+	</resultMap>
+	<select id='getScript' parameterType='java.util.Map' resultMap='get-script-result'>
+		SELECT SCRIPT
+		FROM SCRIPT
+		WHERE GROUP_ID = #{groupId} AND ID = #{id}
+	</select>
+	<insert id='insertScript' parameterType='java.util.Map'>
+		INSERT INTO
+		SCRIPT
+		(GROUP_ID, ID, SCRIPT)
+		VALUES (#{groupId}, #{id}, #{script})
+	</insert>
+	<update id='updateScript' parameterType='java.util.Map'>
+		UPDATE SCRIPT
+		SET SCRIPT
+		= #{script}
+		WHERE GROUP_ID = #{groupId} AND ID = #{id}
+	</update>
+	<delete id='deleteScript' parameterType='java.util.Map'>
+		DELETE FROM SCRIPT
+		<where>
+			<if test='groupId != null'>AND GROUP_ID = #{groupId}</if>
+			<if test='notGroupId != null'>AND GROUP_ID != #{notGroupId}</if>
+		</where>
+	</delete>
+</mapper>
