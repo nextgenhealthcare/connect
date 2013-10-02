@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>NSC</name>
+    <description>Status Change</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>NSC.1</name>
+            <description>Network Change Type</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NSC.2</name>
+            <description>Current CPU</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NSC.3</name>
+            <description>Current Fileserver</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NSC.4</name>
+            <description>Current Application</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NSC.5</name>
+            <description>Current Facility</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NSC.6</name>
+            <description>New CPU</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NSC.7</name>
+            <description>New Fileserver</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NSC.8</name>
+            <description>New Application</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NSC.9</name>
+            <description>New Facility</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

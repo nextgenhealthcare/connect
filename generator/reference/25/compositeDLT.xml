@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>DLT</name>
+    <description>Delta</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>DLT.1</name>
+            <description>Normal Range</description>
+            <datatype>NR</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>DLT.2</name>
+            <description>Numeric Threshold</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>DLT.3</name>
+            <description>Change Computation</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>DLT.4</name>
+            <description>Days Retained</description>
+            <datatype>NM</datatype>
+        </field>
+    </elements>
+</segment>

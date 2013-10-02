@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>OVR</name>
+    <description>Override Segment</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OVR.1</name>
+            <description>Business Rule Override Type</description>
+            <datatype>CWE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OVR.2</name>
+            <description>Business Rule Override Code</description>
+            <datatype>CWE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OVR.3</name>
+            <description>Override Comments</description>
+            <datatype>TX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OVR.4</name>
+            <description>Override Entered By</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OVR.5</name>
+            <description>Override Authorized By</description>
+            <datatype>XCN</datatype>
+        </field>
+    </elements>
+</segment>

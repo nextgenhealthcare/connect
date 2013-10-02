@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>RPII01</name>
+    <description>Request For Insurance Information - Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <group maxOccurs="unbounded">
+            <segment>PRD</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">CTD</segment>
+        </group>
+        <segment>PID</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NK1</segment>
+        <group minOccurs="0">
+            <segment minOccurs="0" maxOccurs="unbounded">GT1</segment>
+            <group maxOccurs="unbounded">
+                <segment>IN1</segment>
+                <segment minOccurs="0">IN2</segment>
+                <segment minOccurs="0">IN3</segment>
+            </group>
+        </group>
+        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+    </segments>
+</message>

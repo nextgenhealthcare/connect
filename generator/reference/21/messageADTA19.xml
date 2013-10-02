@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ADTA19</name>
+    <description>No Description.</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>QRD</segment>
+    </segments>
+</message>

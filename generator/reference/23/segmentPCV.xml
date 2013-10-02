@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PCV</name>
+    <description>Verification Information Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCV.1</name>
+            <description>Verified Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCV.2</name>
+            <description>Verified By</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCV.3</name>
+            <description>Expiration Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCV.4</name>
+            <description>Verification Medium</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCV.5</name>
+            <description>Comment</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCV.6</name>
+            <description>Verification Standing</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCV.7</name>
+            <description>Revised By</description>
+            <datatype>PPN</datatype>
+        </field>
+    </elements>
+</segment>
