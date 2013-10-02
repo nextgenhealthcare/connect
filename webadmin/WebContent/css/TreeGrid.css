@@ -1,0 +1,100 @@
+.ux-maximgb-treegrid-breadcrumbs
+{
+	color: #15428B;
+	border-bottom: 1px solid #D0D0D0;
+	font: normal 11px arial, tahoma, helvetica, sans-serif;
+  -moz-outline: none;
+	-moz-user-focus: normal;
+	line-height: 15px;
+	padding: 4px 3px 4px 6px;
+}
+
+.ux-maximgb-treegrid-brditem
+{
+	color: #15428B;
+}
+
+.ux-maximgb-treegrid-uiwrap
+{
+	float: left; 
+	position: relative;
+	height: 18px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.ux-maximgb-treegrid-elbow-empty
+{
+	position: absolute;
+	height: 18px; 
+	width: 16px;
+	overflow: hidden;
+}
+
+.ux-maximgb-treegrid-elbow-line
+{
+	position: absolute;
+	height: 18px; 
+	width: 16px;
+	overflow: hidden;
+	background: url(../images/elbow-line.gif) repeat-x;
+}
+
+.ux-maximgb-treegrid-elbow
+{
+	position: absolute;
+	height: 18px; 
+	width: 16px;
+	overflow: hidden;
+	background: url(../images/elbow.gif) no-repeat;
+}
+
+.ux-maximgb-treegrid-elbow-end
+{
+	position: absolute;
+	height: 18px; 
+	width: 16px;
+	overflow: hidden;
+	background: url(../images/elbow-end.gif) no-repeat;
+}
+
+.ux-maximgb-treegrid-elbow-active
+{
+	cursor: pointer;
+}
+
+.ux-maximgb-treegrid-elbow-minus
+{
+	position: absolute;
+	height: 18px; 
+	width: 16px;
+	overflow: hidden;
+	background: url(../images/elbow-minus.gif) no-repeat;
+}
+
+.ux-maximgb-treegrid-elbow-end-minus
+{
+	position: absolute;
+	height: 18px; 
+	width: 16px;
+	overflow: hidden;
+	background: url(../images/elbow-end-minus.gif) no-repeat;
+}
+
+.ux-maximgb-treegrid-elbow-plus
+{
+	position: absolute;
+	height: 18px; 
+	width: 16px;
+	overflow: hidden;
+	background: url(../images/elbow-plus.gif) no-repeat;
+}
+
+.ux-maximgb-treegrid-elbow-end-plus
+{
+	position: absolute;
+	height: 18px;
+	width: 16px;
+	overflow: hidden;
+	background: url(../images/elbow-end-plus.gif) no-repeat;
+}

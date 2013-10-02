@@ -1,0 +1,78 @@
+<project name="webadmin" basedir="." default="dist">
+	<!-- Initialize these values in case the build is not being called form the main Mirth Connect build -->
+	<property name="server" value="../server" />
+	<property name="server.setup" value="../server/setup" />
+	<property name="donkey.setup" value="../donkey/setup" />
+	
+	<property name="jetty.home" value="${server}/lib/jetty/" />
+	<property name="build" value="build" />
+	<property name="dist" value="dist" />
+	<property name="web" value="WebContent" />
+	<property name="build.web" value="${build}/${web}" />
+	<property name="build.src" value="${build}/src" />
+	<property name="build.classes" value="${build}/classes" />
+	<property name="webadmin" value="../webadmin" />
+
+	<path id="compile.jspc">
+		<fileset dir="${jetty.home}">
+			<include name="servlet-api-*.jar" />
+			<include name="jsp/*.jar" />
+		</fileset>
+	</path>
+
+	<path id="compile.classpath">
+		<fileset dir="${build.web}/WEB-INF/lib">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${server.setup}/client-lib">
+			<include name="mirth-client-core.jar" />
+			<include name="xstream-1.4.4.jar" />
+		</fileset>
+		<fileset dir="${donkey.setup}">
+			<include name="donkey-model.jar" />
+		</fileset>
+		<path refid="compile.jspc" />
+	</path>
+
+	<!-- jasper2 uses the server dir as the basedir if this is called from the server, so manually specify the webadmin basedir -->
+	<target name="jspc" depends="init">
+		<taskdef classname="org.apache.jasper.JspC" name="jasper2" classpathref="compile.jspc" />
+		<jasper2 validateXml="false"
+            uriroot="${webadmin}/${build.web}"
+            addWebXmlMappings="true"
+            webXmlFragment="${webadmin}/${build.web}/WEB-INF/generated_web.xml"
+            compilerSourceVM="1.6"
+            compilerTargetVM="1.6"
+            outputDir="${webadmin}/${build.src}"
+            verbose="9" />
+	</target>
+
+	<target name="init" depends="clean">
+		<mkdir dir="${build.classes}" />
+		<mkdir dir="${dist}" />
+		<copy todir="${build.src}">
+			<fileset dir="src" includes="**" />
+		</copy>
+		<copy todir="${build.web}">
+			<fileset dir="${web}" includes="**" />
+		</copy>
+	</target>
+
+	<target name="compile" depends="jspc">
+		<javac destdir="${build.classes}" debug="true" srcdir="${build.src}">
+			<classpath refid="compile.classpath" />
+		</javac>
+	</target>
+
+	<target name="dist" depends="compile">
+		<war destfile="${dist}/webadmin.war" webxml="${build.web}/WEB-INF/web.xml">
+			<fileset dir="${build.web}" />
+			<classes dir="${build.classes}" />
+		</war>
+	</target>
+
+	<target name="clean">
+		<delete dir="${dist}" />
+		<delete dir="${build}" />
+	</target>
+</project>
