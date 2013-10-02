@@ -1,0 +1,56 @@
+<project name="mirth-cli" basedir="." default="build">
+	<target name="init">
+		<property file="build.properties" />
+
+		<path id="classpath">
+			<fileset dir="${lib}" includes="*.jar" />
+		</path>
+	</target>
+
+	<target name="clean" depends="init">
+		<delete dir="${classes}" />
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="compile" depends="clean, init">
+		<mkdir dir="${classes}" />
+		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+
+	<target name="build" depends="compile">
+		<mkdir dir="${build}" />
+
+		<!-- log4j.properties file -->
+		<mkdir dir="${build}/conf" />
+
+		<copy todir="${build}/conf">
+			<fileset dir="${conf}" />
+		</copy>
+
+		<!-- cli-lib -->
+		<mkdir dir="${build}/cli-lib" />
+
+		<copy todir="${build}/cli-lib">
+			<fileset dir="${lib}" />
+		</copy>
+
+		<jar destfile="${build}/${cli.jar}" basedir="${classes}">
+			<include name="com/mirth/connect/cli/**" />
+			<exclude name="com/mirth/connect/cli/launcher/**" />
+		</jar>
+
+		<jar destfile="${build}/${cli-launcher.jar}" basedir="${classes}">
+			<include name="com/mirth/connect/cli/launcher/**" />
+
+			<manifest>
+				<attribute name="Main-Class" value="com.mirth.connect.cli.launcher.CommandLineLauncher" />
+				<attribute name="Class-Path" value="cli-lib/log4j-1.2.16.jar cli-lib/commons-io-2.3.jar conf/" />
+			</manifest>
+		</jar>
+
+		<delete dir="${classes}" />
+	</target>
+</project>
