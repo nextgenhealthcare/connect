@@ -1050,7 +1050,7 @@ public class JdbcDao implements DonkeyDao {
                         // If there was a previous attachment, we need to finish it.
                         if (content != null) {
                             // Add the data in the output stream to the list of attachments to return
-                            attachments.add(new Attachment(attachmentId, content, type));
+                            attachments.add(new Attachment(currentAttachmentId, content, type));
                         }
                         currentAttachmentId = attachmentId;
                         type = resultSet.getString("type");
