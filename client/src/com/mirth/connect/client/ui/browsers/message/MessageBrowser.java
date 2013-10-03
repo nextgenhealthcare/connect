@@ -267,6 +267,8 @@ public class MessageBrowser extends javax.swing.JPanel {
                 parent.mirthClient.getServerConnection().abort(getAbortOperations());
                 // Clear the message cache when leaving the message browser.
                 parent.messageBrowser.clearCache();
+                // Clear the table selection to prevent the selection listener from triggering multiple times while the model is being cleared
+                deselectRows();
                 // Clear the records in the table
                 tableModel.clear();
 
