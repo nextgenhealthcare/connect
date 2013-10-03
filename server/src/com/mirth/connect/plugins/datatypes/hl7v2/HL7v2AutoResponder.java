@@ -94,7 +94,7 @@ public class HL7v2AutoResponder implements AutoResponder {
         boolean successOnly = false;
 
         hl7Message = hl7Message.trim();
-        boolean isXML = hl7Message.charAt(0) == '<';
+        boolean isXML = StringUtils.isNotBlank(hl7Message) && hl7Message.charAt(0) == '<';
 
         String ACK = null;
         String statusMessage = null;
