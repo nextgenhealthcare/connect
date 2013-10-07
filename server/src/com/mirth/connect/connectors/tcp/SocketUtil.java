@@ -20,37 +20,36 @@ import com.mirth.connect.util.TcpUtil;
 
 public class SocketUtil {
 
-    public static StateAwareSocket createSocket(String host, String port) throws UnknownHostException, IOException {
-        return createSocket(host, TcpUtil.parseInt(port));
+    public static StateAwareSocket createSocket(String host, String port, int timeout) throws UnknownHostException, IOException {
+        return createSocket(host, TcpUtil.parseInt(port), timeout);
     }
 
-    public static StateAwareSocket createSocket(String host, int port) throws UnknownHostException, IOException {
-        return createSocket(host, port, null);
+    public static StateAwareSocket createSocket(String host, int port, int timeout) throws UnknownHostException, IOException {
+        return createSocket(host, port, null, timeout);
     }
 
-    public static StateAwareSocket createSocket(String host, String port, String localAddr) throws UnknownHostException, IOException {
-        return createSocket(host, TcpUtil.parseInt(port), localAddr);
+    public static StateAwareSocket createSocket(String host, String port, String localAddr, int timeout) throws UnknownHostException, IOException {
+        return createSocket(host, TcpUtil.parseInt(port), localAddr, timeout);
     }
 
-    public static StateAwareSocket createSocket(String host, int port, String localAddr) throws UnknownHostException, IOException {
-        return createSocket(host, port, localAddr, 0);
+    public static StateAwareSocket createSocket(String host, int port, String localAddr, int timeout) throws UnknownHostException, IOException {
+        return createSocket(host, port, localAddr, 0, timeout);
     }
 
-    public static StateAwareSocket createSocket(String host, int port, String localAddr, String localPort) throws UnknownHostException, IOException {
-        return createSocket(host, port, localAddr, TcpUtil.parseInt(localPort));
+    public static StateAwareSocket createSocket(String host, int port, String localAddr, String localPort, int timeout) throws UnknownHostException, IOException {
+        return createSocket(host, port, localAddr, TcpUtil.parseInt(localPort), timeout);
     }
 
-    public static StateAwareSocket createSocket(String host, String port, String localAddr, int localPort) throws UnknownHostException, IOException {
-        return createSocket(host, TcpUtil.parseInt(port), localAddr, localPort);
+    public static StateAwareSocket createSocket(String host, String port, String localAddr, int localPort, int timeout) throws UnknownHostException, IOException {
+        return createSocket(host, TcpUtil.parseInt(port), localAddr, localPort, timeout);
     }
 
-    public static StateAwareSocket createSocket(String host, String port, String localAddr, String localPort) throws UnknownHostException, IOException {
-        return createSocket(host, TcpUtil.parseInt(port), localAddr, TcpUtil.parseInt(localPort));
+    public static StateAwareSocket createSocket(String host, String port, String localAddr, String localPort, int timeout) throws UnknownHostException, IOException {
+        return createSocket(host, TcpUtil.parseInt(port), localAddr, TcpUtil.parseInt(localPort), timeout);
     }
 
     /**
-     * Creates a socket and connects it to the specified remote host on the
-     * specified remote port.
+     * Creates a socket and connects it to the specified remote host on the specified remote port.
      * 
      * @param host
      *            - The remote host to connect on.
@@ -60,13 +59,15 @@ public class SocketUtil {
      *            - The local address to bind the socket to.
      * @param localPort
      *            - The local port to bind the socket to.
+     * @param timeout
+     *            - The socket timeout to use when connecting.
      * @return The bound and connected StateAwareSocket.
      * @throws UnknownHostException
      *             if the IP address of the host could not be determined
      * @throws IOException
      *             if an I/O error occurs when creating the socket
      */
-    public static StateAwareSocket createSocket(String host, int port, String localAddr, int localPort) throws UnknownHostException, IOException {
+    public static StateAwareSocket createSocket(String host, int port, String localAddr, int localPort, int timeout) throws UnknownHostException, IOException {
         StateAwareSocket socket = new StateAwareSocket();
 
         if (StringUtils.isNotEmpty(localAddr)) {
@@ -74,7 +75,7 @@ public class SocketUtil {
             socket.bind(new InetSocketAddress(localAddress, localPort));
         }
 
-        socket.connect(new InetSocketAddress(InetAddress.getByName(TcpUtil.getFixedHost(host)), port));
+        socket.connect(new InetSocketAddress(InetAddress.getByName(TcpUtil.getFixedHost(host)), port), timeout);
         return socket;
     }
 

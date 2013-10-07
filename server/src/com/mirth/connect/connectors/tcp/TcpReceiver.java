@@ -87,12 +87,18 @@ public class TcpReceiver extends SourceConnector {
     private AtomicBoolean disposing;
 
     private int maxConnections;
+    private int timeout;
+    private int bufferSize;
+    private int reconnectInterval;
     TransmissionModeProvider transmissionModeProvider;
 
     @Override
     public void onDeploy() throws DeployException {
         connectorProperties = (TcpReceiverProperties) getConnectorProperties();
         maxConnections = parseInt(connectorProperties.getMaxConnections());
+        timeout = parseInt(connectorProperties.getReceiveTimeout());
+        bufferSize = parseInt(connectorProperties.getBufferSize());
+        reconnectInterval = parseInt(connectorProperties.getReconnectInterval());
 
         String pluginPointName = (String) connectorProperties.getTransmissionModeProperties().getPluginPointName();
         if (pluginPointName.equals("Basic")) {
@@ -157,7 +163,7 @@ public class TcpReceiver extends SourceConnector {
                         // Client mode, manually initiate a client socket
                         try {
                             logger.debug("Initiating for new client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-                            socket = SocketUtil.createSocket(getHost(), getPort());
+                            socket = SocketUtil.createSocket(getHost(), getPort(), timeout);
                         } catch (Exception e) {
                             logger.error("Error initiating new socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                         }
@@ -197,7 +203,7 @@ public class TcpReceiver extends SourceConnector {
                             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.INFO, info));
 
                             // Use the reconnect interval to determine how long to wait until creating another socket
-                            sleep(parseInt(connectorProperties.getReconnectInterval()));
+                            sleep(reconnectInterval);
                         }
                     } catch (InterruptedException e) {
                         return;
@@ -443,7 +449,7 @@ public class TcpReceiver extends SourceConnector {
                         if (connectorProperties.getRespondOnNewConnection() != TcpReceiverProperties.NEW_CONNECTION) {
                             // If we're not responding on a new connection, then write to the output stream of the same socket
                             responseSocket = socket;
-                            BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), parseInt(connectorProperties.getBufferSize()));
+                            BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), bufferSize);
                             streamHandler.setOutputStream(bos);
                         }
 
@@ -649,9 +655,9 @@ public class TcpReceiver extends SourceConnector {
 
     private StateAwareSocket createResponseSocket(StreamHandler streamHandler) throws IOException {
         logger.debug("Creating response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-        StateAwareSocket responseSocket = SocketUtil.createSocket(replacer.replaceValues(connectorProperties.getResponseAddress(), getChannelId()), replacer.replaceValues(connectorProperties.getResponsePort(), getChannelId()), getHost());
+        StateAwareSocket responseSocket = SocketUtil.createSocket(replacer.replaceValues(connectorProperties.getResponseAddress(), getChannelId()), replacer.replaceValues(connectorProperties.getResponsePort(), getChannelId()), getHost(), timeout);
         initSocket(responseSocket);
-        BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), parseInt(connectorProperties.getBufferSize()));
+        BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), bufferSize);
         streamHandler.setOutputStream(bos);
         return responseSocket;
     }
@@ -785,9 +791,9 @@ public class TcpReceiver extends SourceConnector {
      */
     private void initSocket(Socket socket) throws SocketException {
         logger.debug("Initializing socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-        socket.setReceiveBufferSize(parseInt(connectorProperties.getBufferSize()));
-        socket.setSendBufferSize(parseInt(connectorProperties.getBufferSize()));
-        socket.setSoTimeout(parseInt(connectorProperties.getReceiveTimeout()));
+        socket.setReceiveBufferSize(bufferSize);
+        socket.setSendBufferSize(bufferSize);
+        socket.setSoTimeout(timeout);
         socket.setKeepAlive(connectorProperties.isKeepConnectionOpen());
         socket.setReuseAddress(true);
         socket.setTcpNoDelay(true);

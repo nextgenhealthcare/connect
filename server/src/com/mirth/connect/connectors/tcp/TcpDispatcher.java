@@ -59,6 +59,8 @@ public class TcpDispatcher extends DestinationConnector {
     private Map<String, StateAwareSocket> connectedSockets;
     private Map<String, Thread> timeoutThreads;
     private int sendTimeout;
+    private int responseTimeout;
+    private int bufferSize;
 
     TransmissionModeProvider transmissionModeProvider;
 
@@ -91,6 +93,8 @@ public class TcpDispatcher extends DestinationConnector {
         connectedSockets = new ConcurrentHashMap<String, StateAwareSocket>();
         timeoutThreads = new ConcurrentHashMap<String, Thread>();
         sendTimeout = parseInt(connectorProperties.getSendTimeout());
+        responseTimeout = parseInt(connectorProperties.getResponseTimeout());
+        bufferSize = parseInt(connectorProperties.getBufferSize());
 
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
     }
@@ -198,15 +202,15 @@ public class TcpDispatcher extends DestinationConnector {
                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.CONNECTING, info));
 
                 if (tcpDispatcherProperties.isOverrideLocalBinding()) {
-                    socket = SocketUtil.createSocket(tcpDispatcherProperties.getRemoteAddress(), tcpDispatcherProperties.getRemotePort(), tcpDispatcherProperties.getLocalAddress(), tcpDispatcherProperties.getLocalPort());
+                    socket = SocketUtil.createSocket(tcpDispatcherProperties.getRemoteAddress(), tcpDispatcherProperties.getRemotePort(), tcpDispatcherProperties.getLocalAddress(), tcpDispatcherProperties.getLocalPort(), responseTimeout);
                 } else {
-                    socket = SocketUtil.createSocket(tcpDispatcherProperties.getRemoteAddress(), tcpDispatcherProperties.getRemotePort());
+                    socket = SocketUtil.createSocket(tcpDispatcherProperties.getRemoteAddress(), tcpDispatcherProperties.getRemotePort(), responseTimeout);
                 }
 
                 socket.setReuseAddress(true);
-                socket.setReceiveBufferSize(parseInt(tcpDispatcherProperties.getBufferSize()));
-                socket.setSendBufferSize(parseInt(tcpDispatcherProperties.getBufferSize()));
-                socket.setSoTimeout(parseInt(tcpDispatcherProperties.getResponseTimeout()));
+                socket.setReceiveBufferSize(bufferSize);
+                socket.setSendBufferSize(bufferSize);
+                socket.setSoTimeout(responseTimeout);
                 socket.setKeepAlive(tcpDispatcherProperties.isKeepConnectionOpen());
 
                 connectedSockets.put(socketKey, socket);
@@ -217,7 +221,7 @@ public class TcpDispatcher extends DestinationConnector {
 
             // Send the message
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.SENDING, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket)));
-            BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream(), parseInt(tcpDispatcherProperties.getBufferSize()));
+            BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream(), bufferSize);
             BatchStreamReader batchStreamReader = new DefaultBatchStreamReader(socket.getInputStream());
             StreamHandler streamHandler = transmissionModeProvider.getStreamHandler(socket.getInputStream(), bos, batchStreamReader, tcpDispatcherProperties.getTransmissionModeProperties());
             streamHandler.write(getTemplateBytes(tcpDispatcherProperties, message));
@@ -334,8 +338,8 @@ public class TcpDispatcher extends DestinationConnector {
     }
 
     /*
-     * Starts up the connector thread which closes the connection after the send
-     * timeout has been reached.
+     * Starts up the connector thread which closes the connection after the send timeout has been
+     * reached.
      */
     private void startThread(final String socketKey) {
         disposeThreadQuietly(socketKey);
@@ -384,9 +388,8 @@ public class TcpDispatcher extends DestinationConnector {
     }
 
     /*
-     * Returns the byte array representation of the connector properties
-     * template, using the properties to determine whether or not to encode in
-     * Base64, and what charset to use.
+     * Returns the byte array representation of the connector properties template, using the
+     * properties to determine whether or not to encode in Base64, and what charset to use.
      */
     private byte[] getTemplateBytes(TcpDispatcherProperties tcpSenderProperties, ConnectorMessage connectorMessage) throws UnsupportedEncodingException {
         byte[] bytes = new byte[0];
