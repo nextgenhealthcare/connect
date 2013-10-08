@@ -324,6 +324,13 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
     public boolean manageResponseAck(StateAwareSocket socket, String endpointUri, MessageObject messageObject) {
         int maxTime = connector.getAckTimeout();
         if (maxTime <= 0) {
+            try {
+                // MIRTH-2980: Since we're ignoring responses, flush out the socket's input stream so it doesn't continually grow
+                socket.getInputStream().skip(socket.getInputStream().available());
+            } catch (IOException e) {
+                logger.warn("Error flushing socket input stream.", e);
+            }
+
             messageObjectController.setSuccess(messageObject, "Message successfully sent", null);
 
             return true;
