@@ -81,14 +81,11 @@ public class SocketUtil {
 
     public static void closeSocket(StateAwareSocket socket) throws IOException {
         if (socket != null) {
-            try {
-                socket.shutdownInput();
-            } catch (IOException e) {
-            }
-            try {
-                socket.shutdownOutput();
-            } catch (IOException e) {
-            }
+            /*
+             * MIRTH-2984: The shutdownInput() and shutdownOutput() methods are no longer being
+             * called. On Windows this causes a RST packet to be sent to the remote side if there
+             * are still bytes available in the socket's input stream.
+             */
             socket.close();
         }
     }
