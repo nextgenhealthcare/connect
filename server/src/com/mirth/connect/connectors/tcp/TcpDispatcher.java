@@ -268,6 +268,13 @@ public class TcpDispatcher extends DestinationConnector {
                     closeSocketQuietly(socketKey);
                 }
             } else {
+                try {
+                    // MIRTH-2980: Since we're ignoring responses, flush out the socket's input stream so it doesn't continually grow
+                    socket.getInputStream().skip(socket.getInputStream().available());
+                } catch (IOException e) {
+                    logger.warn("Error flushing socket input stream.", e);
+                }
+
                 // We're ignoring the response, so always return a successful response
                 responseStatus = Status.SENT;
             }
