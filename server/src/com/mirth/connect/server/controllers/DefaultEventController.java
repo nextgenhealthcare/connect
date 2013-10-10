@@ -131,7 +131,7 @@ public class DefaultEventController extends EventController {
                 queue.put(event);
             }
         } catch (InterruptedException e) {
-
+        	Thread.currentThread().interrupt();
         }
     }
     
