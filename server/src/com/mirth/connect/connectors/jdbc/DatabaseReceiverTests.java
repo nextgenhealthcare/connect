@@ -36,9 +36,9 @@ import com.mirth.connect.server.test.TestUtils.DummyChannel;
 
 public class DatabaseReceiverTests {
     private final static String DB_DRIVER = "org.postgresql.Driver";
-    private final static String DB_URL = "jdbc:postgresql://localhost:5432/messages";
-    private final static String DB_USERNAME = "mirth";
-    private final static String DB_PASSWORD = "d1scgo1fisfun";
+    private final static String DB_URL = "jdbc:postgresql://localhost:5432/mirthdb";
+    private final static String DB_USERNAME = "";
+    private final static String DB_PASSWORD = "";
     private final static String TABLE = "mypatients";
     private final static String TEST_CHANNEL_ID = "testchannel";
     private final static String TEST_SERVER_ID = "testserver";

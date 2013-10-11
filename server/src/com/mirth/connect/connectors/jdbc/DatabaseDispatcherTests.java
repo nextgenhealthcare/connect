@@ -45,9 +45,9 @@ public class DatabaseDispatcherTests {
     final public static String TEST_HL7_MESSAGE = "MSH|^~\\&|LABNET|Acme Labs|||20090601105700||ORU^R01|HMCDOOGAL-0088|D|2.2\rPID|1|8890088|8890088^^^72777||McDoogal^Hattie^||19350118|F||2106-3|100 Beach Drive^Apt. 5^Mission Viejo^CA^92691^US^H||(949) 555-0025|||||8890088^^^72|604422825\rPV1|1|R|C3E^C315^B||||2^HIBBARD^JULIUS^|5^ZIMMERMAN^JOE^|9^ZOIDBERG^JOHN^|CAR||||4|||2301^OBRIEN, KEVIN C|I|1783332658^1^1||||||||||||||||||||DISNEY CLINIC||N|||20090514205600\rORC|RE|928272608|056696716^LA||CM||||20090601105600||||  C3E|||^RESULT PERFORMED\rOBR|1|928272608|056696716^LA|1001520^K|||20090601101300|||MLH25|||HEMOLYZED/VP REDRAW|20090601102400||2301^OBRIEN, KEVIN C||||01123085310001100100152023509915823509915800000000101|0000915200932|20090601105600||LAB|F||^^^20090601084100^^ST~^^^^^ST\rOBX|1|NM|1001520^K||5.3|MMOL/L|3.5-5.5||||F|||20090601105600|IIM|IIM\r";
 
     private final static String DB_DRIVER = "org.postgresql.Driver";
-    private final static String DB_URL = "jdbc:postgresql://localhost:5432/messages";
-    private final static String DB_USERNAME = "mirth";
-    private final static String DB_PASSWORD = "d1scgo1fisfun";
+    private final static String DB_URL = "jdbc:postgresql://localhost:5432/mirthdb";
+    private final static String DB_USERNAME = "";
+    private final static String DB_PASSWORD = "";
     private final static String TABLE1 = "mypatients_destination1";
     private final static String TABLE2 = "mypatients_destination2";
     private final static String TEST_CHANNEL_ID = "testchannel";
