@@ -13,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 /*
@@ -69,15 +70,28 @@ public class SQLParserUtil {
                                 }
                             }
                             if (vars[i].length() > 0) {
+                                String var;
+                                
                                 if (vars[i].toUpperCase().indexOf(" AS ") != -1) {
-                                    varList.add((vars[i].substring(vars[i].toUpperCase().indexOf(" AS ") + 4)).replaceAll(" ", "").replaceAll("\\(", "").replaceAll("\\)", "").toLowerCase());
+                                    var = (vars[i].substring(vars[i].toUpperCase().indexOf(" AS ") + 4)).replaceAll(" ", "").replaceAll("\\(", "").replaceAll("\\)", "");
                                 } else if (vars[i].indexOf('(') != -1 || vars[i].indexOf(')') != -1 || vars[i].indexOf('}') != -1 || vars[i].indexOf('{') != -1 || vars[i].indexOf('*') != -1) {
                                     continue;
                                 } else {
                                     vars[i] = vars[i].trim();
-                                    vars[i] = vars[i].toLowerCase();
-                                    varList.add(vars[i].replaceAll(" ", "").replaceAll("\\(", "").replaceAll("\\)", ""));
+                                    var = vars[i].replaceAll(" ", "").replaceAll("\\(", "").replaceAll("\\)", "");
                                 }
+
+                                if ((StringUtils.substring(var, 0, 1).equals("\"") && StringUtils.substring(var, -1).equals("\"")) || (StringUtils.substring(var, 0, 1).equals("'") && StringUtils.substring(var, -1).equals("'"))) {
+                                    var = StringUtils.substring(var, 1, -1);
+                                }
+                                
+                                if ((StringUtils.substring(var, 0, 2).equals("\\\"") && StringUtils.substring(var, -2).equals("\\\"")) || (StringUtils.substring(var, 0, 2).equals("\\'") && StringUtils.substring(var, -2).equals("\\'"))) {
+                                    var = StringUtils.substring(var, 2, -2);
+                                }
+
+                                var = StringUtils.lowerCase(var);
+
+                                varList.add(var);
                             }
                         }
                     }
