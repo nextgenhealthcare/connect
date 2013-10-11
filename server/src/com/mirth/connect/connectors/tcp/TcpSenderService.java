@@ -9,10 +9,11 @@
 
 package com.mirth.connect.connectors.tcp;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import com.mirth.connect.connectors.ConnectorService;
 import com.mirth.connect.server.util.ConnectorUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.util.TcpUtil;
 
 public class TcpSenderService implements ConnectorService {
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
@@ -21,14 +22,14 @@ public class TcpSenderService implements ConnectorService {
         if (method.equals("testConnection")) {
             TcpDispatcherProperties connectorProperties = (TcpDispatcherProperties) object;
             String host = replacer.replaceValues(connectorProperties.getRemoteAddress(), channelId);
-            int port = TcpUtil.parseInt(replacer.replaceValues(connectorProperties.getRemotePort(), channelId));
-            int timeout = TcpUtil.parseInt(replacer.replaceValues(connectorProperties.getResponseTimeout(), channelId));
+            int port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRemotePort(), channelId));
+            int timeout = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getResponseTimeout(), channelId));
 
             if (!connectorProperties.isOverrideLocalBinding()) {
                 return ConnectorUtil.testConnection(host, port, timeout);
             } else {
                 String localAddr = replacer.replaceValues(connectorProperties.getLocalAddress(), channelId);
-                int localPort = TcpUtil.parseInt(replacer.replaceValues(connectorProperties.getLocalPort(), channelId));
+                int localPort = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getLocalPort(), channelId));
                 return ConnectorUtil.testConnection(host, port, timeout, localAddr, localPort);
             }
         }

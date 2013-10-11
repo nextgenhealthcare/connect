@@ -20,32 +20,12 @@ import com.mirth.connect.util.TcpUtil;
 
 public class SocketUtil {
 
-    public static StateAwareSocket createSocket(String host, String port, int timeout) throws UnknownHostException, IOException {
-        return createSocket(host, TcpUtil.parseInt(port), timeout);
+    public static StateAwareSocket createSocket() throws UnknownHostException, IOException {
+        return createSocket(null);
     }
 
-    public static StateAwareSocket createSocket(String host, int port, int timeout) throws UnknownHostException, IOException {
-        return createSocket(host, port, null, timeout);
-    }
-
-    public static StateAwareSocket createSocket(String host, String port, String localAddr, int timeout) throws UnknownHostException, IOException {
-        return createSocket(host, TcpUtil.parseInt(port), localAddr, timeout);
-    }
-
-    public static StateAwareSocket createSocket(String host, int port, String localAddr, int timeout) throws UnknownHostException, IOException {
-        return createSocket(host, port, localAddr, 0, timeout);
-    }
-
-    public static StateAwareSocket createSocket(String host, int port, String localAddr, String localPort, int timeout) throws UnknownHostException, IOException {
-        return createSocket(host, port, localAddr, TcpUtil.parseInt(localPort), timeout);
-    }
-
-    public static StateAwareSocket createSocket(String host, String port, String localAddr, int localPort, int timeout) throws UnknownHostException, IOException {
-        return createSocket(host, TcpUtil.parseInt(port), localAddr, localPort, timeout);
-    }
-
-    public static StateAwareSocket createSocket(String host, String port, String localAddr, String localPort, int timeout) throws UnknownHostException, IOException {
-        return createSocket(host, TcpUtil.parseInt(port), localAddr, TcpUtil.parseInt(localPort), timeout);
+    public static StateAwareSocket createSocket(String localAddr) throws UnknownHostException, IOException {
+        return createSocket(localAddr, 0);
     }
 
     /**
@@ -67,7 +47,7 @@ public class SocketUtil {
      * @throws IOException
      *             if an I/O error occurs when creating the socket
      */
-    public static StateAwareSocket createSocket(String host, int port, String localAddr, int localPort, int timeout) throws UnknownHostException, IOException {
+    public static StateAwareSocket createSocket(String localAddr, int localPort) throws UnknownHostException, IOException {
         StateAwareSocket socket = new StateAwareSocket();
 
         if (StringUtils.isNotEmpty(localAddr)) {
@@ -75,8 +55,11 @@ public class SocketUtil {
             socket.bind(new InetSocketAddress(localAddress, localPort));
         }
 
-        socket.connect(new InetSocketAddress(InetAddress.getByName(TcpUtil.getFixedHost(host)), port), timeout);
         return socket;
+    }
+
+    public static void connectSocket(StateAwareSocket socket, String host, int port, int timeout) throws UnknownHostException, IOException {
+        socket.connect(new InetSocketAddress(InetAddress.getByName(TcpUtil.getFixedHost(host)), port), timeout);
     }
 
     public static void closeSocket(StateAwareSocket socket) throws IOException {
@@ -91,7 +74,7 @@ public class SocketUtil {
     }
 
     public static String getInetAddress(StateAwareSocket socket) {
-        String inetAddress = socket == null ? "" : socket.getInetAddress().toString() + ":" + socket.getPort();
+        String inetAddress = socket == null || socket.getInetAddress() == null ? "" : socket.getInetAddress().toString() + ":" + socket.getPort();
 
         if (inetAddress.startsWith("/")) {
             inetAddress = inetAddress.substring(1);
@@ -101,7 +84,7 @@ public class SocketUtil {
     }
 
     public static String getLocalAddress(StateAwareSocket socket) {
-        String localAddress = socket == null ? "" : socket.getLocalAddress().toString() + ":" + socket.getLocalPort();
+        String localAddress = socket == null || socket.getLocalAddress() == null ? "" : socket.getLocalAddress().toString() + ":" + socket.getLocalPort();
 
         // If addresses begin with a slash "/", remove it.
         if (localAddress.startsWith("/")) {

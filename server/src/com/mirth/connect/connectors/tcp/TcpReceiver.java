@@ -9,8 +9,6 @@
 
 package com.mirth.connect.connectors.tcp;
 
-import static com.mirth.connect.util.TcpUtil.parseInt;
-
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -37,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.DeployedState;
@@ -80,6 +79,8 @@ public class TcpReceiver extends SourceConnector {
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     private StateAwareServerSocket serverSocket;
+    private StateAwareSocket clientSocket;
+    private StateAwareSocket recoveryResponseSocket;
     private Thread thread;
     private ExecutorService executor;
     private Set<Future<Throwable>> results = new HashSet<Future<Throwable>>();
@@ -95,10 +96,10 @@ public class TcpReceiver extends SourceConnector {
     @Override
     public void onDeploy() throws DeployException {
         connectorProperties = (TcpReceiverProperties) getConnectorProperties();
-        maxConnections = parseInt(connectorProperties.getMaxConnections());
-        timeout = parseInt(connectorProperties.getReceiveTimeout());
-        bufferSize = parseInt(connectorProperties.getBufferSize());
-        reconnectInterval = parseInt(connectorProperties.getReconnectInterval());
+        maxConnections = NumberUtils.toInt(connectorProperties.getMaxConnections());
+        timeout = NumberUtils.toInt(connectorProperties.getReceiveTimeout());
+        bufferSize = NumberUtils.toInt(connectorProperties.getBufferSize());
+        reconnectInterval = NumberUtils.toInt(connectorProperties.getReconnectInterval());
 
         String pluginPointName = (String) connectorProperties.getTransmissionModeProperties().getPluginPointName();
         if (pluginPointName.equals("Basic")) {
@@ -163,7 +164,9 @@ public class TcpReceiver extends SourceConnector {
                         // Client mode, manually initiate a client socket
                         try {
                             logger.debug("Initiating for new client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-                            socket = SocketUtil.createSocket(getHost(), getPort(), timeout);
+                            socket = SocketUtil.createSocket();
+                            clientSocket = socket;
+                            SocketUtil.connectSocket(socket, getHost(), getPort(), timeout);
                         } catch (Exception e) {
                             logger.error("Error initiating new socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                         }
@@ -227,13 +230,24 @@ public class TcpReceiver extends SourceConnector {
             }
         }
 
-        if (serverSocket != null) {
-            // Close the server socket
+        if (connectorProperties.isServerMode()) {
+            if (serverSocket != null) {
+                // Close the server socket
+                try {
+                    logger.debug("Closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
+                    serverSocket.close();
+                } catch (IOException e) {
+                    firstCause = new StopException("Error closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                }
+            }
+        } else {
+            // Close the client socket
             try {
-                logger.debug("Closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-                serverSocket.close();
+                SocketUtil.closeSocket(clientSocket);
             } catch (IOException e) {
-                firstCause = new StopException("Error closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                firstCause = new StopException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+            } finally {
+                clientSocket = null;
             }
         }
 
@@ -292,8 +306,25 @@ public class TcpReceiver extends SourceConnector {
                         firstCause = new StopException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                     }
                 }
+
+                try {
+                    SocketUtil.closeSocket(reader.getResponseSocket());
+                } catch (IOException e) {
+                    if (firstCause == null) {
+                        firstCause = new StopException("Error closing response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                    }
+                }
             }
             clientReaders.clear();
+        }
+
+        // Close the recovery response socket, if applicable
+        try {
+            SocketUtil.closeSocket(recoveryResponseSocket);
+        } catch (IOException e) {
+            if (firstCause == null) {
+                firstCause = new StopException("Error closing response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+            }
         }
 
         if (firstCause != null) {
@@ -311,13 +342,24 @@ public class TcpReceiver extends SourceConnector {
             executor.shutdownNow();
         }
 
-        if (serverSocket != null) {
-            // Close the server socket
+        if (connectorProperties.isServerMode()) {
+            if (serverSocket != null) {
+                // Close the server socket
+                try {
+                    logger.debug("Closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
+                    serverSocket.close();
+                } catch (IOException e) {
+                    firstCause = new HaltException("Error closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                }
+            }
+        } else {
+            // Close the client socket
             try {
-                logger.debug("Closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-                serverSocket.close();
+                SocketUtil.closeSocket(clientSocket);
             } catch (IOException e) {
-                firstCause = new HaltException("Error closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                firstCause = new HaltException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+            } finally {
+                clientSocket = null;
             }
         }
 
@@ -342,6 +384,24 @@ public class TcpReceiver extends SourceConnector {
                         firstCause = new HaltException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                     }
                 }
+
+                try {
+                    SocketUtil.closeSocket(reader.getResponseSocket());
+                } catch (IOException e) {
+                    if (firstCause == null) {
+                        logger.debug("Error closing response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                        firstCause = new HaltException("Error closing response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                    }
+                }
+            }
+        }
+
+        // Close the recovery response socket, if applicable
+        try {
+            SocketUtil.closeSocket(recoveryResponseSocket);
+        } catch (IOException e) {
+            if (firstCause == null) {
+                firstCause = new HaltException("Error closing response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
             }
         }
 
@@ -374,16 +434,17 @@ public class TcpReceiver extends SourceConnector {
                 if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION_ON_RECOVERY) {
                     BatchStreamReader batchStreamReader = new DefaultBatchStreamReader(null);
                     StreamHandler streamHandler = transmissionModeProvider.getStreamHandler(null, null, batchStreamReader, connectorProperties.getTransmissionModeProperties());
-                    StateAwareSocket responseSocket = null;
 
                     try {
                         attemptedResponse = true;
-                        responseSocket = createResponseSocket(streamHandler);
-                        sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, true);
+                        recoveryResponseSocket = createResponseSocket();
+                        connectResponseSocket(recoveryResponseSocket, streamHandler);
+                        sendResponse(dispatchResult.getSelectedResponse().getMessage(), recoveryResponseSocket, streamHandler, true);
                     } catch (IOException e) {
                         errorMessage = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error sending response.", e);
                     } finally {
-                        closeSocketQuietly(responseSocket);
+                        closeSocketQuietly(recoveryResponseSocket);
+                        recoveryResponseSocket = null;
                     }
                 } else {
                     errorMessage = "Cannot respond on original connection during message recovery. In order to send a response, enable \"Respond on New Connection\" in Tcp Listener settings.";
@@ -409,6 +470,10 @@ public class TcpReceiver extends SourceConnector {
 
         public StateAwareSocket getSocket() {
             return socket;
+        }
+
+        public StateAwareSocket getResponseSocket() {
+            return responseSocket;
         }
 
         public boolean isReading() {
@@ -459,7 +524,7 @@ public class TcpReceiver extends SourceConnector {
                             /*
                              * We need to keep track of whether the worker thread is currently
                              * trying to read from the input stream because the read() method is not
-                             * interruptable. To do this we store two booleans, canRead and reading.
+                             * interruptible. To do this we store two booleans, canRead and reading.
                              * The canRead boolean is checked internally here and set externally
                              * (e.g. by the onStop() or onHalt() methods). The reading boolean is
                              * set in here when the thread is about to attempt to read from the
@@ -538,7 +603,8 @@ public class TcpReceiver extends SourceConnector {
                                             try {
                                                 // If the response socket hasn't been initialized, do that now
                                                 if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
-                                                    responseSocket = createResponseSocket(streamHandler);
+                                                    responseSocket = createResponseSocket();
+                                                    connectResponseSocket(responseSocket, streamHandler);
                                                 }
 
                                                 sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION);
@@ -653,13 +719,17 @@ public class TcpReceiver extends SourceConnector {
         }
     }
 
-    private StateAwareSocket createResponseSocket(StreamHandler streamHandler) throws IOException {
+    private StateAwareSocket createResponseSocket() throws IOException {
         logger.debug("Creating response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-        StateAwareSocket responseSocket = SocketUtil.createSocket(replacer.replaceValues(connectorProperties.getResponseAddress(), getChannelId()), replacer.replaceValues(connectorProperties.getResponsePort(), getChannelId()), getHost(), timeout);
+        return SocketUtil.createSocket(getHost());
+    }
+
+    private void connectResponseSocket(StateAwareSocket responseSocket, StreamHandler streamHandler) throws IOException {
+        int responsePort = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getResponsePort(), getChannelId()));
+        SocketUtil.connectSocket(responseSocket, replacer.replaceValues(connectorProperties.getResponseAddress(), getChannelId()), responsePort, timeout);
         initSocket(responseSocket);
         BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), bufferSize);
         streamHandler.setOutputStream(bos);
-        return responseSocket;
     }
 
     private void sendResponse(String response, StateAwareSocket responseSocket, StreamHandler streamHandler, boolean newConnection) throws IOException {
@@ -783,7 +853,7 @@ public class TcpReceiver extends SourceConnector {
     }
 
     private int getPort() {
-        return parseInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), getChannelId()));
+        return NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), getChannelId()));
     }
 
     /*

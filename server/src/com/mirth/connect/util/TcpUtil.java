@@ -78,23 +78,6 @@ public class TcpUtil {
         return builder.toString();
     }
 
-    /*
-     * Converts a string to an integer. If the string is null or contains no
-     * digits, then zero is returned.
-     */
-    public static int parseInt(String str) {
-        if (StringUtils.isBlank(str)) {
-            return 0;
-        } else {
-            String replacedStr = str.replaceAll("[^0-9]", "");
-            if (StringUtils.isBlank(replacedStr)) {
-                return 0;
-            } else {
-                return Integer.parseInt(replacedStr, 10);
-            }
-        }
-    }
-
     public static byte[] stringToByteArray(String str) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 

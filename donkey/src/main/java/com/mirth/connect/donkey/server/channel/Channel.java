@@ -777,6 +777,29 @@ public class Channel implements Startable, Stoppable, Runnable {
             }
         }
 
+        // In case interrupting everything didn't work, wait until all dispatch, chain, and recovery threads have finished
+        final int timeout = 10;
+
+        while (true) {
+            synchronized (dispatchThreads) {
+                if (dispatchThreads.size() == 0) {
+                    shuttingDown = true;
+                    /*
+                     * Once the thread count reaches zero, we want to make sure that any calls to
+                     * finishDispatch complete (which should release the channel's process lock and
+                     * allow us to acquire it here).
+                     */
+                    obtainProcessLock();
+                    releaseProcessLock();
+                    break;
+                }
+            }
+            Thread.sleep(timeout);
+        }
+
+        while (!channelExecutor.awaitTermination(timeout, TimeUnit.MILLISECONDS))
+            ;
+
         if (firstCause != null) {
             updateCurrentState(DeployedState.STOPPED);
             throw new HaltException("Failed to stop channel " + name + " (" + channelId + "): One or more connectors failed to stop.", firstCause);

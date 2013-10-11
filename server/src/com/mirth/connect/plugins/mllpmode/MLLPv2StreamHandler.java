@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.util.Arrays;
 
@@ -35,7 +36,7 @@ public class MLLPv2StreamHandler extends FrameStreamHandler {
         MLLPModeProperties props = (MLLPModeProperties) transmissionModeProperties;
         ackBytes = TcpUtil.stringToByteArray(props.getAckBytes());
         nackBytes = TcpUtil.stringToByteArray(props.getNackBytes());
-        maxRetries = TcpUtil.parseInt(props.getMaxRetries());
+        maxRetries = NumberUtils.toInt(props.getMaxRetries());
         committed = false;
     }
 
@@ -85,7 +86,7 @@ public class MLLPv2StreamHandler extends FrameStreamHandler {
                 if (firstCause == null) {
                     firstCause = e;
                 }
-                
+
                 if (maxRetries > 0 && retryCount++ == maxRetries) {
                     throw new MLLPv2StreamHandlerException("Maximum retry count reached. First cause: " + firstCause.getMessage(), firstCause);
                 }

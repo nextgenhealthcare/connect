@@ -75,10 +75,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
     }
 
     /**
-     * Returns a unique id that the dispatcher can use for thread safety.
-     * If queuing is disabled or if there is only 1 queue thread, returns -1.
-     * If there are multiple queue threads, returns the thread's id if the
-     * current thread is a queue thread, otherwise it returns -1.
+     * Returns a unique id that the dispatcher can use for thread safety. If queuing is disabled or
+     * if there is only 1 queue thread, returns -1. If there are multiple queue threads, returns the
+     * thread's id if the current thread is a queue thread, otherwise it returns -1.
      */
     public long getDispatcherId() {
         long threadId = Thread.currentThread().getId();
@@ -187,9 +186,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
         onStart();
 
         /*
-         * If forceQueue was enabled because this connector was stopped
-         * individually, disable it AFTER onStart() so make sure the connector
-         * does not attempt to send before it is finished starting.
+         * If forceQueue was enabled because this connector was stopped individually, disable it
+         * AFTER onStart() so make sure the connector does not attempt to send before it is finished
+         * starting.
          */
         forceQueue.set(false);
 
@@ -248,29 +247,31 @@ public abstract class DestinationConnector extends Connector implements Runnable
         updateCurrentState(DeployedState.STOPPING);
 
         if (MapUtils.isNotEmpty(queueThreads)) {
-            try {
-                for (Thread thread : queueThreads.values()) {
-                    thread.interrupt();
-                }
-
-                for (Thread thread : queueThreads.values()) {
-                    thread.join();
-                }
-
-                queueThreads.clear();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new HaltException("Failed to halt destination connector for channel: " + getChannelId(), e);
-            } finally {
-                // Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
-                // unsynchronized with the data store.
-                queue.invalidate(false);
+            for (Thread thread : queueThreads.values()) {
+                thread.interrupt();
             }
         }
 
         try {
             onHalt();
         } finally {
+            if (MapUtils.isNotEmpty(queueThreads)) {
+                try {
+                    for (Thread thread : queueThreads.values()) {
+                        thread.join();
+                    }
+
+                    queueThreads.clear();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new HaltException("Failed to halt destination connector for channel: " + getChannelId(), e);
+                } finally {
+                    // Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
+                    // unsynchronized with the data store.
+                    queue.invalidate(false);
+                }
+            }
+
             Donkey.getInstance().getEventDispatcher().dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
             updateCurrentState(DeployedState.STOPPED);
         }
@@ -282,12 +283,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
     }
 
     /**
-     * Process a transformed message. Attempt to send the message unless the
-     * destination connector is configured to immediately queue messages.
+     * Process a transformed message. Attempt to send the message unless the destination connector
+     * is configured to immediately queue messages.
      * 
-     * @return The status of the message at the end of processing. If the
-     *         message was placed in the destination connector queue, then
-     *         QUEUED is returned.
+     * @return The status of the message at the end of processing. If the message was placed in the
+     *         destination connector queue, then QUEUED is returned.
      * @throws InterruptedException
      */
     public void process(DonkeyDao dao, ConnectorMessage message, Status previousStatus) throws InterruptedException {
@@ -398,14 +398,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
                 if (connectorMessage != null) {
                     /*
-                     * If the last message id is equal to the current message
-                     * id, then the message was not successfully send and is
-                     * being retried, so wait the retry interval.
+                     * If the last message id is equal to the current message id, then the message
+                     * was not successfully send and is being retried, so wait the retry interval.
                      * 
-                     * If the last message id is greater than the current
-                     * message id, then some message was not successful, message
-                     * rotation is on, and the queue is back to the oldest
-                     * message, so wait the retry interval.
+                     * If the last message id is greater than the current message id, then some
+                     * message was not successful, message rotation is on, and the queue is back to
+                     * the oldest message, so wait the retry interval.
                      */
                     if (attemptedFirst.getAndSet(false) || (lastMessageId != null && lastMessageId >= connectorMessage.getMessageId())) {
                         Thread.sleep(retryIntervalMillis);
@@ -447,10 +445,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
                         }
 
                         /*
-                         * Verify that the connector properties stored in the
-                         * connector message match the properties from the
-                         * current connector. Otherwise the connector type has
-                         * changed and the message will be set to errored.
+                         * Verify that the connector properties stored in the connector message
+                         * match the properties from the current connector. Otherwise the connector
+                         * type has changed and the message will be set to errored.
                          */
                         if (serializedPropertiesClass == connectorPropertiesClass) {
                             ThreadUtils.checkInterruptedStatus();
@@ -465,10 +462,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
                             afterSend(dao, connectorMessage, response, previousStatus);
 
                             /*
-                             * if the "remove content on completion" setting is
-                             * enabled, we will need to retrieve a list of the
-                             * other connector messages for this message id and
-                             * check if the message is "completed"
+                             * if the "remove content on completion" setting is enabled, we will
+                             * need to retrieve a list of the other connector messages for this
+                             * message id and check if the message is "completed"
                              */
                             if (storageSettings.isRemoveContentOnCompletion() || storageSettings.isRemoveAttachmentsOnCompletion()) {
                                 Map<Integer, ConnectorMessage> connectorMessages = dao.getConnectorMessages(getChannelId(), connectorMessage.getMessageId());
@@ -519,8 +515,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
                     }
                 } else {
                     /*
-                     * This is necessary because there is no blocking peek. If
-                     * the queue is empty, wait some time to free up the cpu.
+                     * This is necessary because there is no blocking peek. If the queue is empty,
+                     * wait some time to free up the cpu.
                      */
                     Thread.sleep(Constants.DESTINATION_QUEUE_EMPTY_SLEEP_TIME);
                 }
@@ -564,10 +560,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
         ThreadUtils.checkInterruptedStatus();
 
         /*
-         * If the response transformer (and serializer) will run, change the
-         * current status to PENDING so it can be recovered. Still call
-         * runResponseTransformer so that transformWithoutSerializing can still
-         * run
+         * If the response transformer (and serializer) will run, change the current status to
+         * PENDING so it can be recovered. Still call runResponseTransformer so that
+         * transformWithoutSerializing can still run
          */
         if (responseTransformerExecutor.isActive(response)) {
             message.setStatus(Status.PENDING);
