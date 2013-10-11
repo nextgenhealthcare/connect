@@ -254,17 +254,22 @@ public class Mirth extends Thread {
         // Start web server before starting the engine in case there is a 
         // problem starting the engine that causes it to hang
         startWebServer();
+
+        configurationController.setStatus(ConfigurationController.STATUS_ENGINE_STARTING);
         startEngine();
 
         extensionController.startPlugins();
 
         try {
             alertController.initAlerts();
+
+            configurationController.setStatus(ConfigurationController.STATUS_INITIAL_DEPLOY);
             engineController.redeployAllChannels();
         } catch (Exception e) {
             logger.error(e);
         }
 
+        configurationController.setStatus(ConfigurationController.STATUS_OK);
         printSplashScreen();
     }
 
@@ -303,15 +308,12 @@ public class Mirth extends Thread {
      */
     private void startEngine() {
         logger.debug("starting engine");
-        configurationController.setEngineStarting(true);
 
         try {
             engineController.startEngine();
         } catch (Exception e) {
             logger.error(e);
         }
-
-        configurationController.setEngineStarting(false);
     }
 
     /**

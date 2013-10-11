@@ -98,7 +98,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private String appDataDir = null;
     private String baseDir = null;
     private static String serverId = null;
-    private boolean isEngineStarting = true;
+    private int status = ConfigurationController.STATUS_UNAVAILABLE;
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private PasswordRequirements passwordRequirements;
     private static PropertiesConfiguration versionConfig = new PropertiesConfiguration();
@@ -362,14 +362,11 @@ public class DefaultConfigurationController extends ConfigurationController {
         logger.debug("getting Mirth status");
 
         // If the database isn't running or the engine isn't running (only if it isn't starting) return STATUS_UNAVAILABLE.
-        // If it's starting, return STATUS_ENGINE_STARTING. All other cases return STATUS_OK.
-        if (!isDatabaseRunning() || (!ControllerFactory.getFactory().createEngineController().isRunning() && !isEngineStarting)) {
+        if (!isDatabaseRunning() || (!ControllerFactory.getFactory().createEngineController().isRunning() && status != STATUS_ENGINE_STARTING)) {
             return STATUS_UNAVAILABLE;
-        } else if (isEngineStarting) {
-            return STATUS_ENGINE_STARTING;
-        } else {
-            return STATUS_OK;
         }
+
+        return status;
     }
 
     @Override
@@ -485,13 +482,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     @Override
-    public boolean isEngineStarting() {
-        return isEngineStarting;
-    }
-
-    @Override
-    public void setEngineStarting(boolean isEngineStarting) {
-        this.isEngineStarting = isEngineStarting;
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     @Override

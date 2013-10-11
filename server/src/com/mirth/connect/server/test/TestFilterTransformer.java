@@ -55,7 +55,7 @@ public class TestFilterTransformer {
             }
         });
         
-        while (ConfigurationController.getInstance().isEngineStarting()) {
+        while (ConfigurationController.getInstance().getStatus() != ConfigurationController.STATUS_OK) {
             Thread.sleep(100);
         }
         

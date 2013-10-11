@@ -35,6 +35,7 @@ public abstract class ConfigurationController extends Controller {
     public static final int STATUS_OK = 0;
     public static final int STATUS_UNAVAILABLE = 1;
     public static final int STATUS_ENGINE_STARTING = 2;
+    public static final int STATUS_INITIAL_DEPLOY = 3;
 
     public static ConfigurationController getInstance() {
         return ControllerFactory.getFactory().createConfigurationController();
@@ -241,27 +242,14 @@ public abstract class ConfigurationController extends Controller {
     // status
 
     /**
-     * Returns the current status of the server.
-     * 
-     * @return 0 if the server is running, 1 if it is unavailable, and 2 if it is currently
-     *         starting.
+     * Returns the current status of the server. See status constants in ConfigurationController.
      */
     public abstract int getStatus();
 
     /**
-     * Returns if the engine is starting.
-     * 
-     * @return <code>true</code> if the engine is starting, <code>false</code> otherwise
+     * Sets the current status of the server. See status constants in ConfigurationController.
      */
-    public abstract boolean isEngineStarting();
-
-    /**
-     * Sets the engine starting status.
-     * 
-     * @param isEngineStarting
-     *            the starting status of the engine
-     */
-    public abstract void setEngineStarting(boolean isEngineStarting);
+    public abstract void setStatus(int status);
 
     // properties
 

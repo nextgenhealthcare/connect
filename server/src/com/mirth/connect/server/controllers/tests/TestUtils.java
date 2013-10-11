@@ -97,7 +97,7 @@ public class TestUtils {
             }
         });
 
-        while (ConfigurationController.getInstance().isEngineStarting()) {
+        while (ConfigurationController.getInstance().getStatus() != ConfigurationController.STATUS_OK) {
             Thread.sleep(sleepMillis);
         }
     }
