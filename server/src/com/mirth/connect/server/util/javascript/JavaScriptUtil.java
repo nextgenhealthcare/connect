@@ -255,7 +255,7 @@ public class JavaScriptUtil {
         try {
             if (compiledScriptCache.getCompiledScript(ScriptController.POSTPROCESSOR_SCRIPT_KEY) != null) {
                 try {
-                    Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message, new com.mirth.connect.userutil.Response(channelResponse));
+                    Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message, (channelResponse == null) ? null : new com.mirth.connect.userutil.Response(channelResponse));
                     Response globalResponse = getPostprocessorResponse(JavaScriptUtil.executeScript(task, ScriptController.POSTPROCESSOR_SCRIPT_KEY, scope, null, null));
 
                     if (globalResponse != null) {

@@ -19,5 +19,5 @@ public class JavaScriptConstants {
     public static final String DEFAULT_GLOBAL_DEPLOY_SCRIPT = "// This script executes once when all channels start up from a redeploy\n// You only have access to the globalMap here to persist data\nreturn;";
     public static final String DEFAULT_GLOBAL_SHUTDOWN_SCRIPT = "// This script executes once when all channels shut down from a redeploy\n// You only have access to the globalMap here to persist data\nreturn;";
     public static final String DEFAULT_GLOBAL_PREPROCESSOR_SCRIPT = "// Modify the message variable below to pre process data\n// This script applies across all channels\nreturn message;";
-    public static final String DEFAULT_GLOBAL_POSTPROCESSOR_SCRIPT = "// This script executes once after a message has been processed\n// This script applies across all channels\n// Responses returned from here will be stored as \"Postprocessor\" in the response map\n// You have access to \"response\", returned from the channel postprocessor\nreturn;";
+    public static final String DEFAULT_GLOBAL_POSTPROCESSOR_SCRIPT = "// This script executes once after a message has been processed\n// This script applies across all channels\n// Responses returned from here will be stored as \"Postprocessor\" in the response map\n// You have access to \"response\", if returned from the channel postprocessor\nreturn;";
 }
