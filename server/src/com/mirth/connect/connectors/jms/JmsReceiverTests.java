@@ -140,8 +140,8 @@ public class JmsReceiverTests {
 //        connectorProperties.setJndiInitialContextFactory("org.jboss.naming.remote.client.InitialContextFactory");
 //        connectorProperties.setJndiConnectionFactoryName("jms/RemoteConnectionFactory");
 //        connectorProperties.setClientId("mirth");
-//        connectorProperties.setUsername("mirth");
-//        connectorProperties.setPassword("d1scgo1fisfun");
+//        connectorProperties.setUsername("");
+//        connectorProperties.setPassword("");
 //
 //        queueName = "queue/mirthQueue";
 //        selectorQueueName = "queue/mirthQueue";
