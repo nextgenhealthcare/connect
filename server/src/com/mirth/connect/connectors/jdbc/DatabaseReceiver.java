@@ -25,6 +25,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -165,7 +166,7 @@ public class DatabaseReceiver extends PollConnector {
             Map<String, Object> resultMap = new HashMap<String, Object>();
 
             for (int i = 1; i <= columnCount; i++) {
-                resultMap.put(metaData.getColumnLabel(i), resultSet.getObject(i));
+                resultMap.put(StringUtils.lowerCase(metaData.getColumnLabel(i)), resultSet.getObject(i));
             }
 
             processRecord(resultMap);
@@ -183,7 +184,15 @@ public class DatabaseReceiver extends PollConnector {
             }
 
             if (object instanceof Map) {
-                processRecord((Map<String, Object>) object);
+                @SuppressWarnings("unchecked")
+                Map<String, Object> resultMap = (Map<String, Object>) object;
+
+                for (Entry<String, Object> entry : resultMap.entrySet()) {
+                    String key = entry.getKey();
+                    resultMap.put(StringUtils.lowerCase(key), resultMap.remove(key));
+                }
+
+                processRecord(resultMap);
             } else {
                 String errorMessage = "Received invalid list entry in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\", expected Map<String, Object>: " + object.toString();
                 logger.error(errorMessage);
