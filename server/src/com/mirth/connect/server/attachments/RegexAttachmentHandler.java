@@ -33,7 +33,7 @@ public class RegexAttachmentHandler extends AttachmentHandler {
     private Matcher matcher;
     private String mimeType;
     private String message;
-    private String newMessage;
+    private StringBuilder newMessage;
     private Map<String, String> replacements = new HashMap<String, String>();
     private int offset;
     private int group;
@@ -46,7 +46,7 @@ public class RegexAttachmentHandler extends AttachmentHandler {
     public void initialize(String message, Channel channel) throws AttachmentException {
         try {
             this.message = message;
-            newMessage = "";
+            newMessage = new StringBuilder();
             offset = 0;
 
             if (pattern != null) {
@@ -91,7 +91,9 @@ public class RegexAttachmentHandler extends AttachmentHandler {
 
                     attachmentString = null;
 
-                    newMessage += message.substring(offset, matcher.start(group)) + attachment.getAttachmentId();
+                    newMessage.append(message.substring(offset, matcher.start(group)));
+                    newMessage.append(attachment.getAttachmentId());
+
                     offset = matcher.end(group);
 
                     return attachment;
@@ -107,11 +109,14 @@ public class RegexAttachmentHandler extends AttachmentHandler {
     @Override
     public String shutdown() throws AttachmentException {
         try {
-            String finalMessage = newMessage + message.substring(offset);
-
-            newMessage = null;
-            message = null;
+            newMessage.append(message.substring(offset));
+            // We are finished with the matcher and message now so we can free their memory
             matcher = null;
+            message = null;
+
+            String finalMessage = newMessage.toString();
+            // We are finished with the new message buffer now so we can free its memory
+            newMessage = null;
 
             return finalMessage;
         } catch (Throwable t) {
