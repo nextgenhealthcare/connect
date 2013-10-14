@@ -1046,11 +1046,25 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("connectionFactoryClass").setTextContent(oldProperties.getProperty("connectionFactoryClass", ""));
         properties.addChildElement("username").setTextContent(oldProperties.getProperty("username", ""));
         properties.addChildElement("password").setTextContent(oldProperties.getProperty("password", ""));
-        properties.addChildElement("destinationName").setTextContent(oldProperties.getProperty("host", ""));
+
+        String destinationName = oldProperties.getProperty("host", "");
+        boolean topic = readBooleanValue(oldProperties, "durable", false);
+        boolean durableTopic = topic;
+
+        if (StringUtils.startsWith(destinationName, "topic://") || StringUtils.startsWith(destinationName, "//topic:")) {
+            destinationName = destinationName.substring(8);
+            topic = true;
+        } else if (StringUtils.startsWith(destinationName, "//queue:") || StringUtils.startsWith(destinationName, "queue://")) {
+            destinationName = destinationName.substring(8);
+            topic = false;
+            durableTopic = false;
+        }
+
+        properties.addChildElement("destinationName").setTextContent(destinationName);
         properties.addChildElement("reconnectIntervalMillis").setTextContent("10000");
         properties.addChildElement("clientId").setTextContent(oldProperties.getProperty("clientId", ""));
-        properties.addChildElement("topic").setTextContent(readBooleanProperty(oldProperties, "durable", false));
-        properties.addChildElement("durableTopic").setTextContent(readBooleanProperty(oldProperties, "durable", false));
+        properties.addChildElement("topic").setTextContent(Boolean.toString(topic));
+        properties.addChildElement("durableTopic").setTextContent(Boolean.toString(durableTopic));
         properties.addChildElement("selector").setTextContent(oldProperties.getProperty("selector", ""));
 
         DonkeyElement connectionProperties = properties.addChildElement("connectionProperties");
@@ -1086,9 +1100,21 @@ public class ImportConverter3_0_0 {
         properties.addChildElement("connectionFactoryClass").setTextContent(oldProperties.getProperty("connectionFactoryClass", ""));
         properties.addChildElement("username").setTextContent(convertReferences(oldProperties.getProperty("username", "")));
         properties.addChildElement("password").setTextContent(convertReferences(oldProperties.getProperty("password", "")));
-        properties.addChildElement("destinationName").setTextContent(convertReferences(oldProperties.getProperty("host", "")));
+
+        String destinationName = convertReferences(oldProperties.getProperty("host", ""));
+        boolean topic = false;
+
+        if (StringUtils.startsWith(destinationName, "topic://") || StringUtils.startsWith(destinationName, "//topic:")) {
+            destinationName = destinationName.substring(8);
+            topic = true;
+        } else if (StringUtils.startsWith(destinationName, "//queue:") || StringUtils.startsWith(destinationName, "queue://")) {
+            destinationName = destinationName.substring(8);
+            topic = false;
+        }
+
+        properties.addChildElement("destinationName").setTextContent(destinationName);
         properties.addChildElement("clientId").setTextContent("");
-        properties.addChildElement("topic").setTextContent("false");
+        properties.addChildElement("topic").setTextContent(Boolean.toString(topic));
         properties.addChildElement("template").setTextContent(convertReferences(oldProperties.getProperty("template", "${message.encodedData}")));
 
         try {
