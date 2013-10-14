@@ -16,7 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.security.KeyStore;
 import java.sql.DriverManager;
@@ -27,6 +29,7 @@ import java.util.List;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -528,6 +531,16 @@ public class Mirth extends Thread {
             logger.debug("started jetty web server on ports: " + connector.getPort() + ", " + sslConnector.getPort());
         } catch (Exception e) {
             logger.warn("Could not start web server.", e);
+
+            try {
+                if (webServer != null) {
+                    webServer.stop();
+                }
+            } catch (Throwable e1) {
+                // Ignore exception stopping
+            } finally {
+                webServer = null;
+            }
         }
     }
 
@@ -587,6 +600,35 @@ public class Mirth extends Thread {
         logger.info("Mirth Connect " + versionProperties.getString("mirth.version") + " (Built on " + versionProperties.getString("mirth.date") + ") server successfully started.");
         logger.info("This product was developed by Mirth Corporation (http://www.mirthcorp.com) and its contributors (c)2005-" + Calendar.getInstance().get(Calendar.YEAR) + ".");
         logger.info("Running " + System.getProperty("java.vm.name") + " " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + "), " + configurationController.getDatabaseType() + ", with charset " + Charset.defaultCharset() + ".");
+
+        if (webServer != null) {
+            String httpUrl = getWebServerUrl("http://", mirthProperties.getString("http.host", "0.0.0.0"), mirthProperties.getInt("http.port"), mirthProperties.getString("http.contextpath"));
+            String httpsUrl = getWebServerUrl("https://", mirthProperties.getString("https.host", "0.0.0.0"), mirthProperties.getInt("https.port"), mirthProperties.getString("http.contextpath"));
+
+            logger.info("Web server running at " + httpUrl + " and " + httpsUrl);
+        }
+    }
+
+    private String getWebServerUrl(String prefix, String host, int port, String contextPath) {
+        if (StringUtils.equals(host, "0.0.0.0")) {
+            try {
+                host = InetAddress.getLocalHost().getHostAddress();
+            } catch (UnknownHostException e) {
+                host = "localhost";
+            }
+        } else if (StringUtils.isEmpty(host)) {
+            host = "localhost";
+        }
+
+        if (!StringUtils.startsWith(contextPath, "/")) {
+            contextPath = "/" + contextPath;
+        }
+
+        if (!StringUtils.endsWith(contextPath, "/")) {
+            contextPath = contextPath + "/";
+        }
+
+        return prefix + host + ":" + port + contextPath;
     }
 
     /**
