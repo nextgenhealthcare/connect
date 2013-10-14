@@ -16,16 +16,15 @@ import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.dbutils.BasicRowProcessor;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -154,6 +153,7 @@ public class DatabaseReceiver extends PollConnector {
      * the channel. Then run the post-process if applicable.
      */
     private void processResultSet(ResultSet resultSet) throws SQLException, InterruptedException, DatabaseReceiverException {
+        BasicRowProcessor basicRowProcessor = new BasicRowProcessor();
         ResultSetMetaData metaData = resultSet.getMetaData();
         int columnCount = metaData.getColumnCount();
 
@@ -163,10 +163,11 @@ public class DatabaseReceiver extends PollConnector {
                 return;
             }
 
-            Map<String, Object> resultMap = new HashMap<String, Object>();
+            @SuppressWarnings("unchecked")
+            Map<String, Object> resultMap = basicRowProcessor.toMap(resultSet);
 
             for (int i = 1; i <= columnCount; i++) {
-                resultMap.put(StringUtils.lowerCase(metaData.getColumnLabel(i)), resultSet.getObject(i));
+                resultMap.put(metaData.getColumnLabel(i), resultSet.getObject(i));
             }
 
             processRecord(resultMap);
@@ -184,15 +185,9 @@ public class DatabaseReceiver extends PollConnector {
             }
 
             if (object instanceof Map) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> resultMap = (Map<String, Object>) object;
-
-                for (Entry<String, Object> entry : resultMap.entrySet()) {
-                    String key = entry.getKey();
-                    resultMap.put(StringUtils.lowerCase(key), resultMap.remove(key));
-                }
-
-                processRecord(resultMap);
+                Map<String, Object> caseInsensitiveMap = new BasicRowProcessor.CaseInsensitiveHashMap();
+                caseInsensitiveMap.putAll((Map<String, Object>) object);
+                processRecord(caseInsensitiveMap);
             } else {
                 String errorMessage = "Received invalid list entry in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\", expected Map<String, Object>: " + object.toString();
                 logger.error(errorMessage);

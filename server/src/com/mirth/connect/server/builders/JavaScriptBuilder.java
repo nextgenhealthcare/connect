@@ -373,7 +373,7 @@ public class JavaScriptBuilder {
         builder.append("try { if(globalChannelMap.containsKey(string)) { return $gc(string); } } catch(e){}");
         builder.append("try { if(globalMap.containsKey(string)) { return $g(string); } } catch(e){}");
         // TODO: This is temporary for the database reader and should not stay
-        builder.append("try { if(resultMap.containsKey(string.toLowerCase())) { return resultMap.get(string.toLowerCase()); } } catch(e){}");
+        builder.append("try { if(resultMap.containsKey(string)) { return resultMap.get(string); } } catch(e){}");
         builder.append("return ''; }\n");
     }
 

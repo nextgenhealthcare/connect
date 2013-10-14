@@ -169,7 +169,7 @@ public class BasicRowProcessor implements RowProcessor {
 	 * lookups. This is needed for the toMap() implementation because databases
 	 * don't consistenly handle the casing of column names.
 	 */
-	private static class CaseInsensitiveHashMap extends HashMap {
+	public static class CaseInsensitiveHashMap extends HashMap {
 
 		/**
 		 * @see java.util.Map#containsKey(java.lang.Object)
