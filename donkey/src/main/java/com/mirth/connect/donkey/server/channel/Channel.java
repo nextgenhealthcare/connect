@@ -74,6 +74,7 @@ import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
 import com.mirth.connect.donkey.util.Base64Util;
+import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
 public class Channel implements Startable, Stoppable, Runnable {
@@ -91,6 +92,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     private StorageSettings storageSettings = new StorageSettings();
     private DonkeyDaoFactory daoFactory;
     private EventDispatcher eventDispatcher = Donkey.getInstance().getEventDispatcher();
+    private Serializer serializer = Donkey.getInstance().getSerializer();
 
     private AttachmentHandler attachmentHandler;
     private List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
@@ -208,12 +210,12 @@ public class Channel implements Startable, Stoppable, Runnable {
         this.daoFactory = daoFactory;
     }
 
-    public EventDispatcher getEventDispatcher() {
+    protected EventDispatcher getEventDispatcher() {
         return eventDispatcher;
     }
 
-    public void setEventDispatcher(EventDispatcher eventDispatcher) {
-        this.eventDispatcher = eventDispatcher;
+    protected Serializer getSerializer() {
+        return serializer;
     }
 
     public AttachmentHandler getAttachmentHandler() {

@@ -73,6 +73,7 @@ public class DonkeyMessageController extends MessageController {
         }
     }
 
+    private Donkey donkey = Donkey.getInstance();
     private Logger logger = Logger.getLogger(this.getClass());
 
     private DonkeyMessageController() {}
@@ -111,7 +112,7 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public long getMaxMessageId(String channelId) {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             return dao.getMaxMessageId(channelId);
@@ -142,7 +143,7 @@ public class DonkeyMessageController extends MessageController {
         Map<String, Object> params = getParameters(filter, channelId, offset, limit);
         List<MessageSearchResult> results = searchMessages(session, params);
 
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         /*
          * If the content is included, we don't want to decrypt because we may want to use the
@@ -173,7 +174,7 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public Message getMessageContent(String channelId, Long messageId) {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             Map<String, Object> params = new HashMap<String, Object>();
@@ -212,7 +213,7 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public Attachment getMessageAttachment(String channelId, String attachmentId) {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             return dao.getMessageAttachment(channelId, attachmentId);
@@ -223,7 +224,7 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public List<Attachment> getMessageAttachment(String channelId, Long messageId) {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             return dao.getMessageAttachment(channelId, messageId);
@@ -284,7 +285,7 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public void clearMessages(Set<String> channelIds, Boolean restartRunningChannels, Boolean clearStatistics) throws ControllerException {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             EngineController engineController = ControllerFactory.getFactory().createEngineController();
@@ -456,7 +457,7 @@ public class DonkeyMessageController extends MessageController {
     public void importMessage(String channelId, Message message) throws MessageImportException {
         try {
             MessageEncryptionUtil.decryptMessage(message, ConfigurationController.getInstance().getEncryptor());
-            Channel channel = Donkey.getInstance().getDeployedChannels().get(channelId);
+            Channel channel = donkey.getDeployedChannels().get(channelId);
 
             if (channel == null) {
                 throw new MessageImportException("Failed to import message, channel ID " + channelId + " is not currently deployed");
@@ -470,7 +471,7 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public MessageImportResult importMessagesServer(final String channelId, String path, boolean includeSubfolders) throws MessageImportException, InterruptedException, MessageImportInvalidPathException {
-        Channel channel = Donkey.getInstance().getDeployedChannels().get(channelId);
+        Channel channel = donkey.getDeployedChannels().get(channelId);
 
         if (channel == null) {
             throw new MessageImportException("Failed to import message, channel ID " + channelId + " is not currently deployed");

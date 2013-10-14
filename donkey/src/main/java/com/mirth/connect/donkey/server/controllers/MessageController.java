@@ -37,6 +37,8 @@ public class MessageController {
         }
     }
 
+    private Donkey donkey = Donkey.getInstance();
+
     private MessageController() {}
 
     public Attachment createAttachment(Object data, String type) throws UnsupportedDataTypeException {
@@ -58,7 +60,7 @@ public class MessageController {
     }
 
     public void insertAttachment(Attachment attachment, String channelId, Long messageId) {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             dao.insertMessageAttachment(channelId, messageId, attachment);
@@ -91,7 +93,7 @@ public class MessageController {
     }
 
     public void deleteMessages(String channelId, Map<Long, Set<Integer>> messages) {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             for (Entry<Long, Set<Integer>> messageEntry : messages.entrySet()) {

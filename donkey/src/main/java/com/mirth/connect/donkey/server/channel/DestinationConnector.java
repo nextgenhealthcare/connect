@@ -272,13 +272,13 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 }
             }
 
-            Donkey.getInstance().getEventDispatcher().dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
+            channel.getEventDispatcher().dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
             updateCurrentState(DeployedState.STOPPED);
         }
     }
 
     private MessageContent getSentContent(ConnectorMessage message, ConnectorProperties connectorProperties) {
-        String content = Donkey.getInstance().getSerializer().serialize(connectorProperties);
+        String content = channel.getSerializer().serialize(connectorProperties);
         return new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.SENT, content, null, false);
     }
 
@@ -360,7 +360,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
      * @throws InterruptedException
      */
     public void processPendingConnectorMessage(DonkeyDao dao, ConnectorMessage message) throws InterruptedException {
-        Serializer serializer = Donkey.getInstance().getSerializer();
+        Serializer serializer = channel.getSerializer();
         Response response = serializer.deserialize(message.getResponse().getContent(), Response.class);
 
         // ResponseTransformerExecutor could be null if the ResponseTransformer was removed before recovering
@@ -384,7 +384,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     public void run() {
         DonkeyDao dao = null;
         try {
-            Serializer serializer = Donkey.getInstance().getSerializer();
+            Serializer serializer = channel.getSerializer();
             ConnectorMessage connectorMessage = null;
             int retryIntervalMillis = queueProperties.getRetryIntervalMillis();
             Long lastMessageId = null;
@@ -540,7 +540,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     }
 
     private void afterSend(DonkeyDao dao, ConnectorMessage message, Response response, Status previousStatus) throws InterruptedException {
-        Serializer serializer = Donkey.getInstance().getSerializer();
+        Serializer serializer = channel.getSerializer();
 
         if (storageSettings.isStoreResponse()) {
             String responseString = serializer.serialize(response);

@@ -135,7 +135,7 @@ public abstract class SourceConnector extends Connector {
         try {
             onHalt();
         } finally {
-            Donkey.getInstance().getEventDispatcher().dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
+            channel.getEventDispatcher().dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
             updateCurrentState(DeployedState.STOPPED);
         }
     }
@@ -222,8 +222,7 @@ public abstract class SourceConnector extends Connector {
             try {
                 if (selectedResponse != null && storageSettings.isStoreSentResponse()) {
                     dao = daoFactory.getDao();
-                    Serializer serializer = Donkey.getInstance().getSerializer();
-                    String responseContent = serializer.serialize(selectedResponse);
+                    String responseContent = channel.getSerializer().serialize(selectedResponse);
 
                     // The source response content cannot know the data type of the response it is using.
                     dao.insertMessageContent(new MessageContent(getChannelId(), messageId, 0, ContentType.RESPONSE, responseContent, null, false));

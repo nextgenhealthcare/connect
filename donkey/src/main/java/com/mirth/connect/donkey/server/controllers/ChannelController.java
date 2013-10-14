@@ -34,11 +34,12 @@ public class ChannelController {
 
     private Statistics currentStats;
     private Statistics totalStats;
+    private Donkey donkey = Donkey.getInstance();
 
     private ChannelController() {}
 
     public void removeChannel(String channelId) {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             dao.removeChannel(channelId);
@@ -49,7 +50,7 @@ public class ChannelController {
     }
 
     public void loadStatistics(String serverId) {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             currentStats = dao.getChannelStatistics(serverId);
@@ -74,7 +75,7 @@ public class ChannelController {
      * @param statuses A list of statuses
      */
     public void resetStatistics(Map<String, List<Integer>> channelConnectorMap, Set<Status> statuses) {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             for (Entry<String, List<Integer>> entry : channelConnectorMap.entrySet()) {
@@ -94,7 +95,7 @@ public class ChannelController {
     }
 
     public void resetAllStatistics() {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             for (String channelId : dao.getLocalChannelIds().keySet()) {
@@ -110,7 +111,7 @@ public class ChannelController {
 
     public Long getLocalChannelId(String channelId) {
         Long localChannelId = null;
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             localChannelId = dao.getLocalChannelIds().get(channelId);
@@ -130,7 +131,7 @@ public class ChannelController {
     }
 
     public boolean channelExists(String channelId) {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             return (dao.getLocalChannelIds().get(channelId) != null);
@@ -140,7 +141,7 @@ public class ChannelController {
     }
 
     public void deleteAllMessages(String channelId) {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             if (dao.getLocalChannelIds().get(channelId) != null) {
@@ -155,7 +156,7 @@ public class ChannelController {
 
     private synchronized long getNextLocalChannelId() {
         Long nextChannelId = null;
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             nextChannelId = dao.selectMaxLocalChannelId();
@@ -172,7 +173,7 @@ public class ChannelController {
 
     private long createChannel(String channelId) {
         long localChannelId = getNextLocalChannelId();
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
             dao.createChannel(channelId, localChannelId);

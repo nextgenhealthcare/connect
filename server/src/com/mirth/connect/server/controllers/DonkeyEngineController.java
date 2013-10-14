@@ -536,12 +536,12 @@ public class DonkeyEngineController implements EngineController {
         }
 
         if (storageSettings.isEnabled()) {
-            BufferedDaoFactory bufferedDaoFactory = new BufferedDaoFactory(Donkey.getInstance().getDaoFactory());
+            BufferedDaoFactory bufferedDaoFactory = new BufferedDaoFactory(donkey.getDaoFactory());
             bufferedDaoFactory.setEncryptData(channelProperties.isEncryptData());
 
             channel.setDaoFactory(bufferedDaoFactory);
         } else {
-            channel.setDaoFactory(new PassthruDaoFactory(new DelayedStatisticsUpdater(Donkey.getInstance().getDaoFactory())));
+            channel.setDaoFactory(new PassthruDaoFactory(new DelayedStatisticsUpdater(donkey.getDaoFactory())));
         }
 
         DestinationChain chain = createDestinationChain(channel);
