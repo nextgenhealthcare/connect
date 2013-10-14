@@ -607,7 +607,9 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
     }//GEN-LAST:event_destinationTypeQueueActionPerformed
 
     private void destinationTypeTopicActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_destinationTypeTopicActionPerformed
-        durableTopicCheckbox.setEnabled(true);
+        if (useJndiNo.isSelected()) {
+            durableTopicCheckbox.setEnabled(true);
+        }
     }//GEN-LAST:event_destinationTypeTopicActionPerformed
 
     private void loadTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadTemplateButtonActionPerformed
