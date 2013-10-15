@@ -821,7 +821,7 @@ public class ImportConverter3_0_0 {
         properties.removeChildren();
 
         buildPollConnectorProperties(properties.addChildElement("pollConnectorProperties"), oldProperties.getProperty("pollingType"), oldProperties.getProperty("pollingTime"), oldProperties.getProperty("pollingFrequency"));
-        buildResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"));
+        buildResponseConnectorProperties(properties.addChildElement("responseConnectorProperties"), "Auto-generate (After source transformer)");
 
         properties.addChildElement("scheme").setTextContent(oldProperties.getProperty("scheme", "file").toUpperCase());
         properties.addChildElement("host").setTextContent(oldProperties.getProperty("host", ""));
