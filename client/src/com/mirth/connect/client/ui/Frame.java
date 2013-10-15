@@ -3014,43 +3014,49 @@ public class Frame extends JXFrame {
             alertException(this, e.getStackTrace(), e.getMessage());
         }
 
-        if (showAlerts) {
-            if (checkInstalledConnectors(importChannel)) {
-                final Channel importChannelFinal = importChannel;
-
-                /*
-                 * MIRTH-2048 - This is a hack to fix the memory access error
-                 * that only occurs on OS X. The block of code that edits the
-                 * channel needs to be invoked later so that the screen does not
-                 * change before the drag/drop action of a channel finishes.
-                 */
-                SwingUtilities.invokeLater(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        try {
-                            editChannel(importChannelFinal);
-                            setSaveEnabled(true);
-                        } catch (Exception e) {
-                            channels.remove(importChannelFinal.getId());
-                            alertError(PlatformUI.MIRTH_FRAME, "Channel had an unknown problem. Channel import aborted.");
-                            channelEditPanel = new ChannelSetup();
-                            doShowChannel();
-                        }
-                    }
-
-                });
-            }
-        } else {
+        /*
+         * Update the channel if we're overwriting an imported channel or if we're not showing
+         * alerts (dragging/dropping multiple channels).
+         */
+        if (overwrite || !showAlerts) {
             try {
                 PropertyVerifier.checkChannelProperties(importChannel);
                 PropertyVerifier.checkConnectorProperties(importChannel, getConnectorMetaData());
                 updateChannel(importChannel, overwrite);
-                doShowChannel();
             } catch (Exception e) {
                 channels.remove(importChannel.getId());
-                doShowChannel();
+                alertException(this, e.getStackTrace(), e.getMessage());
+                return;
+            } finally {
+                doRefreshChannels();
             }
+        }
+
+        if (showAlerts && checkInstalledConnectors(importChannel)) {
+            final Channel importChannelFinal = importChannel;
+            final boolean overwriteFinal = overwrite;
+
+            /*
+             * MIRTH-2048 - This is a hack to fix the memory access error that only occurs on OS X.
+             * The block of code that edits the channel needs to be invoked later so that the screen
+             * does not change before the drag/drop action of a channel finishes.
+             */
+            SwingUtilities.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        editChannel(importChannelFinal);
+                        setSaveEnabled(!overwriteFinal);
+                    } catch (Exception e) {
+                        channels.remove(importChannelFinal.getId());
+                        alertError(PlatformUI.MIRTH_FRAME, "Channel had an unknown problem. Channel import aborted.");
+                        channelEditPanel = new ChannelSetup();
+                        doShowChannel();
+                    }
+                }
+
+            });
         }
     }
 
