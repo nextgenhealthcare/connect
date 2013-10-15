@@ -43,13 +43,12 @@ import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 /**
- * The purpose of this class is to migrate serialized objects created prior to
- * version 3.0.0 (which was when the Migratable interface was first introduced).
- * This class will invoke the original ImportConverter class if necessary to run
- * 1.x and 2.x migration, then it will migrate to the 3.0.0 structure. Once an
- * object has been migrated to the 3.0.0 structure, the migration methods
- * defined by the Migratable interface are then responsible to migrate the
- * serialized data to the latest Mirth version.
+ * The purpose of this class is to migrate serialized objects created prior to version 3.0.0 (which
+ * was when the Migratable interface was first introduced). This class will invoke the original
+ * ImportConverter class if necessary to run 1.x and 2.x migration, then it will migrate to the
+ * 3.0.0 structure. Once an object has been migrated to the 3.0.0 structure, the migration methods
+ * defined by the Migratable interface are then responsible to migrate the serialized data to the
+ * latest Mirth version.
  */
 public class ImportConverter3_0_0 {
     private final static String VERSION_STRING = "3.0.0";
@@ -58,22 +57,20 @@ public class ImportConverter3_0_0 {
     private static Logger logger = Logger.getLogger(ImportConverter3_0_0.class);
 
     /**
-     * Tell whether or not serialized data for the given class is migratable to
-     * version 3.0.0.
+     * Tell whether or not serialized data for the given class is migratable to version 3.0.0.
      */
     public static boolean isMigratable(Class<?> clazz) {
         return (clazz.equals(Channel.class) || clazz.equals(Connector.class) || clazz.equals(AlertModel.class) || clazz.equals(ChannelProperties.class) || clazz.equals(CodeTemplate.class) || clazz.equals(ServerConfiguration.class) || clazz.equals(Filter.class) || clazz.equals(MetaData.class));
     }
 
     /**
-     * Takes a serialized object and using the expectedClass hint, runs the
-     * appropriate conversion to convert the object to the 3.0.0 structure.
+     * Takes a serialized object and using the expectedClass hint, runs the appropriate conversion
+     * to convert the object to the 3.0.0 structure.
      * 
      * @param element
      *            A DOM element representing the object
      * @param expectedClass
-     *            The expected class of the object (after migration to the
-     *            LATEST version).
+     *            The expected class of the object (after migration to the LATEST version).
      * @return A DOM element representing the object in version 3.0.0 format
      */
     public static DonkeyElement migrate(DonkeyElement element, Class<?> expectedClass) throws MigrationException {
@@ -365,9 +362,9 @@ public class ImportConverter3_0_0 {
     }
 
     /*
-     * This is used for properties that are set on the not-yet-changed element.
-     * The readPropertiesElement method checks the "name" attribute, so we need
-     * to set it here beforehand.
+     * This is used for properties that are set on the not-yet-changed element. The
+     * readPropertiesElement method checks the "name" attribute, so we need to set it here
+     * beforehand.
      */
     private static DonkeyElement addChildAndSetName(DonkeyElement parent, String name) {
         DonkeyElement child = parent.addChildElement(name);
@@ -452,8 +449,8 @@ public class ImportConverter3_0_0 {
         alert.setNodeName("alertModel");
 
         /*
-         * Expression is not migrated because the error codes that are commonly
-         * used are no longer valid.
+         * Expression is not migrated because the error codes that are commonly used are no longer
+         * valid.
          */
         alert.removeChild("expression");
         // Template and subject are migrated
@@ -483,25 +480,23 @@ public class ImportConverter3_0_0 {
         }
 
         /*
-         * Add the trigger type element. Migrated alerts will always use the
-         * default trigger type.
+         * Add the trigger type element. Migrated alerts will always use the default trigger type.
          */
         DonkeyElement triggerProperties = alert.addChildElement("trigger");
         triggerProperties.setAttribute("class", "defaultTrigger");
 
         /*
-         * Channels created after this alert will not be active for the alert.
-         * This matches the pre-3.x behavior.
+         * Channels created after this alert will not be active for the alert. This matches the
+         * pre-3.x behavior.
          */
         DonkeyElement alertChannelsProperties = triggerProperties.addChildElement("alertChannels");
         alertChannelsProperties.addChildElement("newChannelSource", "false");
         alertChannelsProperties.addChildElement("newChannelDestination", "false");
 
         /*
-         * Add each channel that was stored. Destinations created after the
-         * alert was created WILL be active for the alert. This semi-matches the
-         * pre-3.x behavior because alerts were active for a channel only, but
-         * might have been filtered based on the connector type.
+         * Add each channel that was stored. Destinations created after the alert was created WILL
+         * be active for the alert. This semi-matches the pre-3.x behavior because alerts were
+         * active for a channel only, but might have been filtered based on the connector type.
          */
         DonkeyElement enabledChannelsProperties = alertChannelsProperties.addChildElement("enabledChannels");
         for (String channelId : channelList) {
@@ -525,8 +520,7 @@ public class ImportConverter3_0_0 {
         // Add the actions variable for the AlertActionGroup
         DonkeyElement actionsProperties = alertActionGroupProperties.addChildElement("actions");
         /*
-         * Add an AlertAction for each stored email address. All pre-3.x alerts
-         * only used the EMAIL
+         * Add an AlertAction for each stored email address. All pre-3.x alerts only used the EMAIL
          * protocol
          */
         for (String email : emailList) {
@@ -618,9 +612,8 @@ public class ImportConverter3_0_0 {
         DonkeyElement outboundProperties = transformer.getChildElement("outboundProperties");
 
         /*
-         * If both inbound and outbound data types are HL7V2, then the inbound
-         * convertLineBreaks needs to be set to true if convertLFtoCR is true on
-         * the outbound.
+         * If both inbound and outbound data types are HL7V2, then the inbound convertLineBreaks
+         * needs to be set to true if convertLFtoCR is true on the outbound.
          */
         if (inboundDataType.equals("HL7V2") && outboundDataType.equals("HL7V2")) {
             boolean convertLFtoCROutbound = (outboundProperties == null) ? true : readBooleanValue(readPropertiesElement(outboundProperties), "convertLFtoCR", true);
@@ -1251,9 +1244,8 @@ public class ImportConverter3_0_0 {
     }
 
     /*
-     * Converts a string (either in hexadecimal format or in literal ASCII) to a
-     * Java-escaped format. Any instances of character 0x0D gets converted to
-     * "\\r", 0x0B to "\\u000B", etc.
+     * Converts a string (either in hexadecimal format or in literal ASCII) to a Java-escaped
+     * format. Any instances of character 0x0D gets converted to "\\r", 0x0B to "\\u000B", etc.
      */
     private static String convertToEscapedString(String str, boolean hex) {
         String fixedString = str;
@@ -1269,8 +1261,8 @@ public class ImportConverter3_0_0 {
     }
 
     /*
-     * Converts an ASCII string into a byte array, and then returns the
-     * associated hexadecimal representation of the bytes.
+     * Converts an ASCII string into a byte array, and then returns the associated hexadecimal
+     * representation of the bytes.
      */
     private static String convertToHexString(String str) {
         try {
@@ -1281,8 +1273,8 @@ public class ImportConverter3_0_0 {
     }
 
     /*
-     * Converts a hexadecimal string into a byte array, where each pair of
-     * characters is represented as a single byte.
+     * Converts a hexadecimal string into a byte array, where each pair of characters is represented
+     * as a single byte.
      */
     private static byte[] stringToByteArray(String str) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -1470,8 +1462,8 @@ public class ImportConverter3_0_0 {
 
         DonkeyElement serializationProperties = properties.addChildElement("serializationProperties");
         serializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties");
-        serializationProperties.addChildElement("columnDelimiter").setTextContent(oldProperties.getProperty("columnDelimiter", ","));
-        serializationProperties.addChildElement("recordDelimiter").setTextContent(escapeString(oldProperties.getProperty("recordDelimiter", "\n")));
+        serializationProperties.addChildElement("columnDelimiter").setTextContent(getNonEmptyProperty(oldProperties, "columnDelimiter", ","));
+        serializationProperties.addChildElement("recordDelimiter").setTextContent(escapeString(getNonEmptyProperty(oldProperties, "recordDelimiter", "\n")));
 
         String columnWidths = oldProperties.getProperty("columnWidths");
         if (StringUtils.isNotBlank(columnWidths)) {
@@ -1481,9 +1473,9 @@ public class ImportConverter3_0_0 {
             }
         }
 
-        serializationProperties.addChildElement("quoteChar").setTextContent(oldProperties.getProperty("quoteChar", "\""));
+        serializationProperties.addChildElement("quoteChar").setTextContent(getNonEmptyProperty(oldProperties, "quoteChar", "\""));
         serializationProperties.addChildElement("escapeWithDoubleQuote").setTextContent(oldProperties.getProperty("escapeWithDoubleQuote", "true"));
-        serializationProperties.addChildElement("quoteEscapeChar").setTextContent(oldProperties.getProperty("quoteEscapeChar", "\\"));
+        serializationProperties.addChildElement("quoteEscapeChar").setTextContent(getNonEmptyProperty(oldProperties, "quoteEscapeChar", "\\"));
 
         String columnNames = oldProperties.getProperty("columnNames");
         if (StringUtils.isNotBlank(columnNames)) {
@@ -1498,8 +1490,8 @@ public class ImportConverter3_0_0 {
 
         DonkeyElement deserializationProperties = properties.addChildElement("deserializationProperties");
         deserializationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties");
-        deserializationProperties.addChildElement("columnDelimiter").setTextContent(oldProperties.getProperty("columnDelimiter", ","));
-        deserializationProperties.addChildElement("recordDelimiter").setTextContent(escapeString(oldProperties.getProperty("recordDelimiter", "\n")));
+        deserializationProperties.addChildElement("columnDelimiter").setTextContent(getNonEmptyProperty(oldProperties, "columnDelimiter", ","));
+        deserializationProperties.addChildElement("recordDelimiter").setTextContent(escapeString(getNonEmptyProperty(oldProperties, "recordDelimiter", "\n")));
 
         if (StringUtils.isNotBlank(columnWidths)) {
             deserializationProperties.addChildElement("columnWidths");
@@ -1508,9 +1500,9 @@ public class ImportConverter3_0_0 {
             }
         }
 
-        deserializationProperties.addChildElement("quoteChar").setTextContent(oldProperties.getProperty("quoteChar", "\""));
+        deserializationProperties.addChildElement("quoteChar").setTextContent(getNonEmptyProperty(oldProperties, "quoteChar", "\""));
         deserializationProperties.addChildElement("escapeWithDoubleQuote").setTextContent(oldProperties.getProperty("escapeWithDoubleQuote", "true"));
-        deserializationProperties.addChildElement("quoteEscapeChar").setTextContent(oldProperties.getProperty("quoteEscapeChar", "\\"));
+        deserializationProperties.addChildElement("quoteEscapeChar").setTextContent(getNonEmptyProperty(oldProperties, "quoteEscapeChar", "\\"));
 
         DonkeyElement batchProperties = properties.addChildElement("batchProperties");
         batchProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties");
@@ -1548,8 +1540,8 @@ public class ImportConverter3_0_0 {
 
     private static void migrateHL7v2Properties(DonkeyElement properties) {
         /*
-         * Note: 'properties' may be a blank element. In that case it should be
-         * sure to set the appropriate default values for version 3.0.0.
+         * Note: 'properties' may be a blank element. In that case it should be sure to set the
+         * appropriate default values for version 3.0.0.
          */
 
         logger.debug("Migrating HL7v2DataTypeProperties");
@@ -1578,8 +1570,7 @@ public class ImportConverter3_0_0 {
         responseGenerationProperties.addChildElement("segmentDelimiter").setTextContent("\\r");
 
         /*
-         * These properties would have been set manually in migrateConnector if
-         * the source connector
+         * These properties would have been set manually in migrateConnector if the source connector
          * was an LLP Listener. Otherwise, just set the defaults.
          */
         responseGenerationProperties.addChildElement("successfulACKCode").setTextContent(oldProperties.getProperty("successfulACKCode", "AA"));
@@ -1656,8 +1647,8 @@ public class ImportConverter3_0_0 {
     /*
      * Utility Methods
      * 
-     * NOTE: These public utility methods may be referenced by private plugins
-     * that have 3.0.0 migration code.
+     * NOTE: These public utility methods may be referenced by private plugins that have 3.0.0
+     * migration code.
      */
 
     public static void buildPollConnectorProperties(DonkeyElement properties, String type, String time, String freq) {
@@ -1763,9 +1754,8 @@ public class ImportConverter3_0_0 {
     }
 
     /**
-     * Writes all the entries in the given properties object to the
-     * propertiesElement. Any existing elements in propertiesElement will be
-     * removed first.
+     * Writes all the entries in the given properties object to the propertiesElement. Any existing
+     * elements in propertiesElement will be removed first.
      */
     public static void writePropertiesElement(DonkeyElement propertiesElement, Properties properties) {
         propertiesElement.removeChildren();
@@ -1794,6 +1784,11 @@ public class ImportConverter3_0_0 {
     public static boolean readBooleanValue(Properties properties, String name, boolean defaultValue) {
         String property = properties.getProperty(name, Boolean.toString(defaultValue));
         return property.equals("1") || Boolean.parseBoolean(property);
+    }
+
+    public static String getNonEmptyProperty(Properties properties, String name, String defaultValue) {
+        String property = properties.getProperty(name, defaultValue);
+        return StringUtils.isNotEmpty(property) ? property : defaultValue;
     }
 
     public static void convertList(DonkeyElement properties, String list) {
