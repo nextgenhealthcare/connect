@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.jdbc;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
@@ -38,7 +40,7 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
         this.query = "";
         this.useScript = false;
     }
-    
+
     public DatabaseDispatcherProperties(DatabaseDispatcherProperties props) {
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
 
@@ -75,13 +77,16 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
         builder.append(newLine);
         builder.append(useScript ? "[SCRIPT]" : "[QUERY]");
         builder.append(newLine);
-        builder.append(query);
+        builder.append(StringUtils.trim(query));
 
-        if (parameters.length > 0) {
+        for (int i = 0; i < parameters.length; i++) {
             builder.append(newLine);
-            builder.append("[PARAMETERS]");
             builder.append(newLine);
-            builder.append(parameters);
+            builder.append("[PARAMETER ");
+            builder.append(String.valueOf(i + 1));
+            builder.append("]");
+            builder.append(newLine);
+            builder.append(parameters[i]);
         }
 
         return builder.toString();
