@@ -864,15 +864,17 @@ public class ImportConverter3_0_0 {
 
         String errorMoveToDirectory = convertReferences(oldProperties.getProperty("moveToErrorDirectory"));
         String errorReadingAction = "NONE";
+        String errorResponseAction = "AFTER_PROCESSING";
 
         if (!StringUtils.isBlank(errorMoveToDirectory)) {
             errorReadingAction = "MOVE";
+            errorResponseAction = "MOVE";
         }
 
         properties.addChildElement("errorReadingAction").setTextContent(errorReadingAction);
         properties.addChildElement("errorMoveToDirectory").setTextContent(errorMoveToDirectory);
         properties.addChildElement("errorMoveToFileName").setTextContent("");
-        properties.addChildElement("errorResponseAction").setTextContent("AFTER_PROCESSING");
+        properties.addChildElement("errorResponseAction").setTextContent(errorResponseAction);
     }
 
     private static void migrateFileDispatcherProperties(DonkeyElement properties) {
