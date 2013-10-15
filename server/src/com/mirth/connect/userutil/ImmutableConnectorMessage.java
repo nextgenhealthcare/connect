@@ -112,6 +112,14 @@ public class ImmutableConnectorMessage {
     }
 
     /**
+     * Returns the number of times this message has been attempted to be dispatched by the
+     * connector.
+     */
+    public int getSendAttempts() {
+        return connectorMessage.getSendAttempts();
+    }
+
+    /**
      * Returns the date/time immediately before this connector message's most recent send attempt.
      * Only valid for destination connectors in the response transformer or postprocessor. Returns
      * null otherwise.
