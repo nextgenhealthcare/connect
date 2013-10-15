@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.connectors.jms;
+package com.mirth.connect.connectors.jms.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -29,6 +29,9 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.mirth.connect.connectors.jms.JmsConnectorProperties;
+import com.mirth.connect.connectors.jms.JmsDispatcher;
+import com.mirth.connect.connectors.jms.JmsDispatcherProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;

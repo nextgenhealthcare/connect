@@ -377,7 +377,7 @@ public class DataPruner implements Runnable {
         }
     }
 
-    protected PruneResult pruneChannel(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder) throws InterruptedException, DataPrunerException {
+    public PruneResult pruneChannel(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder) throws InterruptedException, DataPrunerException {
         logger.debug("Executing pruner for channel: " + channelId);
 
         if (messageDateThreshold == null && contentDateThreshold == null) {

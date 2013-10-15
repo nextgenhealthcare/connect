@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.connectors.jdbc;
+package com.mirth.connect.connectors.jdbc.test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -25,6 +25,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.mirth.connect.connectors.jdbc.DatabaseReceiver;
+import com.mirth.connect.connectors.jdbc.DatabaseReceiverProperties;
 import com.mirth.connect.donkey.server.channel.Connector;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.SourceConnector;

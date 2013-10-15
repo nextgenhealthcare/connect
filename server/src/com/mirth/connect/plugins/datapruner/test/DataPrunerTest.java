@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.plugins.datapruner;
+package com.mirth.connect.plugins.datapruner.test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -37,6 +37,7 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConfiguration;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
+import com.mirth.connect.plugins.datapruner.DataPruner;
 import com.mirth.connect.plugins.datapruner.DataPruner.Strategy;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;

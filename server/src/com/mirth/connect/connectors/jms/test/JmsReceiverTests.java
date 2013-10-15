@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.connectors.jms;
+package com.mirth.connect.connectors.jms.test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,6 +28,9 @@ import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.mirth.connect.connectors.jms.JmsConnectorProperties;
+import com.mirth.connect.connectors.jms.JmsReceiver;
+import com.mirth.connect.connectors.jms.JmsReceiverProperties;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.Connector;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
