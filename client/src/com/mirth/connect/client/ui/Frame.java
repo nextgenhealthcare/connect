@@ -3207,8 +3207,11 @@ public class Frame extends JXFrame {
             alertException(this, e.getStackTrace(), e.getMessage());
         }
 
-        if (importChannel instanceof InvalidChannel) {
-            // Update the channel, but don't try to edit it
+        /*
+         * Update the channel if we're overwriting an imported channel, if we're not showing alerts
+         * (dragging/dropping multiple channels), or if we're working with an invalid channel.
+         */
+        if (overwrite || !showAlerts || importChannel instanceof InvalidChannel) {
             try {
                 updateChannel(importChannel, overwrite);
 
@@ -3217,13 +3220,18 @@ public class Frame extends JXFrame {
                     Throwable cause = invalidChannel.getCause();
                     alertException(this, cause.getStackTrace(), "Channel \"" + importChannel.getName() + "\" is invalid. " + getMissingExtensions(invalidChannel) + " Original cause:\n" + cause.getMessage());
                 }
-
-                doRefreshChannels();
             } catch (Exception e) {
                 channels.remove(importChannel.getId());
+                alertException(this, e.getStackTrace(), e.getMessage());
+                return;
+            } finally {
+                doRefreshChannels();
             }
-        } else if (showAlerts) {
+        }
+
+        if (showAlerts) {
             final Channel importChannelFinal = importChannel;
+            final boolean overwriteFinal = overwrite;
 
             /*
              * MIRTH-2048 - This is a hack to fix the memory access error that only occurs on OS X.
@@ -3236,7 +3244,7 @@ public class Frame extends JXFrame {
                 public void run() {
                     try {
                         editChannel(importChannelFinal);
-                        setSaveEnabled(true);
+                        setSaveEnabled(!overwriteFinal);
                     } catch (Exception e) {
                         channels.remove(importChannelFinal.getId());
                         alertError(PlatformUI.MIRTH_FRAME, "Channel had an unknown problem. Channel import aborted.");
@@ -3246,14 +3254,6 @@ public class Frame extends JXFrame {
                 }
 
             });
-        } else {
-            try {
-                updateChannel(importChannel, overwrite);
-                doShowChannel();
-            } catch (Exception e) {
-                channels.remove(importChannel.getId());
-                doShowChannel();
-            }
         }
     }
 
