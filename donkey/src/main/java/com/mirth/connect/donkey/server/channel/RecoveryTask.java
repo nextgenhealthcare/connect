@@ -98,7 +98,7 @@ public class RecoveryTask implements Callable<List<Message>> {
                             } catch (InterruptedException e) {
                                 throw e;
                             } catch (Exception e) {
-                                logger.error("Channel ID \"" + channel.getChannelId() + "\" failed to recover message ID " + messageId + ", connector ID " + metaDataId + ": " + e.getMessage());
+                                logger.error("Channel " + channel.getName() + "(" + channel.getChannelId() + ") failed to recover message ID " + messageId + ", connector ID " + metaDataId + ": " + e.getMessage());
                             }
                         }
                     }
@@ -166,7 +166,7 @@ public class RecoveryTask implements Callable<List<Message>> {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("Channel ID \"" + channel.getChannelId() + "\" failed to recover message ID " + message.getMessageId() + ": " + e.getMessage());
+                    logger.error("Channel " + channel.getName() + "(" + channel.getChannelId() + ") failed to recover message ID " + message.getMessageId() + ": " + e.getMessage());
                 }
             }
 
