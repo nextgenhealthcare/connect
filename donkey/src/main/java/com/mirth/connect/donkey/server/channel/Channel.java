@@ -1471,7 +1471,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             try {
                 process(sourceMessage, true);
             } catch (RuntimeException e) {
-                logger.error("An error occurred while processing a message from the source queue", e);
+                logger.error("An error occurred in channel " + channelId + " while processing message ID " + sourceMessage.getMessageId() + " from the source queue", e);
             }
 
             sourceMessage = sourceQueue.poll();
