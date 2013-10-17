@@ -34,7 +34,13 @@ import com.mirth.connect.model.util.MigrationException;
 
 public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
     private Logger logger = Logger.getLogger(getClass());
-    
+
+    private Version startingVersion;
+
+    public Migrate3_0_0(Version startingVersion) {
+        this.startingVersion = startingVersion;
+    }
+
     @Override
     public void migrate() throws MigrationException {
         executeScript(getDatabaseType() + "-9-3.0.0-1.sql");
@@ -44,7 +50,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
         migrateDataPrunerConfiguration();
         executeScript(getDatabaseType() + "-9-3.0.0-2.sql");
     }
-    
+
     @Override
     public void migrateSerializedData() throws MigrationException {
         // serialized data will be migrated by ServerMigrator
@@ -61,7 +67,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
     public String[] getConfigurationPropertiesToRemove() {
         return new String[] { "jmx.port", "jmx.password", "jmx.host" };
     }
-    
+
     @Override
     public void updateConfiguration(PropertiesConfiguration configuration) {
         if (configuration.getProperty("database").equals("derby")) {
@@ -74,13 +80,13 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
             configuration.setProperty("database.url", url);
         }
     }
-    
+
     private void migrateDataPrunerConfiguration() {
         PreparedStatement statement = null;
-        
+
         try {
             statement = getConnection().prepareStatement("UPDATE CONFIGURATION SET CATEGORY = ? WHERE CATEGORY = ?");
-            
+
             // Message Pruner was renamed to Data Pruner
             statement.setString(1, "Data Pruner");
             statement.setString(2, "Message Pruner");
@@ -91,16 +97,15 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
             DbUtils.closeQuietly(statement);
         }
     }
-    
+
     private void migrateChannelTable() {
         PreparedStatement preparedStatement = null;
         ResultSet results = null;
 
         try {
             /*
-             * MIRTH-1667: Derby fails if autoCommit is set to true and
-             * there are a large number of results. The following error
-             * occurs: "ERROR 40XD0: Container has been closed"
+             * MIRTH-1667: Derby fails if autoCommit is set to true and there are a large number of
+             * results. The following error occurs: "ERROR 40XD0: Container has been closed"
              */
             Connection connection = getConnection();
             connection.setAutoCommit(false);
@@ -150,7 +155,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
                     channel.addChildElementFromXml(sourceConnector).setNodeName("sourceConnector");
                     channel.addChildElementFromXml(destinationConnectors).setNodeName("destinationConnectors");
                     channel.addChildElementFromXml(properties);
-                    
+
                     channel.addChildElement("preprocessingScript", preprocessingScript);
                     channel.addChildElement("postprocessingScript", postprocessingScript);
                     channel.addChildElement("deployScript", deployScript);
@@ -195,9 +200,8 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
             Map<String, List<String>> alertChannels = new HashMap<String, List<String>>();
 
             /*
-             * MIRTH-1667: Derby fails if autoCommit is set to true and
-             * there are a large number of results. The following error
-             * occurs: "ERROR 40XD0: Container has been closed"
+             * MIRTH-1667: Derby fails if autoCommit is set to true and there are a large number of
+             * results. The following error occurs: "ERROR 40XD0: Container has been closed"
              */
             Connection connection = getConnection();
             connection.setAutoCommit(false);
@@ -348,9 +352,8 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
 
         try {
             /*
-             * MIRTH-1667: Derby fails if autoCommit is set to true and
-             * there are a large number of results. The following error
-             * occurs: "ERROR 40XD0: Container has been closed"
+             * MIRTH-1667: Derby fails if autoCommit is set to true and there are a large number of
+             * results. The following error occurs: "ERROR 40XD0: Container has been closed"
              */
             Connection connection = getConnection();
             connection.setAutoCommit(false);
@@ -380,6 +383,11 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
                     codeTemplate.addChildElement("code", code);
                     codeTemplate.addChildElement("type", codeType);
                     codeTemplate.addChildElement("scope", codeScope);
+
+                    // If the starting schema version is 2.0 or later, we need to add the version node to the XML.
+                    if (startingVersion != null && startingVersion.ordinal() >= Version.V7.ordinal()) {
+                        codeTemplate.addChildElement("version", "2.0");
+                    }
 
                     String serializedCodeTemplate = new DonkeyElement(element).toXml();
 

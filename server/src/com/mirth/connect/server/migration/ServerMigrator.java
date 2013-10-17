@@ -44,16 +44,16 @@ public class ServerMigrator extends Migrator {
     public void migrate() throws MigrationException {
         Connection connection = getConnection();
         initDatabase(connection);
-        Version version = getCurrentVersion();
+        Version startingVersion = getCurrentVersion();
 
-        if (version == null) {
-            version = Version.values()[1];
-        } else {
-            version = version.getNextVersion();
+        if (startingVersion == null) {
+            startingVersion = Version.values()[0];
         }
 
+        Version version = startingVersion.getNextVersion();
+
         while (version != null) {
-            Migrator migrator = getMigrator(version);
+            Migrator migrator = getMigrator(startingVersion, version);
 
             if (migrator != null) {
                 logger.info("Migrating server to version " + version);
@@ -79,7 +79,7 @@ public class ServerMigrator extends Migrator {
         Version version = Version.values()[1];
 
         while (version != null) {
-            Migrator migrator = getMigrator(version);
+            Migrator migrator = getMigrator(null, version);
 
             if (migrator != null && migrator instanceof ConfigurationMigrator) {
                 runConfigurationMigrator((ConfigurationMigrator) migrator, mirthConfig, version);
@@ -149,7 +149,7 @@ public class ServerMigrator extends Migrator {
         }
     }
 
-    private Migrator getMigrator(Version version) {
+    private Migrator getMigrator(Version startingVersion, Version version) {
         switch (version) {// @formatter:off
             case V0: return new LegacyMigrator(0);
             case V1: return new LegacyMigrator(1);
@@ -161,7 +161,7 @@ public class ServerMigrator extends Migrator {
             case V7: return new Migrate2_0_0();
             case V8: return new LegacyMigrator(8);
             case V9: return new Migrate2_2_0();
-            case V3_0_0: return new Migrate3_0_0();
+            case V3_0_0: return new Migrate3_0_0(startingVersion);
         } // @formatter:on
 
         return null;
@@ -239,10 +239,9 @@ public class ServerMigrator extends Migrator {
     }
 
     /**
-     * It is assumed that for each migratable class that uses this an "id"
-     * column exists in the database, which is used as the primary key when
-     * updating the row. It's also assumed that for the time being, any
-     * additional columns besides the ID and serialized XML (e.g. name,
+     * It is assumed that for each migratable class that uses this an "id" column exists in the
+     * database, which is used as the primary key when updating the row. It's also assumed that for
+     * the time being, any additional columns besides the ID and serialized XML (e.g. name,
      * revision) will not change during migration.
      */
     private void migrateSerializedData(String selectSql, String updateSql, Class<?> expectedClass) {
