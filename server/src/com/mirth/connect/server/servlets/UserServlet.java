@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -47,23 +47,23 @@ public class UserServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // MIRTH-1745
         response.setCharacterEncoding("UTF-8");
-        
+
         UserController userController = ControllerFactory.getFactory().createUserController();
         EventController eventController = ControllerFactory.getFactory().createEventController();
         PrintWriter out = response.getWriter();
         Operation operation = Operations.getOperation(request.getParameter("op"));
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
-        if (operation.equals(Operations.USER_LOGIN)) {
-            String username = request.getParameter("username");
-            String password = request.getParameter("password");
-            String version = request.getParameter("version");
-            response.setContentType(TEXT_PLAIN);
-            serializer.toXML(login(request, response, userController, eventController, username, password, version), out);
-        } else if (!isUserLoggedIn(request)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        } else {
-            try {
+        try {
+            if (operation.equals(Operations.USER_LOGIN)) {
+                String username = request.getParameter("username");
+                String password = request.getParameter("password");
+                String version = request.getParameter("version");
+                response.setContentType(TEXT_PLAIN);
+                serializer.toXML(login(request, response, userController, eventController, username, password, version), out);
+            } else if (!isUserLoggedIn(request)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            } else {
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
 
                 if (operation.equals(Operations.USER_LOGOUT)) {
@@ -153,12 +153,12 @@ public class UserServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 }
-            } catch (RuntimeIOException rio) {
-                logger.debug(rio);
-            } catch (Throwable t) {
-                logger.error(ExceptionUtils.getStackTrace(t));
-                throw new ServletException(t);
             }
+        } catch (RuntimeIOException rio) {
+            logger.debug(rio);
+        } catch (Throwable t) {
+            logger.error(ExceptionUtils.getStackTrace(t));
+            throw new ServletException(t);
         }
     }
 
@@ -176,11 +176,11 @@ public class UserServlet extends MirthServlet {
                 HttpSession session = request.getSession();
 
                 loginStatus = userController.authorizeUser(username, password);
-                
+
                 if ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD)) {
                     User user = new User();
                     user.setUsername(username);
-                    
+
                     User validUser = userController.getUser(user).get(0);
 
                     // set the sessions attributes
