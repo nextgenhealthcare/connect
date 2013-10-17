@@ -55,16 +55,16 @@ public class UserServlet extends MirthServlet {
         Operation operation = Operations.getOperation(request.getParameter("op"));
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
-        if (operation.equals(Operations.USER_LOGIN)) {
-            String username = request.getParameter("username");
-            String password = request.getParameter("password");
-            String version = request.getParameter("version");
-            response.setContentType(TEXT_PLAIN);
-            serializer.serialize(login(request, response, userController, eventController, username, password, version), out);
-        } else if (!isUserLoggedIn(request)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        } else {
-            try {
+        try {
+            if (operation.equals(Operations.USER_LOGIN)) {
+                String username = request.getParameter("username");
+                String password = request.getParameter("password");
+                String version = request.getParameter("version");
+                response.setContentType(TEXT_PLAIN);
+                serializer.serialize(login(request, response, userController, eventController, username, password, version), out);
+            } else if (!isUserLoggedIn(request)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            } else {
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
 
                 if (operation.equals(Operations.USER_LOGOUT)) {
@@ -74,8 +74,7 @@ public class UserServlet extends MirthServlet {
                     logout(request, userController);
                 } else if (operation.equals(Operations.USER_GET)) {
                     /*
-                     * If the requesting user does not have permission, only
-                     * return themselves.
+                     * If the requesting user does not have permission, only return themselves.
                      */
                     response.setContentType(APPLICATION_XML);
                     User user = serializer.deserialize(request.getParameter("user"), User.class);
@@ -154,12 +153,12 @@ public class UserServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 }
-            } catch (RuntimeIOException rio) {
-                logger.debug(rio);
-            } catch (Throwable t) {
-                logger.error(ExceptionUtils.getStackTrace(t));
-                throw new ServletException(t);
             }
+        } catch (RuntimeIOException rio) {
+            logger.debug(rio);
+        } catch (Throwable t) {
+            logger.error(ExceptionUtils.getStackTrace(t));
+            throw new ServletException(t);
         }
     }
 
