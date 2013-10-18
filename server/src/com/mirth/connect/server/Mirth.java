@@ -131,8 +131,8 @@ public class Mirth extends Thread {
             logger.debug("starting mirth server...");
 
             // check the ports to see if they are already in use
-            boolean httpPort = testPort(mirthProperties.getString("http.port"), "http.port");
-            boolean httpsPort = testPort(mirthProperties.getString("https.port"), "https.port");
+            boolean httpPort = testPort(mirthProperties.getString("http.host"), mirthProperties.getString("http.port"), "http.port");
+            boolean httpsPort = testPort(mirthProperties.getString("https.host"), mirthProperties.getString("https.port"), "https.port");
 
             if (!httpPort || !httpsPort) {
                 return;
@@ -610,7 +610,7 @@ public class Mirth extends Thread {
     }
 
     private String getWebServerUrl(String prefix, String host, int port, String contextPath) {
-        if (StringUtils.equals(host, "0.0.0.0")) {
+        if (StringUtils.equals(host, "0.0.0.0") || StringUtils.equals(host, "::")) {
             try {
                 host = InetAddress.getLocalHost().getHostAddress();
             } catch (UnknownHostException e) {
@@ -640,11 +640,15 @@ public class Mirth extends Thread {
      *            A friendly name to display in case of an error.
      * @return
      */
-    private boolean testPort(String port, String name) {
+    private boolean testPort(String host, String port, String name) {
         ServerSocket socket = null;
 
         try {
-            socket = new ServerSocket(Integer.parseInt(port));
+            if (StringUtils.equals(host, "0.0.0.0") || StringUtils.equals(host, "::")) {
+                socket = new ServerSocket(Integer.parseInt(port));
+            } else {
+                socket = new ServerSocket(Integer.parseInt(port), 0, InetAddress.getByName(host));
+            }
         } catch (NumberFormatException ex) {
             logger.error(name + " port is invalid: " + port);
             return false;
