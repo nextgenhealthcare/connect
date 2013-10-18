@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.nio.charset.Charset;
 import java.security.KeyStore;
@@ -26,6 +27,7 @@ import java.util.List;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -125,9 +127,9 @@ public class Mirth extends Thread {
             logger.debug("starting mirth server...");
 
             // check the ports to see if they are already in use
-            boolean httpPort = testPort(mirthProperties.getString("http.port"), "http.port");
-            boolean httpsPort = testPort(mirthProperties.getString("https.port"), "https.port");
-            boolean jmxPort = testPort(mirthProperties.getString("jmx.port"), "jmx.port");
+            boolean httpPort = testPort(mirthProperties.getString("http.host"), mirthProperties.getString("http.port"), "http.port");
+            boolean httpsPort = testPort(mirthProperties.getString("https.host"), mirthProperties.getString("https.port"), "https.port");
+            boolean jmxPort = testPort(mirthProperties.getString("jmx.host"), mirthProperties.getString("jmx.port"), "jmx.port");
 
             if (!httpPort || !httpsPort || !jmxPort) {
                 return;
@@ -495,11 +497,15 @@ public class Mirth extends Thread {
      *            A friendly name to display in case of an error.
      * @return
      */
-    private boolean testPort(String port, String name) {
+    private boolean testPort(String host, String port, String name) {
         ServerSocket socket = null;
 
         try {
-            socket = new ServerSocket(Integer.parseInt(port));
+            if (StringUtils.equals(host, "0.0.0.0") || StringUtils.equals(host, "::")) {
+                socket = new ServerSocket(Integer.parseInt(port));
+            } else {
+                socket = new ServerSocket(Integer.parseInt(port), 0, InetAddress.getByName(host));
+            }
         } catch (NumberFormatException ex) {
             logger.error(name + " port is invalid: " + port);
             return false;
