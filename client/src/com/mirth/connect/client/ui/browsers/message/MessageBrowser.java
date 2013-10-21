@@ -1953,8 +1953,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         if (connectorMap != null) {
             for (Entry<String, Object> variableMapEntry : connectorMap.entrySet()) {
                 tableData[row][0] = "Connector";
-                tableData[row][1] = variableMapEntry.getKey().toString();
-                tableData[row][2] = variableMapEntry.getValue().toString();
+                tableData[row][1] = String.valueOf(variableMapEntry.getKey());
+                tableData[row][2] = String.valueOf(variableMapEntry.getValue());
                 row++;
             }
         }
@@ -1962,8 +1962,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         if (channelMap != null) {
             for (Entry<String, Object> variableMapEntry : channelMap.entrySet()) {
                 tableData[row][0] = "Channel";
-                tableData[row][1] = variableMapEntry.getKey().toString();
-                tableData[row][2] = variableMapEntry.getValue().toString();
+                tableData[row][1] = String.valueOf(variableMapEntry.getKey());
+                tableData[row][2] = String.valueOf(variableMapEntry.getValue());
                 row++;
             }
         }
@@ -1971,8 +1971,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         if (responseMap != null) {
             for (Entry<String, Object> variableMapEntry : responseMap.entrySet()) {
                 tableData[row][0] = "Response";
-                tableData[row][1] = variableMapEntry.getKey().toString();
-                tableData[row][2] = variableMapEntry.getValue().toString();
+                tableData[row][1] = String.valueOf(variableMapEntry.getKey());
+                tableData[row][2] = String.valueOf(variableMapEntry.getValue());
                 row++;
             }
         }
