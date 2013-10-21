@@ -456,7 +456,7 @@
           <ComponentRef name="processHL7ACKButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as successful.&lt;br/&gt;If disabled, the response will not be parsed and the message will always be marked as successful.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as sent.&lt;br/&gt;If disabled, the response will not be parsed and the message will always be marked as sent.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -476,7 +476,7 @@
           <ComponentRef name="processHL7ACKButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as successful.&lt;br/&gt;If disabled, the response will not be parsed and the message will always be marked as successful.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as sent.&lt;br/&gt;If disabled, the response will not be parsed and the message will always be marked as sent.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

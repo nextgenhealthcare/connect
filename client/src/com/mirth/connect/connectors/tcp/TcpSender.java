@@ -448,14 +448,14 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         processHL7ACKYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         processHL7ACKButtonGroup.add(processHL7ACKYesRadio);
         processHL7ACKYesRadio.setText("Yes");
-        processHL7ACKYesRadio.setToolTipText("<html>If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as successful.<br/>If disabled, the response will not be parsed and the message will always be marked as successful.</html>");
+        processHL7ACKYesRadio.setToolTipText("<html>If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as sent.<br/>If disabled, the response will not be parsed and the message will always be marked as sent.</html>");
         processHL7ACKYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         processHL7ACKNoRadio.setBackground(new java.awt.Color(255, 255, 255));
         processHL7ACKNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         processHL7ACKButtonGroup.add(processHL7ACKNoRadio);
         processHL7ACKNoRadio.setText("No");
-        processHL7ACKNoRadio.setToolTipText("<html>If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as successful.<br/>If disabled, the response will not be parsed and the message will always be marked as successful.</html>");
+        processHL7ACKNoRadio.setToolTipText("<html>If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as sent.<br/>If disabled, the response will not be parsed and the message will always be marked as sent.</html>");
         processHL7ACKNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         transmissionModeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP" }));
