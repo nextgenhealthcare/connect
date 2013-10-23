@@ -15,6 +15,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -39,6 +41,11 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 
 public class DatabaseMetadataDialog extends javax.swing.JDialog {
+    /**
+     * The maximum string length of column aliases in generated SELECT queries. Some databases
+     * impose a limit as low as 30.
+     */
+    private final static int MAX_ALIAS_LENGTH = 30;
 
     private Frame parent;
     private ConnectorSettingsPanel parentConnector;
@@ -219,43 +226,61 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         }
     }
 
+    /**
+     * Generates a SELECT query from a map of table names with column names.
+     * 
+     * @param metaData A map of String table names to List<String> column names
+     * @return The generated SELECT query
+     */
+    @SuppressWarnings("unchecked")
     public String createQueryFromMetaData(Map<String, Object> metaData) {
-        String query = "";
+        if (metaData == null) {
+            return null;
+        }
 
-        if (metaData != null) {
-            query += "SELECT ";
-            int i = 0;
+        Set<String> tables = new LinkedHashSet<String>();
+        Set<String> aliases = new LinkedHashSet<String>();
+        Set<String> columns = new LinkedHashSet<String>();
 
-            Iterator iterator = metaData.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Entry entry = (Entry) iterator.next();
-                String tableName = (String) entry.getKey();
-                List<String> columns = (List<String>) metaData.get(tableName);
+        for (Entry<String, Object> entry : metaData.entrySet()) {
+            String table = entry.getKey().trim();
 
-                for (String column : columns) {
-                    if (i != 0) {
-                        query += ", ";
+            for (String column : (List<String>) entry.getValue()) {
+                column = column.trim();
+                String alias = table + "_" + column;
+
+                if (alias.length() > MAX_ALIAS_LENGTH) {
+                    alias = column;
+                }
+
+                if (alias.length() > MAX_ALIAS_LENGTH) {
+                    alias = StringUtils.substring(alias, 0, MAX_ALIAS_LENGTH);
+                }
+
+                int i = 2;
+                String originalAlias = alias;
+
+                /*
+                 * If the column alias already exists, then append a counter to the end of the
+                 * alias, keeping it under MAX_ALIAS_LENGTH, until we have a new unique alias.
+                 */
+                while (aliases.contains(alias)) {
+                    alias = originalAlias + i;
+
+                    if (alias.length() > MAX_ALIAS_LENGTH) {
+                        alias = StringUtils.substring(originalAlias, 0, MAX_ALIAS_LENGTH - String.valueOf(i).length()) + i;
                     }
-                    query += tableName + "." + column.trim() + " AS " + tableName + "_" + column.trim();
+
                     i++;
                 }
-            }
 
-            query += "\nFROM ";
-
-            iterator = metaData.entrySet().iterator();
-            i = 0;
-            while (iterator.hasNext()) {
-                Entry entry = (Entry) iterator.next();
-                if (i != 0) {
-                    query += ", ";
-                }
-                query += entry.getKey();
-                i++;
+                tables.add(table);
+                aliases.add(alias);
+                columns.add(table + "." + column + " AS " + alias);
             }
         }
 
-        return query;
+        return "SELECT " + StringUtils.join(columns, ", ") + "\nFROM " + StringUtils.join(tables, ", ");
     }
 
     public List<String> createInsertFromMetaData(Map<String, Object> metaData) {
