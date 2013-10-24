@@ -37,6 +37,7 @@ public class ConnectorMessageQueue {
     private String channelId;
     private Integer metaDataId;
     private Set<Long> checkedOut = new HashSet<Long>();
+    private Set<Long> deleted = new HashSet<Long>();
 
     public ConnectorMessageQueue() {}
 
@@ -65,7 +66,7 @@ public class ConnectorMessageQueue {
         metaDataId = dataSource.getMetaDataId();
 
         this.dataSource = dataSource;
-        invalidate(false);
+        invalidate(false, true);
     }
 
     public boolean isRotate() {
@@ -80,9 +81,14 @@ public class ConnectorMessageQueue {
         size = dataSource.getSize();
     }
 
-    public synchronized void invalidate(boolean updateSize) {
+    public synchronized void invalidate(boolean updateSize, boolean reset) {
         buffer.clear();
-        checkedOut.clear();
+
+        if (reset) {
+            checkedOut.clear();
+            deleted.clear();
+        }
+
         size = null;
 
         if (updateSize) {
@@ -238,6 +244,36 @@ public class ConnectorMessageQueue {
         }
 
         return connectorMessage;
+    }
+
+    public synchronized boolean isCheckedOut(Long messageId) {
+        boolean isCheckedOut = checkedOut.contains(messageId);
+
+        /*
+         * If the message is no longer checked out and it was previously marked as deleted, we want
+         * to remove it from the deleted list as well as the buffer so that it does not get acquired
+         * again.
+         */
+        if (!isCheckedOut && deleted.contains(messageId)) {
+            deleted.remove(messageId);
+            buffer.remove(messageId);
+            updateSize();
+        }
+
+        return isCheckedOut;
+    }
+
+    public synchronized void markAsDeleted(Long messageId) {
+        deleted.add(messageId);
+    }
+
+    public synchronized boolean releaseIfDeleted(ConnectorMessage connectorMessage) {
+        if (deleted.contains(connectorMessage.getMessageId())) {
+            release(connectorMessage, true);
+            return true;
+        }
+
+        return false;
     }
 
     public synchronized void release(ConnectorMessage connectorMessage, boolean finished) {

@@ -365,11 +365,11 @@ public class Channel implements Startable, Stoppable, Runnable {
     }
 
     public void invalidateQueues() {
-        sourceQueue.invalidate(true);
+        sourceQueue.invalidate(true, false);
 
         for (DestinationChain chain : destinationChains) {
             for (Integer metaDataId : chain.getMetaDataIds()) {
-                chain.getDestinationConnectors().get(metaDataId).getQueue().invalidate(true);
+                chain.getDestinationConnectors().get(metaDataId).getQueue().invalidate(true, false);
             }
         }
     }
@@ -929,6 +929,8 @@ public class Channel implements Startable, Stoppable, Runnable {
                     persistedMessageId = sourceMessage.getMessageId();
                     dao.close();
 
+                    markDeletedQueuedMessages(rawMessage, persistedMessageId);
+
                     processedMessage = process(sourceMessage, false);
 
                     boolean messageCompleted = messageController.isMessageCompleted(processedMessage);
@@ -944,6 +946,8 @@ public class Channel implements Startable, Stoppable, Runnable {
                         dao.close();
                         queue(sourceMessage);
                     }
+
+                    markDeletedQueuedMessages(rawMessage, persistedMessageId);
                 }
 
                 if (responseSelector.canRespond()) {
@@ -1004,6 +1008,33 @@ public class Channel implements Startable, Stoppable, Runnable {
         } finally {
             synchronized (dispatchThreads) {
                 dispatchThreads.remove(currentThread);
+            }
+        }
+    }
+
+    private void markDeletedQueuedMessages(RawMessage rawMessage, Long persistedMessageId) throws InterruptedException {
+        /*
+         * If the current message has overwritten a previous one, we mark this message as deleted in
+         * all destination queues. This is done so that if a queue thread is currently processing a
+         * message, it will release the message after the current attempt, instead of keeping the
+         * message in memory and trying again. To ensure that all queues are no longer trying to
+         * process this message, we wait until the message is no longer checked out.
+         */
+        if (rawMessage.isOverwrite() && rawMessage.getOriginalMessageId() != null) {
+            // Mark the message as deleted in all queues first
+            for (Integer metaDataId : getMetaDataIds()) {
+                if (!metaDataId.equals(0)) {
+                    getDestinationConnector(metaDataId).getQueue().markAsDeleted(persistedMessageId);
+                }
+            }
+
+            // Wait until the message is not checked out in all queues
+            for (Integer metaDataId : getMetaDataIds()) {
+                if (!metaDataId.equals(0)) {
+                    while (getDestinationConnector(metaDataId).getQueue().isCheckedOut(persistedMessageId)) {
+                        Thread.sleep(100);
+                    }
+                }
             }
         }
     }
@@ -1827,7 +1858,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     stopSourceQueue = false;
 
                     // Remove any items in the queue's buffer because they may be outdated and refresh the queue size.
-                    sourceQueue.invalidate(true);
+                    sourceQueue.invalidate(true, true);
 
                     // enable all destination connectors in each chain
                     for (DestinationChain chain : destinationChains) {

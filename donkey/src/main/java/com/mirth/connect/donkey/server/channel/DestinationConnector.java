@@ -32,7 +32,6 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Constants;
-import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
@@ -174,7 +173,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
         if (isQueueEnabled()) {
             // Remove any items in the queue's buffer because they may be outdated and refresh the queue size
-            queue.invalidate(true);
+            queue.invalidate(true, true);
 
             for (int i = 0; i < queueProperties.getThreadCount(); i++) {
                 Thread thread = new Thread(this);
@@ -212,7 +211,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
             } finally {
                 // Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
                 // unsynchronized with the data store.
-                queue.invalidate(false);
+                queue.invalidate(false, true);
             }
         }
 
@@ -268,7 +267,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 } finally {
                     // Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
                     // unsynchronized with the data store.
-                    queue.invalidate(false);
+                    queue.invalidate(false, true);
                 }
             }
 
@@ -397,21 +396,24 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 }
 
                 if (connectorMessage != null) {
-                    /*
-                     * If the last message id is equal to the current message id, then the message
-                     * was not successfully send and is being retried, so wait the retry interval.
-                     * 
-                     * If the last message id is greater than the current message id, then some
-                     * message was not successful, message rotation is on, and the queue is back to
-                     * the oldest message, so wait the retry interval.
-                     */
-                    if (attemptedFirst.getAndSet(false) || (lastMessageId != null && lastMessageId >= connectorMessage.getMessageId())) {
-                        Thread.sleep(retryIntervalMillis);
-                    }
-
-                    lastMessageId = connectorMessage.getMessageId();
+                    boolean exceptionCaught = false;
 
                     try {
+                        /*
+                         * If the last message id is equal to the current message id, then the
+                         * message was not successfully send and is being retried, so wait the retry
+                         * interval.
+                         * 
+                         * If the last message id is greater than the current message id, then some
+                         * message was not successful, message rotation is on, and the queue is back
+                         * to the oldest message, so wait the retry interval.
+                         */
+                        if (attemptedFirst.getAndSet(false) || (lastMessageId != null && lastMessageId >= connectorMessage.getMessageId())) {
+                            Thread.sleep(retryIntervalMillis);
+                        }
+
+                        lastMessageId = connectorMessage.getMessageId();
+
                         dao = daoFactory.getDao();
                         Status previousStatus = connectorMessage.getStatus();
 
@@ -492,25 +494,39 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
                         ThreadUtils.checkInterruptedStatus();
                         dao.commit(storageSettings.isDurable());
+                    } catch (RuntimeException e) {
+                        logger.error("Error processing queued " + (connectorMessage != null ? connectorMessage.toString() : "message (null)") + " for channel " + getChannelId() + " (" + destinationName + "). This error is expected if the message was manually removed from the queue.", e);
+                        /*
+                         * Invalidate the queue's buffer if any errors occurred. If the message
+                         * being processed by the queue was deleted, this will prevent the queue
+                         * from trying to process that message repeatedly. Since multiple
+                         * queues/threads may need to do this as well, we do not reset the queue's
+                         * maps of checked in or deleted messages.
+                         */
+                        queue.invalidate(true, false);
+                        exceptionCaught = true;
+                    } finally {
+                        if (dao != null) {
+                            dao.close();
+                        }
 
-                        if (connectorMessage.getStatus() != Status.QUEUED) {
+                        /*
+                         * We always want to release the message if it's done (obviously), or if an
+                         * exception was caught while processing or committing anything.
+                         */
+                        if (connectorMessage.getStatus() != Status.QUEUED || exceptionCaught) {
                             canAcquire = true;
                             queue.release(connectorMessage, true);
                         } else if (queueProperties.isRotate()) {
                             canAcquire = true;
                             queue.release(connectorMessage, false);
                         } else {
-                            canAcquire = false;
-                        }
-                    } catch (RuntimeException e) {
-                        logger.error("Error processing queued " + (connectorMessage != null ? connectorMessage.toString() : "message (null)") + " for channel " + getChannelId() + " (" + destinationName + "). This error is expected if the message was manually removed from the queue.", e);
-                        // Invalidate the queue's buffer if any errors occurred. If the message being processed by the queue was deleted,
-                        // This will prevent the queue from trying to process that message repeatedly.
-                        queue.invalidate(true);
-                        canAcquire = true;
-                    } finally {
-                        if (dao != null) {
-                            dao.close();
+                            /*
+                             * If the message is still queued, no exception occurred, and queue
+                             * rotation is disabled, we still want to force the queue to re-acquire
+                             * a message if it has been marked as deleted by another process.
+                             */
+                            canAcquire = queue.releaseIfDeleted(connectorMessage);
                         }
                     }
                 } else {
