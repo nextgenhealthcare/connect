@@ -54,6 +54,7 @@ public class HL7V3Serializer implements IXMLSerializer {
             if (serializationProperties.isStripNamespaces()) {
                 source = StringUtil.stripNamespaces(source);
             }
+            source = source.trim();
         } catch (Exception e) {
             throw new XmlSerializerException("Error transforming HL7 v3.x", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming HL7 v3.x", e));
         }

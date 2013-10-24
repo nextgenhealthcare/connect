@@ -54,6 +54,7 @@ public class DefaultXMLSerializer implements IXMLSerializer {
             if (serializationProperties.isStripNamespaces()) {
                 source = StringUtil.stripNamespaces(source);
             }
+            source = source.trim();
         } catch (Exception e) {
             throw new XmlSerializerException("Error transforming XML", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error transforming XML", e));
         }
