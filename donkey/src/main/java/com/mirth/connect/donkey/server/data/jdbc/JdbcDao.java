@@ -289,7 +289,7 @@ public class JdbcDao implements DonkeyDao {
             throw new DonkeyDaoException(e);
         }
     }
-    
+
     @Override
     public void addChannelStatistics(Statistics statistics) {
         for (Entry<String, Map<Integer, Map<Status, Long>>> channelEntry : statistics.getStats().entrySet()) {
@@ -302,7 +302,7 @@ public class JdbcDao implements DonkeyDao {
                 for (Entry<Integer, Map<Status, Long>> connectorEntry : channelEntry.getValue().entrySet()) {
                     Integer metaDataId = connectorEntry.getKey();
                     Map<Status, Long> connectorStats = connectorEntry.getValue();
-                    
+
                     long received = connectorStats.get(Status.RECEIVED);
                     long filtered = connectorStats.get(Status.FILTERED);
                     long sent = connectorStats.get(Status.SENT);
@@ -312,21 +312,21 @@ public class JdbcDao implements DonkeyDao {
                         logger.debug(channelId + "/" + metaDataId + ": saving statistics");
 
                         PreparedStatement statement;
-                        
+
                         if (metaDataId == null) {
                             if (channelStatement == null) {
                                 channelStatement = prepareStatement("updateChannelStatistics", channelId);
                             }
-                            
+
                             statement = channelStatement;
                         } else {
                             if (connectorStatement == null) {
                                 connectorStatement = prepareStatement("updateConnectorStatistics", channelId);
                             }
-                            
+
                             statement = connectorStatement;
                         }
-                        
+
                         statement.setLong(1, received);
                         statement.setLong(2, received);
                         statement.setLong(3, filtered);
@@ -335,23 +335,23 @@ public class JdbcDao implements DonkeyDao {
                         statement.setLong(6, sent);
                         statement.setLong(7, error);
                         statement.setLong(8, error);
-    
+
                         if (metaDataId != null) {
                             statement.setInt(9, metaDataId);
                             statement.setString(10, statsServerId);
                         } else {
                             statement.setString(9, statsServerId);
                         }
-    
+
                         if (statement.executeUpdate() == 0) {
                             statement = prepareStatement("insertChannelStatistics", channelId);
-    
+
                             if (metaDataId == null) {
                                 statement.setNull(1, Types.INTEGER);
                             } else {
                                 statement.setInt(1, metaDataId);
                             }
-    
+
                             statement.setString(2, statsServerId);
                             statement.setLong(3, received);
                             statement.setLong(4, received);
@@ -370,7 +370,7 @@ public class JdbcDao implements DonkeyDao {
             }
         }
     }
-    
+
     @Override
     public void insertMessageAttachment(String channelId, long messageId, Attachment attachment) {
         logger.debug(channelId + "/" + messageId + ": inserting message attachment");
@@ -1457,7 +1457,7 @@ public class JdbcDao implements DonkeyDao {
             String queryName = (metaDataId == null) ? "resetChannelStatistics" : "resetConnectorStatistics";
             statement = connection.prepareStatement(querySource.getQuery(queryName, values));
             statement.setString(1, statsServerId);
-            
+
             if (metaDataId != null) {
                 statement.setInt(2, metaDataId);
             }
@@ -1480,7 +1480,7 @@ public class JdbcDao implements DonkeyDao {
             close(statement);
         }
     }
-    
+
     @Override
     public void resetAllStatistics(String channelId) {
         logger.debug(channelId + ": resetting all statistics (including lifetime)");
@@ -1493,29 +1493,33 @@ public class JdbcDao implements DonkeyDao {
             statement = connection.prepareStatement(querySource.getQuery("resetAllStatistics", values));
             statement.setString(1, statsServerId);
             statement.executeUpdate();
-            
+
             Set<Status> statuses = Statistics.getTrackedStatuses();
-            
+
             Map<Integer, Set<Status>> metaDataIdsCurrent = resetCurrentStats.get(channelId);
             if (metaDataIdsCurrent == null) {
                 metaDataIdsCurrent = new HashMap<Integer, Set<Status>>();
                 resetCurrentStats.put(channelId, metaDataIdsCurrent);
             }
-            
+
             Map<Integer, Map<Status, Long>> channelCurrentStats = currentStats.getStats().get(channelId);
-            for (Entry<Integer, Map<Status, Long>> channelEntry : channelCurrentStats.entrySet()) {
-                metaDataIdsCurrent.put(channelEntry.getKey(), statuses);
+            if (channelCurrentStats != null) {
+                for (Entry<Integer, Map<Status, Long>> channelEntry : channelCurrentStats.entrySet()) {
+                    metaDataIdsCurrent.put(channelEntry.getKey(), statuses);
+                }
             }
-            
+
             Map<Integer, Set<Status>> metaDataIdsTotal = resetTotalStats.get(channelId);
             if (metaDataIdsTotal == null) {
                 metaDataIdsTotal = new HashMap<Integer, Set<Status>>();
                 resetTotalStats.put(channelId, metaDataIdsTotal);
             }
-            
+
             Map<Integer, Map<Status, Long>> channelTotalStats = totalStats.getStats().get(channelId);
-            for (Entry<Integer, Map<Status, Long>> channelEntry : channelTotalStats.entrySet()) {
-                metaDataIdsTotal.put(channelEntry.getKey(), statuses);
+            if (channelTotalStats != null) {
+                for (Entry<Integer, Map<Status, Long>> channelEntry : channelTotalStats.entrySet()) {
+                    metaDataIdsTotal.put(channelEntry.getKey(), statuses);
+                }
             }
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -1643,10 +1647,10 @@ public class JdbcDao implements DonkeyDao {
                     totalStats.resetStats(channelId, metaDataId, statuses);
                 }
             }
-            
+
             // Clear the reset stats map because we've just reset the stats
             resetTotalStats.clear();
-            
+
             // update the in-memory total stats with the stats we just saved in storage
             totalStats.update(transactionStats);
 
@@ -1941,12 +1945,9 @@ public class JdbcDao implements DonkeyDao {
     }
 
     /**
-     * When using Derby, we manually cascade the deletion of records from
-     * dependent tables
-     * rather than relying on ON DELETE CASCADE behavior. Derby uses a
-     * table-level lock when
-     * cascading deletes, which hinders concurrency and can increase the risk of
-     * deadlocks.
+     * When using Derby, we manually cascade the deletion of records from dependent tables rather
+     * than relying on ON DELETE CASCADE behavior. Derby uses a table-level lock when cascading
+     * deletes, which hinders concurrency and can increase the risk of deadlocks.
      */
     private void cascadeMessageDelete(String queryId, String channelId) throws SQLException {
         PreparedStatement statement = prepareStatement(queryId, channelId);
@@ -1957,12 +1958,9 @@ public class JdbcDao implements DonkeyDao {
     }
 
     /**
-     * When using Derby, we manually cascade the deletion of records from
-     * dependent tables
-     * rather than relying on ON DELETE CASCADE behavior. Derby uses a
-     * table-level lock when
-     * cascading deletes, which hinders concurrency and can increase the risk of
-     * deadlocks.
+     * When using Derby, we manually cascade the deletion of records from dependent tables rather
+     * than relying on ON DELETE CASCADE behavior. Derby uses a table-level lock when cascading
+     * deletes, which hinders concurrency and can increase the risk of deadlocks.
      */
     private void cascadeMessageDelete(String queryId, long messageId, String channelId) throws SQLException {
         PreparedStatement statement = prepareStatement(queryId, channelId);
@@ -1974,12 +1972,9 @@ public class JdbcDao implements DonkeyDao {
     }
 
     /**
-     * When using Derby, we manually cascade the deletion of records from
-     * dependent tables
-     * rather than relying on ON DELETE CASCADE behavior. Derby uses a
-     * table-level lock when
-     * cascading deletes, which hinders concurrency and can increase the risk of
-     * deadlocks.
+     * When using Derby, we manually cascade the deletion of records from dependent tables rather
+     * than relying on ON DELETE CASCADE behavior. Derby uses a table-level lock when cascading
+     * deletes, which hinders concurrency and can increase the risk of deadlocks.
      */
     private void cascadeMessageDelete(String queryId, long messageId, Map<String, Object> values) throws SQLException {
         String query = querySource.getQuery(queryId, values);
@@ -1998,8 +1993,7 @@ public class JdbcDao implements DonkeyDao {
     }
 
     /**
-     * Returns a prepared statement from the statementSource for the given
-     * channelId.
+     * Returns a prepared statement from the statementSource for the given channelId.
      */
     private PreparedStatement prepareStatement(String queryId, String channelId) throws SQLException {
         Long localChannelId = null;
