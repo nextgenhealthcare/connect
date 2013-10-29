@@ -1442,7 +1442,7 @@ public class CommandLineInterface {
 
     private boolean checkAlertName(String name) throws ClientException {
         if (name.equals("")) {
-            out.println("Channel name cannot be empty.");
+            out.println("Alert name cannot be empty.");
             return false;
         }
 
@@ -1450,7 +1450,7 @@ public class CommandLineInterface {
         Matcher matcher = alphaNumericPattern.matcher(name);
 
         if (!matcher.find()) {
-            out.println("Channel name cannot have special characters besides hyphen, underscore, and space.");
+            out.println("Alert name cannot have special characters besides hyphen, underscore, and space.");
             return false;
         }
 

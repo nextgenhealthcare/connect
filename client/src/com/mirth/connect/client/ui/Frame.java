@@ -4319,7 +4319,7 @@ public class Frame extends JXFrame {
      */
     public boolean checkAlertName(String name) {
         if (name.equals("")) {
-            alertWarning(this, "Channel name cannot be empty.");
+            alertWarning(this, "Alert name cannot be empty.");
             return false;
         }
 
@@ -4327,7 +4327,7 @@ public class Frame extends JXFrame {
         Matcher matcher = alphaNumericPattern.matcher(name);
 
         if (!matcher.find()) {
-            alertWarning(this, "Channel name cannot have special characters besides hyphen, underscore, and space.");
+            alertWarning(this, "Alert name cannot have special characters besides hyphen, underscore, and space.");
             return false;
         }
 

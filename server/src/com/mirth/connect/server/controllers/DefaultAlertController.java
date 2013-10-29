@@ -170,7 +170,7 @@ public class DefaultAlertController extends AlertController {
             params.put("name", alert.getName());
 
             if ((Boolean) SqlConfig.getSqlSessionManager().selectOne("Alert.getAlertNameExists", params)) {
-                throw new ControllerException("An alert with that name aleady exists.");
+                throw new ControllerException("An alert with that name already exists.");
             }
         }
 

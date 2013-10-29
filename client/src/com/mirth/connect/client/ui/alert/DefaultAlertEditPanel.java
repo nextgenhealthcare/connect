@@ -161,7 +161,11 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
             parent.mirthClient.updateAlert(alertModel);
             updated = true;
         } catch (ClientException e) {
-            parent.alertException(this.parent, e.getStackTrace(), e.getMessage());
+            if (e.getMessage().contains("An alert with that name already exists.")) {
+                parent.alertWarning(parent, "Alert \"" + alertModel.getName() + "\" already exists.");
+            } else {
+                parent.alertException(this.parent, e.getStackTrace(), e.getMessage());
+            }
         }
 
         return updated;
