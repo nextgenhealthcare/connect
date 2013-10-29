@@ -107,7 +107,7 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
             	throw new DeleteException(file);
             }
         } else {
-        	throw new FileNotFoundException(file.toString());
+            throw new FileNotFoundException(file != null ? file.toString() : "");
         }
     }
 
