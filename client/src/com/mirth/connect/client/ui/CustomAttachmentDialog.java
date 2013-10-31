@@ -206,8 +206,8 @@ public class CustomAttachmentDialog extends javax.swing.JDialog {
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Fully Qualified Java Class Name"));
 
-        jLabel1.setText("The specified class must extend AttachmentHandler.");
-        jLabel1.setToolTipText("com.mirth.connect.donkey.model.message.attachment.AttachmentHandler");
+        jLabel1.setText("The specified class must extend MirthAttachmentHandler.");
+        jLabel1.setToolTipText("com.mirth.connect.server.util.MirthAttachmentHandler");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);

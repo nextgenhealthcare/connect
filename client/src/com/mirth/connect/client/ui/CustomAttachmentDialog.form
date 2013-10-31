@@ -207,8 +207,8 @@
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel1">
               <Properties>
-                <Property name="text" type="java.lang.String" value="The specified class must extend AttachmentHandler."/>
-                <Property name="toolTipText" type="java.lang.String" value="com.mirth.connect.donkey.model.message.attachment.AttachmentHandler"/>
+                <Property name="text" type="java.lang.String" value="The specified class must extend MirthAttachmentHandler."/>
+                <Property name="toolTipText" type="java.lang.String" value="com.mirth.connect.server.util.MirthAttachmentHandler"/>
               </Properties>
             </Component>
           </SubComponents>
