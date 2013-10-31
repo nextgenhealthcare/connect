@@ -800,13 +800,14 @@
 		</delete>
 
 		<!-- modify jar manifests -->
+		<!-- don't modify bcprov, since we are starting with a modified and signed version -->
 		<echo message="Modifying jar manifests to add Permissions: all-permissions; Codebase: *; Application-Name: Mirth Connect" />
 		<parallel>
 		    <apply executable="jar">
 		        <arg value="umf" />
 		        <arg line="custom_manifest.mf" />
 		        <srcfile />
-		    	<fileset dir="${setup.client.lib}" includes="**/*.jar" />
+		    	<fileset dir="${setup.client.lib}" includes="**/*.jar" excludes="bcprov*.jar"/>
 		    </apply>
 		    <apply executable="jar">
 		        <arg value="umf" />
@@ -823,7 +824,7 @@
 			<signjar alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
 				<!-- http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7127374 -->
 				<sysproperty key="jsse.enableSNIExtension" value="false" />
-				<fileset dir="${setup.client.lib}" includes="**/*.jar" />
+				<fileset dir="${setup.client.lib}" includes="**/*.jar" excludes="bcprov*.jar" />
 			</signjar>
 			<signjar alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
 				<!-- http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7127374 -->
