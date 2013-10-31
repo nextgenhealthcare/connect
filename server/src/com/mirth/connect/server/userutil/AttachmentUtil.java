@@ -18,12 +18,16 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.server.controllers.MessageController;
+import com.mirth.connect.server.attachments.MirthAttachmentHandler;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
 
 /**
  * Provides utility methods for creating, retrieving, and re-attaching message attachments.
  */
 public class AttachmentUtil {
+    private static EngineController engineController = ControllerFactory.getFactory().createEngineController();
     private static Logger logger = Logger.getLogger(AttachmentUtil.class);
 
     private AttachmentUtil() {}
@@ -44,7 +48,7 @@ public class AttachmentUtil {
      *         re-inserted.
      */
     public static byte[] reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage, String charsetEncoding, boolean binary) {
-        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(raw, connectorMessage, charsetEncoding, binary);
+        return getAttachmentHandler(connectorMessage.getChannelId()).reAttachMessage(raw, connectorMessage, charsetEncoding, binary);
     }
 
     /**
@@ -63,7 +67,7 @@ public class AttachmentUtil {
     // TODO: Remove in 3.1
     public static String reAttachMessage(MessageObject messageObject) {
         logger.error("The reAttachMessage(messageObject) method is deprecated and will soon be removed. Please use reAttachMessage(connectorMessage) instead.");
-        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(messageObject.getImmutableConnectorMessage());
+        return getAttachmentHandler(messageObject.getChannelId()).reAttachMessage(messageObject.getImmutableConnectorMessage());
     }
 
     /**
@@ -77,7 +81,7 @@ public class AttachmentUtil {
      * @return The resulting message with all applicable attachment content re-inserted.
      */
     public static String reAttachMessage(ImmutableConnectorMessage connectorMessage) {
-        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(connectorMessage);
+        return getAttachmentHandler(connectorMessage.getChannelId()).reAttachMessage(connectorMessage);
     }
 
     /**
@@ -95,7 +99,7 @@ public class AttachmentUtil {
     // TODO: Remove in 3.1
     public static String reAttachRawMessage(MessageObject messageObject) {
         logger.error("The reAttachRawMessage(messageObject) method is deprecated and will soon be removed. Please use reAttachMessage(raw, connectorMessage) instead.");
-        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(messageObject.getRawData(), messageObject.getImmutableConnectorMessage());
+        return getAttachmentHandler(messageObject.getChannelId()).reAttachMessage(messageObject.getRawData(), messageObject.getImmutableConnectorMessage());
     }
 
     /**
@@ -113,7 +117,7 @@ public class AttachmentUtil {
     // TODO: Remove in 3.1
     public static String reAttachRawMessage(ImmutableConnectorMessage connectorMessage) {
         logger.error("The reAttachRawMessage(connectorMessage) method is deprecated and will soon be removed. Please use reAttachMessage(raw, connectorMessage) instead.");
-        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(connectorMessage.getRawData(), connectorMessage);
+        return getAttachmentHandler(connectorMessage.getChannelId()).reAttachMessage(connectorMessage.getRawData(), connectorMessage);
     }
 
     /**
@@ -128,7 +132,7 @@ public class AttachmentUtil {
      * @return The resulting message with all applicable attachment content re-inserted.
      */
     public static String reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage) {
-        return com.mirth.connect.server.util.MessageAttachmentUtil.reAttachMessage(raw, connectorMessage);
+        return getAttachmentHandler(connectorMessage.getChannelId()).reAttachMessage(raw, connectorMessage);
     }
 
     /**
@@ -144,7 +148,7 @@ public class AttachmentUtil {
     // TODO: Remove in 3.1
     public static List<Attachment> getMessageAttachments(MessageObject messageObject) throws XmlSerializerException {
         logger.error("The getMessageAttachments(messageObject) method is deprecated and will soon be removed. Please use getMessageAttachments(connectorMessage) instead.");
-        return convertFromDonkeyAttachmentList(com.mirth.connect.server.util.MessageAttachmentUtil.getMessageAttachments(messageObject.getImmutableConnectorMessage()));
+        return convertFromDonkeyAttachmentList(MirthAttachmentHandler.getMessageAttachments(messageObject.getImmutableConnectorMessage()));
     }
 
     /**
@@ -155,7 +159,7 @@ public class AttachmentUtil {
      * @return A list of attachments associated with the connector message.
      */
     public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage connectorMessage) throws XmlSerializerException {
-        return convertFromDonkeyAttachmentList(com.mirth.connect.server.util.MessageAttachmentUtil.getMessageAttachments(connectorMessage));
+        return convertFromDonkeyAttachmentList(MirthAttachmentHandler.getMessageAttachments(connectorMessage));
     }
 
     /**
@@ -217,5 +221,9 @@ public class AttachmentUtil {
 
     static com.mirth.connect.donkey.model.message.attachment.Attachment convertToDonkeyAttachment(Attachment attachment) {
         return new com.mirth.connect.donkey.model.message.attachment.Attachment(attachment.getId(), attachment.getContent(), attachment.getType());
+    }
+
+    private static MirthAttachmentHandler getAttachmentHandler(String channelId) {
+        return (MirthAttachmentHandler) engineController.getDeployedChannel(channelId).getAttachmentHandler();
     }
 }

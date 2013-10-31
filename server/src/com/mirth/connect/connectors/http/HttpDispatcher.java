@@ -59,7 +59,6 @@ import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.util.MessageAttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
@@ -239,7 +238,7 @@ public class HttpDispatcher extends DestinationConnector {
     private HttpMethod buildHttpRequest(HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage, File tempFile) throws Exception {
         String address = httpDispatcherProperties.getHost();
         String method = httpDispatcherProperties.getMethod();
-        Object content = MessageAttachmentUtil.reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage);
+        Object content = getAttachmentHandler().reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage);
         String contentType = httpDispatcherProperties.getContentType();
         String charset = httpDispatcherProperties.getCharset();
         boolean isMultipart = httpDispatcherProperties.isMultipart();

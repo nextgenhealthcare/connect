@@ -24,6 +24,7 @@ import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
@@ -34,7 +35,6 @@ import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.util.MessageAttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorMessageBuilder;
@@ -179,8 +179,10 @@ public class SmtpDispatcher extends DestinationConnector {
 
             email.setFrom(smtpDispatcherProperties.getFrom());
             email.setSubject(smtpDispatcherProperties.getSubject());
+            
+            AttachmentHandler attachmentHandler = getAttachmentHandler();
 
-            String body = MessageAttachmentUtil.reAttachMessage(smtpDispatcherProperties.getBody(), connectorMessage);
+            String body = attachmentHandler.reAttachMessage(smtpDispatcherProperties.getBody(), connectorMessage);
 
             if (StringUtils.isNotEmpty(body)) {
                 if (smtpDispatcherProperties.isHtml()) {
@@ -205,13 +207,13 @@ public class SmtpDispatcher extends DestinationConnector {
                 if (StringUtils.indexOf(mimeType, "/") < 0) {
                     logger.warn("valid MIME type is missing for email attachment: \"" + name + "\", using default of text/plain");
                     attachment.setMimeType("text/plain");
-                    bytes = MessageAttachmentUtil.reAttachMessage(content, connectorMessage, charsetEncoding, false);
+                    bytes = attachmentHandler.reAttachMessage(content, connectorMessage, charsetEncoding, false);
                 } else if ("application/xml".equalsIgnoreCase(mimeType) || StringUtils.startsWith(mimeType, "text/")) {
                     logger.debug("text or XML MIME type detected for attachment \"" + name + "\"");
-                    bytes = MessageAttachmentUtil.reAttachMessage(content, connectorMessage, charsetEncoding, false);
+                    bytes = attachmentHandler.reAttachMessage(content, connectorMessage, charsetEncoding, false);
                 } else {
                     logger.debug("binary MIME type detected for attachment \"" + name + "\", performing Base64 decoding");
-                    bytes = MessageAttachmentUtil.reAttachMessage(content, connectorMessage, null, true);
+                    bytes = attachmentHandler.reAttachMessage(content, connectorMessage, null, true);
                 }
 
                 ((MultiPartEmail) email).attach(new ByteArrayDataSource(bytes, mimeType), name, null);

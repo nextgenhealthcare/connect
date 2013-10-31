@@ -29,6 +29,7 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
@@ -46,7 +47,6 @@ import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.server.mybatis.MessageSearchResult;
 import com.mirth.connect.server.util.DICOMMessageUtil;
 import com.mirth.connect.server.util.DatabaseUtil;
-import com.mirth.connect.server.util.MessageAttachmentUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.MessageEncryptionUtil;
 import com.mirth.connect.util.MessageExporter;
@@ -367,7 +367,9 @@ public class DonkeyMessageController extends MessageController {
     @Override
     public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds) {
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
-        DataType dataType = engineController.getDeployedChannel(channelId).getSourceConnector().getInboundDataType();
+        Channel deployedChannel = engineController.getDeployedChannel(channelId);
+        AttachmentHandler attachmentHandler = deployedChannel.getAttachmentHandler();
+        DataType dataType = deployedChannel.getSourceConnector().getInboundDataType();
         Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();
 
         Map<String, Object> params = getParameters(filter, channelId, null, null);
@@ -398,7 +400,7 @@ public class DonkeyMessageController extends MessageController {
                 if (ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).isBinary()) {
                     rawMessage = new RawMessage(DICOMMessageUtil.getDICOMRawBytes(connectorMessage));
                 } else {
-                    rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(MessageAttachmentUtil.reAttachMessage(rawContent.getContent(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
+                    rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(attachmentHandler.reAttachMessage(rawContent.getContent(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
                 }
 
                 rawMessage.setOverwrite(replace);

@@ -45,7 +45,6 @@ import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.util.MessageAttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
@@ -138,7 +137,7 @@ public class DocumentDispatcher extends DestinationConnector {
             contents.append(template);
         }
 
-        String stringContents = MessageAttachmentUtil.reAttachMessage(contents.toString(), connectorMessage);
+        String stringContents = getAttachmentHandler().reAttachMessage(contents.toString(), connectorMessage);
 
         if (documentDispatcherProperties.getDocumentType().toLowerCase().equals("pdf")) {
             FileOutputStream renderFos = null;

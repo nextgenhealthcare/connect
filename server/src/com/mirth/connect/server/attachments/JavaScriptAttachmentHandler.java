@@ -14,13 +14,12 @@ import java.util.List;
 
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
-import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 
-public class JavaScriptAttachmentHandler extends AttachmentHandler {
+public class JavaScriptAttachmentHandler extends MirthAttachmentHandler {
 
     private String newMessage;
     private List<com.mirth.connect.server.userutil.Attachment> attachments;
@@ -73,5 +72,10 @@ public class JavaScriptAttachmentHandler extends AttachmentHandler {
     @Override
     public void setProperties(AttachmentHandlerProperties attachmentProperties) {
 
+    }
+
+    @Override
+    public boolean canExtractAttachments() {
+        return true;
     }
 }

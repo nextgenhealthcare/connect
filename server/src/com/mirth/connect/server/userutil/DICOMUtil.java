@@ -19,13 +19,16 @@ import org.dcm4che2.data.DicomObject;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DICOMConverter;
-import com.mirth.connect.server.util.MessageAttachmentUtil;
+import com.mirth.connect.server.attachments.MirthAttachmentHandler;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
 
 /**
  * Provides DICOM utility methods.
  */
 public class DICOMUtil {
+    private static EngineController engineController = ControllerFactory.getFactory().createEngineController();
     private static Logger logger = Logger.getLogger(DICOMUtil.class);
 
     private DICOMUtil() {}
@@ -173,7 +176,7 @@ public class DICOMUtil {
     // TODO: Remove in 3.1
     public static List<Attachment> getMessageAttachments(MessageObject messageObject) throws XmlSerializerException {
         logger.error("The DICOMUtil.getMessageAttachments(messageObject) method is deprecated and will soon be removed. Please use getAttachments() instead.");
-        return AttachmentUtil.convertFromDonkeyAttachmentList(MessageAttachmentUtil.getMessageAttachments(messageObject.getImmutableConnectorMessage()));
+        return AttachmentUtil.convertFromDonkeyAttachmentList(MirthAttachmentHandler.getMessageAttachments(messageObject.getImmutableConnectorMessage()));
     }
 
     /**
@@ -190,7 +193,7 @@ public class DICOMUtil {
     // TODO: Remove in 3.1
     public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage connectorMessage) throws XmlSerializerException {
         logger.error("The DICOMUtil.getMessageAttachments(connectorMessage) method is deprecated and will soon be removed. Please use getAttachments() instead.");
-        return AttachmentUtil.convertFromDonkeyAttachmentList(MessageAttachmentUtil.getMessageAttachments(connectorMessage));
+        return AttachmentUtil.convertFromDonkeyAttachmentList(MirthAttachmentHandler.getMessageAttachments(connectorMessage));
     }
 
     /**
@@ -368,7 +371,7 @@ public class DICOMUtil {
     // TODO: Remove in 3.1
     public static String reAttachMessage(MessageObject messageObject) {
         logger.error("The DICOMUtil.reAttachMessage(messageObject) method is deprecated and will soon be removed. Please use AttachmentUtil.reAttachMessage(connectorMessage) instead.");
-        return MessageAttachmentUtil.reAttachMessage(messageObject.getImmutableConnectorMessage());
+        return getAttachmentHandler(messageObject.getChannelId()).reAttachMessage(messageObject.getImmutableConnectorMessage());
     }
 
     /**
@@ -387,7 +390,7 @@ public class DICOMUtil {
     // TODO: Remove in 3.1
     public static String reAttachMessage(ImmutableConnectorMessage connectorMessage) {
         logger.error("The DICOMUtil.reAttachMessage(connectorMessage) method is deprecated and will soon be removed. Please use AttachmentUtil.reAttachMessage(connectorMessage) instead.");
-        return MessageAttachmentUtil.reAttachMessage(connectorMessage);
+        return getAttachmentHandler(connectorMessage.getChannelId()).reAttachMessage(connectorMessage);
     }
 
     /**
@@ -458,5 +461,9 @@ public class DICOMUtil {
      */
     public static byte[] dicomObjectToByteArray(DicomObject dicomObject) throws IOException {
         return DICOMConverter.dicomObjectToByteArray(dicomObject);
+    }
+
+    private static MirthAttachmentHandler getAttachmentHandler(String channelId) {
+        return (MirthAttachmentHandler) engineController.getDeployedChannel(channelId).getAttachmentHandler();
     }
 }

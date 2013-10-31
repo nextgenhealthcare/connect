@@ -18,8 +18,9 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.StringUtils;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.Constants;
-import com.mirth.connect.server.util.MessageAttachmentUtil;
+import com.mirth.connect.server.attachments.MirthAttachmentHandler;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class JdbcUtils {
@@ -80,9 +81,11 @@ public class JdbcUtils {
      *            A connector message to reference when looking up values
      * @param map
      *            A String/Object map to reference when looking up values
+     * @param attachmentHandler
+     *            An attachment handler to use for re-attaching attachment data in the parameter values
      * @return
      */
-    public static Object[] getParameters(List<String> paramNames, String channelId, ConnectorMessage connectorMessage, Map<String, Object> map) {
+    public static Object[] getParameters(List<String> paramNames, String channelId, ConnectorMessage connectorMessage, Map<String, Object> map, AttachmentHandler attachmentHandler) {
         Object[] params = new Object[paramNames.size()];
         TemplateValueReplacer replacer = new TemplateValueReplacer();
         int i = 0;
@@ -99,8 +102,8 @@ public class JdbcUtils {
                 value = replacer.replaceValues(paramName, channelId);
             }
 
-            if (MessageAttachmentUtil.hasAttachmentKeys(value.toString())) {
-                value = StringUtils.newString(MessageAttachmentUtil.reAttachMessage(value.toString(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET);
+            if (attachmentHandler != null && MirthAttachmentHandler.hasAttachmentKeys(value.toString())) {
+                value = StringUtils.newString(attachmentHandler.reAttachMessage(value.toString(), connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET);
             }
 
             params[i++] = value;

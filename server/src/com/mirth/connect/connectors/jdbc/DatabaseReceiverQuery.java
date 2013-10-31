@@ -156,7 +156,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
                  * given
                  * channel id
                  */
-                for (Object param : JdbcUtils.getParameters(selectParams, connector.getChannelId(), null, null)) {
+                for (Object param : JdbcUtils.getParameters(selectParams, connector.getChannelId(), null, null, null)) {
                     selectStatement.setObject(objectIndex++, param);
                 }
 
@@ -235,7 +235,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
              * TemplateValueReplacer to look up values from the given resultMap or merged
              * ConnectorMessage
              */
-            for (Object param : JdbcUtils.getParameters(updateParams, connector.getChannelId(), mergedConnectorMessage, resultMap)) {
+            for (Object param : JdbcUtils.getParameters(updateParams, connector.getChannelId(), mergedConnectorMessage, resultMap, null)) {
                 updateStatement.setObject(i++, param);
             }
 

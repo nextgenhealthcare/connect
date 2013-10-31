@@ -9,21 +9,27 @@
 
 package com.mirth.connect.model.attachments;
 
-import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.model.util.JavaScriptConstants;
+import com.mirth.connect.server.attachments.MirthAttachmentHandler;
+import com.mirth.connect.server.attachments.PassthruAttachmentHandler;
 
 public class AttachmentHandlerFactory {
     
-    public static AttachmentHandler getAttachmentHandler(AttachmentHandlerProperties attachmentProperties) throws Exception {
-        AttachmentHandler attachmentHandler = null;
-        
+    public static MirthAttachmentHandler getAttachmentHandler(AttachmentHandlerProperties attachmentProperties) throws Exception {
         if (AttachmentHandlerType.fromString(attachmentProperties.getType()) != AttachmentHandlerType.NONE) {
-            attachmentHandler = (AttachmentHandler) Class.forName(attachmentProperties.getClassName()).newInstance();
-            attachmentHandler.setProperties(attachmentProperties);
+            Class<?> attachmentHandlerClass = Class.forName(attachmentProperties.getClassName());
+
+            if (MirthAttachmentHandler.class.isAssignableFrom(attachmentHandlerClass)) {
+                MirthAttachmentHandler attachmentHandler = (MirthAttachmentHandler) Class.forName(attachmentProperties.getClassName()).newInstance();
+                attachmentHandler.setProperties(attachmentProperties);
+                return attachmentHandler;
+            } else {
+                throw new Exception(attachmentProperties.getClassName() + " does not extend " + MirthAttachmentHandler.class.getName());
+            }
         }
-        
-        return attachmentHandler;
+
+        return new PassthruAttachmentHandler();
     }
     
     public static AttachmentHandlerProperties getDefaults(AttachmentHandlerType type) {
