@@ -213,6 +213,7 @@ public class Frame extends JXFrame {
     private Map<Component, String> componentTaskMap = new HashMap<Component, String>();
     private boolean acceleratorKeyPressed = false;
     private Set<String> allChannelTags;
+    private Component initialDashboardTabComponent;
     private RemoveMessagesDialog removeMessagesDialog;
     private MessageExportDialog messageExportDialog;
     private MessageImportDialog messageImportDialog;
@@ -1744,9 +1745,21 @@ public class Frame extends JXFrame {
         BareBonesBrowserLaunch.openURL(UIConstants.ISSUE_TRACKER_LOCATION);
     }
 
+    /**
+     * This method is temporary and was added (MIRTH-2945) to be able to specify which dashboard tab
+     * should be shown when the Administrator is first launched. Once MIRTH-3034 is completed, this
+     * method should be removed and the plugin with the greatest weight/priority will be the first
+     * one displayed.
+     * 
+     * @author brentm
+     */
+    public void setInitialDashboardTabComponent(Component component) {
+        initialDashboardTabComponent = component;
+    }
+
     public void doShowDashboard() {
         if (dashboardPanel == null) {
-            dashboardPanel = new DashboardPanel();
+            dashboardPanel = new DashboardPanel(initialDashboardTabComponent);
         }
 
         if (!confirmLeave()) {

@@ -12,7 +12,6 @@ package com.mirth.connect.client.ui;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -39,7 +38,7 @@ public class LoadedExtensions {
     private List<ClientPlugin> clientPlugins = new ArrayList<ClientPlugin>();
     private Map<String, SettingsPanelPlugin> settingsPanelPlugins = new HashMap<String, SettingsPanelPlugin>();
     private Map<String, ChannelPanelPlugin> channelPanelPlugins = new HashMap<String, ChannelPanelPlugin>();
-    private Map<String, DashboardPanelPlugin> dashboardPanelPlugins = new LinkedHashMap<String, DashboardPanelPlugin>();
+    private Map<String, DashboardPanelPlugin> dashboardPanelPlugins = new HashMap<String, DashboardPanelPlugin>();
     private Map<String, ChannelWizardPlugin> channelWizardPlugins = new HashMap<String, ChannelWizardPlugin>();
     private Map<String, ChannelColumnPlugin> channelColumnPlugins = new HashMap<String, ChannelColumnPlugin>();
     private Map<String, DashboardColumnPlugin> dashboardColumnPlugins = new HashMap<String, DashboardColumnPlugin>();

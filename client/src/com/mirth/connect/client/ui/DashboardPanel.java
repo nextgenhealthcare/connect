@@ -70,7 +70,7 @@ public class DashboardPanel extends javax.swing.JPanel {
     private Frame parent;
     private boolean showLifetimeStats = false;
 
-    public DashboardPanel() {
+    public DashboardPanel(Component initialTabComponent) {
         this.parent = PlatformUI.MIRTH_FRAME;
 
         initComponents();
@@ -92,6 +92,10 @@ public class DashboardPanel extends javax.swing.JPanel {
         makeStatusTable();
 
         this.setDoubleBuffered(true);
+
+        if (initialTabComponent != null) {
+            tabs.setSelectedComponent(initialTabComponent);
+        }
     }
 
     public void loadPanelPlugins() {
