@@ -63,7 +63,7 @@
 		<delete dir="${classes}" />
 		<delete dir="${setup}" />
 		<delete dir="${dist}" />
-		<delete dir="${extensions}" />
+		<delete dir="${build}" />
 		<delete dir="${docs.javadocs}" />
 	</target>
 
@@ -798,6 +798,23 @@
 		<delete>
 			<fileset dir="${setup}" includes="**/.svn" />
 		</delete>
+
+		<!-- modify jar manifests -->
+		<echo message="Modifying jar manifests to add Permissions: all-permissions; Codebase: *; Application-Name: Mirth Connect" />
+		<parallel>
+		    <apply executable="jar">
+		        <arg value="umf" />
+		        <arg line="custom_manifest.mf" />
+		        <srcfile />
+		    	<fileset dir="${setup.client.lib}" includes="**/*.jar" />
+		    </apply>
+		    <apply executable="jar">
+		        <arg value="umf" />
+		        <arg line="custom_manifest.mf" />
+		        <srcfile />
+		    	<fileset dir="${setup.extensions}" includes="**/*.jar" />
+		    </apply>
+		</parallel>
 
 		<!-- sign jars for webstart -->
 		<property file="${keystore_property_file}" />
