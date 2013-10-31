@@ -1087,7 +1087,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             sourceMessage.setChannelMap(rawMessage.getChannelMap());
         }
 
-        if (attachmentHandler != null) {
+        if (attachmentHandler != null && attachmentHandler.canExtractAttachments()) {
             ThreadUtils.checkInterruptedStatus();
 
             try {

@@ -11,16 +11,25 @@ package com.mirth.connect.donkey.model.message.attachment;
 
 import java.io.Serializable;
 
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.channel.Channel;
 
-public abstract class AttachmentHandler implements Serializable {
-    public abstract void initialize(String message, Channel channel) throws AttachmentException;
+public interface AttachmentHandler extends Serializable {
+    public void initialize(String message, Channel channel) throws AttachmentException;
 
-    public abstract void initialize(byte[] bytes, Channel channel) throws AttachmentException;
+    public void initialize(byte[] bytes, Channel channel) throws AttachmentException;
 
-    public abstract Attachment nextAttachment() throws AttachmentException;
+    public Attachment nextAttachment() throws AttachmentException;
 
-    public abstract String shutdown() throws AttachmentException;
+    public String shutdown() throws AttachmentException;
 
-    public abstract void setProperties(AttachmentHandlerProperties attachmentProperties);
+    public void setProperties(AttachmentHandlerProperties attachmentProperties);
+    
+    public byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary);
+
+    public String reAttachMessage(ConnectorMessage message);
+    
+    public String reAttachMessage(String raw, ConnectorMessage message);
+
+    public boolean canExtractAttachments();
 }

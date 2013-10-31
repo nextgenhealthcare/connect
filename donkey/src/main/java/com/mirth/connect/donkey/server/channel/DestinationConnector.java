@@ -31,6 +31,7 @@ import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
@@ -160,6 +161,10 @@ public abstract class DestinationConnector extends Connector implements Runnable
      */
     public boolean isQueueRotate() {
         return (queueProperties != null && queueProperties.isRotate());
+    }
+
+    protected AttachmentHandler getAttachmentHandler() {
+        return channel.getAttachmentHandler();
     }
 
     public void updateCurrentState(DeployedState currentState) {
