@@ -75,10 +75,12 @@ import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.Transformer;
-import com.mirth.connect.model.attachments.AttachmentHandlerFactory;
+import com.mirth.connect.model.attachments.AttachmentHandlerType;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.attachments.JavaScriptAttachmentHandler;
+import com.mirth.connect.server.attachments.MirthAttachmentHandler;
+import com.mirth.connect.server.attachments.PassthruAttachmentHandler;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.channel.MirthMetaDataReplacer;
 import com.mirth.connect.server.message.DataTypeFactory;
@@ -648,21 +650,34 @@ public class DonkeyEngineController implements EngineController {
     }
 
     private AttachmentHandler createAttachmentHandler(String channelId, AttachmentHandlerProperties attachmentHandlerProperties) throws Exception {
-        AttachmentHandler attachmentHandler = AttachmentHandlerFactory.getAttachmentHandler(attachmentHandlerProperties);
+        AttachmentHandler attachmentHandler = null;
 
-        if (attachmentHandler instanceof JavaScriptAttachmentHandler) {
-            String scriptId = ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channelId);
-            String attachmentScript = attachmentHandlerProperties.getProperties().get("javascript.script");
+        if (AttachmentHandlerType.fromString(attachmentHandlerProperties.getType()) != AttachmentHandlerType.NONE) {
+            Class<?> attachmentHandlerClass = Class.forName(attachmentHandlerProperties.getClassName());
 
-            if (attachmentScript != null) {
-                try {
-                    Set<String> scriptOptions = new HashSet<String>();
-                    scriptOptions.add("useAttachmentList");
-                    JavaScriptUtil.compileAndAddScript(scriptId, attachmentScript, scriptOptions);
-                } catch (Exception e) {
-                    logger.error("Error compiling attachment handler script " + scriptId + ".", e);
+            if (MirthAttachmentHandler.class.isAssignableFrom(attachmentHandlerClass)) {
+                attachmentHandler = (MirthAttachmentHandler) attachmentHandlerClass.newInstance();
+                attachmentHandler.setProperties(attachmentHandlerProperties);
+
+                if (attachmentHandler instanceof JavaScriptAttachmentHandler) {
+                    String scriptId = ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channelId);
+                    String attachmentScript = attachmentHandlerProperties.getProperties().get("javascript.script");
+
+                    if (attachmentScript != null) {
+                        try {
+                            Set<String> scriptOptions = new HashSet<String>();
+                            scriptOptions.add("useAttachmentList");
+                            JavaScriptUtil.compileAndAddScript(scriptId, attachmentScript, scriptOptions);
+                        } catch (Exception e) {
+                            logger.error("Error compiling attachment handler script " + scriptId + ".", e);
+                        }
+                    }
                 }
+            } else {
+                throw new Exception(attachmentHandlerProperties.getClassName() + " does not extend " + MirthAttachmentHandler.class.getName());
             }
+        } else {
+            attachmentHandler = new PassthruAttachmentHandler();
         }
 
         return attachmentHandler;

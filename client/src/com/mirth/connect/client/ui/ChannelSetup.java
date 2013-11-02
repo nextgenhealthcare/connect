@@ -76,7 +76,6 @@ import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
-import com.mirth.connect.model.attachments.AttachmentHandlerFactory;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.util.JavaScriptConstants;
@@ -2613,7 +2612,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         AttachmentHandlerType type = (AttachmentHandlerType) attachmentComboBox.getSelectedItem();
         AttachmentHandlerType lastType = AttachmentHandlerType.fromString(currentChannel.getProperties().getAttachmentProperties().getType());
 
-        if (lastType != AttachmentHandlerType.NONE && lastType != type && !AttachmentHandlerFactory.getDefaults(lastType).equals(currentChannel.getProperties().getAttachmentProperties())) {
+        if (lastType != AttachmentHandlerType.NONE && lastType != type && !lastType.getDefaultProperties().equals(currentChannel.getProperties().getAttachmentProperties())) {
             boolean changeType = parent.alertOption(this.parent, "Are you sure you would like to change this attachment handler type and lose all of the current handler data?");
             if (!changeType) {
                 attachmentComboBox.setSelectedItem(lastType);
@@ -2625,7 +2624,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         attachmentPropertiesButton.setEnabled((type != AttachmentHandlerType.NONE && type != AttachmentHandlerType.DICOM));
 
         if (lastType != type) {
-            currentChannel.getProperties().setAttachmentProperties(AttachmentHandlerFactory.getDefaults(type));
+            currentChannel.getProperties().setAttachmentProperties(type.getDefaultProperties());
         }
 
         MessageStorageMode messageStorageMode = MessageStorageMode.fromInt(messageStorageSlider.getValue());

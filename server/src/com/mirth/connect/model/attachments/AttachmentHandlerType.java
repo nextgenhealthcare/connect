@@ -9,9 +9,11 @@
 
 package com.mirth.connect.model.attachments;
 
+import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
+import com.mirth.connect.model.util.JavaScriptConstants;
+
 public enum AttachmentHandlerType {
-    NONE("None"), REGEX("Regex"), DICOM("DICOM"), JAVASCRIPT("JavaScript"), CUSTOM(
-            "Custom");
+    NONE("None"), REGEX("Regex"), DICOM("DICOM"), JAVASCRIPT("JavaScript"), CUSTOM("Custom");
 
     private String type;
 
@@ -23,16 +25,29 @@ public enum AttachmentHandlerType {
         return type;
     }
 
-    public static String getDefaultClassName(AttachmentHandlerType type) {
-        if (type == NONE) {
+    public AttachmentHandlerProperties getDefaultProperties() {
+        AttachmentHandlerProperties properties = new AttachmentHandlerProperties(this.getDefaultClassName(), type.toString());
+
+        if (this == AttachmentHandlerType.REGEX) {
+            properties.getProperties().put("regex.pattern", "");
+            properties.getProperties().put("regex.mimetype", "");
+        } else if (this == AttachmentHandlerType.JAVASCRIPT) {
+            properties.getProperties().put("javascript.script", JavaScriptConstants.DEFAULT_CHANNEL_ATTACHMENT_SCRIPT);
+        }
+
+        return properties;
+    }
+
+    public String getDefaultClassName() {
+        if (this == NONE) {
             return null;
-        } else if (type == REGEX) {
+        } else if (this == REGEX) {
             return "com.mirth.connect.server.attachments.RegexAttachmentHandler";
-        } else if (type == DICOM) {
+        } else if (this == DICOM) {
             return "com.mirth.connect.server.attachments.DICOMAttachmentHandler";
-        } else if (type == JAVASCRIPT) {
+        } else if (this == JAVASCRIPT) {
             return "com.mirth.connect.server.attachments.JavaScriptAttachmentHandler";
-        } else if (type == CUSTOM) {
+        } else if (this == CUSTOM) {
             return "";
         }
 
@@ -48,10 +63,10 @@ public enum AttachmentHandlerType {
             return DICOM;
         } else if (type.equals("JavaScript")) {
             return JAVASCRIPT;
-        } else if (type.equals("Custom")){
+        } else if (type.equals("Custom")) {
             return CUSTOM;
         }
-        
+
         return null;
     }
 }

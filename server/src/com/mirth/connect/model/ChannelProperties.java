@@ -19,7 +19,6 @@ import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.util.migration.Migratable;
-import com.mirth.connect.model.attachments.AttachmentHandlerFactory;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -46,7 +45,7 @@ public class ChannelProperties implements Serializable, Migratable {
         initialState = DeployedState.STARTED;
         tags = new LinkedHashSet<String>();
         metaDataColumns = new ArrayList<MetaDataColumn>();
-        attachmentProperties = AttachmentHandlerFactory.getDefaults(AttachmentHandlerType.NONE);
+        attachmentProperties = AttachmentHandlerType.NONE.getDefaultProperties();
         archiveEnabled = true;
     }
 
