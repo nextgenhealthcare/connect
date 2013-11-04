@@ -221,12 +221,14 @@ public abstract class AbstractSortableTreeTableNode extends AbstractMutableTreeT
         }
         
         
-        // MIRTH: Modified Sorting Code
-        private void checkAndSetColumnType(Object key){
-            if(key instanceof CellData){
-                this.key = (Comparable) ((CellData)key).getText();
-            }
-            else{
+        /*
+         * MIRTH: Rather than just storing the key, if the key coming in is a String, change it to
+         * lower case for lexicographical comparison.
+         */
+        private void checkAndSetColumnType(Object key) {
+            if (key instanceof String) {
+                this.key = (Comparable) ((String) key).toLowerCase();
+            } else {
                 this.key = (Comparable) key;
             }
         }
