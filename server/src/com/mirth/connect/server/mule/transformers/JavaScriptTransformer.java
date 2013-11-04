@@ -425,7 +425,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         newScript.append("if (defaultValue == undefined) { defaultValue = ''} result = defaultValue; } ");
         newScript.append("result = new java.lang.String(result.toString()); ");
         newScript.append("if (replacement != undefined) {");
-        newScript.append("for (i = 0; i < replacement.length; i++) { ");
+        newScript.append("for (var i = 0; i < replacement.length; i++) { ");
         newScript.append("var entry = replacement[i]; result = result.replaceAll(entry[0], entry[1]); } } return result; }");
 
         newScript.append("function $(string) { ");
