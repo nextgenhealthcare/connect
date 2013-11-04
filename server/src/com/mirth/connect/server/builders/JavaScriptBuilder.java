@@ -320,7 +320,7 @@ public class JavaScriptBuilder {
         builder.append("if (defaultValue == undefined) { defaultValue = ''} result = defaultValue; } ");
         builder.append("result = new java.lang.String(result.toString()); ");
         builder.append("if (replacement != undefined) {");
-        builder.append("for (i = 0; i < replacement.length; i++) { ");
+        builder.append("for (var i = 0; i < replacement.length; i++) { ");
         builder.append("var entry = replacement[i]; result = result.replaceAll(entry[0], entry[1]); } } return result; }");
 
         // Helper function to create segments
