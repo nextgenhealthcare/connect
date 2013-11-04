@@ -26,7 +26,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Element;
 
 import com.mirth.connect.donkey.util.DateParser;
 import com.mirth.connect.donkey.util.DateParser.DateParserException;
@@ -131,9 +130,6 @@ public class ImportConverter3_0_0 {
         boolean isQueuingEnabled = false;
 
         for (DonkeyElement destinationConnector : channel.getChildElement("destinationConnectors").getChildElements()) {
-            // Before migrating, we clone the destination connector here in case we need to add a response channel writer later
-            DonkeyElement oldDestinationConnector = new DonkeyElement((Element) destinationConnector.cloneNode(true));
-
             ConnectorMigrationMetaData connectorMetaData = migrateConnector(destinationConnector, metaDataId);
 
             if (connectorMetaData.dispatcherMetaData.isQueueEnabled) {
@@ -148,15 +144,6 @@ public class ImportConverter3_0_0 {
                 responseConnectorProperties.getChildElement("responseVariable").setTextContent("d" + metaDataId);
             }
 
-            // Add a destination connector if the previous one used the Send Response To option
-            String sendResponseToChannelId = connectorMetaData.dispatcherMetaData.sendResponseToChannelId;
-            if (StringUtils.isNotBlank(sendResponseToChannelId) && !sendResponseToChannelId.equals("sink")) {
-                createResponseChannelWriter(oldDestinationConnector, metaDataId++, sendResponseToChannelId);
-
-                // Insert the migrated response channel writer before the next destination connector, or at the end
-                destinationConnector.getParentNode().insertBefore(oldDestinationConnector.cloneNode(true), destinationConnector.getNextSibling());
-            }
-
             metaDataId++;
         }
 
@@ -164,69 +151,6 @@ public class ImportConverter3_0_0 {
         migrateChannelProperties(channel.getChildElement("properties"), isDataTypeDICOM, isQueuingEnabled);
 
         channel.addChildElement("nextMetaDataId").setTextContent(Integer.toString(metaDataId));
-    }
-
-    private static void createResponseChannelWriter(DonkeyElement connector, Integer prevMetaDataId, String channelId) throws MigrationException {
-        String responseMapKey = "d" + String.valueOf(prevMetaDataId);
-        DonkeyElement name = connector.getChildElement("name");
-        name.setTextContent(name.getTextContent() + " - Send response to channel " + channelId);
-
-        connector.getChildElement("transportName").setTextContent("Channel Writer");
-
-        // Remove all connector properties and replace them with Channel Writer properties
-        DonkeyElement properties = connector.getChildElement("properties");
-        properties.removeChildren();
-        addChildAndSetName(properties, "DataType").setTextContent("Channel Writer");
-        addChildAndSetName(properties, "host").setTextContent(channelId);
-        // This connector should always have its destination queue enabled
-        addChildAndSetName(properties, "synchronised").setTextContent("0");
-        // Sends the response data from the previous destination
-        addChildAndSetName(properties, "template").setTextContent("${" + responseMapKey + ".message}");
-
-        // Remove all transformer steps
-        DonkeyElement transformer = connector.getChildElement("transformer");
-        transformer.getChildElement("steps").removeChildren();
-        // We don't want the transformer to run, so set the outbound data type equal to the inbound,
-        // and remove all properties (which will cause migration to set them as the defaults)
-        transformer.getChildElement("outboundProtocol").setTextContent(transformer.getChildElement("inboundProtocol").getTextContent());
-        transformer.getChildElement("inboundProperties").removeChildren();
-        transformer.getChildElement("outboundProperties").removeChildren();
-
-        // If the previous destination had a filter, we need to add a filter on this destination as well
-        // The filter has a single step that accepts the message if the previous destination was not filtered
-        if (connector.getChildElement("filter").getChildElement("rules").getChildElements().size() > 0) {
-            // Remove all filter rules
-            connector.getChildElement("filter").getChildElement("rules").removeChildren();
-
-            DonkeyElement rule = connector.getChildElement("filter").getChildElement("rules").addChildElement("rule");
-            rule.addChildElement("sequenceNumber", "0");
-            rule.addChildElement("name", "Accept message if \"$('" + responseMapKey + "').getStatus()\" does not equal 'FILTERED'");
-            rule.addChildElement("type", "Rule Builder");
-            rule.addChildElement("operator", "NONE");
-
-            DonkeyElement data = rule.addChildElement("data");
-            data.setAttribute("class", "map");
-            addMapEntry(data, "Values", "'FILTERED'", true);
-            addMapEntry(data, "Name", "", false);
-            addMapEntry(data, "Equals", "0", false);
-            addMapEntry(data, "Field", "$('" + responseMapKey + "').getStatus()", false);
-            addMapEntry(data, "OriginalField", "", false);
-
-            rule.addChildElement("script", "if($('" + responseMapKey + "').getStatus() != 'FILTERED')\n{\nreturn true;\n}\nreturn false;");
-        }
-
-        // Run the new destination connector through regular migration
-        migrateConnector(connector, prevMetaDataId + 1);
-    }
-
-    private static void addMapEntry(DonkeyElement map, String key, String value, boolean valueIsList) {
-        DonkeyElement entry = map.addChildElement("entry");
-        entry.addChildElement("string", key);
-        if (valueIsList) {
-            entry.addChildElement("list").addChildElement("string", value);
-        } else {
-            entry.addChildElement("string", value);
-        }
     }
 
     private static ConnectorMigrationMetaData migrateConnector(DonkeyElement connector, Integer metaDataId) throws MigrationException {
@@ -331,15 +255,39 @@ public class ImportConverter3_0_0 {
         if (mode.equals("DESTINATION")) {
             String outboundDataType = dataTypes[1];
             String convertedOutboundDataType;
+            String sendResponseToChannelId = dispatcherMetaData.sendResponseToChannelId;
+            boolean sendResponseTo = StringUtils.isNotBlank(sendResponseToChannelId) && !sendResponseToChannelId.equals("sink");
 
-            if (outboundDataType.equals("EDI") || outboundDataType.equals("X12")) {
+            if (sendResponseTo) {
+                if (connectorName.equals("LLP Sender") && outboundDataType.equals("HL7V2") && properties.getChildElement("processHL7ACK").getTextContent().equals("true")) {
+                    convertedOutboundDataType = "HL7V2";
+                } else {
+                    convertedOutboundDataType = "RAW";
+                }
+            } else if (outboundDataType.equals("EDI") || outboundDataType.equals("X12")) {
                 convertedOutboundDataType = "EDI/X12";
             } else {
                 convertedOutboundDataType = outboundDataType;
             }
 
             DonkeyElement responseTransformer = connector.addChildElement("responseTransformer");
-            responseTransformer.addChildElement("steps");
+            DonkeyElement steps = responseTransformer.addChildElement("steps");
+
+            if (sendResponseTo) {
+                String script = "if (response.getMessage() != '') {\n\trouter.routeMessageByChannelId('" + sendResponseToChannelId + "', response.getMessage());\n}";
+
+                DonkeyElement step = steps.addChildElement("step");
+                step.addChildElement("sequenceNumber", "0");
+                step.addChildElement("name", "Send Response To Channel " + sendResponseToChannelId);
+                step.addChildElement("script", script);
+                step.addChildElement("type", "JavaScript");
+
+                DonkeyElement data = step.addChildElement("data");
+                data.setAttribute("class", "map");
+                DonkeyElement entry = data.addChildElement("entry");
+                entry.addChildElement("string", "Script");
+                entry.addChildElement("string", script);
+            }
 
             responseTransformer.addChildElement("inboundDataType").setTextContent(convertedOutboundDataType);
             responseTransformer.addChildElement("outboundDataType").setTextContent(convertedOutboundDataType);
