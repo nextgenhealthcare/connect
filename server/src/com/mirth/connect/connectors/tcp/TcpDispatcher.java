@@ -223,15 +223,14 @@ public class TcpDispatcher extends DestinationConnector {
                     eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.WAITING_FOR_RESPONSE, info));
                     byte[] responseBytes = streamHandler.read();
                     if (responseBytes != null) {
-                        streamHandler.commit(true);
                         responseData = new String(responseBytes, CharsetUtils.getEncoding(tcpDispatcherProperties.getCharsetEncoding()));
-                        responseStatus = Status.SENT;
                         responseStatusMessage = "Message successfully sent.";
                     } else {
-                        responseStatusMessage = "Response was not received.";
-                        responseError = "Response was not received.";
-                        logger.debug("Response was not received (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
+                        responseStatusMessage = "Message successfully sent, but no response received.";
                     }
+
+                    streamHandler.commit(true);
+                    responseStatus = Status.SENT;
 
                     // We only want to validate the response if we were able to retrieve it successfully
                     validateResponse = tcpDispatcherProperties.isProcessHL7ACK();
@@ -264,6 +263,7 @@ public class TcpDispatcher extends DestinationConnector {
 
                 // We're ignoring the response, so always return a successful response
                 responseStatus = Status.SENT;
+                responseStatusMessage = "Message successfully sent.";
             }
 
             if (tcpDispatcherProperties.isKeepConnectionOpen() && (getCurrentState() == DeployedState.STARTED || getCurrentState() == DeployedState.STARTING)) {
@@ -297,10 +297,6 @@ public class TcpDispatcher extends DestinationConnector {
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error sending message via TCP.", t));
         } finally {
             eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), (Boolean) null));
-        }
-
-        if (responseStatus == Status.SENT) {
-            responseStatusMessage = "Message successfully sent.";
         }
 
         Response response = new Response(responseStatus, responseData, responseStatusMessage, responseError);
