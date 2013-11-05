@@ -286,12 +286,18 @@ public class TcpDispatcher extends DestinationConnector {
             responseStatusMessage = t.getClass().getSimpleName() + ": " + t.getMessage();
             responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), t.getMessage(), t);
 
+            String logMessage = "Error sending message via TCP (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").";
+
             if (t instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             } else if (t instanceof ConnectException || t.getCause() != null && t.getCause() instanceof ConnectException) {
-                logger.error("Error sending message via TCP (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", t);
+                if (isQueueEnabled()) {
+                    logger.warn(logMessage, t);
+                } else {
+                    logger.error(logMessage, t);
+                }
             } else {
-                logger.debug("Error sending message via TCP (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", t);
+                logger.debug(logMessage, t);
             }
 
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error sending message via TCP.", t));

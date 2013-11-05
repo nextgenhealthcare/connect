@@ -108,7 +108,13 @@ public class DatabaseDispatcher extends DestinationConnector {
         } catch (InterruptedException e) {
             throw e;
         } catch (DatabaseDispatcherException e) {
-            logger.error("An error occurred in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\": " + e.getMessage(), ExceptionUtils.getRootCause(e));
+            String logMessage = "An error occurred in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\": " + e.getMessage();
+            if (isQueueEnabled()) {
+                logger.warn(logMessage, ExceptionUtils.getRootCause(e));
+            } else {
+                logger.error(logMessage, ExceptionUtils.getRootCause(e));
+            }
+
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), e.getMessage(), e));
             return new Response(Status.QUEUED, null, ErrorMessageBuilder.buildErrorResponse("Error writing to database.", e), ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), e.getMessage(), e));
         } finally {

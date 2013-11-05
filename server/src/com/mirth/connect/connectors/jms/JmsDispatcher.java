@@ -185,7 +185,13 @@ public class JmsDispatcher extends DestinationConnector {
                 }
             }
         } catch (Exception e) {
-            logger.error("An error occurred in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\": " + e.getMessage(), ExceptionUtils.getRootCause(e));
+            String logMessage = "An error occurred in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\": " + e.getMessage();
+            if (isQueueEnabled()) {
+                logger.warn(logMessage, ExceptionUtils.getRootCause(e));
+            } else {
+                logger.error(logMessage, ExceptionUtils.getRootCause(e));
+            }
+
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error occurred when attempting to send JMS message.", e));
             responseStatus = Status.QUEUED;
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error occurred when attempting to send JMS message.", e);
