@@ -41,6 +41,7 @@ public class RuleBuilderPanel extends BasePanel {
     private int lastIndex = -1;
     private String name = "";
     private String originalField = "";
+    private boolean documentListenerEnabled = true;
 
     /** Creates new form MapperPanel */
     public RuleBuilderPanel(MirthEditorPane p, final RuleBuilderPlugin rulePlugin) {
@@ -52,18 +53,24 @@ public class RuleBuilderPanel extends BasePanel {
         fieldTextField.getDocument().addDocumentListener(new DocumentListener() {
 
             public void changedUpdate(DocumentEvent arg0) {
-                parent.modified = true;
-                rulePlugin.updateName();
+                if (documentListenerEnabled) {
+                    parent.modified = true;
+                    rulePlugin.updateName();
+                }
             }
 
             public void insertUpdate(DocumentEvent arg0) {
-                parent.modified = true;
-                rulePlugin.updateName();
+                if (documentListenerEnabled) {
+                    parent.modified = true;
+                    rulePlugin.updateName();
+                }
             }
 
             public void removeUpdate(DocumentEvent arg0) {
-                parent.modified = true;
-                rulePlugin.updateName();
+                if (documentListenerEnabled) {
+                    parent.modified = true;
+                    rulePlugin.updateName();
+                }
             }
         });
 
@@ -120,6 +127,10 @@ public class RuleBuilderPanel extends BasePanel {
         });
         deleteButton.setEnabled(false);
 
+    }
+
+    public void setDocumentListenerEnabled(boolean documentListenerEnabled) {
+        this.documentListenerEnabled = documentListenerEnabled;
     }
 
     public void updateTable() {

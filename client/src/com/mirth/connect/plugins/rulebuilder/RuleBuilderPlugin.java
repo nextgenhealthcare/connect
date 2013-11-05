@@ -31,7 +31,7 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
     public RuleBuilderPlugin(String name) {
         super(name);
     }
-    
+
     @Override
     public void initialize(FilterPane pane) {
         this.parent = pane;
@@ -224,19 +224,28 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
     }
 
     @Override
-    public void start() {
-    }
+    public void start() {}
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 
     @Override
-    public void reset() {
-    }
+    public void reset() {}
 
     @Override
     public String getPluginPointName() {
         return "Rule Builder";
+    }
+
+    @Override
+    public void moveStart() {
+        // Disable the document listener while this rule is being moved so it doesn't rename other rules
+        panel.setDocumentListenerEnabled(false);
+    }
+
+    @Override
+    public void moveEnd() {
+        // Enable the document listener when the rule has finished being moved
+        panel.setDocumentListenerEnabled(true);
     }
 }

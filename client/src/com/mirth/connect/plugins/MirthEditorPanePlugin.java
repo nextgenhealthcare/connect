@@ -54,4 +54,8 @@ public abstract class MirthEditorPanePlugin extends ClientPlugin {
     public boolean isProvideOwnStepName() {
         return provideOwnStepName;
     }
+
+    public void moveStart() {}
+
+    public void moveEnd() {}
 }
