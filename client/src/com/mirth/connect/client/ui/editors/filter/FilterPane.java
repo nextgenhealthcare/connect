@@ -899,10 +899,18 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         // we can't move past the first or last row
         if (moveTo >= 0 && moveTo < filterTable.getRowCount()) {
+            for (FilterRulePlugin plugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
+                plugin.moveStart();
+            }
+
             saveData(selRow);
             loadData(moveTo);
             filterTableModel.moveRow(selRow, selRow, moveTo);
             filterTable.setRowSelectionInterval(moveTo, moveTo);
+
+            for (FilterRulePlugin plugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
+                plugin.moveEnd();
+            }
         }
 
         updateRuleNumbers();

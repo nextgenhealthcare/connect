@@ -1017,15 +1017,27 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
         // we can't move past the first or last row
         if (isValid(moveTo)) {
+            for (TransformerStepPlugin plugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
+                plugin.moveStart();
+            }
+            
             saveData(selRow);
 
             // if the row was invalid, do not move the row.
             if (isInvalidVar()) {
+                for (TransformerStepPlugin plugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
+                    plugin.moveEnd();
+                }
+                
                 return;
             }
             loadData(moveTo);
             transformerTableModel.moveRow(selRow, selRow, moveTo);
             transformerTable.setRowSelectionInterval(moveTo, moveTo);
+            
+            for (TransformerStepPlugin plugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
+                plugin.moveEnd();
+            }
         }
 
         updateStepNumbers();

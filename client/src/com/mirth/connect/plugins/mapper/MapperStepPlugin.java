@@ -147,19 +147,28 @@ public class MapperStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
-    public void start() {
-    }
+    public void start() {}
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 
     @Override
-    public void reset() {
-    }
+    public void reset() {}
 
     @Override
     public String getPluginPointName() {
         return "Mapper";
+    }
+
+    @Override
+    public void moveStart() {
+        // Disable the document listener while this step is being moved so it doesn't rename other step
+        panel.setDocumentListenerEnabled(false);
+    }
+
+    @Override
+    public void moveEnd() {
+        // Enable the document listener when the step has finished being moved
+        panel.setDocumentListenerEnabled(true);
     }
 }

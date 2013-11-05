@@ -45,6 +45,7 @@ public class MapperPanel extends BasePanel {
     public final String REPLACEWITH_COLUMN_NAME = "Replace With";
     private int lastIndex = -1;
     private LinkedHashMap<String, String> variableTypes;
+    private boolean documentListenerEnabled = true;
 
     /** Creates new form MapperPanel */
     public MapperPanel(MirthEditorPane p) {
@@ -61,17 +62,20 @@ public class MapperPanel extends BasePanel {
 
         variableTextField.getDocument().addDocumentListener(new DocumentListener() {
 
-            public void changedUpdate(DocumentEvent arg0) {
-            }
+            public void changedUpdate(DocumentEvent arg0) {}
 
             public void insertUpdate(DocumentEvent arg0) {
-                updateTable();
-                parent.modified = true;
+                if (documentListenerEnabled) {
+                    updateTable();
+                    parent.modified = true;
+                }
             }
 
             public void removeUpdate(DocumentEvent arg0) {
-                updateTable();
-                parent.modified = true;
+                if (documentListenerEnabled) {
+                    updateTable();
+                    parent.modified = true;
+                }
             }
         });
 
@@ -112,19 +116,19 @@ public class MapperPanel extends BasePanel {
         deleteButton.setEnabled(false);
     }
 
+    public void setDocumentListenerEnabled(boolean documentListenerEnabled) {
+        this.documentListenerEnabled = documentListenerEnabled;
+    }
+
     public void updateTable() {
         if (parent.getSelectedRow() != -1) {
-            String type = parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString();
+            SwingUtilities.invokeLater(new Runnable() {
 
-            if (!(type.equals("Message Builder") || type.equals("JavaScript"))) {
-                SwingUtilities.invokeLater(new Runnable() {
-
-                    public void run() {
-                        parent.getTableModel().setValueAt(variableTextField.getText(), parent.getSelectedRow(), parent.STEP_NAME_COL);
-                        parent.updateTaskPane(parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString());
-                    }
-                });
-            }
+                public void run() {
+                    parent.getTableModel().setValueAt(variableTextField.getText(), parent.getSelectedRow(), parent.STEP_NAME_COL);
+                    parent.updateTaskPane(parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString());
+                }
+            });
         }
     }
 
