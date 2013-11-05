@@ -11,6 +11,8 @@ package com.mirth.connect.webadmin.action;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,29 +28,34 @@ public class IndexActionBean extends BaseActionBean {
 
     @DefaultHandler
     public Resolution init() {
-        HttpServletRequest request = getContext().getRequest();
+        BaseActionBeanContext context = getContext();
+        HttpServletRequest request = context.getRequest();
+        InputStream mirthPropertiesStream = getClass().getResourceAsStream("/mirth.properties");
 
-        // Set default ports in case mirth.properties fails to load
+        // Set the default properties in case mirth.properties fails to load
         String httpsPort = "8443";
         String httpPort = "8080";
-
-        InputStream mirthPropertiesStream = null;
-        mirthPropertiesStream = this.getClass().getResourceAsStream("/mirth.properties");
+        String contextPath = "/";
+        String httpsHost = "0.0.0.0";
 
         if (mirthPropertiesStream != null) {
             Properties mirthProps = new Properties();
+
             try {
                 mirthProps.load(mirthPropertiesStream);
-                httpsPort = mirthProps.getProperty("https.port", "8443");
-                httpPort = mirthProps.getProperty("http.port", "8080");
+
+                httpsPort = mirthProps.getProperty("https.port", httpsPort);
+                httpPort = mirthProps.getProperty("http.port", httpPort);
+                httpsHost = mirthProps.getProperty("https.host", httpsHost);
+                contextPath = mirthProps.getProperty("http.contextpath", contextPath);
             } catch (IOException e) {
                 // Ignore
             }
         }
 
-        // Save the port values to the context
-        getContext().setHttpsPort(httpsPort);
-        getContext().setHttpPort(httpPort);
+        context.setHttpsPort(httpsPort);
+        context.setHttpPort(httpPort);
+        context.setServerAddress(getWebServerUrl("https://", httpsHost, httpsPort, contextPath));
 
         // Check if http or https
         secureHttps = request.isSecure();
@@ -62,5 +69,27 @@ public class IndexActionBean extends BaseActionBean {
 
     public void setSecureHttps(boolean secureHttps) {
         this.secureHttps = secureHttps;
+    }
+
+    private String getWebServerUrl(String prefix, String host, String port, String contextPath) {
+        if (host.equals("0.0.0.0") || host.equals("::")) {
+            try {
+                host = InetAddress.getLocalHost().getHostAddress();
+            } catch (UnknownHostException e) {
+                host = "localhost";
+            }
+        } else if (host.isEmpty()) {
+            host = "localhost";
+        }
+
+        if (!contextPath.startsWith("/")) {
+            contextPath = "/" + contextPath;
+        }
+
+        if (contextPath.endsWith("/")) {
+            contextPath = contextPath.substring(0, contextPath.length() - 1);
+        }
+
+        return prefix + host + ":" + port + contextPath;
     }
 }

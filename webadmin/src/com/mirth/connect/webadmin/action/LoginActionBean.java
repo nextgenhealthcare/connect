@@ -32,11 +32,7 @@ public class LoginActionBean extends BaseActionBean {
         String version = request.getParameter("version");
 
         try {
-            StringBuffer fullPath = getContext().getRequest().getRequestURL();
-            // Strip off the context path of the /webadmin app, but leave the server context path
-            String serverAddress = fullPath.toString().substring(0, fullPath.toString().lastIndexOf("/webadmin"));
-
-            client = new Client(serverAddress);
+            client = new Client(getContext().getServerAddress());
             loginStatus = client.login(username, password, version);
         } catch (Exception e) {
             return new RedirectResolution(Constants.INDEX_PAGE).addParameter("showAlert", true);

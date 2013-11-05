@@ -59,6 +59,14 @@ public class BaseActionBeanContext extends ActionBeanContext {
         getRequest().getSession().setAttribute("httpsPort", httpsPort);
     }
 
+    public String getServerAddress() {
+        return (String) getRequest().getSession().getAttribute("serverAddress");
+    }
+
+    public void setServerAddress(String serverAddress) {
+        getRequest().getSession().setAttribute("serverAddress", serverAddress);
+    }
+
     // Logs the user out by invalidating the session.
     public void logout() {
         getRequest().getSession().invalidate();
