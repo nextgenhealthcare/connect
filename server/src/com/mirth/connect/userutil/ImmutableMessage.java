@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 
@@ -23,6 +25,7 @@ import com.mirth.connect.donkey.model.message.Message;
  * specific connector messages, or the merged connector message.
  */
 public class ImmutableMessage {
+    private static Logger logger = Logger.getLogger(ImmutableMessage.class);
     private Message message;
 
     /**
@@ -60,8 +63,13 @@ public class ImmutableMessage {
      * Returns the original date/time that this message was created by the channel. If the message
      * is reprocessed at a later point, this date will remain the same and instead the connector
      * message received dates will be updated.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. This method currently returns
+     *             the received date of the source connector message.
      */
+    // TODO: Remove in 3.1
     public Calendar getReceivedDate() {
+        logger.error("This method is deprecated and will soon be removed. This method currently returns the received date of the source connector message.");
         return (Calendar) message.getReceivedDate().clone();
     }
 
