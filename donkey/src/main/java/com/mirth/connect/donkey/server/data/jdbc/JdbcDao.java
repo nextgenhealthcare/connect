@@ -294,80 +294,102 @@ public class JdbcDao implements DonkeyDao {
     public void addChannelStatistics(Statistics statistics) {
         for (Entry<String, Map<Integer, Map<Status, Long>>> channelEntry : statistics.getStats().entrySet()) {
             String channelId = channelEntry.getKey();
-
-            try {
-                PreparedStatement channelStatement = null;
-                PreparedStatement connectorStatement = null;
-
-                for (Entry<Integer, Map<Status, Long>> connectorEntry : channelEntry.getValue().entrySet()) {
-                    Integer metaDataId = connectorEntry.getKey();
-                    Map<Status, Long> connectorStats = connectorEntry.getValue();
-
-                    long received = connectorStats.get(Status.RECEIVED);
-                    long filtered = connectorStats.get(Status.FILTERED);
-                    long sent = connectorStats.get(Status.SENT);
-                    long error = connectorStats.get(Status.ERROR);
-
-                    if (received != 0 || filtered != 0 || sent != 0 || error != 0) {
-                        logger.debug(channelId + "/" + metaDataId + ": saving statistics");
-
-                        PreparedStatement statement;
-
-                        if (metaDataId == null) {
-                            if (channelStatement == null) {
-                                channelStatement = prepareStatement("updateChannelStatistics", channelId);
-                            }
-
-                            statement = channelStatement;
-                        } else {
-                            if (connectorStatement == null) {
-                                connectorStatement = prepareStatement("updateConnectorStatistics", channelId);
-                            }
-
-                            statement = connectorStatement;
-                        }
-
-                        statement.setLong(1, received);
-                        statement.setLong(2, received);
-                        statement.setLong(3, filtered);
-                        statement.setLong(4, filtered);
-                        statement.setLong(5, sent);
-                        statement.setLong(6, sent);
-                        statement.setLong(7, error);
-                        statement.setLong(8, error);
-
-                        if (metaDataId != null) {
-                            statement.setInt(9, metaDataId);
-                            statement.setString(10, statsServerId);
-                        } else {
-                            statement.setString(9, statsServerId);
-                        }
-
-                        if (statement.executeUpdate() == 0) {
-                            statement = prepareStatement("insertChannelStatistics", channelId);
-
-                            if (metaDataId == null) {
-                                statement.setNull(1, Types.INTEGER);
-                            } else {
-                                statement.setInt(1, metaDataId);
-                            }
-
-                            statement.setString(2, statsServerId);
-                            statement.setLong(3, received);
-                            statement.setLong(4, received);
-                            statement.setLong(5, filtered);
-                            statement.setLong(6, filtered);
-                            statement.setLong(7, sent);
-                            statement.setLong(8, sent);
-                            statement.setLong(9, error);
-                            statement.setLong(10, error);
-                            statement.executeUpdate();
-                        }
+            Map<Integer, Map<Status, Long>> channelAndConnectorStats = channelEntry.getValue();
+            Map<Integer, Map<Status, Long>> connectorStatsToUpdate = new HashMap<Integer, Map<Status,Long>>();
+            Map<Status, Long> channelStats = channelAndConnectorStats.get(null);
+            
+            for (Entry<Integer, Map<Status, Long>> entry : channelAndConnectorStats.entrySet()) {
+                Integer metaDataId = entry.getKey();
+                
+                // only add connector stats to the statsToUpdate list, not the channel stats
+                if (metaDataId != null) {
+                    Map<Status, Long> connectorStats = entry.getValue();
+                    
+                    if (hasUpdatableStatistics(connectorStats)) {
+                        connectorStatsToUpdate.put(metaDataId, connectorStats);
                     }
                 }
-            } catch (SQLException e) {
-                throw new DonkeyDaoException(e);
             }
+
+            /*
+             * MIRTH-3042: With certain channel configurations, SQL Server will encounter a deadlock
+             * scenario unless we always update the channel stats row and update it before the
+             * connector stats. We determined that this is because SQL Server creates a page lock
+             * when the statistics update statement references the existing row values in order to
+             * increment them (RECEIVED = RECEIVED + ?). Other databases such as Postgres use only
+             * row locks in this situation so they were not deadlocking. The deadlock scenario was
+             * only confirmed to happen with a channel with multiple asynchronous destinations and
+             * destination queues enabled.
+             */
+            if (!connectorStatsToUpdate.isEmpty() || hasUpdatableStatistics(channelStats)) {
+                updateStatistics(channelId, null, channelStats);
+                
+                for (Entry<Integer, Map<Status, Long>> entry : connectorStatsToUpdate.entrySet()) {
+                    updateStatistics(channelId, entry.getKey(), entry.getValue());
+                }
+            }
+        }
+    }
+
+    private boolean hasUpdatableStatistics(Map<Status, Long> stats) {
+        return (stats.get(Status.RECEIVED) != 0 || stats.get(Status.FILTERED) != 0 || stats.get(Status.SENT) != 0 || stats.get(Status.ERROR) != 0);
+    }
+
+    private void updateStatistics(String channelId, Integer metaDataId, Map<Status, Long> stats) {
+        long received = stats.get(Status.RECEIVED);
+        long filtered = stats.get(Status.FILTERED);
+        long sent = stats.get(Status.SENT);
+        long error = stats.get(Status.ERROR);
+
+        logger.debug(channelId + "/" + metaDataId + ": saving statistics");
+
+        PreparedStatement statement;
+
+        try {
+            if (metaDataId == null) {
+                statement = prepareStatement("updateChannelStatistics", channelId);
+            } else {
+                statement = prepareStatement("updateConnectorStatistics", channelId);
+            }
+
+            statement.setLong(1, received);
+            statement.setLong(2, received);
+            statement.setLong(3, filtered);
+            statement.setLong(4, filtered);
+            statement.setLong(5, sent);
+            statement.setLong(6, sent);
+            statement.setLong(7, error);
+            statement.setLong(8, error);
+
+            if (metaDataId != null) {
+                statement.setInt(9, metaDataId);
+                statement.setString(10, statsServerId);
+            } else {
+                statement.setString(9, statsServerId);
+            }
+
+            if (statement.executeUpdate() == 0) {
+                statement = prepareStatement("insertChannelStatistics", channelId);
+
+                if (metaDataId == null) {
+                    statement.setNull(1, Types.INTEGER);
+                } else {
+                    statement.setInt(1, metaDataId);
+                }
+
+                statement.setString(2, statsServerId);
+                statement.setLong(3, received);
+                statement.setLong(4, received);
+                statement.setLong(5, filtered);
+                statement.setLong(6, filtered);
+                statement.setLong(7, sent);
+                statement.setLong(8, sent);
+                statement.setLong(9, error);
+                statement.setLong(10, error);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
         }
     }
 
