@@ -108,8 +108,8 @@ public class ChannelSetup extends javax.swing.JPanel {
     private boolean channelValidationFailed = false;
 
     /**
-     * Creates the Channel Editor panel. Calls initComponents() and sets up the
-     * model, dropdowns, and mouse listeners.
+     * Creates the Channel Editor panel. Calls initComponents() and sets up the model, dropdowns,
+     * and mouse listeners.
      */
     public ChannelSetup() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -191,8 +191,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     /**
-     * Shows the popup menu when the trigger button (right-click) has been
-     * pushed.
+     * Shows the popup menu when the trigger button (right-click) has been pushed.
      */
     private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
         int row = destinationTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
@@ -215,8 +214,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     /**
-     * Is called to load the transformer pane on either the source or
-     * destination
+     * Is called to load the transformer pane on either the source or destination
      */
     public String editTransformer() {
         String name = "";
@@ -295,8 +293,8 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     /**
-     * Makes the destination table with a parameter that is true if a new
-     * destination should be added as well.
+     * Makes the destination table with a parameter that is true if a new destination should be
+     * added as well.
      */
     public void makeDestinationTable(boolean addNew) {
         List<Connector> destinationConnectors;
@@ -443,6 +441,12 @@ public class ChannelSetup extends javax.swing.JPanel {
                         lastModelIndex = destinationTable.getSelectedModelIndex();
                     }
 
+                    /*
+                     * Loading the connector may have updated the current destination with incorrect
+                     * properties, so after updating lastModelIndex we need to update the
+                     * destination panel again.
+                     */
+                    saveDestinationPanel();
                     checkVisibleDestinationTasks();
                 }
             }
@@ -503,8 +507,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     /**
-     * Get the name that should be used for a new destination so that it is
-     * unique.
+     * Get the name that should be used for a new destination so that it is unique.
      */
     private String getNewDestinationName(int size) {
         String temp = "Destination ";
@@ -577,8 +580,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     /**
-     * Adds a new channel that is passed in and then sets the overall panel to
-     * edit that channel.
+     * Adds a new channel that is passed in and then sets the overall panel to edit that channel.
      */
     public void addChannel(Channel channel) {
         loadingChannel = true;
@@ -910,8 +912,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     /**
-     * Save all of the current channel information in the editor to the actual
-     * channel
+     * Save all of the current channel information in the editor to the actual channel
      */
     public boolean saveChanges() {
         if (!parent.checkChannelName(summaryNameField.getText(), currentChannel.getId())) {
@@ -1114,8 +1115,8 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     /**
-     * Set all the dataTypes and properties to proper values if they are null.
-     * This is only necessary for channels from before version 2.0
+     * Set all the dataTypes and properties to proper values if they are null. This is only
+     * necessary for channels from before version 2.0
      */
     public void fixNullDataTypesAndProperties() {
         Transformer sourceTransformer = currentChannel.getSourceConnector().getTransformer();
@@ -1286,10 +1287,8 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     /**
-     * Checks to see which tasks (move up, move down, enable, and disable)
-     * should be available for
-     * destinations and enables or disables them. Also sets the number of
-     * filter/transformer steps
+     * Checks to see which tasks (move up, move down, enable, and disable) should be available for
+     * destinations and enables or disables them. Also sets the number of filter/transformer steps
      * to the task names.
      */
     public void checkVisibleDestinationTasks() {
@@ -1358,8 +1357,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     /**
-     * Checks all of the connectors in this channel and returns the errors
-     * found.
+     * Checks all of the connectors in this channel and returns the errors found.
      * 
      * @param channel
      * @return
@@ -2546,8 +2544,8 @@ public class ChannelSetup extends javax.swing.JPanel {
     }//GEN-LAST:event_sourceSourceDropdownActionPerformed
 
     /**
-     * Action when an action is performed on the destination connector type
-     * dropdown. Fires off either generateMultipleDestinationPage()
+     * Action when an action is performed on the destination connector type dropdown. Fires off
+     * either generateMultipleDestinationPage()
      */
     private void destinationSourceDropdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_destinationSourceDropdownActionPerformed
         // If a channel is not being loaded then alert the user when necessary
@@ -2959,16 +2957,14 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     /**
-     * Returns true if this channel requires XML as a source data type,
-     * and false if it does not.
+     * Returns true if this channel requires XML as a source data type, and false if it does not.
      */
     public boolean requiresXmlDataType() {
         return sourceConnectorPanel.requiresXmlDataType();
     }
 
     /**
-     * Check if the source data type is required to be XML, and set it
-     * if necessary.
+     * Check if the source data type is required to be XML, and set it if necessary.
      */
     public void checkAndSetXmlDataType() {
         if (requiresXmlDataType() && !currentChannel.getSourceConnector().getTransformer().getInboundDataType().equals(UIConstants.DATATYPE_XML)) {
