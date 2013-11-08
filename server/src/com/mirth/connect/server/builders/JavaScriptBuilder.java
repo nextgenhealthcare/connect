@@ -359,11 +359,11 @@ public class JavaScriptBuilder {
     }
 
     private static void appendMapFunctions(StringBuilder builder) {
-        builder.append("function $co(key, value) { if (value === undefined) { return connectorMap.get(key); } else { return connectorMap.put(key, value); } }\n");
-        builder.append("function $c(key, value) { if (value === undefined) { return channelMap.get(key); } else { return channelMap.put(key, value); } }\n");
-        builder.append("function $gc(key, value) { if (value === undefined) { return globalChannelMap.get(key); } else { return globalChannelMap.put(key, value); } }\n");
-        builder.append("function $g(key, value) { if (value === undefined) { return globalMap.get(key); } else { return globalMap.put(key, value); } }\n");
-        builder.append("function $r(key, value) { if (value === undefined) { return responseMap.get(key); } else { return responseMap.put(key, value); } }\n");
+        builder.append("function $co(key, value) { if (arguments.length == 1) { return connectorMap.get(key); } else { return connectorMap.put(key, value); } }\n");
+        builder.append("function $c(key, value) { if (arguments.length == 1) { return channelMap.get(key); } else { return channelMap.put(key, value); } }\n");
+        builder.append("function $gc(key, value) { if (arguments.length == 1) { return globalChannelMap.get(key); } else { return globalChannelMap.put(key, value); } }\n");
+        builder.append("function $g(key, value) { if (arguments.length == 1) { return globalMap.get(key); } else { return globalMap.put(key, value); } }\n");
+        builder.append("function $r(key, value) { if (arguments.length == 1) { return responseMap.get(key); } else { return responseMap.put(key, value); } }\n");
 
         // No need to check the code context here; the function checks whether each individual map exists first 
         builder.append("function $(string) { ");
