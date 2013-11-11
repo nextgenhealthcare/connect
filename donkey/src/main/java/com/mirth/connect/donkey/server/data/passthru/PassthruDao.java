@@ -181,6 +181,9 @@ public class PassthruDao implements DonkeyDao {
     public void insertMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns) {}
 
     @Override
+    public void storeMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns) {}
+
+    @Override
     public void storeMessageContent(MessageContent messageContent) {}
 
     @Override

@@ -100,6 +100,7 @@ public class BufferedDao implements DonkeyDao {
                     case EXECUTE_BATCH_INSERT_MESSAGE_CONTENT: dao.executeBatchInsertMessageContent((String) p[0]); break;
                     case INSERT_MESSAGE_ATTACHMENT: dao.insertMessageAttachment((String) p[0], (Long) p[1], (Attachment) p[2]); break;
                     case INSERT_META_DATA: dao.insertMetaData((ConnectorMessage) p[0], (List<MetaDataColumn>) p[1]); break;
+                    case STORE_META_DATA: dao.storeMetaData((ConnectorMessage) p[0], (List<MetaDataColumn>) p[1]); break;
                     case STORE_MESSAGE_CONTENT: dao.storeMessageContent((MessageContent) p[0]); break;
                     case STORE_CHANNEL_STATISTICS: dao.addChannelStatistics((Statistics) p[0]); break;
                     case UPDATE_RESPONSE_ERROR: dao.updateSourceResponse((ConnectorMessage) p[0]); break;
@@ -191,6 +192,12 @@ public class BufferedDao implements DonkeyDao {
     }
 
     @Override
+    public void storeMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns) {
+        tasks.add(new DaoTask(DaoTaskType.STORE_META_DATA, new Object[] { connectorMessage,
+                metaDataColumns }));
+    }
+
+    @Override
     public void storeMessageContent(MessageContent messageContent) {
         tasks.add(new DaoTask(DaoTaskType.STORE_MESSAGE_CONTENT, new Object[] { messageContent }));
     }
@@ -246,7 +253,7 @@ public class BufferedDao implements DonkeyDao {
         tasks.add(new DaoTask(DaoTaskType.DELETE_CONNECTOR_MESSAGES, new Object[] { channelId,
                 messageId, metaDataIds }));
     }
-    
+
     @Override
     public void deleteMessageStatistics(String channelId, long messageId, Set<Integer> metaDataIds) {
         tasks.add(new DaoTask(DaoTaskType.DELETE_MESSAGE_STATISTICS, new Object[] { channelId,
@@ -297,7 +304,7 @@ public class BufferedDao implements DonkeyDao {
         tasks.add(new DaoTask(DaoTaskType.RESET_STATISTICS, new Object[] { channelId, metaDataId,
                 statuses }));
     }
-    
+
     @Override
     public void resetAllStatistics(String channelId) {
         tasks.add(new DaoTask(DaoTaskType.RESET_ALL_STATISTICS, new Object[] { channelId }));

@@ -235,6 +235,13 @@
 		VALUES (?, ?, ${metaDataColumnPlaceholders})
 	</query>
 	
+	<query id="storeMetaData">
+		UPDATE D_MCM${localChannelId} SET
+		${metaDataColumnPlaceholders}
+		WHERE MESSAGE_ID = ?
+		AND METADATA_ID = ?
+	</query>
+	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit">
 		SELECT *
 		FROM D_MM${localChannelId}

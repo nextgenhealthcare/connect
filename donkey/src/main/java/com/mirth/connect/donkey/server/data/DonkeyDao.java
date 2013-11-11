@@ -36,6 +36,8 @@ public interface DonkeyDao {
 
     public void insertMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns);
 
+    public void storeMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns);
+
     public void storeMessageContent(MessageContent messageContent);
 
     public void addChannelStatistics(Statistics statistics);
@@ -63,7 +65,7 @@ public interface DonkeyDao {
     public void deleteMessageAttachments(String channelId, long messageId);
 
     public void deleteMessageStatistics(String channelId, long messageId, Set<Integer> metaDataIds);
-    
+
     public void deleteAllMessages(String channelId);
 
     public void createChannel(String channelId, long localChannelId);
@@ -105,7 +107,7 @@ public interface DonkeyDao {
     public List<Attachment> getMessageAttachment(String channelId, long messageId);
 
     public Attachment getMessageAttachment(String channelId, String attachmentId);
-    
+
     public Statistics getChannelStatistics(String serverId);
 
     public Statistics getChannelTotalStatistics(String serverId);
@@ -113,7 +115,7 @@ public interface DonkeyDao {
     public void setEncryptData(boolean encryptData);
 
     public void setDecryptData(boolean decryptData);
-    
+
     public void commit();
 
     public void commit(boolean durable);

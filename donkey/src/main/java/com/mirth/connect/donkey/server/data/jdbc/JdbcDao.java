@@ -295,16 +295,16 @@ public class JdbcDao implements DonkeyDao {
         for (Entry<String, Map<Integer, Map<Status, Long>>> channelEntry : statistics.getStats().entrySet()) {
             String channelId = channelEntry.getKey();
             Map<Integer, Map<Status, Long>> channelAndConnectorStats = channelEntry.getValue();
-            Map<Integer, Map<Status, Long>> connectorStatsToUpdate = new HashMap<Integer, Map<Status,Long>>();
+            Map<Integer, Map<Status, Long>> connectorStatsToUpdate = new HashMap<Integer, Map<Status, Long>>();
             Map<Status, Long> channelStats = channelAndConnectorStats.get(null);
-            
+
             for (Entry<Integer, Map<Status, Long>> entry : channelAndConnectorStats.entrySet()) {
                 Integer metaDataId = entry.getKey();
-                
+
                 // only add connector stats to the statsToUpdate list, not the channel stats
                 if (metaDataId != null) {
                     Map<Status, Long> connectorStats = entry.getValue();
-                    
+
                     if (hasUpdatableStatistics(connectorStats)) {
                         connectorStatsToUpdate.put(metaDataId, connectorStats);
                     }
@@ -323,7 +323,7 @@ public class JdbcDao implements DonkeyDao {
              */
             if (!connectorStatsToUpdate.isEmpty() || hasUpdatableStatistics(channelStats)) {
                 updateStatistics(channelId, null, channelStats);
-                
+
                 for (Entry<Integer, Map<Status, Long>> entry : connectorStatsToUpdate.entrySet()) {
                     updateStatistics(channelId, entry.getKey(), entry.getValue());
                 }
@@ -494,6 +494,61 @@ public class JdbcDao implements DonkeyDao {
             }
         } catch (Exception e) {
             throw new DonkeyDaoException("Failed to insert connector message meta data", e);
+        } finally {
+            close(statement);
+        }
+    }
+
+    @Override
+    public void storeMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns) {
+        logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating custom meta data");
+        PreparedStatement statement = null;
+
+        try {
+            List<String> metaDataColumnNames = new ArrayList<String>();
+            Map<String, Object> metaDataMap = connectorMessage.getMetaDataMap();
+
+            for (MetaDataColumn metaDataColumn : metaDataColumns) {
+                Object value = metaDataMap.get(metaDataColumn.getName());
+
+                if (value != null) {
+                    metaDataColumnNames.add(metaDataColumn.getName());
+                }
+            }
+
+            // Don't do anything if all values were null
+            if (!metaDataColumnNames.isEmpty()) {
+                Map<String, Object> values = new HashMap<String, Object>();
+                values.put("localChannelId", getLocalChannelId(connectorMessage.getChannelId()));
+                values.put("metaDataColumnPlaceholders", quoteChar + StringUtils.join(metaDataColumnNames, quoteChar + " = ?, " + quoteChar) + quoteChar + " = ?");
+
+                statement = connection.prepareStatement(querySource.getQuery("storeMetaData", values));
+                int n = 1;
+
+                for (MetaDataColumn metaDataColumn : metaDataColumns) {
+                    Object value = metaDataMap.get(metaDataColumn.getName());
+
+                    if (value != null) {
+                        // @formatter:off
+                        switch (metaDataColumn.getType()) {
+                            case STRING: statement.setString(n, (String) value); break;
+                            case NUMBER: statement.setBigDecimal(n, (BigDecimal) value); break;
+                            case BOOLEAN: statement.setBoolean(n, (Boolean) value); break;
+                            case TIMESTAMP: statement.setTimestamp(n, new Timestamp(((Calendar) value).getTimeInMillis())); break;
+                        }
+                        // @formatter:on
+
+                        n++;
+                    }
+                }
+
+                statement.setLong(n++, connectorMessage.getMessageId());
+                statement.setInt(n, connectorMessage.getMetaDataId());
+
+                statement.executeUpdate();
+            }
+        } catch (Exception e) {
+            throw new DonkeyDaoException("Failed to update connector message meta data", e);
         } finally {
             close(statement);
         }
@@ -1180,7 +1235,7 @@ public class JdbcDao implements DonkeyDao {
             List<ConnectorMessage> connectorMessages = new ArrayList<ConnectorMessage>();
 
             while (resultSet.next()) {
-                connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, true, true));
+                connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, true));
             }
 
             return connectorMessages;
@@ -1225,7 +1280,7 @@ public class JdbcDao implements DonkeyDao {
             resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, true, true));
+                connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, true));
             }
 
             return connectorMessages;
@@ -1254,7 +1309,7 @@ public class JdbcDao implements DonkeyDao {
             List<ConnectorMessage> connectorMessages = new ArrayList<ConnectorMessage>();
 
             while (resultSet.next()) {
-                connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, includeContent, true));
+                connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, includeContent));
             }
 
             return connectorMessages;
@@ -1278,7 +1333,7 @@ public class JdbcDao implements DonkeyDao {
             Map<Integer, ConnectorMessage> connectorMessages = new HashMap<Integer, ConnectorMessage>();
 
             while (resultSet.next()) {
-                ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, true, true);
+                ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, true);
                 connectorMessages.put(connectorMessage.getMetaDataId(), connectorMessage);
             }
 
@@ -1317,7 +1372,7 @@ public class JdbcDao implements DonkeyDao {
             resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, true, true);
+                ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, true);
                 messageMap.get(connectorMessage.getMessageId()).getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
             }
 
@@ -1791,7 +1846,7 @@ public class JdbcDao implements DonkeyDao {
         }
     }
 
-    private ConnectorMessage getConnectorMessageFromResultSet(String channelId, ResultSet resultSet, boolean includeContent, boolean includeMetaDataMap) {
+    private ConnectorMessage getConnectorMessageFromResultSet(String channelId, ResultSet resultSet, boolean includeContent) {
         try {
             ConnectorMessage connectorMessage = new ConnectorMessage();
             long messageId = resultSet.getLong("message_id");
@@ -1853,9 +1908,7 @@ public class JdbcDao implements DonkeyDao {
                 connectorMessage.setProcessedResponse(getMessageContent(channelId, messageId, metaDataId, ContentType.PROCESSED_RESPONSE, decryptData));
             }
 
-            if (includeMetaDataMap) {
-                connectorMessage.setMetaDataMap(getMetaDataMap(channelId, messageId, metaDataId));
-            }
+            connectorMessage.setMetaDataMap(getMetaDataMap(channelId, messageId, metaDataId));
 
             return connectorMessage;
         } catch (SQLException e) {

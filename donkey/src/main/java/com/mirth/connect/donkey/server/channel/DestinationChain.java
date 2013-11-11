@@ -136,8 +136,8 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
         boolean stopChain = false;
 
         /*
-         * The message that we're starting with should be associated with one of
-         * the destinations in this chain, if it's not, we can't proceed.
+         * The message that we're starting with should be associated with one of the destinations in
+         * this chain, if it's not, we can't proceed.
          */
         if (startMetaDataId == -1) {
             logger.error("The message's metadata ID is not in the destination chain's list of enabled metadata IDs");
@@ -191,7 +191,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                                 dao.updateErrors(message);
                             }
 
-                            // Set the source connector's custom column map
+                            // Set the destination connector's custom column map
                             metaDataReplacer.setMetaDataMap(message, metaDataColumns);
 
                             // Store the custom columns

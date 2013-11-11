@@ -161,6 +161,17 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
+    public void storeMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns) {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            dao.storeMetaData(connectorMessage, metaDataColumns);
+        } finally {
+            timer.log("storeMetaData", System.currentTimeMillis() - startTime);
+        }
+    }
+
+    @Override
     public void storeMessageContent(MessageContent messageContent) {
         long startTime = System.currentTimeMillis();
 
