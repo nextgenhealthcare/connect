@@ -239,10 +239,6 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
 
                         case PENDING:
                             destinationConnectors.get(metaDataId).processPendingConnectorMessage(dao, message);
-                            // Insert errors if necessary
-                            if (StringUtils.isNotBlank(message.getProcessingError())) {
-                                dao.updateErrors(message);
-                            }
                             break;
 
                         case SENT:
