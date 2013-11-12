@@ -371,6 +371,31 @@ public abstract class DestinationConnector extends Connector implements Runnable
         if (responseTransformerExecutor != null) {
             try {
                 responseTransformerExecutor.runResponseTransformer(dao, message, response, isQueueEnabled(), storageSettings, serializer);
+
+                String error = null;
+                if (StringUtils.isNotBlank(response.getError())) {
+                    error = response.getError();
+                }
+
+                message.setProcessingError(error);
+                // Insert errors if necessary
+                if (message.getErrorCode() > 0) {
+                    dao.updateErrors(message);
+                }
+
+                // Set the destination connector's custom column map
+                boolean wasEmpty = message.getMetaDataMap().isEmpty();
+                channel.getSourceConnector().getMetaDataReplacer().setMetaDataMap(message, channel.getMetaDataColumns());
+
+                // Store the custom columns
+                if (storageSettings.isStoreCustomMetaData() && !message.getMetaDataMap().isEmpty()) {
+                    ThreadUtils.checkInterruptedStatus();
+                    if (wasEmpty) {
+                        dao.insertMetaData(message, channel.getMetaDataColumns());
+                    } else {
+                        dao.storeMetaData(message, channel.getMetaDataColumns());
+                    }
+                }
             } catch (DonkeyException e) {
                 logger.error("Error executing response transformer for channel " + message.getChannelId() + " (" + destinationName + ").", e);
                 response.setStatus(Status.ERROR);
@@ -378,6 +403,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 message.setProcessingError(message.getProcessingError() != null ? message.getProcessingError() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
                 dao.updateErrors(message);
                 return;
+            }
+
+            message.getResponseMap().put("d" + String.valueOf(getMetaDataId()), response);
+
+            if (storageSettings.isStoreMaps()) {
+                dao.updateMaps(message);
             }
         }
 
