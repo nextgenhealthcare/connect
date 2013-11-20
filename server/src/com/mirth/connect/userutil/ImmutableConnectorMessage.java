@@ -13,6 +13,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -22,6 +24,8 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
  * metadata ID, status, and various content types.
  */
 public class ImmutableConnectorMessage {
+    private static Logger logger = Logger.getLogger(ImmutableConnectorMessage.class);
+
     private ConnectorMessage connectorMessage;
     private boolean modifiableMaps;
     private Map<String, String> destinationNameMap;
@@ -152,6 +156,12 @@ public class ImmutableConnectorMessage {
      * @return The content, as an ImmutableMessageContent object.
      */
     public ImmutableMessageContent getContent(ContentType contentType) {
+        if (contentType == ContentType.SENT) {
+            // TODO: Remove in 3.1, change the logger statement
+            logger.error("The getSent() and getSentData() methods have been deprecated and will soon be removed. Please use map variables to retrieve post-replacement data instead. This method will always return null for the SENT content type.");
+            return null;
+        }
+
         if (connectorMessage.getMessageContent(contentType.toDonkeyContentType()) != null) {
             return new ImmutableMessageContent(connectorMessage.getMessageContent(contentType.toDonkeyContentType()));
         }
@@ -267,12 +277,13 @@ public class ImmutableConnectorMessage {
      * Retrieves sent content associated with this connector message.
      * 
      * @return The sent content, as an ImmutableMessageContent object.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please use map variables to
+     *             retrieve post-replacement data instead. This method will always return null.
      */
+    // TODO: Remove in 3.1
     public ImmutableMessageContent getSent() {
-        if (connectorMessage.getSent() != null) {
-            return new ImmutableMessageContent(connectorMessage.getSent());
-        }
-
+        logger.error("This method is deprecated and will soon be removed. Please use map variables to retrieve post-replacement data instead. This method will always return null.");
         return null;
     }
 
@@ -280,13 +291,14 @@ public class ImmutableConnectorMessage {
      * Retrieves sent content associated with this connector message.
      * 
      * @return The sent content, as a string.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please use map variables to
+     *             retrieve post-replacement data instead. This method will always return null.
      */
+    // TODO: Remove in 3.1
     public String getSentData() {
-        if (connectorMessage.getSent() != null) {
-            return connectorMessage.getSent().getContent();
-        } else {
-            return null;
-        }
+        logger.error("This method is deprecated and will soon be removed. Please use map variables to retrieve post-replacement data instead. This method will always return null.");
+        return null;
     }
 
     /**
