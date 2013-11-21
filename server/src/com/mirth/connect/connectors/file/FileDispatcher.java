@@ -32,6 +32,7 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.util.ThreadUtils;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
@@ -64,10 +65,23 @@ public class FileDispatcher extends DestinationConnector {
     public void onStart() throws StartException {}
 
     @Override
-    public void onStop() throws StopException {}
+    public void onStop() throws StopException {
+        try {
+            fileConnector.doStop();
+        } catch (FileConnectorException e) {
+            throw new StopException("Failed to stop File Connector", e);
+        }
+    }
 
     @Override
-    public void onHalt() throws HaltException {}
+    public void onHalt() throws HaltException {
+        fileConnector.disconnect();
+        try {
+            onStop();
+        } catch (StopException e) {
+            throw new HaltException(e);
+        }
+    }
 
     @Override
     public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {
@@ -120,6 +134,7 @@ public class FileDispatcher extends DestinationConnector {
 
             is = new ByteArrayInputStream(bytes);
 
+            ThreadUtils.checkInterruptedStatus();
             fileSystemConnection = fileConnector.getConnection(uri, connectorMessage, fileDispatcherProperties);
             if (fileDispatcherProperties.isErrorOnExists() && fileSystemConnection.exists(filename, path)) {
                 throw new IOException("Destination file already exists, will not overwrite.");

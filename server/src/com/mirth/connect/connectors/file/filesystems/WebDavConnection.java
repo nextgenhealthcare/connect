@@ -47,7 +47,7 @@ public class WebDavConnection implements FileSystemConnection {
         public String getAbsolutePath() {
             return theFile.getAbsolutePath();
         }
-        
+
         public String getCanonicalPath() throws IOException {
             return this.theFile.getCanonicalPath();
         }
@@ -114,7 +114,7 @@ public class WebDavConnection implements FileSystemConnection {
 
         return list(fromDir, true, filenameFilter, ignoreDot);
     }
-    
+
     @Override
     public List<String> listDirectories(String fromDir) throws Exception {
         List<String> directories = new ArrayList<String>();
@@ -123,11 +123,11 @@ public class WebDavConnection implements FileSystemConnection {
         }
         return directories;
     }
-    
+
     private List<FileInfo> list(String fromDir, boolean files, FilenameFilter filenameFilter, boolean ignoreDot) throws Exception {
         client.setPath(fromDir);
         WebdavResource[] resources = client.listWebdavResources();
-        
+
         if (resources == null || resources.length == 0) {
             return new ArrayList<FileInfo>();
         }
@@ -164,7 +164,7 @@ public class WebDavConnection implements FileSystemConnection {
                 fileInfoList.add(new WebDavFileInfo(fromDir, file));
             }
         }
-        
+
         return fileInfoList;
     }
 
@@ -204,7 +204,7 @@ public class WebDavConnection implements FileSystemConnection {
     @Override
     public void writeFile(String file, String toDir, boolean append, InputStream is) throws Exception {
         String fullPath = getFullPath(toDir, file);
-        
+
         // first check if the toDir exists.
         client.setPath(toDir);
 
@@ -281,6 +281,9 @@ public class WebDavConnection implements FileSystemConnection {
     }
 
     @Override
+    public void disconnect() {}
+
+    @Override
     public void activate() {
         // irrelevant
     }
@@ -327,7 +330,7 @@ public class WebDavConnection implements FileSystemConnection {
             return false;
         }
     }
-    
+
     private String getFullPath(String dir, String file) {
         return ("/" + dir + "/" + file).replaceAll("//", "/");
     }

@@ -73,8 +73,7 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
         }
 
         /**
-         * Gets the date and time the file was last modified, in milliseconds
-         * since the epoch
+         * Gets the date and time the file was last modified, in milliseconds since the epoch
          */
         public long getLastModified() {
 
@@ -262,6 +261,9 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
     public boolean isConnected() {
         return true;
     }
+
+    @Override
+    public void disconnect() {}
 
     @Override
     public void activate() {}

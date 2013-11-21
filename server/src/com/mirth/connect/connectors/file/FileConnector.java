@@ -14,8 +14,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -33,6 +35,7 @@ public class FileConnector {
 
     private Map<String, ObjectPool> pools = new HashMap<String, ObjectPool>();
     private FileOutputStream outputStream = null;
+    private Set<FileSystemConnection> connections = new HashSet<FileSystemConnection>();
 
     private String channelId;
     private FileScheme scheme;
@@ -148,8 +151,8 @@ public class FileConnector {
     }
 
     /**
-     * Registers a listener for a particular directory The following properties
-     * can be overriden in the endpoint declaration
+     * Registers a listener for a particular directory The following properties can be overriden in
+     * the endpoint declaration
      * <ul>
      * <li>moveToDirectory</li>
      * <li>filterPatterns</li>
@@ -184,8 +187,7 @@ public class FileConnector {
      * Allocate a connection from the pool
      * 
      * @param uri
-     *            The URI of the endpoint for which the connection is being
-     *            created.
+     *            The URI of the endpoint for which the connection is being created.
      * @param message
      *            ??
      * @return The allocated connection.
@@ -197,6 +199,9 @@ public class FileConnector {
             destroyConnection(uri, con, message, connectorProperties);
             con = (FileSystemConnection) pool.borrowObject();
         }
+        synchronized (connections) {
+            connections.add(con);
+        }
         return con;
     }
 
@@ -204,8 +209,7 @@ public class FileConnector {
      * Return a connection to the pool
      * 
      * @param uri
-     *            The URI of the endpoint from which the connection is being
-     *            released.
+     *            The URI of the endpoint from which the connection is being released.
      * @param client
      *            The connection that is being released.
      * @param message
@@ -216,6 +220,9 @@ public class FileConnector {
 //        if (isCreateDispatcherPerRequest()) {
 //            destroyConnection(uri, connection, message);
 //        } else {
+        synchronized (connections) {
+            connections.remove(connection);
+        }
         if (connection != null && connection.isConnected()) {
             ObjectPool pool = getConnectionPool(uri, message, connectorProperties);
             pool.returnObject(connection);
@@ -224,11 +231,21 @@ public class FileConnector {
     }
 
     /**
+     * Forcibly disconnect all current connections
+     */
+    protected void disconnect() {
+        synchronized (connections) {
+            for (FileSystemConnection connection : connections) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    /**
      * Permanently destroy a connection.
      * 
      * @param uri
-     *            The URI of the endpoint from which the connection is being
-     *            released.
+     *            The URI of the endpoint from which the connection is being released.
      * @param connection
      *            The connection that is to be destroyed.
      * @param message
@@ -243,12 +260,11 @@ public class FileConnector {
     }
 
     /**
-     * Gets the pool of connections to the "server" for the specified endpoint,
-     * creating the pool if necessary.
+     * Gets the pool of connections to the "server" for the specified endpoint, creating the pool if
+     * necessary.
      * 
      * @param uri
-     *            The URI of the endpoint the created pool should be associated
-     *            with.
+     *            The URI of the endpoint the created pool should be associated with.
      * @param message
      *            ???
      * @return The pool of connections for this endpoint.

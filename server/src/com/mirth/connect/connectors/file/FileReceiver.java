@@ -168,6 +168,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
 
     @Override
     public void onHalt() throws HaltException {
+        fileConnector.disconnect();
         try {
             onStop();
         } catch (StopException e) {

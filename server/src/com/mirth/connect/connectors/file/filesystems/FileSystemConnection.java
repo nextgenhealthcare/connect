@@ -13,26 +13,26 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * The interface that must be implemented by a file system for it to be
- * usable by the File connector.
+ * The interface that must be implemented by a file system for it to be usable by the File
+ * connector.
  */
 public interface FileSystemConnection {
 
     /**
-     * Gets a List of FileInfo for the files located in the specified folder
-     * with names matching the specified pattern.
+     * Gets a List of FileInfo for the files located in the specified folder with names matching the
+     * specified pattern.
      * 
      * @param fromDir
      *            The directory (folder) to be searched for files.
      * @param filenamePattern
-     *            The pattern file names must match to be included.
-     *            The exact syntax of a namePattern may vary between FileSystems.
+     *            The pattern file names must match to be included. The exact syntax of a
+     *            namePattern may vary between FileSystems.
      * @param isRegex
      *            If the pattern should be interpreted as a regular expression.
      * @param ignoreDot
      *            If files starting with . should be ignored
-     * @return A List of FileInfo for the files located in the specified
-     *         folder with names matching the specified pattern.
+     * @return A List of FileInfo for the files located in the specified folder with names matching
+     *         the specified pattern.
      * @throws Exception
      */
     public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception;
@@ -50,8 +50,8 @@ public interface FileSystemConnection {
     public boolean exists(String file, String path);
 
     /**
-     * Constructs and returns an InputStream to read the contents of the
-     * specified file in the specified directory.
+     * Constructs and returns an InputStream to read the contents of the specified file in the
+     * specified directory.
      * 
      * @param file
      *            The name of the file to be read, with no path information.
@@ -76,8 +76,8 @@ public interface FileSystemConnection {
      * @param toDir
      *            The full path of the directory containing the file.
      * @param append
-     *            True if the file should be appended to if it already
-     *            exists, false if the file should be truncated first.
+     *            True if the file should be appended to if it already exists, false if the file
+     *            should be truncated first.
      * @param message
      *            The message to be written.
      * @throws Exception
@@ -98,15 +98,13 @@ public interface FileSystemConnection {
     public void delete(String file, String fromDir, boolean mayNotExist) throws Exception;
 
     /**
-     * Moves the specified file from the specified directory to a potentially
-     * different name and/or directory.
+     * Moves the specified file from the specified directory to a potentially different name and/or
+     * directory.
      * 
      * @param fromName
-     *            The current name of the file to be moved or renamed,
-     *            with no path information.
+     *            The current name of the file to be moved or renamed, with no path information.
      * @param fromDir
-     *            The full path of the directory containing the file to
-     *            be moved or renamed.
+     *            The full path of the directory containing the file to be moved or renamed.
      * @param toName
      *            The new name for the file, with no path information.
      * @param toDir
@@ -117,6 +115,9 @@ public interface FileSystemConnection {
 
     /** Tests if this connection is in fact connected */
     public boolean isConnected();
+
+    /** Forcibly disconnect this connection */
+    public void disconnect();
 
     // **************************************************
     // Lifecycle methods

@@ -48,7 +48,7 @@ public class SmbFileConnection implements FileSystemConnection {
         public String getAbsolutePath() {
             return this.theFile.getPath();
         }
-        
+
         public String getCanonicalPath() throws IOException {
             return this.theFile.getCanonicalPath();
         }
@@ -160,29 +160,29 @@ public class SmbFileConnection implements FileSystemConnection {
             throw new FileConnectorException("Error listing files in dir [" + dir + "] for patthern [" + filenamePattern + "]", e);
         }
     }
-    
+
     @Override
     public List<String> listDirectories(String fromDir) throws Exception {
         List<String> directories = new ArrayList<String>();
         SmbFile readDirectory = null;
-        
+
         try {
             readDirectory = getSmbFile(share, getPath(fromDir, null));
         } catch (Exception e) {
             throw new FileConnectorException("Directory does not exist: " + fromDir, e);
         }
-        
+
         SmbFileFilter fileFilter = new SmbFileFilter() {
             @Override
             public boolean accept(SmbFile file) throws SmbException {
                 return file.isDirectory();
             }
         };
-        
+
         for (SmbFile directory : readDirectory.listFiles(fileFilter)) {
             directories.add(directory.getCanonicalPath());
         }
-        
+
         return directories;
     }
 
@@ -251,7 +251,7 @@ public class SmbFileConnection implements FileSystemConnection {
 
             dst = getSmbFile(share, getPath(dir, name));
             os = new SmbFileOutputStream(dst, append);
-            
+
             IOUtils.copy(is, os);
         } finally {
             if (os != null) {
@@ -310,6 +310,9 @@ public class SmbFileConnection implements FileSystemConnection {
     public boolean isConnected() {
         return true;
     }
+
+    @Override
+    public void disconnect() {}
 
     @Override
     public void activate() {}

@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
@@ -40,7 +41,11 @@ public abstract class PollConnector extends SourceConnector {
         terminated.set(true);
 
         if (task != null) {
-            task.terminate(false);
+            try {
+                task.terminate();
+            } catch (InterruptedException e) {
+                throw new StopException(e);
+            }
             task = null;
         }
         super.stop();
@@ -49,12 +54,20 @@ public abstract class PollConnector extends SourceConnector {
     @Override
     public void halt() throws HaltException {
         terminated.set(true);
-
         if (task != null) {
-            task.terminate(true);
-            task = null;
+            // Interrupt the poll thread
+            task.interrupt();
         }
         super.halt();
+
+        if (task != null) {
+            try {
+                task.terminate();
+            } catch (InterruptedException e) {
+                throw new HaltException(e);
+            }
+            task = null;
+        }
     }
 
     public boolean isTerminated() {
@@ -65,11 +78,11 @@ public abstract class PollConnector extends SourceConnector {
 
     public void scheduleTask() {
         boolean firstTime = (task == null);
-        
+
         task = new PollConnectorTask(this);
 
         PollConnectorProperties connectorProperties = ((PollConnectorPropertiesInterface) getConnectorProperties()).getPollConnectorProperties();
-        
+
         if (connectorProperties.getPollingType().equals(PollConnectorProperties.POLLING_TYPE_INTERVAL)) {
             if (firstTime) {
                 timer.schedule(task, 0);
@@ -110,14 +123,17 @@ public abstract class PollConnector extends SourceConnector {
     private class PollConnectorTask extends TimerTask {
         private PollConnector pollConnector;
         private Thread thread;
+        private ReentrantLock lock;
 
         public PollConnectorTask(PollConnector pollConnector) {
             this.pollConnector = pollConnector;
+            lock = new ReentrantLock();
         }
 
         @Override
         public void run() {
-            synchronized (this) {
+            lock.lock();
+            try {
                 if (!isTerminated()) {
                     thread = Thread.currentThread();
 
@@ -131,17 +147,24 @@ public abstract class PollConnector extends SourceConnector {
                         pollConnector.scheduleTask();
                     }
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
-        public void terminate(boolean interrupt) {
-            if (interrupt && thread != null && thread.isAlive()) {
-                thread.interrupt();
-            }
-
-            synchronized (this) {
+        public void terminate() throws InterruptedException {
+            lock.lockInterruptibly();
+            try {
                 timer.cancel();
                 timer.purge();
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        public void interrupt() {
+            if (thread != null && thread.isAlive()) {
+                thread.interrupt();
             }
         }
     }

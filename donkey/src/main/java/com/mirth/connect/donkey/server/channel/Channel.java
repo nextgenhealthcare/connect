@@ -112,6 +112,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     private Set<Thread> dispatchThreads = new HashSet<Thread>();
     private boolean shuttingDown = false;
     private Set<Future<?>> controlTasks = new LinkedHashSet<Future<?>>();
+    private Set<Thread> haltThreads = new LinkedHashSet<Thread>();
 
     private boolean stopSourceQueue = false;
     private Semaphore processLock;
@@ -417,8 +418,8 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             throw new DeployException("Failed to deploy channel.", t);
         } finally {
-            synchronized (controlExecutor) {
-                if (task != null) {
+            if (task != null) {
+                synchronized (controlExecutor) {
                     controlTasks.remove(task);
                 }
             }
@@ -448,8 +449,8 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             throw new UndeployException("Failed to undeploy channel.", t);
         } finally {
-            synchronized (controlExecutor) {
-                if (task != null) {
+            if (task != null) {
+                synchronized (controlExecutor) {
                     controlTasks.remove(task);
                 }
             }
@@ -509,8 +510,8 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             throw new StartException("Failed to start channel.", t);
         } finally {
-            synchronized (controlExecutor) {
-                if (task != null) {
+            if (task != null) {
+                synchronized (controlExecutor) {
                     controlTasks.remove(task);
                 }
             }
@@ -540,8 +541,8 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             throw new StopException("Failed to stop channel.", t);
         } finally {
-            synchronized (controlExecutor) {
-                if (task != null) {
+            if (task != null) {
+                synchronized (controlExecutor) {
                     controlTasks.remove(task);
                 }
             }
@@ -553,6 +554,17 @@ public class Channel implements Startable, Stoppable, Runnable {
         Throwable firstCause = null;
 
         try {
+            synchronized (haltThreads) {
+                // Interrupt any active halt threads for this channel
+                Thread[] threads = new Thread[haltThreads.size()];
+                haltThreads.toArray(threads);
+                for (int i = threads.length - 1; i >= 0; i--) {
+                    threads[i].interrupt();
+                }
+                
+                // Store the current halt thread so it can be interrupted
+                haltThreads.add(Thread.currentThread());
+            }
             synchronized (controlExecutor) {
                 Object[] tasks = controlTasks.toArray();
 
@@ -590,6 +602,9 @@ public class Channel implements Startable, Stoppable, Runnable {
                     try {
                         haltConnector(metaDataId);
                     } catch (Throwable t) {
+                        if (t.getCause() instanceof InterruptedException) {
+                            throw (InterruptedException) t.getCause();
+                        }
                         if (firstCause == null) {
                             firstCause = t;
                         }
@@ -613,10 +628,13 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             throw new HaltException("Failed to halt channel.", t);
         } finally {
-            synchronized (controlExecutor) {
-                if (task != null) {
-                    controlTasks.remove(task);
+            if (task != null) {
+                synchronized (controlExecutor) {
+                        controlTasks.remove(task);
                 }
+            }
+            synchronized(haltThreads) {
+                haltThreads.remove(Thread.currentThread());
             }
         }
     }
@@ -643,8 +661,8 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             throw new PauseException("Failed to pause channel.", t);
         } finally {
-            synchronized (controlExecutor) {
-                if (task != null) {
+            if (task != null) {
+                synchronized (controlExecutor) {
                     controlTasks.remove(task);
                 }
             }
@@ -673,8 +691,8 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             throw new StartException("Failed to resume channel.", t);
         } finally {
-            synchronized (controlExecutor) {
-                if (task != null) {
+            if (task != null) {
+                synchronized (controlExecutor) {
                     controlTasks.remove(task);
                 }
             }
@@ -773,6 +791,9 @@ public class Channel implements Startable, Stoppable, Runnable {
             try {
                 haltConnector(metaDataId);
             } catch (Throwable t) {
+                if (t.getCause() instanceof InterruptedException) {
+                    throw (InterruptedException) t.getCause();
+                }
                 if (firstCause == null) {
                     firstCause = t;
                 }
@@ -830,8 +851,8 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             throw new StartException("Failed to start connector.", t);
         } finally {
-            synchronized (controlExecutor) {
-                if (task != null) {
+            if (task != null) {
+                synchronized (controlExecutor) {
                     controlTasks.remove(task);
                 }
             }
@@ -860,8 +881,8 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             throw new StopException("Failed to stop connector.", t);
         } finally {
-            synchronized (controlExecutor) {
-                if (task != null) {
+            if (task != null) {
+                synchronized (controlExecutor) {
                     controlTasks.remove(task);
                 }
             }
