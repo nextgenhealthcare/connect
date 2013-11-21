@@ -128,6 +128,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
             normalizedVersion = MigrationUtil.normalizeVersion(currentVersion, 3);
             getXStream().registerConverter(new MigratableConverter(normalizedVersion, getXStream().getMapper()));
             getXStream().registerConverter(new ChannelConverter(normalizedVersion, getXStream().getMapper()));
+            getXStream().registerConverter(new MapContentConverter(getXStream().getMapper()));
         } else {
             throw new Exception("Serializer has already been initialized.");
         }
@@ -172,17 +173,16 @@ public class ObjectXMLSerializer extends XStreamSerializer {
     }
 
     /**
-     * Deserializes a source XML string and returns a List of objects of the
-     * expectedListItemClass type. If the source xml string represents a single
-     * object, then a list with that single object will be returned.
+     * Deserializes a source XML string and returns a List of objects of the expectedListItemClass
+     * type. If the source xml string represents a single object, then a list with that single
+     * object will be returned.
      */
     @SuppressWarnings("unchecked")
     public <T> List<T> deserializeList(String serializedObject, Class<T> expectedListItemClass) {
         try {
             /*
-             * If the expectedListItemClass is migratable to version 3.0.0, then
-             * we need to invoke ImportConverter3_0_0.migrate() on each item in
-             * the list.
+             * If the expectedListItemClass is migratable to version 3.0.0, then we need to invoke
+             * ImportConverter3_0_0.migrate() on each item in the list.
              */
             if (ImportConverter3_0_0.isMigratable(expectedListItemClass)) {
                 DonkeyElement listElement = new DonkeyElement(serializedObject);
@@ -235,10 +235,9 @@ public class ObjectXMLSerializer extends XStreamSerializer {
     }
 
     /**
-     * This should return true only for classes that are not Migratable AND
-     * whose instances do not contain references to other Migratable objects.
-     * The purpose of this method is to avoid parsing serialized data for these
-     * types into a DOM document, since that is only required if
+     * This should return true only for classes that are not Migratable AND whose instances do not
+     * contain references to other Migratable objects. The purpose of this method is to avoid
+     * parsing serialized data for these types into a DOM document, since that is only required if
      * MigratableConverter is triggered.
      */
     private boolean skipMigration(Class<?> expectedClass) {
