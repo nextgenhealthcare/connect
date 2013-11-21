@@ -1787,20 +1787,22 @@ public class MessageBrowser extends javax.swing.JPanel {
 
                     ConnectorMessage connectorMessage = message.getConnectorMessages().get(metaDataId);
 
-                    // Update the message tabs
-                    updateDescriptionMessages(connectorMessage);
-                    // Update the mappings tab
-                    updateDescriptionMappings(connectorMessage);
-                    // Update the attachments tab
-                    updateAttachmentsTable(messageId);
-                    // Update the errors tab
-                    updateDescriptionErrors(connectorMessage);
-                    // Show relevant tabs. Not using errorCode here just in case for some reason there are errors even though errorCode is 0
-                    updateDescriptionTabs(connectorMessage.getProcessingError() != null || connectorMessage.getPostProcessorError() != null || connectorMessage.getResponseError() != null, attachments.size() > 0);
-                    updateMessageRadioGroup();
+                    if (connectorMessage != null) {
+                        // Update the message tabs
+                        updateDescriptionMessages(connectorMessage);
+                        // Update the mappings tab
+                        updateDescriptionMappings(connectorMessage);
+                        // Update the attachments tab
+                        updateAttachmentsTable(messageId);
+                        // Update the errors tab
+                        updateDescriptionErrors(connectorMessage);
+                        // Show relevant tabs. Not using errorCode here just in case for some reason there are errors even though errorCode is 0
+                        updateDescriptionTabs(connectorMessage.getProcessingError() != null || connectorMessage.getPostProcessorError() != null || connectorMessage.getResponseError() != null, attachments.size() > 0);
+                        updateMessageRadioGroup();
 
-                    if (attachmentTable == null || attachmentTable.getSelectedRow() == -1 || descriptionTabbedPane.indexOfTab("Attachments") == -1) {
-                        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 9, false);
+                        if (attachmentTable == null || attachmentTable.getSelectedRow() == -1 || descriptionTabbedPane.indexOfTab("Attachments") == -1) {
+                            parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 9, false);
+                        }
                     }
                 } else {
                     clearDescription(null);
