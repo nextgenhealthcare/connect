@@ -59,6 +59,14 @@ public class BaseActionBeanContext extends ActionBeanContext {
         getRequest().getSession().setAttribute("httpsPort", httpsPort);
     }
 
+    public String getContextPath() {
+        return (String) getRequest().getSession().getAttribute("contextPath");
+    }
+
+    public void setContextPath(String contextPath) {
+        getRequest().getSession().setAttribute("contextPath", contextPath);
+    }
+
     public String getServerAddress() {
         return (String) getRequest().getSession().getAttribute("serverAddress");
     }

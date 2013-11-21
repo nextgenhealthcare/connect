@@ -46,8 +46,18 @@ public class IndexActionBean extends BaseActionBean {
 
                 httpsPort = mirthProps.getProperty("https.port", httpsPort);
                 httpPort = mirthProps.getProperty("http.port", httpPort);
-                httpsHost = mirthProps.getProperty("https.host", httpsHost);
                 contextPath = mirthProps.getProperty("http.contextpath", contextPath);
+
+                // Add a starting slash if one does not exist
+                if (!contextPath.startsWith("/")) {
+                    contextPath = "/" + contextPath;
+                }
+
+                // Remove a trailing slash if one exists
+                if (contextPath.endsWith("/")) {
+                    contextPath = contextPath.substring(0, contextPath.length() - 1);
+                }
+
             } catch (IOException e) {
                 // Ignore
             }
@@ -55,6 +65,7 @@ public class IndexActionBean extends BaseActionBean {
 
         context.setHttpsPort(httpsPort);
         context.setHttpPort(httpPort);
+        context.setContextPath(contextPath);
         context.setServerAddress(getWebServerUrl("https://", httpsHost, httpsPort, contextPath));
 
         // Check if http or https
@@ -80,14 +91,6 @@ public class IndexActionBean extends BaseActionBean {
             }
         } else if (host.isEmpty()) {
             host = "localhost";
-        }
-
-        if (!contextPath.startsWith("/")) {
-            contextPath = "/" + contextPath;
-        }
-
-        if (contextPath.endsWith("/")) {
-            contextPath = contextPath.substring(0, contextPath.length() - 1);
         }
 
         return prefix + host + ":" + port + contextPath;
