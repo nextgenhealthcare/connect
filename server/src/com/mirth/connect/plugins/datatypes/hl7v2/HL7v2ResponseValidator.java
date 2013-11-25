@@ -63,12 +63,14 @@ public class HL7v2ResponseValidator implements ResponseValidator {
                     response.setError(ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), response.getStatusMessage(), e));
                 }
             } else {
+                // ER7 response received
+
                 if (serializationProperties.isConvertLineBreaks()) {
                     responseData = StringUtil.convertLineBreaks(responseData, serializationSegmentDelimiter);
                 }
 
-                // ER7 response received
                 int index = -1;
+                boolean valid = true;
 
                 // Attempt to find the MSA segment using the segment delimiters in the serialization properties
                 if ((index = responseData.indexOf(serializationSegmentDelimiter + "MSA")) >= 0) {
@@ -79,7 +81,17 @@ public class HL7v2ResponseValidator implements ResponseValidator {
                         handleNACK(response);
                     } else if (responseData.startsWith(responseValidationProperties.getSuccessfulACKCode(), index)) {
                         response.setStatus(Status.SENT);
+                    } else {
+                        valid = false;
                     }
+                } else {
+                    valid = false;
+                }
+
+                if (!valid) {
+                    response.setStatus(Status.QUEUED);
+                    response.setStatusMessage("Invalid HL7 v2.x acknowledgement received.");
+                    response.setError(response.getStatusMessage());
                 }
             }
         } else {
