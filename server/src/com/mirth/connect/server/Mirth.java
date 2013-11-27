@@ -355,6 +355,19 @@ public class Mirth extends Thread {
 
             // add HTTPS listener
             SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
+            /*
+             * http://www.mirthcorp.com/community/issues/browse/MIRTH-3070 Keep SSL connections
+             * alive for 24 hours unless closed by the client. When the Administrator runs on
+             * Windows, the SSL handshake performed when a new connection is created takes about 4-5
+             * seconds if connecting via IP address and no reverse DNS entry can be found. By
+             * keeping the connection alive longer the Administrator shouldn't have to perform the
+             * handshake unless idle for this amount of time.
+             */
+            sslConnector.setMaxIdleTime(86400000);
+            // If the number of connections open reaches 200
+            sslConnector.setLowResourcesConnections(200);
+            // Then close connections after 200 seconds, which is the default MaxIdleTime value. This should affect existing connections as well.
+            sslConnector.setLowResourcesMaxIdleTime(200000);
             sslConnector.setName("sslconnector");
             sslConnector.setHost(mirthProperties.getString("https.host", "0.0.0.0"));
             sslConnector.setPort(mirthProperties.getInt("https.port"));

@@ -29,7 +29,6 @@ import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.httpclient.util.IdleConnectionTimeoutThread;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
@@ -37,7 +36,6 @@ public final class ServerConnection {
     private Logger logger = Logger.getLogger(this.getClass());
     private HttpClient client;
     private String address;
-    private IdleConnectionTimeoutThread idleConnectionTimeoutThread;
     private PostMethod post = null;
     private PostMethod channelPost = null;
     final private Operation currentOp = new Operation(null, null, false);
@@ -72,16 +70,6 @@ public final class ServerConnection {
         } catch (Exception e) {
             logger.error("Unable to register HTTPS protocol.", e);
         }
-
-        /*
-         * Close connections that have been idle for more than 5 seconds, every
-         * 5 seconds. This should help avoid stale connections.
-         */
-        idleConnectionTimeoutThread = new IdleConnectionTimeoutThread();
-        idleConnectionTimeoutThread.addConnectionManager(httpConnectionManager);
-        idleConnectionTimeoutThread.setTimeoutInterval(5000);
-        idleConnectionTimeoutThread.setConnectionTimeout(5000);
-        idleConnectionTimeoutThread.start();
     }
 
     /**
@@ -314,11 +302,6 @@ public final class ServerConnection {
     }
 
     public void shutdown() {
-        // Shutdown the timeout thread
-        if (idleConnectionTimeoutThread != null) {
-            idleConnectionTimeoutThread.shutdown();
-        }
-
         // Shutdown the abort thread
         abortExecutor.shutdownNow();
     }
