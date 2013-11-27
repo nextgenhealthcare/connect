@@ -2,7 +2,7 @@
 	<name>Raw Data Type</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.0.0</mirthVersion>
+	<mirthVersion>3.0.1</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides support for the raw data type</description>
 	<serverClasses>

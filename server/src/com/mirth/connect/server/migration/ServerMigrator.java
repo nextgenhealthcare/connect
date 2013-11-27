@@ -162,6 +162,7 @@ public class ServerMigrator extends Migrator {
             case V8: return new LegacyMigrator(8);
             case V9: return new Migrate2_2_0();
             case V3_0_0: return new Migrate3_0_0(startingVersion);
+            case V3_0_1: return null;
         } // @formatter:on
 
         return null;

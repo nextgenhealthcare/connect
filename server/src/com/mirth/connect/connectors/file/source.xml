@@ -2,7 +2,7 @@
 	<name>File Reader</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.0.0</mirthVersion>
+	<mirthVersion>3.0.1</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to poll for files from a local or network file system.</description>
 	<clientClassName>com.mirth.connect.connectors.file.FileReader</clientClassName>
