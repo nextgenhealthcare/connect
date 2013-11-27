@@ -12,6 +12,11 @@ package com.mirth.connect.plugins.xsltstep;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.Script;
+
+import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.XsltStepPanel;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
@@ -106,16 +111,28 @@ public class XsltStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
-    public void start() {
+    public String doValidate(Map<Object, Object> data) {
+        try {
+            Context context = Context.enter();
+            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + getScript(data) + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
+        } catch (EvaluatorException e) {
+            return "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
+        } catch (Exception e) {
+            return "Unknown error occurred during validation.";
+        } finally {
+            Context.exit();
+        }
+        return null;
     }
 
     @Override
-    public void stop() {
-    }
+    public void start() {}
 
     @Override
-    public void reset() {
-    }
+    public void stop() {}
+
+    @Override
+    public void reset() {}
 
     @Override
     public String getPluginPointName() {
