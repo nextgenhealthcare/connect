@@ -173,46 +173,49 @@ public class RuleBuilderPanel extends BasePanel {
     public void setData(Map<Object, Object> data) {
         boolean modified = parent.modified;
 
+        if (data == null) {
+            // Default values
+            data = new HashMap<Object, Object>();
+            data.put("Field", "");
+            data.put("Equals", UIConstants.EXISTS_OPTION);
+            data.put("Values", new ArrayList());
+            data.put("Accept", UIConstants.YES_OPTION);
+            data.put("Name", "");
+            data.put("OriginalField", "");
+        }
+
         // Must set the text last so that the text field change action is
         // not called before the new button values are set.
-        if (data != null) {
-            if (((String) data.get("Equals")).equals(UIConstants.YES_OPTION)) {
-                equalsActionPerformed(null);
-                equals.setSelected(true);
-            } else if (((String) data.get("Equals")).equals(UIConstants.NO_OPTION)) {
-                doesNotEqualActionPerformed(null);
-                doesNotEqual.setSelected(true);
-            } else if (((String) data.get("Equals")).equals(UIConstants.EXISTS_OPTION)) {
-                existsActionPerformed(null);
-                exists.setSelected(true);
-            } else if (((String) data.get("Equals")).equals(UIConstants.DOES_NOT_EXIST_OPTION)) {
-                doesNotExistActionPerformed(null);
-                doesNotExist.setSelected(true);
-            } else if (((String) data.get("Equals")).equals(UIConstants.CONTAINS_OPTION)) {
-                containsActionPerformed(null);
-                contains.setSelected(true);
-            } else if (((String) data.get("Equals")).equals(UIConstants.DOES_NOT_CONTAIN_OPTION)) {
-                doesNotContainActionPerformed(null);
-                doesNotContain.setSelected(true);
-            }
-
-            ArrayList<String> values = (ArrayList<String>) data.get("Values");
-            if (values != null) {
-                setValues(values);
-            } else {
-                setValues(new ArrayList<String>());
-            }
-
-            originalField = (String) data.get("OriginalField");
-            name = (String) data.get("Name");
-            fieldTextField.setText((String) data.get("Field"));
-        } else {
+        if (((String) data.get("Equals")).equals(UIConstants.YES_OPTION)) {
+            equalsActionPerformed(null);
             equals.setSelected(true);
-            ArrayList<String> values = new ArrayList<String>();
-            values.add("\"Example Value\"");
-            setValues(values);
-            fieldTextField.setText("");
+        } else if (((String) data.get("Equals")).equals(UIConstants.NO_OPTION)) {
+            doesNotEqualActionPerformed(null);
+            doesNotEqual.setSelected(true);
+        } else if (((String) data.get("Equals")).equals(UIConstants.EXISTS_OPTION)) {
+            existsActionPerformed(null);
+            exists.setSelected(true);
+        } else if (((String) data.get("Equals")).equals(UIConstants.DOES_NOT_EXIST_OPTION)) {
+            doesNotExistActionPerformed(null);
+            doesNotExist.setSelected(true);
+        } else if (((String) data.get("Equals")).equals(UIConstants.CONTAINS_OPTION)) {
+            containsActionPerformed(null);
+            contains.setSelected(true);
+        } else if (((String) data.get("Equals")).equals(UIConstants.DOES_NOT_CONTAIN_OPTION)) {
+            doesNotContainActionPerformed(null);
+            doesNotContain.setSelected(true);
         }
+
+        ArrayList<String> values = (ArrayList<String>) data.get("Values");
+        if (values != null) {
+            setValues(values);
+        } else {
+            setValues(new ArrayList<String>());
+        }
+
+        originalField = (String) data.get("OriginalField");
+        name = (String) data.get("Name");
+        fieldTextField.setText((String) data.get("Field"));
 
         parent.modified = modified;
     }
