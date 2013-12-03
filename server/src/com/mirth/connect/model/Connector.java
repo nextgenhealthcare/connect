@@ -15,6 +15,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -136,4 +137,7 @@ public class Connector implements Serializable, Migratable {
     public void setWaitForPrevious(boolean waitForPrevious) {
         this.waitForPrevious = waitForPrevious;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

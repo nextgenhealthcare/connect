@@ -10,6 +10,8 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -21,13 +23,13 @@ public class Step implements Serializable {
 	private String name;
 	private String script;
 	private String type;
-	private Object data;
+	private LinkedHashMap<Object, Object> data;
 
-	public Object getData() {
+	public LinkedHashMap<Object, Object> getData() {
 		return this.data;
 	}
 
-	public void setData(Object data) {
+	public void setData(LinkedHashMap<Object, Object> data) {
 		this.data = data;
 	}
 

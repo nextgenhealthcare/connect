@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.xstream.Base64StringConverter;
 import com.mirth.connect.model.datatype.DataTypeProperties;
@@ -114,5 +115,11 @@ public class Transformer implements Serializable, Migratable {
 
     public void setOutboundProperties(DataTypeProperties outboundProperties) {
         this.outboundProperties = outboundProperties;
+    }
+
+    public void migrate3_0_1(DonkeyElement transformer) {
+        for (DonkeyElement step : transformer.getChildElement("steps").getChildElements()) {
+            step.getChildElement("data").removeAttribute("class");
+        }
     }
 }

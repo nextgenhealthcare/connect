@@ -12,6 +12,7 @@ package com.mirth.connect.model.alert;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -50,4 +51,6 @@ public class AlertActionGroup implements Migratable {
         this.template = template;
     }
 
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

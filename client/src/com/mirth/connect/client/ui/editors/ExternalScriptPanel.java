@@ -9,7 +9,7 @@
 
 package com.mirth.connect.client.ui.editors;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.swing.SwingUtilities;
@@ -59,7 +59,7 @@ public class ExternalScriptPanel extends BasePanel {
     }
 
     public Map<Object, Object> getData() {
-        Map<Object, Object> m = new HashMap<Object, Object>();
+        Map<Object, Object> m = new LinkedHashMap<Object, Object>();
         m.put("Variable", variableTextField.getText().trim());
         return m;
     }

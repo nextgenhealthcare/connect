@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -105,4 +106,7 @@ public class AlertChannels implements Migratable {
             return newChannelSource;
         }
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

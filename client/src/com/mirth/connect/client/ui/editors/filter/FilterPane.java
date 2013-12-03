@@ -28,9 +28,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
@@ -790,7 +790,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                                         // inbound
             FilterRulePlugin plugin = LoadedExtensions.getInstance().getFilterRulePlugins().get(RULE_BUILDER);
             plugin.initData();
-            Map<Object, Object> data = new HashMap<Object, Object>();
+            LinkedHashMap<Object, Object> data = new LinkedHashMap<Object, Object>();
             data.put("Field", mapping);
             data.put("Equals", UIConstants.EXISTS_OPTION);
             data.put("Values", new ArrayList());
@@ -1045,11 +1045,11 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                 rule.setOperator(Rule.Operator.valueOf(operator));
             }
 
-            rule.setData((Map) filterTableModel.getValueAt(i, RULE_DATA_COL));
+            rule.setData((LinkedHashMap<Object, Object>) filterTableModel.getValueAt(i, RULE_DATA_COL));
             rule.setName((String) filterTableModel.getValueAt(i, RULE_NAME_COL));
             rule.setType((String) filterTableModel.getValueAt(i, RULE_TYPE_COL));
 
-            HashMap map = (HashMap) rule.getData();
+            Map<Object, Object> map = (Map<Object, Object>) rule.getData();
             try {
                 rule.setScript(getPlugin(rule.getType()).getScript(map));
             } catch (Exception e) {

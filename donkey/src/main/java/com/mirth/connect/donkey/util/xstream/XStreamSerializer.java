@@ -68,7 +68,6 @@ public class XStreamSerializer implements Serializer {
         xstream.registerConverter(new StringConverter(stringCache));
         xstream.registerConverter(new ConcurrentHashMapConverter(xstream.getMapper()));
         xstream.registerConverter(new PropertiesConverter());
-        xstream.registerConverter(new HashMapConverter(xstream.getMapper()));
         xstream.setMode(XStream.NO_REFERENCES);
         xstream.processAnnotations(annotatedClasses);
     }

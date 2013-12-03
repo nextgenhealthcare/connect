@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -53,4 +54,10 @@ public class Filter implements Serializable, Migratable {
 
 		return ObjectUtils.equals(this.getRules(), filter.getRules());
 	}
+
+    public void migrate3_0_1(DonkeyElement filter) {
+        for (DonkeyElement rule : filter.getChildElement("rules").getChildElements()) {
+            rule.getChildElement("data").removeAttribute("class");
+        }
+    }
 }

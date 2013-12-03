@@ -9,7 +9,7 @@
 
 package com.mirth.connect.client.ui.editors;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.swing.event.DocumentEvent;
@@ -48,7 +48,7 @@ public class ScriptPanel extends BasePanel {
     }
 
     public Map<Object, Object> getData() {
-        Map<Object, Object> m = new HashMap<Object, Object>();
+        Map<Object, Object> m = new LinkedHashMap<Object, Object>();
         m.put("Script", scriptTextPane.getText().trim());
         return m;
     }

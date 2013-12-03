@@ -17,6 +17,7 @@ import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -191,4 +192,7 @@ public class Channel implements Serializable, Auditable, Migratable {
     public String toAuditString() {
         return new ToStringBuilder(this, CalendarToStringStyle.instance()).append("id", id).append("name", name).toString();
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

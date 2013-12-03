@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.mirth.connect.donkey.model.event.ErrorEventType;
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -47,4 +48,6 @@ public class DefaultTrigger extends ChannelTrigger implements AlertTrigger, Migr
         this.regex = regex;
     }
 
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

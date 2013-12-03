@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.model.alert.AlertModel;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -101,4 +102,7 @@ public class ServerConfiguration implements Serializable, Migratable {
     public void setPluginProperties(Map<String, Properties> pluginProperties) {
         this.pluginProperties = pluginProperties;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

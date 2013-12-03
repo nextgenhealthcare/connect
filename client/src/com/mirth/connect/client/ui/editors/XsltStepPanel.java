@@ -9,7 +9,7 @@
 
 package com.mirth.connect.client.ui.editors;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.swing.SwingUtilities;
@@ -78,7 +78,7 @@ public class XsltStepPanel extends BasePanel {
     }
 
     public Map<Object, Object> getData() {
-        Map<Object, Object> m = new HashMap<Object, Object>();
+        Map<Object, Object> m = new LinkedHashMap<Object, Object>();
         m.put("Source", sourceVariableField.getText().trim());
         m.put("Result", resultVariableField.getText().trim());
         m.put("XsltTemplate", xsltTemplateTextPane.getText());

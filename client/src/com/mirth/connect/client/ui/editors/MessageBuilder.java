@@ -11,7 +11,7 @@ package com.mirth.connect.client.ui.editors;
 
 import java.util.ArrayList;
 import java.util.EventObject;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
@@ -112,7 +112,7 @@ public class MessageBuilder extends BasePanel {
     }
 
     public Map<Object, Object> getData() {
-        Map<Object, Object> m = new HashMap<Object, Object>();
+        Map<Object, Object> m = new LinkedHashMap<Object, Object>();
         m.put("Variable", variableTextField.getText().trim());
         m.put("Mapping", mappingTextField.getText().trim());
         m.put("DefaultValue", defaultValueTextField.getText().trim());

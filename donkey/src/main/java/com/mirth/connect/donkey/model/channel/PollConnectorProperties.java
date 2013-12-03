@@ -11,6 +11,7 @@ package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 
 public class PollConnectorProperties implements Serializable, Migratable {
@@ -60,4 +61,7 @@ public class PollConnectorProperties implements Serializable, Migratable {
     public void setPollingFrequency(int pollingFrequency) {
         this.pollingFrequency = pollingFrequency;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

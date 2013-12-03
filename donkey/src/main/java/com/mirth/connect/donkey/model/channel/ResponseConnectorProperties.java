@@ -12,6 +12,7 @@ package com.mirth.connect.donkey.model.channel;
 import java.io.Serializable;
 
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 
 public class ResponseConnectorProperties implements Serializable, Migratable {
@@ -95,4 +96,7 @@ public class ResponseConnectorProperties implements Serializable, Migratable {
     public void setRespondAfterProcessing(boolean respondAfterProcessing) {
         this.respondAfterProcessing = respondAfterProcessing;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

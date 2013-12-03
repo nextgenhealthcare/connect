@@ -11,6 +11,7 @@ package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 
 public abstract class ConnectorProperties implements Serializable, Migratable {
@@ -19,4 +20,7 @@ public abstract class ConnectorProperties implements Serializable, Migratable {
     public abstract String getName();
 
     public abstract String toFormattedString();
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

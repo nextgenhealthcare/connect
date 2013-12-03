@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -85,4 +86,6 @@ public class AlertModel implements Migratable {
         this.properties = properties;
     }
 
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

@@ -9,6 +9,7 @@
 
 package com.mirth.connect.model.alert;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -38,4 +39,7 @@ public class AlertAction implements Migratable {
     public void setRecipient(String recipient) {
         this.recipient = recipient;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

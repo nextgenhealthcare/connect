@@ -14,6 +14,7 @@ import org.w3c.dom.Element;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
+import com.mirth.connect.model.Transformer;
 import com.mirth.connect.util.MigrationUtil;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -36,6 +37,9 @@ import com.thoughtworks.xstream.mapper.Mapper;
  * @author brentm
  */
 public class MigratableConverter extends ReflectionConverter {
+    // see comment below in unmarshal()
+    private final static String DEFAULT_VERSION = "3.0.0";
+
     protected String currentVersion;
 
     public MigratableConverter(String currentVersion, Mapper mapper) {
@@ -59,11 +63,29 @@ public class MigratableConverter extends ReflectionConverter {
         String version = reader.getAttribute(ObjectXMLSerializer.VERSION_ATTRIBUTE_NAME);
 
         /*
-         * If the current DOM element contains a version attribute, then check
-         * if the element needs to be migrated to the current version. The
-         * reader should always be a DocumentReader at this point.
+         * If the version attribute is missing, we set it to the default version (3.0.0). The
+         * version attribute could be missing for one of two reasons:
+         * 
+         * 1) The class was recently modified to implement the Migratable interface, so previously
+         * serialized instances of the class were not given the 'version' attribute. Setting the
+         * version to 3.0.0 will cause it to run the migration methods from 3.0.0 onward. We assume
+         * that the migration methods up until the version in which the Migratable implementation
+         * was added are empty. (also see comment in the Migratable interface)
+         * 
+         * 2) The object is being migrated from a pre-3.0.0 version. In this case the object does
+         * not have the 'version' attribute since it was not present prior to 3.0.0. At this point
+         * we can assume that any pre-3.0.0 objects have been fully migrated to the 3.0.0 structure
+         * by the migration code in ImportConverter3_0_0.
          */
-        if (version != null && MigrationUtil.compareVersions(version, currentVersion) < 0 && context.getRequiredType() != null) {
+        if (version == null) {
+            version = DEFAULT_VERSION;
+        }
+
+        /*
+         * Check if the element needs to be migrated to the current version. The reader should
+         * always be a DocumentReader at this point.
+         */
+        if (MigrationUtil.compareVersions(version, currentVersion) < 0 && context.getRequiredType() != null) {
             migrateElement(new DonkeyElement((Element) ((DocumentReader) reader).getCurrent()), version, context.getRequiredType());
         }
 
@@ -74,13 +96,9 @@ public class MigratableConverter extends ReflectionConverter {
         try {
             Migratable instance = (Migratable) clazz.newInstance();
 
-//            if (MigrationUtil.compareVersions(elementVersion, "3.0.1") < 0) {
-//                instance.migrate3_0_1(element);
-//            }
-//
-//            if (MigrationUtil.compareVersions(elementVersion, "3.0.2") < 0) {
-//                instance.migrate3_0_2(element);
-//            }
+            if (MigrationUtil.compareVersions(elementVersion, "3.0.1") < 0) {
+                instance.migrate3_0_1(element);
+            }
         } catch (Exception e) {
             throw new SerializerException("An error occurred while attempting to migrate serialized object element: " + element.getNodeName(), e);
         }

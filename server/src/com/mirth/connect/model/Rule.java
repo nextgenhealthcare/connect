@@ -10,6 +10,7 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
 
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -23,7 +24,7 @@ public class Rule implements Serializable {
 
 	private int sequenceNumber;
 	private String name;
-	private Object data;
+	private LinkedHashMap<Object, Object> data;
 	private String type;
 	private String script;
 	private Operator operator;
@@ -44,11 +45,11 @@ public class Rule implements Serializable {
 		this.sequenceNumber = sequenceNumber;
 	}
 
-	public Object getData() {
+	public LinkedHashMap<Object, Object> getData() {
 		return this.data;
 	}
 
-	public void setData(Object data) {
+	public void setData(LinkedHashMap<Object, Object> data) {
 		this.data = data;
 	}
 

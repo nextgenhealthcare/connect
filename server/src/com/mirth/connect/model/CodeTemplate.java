@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.ObjectUtils;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -148,4 +149,6 @@ public class CodeTemplate implements Serializable, Migratable {
         return builder.toString();
     }
 
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

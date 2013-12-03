@@ -28,9 +28,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
@@ -823,7 +823,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 }
             }
 
-            Map<Object, Object> data = new HashMap<Object, Object>();
+            LinkedHashMap<Object, Object> data = new LinkedHashMap<Object, Object>();
             data.put("Mapping", mapping);
             data.put("Variable", variable);
 
@@ -1050,9 +1050,9 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             step.setSequenceNumber(Integer.parseInt(transformerTable.getValueAt(i, STEP_NUMBER_COL).toString()));
             step.setName((String) transformerTableModel.getValueAt(i, STEP_NAME_COL));
             step.setType((String) transformerTableModel.getValueAt(i, STEP_TYPE_COL));
-            step.setData((Map) transformerTableModel.getValueAt(i, STEP_DATA_COL));
+            step.setData((LinkedHashMap<Object, Object>) transformerTableModel.getValueAt(i, STEP_DATA_COL));
 
-            HashMap map = (HashMap) step.getData();
+            Map<Object, Object> map = (Map<Object, Object>) step.getData();
             try {
                 step.setScript(getPlugin(step.getType()).getScript(map));
             } catch (Exception e) {

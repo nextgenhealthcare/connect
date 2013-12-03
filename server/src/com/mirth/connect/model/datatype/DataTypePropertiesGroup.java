@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 
 public abstract class DataTypePropertiesGroup implements Serializable, Migratable {
@@ -50,4 +51,7 @@ public abstract class DataTypePropertiesGroup implements Serializable, Migratabl
 
         return isEqual;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }
