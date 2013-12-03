@@ -111,8 +111,7 @@ public class JavaScriptUtil {
     }
 
     /**
-     * Executes the JavaScriptTask associated with the postprocessor, if
-     * necessary.
+     * Executes the JavaScriptTask associated with the postprocessor, if necessary.
      * 
      * @param task
      * @param channelId
@@ -132,9 +131,9 @@ public class JavaScriptUtil {
     }
 
     /**
-     * Executes the global and channel preprocessor scripts in order, building
-     * up the necessary scope for the global preprocessor and adding the result
-     * back to it for the channel preprocessor.
+     * Executes the global and channel preprocessor scripts in order, building up the necessary
+     * scope for the global preprocessor and adding the result back to it for the channel
+     * preprocessor.
      * 
      * @throws InterruptedException
      * @throws JavaScriptExecutorException
@@ -204,8 +203,7 @@ public class JavaScriptUtil {
     }
 
     /**
-     * Executes the JavaScriptTask associated with the postprocessor, if
-     * necessary.
+     * Executes the JavaScriptTask associated with the postprocessor, if necessary.
      * 
      * @param task
      * @param channelId
@@ -316,6 +314,8 @@ public class JavaScriptUtil {
                 return Status.SENT;
             case QUEUED:
                 return Status.QUEUED;
+            case ERROR:
+                return Status.ERROR;
             case PENDING:
                 return Status.PENDING;
             default:
@@ -440,8 +440,7 @@ public class JavaScriptUtil {
     }
 
     /**
-     * Logs out a script error with the script type and the script level
-     * (channelId or global).
+     * Logs out a script error with the script type and the script level (channelId or global).
      * 
      * @param scriptType
      * @param channelId
@@ -562,8 +561,8 @@ public class JavaScriptUtil {
     }
 
     /*
-     * Encapsulates a JavaScript script into the doScript() function,
-     * compiles it, and adds it to the compiled script cache.
+     * Encapsulates a JavaScript script into the doScript() function, compiles it, and adds it to
+     * the compiled script cache.
      */
     public static boolean compileAndAddScript(String scriptId, String script) throws Exception {
         return compileAndAddScript(scriptId, script, null);
@@ -644,8 +643,8 @@ public class JavaScriptUtil {
         int startingLineNumber = errorLineNumber - offset;
 
         /*
-         * If the starting line number is 5 or less, set it to 6 so that it
-         * displays lines 1-11 (0-10 in the array)
+         * If the starting line number is 5 or less, set it to 6 so that it displays lines 1-11
+         * (0-10 in the array)
          */
         if (startingLineNumber <= SOURCE_CODE_LINE_WRAPPER) {
             startingLineNumber = SOURCE_CODE_LINE_WRAPPER + 1;
