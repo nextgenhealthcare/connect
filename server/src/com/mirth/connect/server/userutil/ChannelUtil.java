@@ -10,6 +10,9 @@
 package com.mirth.connect.server.userutil;
 
 import java.util.Collections;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.DashboardStatus;
@@ -26,6 +29,7 @@ public class ChannelUtil {
 
     private static EngineController engineController = ControllerFactory.getFactory().createEngineController();
     private static ChannelController channelController = ControllerFactory.getFactory().createChannelController();
+    private static ExecutorService executor = Executors.newCachedThreadPool();
 
     private ChannelUtil() {}
 
@@ -52,10 +56,19 @@ public class ChannelUtil {
      * 
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
+     * @return A {@link Future} object representing the result of the asynchronous operation. You
+     *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
+     *         to wait for the operation to finish.
      * @throws Exception
      */
-    public static void startChannel(String channelIdOrName) throws Exception {
-        engineController.startChannel(convertId(channelIdOrName));
+    public static Future<Void> startChannel(final String channelIdOrName) throws Exception {
+        return new Future<Void>(executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                engineController.startChannel(convertId(channelIdOrName));
+                return null;
+            }
+        }));
     }
 
     /**
@@ -63,10 +76,19 @@ public class ChannelUtil {
      * 
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
+     * @return A {@link Future} object representing the result of the asynchronous operation. You
+     *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
+     *         to wait for the operation to finish.
      * @throws Exception
      */
-    public static void stopChannel(String channelIdOrName) throws Exception {
-        engineController.stopChannel(convertId(channelIdOrName));
+    public static Future<Void> stopChannel(final String channelIdOrName) throws Exception {
+        return new Future<Void>(executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                engineController.stopChannel(convertId(channelIdOrName));
+                return null;
+            }
+        }));
     }
 
     /**
@@ -74,10 +96,19 @@ public class ChannelUtil {
      * 
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
+     * @return A {@link Future} object representing the result of the asynchronous operation. You
+     *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
+     *         to wait for the operation to finish.
      * @throws Exception
      */
-    public static void pauseChannel(String channelIdOrName) throws Exception {
-        engineController.pauseChannel(convertId(channelIdOrName));
+    public static Future<Void> pauseChannel(final String channelIdOrName) throws Exception {
+        return new Future<Void>(executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                engineController.pauseChannel(convertId(channelIdOrName));
+                return null;
+            }
+        }));
     }
 
     /**
@@ -87,8 +118,14 @@ public class ChannelUtil {
      *            The channel id or current name of the deployed channel.
      * @throws Exception
      */
-    public static void resumeChannel(String channelIdOrName) throws Exception {
-        engineController.resumeChannel(convertId(channelIdOrName));
+    public static Future<Void> resumeChannel(final String channelIdOrName) throws Exception {
+        return new Future<Void>(executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                engineController.resumeChannel(convertId(channelIdOrName));
+                return null;
+            }
+        }));
     }
 
     /**
@@ -96,10 +133,19 @@ public class ChannelUtil {
      * 
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
+     * @return A {@link Future} object representing the result of the asynchronous operation. You
+     *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
+     *         to wait for the operation to finish.
      * @throws Exception
      */
-    public static void haltChannel(String channelIdOrName) throws Exception {
-        engineController.haltChannel(convertId(channelIdOrName));
+    public static Future<Void> haltChannel(final String channelIdOrName) throws Exception {
+        return new Future<Void>(executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                engineController.haltChannel(convertId(channelIdOrName));
+                return null;
+            }
+        }));
     }
 
     /**
@@ -119,9 +165,18 @@ public class ChannelUtil {
      * 
      * @param channelIdOrName
      *            The channel id or current name of the channel.
+     * @return A {@link Future} object representing the result of the asynchronous operation. You
+     *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
+     *         to wait for the operation to finish.
      */
-    public static void deployChannel(String channelIdOrName) {
-        engineController.deployChannels(Collections.singleton(convertId(channelIdOrName)), null);
+    public static Future<Void> deployChannel(final String channelIdOrName) {
+        return new Future<Void>(executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                engineController.deployChannels(Collections.singleton(convertId(channelIdOrName)), null);
+                return null;
+            }
+        }));
     }
 
     /**
@@ -129,9 +184,18 @@ public class ChannelUtil {
      * 
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
+     * @return A {@link Future} object representing the result of the asynchronous operation. You
+     *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
+     *         to wait for the operation to finish.
      */
-    public static void undeployChannel(String channelIdOrName) {
-        engineController.undeployChannels(Collections.singleton(convertId(channelIdOrName)), null);
+    public static Future<Void> undeployChannel(final String channelIdOrName) {
+        return new Future<Void>(executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                engineController.undeployChannels(Collections.singleton(convertId(channelIdOrName)), null);
+                return null;
+            }
+        }));
     }
 
     /**
@@ -153,10 +217,19 @@ public class ChannelUtil {
      * @param metaDataId
      *            The metadata id of the connector. Note that the source connector has a metadata id
      *            of 0.
+     * @return A {@link Future} object representing the result of the asynchronous operation. You
+     *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
+     *         to wait for the operation to finish.
      * @throws Exception
      */
-    public static void startConnector(String channelIdOrName, Integer metaDataId) throws Exception {
-        engineController.startConnector(convertId(channelIdOrName), metaDataId);
+    public static Future<Void> startConnector(final String channelIdOrName, final Integer metaDataId) throws Exception {
+        return new Future<Void>(executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                engineController.startConnector(convertId(channelIdOrName), metaDataId);
+                return null;
+            }
+        }));
     }
 
     /**
@@ -167,10 +240,19 @@ public class ChannelUtil {
      * @param metaDataId
      *            The metadata id of the connector. Note that the source connector has a metadata id
      *            of 0.
+     * @return A {@link Future} object representing the result of the asynchronous operation. You
+     *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
+     *         to wait for the operation to finish.
      * @throws Exception
      */
-    public static void stopConnector(String channelIdOrName, Integer metaDataId) throws Exception {
-        engineController.stopConnector(convertId(channelIdOrName), metaDataId);
+    public static Future<Void> stopConnector(final String channelIdOrName, final Integer metaDataId) throws Exception {
+        return new Future<Void>(executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                engineController.stopConnector(convertId(channelIdOrName), metaDataId);
+                return null;
+            }
+        }));
     }
 
     /**
