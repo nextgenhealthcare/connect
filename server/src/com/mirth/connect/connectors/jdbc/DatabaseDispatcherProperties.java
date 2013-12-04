@@ -10,6 +10,7 @@
 package com.mirth.connect.connectors.jdbc;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
@@ -156,5 +157,10 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
     @Override
     public ConnectorProperties clone() {
         return new DatabaseDispatcherProperties(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }

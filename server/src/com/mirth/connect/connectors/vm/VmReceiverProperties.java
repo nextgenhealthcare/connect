@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.vm;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
@@ -38,5 +40,10 @@ public class VmReceiverProperties extends ConnectorProperties implements Respons
     @Override
     public ResponseConnectorProperties getResponseConnectorProperties() {
         return responseConnectorProperties;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }

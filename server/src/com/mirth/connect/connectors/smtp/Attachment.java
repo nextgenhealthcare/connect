@@ -11,6 +11,8 @@ package com.mirth.connect.connectors.smtp;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 public class Attachment implements Serializable {
     private String name;
     private String content;
@@ -48,4 +50,8 @@ public class Attachment implements Serializable {
         this.mimeType = mimeType;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
 }

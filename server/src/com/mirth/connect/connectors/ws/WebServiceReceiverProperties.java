@@ -12,6 +12,8 @@ package com.mirth.connect.connectors.ws;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
@@ -92,5 +94,10 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
     @Override
     public ResponseConnectorProperties getResponseConnectorProperties() {
         return responseConnectorProperties;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }

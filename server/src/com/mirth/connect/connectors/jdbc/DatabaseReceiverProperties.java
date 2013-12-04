@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.jdbc;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
@@ -183,5 +185,10 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
     @Override
     public ResponseConnectorProperties getResponseConnectorProperties() {
         return responseConnectorProperties;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }

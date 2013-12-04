@@ -12,6 +12,8 @@ package com.mirth.connect.connectors.http;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
@@ -122,5 +124,10 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     @Override
     public ResponseConnectorProperties getResponseConnectorProperties() {
         return responseConnectorProperties;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }

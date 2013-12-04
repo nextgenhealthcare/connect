@@ -11,6 +11,8 @@ package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 public class ListenerConnectorProperties implements Serializable {
     private String host;
     private String port;
@@ -34,5 +36,10 @@ public class ListenerConnectorProperties implements Serializable {
 
     public void setPort(String port) {
         this.port = port;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }

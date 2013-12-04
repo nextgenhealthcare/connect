@@ -11,6 +11,8 @@ package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 
@@ -97,6 +99,11 @@ public class QueueConnectorProperties implements Serializable, Migratable {
 
     public void setThreadCount(int threadCount) {
         this.threadCount = threadCount;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 
     @Override

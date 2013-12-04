@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.doc;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
@@ -148,5 +150,10 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
     @Override
     public ConnectorProperties clone() {
         return new DocumentDispatcherProperties(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }

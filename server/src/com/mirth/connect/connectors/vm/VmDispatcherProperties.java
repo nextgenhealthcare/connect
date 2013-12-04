@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.vm;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
@@ -82,5 +84,10 @@ public class VmDispatcherProperties extends ConnectorProperties implements Dispa
     @Override
     public ConnectorProperties clone() {
         return new VmDispatcherProperties(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }

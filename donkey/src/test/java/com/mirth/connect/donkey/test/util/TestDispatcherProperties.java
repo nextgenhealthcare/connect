@@ -9,6 +9,8 @@
 
 package com.mirth.connect.donkey.test.util;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
@@ -52,5 +54,10 @@ public class TestDispatcherProperties extends ConnectorProperties implements Dis
     @Override
     public String toFormattedString() {
         return null;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }

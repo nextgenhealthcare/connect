@@ -48,13 +48,17 @@ public class AttachmentHandlerProperties implements Serializable {
         this.properties = properties;
     }
 
-    public boolean equals(AttachmentHandlerProperties attachmentHandlerProperties) {
-        if (className == null || attachmentHandlerProperties.getClassName() == null) {
-            if (className == null && attachmentHandlerProperties.getClassName() == null) {
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof AttachmentHandlerProperties) {
+            AttachmentHandlerProperties attachmentHandlerProperties = (AttachmentHandlerProperties) object;
+            if (className == null || attachmentHandlerProperties.getClassName() == null) {
+                if (className == null && attachmentHandlerProperties.getClassName() == null) {
+                    return true;
+                }
+            } else if (className.equals(attachmentHandlerProperties.getClassName()) && type.equals(attachmentHandlerProperties.getType()) && properties.equals(attachmentHandlerProperties.getProperties())) {
                 return true;
             }
-        } else if (className.equals(attachmentHandlerProperties.getClassName()) && type.equals(attachmentHandlerProperties.getType()) && properties.equals(attachmentHandlerProperties.getProperties())) {
-            return true;
         }
 
         return false;

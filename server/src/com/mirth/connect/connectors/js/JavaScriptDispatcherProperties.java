@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.js;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
@@ -62,5 +64,10 @@ public class JavaScriptDispatcherProperties extends ConnectorProperties implemen
     @Override
     public ConnectorProperties clone() {
         return new JavaScriptDispatcherProperties(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }

@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.tcp;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
@@ -257,5 +259,10 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
     @Override
     public ConnectorProperties clone() {
         return new TcpDispatcherProperties(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }

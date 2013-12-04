@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.tests;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
 public class TestConnectorProperties extends ConnectorProperties {
@@ -25,5 +27,10 @@ public class TestConnectorProperties extends ConnectorProperties {
     @Override
     public String getName() {
         return null;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }
