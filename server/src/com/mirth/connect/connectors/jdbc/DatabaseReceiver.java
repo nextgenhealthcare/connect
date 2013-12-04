@@ -274,11 +274,11 @@ public class DatabaseReceiver extends PollConnector {
         StringBuilder stringBuilder = new StringBuilder();
         Reader reader = clob.getCharacterStream();
         BufferedReader bufferedReader = new BufferedReader(reader);
-        String line;
+        int c;
 
         try {
-            while (null != (line = bufferedReader.readLine())) {
-                stringBuilder.append(line);
+            while ((c = bufferedReader.read()) != -1) {
+                stringBuilder.append((char) c);
             }
 
             return stringBuilder.toString();
