@@ -15,6 +15,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.DeserializationProperties;
 import com.mirth.connect.model.datatype.PropertyEditorType;
@@ -169,5 +170,8 @@ public class DelimitedDeserializationProperties extends DeserializationPropertie
     public void setQuoteEscapeChar(String quoteEscapeChar) {
         this.quoteEscapeChar = quoteEscapeChar;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 
 }

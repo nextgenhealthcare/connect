@@ -15,6 +15,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.BatchProperties;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
@@ -136,5 +137,8 @@ public class DelimitedBatchProperties extends BatchProperties {
     public void setBatchScript(String batchScript) {
         this.batchScript = batchScript;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 
 }

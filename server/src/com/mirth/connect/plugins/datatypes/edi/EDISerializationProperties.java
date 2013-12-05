@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.datatypes.edi;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.SerializationProperties;
@@ -94,4 +95,7 @@ public class EDISerializationProperties extends SerializationProperties {
     public void setInferX12Delimiters(boolean inferX12Delimiters) {
         this.inferX12Delimiters = inferX12Delimiters;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

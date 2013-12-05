@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.datatypes.ncpdp;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.DeserializationProperties;
 import com.mirth.connect.model.datatype.PropertyEditorType;
@@ -86,5 +87,8 @@ public class NCPDPDeserializationProperties extends DeserializationProperties {
     public void setUseStrictValidation(boolean useStrictValidation) {
         this.useStrictValidation = useStrictValidation;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 
 }

@@ -9,6 +9,7 @@
 
 package com.mirth.connect.plugins.datatypes.xml;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class XMLDataTypeProperties extends DataTypeProperties {
@@ -16,5 +17,8 @@ public class XMLDataTypeProperties extends DataTypeProperties {
     public XMLDataTypeProperties() {
         serializationProperties = new XMLSerializationProperties();
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 
 }

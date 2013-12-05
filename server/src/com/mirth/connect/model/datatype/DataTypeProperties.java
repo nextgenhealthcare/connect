@@ -13,7 +13,6 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.SerializationUtils;
 
-import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 
 public abstract class DataTypeProperties implements Serializable, Migratable {
@@ -72,7 +71,4 @@ public abstract class DataTypeProperties implements Serializable, Migratable {
     		return false;
     	}
     }
-
-    @Override
-    public void migrate3_0_1(DonkeyElement element) {}
 }

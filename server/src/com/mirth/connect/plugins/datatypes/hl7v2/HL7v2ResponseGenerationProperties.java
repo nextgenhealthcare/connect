@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.datatypes.hl7v2;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.ResponseGenerationProperties;
@@ -150,4 +151,7 @@ public class HL7v2ResponseGenerationProperties extends ResponseGenerationPropert
     public void setMsh15ACKAccept(boolean msh15ackAccept) {
         msh15ACKAccept = msh15ackAccept;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

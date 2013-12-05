@@ -14,11 +14,11 @@ import org.w3c.dom.Element;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
-import com.mirth.connect.model.Transformer;
 import com.mirth.connect.util.MigrationUtil;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.converters.reflection.ReflectionConverter;
+import com.thoughtworks.xstream.converters.reflection.ReflectionProvider;
 import com.thoughtworks.xstream.core.JVM;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
@@ -94,7 +94,17 @@ public class MigratableConverter extends ReflectionConverter {
 
     private void migrateElement(DonkeyElement element, String elementVersion, Class<?> clazz) {
         try {
-            Migratable instance = (Migratable) clazz.newInstance();
+            /*
+             * The newInstance() method of a Class object only works if the class has a no argument
+             * constructor. XStream is able to get around this limitation by in enhanced mode. Here
+             * we piggyback off of XStream and use its reflection provider to instantiate our class.
+             * If our class does not have a no argument constructor, we will still be able to create
+             * an instance of it if XStream is running in enhanced mode. If the JVM does not support
+             * enhanced mode, then XStream would break anyway if it encountered a class without a no
+             * argument constructor.
+             */
+            ReflectionProvider provider = ObjectXMLSerializer.getInstance().getXStream().getReflectionProvider();
+            Migratable instance = (Migratable) provider.newInstance(clazz);
 
             if (MigrationUtil.compareVersions(elementVersion, "3.0.1") < 0) {
                 instance.migrate3_0_1(element);

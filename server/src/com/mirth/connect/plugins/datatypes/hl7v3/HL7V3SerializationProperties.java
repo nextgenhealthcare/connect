@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.datatypes.hl7v3;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.SerializationProperties;
@@ -45,5 +46,8 @@ public class HL7V3SerializationProperties extends SerializationProperties {
     public void setStripNamespaces(boolean stripNamespaces) {
         this.stripNamespaces = stripNamespaces;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 
 }

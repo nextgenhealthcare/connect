@@ -16,6 +16,7 @@ import com.mirth.connect.donkey.model.channel.ListenerConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.model.transmission.framemode.FrameModeProperties;
 import com.mirth.connect.util.CharsetUtils;
@@ -210,4 +211,7 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.datatypes.hl7v2;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.DeserializationProperties;
 import com.mirth.connect.model.datatype.PropertyEditorType;
@@ -72,4 +73,7 @@ public class HL7v2DeserializationProperties extends DeserializationProperties {
     public void setSegmentDelimiter(String segmentDelimiter) {
         this.segmentDelimiter = segmentDelimiter;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

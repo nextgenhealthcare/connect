@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.datatypes.ncpdp;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.SerializationProperties;
@@ -73,4 +74,7 @@ public class NCPDPSerializationProperties extends SerializationProperties {
     public void setFieldDelimiter(String fieldDelimiter) {
         this.fieldDelimiter = fieldDelimiter;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

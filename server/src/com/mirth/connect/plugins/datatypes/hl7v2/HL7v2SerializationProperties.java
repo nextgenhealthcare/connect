@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.datatypes.hl7v2;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.SerializationProperties;
@@ -128,4 +129,7 @@ public class HL7v2SerializationProperties extends SerializationProperties {
     public void setConvertLineBreaks(boolean convertLineBreaks) {
         this.convertLineBreaks = convertLineBreaks;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

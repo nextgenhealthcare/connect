@@ -9,11 +9,14 @@
 
 package com.mirth.connect.plugins.datatypes.raw;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class RawDataTypeProperties extends DataTypeProperties {
-    
-    public RawDataTypeProperties() {
-    }
+
+    public RawDataTypeProperties() {}
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 
 }

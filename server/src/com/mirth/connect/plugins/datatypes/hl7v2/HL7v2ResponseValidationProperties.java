@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.datatypes.hl7v2;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.ResponseValidationProperties;
@@ -78,4 +79,7 @@ public class HL7v2ResponseValidationProperties extends ResponseValidationPropert
     public void setRejectedACKCode(String rejectedACKCode) {
         this.rejectedACKCode = rejectedACKCode;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

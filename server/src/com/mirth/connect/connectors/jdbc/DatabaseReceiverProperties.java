@@ -16,6 +16,7 @@ import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.donkey.util.DonkeyElement;
 
 public class DatabaseReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
     public static final String NAME = "Database Reader";
@@ -191,4 +192,7 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

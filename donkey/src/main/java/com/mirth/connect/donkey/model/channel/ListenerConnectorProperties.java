@@ -13,7 +13,10 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-public class ListenerConnectorProperties implements Serializable {
+import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.migration.Migratable;
+
+public class ListenerConnectorProperties implements Serializable, Migratable {
     private String host;
     private String port;
 
@@ -42,4 +45,7 @@ public class ListenerConnectorProperties implements Serializable {
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

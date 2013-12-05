@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.util.DonkeyElement;
 
 public class JmsConnectorProperties extends ConnectorProperties {
     private boolean useJndi;
@@ -201,4 +202,7 @@ public class JmsConnectorProperties extends ConnectorProperties {
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

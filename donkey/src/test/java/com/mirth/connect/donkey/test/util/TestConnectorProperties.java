@@ -14,6 +14,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.util.DonkeyElement;
 
 @SuppressWarnings("serial")
 public class TestConnectorProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
@@ -48,4 +49,7 @@ public class TestConnectorProperties extends ConnectorProperties implements Disp
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

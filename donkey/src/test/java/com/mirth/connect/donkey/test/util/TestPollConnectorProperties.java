@@ -14,6 +14,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
+import com.mirth.connect.donkey.util.DonkeyElement;
 
 @SuppressWarnings("serial")
 public class TestPollConnectorProperties extends ConnectorProperties implements PollConnectorPropertiesInterface {
@@ -43,4 +44,7 @@ public class TestPollConnectorProperties extends ConnectorProperties implements 
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

@@ -19,6 +19,7 @@ import com.mirth.connect.donkey.model.channel.ListenerConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.donkey.util.DonkeyElement;
 
 public class HttpReceiverProperties extends ConnectorProperties implements ListenerConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
     private ListenerConnectorProperties listenerConnectorProperties;
@@ -130,4 +131,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

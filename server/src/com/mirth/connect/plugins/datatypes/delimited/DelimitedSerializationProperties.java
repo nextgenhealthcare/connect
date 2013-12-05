@@ -15,6 +15,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.SerializationProperties;
@@ -262,5 +263,8 @@ public class DelimitedSerializationProperties extends SerializationProperties {
     public void setIgnoreCR(boolean ignoreCR) {
         this.ignoreCR = ignoreCR;
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 
 }

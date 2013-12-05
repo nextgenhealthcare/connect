@@ -9,6 +9,7 @@
 
 package com.mirth.connect.plugins.datatypes.hl7v2;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class HL7v2DataTypeProperties extends DataTypeProperties {
@@ -19,5 +20,8 @@ public class HL7v2DataTypeProperties extends DataTypeProperties {
         responseGenerationProperties = new HL7v2ResponseGenerationProperties();
         responseValidationProperties = new HL7v2ResponseValidationProperties();
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
     
 }

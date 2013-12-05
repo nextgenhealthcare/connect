@@ -9,6 +9,7 @@
 
 package com.mirth.connect.plugins.datatypes.delimited;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class DelimitedDataTypeProperties extends DataTypeProperties {
@@ -18,5 +19,8 @@ public class DelimitedDataTypeProperties extends DataTypeProperties {
         deserializationProperties = new DelimitedDeserializationProperties();
         batchProperties = new DelimitedBatchProperties();
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 
 }

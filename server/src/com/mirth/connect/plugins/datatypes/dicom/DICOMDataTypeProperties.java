@@ -9,8 +9,11 @@
 
 package com.mirth.connect.plugins.datatypes.dicom;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class DICOMDataTypeProperties extends DataTypeProperties {
 
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 }

@@ -9,6 +9,7 @@
 
 package com.mirth.connect.plugins.datatypes.ncpdp;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class NCPDPDataTypeProperties extends DataTypeProperties {
@@ -17,5 +18,8 @@ public class NCPDPDataTypeProperties extends DataTypeProperties {
         serializationProperties = new NCPDPSerializationProperties();
         deserializationProperties = new NCPDPDeserializationProperties();
     }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
 
 }
