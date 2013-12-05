@@ -67,10 +67,22 @@ public class AboutMirth extends javax.swing.JDialog {
         content.append("Java version: " + System.getProperty("java.version") + "\n\n");
 
         content.append("(c) 2005-" + Calendar.getInstance().get(Calendar.YEAR) + " Mirth Corporation. All rights reserved. Visit http://www.mirthcorp.com\n\n");
+        content.append("The following is a list of acknowledgements for third-party software that is included with Mirth Connect:\n\n");
         content.append("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).\n\n");
         content.append("This product includes all or a portion of the HL7 Vocabulary database, or is derived from the HL7 Vocabulary database, subject to a license from Health Level Seven, Inc.\n\n");
         content.append("This product includes a portion of images from http://www.famfamfam.com/lab/icons/silk/.\n\n");
         content.append("This product includes software developed by the Indiana University Extreme! Lab (http://www.extreme.indiana.edu/).\n\n");
+        content.append("This product includes the Flying Saucer XHTML renderer library, licensed under the LGPL version 2.1 (http://www.gnu.org/licenses/lgpl-2.1.html).\n\n");
+        content.append("This product includes the jTDS JDBC driver, licensed under the LGPL version 2.1 (http://www.gnu.org/licenses/lgpl-2.1.html).\n\n");
+        content.append("This product includes software developed by the JDOM Project (http://www.jdom.org/).\n\n");
+        content.append("This product includes software developed by the SAXPath Project (http://www.saxpath.org/).\n\n");
+        content.append("This product includes the SoapUI library version 4.0.1, copyright (C) 2004-2011 smartbear.com, licensed under the LGPL version 2.1 (http://www.gnu.org/licenses/lgpl-2.1.html).\n\n");
+        content.append("This product includes the JCIFS SMB client library in Java version 1.3.17, copyright (C) 2002  \"Michael B. Allen\" <jcifs at samba dot org> and \"Eric Glass\" <jcifs at samba dot org>, licensed under the LGPL version 2.1 (http://www.gnu.org/licenses/lgpl-2.1.html).\n\n");
+        content.append("This product includes the Pdf-renderer library (https://java.net/projects/pdf-renderer/), portions copyright Sun Microsystems, Inc., Pirion Systems Pty Ltd, intarsys consulting GmbH and Adobe Systems Incorporated. It is licensed under the LGPL version 2.1 (http://www.gnu.org/licenses/lgpl-2.1.html).\n\n");
+        content.append("This product includes software developed by the JDOM Project (http://www.jdom.org/).\n\n");
+        content.append("This product includes software developed by xerial.org (Taro L. Saito) (https://bitbucket.org/xerial/sqlite-jdbc).\n\n");
+        content.append("This product includes the SwingLabs SwingX library, copyright (c) 2005-2006 Sun Microsystems, Inc., licensed under the LGPL version 2.1 (http://www.gnu.org/licenses/lgpl-2.1.html).\n\n");
+
         aboutContent.setText(content.toString());
     }
 
