@@ -50,8 +50,8 @@ import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DataPruner implements Runnable {
     /**
-     * The maximum allowed list size for executing DELETE ... WHERE IN ([list]).
-     * Oracle does not allow the list size to exceed 1000.
+     * The maximum allowed list size for executing DELETE ... WHERE IN ([list]). Oracle does not
+     * allow the list size to exceed 1000.
      */
     private final static int LIST_LIMIT = 1000;
 
@@ -242,7 +242,7 @@ public class DataPruner implements Runnable {
                         }
 
                         if (messageDateThreshold != null || contentDateThreshold != null) {
-                            queue.add(new PrunerTask(channel.getId(), channel.getName(), messageDateThreshold, contentDateThreshold));
+                            queue.add(new PrunerTask(channel.getId(), channel.getName(), messageDateThreshold, contentDateThreshold, channel.getProperties().isArchiveEnabled()));
                             status.getPendingChannelIds().add(channel.getId());
                         }
                         break;
@@ -298,7 +298,7 @@ public class DataPruner implements Runnable {
                     status.setCurrentChannelName(task.getChannelName());
                     status.setTaskStartTime(Calendar.getInstance());
 
-                    PruneResult result = pruneChannel(task.getChannelId(), task.getMessageDateThreshold(), task.getContentDateThreshold(), archiveFolder);
+                    PruneResult result = pruneChannel(task.getChannelId(), task.getMessageDateThreshold(), task.getContentDateThreshold(), archiveFolder, task.isArchiveEnabled());
 
                     status.getProcessedChannelIds().add(task.getChannelId());
 
@@ -306,7 +306,7 @@ public class DataPruner implements Runnable {
                     attributes.put("Channel ID", task.getChannelId());
                     attributes.put("Channel Name", task.getChannelName());
 
-                    if (archiveEnabled) {
+                    if (archiveEnabled && task.isArchiveEnabled()) {
                         attributes.put("Messages Archived", Long.toString(result.numMessagesArchived));
                     }
 
@@ -377,7 +377,7 @@ public class DataPruner implements Runnable {
         }
     }
 
-    public PruneResult pruneChannel(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder) throws InterruptedException, DataPrunerException {
+    public PruneResult pruneChannel(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder, boolean channelArchiveEnabled) throws InterruptedException, DataPrunerException {
         logger.debug("Executing pruner for channel: " + channelId);
 
         if (messageDateThreshold == null && contentDateThreshold == null) {
@@ -397,21 +397,18 @@ public class DataPruner implements Runnable {
 
             try {
                 /*
-                 * Choose the method of pruning. If we are not archiving, then
-                 * prune by date.
-                 * Otherwise select the message ids to prune first, then
-                 * constrain the deletion to
-                 * those ids. This is necessary when archiving in order to be
-                 * sure that only
+                 * Choose the method of pruning. If we are not archiving, then prune by date.
+                 * Otherwise select the message ids to prune first, then constrain the deletion to
+                 * those ids. This is necessary when archiving in order to be sure that only
                  * messages that were successfully archived get deleted.
                  */
-                if (!archiveEnabled && strategy == null && !DatabaseUtil.statementExists("Message.pruneMessagesByIds")) {
+                if ((!archiveEnabled || !channelArchiveEnabled) && strategy == null && !DatabaseUtil.statementExists("Message.pruneMessagesByIds")) {
                     return pruneChannelByDate(localChannelId, messageDateThreshold, contentDateThreshold);
                 } else {
                     PruneIds ids;
                     PruneResult result = new PruneResult();
 
-                    if (!archiveEnabled) {
+                    if (!archiveEnabled || !channelArchiveEnabled) {
                         ids = getIdsToPrune(localChannelId, messageDateThreshold, contentDateThreshold);
                     } else {
                         ids = archive(channelId, messageDateThreshold, contentDateThreshold, archiveFolder);
@@ -598,14 +595,10 @@ public class DataPruner implements Runnable {
         Strategy strategy = this.strategy;
 
         /*
-         * If a query strategy hasn't been defined, automatically choose one. If
-         * the # of archived
-         * messages is less than the # unarchived, then we want to prune using
-         * DELETE ... WHERE IN
-         * ([archived message ids]). Otherwise, we want to delete by excluding
-         * the unarchived
-         * messages: DELETE ... WHERE NOT IN ([unarchived message ids]) AND id
-         * BETWEEN min AND max.
+         * If a query strategy hasn't been defined, automatically choose one. If the # of archived
+         * messages is less than the # unarchived, then we want to prune using DELETE ... WHERE IN
+         * ([archived message ids]). Otherwise, we want to delete by excluding the unarchived
+         * messages: DELETE ... WHERE NOT IN ([unarchived message ids]) AND id BETWEEN min AND max.
          */
         if (strategy == null) {
             if (messageIds.size() > LIST_LIMIT && invertedMessageIdList.size() > LIST_LIMIT) {
@@ -771,8 +764,7 @@ public class DataPruner implements Runnable {
             currentValue = sortedValues.get(i);
 
             /*
-             * See if there is a gap at the current position in the list, if
-             * there is, then add all
+             * See if there is a gap at the current position in the list, if there is, then add all
              * of the gap values in the inverted list
              */
             if (currentValue > (lastValue + 1)) {
@@ -811,8 +803,9 @@ public class DataPruner implements Runnable {
         private String channelName;
         private Calendar messageDateThreshold;
         private Calendar contentDateThreshold;
+        private boolean archiveEnabled;
 
-        public PrunerTask(String channelId, String channelName, Calendar messageDateThreshold, Calendar contentDateThreshold) {
+        public PrunerTask(String channelId, String channelName, Calendar messageDateThreshold, Calendar contentDateThreshold, boolean archiveEnabled) {
             this.channelId = channelId;
             this.channelName = channelName;
             this.messageDateThreshold = messageDateThreshold;
@@ -833,6 +826,10 @@ public class DataPruner implements Runnable {
 
         public Calendar getContentDateThreshold() {
             return contentDateThreshold;
+        }
+
+        public boolean isArchiveEnabled() {
+            return archiveEnabled;
         }
     }
 }
