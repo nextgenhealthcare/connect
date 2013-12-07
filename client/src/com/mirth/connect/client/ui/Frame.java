@@ -186,6 +186,7 @@ public class Frame extends JXFrame {
     private Map<String, Integer> safeErrorFailCountMap = new HashMap<String, Integer>();
     private Map<Component, String> componentTaskMap = new HashMap<Component, String>();
     private boolean acceleratorKeyPressed = false;
+    private KeyEventDispatcher keyEventDispatcher = null;
     
     public Frame() {
         rightContainer = new JXTitledPanel();
@@ -239,16 +240,17 @@ public class Frame extends JXFrame {
                 }
             }
         });
-        
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
-            
+
+        keyEventDispatcher = new KeyEventDispatcher() {
+
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
                 // Update the state of the accelerator key (CTRL on Windows)
                 updateAcceleratorKeyPressed(e);
                 return false;
             }
-        });
+        };
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyEventDispatcher);
     }
 
     /**
@@ -1804,6 +1806,9 @@ public class Frame extends JXFrame {
         if (!confirmLeave()) {
             return false;
         }
+
+        // MIRTH-3074 Remove the keyEventDispatcher to prevent memory leak.
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(keyEventDispatcher);
 
         if (currentContentPage == dashboardPanel) {
             su.interruptThread();
