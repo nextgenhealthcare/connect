@@ -810,6 +810,7 @@ public class DataPruner implements Runnable {
             this.channelName = channelName;
             this.messageDateThreshold = messageDateThreshold;
             this.contentDateThreshold = contentDateThreshold;
+            this.archiveEnabled = archiveEnabled;
         }
 
         public String getChannelId() {
