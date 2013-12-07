@@ -82,7 +82,6 @@ import com.mirth.connect.client.core.PaginatedMessageList;
 import com.mirth.connect.client.core.RequestAbortedException;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.LoadedExtensions;
-import com.mirth.connect.client.ui.MessageExportDialog;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RefreshTableModel;
@@ -157,7 +156,6 @@ public class MessageBrowser extends javax.swing.JPanel {
     private Map<Long, List<Attachment>> attachmentCache;
     private MessageFilter messageFilter;
     private MessageBrowserAdvancedFilter advancedSearchPopup;
-    private MessageExportDialog exportDialog;
     private JPopupMenu attachmentPopupMenu;
     private TreeMap<Integer, String> columnMap;
     private Set<String> defaultVisibleColumns;
@@ -213,10 +211,6 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         advancedSearchPopup = new MessageBrowserAdvancedFilter(parent, this, "Advanced Search Filter", true, true);
         advancedSearchPopup.setVisible(false);
-
-        exportDialog = new MessageExportDialog();
-        exportDialog.setEncryptor(parent.mirthClient.getEncryptor());
-        exportDialog.setVisible(false);
 
         LineBorder lineBorder = new LineBorder(new Color(0, 0, 0));
         TitledBorder titledBorder = new TitledBorder("Current Search");

@@ -217,6 +217,7 @@ public class Frame extends JXFrame {
     private RemoveMessagesDialog removeMessagesDialog;
     private MessageExportDialog messageExportDialog;
     private MessageImportDialog messageImportDialog;
+    private KeyEventDispatcher keyEventDispatcher = null;
 
     public Frame() {
         rightContainer = new JXTitledPanel();
@@ -258,7 +259,7 @@ public class Frame extends JXFrame {
             }
         });
 
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+        keyEventDispatcher = new KeyEventDispatcher() {
 
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
@@ -266,7 +267,8 @@ public class Frame extends JXFrame {
                 updateAcceleratorKeyPressed(e);
                 return false;
             }
-        });
+        };
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyEventDispatcher);
     }
 
     /**
@@ -1916,6 +1918,9 @@ public class Frame extends JXFrame {
         if (!confirmLeave()) {
             return false;
         }
+
+        // MIRTH-3074 Remove the keyEventDispatcher to prevent memory leak.
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(keyEventDispatcher);
 
         statusUpdaterExecutor.shutdownNow();
 
