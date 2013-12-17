@@ -261,7 +261,7 @@ public class MessageExportPanel extends JPanel {
         compressComboBox.setToolTipText("<html>When compression is enabled, the files/folders created according to the<br />File Pattern will be put into a compressed file in the Root Path.</html>");
         exportServerRadio.setToolTipText("<html>Store exported files on the Mirth Connect Server, in the Root Path specified below.</html>");
         exportLocalRadio.setToolTipText("<html>Store exported files on this computer, in the Root Path specified below.</html>");
-        rootPathTextField.setToolTipText("<html>The root path to store the exported files/folders or compressed file.</html>");
+        rootPathTextField.setToolTipText("<html>The root path to store the exported files/folders or compressed file.<br/>Relative paths will be resolved against the Mirth Connect Server home directory.</html>");
         filePatternTextPane.setToolTipText("<html>The file/folder pattern in which to write the exported message files.<br />Variables from the Variables list to the right may be used in the pattern.</html>");
         
         attachmentsLabel.setText("<html><i>Note: attachments will not be included with " + (archiverMode ? "archived" : "exported") + " messages</i></html>");
