@@ -1054,6 +1054,9 @@
           <Properties>
             <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Search all message content for the given string. This process could take a long&lt;br/&gt;&#xa;time depending on the amount of message content currently stored. Any message&lt;br/&gt;&#xa;content that was encrypted by this channel will not be searchable.&#xa;&lt;/html&gt;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textSearchFieldActionPerformed"/>
+          </Events>
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="pageNumberField">
           <Properties>

@@ -2642,10 +2642,10 @@ public class MessageBrowser extends javax.swing.JPanel {
         textSearchField.setToolTipText("<html>\nSearch all message content for the given string. This process could take a long<br/>\ntime depending on the amount of message content currently stored. Any message<br/>\ncontent that was encrypted by this channel will not be searchable.\n</html>");
         textSearchField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                filterButtonActionPerformed(evt);
+                textSearchFieldActionPerformed(evt);
             }
         });
-        
+
         pageNumberField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         pageNumberField.setToolTipText("Enter a page number and press Enter to jump to that page.");
         pageNumberField.setPreferredSize(new java.awt.Dimension(40, 22));
@@ -3020,6 +3020,10 @@ public class MessageBrowser extends javax.swing.JPanel {
     private void PostprocessorErrorRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PostprocessorErrorRadioButtonActionPerformed
         errorsRadioButtonActionPerformed(evt);
     }//GEN-LAST:event_PostprocessorErrorRadioButtonActionPerformed
+
+    private void textSearchFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textSearchFieldActionPerformed
+        runSearch();
+    }//GEN-LAST:event_textSearchFieldActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton EncodedMessageRadioButton;
