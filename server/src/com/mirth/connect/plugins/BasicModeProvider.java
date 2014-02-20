@@ -15,13 +15,14 @@ import java.io.OutputStream;
 import com.mirth.connect.model.transmission.StreamHandler;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.model.transmission.batch.BatchStreamReader;
+import com.mirth.connect.model.transmission.framemode.FrameModeProperties;
 import com.mirth.connect.model.transmission.framemode.FrameStreamHandler;
 
 public class BasicModeProvider extends TransmissionModeProvider {
 
     @Override
     public String getPluginPointName() {
-        return "Basic";
+        return FrameModeProperties.BASIC_PLUGIN_POINT_NAME;
     }
 
     @Override

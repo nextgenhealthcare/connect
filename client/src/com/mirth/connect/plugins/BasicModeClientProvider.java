@@ -1,7 +1,5 @@
 /*
- * Copyright (c) Mirth Corporation. All rights reserved.
- * 
- * http://www.mirthcorp.com
+ * Copyright (c) Mirth Corporation. All rights reserved. http://www.mirthcorp.com
  * 
  * The software in this package is published under the terms of the MPL license a copy of which has
  * been included with this distribution in the LICENSE.txt file.
@@ -20,28 +18,22 @@ import com.mirth.connect.client.ui.editors.BasicModeSettingsPanel;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.model.transmission.framemode.FrameModeProperties;
 
-public class BasicModePlugin extends FrameTransmissionModePlugin implements ActionListener {
-    
+public class BasicModeClientProvider extends FrameTransmissionModeClientProvider {
+
     public static final String CHANGE_START_BYTES_COMMAND = "changeStartBytes";
     public static final String CHANGE_END_BYTES_COMMAND = "changeEndBytes";
-    
-    protected BasicModeSettingsPanel settingsPanel;
-    private BasicModeSettingsDialog settingsDialog;
-    private FrameModeProperties frameModeProperties;
 
-    public BasicModePlugin() {
-        super("Basic");
-    }
+    protected BasicModeSettingsPanel settingsPanel;
+    private FrameModeProperties frameModeProperties;
 
     @Override
     public void initialize(ActionListener actionListener) {
         super.initialize(actionListener);
         settingsPanel = new BasicModeSettingsPanel(this);
         super.settingsPanel.switchComponent(settingsPanel);
-        settingsDialog = new BasicModeSettingsDialog(this);
-        setProperties(new FrameModeProperties(getPluginPointName()));
+        setProperties(new FrameModeProperties());
     }
-    
+
     @Override
     public TransmissionModeProperties getProperties() {
         FrameModeProperties frameModeProperties = (FrameModeProperties) super.getProperties();
@@ -49,29 +41,24 @@ public class BasicModePlugin extends FrameTransmissionModePlugin implements Acti
         frameModeProperties.setEndOfMessageBytes(frameModeProperties.getEndOfMessageBytes());
         return frameModeProperties;
     }
-    
+
     @Override
     public TransmissionModeProperties getDefaultProperties() {
-        return new FrameModeProperties(getPluginPointName());
+        return new FrameModeProperties();
     }
-    
+
     @Override
     public void setProperties(TransmissionModeProperties properties) {
         super.setProperties(properties);
-        settingsDialog.setProperties(frameModeProperties = (FrameModeProperties) properties);
+        frameModeProperties = (FrameModeProperties) properties;
         changeSampleValue();
     }
-    
+
     @Override
     public JComponent getSettingsComponent() {
         return settingsPanel;
     }
 
-    @Override
-    public String getPluginPointName() {
-        return "Basic";
-    }
-    
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals(CHANGE_START_BYTES_COMMAND)) {
@@ -79,16 +66,14 @@ public class BasicModePlugin extends FrameTransmissionModePlugin implements Acti
         } else if (e.getActionCommand().equals(CHANGE_END_BYTES_COMMAND)) {
             super.settingsPanel.endOfMessageBytesField.setText(((JTextField) e.getSource()).getText());
         } else {
-            settingsDialog.setProperties(getProperties());
-            String oldStartBytes = frameModeProperties.getStartOfMessageBytes();
-            String oldEndBytes = frameModeProperties.getEndOfMessageBytes();
-            
+            BasicModeSettingsDialog settingsDialog = new BasicModeSettingsDialog(this);
+            settingsDialog.setProperties(frameModeProperties);
             settingsDialog.setVisible(true);
+
             if (settingsDialog.isSaved()) {
                 setProperties(settingsDialog.getProperties());
             } else {
-                super.settingsPanel.startOfMessageBytesField.setText(oldStartBytes);
-                super.settingsPanel.endOfMessageBytesField.setText(oldEndBytes);
+                setProperties(frameModeProperties);
             }
         }
     }

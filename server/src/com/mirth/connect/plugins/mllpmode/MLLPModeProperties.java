@@ -22,17 +22,13 @@ public class MLLPModeProperties extends FrameModeProperties {
     private String maxRetries;
 
     public MLLPModeProperties() {
-        this(PLUGIN_POINT);
+        super(PLUGIN_POINT);
+        setStartOfMessageBytes(TcpUtil.DEFAULT_LLP_START_BYTES);
+        setEndOfMessageBytes(TcpUtil.DEFAULT_LLP_END_BYTES);
         useMLLPv2 = false;
         ackBytes = "06"; // <ACK>
         nackBytes = "15"; // <NAK>
         maxRetries = "2";
-    }
-
-    public MLLPModeProperties(String pluginPointName) {
-        super(pluginPointName);
-        setStartOfMessageBytes(TcpUtil.DEFAULT_LLP_START_BYTES);
-        setEndOfMessageBytes(TcpUtil.DEFAULT_LLP_END_BYTES);
     }
 
     public boolean isUseMLLPv2() {

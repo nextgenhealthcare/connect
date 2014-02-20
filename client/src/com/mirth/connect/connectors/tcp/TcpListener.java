@@ -28,16 +28,16 @@ import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
-import com.mirth.connect.plugins.BasicModePlugin;
-import com.mirth.connect.plugins.ClientPlugin;
+import com.mirth.connect.plugins.BasicModeClientProvider;
+import com.mirth.connect.plugins.TransmissionModeClientProvider;
 import com.mirth.connect.plugins.TransmissionModePlugin;
 
 public class TcpListener extends ConnectorSettingsPanel implements ActionListener {
 
     private Logger logger = Logger.getLogger(this.getClass());
     private Frame parent;
-    private TransmissionModePlugin defaultPlugin;
-    private TransmissionModePlugin transmissionModePlugin;
+    private TransmissionModeClientProvider defaultProvider;
+    private TransmissionModeClientProvider transmissionModeProvider;
     private JComponent settingsPlaceHolder;
     private String selectedMode;
     private boolean modeLock = false;
@@ -58,7 +58,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         for (String pluginPointName : LoadedExtensions.getInstance().getTransmissionModePlugins().keySet()) {
             model.addElement(pluginPointName);
             if (pluginPointName.equals("MLLP")) {
-                defaultPlugin = LoadedExtensions.getInstance().getTransmissionModePlugins().get(pluginPointName);
+                defaultProvider = LoadedExtensions.getInstance().getTransmissionModePlugins().get(pluginPointName).createProvider();
             }
         }
 
@@ -78,8 +78,8 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
     public ConnectorProperties getProperties() {
         TcpReceiverProperties properties = new TcpReceiverProperties();
 
-        if (transmissionModePlugin != null) {
-            properties.setTransmissionModeProperties((TransmissionModeProperties) transmissionModePlugin.getProperties());
+        if (transmissionModeProvider != null) {
+            properties.setTransmissionModeProperties((TransmissionModeProperties) transmissionModeProvider.getProperties());
         }
         properties.setServerMode(modeServerRadio.isSelected());
         properties.setReconnectInterval(reconnectIntervalField.getText());
@@ -119,8 +119,8 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         transmissionModeComboBoxActionPerformed(null);
         modeLock = false;
         selectedMode = name;
-        if (transmissionModePlugin != null) {
-            transmissionModePlugin.setProperties(modeProps);
+        if (transmissionModeProvider != null) {
+            transmissionModeProvider.setProperties(modeProps);
         }
 
         if (props.isServerMode()) {
@@ -180,8 +180,8 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
     @Override
     public ConnectorProperties getDefaults() {
         TcpReceiverProperties props = new TcpReceiverProperties();
-        if (defaultPlugin != null) {
-            props.setTransmissionModeProperties(defaultPlugin.getDefaultProperties());
+        if (defaultProvider != null) {
+            props.setTransmissionModeProperties(defaultProvider.getDefaultProperties());
         }
         return props;
     }
@@ -192,8 +192,8 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
 
         boolean valid = true;
 
-        if (transmissionModePlugin != null) {
-            if (!transmissionModePlugin.checkProperties(transmissionModePlugin.getProperties(), highlight)) {
+        if (transmissionModeProvider != null) {
+            if (!transmissionModeProvider.checkProperties(transmissionModeProvider.getProperties(), highlight)) {
                 valid = false;
             }
         }
@@ -243,8 +243,8 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
 
     @Override
     public void resetInvalidProperties() {
-        if (transmissionModePlugin != null) {
-            transmissionModePlugin.resetInvalidProperties();
+        if (transmissionModeProvider != null) {
+            transmissionModeProvider.resetInvalidProperties();
         }
         reconnectIntervalField.setBackground(null);
         receiveTimeoutField.setBackground(null);
@@ -256,11 +256,11 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
 
     @Override
     public void actionPerformed(ActionEvent evt) {
-        if (evt.getSource().equals(transmissionModePlugin)) {
-            if (evt.getActionCommand().equals(TransmissionModePlugin.CHANGE_SAMPLE_LABEL_COMMAND)) {
-                sampleLabel.setText(transmissionModePlugin.getSampleLabel());
-            } else if (evt.getActionCommand().equals(TransmissionModePlugin.CHANGE_SAMPLE_VALUE_COMMAND)) {
-                sampleValue.setText(transmissionModePlugin.getSampleValue());
+        if (evt.getSource().equals(transmissionModeProvider)) {
+            if (evt.getActionCommand().equals(TransmissionModeClientProvider.CHANGE_SAMPLE_LABEL_COMMAND)) {
+                sampleLabel.setText(transmissionModeProvider.getSampleLabel());
+            } else if (evt.getActionCommand().equals(TransmissionModeClientProvider.CHANGE_SAMPLE_VALUE_COMMAND)) {
+                sampleValue.setText(transmissionModeProvider.getSampleValue());
             }
         }
     }
@@ -663,8 +663,8 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
     private void transmissionModeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transmissionModeComboBoxActionPerformed
         String name = (String) transmissionModeComboBox.getSelectedItem();
 
-        if (!modeLock && transmissionModePlugin != null) {
-            if (!transmissionModePlugin.getDefaultProperties().equals(transmissionModePlugin.getProperties())) {
+        if (!modeLock && transmissionModeProvider != null) {
+            if (!transmissionModeProvider.getDefaultProperties().equals(transmissionModeProvider.getProperties())) {
                 if (JOptionPane.showConfirmDialog(parent, "Are you sure you would like to change the transmission mode and lose all of the current transmission properties?", "Select an Option", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
                     modeLock = true;
                     transmissionModeComboBox.setSelectedItem(selectedMode);
@@ -676,19 +676,19 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
 
         selectedMode = name;
         if (name.equals("Basic TCP")) {
-            transmissionModePlugin = new BasicModePlugin();
+            transmissionModeProvider = new BasicModeClientProvider();
         } else {
-            for (ClientPlugin plugin : LoadedExtensions.getInstance().getClientPlugins()) {
+            for (TransmissionModePlugin plugin : LoadedExtensions.getInstance().getTransmissionModePlugins().values()) {
                 if (plugin.getPluginPointName().equals(name)) {
-                    transmissionModePlugin = (TransmissionModePlugin) plugin;
+                    transmissionModeProvider = plugin.createProvider();
                 }
             }
         }
 
-        if (transmissionModePlugin != null) {
-            transmissionModePlugin.initialize(this);
-            ((GroupLayout) getLayout()).replace(settingsPlaceHolder, transmissionModePlugin.getSettingsComponent());
-            settingsPlaceHolder = transmissionModePlugin.getSettingsComponent();
+        if (transmissionModeProvider != null) {
+            transmissionModeProvider.initialize(this);
+            ((GroupLayout) getLayout()).replace(settingsPlaceHolder, transmissionModeProvider.getSettingsComponent());
+            settingsPlaceHolder = transmissionModeProvider.getSettingsComponent();
         }
     }//GEN-LAST:event_transmissionModeComboBoxActionPerformed
 

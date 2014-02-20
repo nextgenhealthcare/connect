@@ -186,10 +186,10 @@ public class MLLPModeSettingsDialog extends JDialog implements DocumentListener 
 
         if (evt.getDocument().equals(startOfMessageBytesField.getDocument())) {
             startOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(text);
-            actionListener.actionPerformed(new ActionEvent(startOfMessageBytesField, ActionEvent.ACTION_PERFORMED, MLLPModePlugin.CHANGE_START_BYTES_COMMAND));
+            actionListener.actionPerformed(new ActionEvent(startOfMessageBytesField, ActionEvent.ACTION_PERFORMED, MLLPModeClientProvider.CHANGE_START_BYTES_COMMAND));
         } else if (evt.getDocument().equals(endOfMessageBytesField.getDocument())) {
             endOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(text);
-            actionListener.actionPerformed(new ActionEvent(endOfMessageBytesField, ActionEvent.ACTION_PERFORMED, MLLPModePlugin.CHANGE_END_BYTES_COMMAND));
+            actionListener.actionPerformed(new ActionEvent(endOfMessageBytesField, ActionEvent.ACTION_PERFORMED, MLLPModeClientProvider.CHANGE_END_BYTES_COMMAND));
         } else if (evt.getDocument().equals(ackBytesField.getDocument())) {
             ackAbbreviation = TcpUtil.convertHexToAbbreviation(text);
         } else {

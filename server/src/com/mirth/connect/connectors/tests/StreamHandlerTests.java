@@ -49,7 +49,7 @@ public class StreamHandlerTests {
     public static void beforeClass() throws Exception {
         testMessageBytes = testMessage.getBytes(testMessageCharset);
 
-        FrameModeProperties frameModeProperties = new FrameModeProperties("MLLP Frame Encoded");
+        FrameModeProperties frameModeProperties = new FrameModeProperties("MLLP");
         frameModeProperties.setStartOfMessageBytes(TcpUtil.DEFAULT_LLP_START_BYTES);
         frameModeProperties.setEndOfMessageBytes(TcpUtil.DEFAULT_LLP_END_BYTES);
         defaultMLLPProps = frameModeProperties;
@@ -219,7 +219,7 @@ public class StreamHandlerTests {
         ByteArrayOutputStream bos;
         InputStream is;
         BatchStreamReader batchStreamHandler;
-        FrameModeProperties frameModeProperties = new FrameModeProperties("");
+        FrameModeProperties frameModeProperties = new FrameModeProperties();
         StreamHandler streamHandler;
         byte[] returnBytes;
         int numMessages;
@@ -233,7 +233,7 @@ public class StreamHandlerTests {
         // Create an input stream from the bytes
         is = new ByteArrayInputStream(bos.toByteArray());
         batchStreamHandler = new DelimiterBatchStreamReader(is, delimiterBytes, false);
-        frameModeProperties = new FrameModeProperties("");
+        frameModeProperties = new FrameModeProperties();
         streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, frameModeProperties);
         // Assert that the bytes returned from the stream handler (twice) are correct
         numMessages = 0;
@@ -298,7 +298,7 @@ public class StreamHandlerTests {
         ByteArrayOutputStream bos;
         InputStream is;
         BatchStreamReader batchStreamHandler;
-        FrameModeProperties frameModeProperties = new FrameModeProperties("");
+        FrameModeProperties frameModeProperties = new FrameModeProperties();
         StreamHandler streamHandler;
         byte[] returnBytes;
         int numMessages;
@@ -332,7 +332,7 @@ public class StreamHandlerTests {
         ByteArrayOutputStream bos;
         InputStream is;
         BatchStreamReader batchStreamHandler;
-        FrameModeProperties frameModeProperties = new FrameModeProperties("");
+        FrameModeProperties frameModeProperties = new FrameModeProperties();
         StreamHandler streamHandler;
         byte[] returnBytes;
         int numMessages;

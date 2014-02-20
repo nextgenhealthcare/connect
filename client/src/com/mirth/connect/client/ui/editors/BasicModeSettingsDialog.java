@@ -20,14 +20,12 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.model.transmission.framemode.FrameModeProperties;
-import com.mirth.connect.plugins.BasicModePlugin;
+import com.mirth.connect.plugins.BasicModeClientProvider;
 import com.mirth.connect.util.TcpUtil;
 
 public class BasicModeSettingsDialog extends JDialog implements DocumentListener {
@@ -78,7 +76,7 @@ public class BasicModeSettingsDialog extends JDialog implements DocumentListener
     }
 
     public TransmissionModeProperties getProperties() {
-        FrameModeProperties props = new FrameModeProperties("Basic");
+        FrameModeProperties props = new FrameModeProperties();
 
         props.setStartOfMessageBytes(startOfMessageBytesField.getText());
         props.setEndOfMessageBytes(endOfMessageBytesField.getText());
@@ -146,10 +144,10 @@ public class BasicModeSettingsDialog extends JDialog implements DocumentListener
 
         if (evt.getDocument().equals(startOfMessageBytesField.getDocument())) {
             startOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(text);
-            actionListener.actionPerformed(new ActionEvent(startOfMessageBytesField, ActionEvent.ACTION_PERFORMED, BasicModePlugin.CHANGE_START_BYTES_COMMAND));
+            actionListener.actionPerformed(new ActionEvent(startOfMessageBytesField, ActionEvent.ACTION_PERFORMED, BasicModeClientProvider.CHANGE_START_BYTES_COMMAND));
         } else if (evt.getDocument().equals(endOfMessageBytesField.getDocument())) {
             endOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(text);
-            actionListener.actionPerformed(new ActionEvent(endOfMessageBytesField, ActionEvent.ACTION_PERFORMED, BasicModePlugin.CHANGE_END_BYTES_COMMAND));
+            actionListener.actionPerformed(new ActionEvent(endOfMessageBytesField, ActionEvent.ACTION_PERFORMED, BasicModeClientProvider.CHANGE_END_BYTES_COMMAND));
         }
 
         changeAbbreviation();
@@ -159,10 +157,6 @@ public class BasicModeSettingsDialog extends JDialog implements DocumentListener
         startOfMessageBytesAbbrevLabel.setText(startOfMessageAbbreviation);
         endOfMessageBytesAbbrevLabel.setText(endOfMessageAbbreviation);
         pack();
-    }
-
-    private boolean validBytes(String byteString) {
-        return StringUtils.isNotBlank(byteString) && TcpUtil.isValidHexString(byteString);
     }
 
     /**

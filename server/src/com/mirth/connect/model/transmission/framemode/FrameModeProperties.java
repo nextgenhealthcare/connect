@@ -13,8 +13,14 @@ import com.mirth.connect.model.transmission.TransmissionModeProperties;
 
 public class FrameModeProperties extends TransmissionModeProperties {
 
+    public static final String BASIC_PLUGIN_POINT_NAME = "Basic";
+
     private String startOfMessageBytes;
     private String endOfMessageBytes;
+
+    public FrameModeProperties() {
+        this(BASIC_PLUGIN_POINT_NAME);
+    }
 
     public FrameModeProperties(String pluginPointName) {
         super(pluginPointName);
