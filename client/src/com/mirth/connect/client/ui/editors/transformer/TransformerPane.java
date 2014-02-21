@@ -326,7 +326,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         viewTasks = new JXTaskPane();
         viewTasks.setTitle("Mirth Views");
         viewTasks.setFocusable(false);
-        viewTasks.add(initActionCallback("accept", ActionFactory.createBoundAction("accept", "Back to Channel", "B"), new ImageIcon(Frame.class.getResource("images/resultset_previous.png"))));
+        viewTasks.add(initActionCallback("accept", "Return back to channel.", ActionFactory.createBoundAction("accept", "Back to Channel", "B"), new ImageIcon(Frame.class.getResource("images/resultset_previous.png"))));
         parent.setNonFocusable(viewTasks);
         viewTasks.setVisible(false);
         parent.taskPaneContainer.add(viewTasks, parent.taskPaneContainer.getComponentCount() - 1);
@@ -338,7 +338,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         transformerPopupMenu = new JPopupMenu();
 
         // add new step task
-        transformerTasks.add(initActionCallback("addNewStep", ActionFactory.createBoundAction("addNewStep", "Add New Step", "N"), new ImageIcon(Frame.class.getResource("images/add.png"))));
+        transformerTasks.add(initActionCallback("addNewStep", "Add a new transformer step.", ActionFactory.createBoundAction("addNewStep", "Add New Step", "N"), new ImageIcon(Frame.class.getResource("images/add.png"))));
         JMenuItem addNewStep = new JMenuItem("Add New Step");
         addNewStep.setIcon(new ImageIcon(Frame.class.getResource("images/add.png")));
         addNewStep.addActionListener(new ActionListener() {
@@ -350,7 +350,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         transformerPopupMenu.add(addNewStep);
 
         // delete step task
-        transformerTasks.add(initActionCallback("deleteStep", ActionFactory.createBoundAction("deleteStep", "Delete Step", "X"), new ImageIcon(Frame.class.getResource("images/delete.png"))));
+        transformerTasks.add(initActionCallback("deleteStep", "Delete the currently selected transformer step.", ActionFactory.createBoundAction("deleteStep", "Delete Step", "X"), new ImageIcon(Frame.class.getResource("images/delete.png"))));
         JMenuItem deleteStep = new JMenuItem("Delete Step");
         deleteStep.setIcon(new ImageIcon(Frame.class.getResource("images/delete.png")));
         deleteStep.addActionListener(new ActionListener() {
@@ -361,7 +361,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         });
         transformerPopupMenu.add(deleteStep);
 
-        transformerTasks.add(initActionCallback("doImport", ActionFactory.createBoundAction("doImport", "Import Transformer", "I"), new ImageIcon(Frame.class.getResource("images/report_go.png"))));
+        transformerTasks.add(initActionCallback("doImport", "Import a transformer from an XML file.", ActionFactory.createBoundAction("doImport", "Import Transformer", "I"), new ImageIcon(Frame.class.getResource("images/report_go.png"))));
         JMenuItem importTransformer = new JMenuItem("Import Transformer");
         importTransformer.setIcon(new ImageIcon(Frame.class.getResource("images/report_go.png")));
         importTransformer.addActionListener(new ActionListener() {
@@ -372,7 +372,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         });
         transformerPopupMenu.add(importTransformer);
 
-        transformerTasks.add(initActionCallback("doExport", ActionFactory.createBoundAction("doExport", "Export Transformer", "E"), new ImageIcon(Frame.class.getResource("images/report_disk.png"))));
+        transformerTasks.add(initActionCallback("doExport", "Export the transformer to an XML file.", ActionFactory.createBoundAction("doExport", "Export Transformer", "E"), new ImageIcon(Frame.class.getResource("images/report_disk.png"))));
         JMenuItem exportTransformer = new JMenuItem("Export Transformer");
         exportTransformer.setIcon(new ImageIcon(Frame.class.getResource("images/report_disk.png")));
         exportTransformer.addActionListener(new ActionListener() {
@@ -383,7 +383,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         });
         transformerPopupMenu.add(exportTransformer);
 
-        transformerTasks.add(initActionCallback("doValidate", ActionFactory.createBoundAction("doValidate", "Validate Script", "V"), new ImageIcon(Frame.class.getResource("images/accept.png"))));
+        transformerTasks.add(initActionCallback("doValidate", "Validate the currently viewed script.", ActionFactory.createBoundAction("doValidate", "Validate Script", "V"), new ImageIcon(Frame.class.getResource("images/accept.png"))));
         JMenuItem validateStep = new JMenuItem("Validate Script");
         validateStep.setIcon(new ImageIcon(Frame.class.getResource("images/accept.png")));
         validateStep.addActionListener(new ActionListener() {
@@ -395,7 +395,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         transformerPopupMenu.add(validateStep);
 
         // move step up task
-        transformerTasks.add(initActionCallback("moveStepUp", ActionFactory.createBoundAction("moveStepUp", "Move Step Up", "P"), new ImageIcon(Frame.class.getResource("images/arrow_up.png"))));
+        transformerTasks.add(initActionCallback("moveStepUp", "Move the currently selected step up.", ActionFactory.createBoundAction("moveStepUp", "Move Step Up", "P"), new ImageIcon(Frame.class.getResource("images/arrow_up.png"))));
         JMenuItem moveStepUp = new JMenuItem("Move Step Up");
         moveStepUp.setIcon(new ImageIcon(Frame.class.getResource("images/arrow_up.png")));
         moveStepUp.addActionListener(new ActionListener() {
@@ -407,7 +407,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         transformerPopupMenu.add(moveStepUp);
 
         // move step down task
-        transformerTasks.add(initActionCallback("moveStepDown", ActionFactory.createBoundAction("moveStepDown", "Move Step Down", "D"), new ImageIcon(Frame.class.getResource("images/arrow_down.png"))));
+        transformerTasks.add(initActionCallback("moveStepDown", "Move the currently selected step down.", ActionFactory.createBoundAction("moveStepDown", "Move Step Down", "D"), new ImageIcon(Frame.class.getResource("images/arrow_down.png"))));
         JMenuItem moveStepDown = new JMenuItem("Move Step Down");
         moveStepDown.setIcon(new ImageIcon(Frame.class.getResource("images/arrow_down.png")));
         moveStepDown.addActionListener(new ActionListener() {
@@ -596,11 +596,13 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     }
 
     // for the task pane
-    public BoundAction initActionCallback(String callbackMethod, BoundAction boundAction, ImageIcon icon) {
+    public BoundAction initActionCallback(String callbackMethod, String toolTip, BoundAction boundAction, ImageIcon icon) {
 
         if (icon != null) {
             boundAction.putValue(Action.SMALL_ICON, icon);
         }
+        
+        boundAction.putValue(Action.SHORT_DESCRIPTION, toolTip);
         boundAction.registerCallback(this, callbackMethod);
         return boundAction;
     }

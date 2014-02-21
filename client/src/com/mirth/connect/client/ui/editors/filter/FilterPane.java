@@ -111,7 +111,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     public static final String BLANK_TYPE = "";
     public static final String JAVASCRIPT = "JavaScript";
     public static final String RULE_BUILDER = "Rule Builder";
-    private String[] comboBoxValues = new String[] { Rule.Operator.AND.toString(), Rule.Operator.OR.toString() };
+    private String[] comboBoxValues = new String[] { Rule.Operator.AND.toString(),
+            Rule.Operator.OR.toString() };
     private Channel channel;
     private DropTarget dropTarget;
 
@@ -206,9 +207,10 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         return true;
     }
-    
+
     /**
-     * @return Returns true if the filter has unsupported rule types and an alert was generated, false otherwise.
+     * @return Returns true if the filter has unsupported rule types and an alert was generated,
+     *         false otherwise.
      */
     private boolean alertUnsupportedRuleTypes(Filter filter) {
         if (LoadedExtensions.getInstance().getFilterRulePlugins().values().size() == 0) {
@@ -323,7 +325,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         filterPopupMenu = new JPopupMenu();
 
-        viewTasks.add(initActionCallback("accept", ActionFactory.createBoundAction("accept", "Back to Channel", "B"), new ImageIcon(Frame.class.getResource("images/resultset_previous.png"))));
+        viewTasks.add(initActionCallback("accept", "Return back to channel.", ActionFactory.createBoundAction("accept", "Back to Channel", "B"), new ImageIcon(Frame.class.getResource("images/resultset_previous.png"))));
         parent.setNonFocusable(viewTasks);
         viewTasks.setVisible(false);
         parent.taskPaneContainer.add(viewTasks, parent.taskPaneContainer.getComponentCount() - 1);
@@ -333,7 +335,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         filterTasks.setFocusable(false);
 
         // add new rule task
-        filterTasks.add(initActionCallback("addNewRule", ActionFactory.createBoundAction("addNewRule", "Add New Rule", "N"), new ImageIcon(Frame.class.getResource("images/add.png"))));
+        filterTasks.add(initActionCallback("addNewRule", "Add a new filter rule.", ActionFactory.createBoundAction("addNewRule", "Add New Rule", "N"), new ImageIcon(Frame.class.getResource("images/add.png"))));
         JMenuItem addNewRule = new JMenuItem("Add New Rule");
         addNewRule.setIcon(new ImageIcon(Frame.class.getResource("images/add.png")));
         addNewRule.addActionListener(new ActionListener() {
@@ -345,7 +347,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         filterPopupMenu.add(addNewRule);
 
         // delete rule task
-        filterTasks.add(initActionCallback("deleteRule", ActionFactory.createBoundAction("deleteRule", "Delete Rule", "X"), new ImageIcon(Frame.class.getResource("images/delete.png"))));
+        filterTasks.add(initActionCallback("deleteRule", "Delete the currently selected filter rule.", ActionFactory.createBoundAction("deleteRule", "Delete Rule", "X"), new ImageIcon(Frame.class.getResource("images/delete.png"))));
         JMenuItem deleteRule = new JMenuItem("Delete Rule");
         deleteRule.setIcon(new ImageIcon(Frame.class.getResource("images/delete.png")));
         deleteRule.addActionListener(new ActionListener() {
@@ -356,7 +358,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         });
         filterPopupMenu.add(deleteRule);
 
-        filterTasks.add(initActionCallback("doImport", ActionFactory.createBoundAction("doImport", "Import Filter", "I"), new ImageIcon(Frame.class.getResource("images/report_go.png"))));
+        filterTasks.add(initActionCallback("doImport", "Import a filter from an XML file.", ActionFactory.createBoundAction("doImport", "Import Filter", "I"), new ImageIcon(Frame.class.getResource("images/report_go.png"))));
         JMenuItem importFilter = new JMenuItem("Import Filter");
         importFilter.setIcon(new ImageIcon(Frame.class.getResource("images/report_go.png")));
         importFilter.addActionListener(new ActionListener() {
@@ -367,7 +369,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         });
         filterPopupMenu.add(importFilter);
 
-        filterTasks.add(initActionCallback("doExport", ActionFactory.createBoundAction("doExport", "Export Filter", "E"), new ImageIcon(Frame.class.getResource("images/report_disk.png"))));
+        filterTasks.add(initActionCallback("doExport", "Export the filter to an XML file.", ActionFactory.createBoundAction("doExport", "Export Filter", "E"), new ImageIcon(Frame.class.getResource("images/report_disk.png"))));
         JMenuItem exportFilter = new JMenuItem("Export Filter");
         exportFilter.setIcon(new ImageIcon(Frame.class.getResource("images/report_disk.png")));
         exportFilter.addActionListener(new ActionListener() {
@@ -378,7 +380,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         });
         filterPopupMenu.add(exportFilter);
 
-        filterTasks.add(initActionCallback("doValidate", ActionFactory.createBoundAction("doValidate", "Validate Script", "V"), new ImageIcon(Frame.class.getResource("images/accept.png"))));
+        filterTasks.add(initActionCallback("doValidate", "Validate the currently viewed script.", ActionFactory.createBoundAction("doValidate", "Validate Script", "V"), new ImageIcon(Frame.class.getResource("images/accept.png"))));
         JMenuItem validateStep = new JMenuItem("Validate Script");
         validateStep.setIcon(new ImageIcon(Frame.class.getResource("images/accept.png")));
         validateStep.addActionListener(new ActionListener() {
@@ -390,7 +392,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         filterPopupMenu.add(validateStep);
 
         // move rule up task
-        filterTasks.add(initActionCallback("moveRuleUp", ActionFactory.createBoundAction("moveRuleUp", "Move Rule Up", "P"), new ImageIcon(Frame.class.getResource("images/arrow_up.png"))));
+        filterTasks.add(initActionCallback("moveRuleUp", "Move the currently selected rule up.", ActionFactory.createBoundAction("moveRuleUp", "Move Rule Up", "P"), new ImageIcon(Frame.class.getResource("images/arrow_up.png"))));
         JMenuItem moveRuleUp = new JMenuItem("Move Rule Up");
         moveRuleUp.setIcon(new ImageIcon(Frame.class.getResource("images/arrow_up.png")));
         moveRuleUp.addActionListener(new ActionListener() {
@@ -402,7 +404,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         filterPopupMenu.add(moveRuleUp);
 
         // move rule down task
-        filterTasks.add(initActionCallback("moveRuleDown", ActionFactory.createBoundAction("moveRuleDown", "Move Rule Down", "D"), new ImageIcon(Frame.class.getResource("images/arrow_down.png"))));
+        filterTasks.add(initActionCallback("moveRuleDown", "Move the currently selected rule down.", ActionFactory.createBoundAction("moveRuleDown", "Move Rule Down", "D"), new ImageIcon(Frame.class.getResource("images/arrow_down.png"))));
         JMenuItem moveRuleDown = new JMenuItem("Move Rule Down");
         moveRuleDown.setIcon(new ImageIcon(Frame.class.getResource("images/arrow_down.png")));
         moveRuleDown.addActionListener(new ActionListener() {
@@ -444,7 +446,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     public void makeFilterTable() {
         filterTable = new MirthTable();
 
-        filterTable.setModel(new DefaultTableModel(new String[] { "#", "Operator", "Name", "Type", "Data" }, 0) {
+        filterTable.setModel(new DefaultTableModel(new String[] { "#", "Operator", "Name", "Type",
+                "Data" }, 0) {
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 boolean[] canEdit;
@@ -597,8 +600,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     }
 
     /**
-     * Shows the popup menu when the trigger button (right-click) has been
-     * pushed.
+     * Shows the popup menu when the trigger button (right-click) has been pushed.
      */
     private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
         int row = filterTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
@@ -612,11 +614,13 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     }
 
     // for the task pane
-    public BoundAction initActionCallback(String callbackMethod, BoundAction boundAction, ImageIcon icon) {
+    public BoundAction initActionCallback(String callbackMethod, String toolTip, BoundAction boundAction, ImageIcon icon) {
 
         if (icon != null) {
             boundAction.putValue(Action.SMALL_ICON, icon);
         }
+
+        boundAction.putValue(Action.SHORT_DESCRIPTION, toolTip);
         boundAction.registerCallback(this, callbackMethod);
         return boundAction;
     }
@@ -739,10 +743,9 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
     public void updateName(int row, String name) {
         /*
-         * Make sure a row is not being added or removed when updating name. The
-         * removingRow check was added to force Rule Builder rows to disappear
-         * when they are removed. They stopped disappearing sometime after
-         * 1.8.2, possibly with swingx changes.
+         * Make sure a row is not being added or removed when updating name. The removingRow check
+         * was added to force Rule Builder rows to disappear when they are removed. They stopped
+         * disappearing sometime after 1.8.2, possibly with swingx changes.
          */
         if (row > -1 && !addingNewRow && !removingRow) {
             updating = true;
@@ -860,8 +863,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     }
 
     /**
-     * prepData( int row ) works to move the data in a panel for moves or
-     * deletes
+     * prepData( int row ) works to move the data in a panel for moves or deletes
      */
     private void prepData(int row) {
         Map<Object, Object> d = (Map<Object, Object>) filterTableModel.getValueAt(row, RULE_DATA_COL);
@@ -937,24 +939,24 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             parent.alertError(this, "Invalid filter file.");
             return;
         }
-        
+
         if (alertUnsupportedRuleTypes(importFilter)) {
             return;
         }
-        
+
         prevSelRow = -1;
         modified = true;
 
         boolean append = (filterTableModel.getRowCount() > 0 && parent.alertOption(parent, "Would you like to append the rules from the imported filter to the existing filter?"));
-        
+
         /*
          * When appending, we merely add the rules from the filter being imported. When not
          * appending, we replace the entire filter with the one being imported.
          */
         if (append) {
             /*
-             * MIRTH-2746 When appending filter rules from an import, the first rule may not
-             * have an operator. To prevent an error in the JavaScript, we default it to AND.
+             * MIRTH-2746 When appending filter rules from an import, the first rule may not have an
+             * operator. To prevent an error in the JavaScript, we default it to AND.
              */
             switch (importFilter.getRules().get(0).getOperator()) {
                 case AND:
@@ -965,24 +967,24 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                     importFilter.getRules().get(0).setOperator(Operator.AND);
                     break;
             }
-            
+
             int row = filterTableModel.getRowCount();
-            
+
             for (Rule rule : importFilter.getRules()) {
                 setRowData(rule, row++, false);
             }
-            
+
             updateRuleNumbers();
         } else {
             connector.setFilter(importFilter);
-            
+
             /*
              * We don't need to check the boolean return value from load() because we already
              * checked for unsupported rule types earlier in this method.
              */
             load(connector, importFilter, transformer, modified);
         }
-}
+    }
 
     /*
      * Export the filter.
@@ -1104,8 +1106,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     }
 
     /**
-     * void accept(MouseEvent evt) returns a vector of vectors to the caller of
-     * this.
+     * void accept(MouseEvent evt) returns a vector of vectors to the caller of this.
      */
     public void accept() {
         accept(true);
@@ -1136,8 +1137,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     }
 
     /**
-     * void updateRuleNumbers() traverses the table and updates all data
-     * numbers, both in the model and the view, after any change to the table
+     * void updateRuleNumbers() traverses the table and updates all data numbers, both in the model
+     * and the view, after any change to the table
      */
     private void updateRuleNumbers() {
         updating = true;
@@ -1169,8 +1170,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     }
 
     /**
-     * updateTaskPane() configure the task pane so that it shows only relevant
-     * tasks
+     * updateTaskPane() configure the task pane so that it shows only relevant tasks
      */
     public void updateTaskPane(String newType) {
         int rowCount = filterTableModel.getRowCount();
@@ -1205,8 +1205,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     }
 
     /**
-     * updateOperations() goes through all existing rules, enforcing rule 0 to
-     * be a Rule.Operator.NONE, and any other NONEs to ANDs.
+     * updateOperations() goes through all existing rules, enforcing rule 0 to be a
+     * Rule.Operator.NONE, and any other NONEs to ANDs.
      */
     private void updateOperations() {
         for (int i = 0; i < filterTableModel.getRowCount(); i++) {
