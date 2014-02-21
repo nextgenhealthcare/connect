@@ -23,7 +23,9 @@ public class HttpConnectorService implements ConnectorService {
         if (method.equals("testConnection")) {
             HttpDispatcherProperties props = (HttpDispatcherProperties) object;
             URL url = new URL(replacer.replaceValues(props.getHost(), channelId));
-            return ConnectorUtil.testConnection(url.getHost(), url.getPort(), TIMEOUT);
+            int port = url.getPort();
+            // If no port was provided, default to port 80.
+            return ConnectorUtil.testConnection(url.getHost(), (port == -1) ? 80 : port, TIMEOUT);
         }
 
         return null;
