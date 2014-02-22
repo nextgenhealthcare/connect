@@ -37,6 +37,7 @@ public class ChannelFilter extends javax.swing.JDialog {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        filterTable.setSortable(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModal(true);
         pack();

@@ -2331,7 +2331,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void initChannelTagsUI() {
-        tagTable.setSortable(false);
+        tagTable.setSortable(true);
         tagTable.getTableHeader().setReorderingAllowed(false);
 
         tagTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
