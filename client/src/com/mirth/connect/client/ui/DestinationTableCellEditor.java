@@ -18,10 +18,17 @@ public class DestinationTableCellEditor extends TextFieldCellEditor {
     protected boolean valueChanged(String value) {
         List<Connector> destinationConnectors = getParent().channelEditPanel.currentChannel.getDestinationConnectors();
 
+        // make sure a change was actually made
+        if (value.equals(getOriginalValue())) {
+            return false;
+        }
+
         // make sure the name doesn't already exist
         for (int i = 0; i < destinationConnectors.size(); i++) {
-            if (destinationConnectors.get(i).getName().equalsIgnoreCase(value)) {
-                return false;
+            if (destinationConnectors.get(i).getName().equalsIgnoreCase(value)) { // one of the destinations has the same name
+                if (!destinationConnectors.get(i).getName().equalsIgnoreCase(getOriginalValue())) { // and it's not the destination you're currently editing
+                    return false;
+                }
             }
         }
 
