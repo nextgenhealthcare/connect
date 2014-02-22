@@ -25,10 +25,8 @@ public class DestinationTableCellEditor extends TextFieldCellEditor {
 
         // make sure the name doesn't already exist
         for (int i = 0; i < destinationConnectors.size(); i++) {
-            if (destinationConnectors.get(i).getName().equalsIgnoreCase(value)) { // one of the destinations has the same name
-                if (!destinationConnectors.get(i).getName().equalsIgnoreCase(getOriginalValue())) { // and it's not the destination you're currently editing
-                    return false;
-                }
+            if (destinationConnectors.get(i).getName().equalsIgnoreCase(value) && !destinationConnectors.get(i).getName().equalsIgnoreCase(getOriginalValue())) {
+                return false;
             }
         }
 

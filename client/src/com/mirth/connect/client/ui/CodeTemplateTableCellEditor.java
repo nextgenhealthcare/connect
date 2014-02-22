@@ -22,19 +22,18 @@ public class CodeTemplateTableCellEditor extends TextFieldCellEditor {
             getParent().alertWarning(getParent(), "Code Template name cannot be longer than 40 characters.");
             return false;
         }
-        
+
         // make sure a change was actually made
-        if (value.equals(getOriginalValue()))
+        if (value.equals(getOriginalValue())) {
             return false;
+        }
 
         List<CodeTemplate> codeTemplates = getParent().codeTemplates;
 
         // make sure the name doesn't already exist
         for (int i = 0; i < codeTemplates.size(); i++) {
-            if (codeTemplates.get(i).getName().equalsIgnoreCase(value)) { // one of the templates has the same name
-                if (!codeTemplates.get(i).getName().equalsIgnoreCase(getOriginalValue())) { // but it's not the currently edited template
-                    return false; // so cancel the edit.
-                }
+            if (codeTemplates.get(i).getName().equalsIgnoreCase(value) && !codeTemplates.get(i).getName().equalsIgnoreCase(getOriginalValue())) {
+                return false;
             }
         }
 
