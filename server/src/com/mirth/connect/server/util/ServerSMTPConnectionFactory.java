@@ -15,7 +15,15 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class ServerSMTPConnectionFactory {
     public static ServerSMTPConnection createSMTPConnection() throws ControllerException {
-        ServerSettings settings = ControllerFactory.getFactory().createConfigurationController().getServerSettings();
-        return new ServerSMTPConnection(settings.getSmtpHost(), settings.getSmtpPort(), settings.getSmtpTimeout(), settings.getSmtpAuth(), settings.getSmtpSecure(), settings.getSmtpUsername(), settings.getSmtpPassword(), settings.getSmtpFrom());
+        try {
+            TemplateValueReplacer replacer = new TemplateValueReplacer();
+            ServerSettings settings = ControllerFactory.getFactory().createConfigurationController().getServerSettings();
+            return new ServerSMTPConnection(replacer.replaceValues(settings.getSmtpHost()), replacer.replaceValues(settings.getSmtpPort()), Integer.parseInt(replacer.replaceValues(settings.getSmtpTimeout())), settings.getSmtpAuth(), settings.getSmtpSecure(), replacer.replaceValues(settings.getSmtpUsername()), replacer.replaceValues(settings.getSmtpPassword()), replacer.replaceValues(settings.getSmtpFrom()));
+        } catch (Exception e) {
+            if (e instanceof ControllerException) {
+                throw (ControllerException) e;
+            }
+            throw new ControllerException(e);
+        }
     }
 }

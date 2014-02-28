@@ -50,7 +50,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         provideUsageStatsMoreInfoLabel.setToolTipText(UIConstants.PRIVACY_TOOLTIP);
         provideUsageStatsMoreInfoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         queueBufferSizeField.setDocument(new MirthFieldConstraints(8, false, false, true));
-        smtpTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
+        smtpTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, false));
 
         defaultMetaDataColumns = new ArrayList<MetaDataColumn>();
     }
@@ -96,12 +96,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         // Integer queueBufferSize will be null if it was invalid
         if (serverSettings.getQueueBufferSize() == null) {
             getFrame().alertWarning(this, "Please enter a valid queue buffer size.");
-            return false;
-        }
-
-        // Integer smtpTimeput will be null if it was invalid
-        if (serverSettings.getSmtpTimeout() == null) {
-            getFrame().alertWarning(this, "Please enter a valid SMTP timeout.");
             return false;
         }
 
@@ -275,15 +269,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         serverSettings.setSmtpHost(smtpHostField.getText());
         serverSettings.setSmtpPort(smtpPortField.getText());
-
-        // Set the SMTP timeout Integer to null if it was invalid
-        int smtpTimeout = NumberUtils.toInt(smtpTimeoutField.getText(), -1);
-        if (smtpTimeout == -1) {
-            serverSettings.setSmtpTimeout(null);
-        } else {
-            serverSettings.setSmtpTimeout(smtpTimeout);
-        }
-
+        serverSettings.setSmtpTimeout(smtpTimeoutField.getText());
         serverSettings.setSmtpFrom(defaultFromAddressField.getText());
 
         if (secureConnectionTLSRadio.isSelected()) {

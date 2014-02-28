@@ -45,7 +45,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     // SMTP
     private String smtpHost;
     private String smtpPort;
-    private Integer smtpTimeout;
+    private String smtpTimeout;
     private String smtpFrom;
     private String smtpSecure;
     private Boolean smtpAuth;
@@ -106,7 +106,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         setDefaultMetaDataColumns(toList(properties.getProperty(DEFAULT_METADATA_COLUMNS), MetaDataColumn.class, DefaultMetaData.DEFAULT_COLUMNS));
         setSmtpHost(properties.getProperty(SMTP_HOST));
         setSmtpPort(properties.getProperty(SMTP_PORT));
-        setSmtpTimeout(toIntegerObject(properties.getProperty(SMTP_TIMEOUT)));
+        setSmtpTimeout(properties.getProperty(SMTP_TIMEOUT));
         setSmtpFrom(properties.getProperty(SMTP_FROM));
         setSmtpSecure(properties.getProperty(SMTP_SECURE));
         setSmtpAuth(intToBooleanObject(properties.getProperty(SMTP_AUTH)));
@@ -154,11 +154,11 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         this.smtpPort = smtpPort;
     }
 
-    public Integer getSmtpTimeout() {
+    public String getSmtpTimeout() {
         return smtpTimeout;
     }
 
-    public void setSmtpTimeout(Integer smtpTimeout) {
+    public void setSmtpTimeout(String smtpTimeout) {
         this.smtpTimeout = smtpTimeout;
     }
 

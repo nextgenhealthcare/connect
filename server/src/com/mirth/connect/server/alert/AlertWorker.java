@@ -120,7 +120,7 @@ public abstract class AlertWorker extends EventListener {
 
             // Split the recipients into separate lists for emails and channels
             for (AlertAction action : actionGroup.getActions()) {
-                String recipient = action.getRecipient();
+                String recipient = replacer.replaceValues(action.getRecipient(), context);
 
                 if (StringUtils.isNotBlank(recipient)) {
                     switch (action.getProtocol()) {
