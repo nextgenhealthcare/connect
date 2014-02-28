@@ -505,8 +505,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             // to ensure that file is not larger than Integer.MAX_VALUE.
             if (length > Integer.MAX_VALUE) {
                 // File is too large
-                // TODO: throw new
-                // ??Exception("Implementation restriction: file too large.");
+                throw new IOException("File " + file.getName() + " is too large. Unable to read files greater than " + Integer.MAX_VALUE + " bytes.");
             }
 
             // Create the byte array to hold the data
