@@ -400,7 +400,7 @@ public class JavaScriptBuilder {
         try {
             for (CodeTemplate template : ControllerFactory.getFactory().createCodeTemplateController().getCodeTemplate(null)) {
                 if (template.getType() == CodeSnippetType.FUNCTION) {
-                    if (context.getContext() <= template.getScope()) {
+                    if (context.getContext() >= template.getScope()) {
                         builder.append(template.getCode());
                     }
                 }
