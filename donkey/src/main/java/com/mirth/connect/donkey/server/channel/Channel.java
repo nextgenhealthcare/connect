@@ -561,7 +561,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 for (int i = threads.length - 1; i >= 0; i--) {
                     threads[i].interrupt();
                 }
-                
+
                 // Store the current halt thread so it can be interrupted
                 haltThreads.add(Thread.currentThread());
             }
@@ -630,10 +630,10 @@ public class Channel implements Startable, Stoppable, Runnable {
         } finally {
             if (task != null) {
                 synchronized (controlExecutor) {
-                        controlTasks.remove(task);
+                    controlTasks.remove(task);
                 }
             }
-            synchronized(haltThreads) {
+            synchronized (haltThreads) {
                 haltThreads.remove(Thread.currentThread());
             }
         }
@@ -1281,7 +1281,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 ThreadUtils.checkInterruptedStatus();
                 dao.insertMetaData(sourceMessage, metaDataColumns);
             }
-            
+
             if (storageSettings.isStoreMaps()) {
                 ThreadUtils.checkInterruptedStatus();
 
@@ -1334,7 +1334,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             if (insertedContent) {
                 dao.executeBatchInsertMessageContent(channelId);
             }
-            
+
             // create a message for each destination chain
             Map<Integer, ConnectorMessage> destinationMessages = new HashMap<Integer, ConnectorMessage>();
             MessageContent sourceEncoded = sourceMessage.getEncoded();
@@ -1942,6 +1942,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     } catch (Throwable t) {
                         // If an exception occurred, then attempt to rollback by stopping all the connectors that were started
                         try {
+                            updateCurrentState(DeployedState.STOPPING);
                             stop(startedMetaDataIds);
                             updateCurrentState(DeployedState.STOPPED);
                         } catch (Throwable t2) {
@@ -2052,6 +2053,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     updateCurrentState(DeployedState.STARTED);
                 } catch (Throwable t) {
                     try {
+                        updateCurrentState(DeployedState.PAUSING);
                         sourceConnector.stop();
                         updateCurrentState(DeployedState.PAUSED);
                     } catch (Throwable e2) {
