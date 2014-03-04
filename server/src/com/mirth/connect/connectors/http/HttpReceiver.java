@@ -81,12 +81,12 @@ public class HttpReceiver extends SourceConnector {
 
     @Override
     public void onStart() throws StartException {
-        String host = replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost());
-        int port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort()));
-        int timeout = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getTimeout()), 0);
+        String host = replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), getChannelId());
+        int port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), getChannelId()));
+        int timeout = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getTimeout(), getChannelId()), 0);
 
         // Initialize contextPath to "" or its value after replacements
-        String contextPath = (connectorProperties.getContextPath() == null ? "" : replacer.replaceValues(connectorProperties.getContextPath()));
+        String contextPath = (connectorProperties.getContextPath() == null ? "" : replacer.replaceValues(connectorProperties.getContextPath(), getChannelId()));
 
         if (!contextPath.startsWith("/")) {
             contextPath = "/" + contextPath;
@@ -143,7 +143,7 @@ public class HttpReceiver extends SourceConnector {
             try {
                 dispatchResult = processData(baseRequest);
 
-                servletResponse.setContentType(replacer.replaceValues(connectorProperties.getResponseContentType()));
+                servletResponse.setContentType(replacer.replaceValues(connectorProperties.getResponseContentType(), getChannelId()));
 
                 // set the response headers
                 for (Entry<String, String> entry : connectorProperties.getResponseHeaders().entrySet()) {
