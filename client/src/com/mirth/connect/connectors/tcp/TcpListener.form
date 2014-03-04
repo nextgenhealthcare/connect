@@ -12,6 +12,8 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="processBatchButtonGroup">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="overrideLocalBindingButtonGroup">
+    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -37,48 +39,64 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
+          <Group type="102" attributes="0">
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="sampleLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="encodingLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="dataTypeLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="processBatchLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="transmissionModeLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="remoteAddressLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="remotePortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="overrideLocalBindingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="maxConnectionsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="keepConnectionOpenLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="transmissionModeLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="processBatchLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="dataTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="ackOnNewConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="ackIPLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="ackPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="sampleValue" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="transmissionModeComboBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="settingsPlaceHolderLabel" pref="70" max="32767" attributes="0"/>
+                  </Group>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
+                          <Group type="102" attributes="0">
                               <Component id="modeServerRadio" min="-2" max="-2" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="modeClientRadio" min="-2" max="-2" attributes="1"/>
                           </Group>
-                          <Component id="receiveTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
-                          <Component id="bufferSizeField" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
+                          <Component id="remoteAddressField" min="-2" pref="200" max="-2" attributes="0"/>
+                          <Component id="remotePortField" min="-2" pref="50" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="overrideLocalBindingYesRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="overrideLocalBindingNoRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <Component id="reconnectIntervalField" min="-2" pref="75" max="-2" attributes="1"/>
                           <Component id="maxConnectionsField" min="-2" pref="75" max="-2" attributes="1"/>
-                          <Group type="102" alignment="0" attributes="0">
+                          <Component id="receiveTimeoutField" min="-2" pref="75" max="-2" attributes="1"/>
+                          <Component id="bufferSizeField" min="-2" pref="75" max="-2" attributes="1"/>
+                          <Group type="102" attributes="0">
                               <Component id="keepConnectionOpenYesRadio" min="-2" max="-2" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="keepConnectionOpenNoRadio" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
+                          <Group type="102" attributes="0">
                               <Component id="processBatchYesRadio" min="-2" max="-2" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="processBatchNoRadio" min="-2" max="-2" attributes="1"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
+                          <Group type="102" attributes="0">
                               <Component id="dataTypeBinaryRadio" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="dataTypeASCIIRadio" min="-2" max="-2" attributes="0"/>
@@ -94,13 +112,7 @@
                           <Component id="responseAddressField" min="-2" pref="200" max="-2" attributes="0"/>
                           <Component id="responsePortField" min="-2" pref="50" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="0" pref="114" max="32767" attributes="0"/>
-                  </Group>
-                  <Component id="sampleValue" max="32767" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="transmissionModeComboBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="settingsPlaceHolderLabel" pref="147" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -125,6 +137,22 @@
                   <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="modeServerRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="modeClientRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="remoteAddressLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="remoteAddressField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="remotePortLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="remotePortField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="overrideLocalBindingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="overrideLocalBindingYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="overrideLocalBindingNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -186,7 +214,7 @@
                   <Component id="ackPortLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="responsePortField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="22" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -444,7 +472,7 @@
           <ComponentRef name="modeButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Server"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Server to listen for connections from clients.&lt;br/&gt;Select Client to connect to a TCP Server.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Server to listen for connections from clients, or Client to connect to a TCP Server.&lt;br/&gt;In Client mode, the listener settings will only be used if Override Local Binding is enabled.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -467,7 +495,7 @@
           <ComponentRef name="modeButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Client"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Server to listen for connections from clients.&lt;br/&gt;Select Client to connect to a TCP Server.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Server to listen for connections from clients, or Client to connect to a TCP Server.&lt;br/&gt;In Client mode, the listener settings will only be used if Override Local Binding is enabled.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -582,6 +610,72 @@
     <Component class="javax.swing.JLabel" name="settingsPlaceHolderLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="     "/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="remoteAddressLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Remote Address:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="remoteAddressField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The DNS domain name or IP address on which to connect.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="remotePortLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Remote Port:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="remotePortField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The port on which to connect.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="overrideLocalBindingLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Override Local Binding:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="overrideLocalBindingYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="overrideLocalBindingButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to override the local address and port that the client socket will be bound to.&lt;br/&gt;Select No to use the default values of 0.0.0.0:0.&lt;br/&gt;A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.&lt;br/&gt;&lt;br/&gt;Note that if a specific (non-zero) local port is chosen, then after a socket is closed it&apos;s up to the&lt;br/&gt;underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.&lt;br/&gt;&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="overrideLocalBindingNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="overrideLocalBindingButtonGroup"/>
+        </Property>
+        <Property name="selected" type="boolean" value="true"/>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to override the local address and port that the client socket will be bound to.&lt;br/&gt;Select No to use the default values of 0.0.0.0:0.&lt;br/&gt;A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.&lt;br/&gt;&lt;br/&gt;Note that if a specific (non-zero) local port is chosen, then after a socket is closed it&apos;s up to the&lt;br/&gt;underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.&lt;br/&gt;&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
       </Properties>
     </Component>
   </SubComponents>

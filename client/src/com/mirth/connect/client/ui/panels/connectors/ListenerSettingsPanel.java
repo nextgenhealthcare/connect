@@ -87,7 +87,7 @@ public class ListenerSettingsPanel extends javax.swing.JPanel {
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Listener Settings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
 
-        addressLabel.setText("Address:");
+        addressLabel.setText("Local Address:");
 
         allRadio.setBackground(new java.awt.Color(255, 255, 255));
         allRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -115,7 +115,7 @@ public class ListenerSettingsPanel extends javax.swing.JPanel {
 
         addressField.setToolTipText("The DNS domain name or IP address on which the web service should listen for connections.");
 
-        portLabel.setText("Port:");
+        portLabel.setText("Local Port:");
 
         portField.setToolTipText("The port on which the web service should listen for connections.");
         portField.addKeyListener(new java.awt.event.KeyAdapter() {

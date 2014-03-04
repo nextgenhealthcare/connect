@@ -35,6 +35,9 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
 
     private TransmissionModeProperties transmissionModeProperties;
     private boolean serverMode;
+    private String remoteAddress;
+    private String remotePort;
+    private boolean overrideLocalBinding;
     private String reconnectInterval;
     private String receiveTimeout;
     private String bufferSize;
@@ -57,6 +60,9 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
         this.transmissionModeProperties = frameModeProperties;
 
         this.serverMode = true;
+        this.remoteAddress = "";
+        this.remotePort = "";
+        this.overrideLocalBinding = false;
         this.reconnectInterval = "5000";
         this.receiveTimeout = "0";
         this.bufferSize = "65536";
@@ -94,6 +100,30 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
 
     public void setServerMode(boolean serverMode) {
         this.serverMode = serverMode;
+    }
+
+    public String getRemoteAddress() {
+        return remoteAddress;
+    }
+
+    public void setRemoteAddress(String remoteAddress) {
+        this.remoteAddress = remoteAddress;
+    }
+
+    public String getRemotePort() {
+        return remotePort;
+    }
+
+    public void setRemotePort(String remotePort) {
+        this.remotePort = remotePort;
+    }
+
+    public boolean isOverrideLocalBinding() {
+        return overrideLocalBinding;
+    }
+
+    public void setOverrideLocalBinding(boolean overrideLocalBinding) {
+        this.overrideLocalBinding = overrideLocalBinding;
     }
 
     public String getReconnectInterval() {
@@ -216,5 +246,26 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
     public void migrate3_0_1(DonkeyElement element) {}
 
     @Override
-    public void migrate3_0_2(DonkeyElement element) {}
+    public void migrate3_0_2(DonkeyElement element) {
+        String remoteAddress = "";
+        String remotePort = "";
+
+        // If client mode is enabled, get the remote address/port from the listener settings
+        if (!Boolean.parseBoolean(element.getChildElement("serverMode").getTextContent())) {
+            DonkeyElement listenerConnectorProperties = element.getChildElement("listenerConnectorProperties");
+            DonkeyElement host = listenerConnectorProperties.getChildElement("host");
+            DonkeyElement port = listenerConnectorProperties.getChildElement("port");
+
+            remoteAddress = host.getTextContent();
+            remotePort = port.getTextContent();
+
+            // Set the local address/port to the defaults since the channel will be using the remote ones instead
+            host.setTextContent("0.0.0.0");
+            port.setTextContent("0");
+        }
+
+        element.addChildElement("remoteAddress", remoteAddress);
+        element.addChildElement("remotePort", remotePort);
+        element.addChildElement("overrideLocalBinding", "false");
+    }
 }

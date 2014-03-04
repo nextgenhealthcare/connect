@@ -82,7 +82,7 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="addressLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Address:"/>
+        <Property name="text" type="java.lang.String" value="Local Address:"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="allRadio">
@@ -138,7 +138,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="portLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Port:"/>
+        <Property name="text" type="java.lang.String" value="Local Port:"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="portField">

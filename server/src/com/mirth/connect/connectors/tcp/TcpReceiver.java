@@ -164,9 +164,13 @@ public class TcpReceiver extends SourceConnector {
                         // Client mode, manually initiate a client socket
                         try {
                             logger.debug("Initiating for new client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-                            socket = SocketUtil.createSocket();
+                            if (connectorProperties.isOverrideLocalBinding()) {
+                                socket = SocketUtil.createSocket(getLocalAddress(), getLocalPort());
+                            } else {
+                                socket = SocketUtil.createSocket();
+                            }
                             clientSocket = socket;
-                            SocketUtil.connectSocket(socket, getHost(), getPort(), timeout);
+                            SocketUtil.connectSocket(socket, getRemoteAddress(), getRemotePort(), timeout);
                         } catch (Exception e) {
                             logger.error("Error initiating new socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                         }
@@ -688,8 +692,8 @@ public class TcpReceiver extends SourceConnector {
     private void createServerSocket() throws IOException {
         // Create the server socket
         int backlog = DEFAULT_BACKLOG;
-        String host = getHost();
-        int port = getPort();
+        String host = getLocalAddress();
+        int port = getLocalPort();
 
         InetAddress hostAddress = InetAddress.getByName(host);
         int bindAttempts = 0;
@@ -721,7 +725,7 @@ public class TcpReceiver extends SourceConnector {
 
     private StateAwareSocket createResponseSocket() throws IOException {
         logger.debug("Creating response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-        return SocketUtil.createSocket(getHost());
+        return SocketUtil.createSocket(getLocalAddress());
     }
 
     private void connectResponseSocket(StateAwareSocket responseSocket, StreamHandler streamHandler) throws IOException {
@@ -848,12 +852,20 @@ public class TcpReceiver extends SourceConnector {
         }
     }
 
-    private String getHost() {
+    private String getLocalAddress() {
         return TcpUtil.getFixedHost(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), getChannelId()));
     }
 
-    private int getPort() {
+    private int getLocalPort() {
         return NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), getChannelId()));
+    }
+
+    private String getRemoteAddress() {
+        return TcpUtil.getFixedHost(replacer.replaceValues(connectorProperties.getRemoteAddress(), getChannelId()));
+    }
+
+    private int getRemotePort() {
+        return NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRemotePort(), getChannelId()));
     }
 
     /*
