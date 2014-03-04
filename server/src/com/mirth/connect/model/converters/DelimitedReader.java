@@ -353,22 +353,30 @@ public class DelimitedReader extends SAXParser {
             while (ch != -1 && ((char) ch) != recDelim) {
                 ch = getChar(in, rawText);
             }
-        } else {
+		} else {
+			char colDelim = ','; // default
+			if (DelimitedProperties.isSet(props.getColumnDelimiter())) {
+				colDelim = props.getColumnDelimiter().charAt(0);
+			}
 
-            String columnValue;
-            while ((columnValue = getColumnValue(in, rawText)) != null) {
-                record.add(columnValue);
+			for (;;) {
+				String columnValue = getColumnValue(in, rawText);
 
-                ch = peekChar(in);
-                if (((char) ch) == recDelim) {
+				record.add(columnValue);
 
-                    // consume record delimiter
-                    ch = getChar(in, rawText);
+				ch = peekChar(in);
 
-                    break;
-                }
-            }
-        }
+				if (ch == -1 || ((char) ch) == recDelim) {
+					// consume record delimiter
+					ch = getChar(in, rawText);
+
+					break;
+				} else if (((char) ch) == colDelim) {
+					// consume column delimiter
+					ch = getChar(in, rawText);
+				}
+			}
+		}
 
         return record;
     }
@@ -405,7 +413,7 @@ public class DelimitedReader extends SAXParser {
         int ch;
         ch = peekChar(in);
         if (ch == -1)
-            return null;
+            return "";
 
         StringBuilder columnValue = new StringBuilder();
 
@@ -436,11 +444,11 @@ public class DelimitedReader extends SAXParser {
                 ch = getChar(in, rawText);
 
                 // Break on end of input and end of column
-                if (ch == -1 || ((char) ch) == colDelim)
+                if (ch == -1)
                     break;
 
-                // Unget and break on record delimiter
-                if (((char) ch) == recDelim) {
+                // Unget and break on record delimiter or column delimiter
+                if (((char) ch) == recDelim || ((char) ch) == colDelim) {
                     ungetChar(in, rawText);
                     break;
                 }
@@ -510,12 +518,8 @@ public class DelimitedReader extends SAXParser {
                 else if (ch == -1) {
                     break;
                 }
-                // Break on end of column
-                else if (!inQuote && ((char) ch) == colDelim) {
-                    break;
-                }
-                // Unget and break on record delimiter
-                else if (!inQuote && ((char) ch) == recDelim) {
+                // Unget and break on record delimiter or column delimiter
+                else if (!inQuote && (((char) ch) == recDelim || ((char) ch) == colDelim)) {
                     ungetChar(in, rawText);
                     break;
                 }
