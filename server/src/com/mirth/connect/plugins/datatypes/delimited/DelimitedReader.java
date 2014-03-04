@@ -37,7 +37,7 @@ public class DelimitedReader extends SAXParser {
 
     public DelimitedReader(DelimitedSerializationProperties serializationProperties) {
         this.serializationProperties = serializationProperties;
-        
+
         updateColumnDelimiter();
         updateRecordDelimiter();
         updateQuoteChar();
@@ -147,17 +147,15 @@ public class DelimitedReader extends SAXParser {
     }
 
     /**
-     * Get the next record from the input stream, and consume the record
-     * delimiter, if any.
+     * Get the next record from the input stream, and consume the record delimiter, if any.
      * 
      * @param in
-     *            The input stream (it's a BufferedReader, because operations on
-     *            it require in.mark()).
+     *            The input stream (it's a BufferedReader, because operations on it require
+     *            in.mark()).
      * @param rawText
-     *            Optional StringBuilder used to return a copy of the raw text
-     *            read by this method.
-     * @return The record represented as a collection of column values, or null
-     *         if there is no next record.
+     *            Optional StringBuilder used to return a copy of the raw text read by this method.
+     * @return The record represented as a collection of column values, or null if there is no next
+     *         record.
      * @throws IOException
      */
     public ArrayList<String> getRecord(BufferedReader in, StringBuilder rawText) throws IOException {
@@ -207,18 +205,26 @@ public class DelimitedReader extends SAXParser {
                 ch = getChar(in, rawText);
             }
         } else {
+            char colDelim = ','; // default
+            if (StringUtils.isNotEmpty(columnDelimiter)) {
+                colDelim = columnDelimiter.charAt(0);
+            }
 
-            String columnValue;
-            while ((columnValue = getColumnValue(in, rawText)) != null) {
+            for (;;) {
+                String columnValue = getColumnValue(in, rawText);
+
                 record.add(columnValue);
 
                 ch = peekChar(in);
-                if (((char) ch) == recDelim) {
 
+                if (ch == -1 || ((char) ch) == recDelim) {
                     // consume record delimiter
                     ch = getChar(in, rawText);
 
                     break;
+                } else if (((char) ch) == colDelim) {
+                    // consume column delimiter
+                    ch = getChar(in, rawText);
                 }
             }
         }
@@ -227,8 +233,8 @@ public class DelimitedReader extends SAXParser {
     }
 
     /**
-     * Unget the given record. The next call to getRecord() will consume it, and
-     * return it, rather than operating on the input stream.
+     * Unget the given record. The next call to getRecord() will consume it, and return it, rather
+     * than operating on the input stream.
      * 
      * @param record
      *            The record to unget.
@@ -241,15 +247,13 @@ public class DelimitedReader extends SAXParser {
     }
 
     /**
-     * Get the next column value from the input stream, and consume the column
-     * delimiter, if any.
+     * Get the next column value from the input stream, and consume the column delimiter, if any.
      * 
      * @param in
-     *            The input stream (it's a BufferedReader, because operations on
-     *            it require in.mark()).
+     *            The input stream (it's a BufferedReader, because operations on it require
+     *            in.mark()).
      * @param rawText
-     *            Optional StringBuilder used to return a copy of the raw text
-     *            read by this method.
+     *            Optional StringBuilder used to return a copy of the raw text read by this method.
      * @return The column value, or null if there is no next column value.
      * @throws IOException
      */
@@ -258,7 +262,7 @@ public class DelimitedReader extends SAXParser {
         int ch;
         ch = peekChar(in);
         if (ch == -1)
-            return null;
+            return "";
 
         StringBuilder columnValue = new StringBuilder();
 
@@ -289,11 +293,11 @@ public class DelimitedReader extends SAXParser {
                 ch = getChar(in, rawText);
 
                 // Break on end of input and end of column
-                if (ch == -1 || ((char) ch) == colDelim)
+                if (ch == -1)
                     break;
 
-                // Unget and break on record delimiter
-                if (((char) ch) == recDelim) {
+                // Unget and break on record delimiter or column delimiter
+                if (((char) ch) == recDelim || ((char) ch) == colDelim) {
                     ungetChar(in, rawText);
                     break;
                 }
@@ -363,12 +367,8 @@ public class DelimitedReader extends SAXParser {
                 else if (ch == -1) {
                     break;
                 }
-                // Break on end of column
-                else if (!inQuote && ((char) ch) == colDelim) {
-                    break;
-                }
-                // Unget and break on record delimiter
-                else if (!inQuote && ((char) ch) == recDelim) {
+                // Unget and break on record delimiter or column delimiter
+                else if (!inQuote && (((char) ch) == recDelim || ((char) ch) == colDelim)) {
                     ungetChar(in, rawText);
                     break;
                 }
@@ -380,10 +380,10 @@ public class DelimitedReader extends SAXParser {
 
         return columnValue.toString();
     }
-    
+
     private void updateColumnDelimiter() {
         if (columnDelimiter == null) {
-            
+
             if (StringUtils.isNotEmpty(serializationProperties.getColumnDelimiter())) {
                 columnDelimiter = StringUtil.unescape(serializationProperties.getColumnDelimiter());
             }
@@ -392,7 +392,7 @@ public class DelimitedReader extends SAXParser {
 
     private void updateRecordDelimiter() {
         if (recordDelimiter == null) {
-            
+
             if (StringUtils.isNotEmpty(serializationProperties.getRecordDelimiter())) {
                 recordDelimiter = StringUtil.unescape(serializationProperties.getRecordDelimiter());
             }
@@ -401,7 +401,7 @@ public class DelimitedReader extends SAXParser {
 
     private void updateQuoteChar() {
         if (quoteChar == null) {
-            
+
             if (StringUtils.isNotEmpty(serializationProperties.getQuoteChar())) {
                 quoteChar = StringUtil.unescape(serializationProperties.getQuoteChar());
             }
@@ -410,41 +410,38 @@ public class DelimitedReader extends SAXParser {
 
     private void updateQuoteEscapeChar() {
         if (quoteEscapeChar == null) {
-            
+
             if (StringUtils.isNotEmpty(serializationProperties.getQuoteEscapeChar())) {
                 quoteEscapeChar = StringUtil.unescape(serializationProperties.getQuoteEscapeChar());
             }
         }
     }
-    
+
     public String getColumnDelimiter() {
-    	return columnDelimiter;
+        return columnDelimiter;
     }
-    
+
     public String getRecordDelimiter() {
-    	return recordDelimiter;
+        return recordDelimiter;
     }
 
-	public String getQuoteChar() {
-		return quoteChar;
-	}
+    public String getQuoteChar() {
+        return quoteChar;
+    }
 
-	public String getQuoteEscapeChar() {
-		return quoteEscapeChar;
-	}
-    
+    public String getQuoteEscapeChar() {
+        return quoteEscapeChar;
+    }
+
     /**
-     * This low level reader gets the next non-ignored character from the input,
-     * and returns it.
+     * This low level reader gets the next non-ignored character from the input, and returns it.
      * 
      * @param in
-     *            The input stream (it's a BufferedReader, because operations on
-     *            it require in.mark()).
+     *            The input stream (it's a BufferedReader, because operations on it require
+     *            in.mark()).
      * @param remark
-     *            Iff true, remarks the input stream after reading an ignored
-     *            character.
-     * @return The next non-ignored character read, or -1 if end of input
-     *         stream.
+     *            Iff true, remarks the input stream after reading an ignored character.
+     * @return The next non-ignored character read, or -1 if end of input stream.
      * @throws IOException
      */
     private int getNonIgnoredChar(BufferedReader in, boolean remark) throws IOException {
@@ -468,13 +465,12 @@ public class DelimitedReader extends SAXParser {
      * Get the next character from the input, and return it.
      * 
      * @param in
-     *            The input stream (it's a BufferedReader, because operations on
-     *            it require in.mark()).
+     *            The input stream (it's a BufferedReader, because operations on it require
+     *            in.mark()).
      * @param rawText
-     *            Optional StringBuilder used to return a copy of the raw text
-     *            read by this method.
-     * @return The next character read from the input stream, or -1 if the end
-     *         of input stream is reached.
+     *            Optional StringBuilder used to return a copy of the raw text read by this method.
+     * @return The next character read from the input stream, or -1 if the end of input stream is
+     *         reached.
      * @throws IOException
      */
     public int getChar(BufferedReader in, StringBuilder rawText) throws IOException {
@@ -494,11 +490,11 @@ public class DelimitedReader extends SAXParser {
      * Unget the last character read by getChar().
      * 
      * @param in
-     *            The input stream (it's a BufferedReader, because operations on
-     *            it require in.mark()).
+     *            The input stream (it's a BufferedReader, because operations on it require
+     *            in.mark()).
      * @param rawText
-     *            Optional StringBuilder used to return a copy of the raw text
-     *            unread by this method.
+     *            Optional StringBuilder used to return a copy of the raw text unread by this
+     *            method.
      * @throws IOException
      */
     public void ungetChar(BufferedReader in, StringBuilder rawText) throws IOException {
@@ -514,8 +510,8 @@ public class DelimitedReader extends SAXParser {
      * Look ahead one character in the stream, return it, but don't consume it.
      * 
      * @param in
-     *            The input stream (it's a BufferedReader, because operations on
-     *            it require in.mark()).
+     *            The input stream (it's a BufferedReader, because operations on it require
+     *            in.mark()).
      * @return The next character in the stream, or -1 if end of stream reached.
      * @throws IOException
      */
@@ -527,16 +523,15 @@ public class DelimitedReader extends SAXParser {
     }
 
     /**
-     * Look ahead n characters in the stream, return them, but don't consume
-     * them.
+     * Look ahead n characters in the stream, return them, but don't consume them.
      * 
      * @param in
-     *            The input stream (it's a BufferedReader, because operations on
-     *            it require in.mark()).
+     *            The input stream (it's a BufferedReader, because operations on it require
+     *            in.mark()).
      * @param n
      *            The number of characters to read.
-     * @return A string containing the next n characters without consuming them.
-     *         Returns an empty string if no characters are read.
+     * @return A string containing the next n characters without consuming them. Returns an empty
+     *         string if no characters are read.
      * @throws IOException
      */
     public String peekChars(BufferedReader in, int n) throws IOException {
@@ -565,8 +560,8 @@ public class DelimitedReader extends SAXParser {
      * 
      * @param s
      *            The input string.
-     * @return If the input string has trailing whitespace, a new string with
-     *         the whitespace removed, otherwise, return s.
+     * @return If the input string has trailing whitespace, a new string with the whitespace
+     *         removed, otherwise, return s.
      */
     private String ltrim(String s) {
 
