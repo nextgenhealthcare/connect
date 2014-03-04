@@ -160,4 +160,7 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
 
     @Override
     public void migrate3_0_1(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_0_2(DonkeyElement element) {}
 }

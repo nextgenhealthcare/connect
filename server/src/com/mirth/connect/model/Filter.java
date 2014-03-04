@@ -60,4 +60,7 @@ public class Filter implements Serializable, Migratable {
             rule.getChildElement("data").removeAttribute("class");
         }
     }
+
+    @Override
+    public void migrate3_0_2(DonkeyElement element) {}
 }

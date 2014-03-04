@@ -2,7 +2,7 @@
 	<name>External Script Transformer Step</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.0.1</mirthVersion>
+	<mirthVersion>3.0.2</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides an External Script step-type for Mirth Connect transformers</description>
 	<clientClasses>

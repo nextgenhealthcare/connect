@@ -132,4 +132,7 @@ public class HL7v2SerializationProperties extends SerializationProperties {
 
     @Override
     public void migrate3_0_1(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_0_2(DonkeyElement element) {}
 }

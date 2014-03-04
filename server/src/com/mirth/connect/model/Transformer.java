@@ -122,4 +122,7 @@ public class Transformer implements Serializable, Migratable {
             step.getChildElement("data").removeAttribute("class");
         }
     }
+
+    @Override
+    public void migrate3_0_2(DonkeyElement element) {}
 }
