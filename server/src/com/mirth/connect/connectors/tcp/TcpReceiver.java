@@ -725,7 +725,7 @@ public class TcpReceiver extends SourceConnector {
 
     private StateAwareSocket createResponseSocket() throws IOException {
         logger.debug("Creating response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-        return SocketUtil.createSocket(getLocalAddress());
+        return SocketUtil.createSocket();
     }
 
     private void connectResponseSocket(StateAwareSocket responseSocket, StreamHandler streamHandler) throws IOException {
