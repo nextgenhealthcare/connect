@@ -22,13 +22,13 @@
     </head>
     
     <body id="body" style="display: none;" class="subpage" <c:if test="${actionBean.secureHttps == true}">onload="document.loginform.username.focus();"</c:if>>
-        <div id="centerWrapper">
+        <div id="centerWrapper" class="container">
             <div class="row">
                 <div id="mirthLogoWrapper">
                     <img id="mirthLogo" src="images/mirthconnectlogowide.png" />
                 </div>
     
-                <div id="mcadministrator" class="span4">
+                <div id="mcadministrator" class="col-md-6 col-md-6-custom">
                     <h1 style="text-align: center;">Mirth Connect Administrator</h1>
     				
     				<div id="overviewwebstart">
@@ -41,17 +41,17 @@
     				</div>
 
                     <div style="text-align: center;">
-                        <a class="btn btn-large btn-themebutton" href="javascript:launchAdministrator()">Launch Mirth Connect Administrator</a>
+                        <a class="btn btn-md btn-themebutton" href="javascript:launchAdministrator()">Launch Mirth Connect Administrator</a>
                     </div>
                 </div>
     
-                <div id="webdashboardsignin" class="span4 offset1">
-                    <h1 style="text-align: center;">Web Dashboard Sign in</h1>
+                <div id="webdashboardsignin" class="col-md-6 col-md-6-custom">
+                    <h1 id="webDashboardHeader" style="text-align: center;">Web Dashboard Sign in</h1>
     				    				
     				<c:choose>
     				 	<c:when test="${actionBean.secureHttps == true}">
 		                     <form id="webLoginForm" name="loginform" action="Login.action" method="post">
-		                        <div id="loginErrorAlert" class="alert alert-error hide fade in" data-alert="alert">
+		                        <div id="loginErrorAlert" class="alert alert-danger hide fade in" data-alert="alert">
 			                    	<p>Invalid login credentials</p>
 			                    </div>
 			                    <div id="webLoginWrapper">
@@ -59,13 +59,13 @@
 			                            <input type="hidden" name="op" value="login" /> <input type="hidden" name="version" value="0.0.0" /> <label for="username">Username</label>
 			                            <input id="username" type="text" name="username" autocomplete="off" maxlength="32" /> <label for="password">Password</label>
 			                            <input id="password" type="password" name="password" autocomplete="off" />
-			                            <div class="help-block">
+			                            <div id="webLoginSecurityReminder" class="help-block">
 			                                <strong>Security Reminder:</strong><br /> Sign out of your account when you finish your session.
 			                            </div>
 				                    </div>
 			                    </div>
 			                    <div id="webLoginButton">
-				                	<input class="btn btn-large btn-themebutton" type="submit" value="Sign in"/>
+				                	<input class="btn btn-md btn-themebutton" type="submit" value="Sign in"/>
 				                </div>
 				        	</form>
 		            	</c:when>
@@ -76,8 +76,8 @@
 		                	        <br/><strong>Note:</strong><br/> You may see a certificate error if your server is using a <a href="http://en.wikipedia.org/wiki/Self-signed_certificate" target="_blank">self-signed certificate</a>. To prevent further warnings, you can add this certificate to your browser or operating system.
 		                        </div>
 			                </div>
-		                    <div style="text-align: center;">
-		                    	<a class="btn btn-large btn-themebutton" href="SecureAccess.action">Access Secure Site</a>
+		                    <div id="accessSecureSiteButton" style="text-align: center;">
+		                    	<a class="btn btn-md btn-themebutton" href="SecureAccess.action">Access Secure Site</a>
 		                    </div> 
   						</c:otherwise>
                     </c:choose>
@@ -85,7 +85,7 @@
             </div>
         </div>
         <div id="smallSubPage">
-        	<p>&copy; 2013 Mirth Corporation | Mirth Connect</p>
+        	<p>&copy; 2014 Mirth Corporation | Mirth Connect</p>
         </div>
     
         <script type="text/javascript">
@@ -139,10 +139,10 @@
                 showAlert = $.urlParam('showAlert');
 
                 if (showAlert) {
-                    $("#loginErrorAlert").show();
+                    $("#loginErrorAlert").removeClass('hide');
                     return false;
                 } else {
-                    $("#loginErrorAlert").hide();
+                    $("#loginErrorAlert").addClass('hide');
                     return true;
                 }
             });

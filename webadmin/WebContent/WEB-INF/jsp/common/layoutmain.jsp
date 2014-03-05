@@ -13,33 +13,34 @@
             <title>Mirth Connect Web Administrator</title>
             <link rel="shortcut icon" type="image/x-icon" href="${contextPath}/images/favicon.ico" />
             <link rel="stylesheet" type="text/css" href="${contextPath}/css/bootstrap.css" />
+            <link rel="stylesheet" type="text/css" href="${contextPath}/css/statistics.css" />
             <s:layout-component name="head" />
         </head>
 
         <body>
-            <div id="header" class="navbar navbar-fixed-top">
+            <nav id="header" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
                 <div class="navbar-inner">
-                    <div class="container" style="width: 98%;">
-                        <a class="brand"> <img alt="Mirth Connect" src="${contextPath}/css/mirthconnectlogowide.png" style="height: 30px"></a>
-                        <ul class="nav">
+                    <div id="statisticsNavbarContainer" class="container" style="width: 98%;">
+                        <a class="navbar-brand"> <img alt="Mirth Connect" src="${contextPath}/css/mirthconnectlogowide.png" style="height: 30px"></a>
+                        <ul class="nav navbar-nav">
                             <li id="li_dashboardstatistics"><s:link beanclass="com.mirth.connect.webadmin.action.DashboardStatisticsActionBean">Dashboard Statistics</s:link></li>
                         </ul>
         
-                        <div class="nav btn-group pull-right" style="margin-top: 5px;">
-                            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"> <i class="icon-user"></i> ${user.username} <span class="caret"></span></a>
+                        <div class="nav navbar-nav btn-group navbar-right" style="margin-top: 8px;">
+                            <a id="userButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <span class="glyphicon glyphicon-user"></span> ${user.username} <span class="caret"></span></a>
         
                             <ul class="dropdown-menu">
                                 <c:if test="${not mobile}">
-                                    <li><a href="#" onClick="launchAdministrator()"> <i class="icon-upload"></i> Launch Administrator</a></li>
+                                    <li><a href="#" onClick="launchAdministrator()"> <span class="glyphicon glyphicon-upload"></span> Launch Administrator</a></li>
                                     <li class="divider"></li>
                                 </c:if>
         
-                                <li><a href="Logout.action"> <i class="icon-share"></i> Logout</a></li>
+                                <li><a href="Logout.action"> <span class="glyphicon glyphicon-share"></span> Logout</a></li>
                             </ul>
                         </div>
                     </div>
                 </div>
-            </div>
+            </nav>
             <div id="body">
                 <s:layout-component name="body" />
             </div>

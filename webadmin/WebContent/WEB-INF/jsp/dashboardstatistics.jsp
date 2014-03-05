@@ -13,7 +13,7 @@
     </s:layout-component>
 
     <s:layout-component name="body">
-        <div id="errorAlert" class="alert alert-error hide fade in" data-alert="alert" style= "width:380px; margin-left:auto; margin-right:auto;">
+        <div id="errorAlert" class="alert alert-danger hide fade in" data-alert="alert" style= "margin-left:auto; margin-right:auto;">
             <a class="close" data-dismiss="alert" href="#">&times;</a>
             <p><strong>Error connecting to Server</strong>. Refresh the page or <a href="Index.action">Login</a></p>
         </div>
@@ -89,9 +89,9 @@
                     }
 
                     if (showAlert) {
-                        $("#errorAlert").show();
+                        $("#errorAlert").removeClass('hide');
                     } else {
-                        $("#errorAlert").hide();
+                        $("#errorAlert").addClass('hide');
                     }
 
                     for (var i = 0; i < nodes.length; i++) {
