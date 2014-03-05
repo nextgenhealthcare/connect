@@ -22,11 +22,11 @@
                 <div class="navbar-inner">
                     <div id="statisticsNavbarContainer" class="container" style="width: 98%;">
                         <a class="navbar-brand"> <img alt="Mirth Connect" src="${contextPath}/css/mirthconnectlogowide.png" style="height: 30px"></a>
-                        <ul class="nav navbar-nav">
+                        <ul id="navbarList" class="nav navbar-nav">
                             <li id="li_dashboardstatistics"><s:link beanclass="com.mirth.connect.webadmin.action.DashboardStatisticsActionBean">Dashboard Statistics</s:link></li>
                         </ul>
         
-                        <div class="nav navbar-nav btn-group navbar-right" style="margin-top: 8px;">
+                        <div id="userButtonContainer" class="nav navbar-nav btn-group navbar-right" style="margin-top: 8px;">
                             <a id="userButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <span class="glyphicon glyphicon-user"></span> ${user.username} <span class="caret"></span></a>
         
                             <ul class="dropdown-menu">

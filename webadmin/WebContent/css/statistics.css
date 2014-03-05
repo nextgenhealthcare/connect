@@ -3,6 +3,14 @@ body {
 	line-height: 18px;
 }
 
+#navbarList {
+	display: inline-block;
+}
+
+#userButtonContainer {
+	float: right !important;
+}
+
 #userButton {
 	height: 28px !important;
 	padding: 3px 8px !important;

@@ -28,7 +28,7 @@
                     <img id="mirthLogo" src="images/mirthconnectlogowide.png" />
                 </div>
     
-                <div id="mcadministrator" class="col-md-6 col-md-6-custom">
+                <div id="mcadministrator" class="col-xs-6 col-xs-6-custom">
                     <h1 style="text-align: center;">Mirth Connect Administrator</h1>
     				
     				<div id="overviewwebstart">
@@ -45,7 +45,7 @@
                     </div>
                 </div>
     
-                <div id="webdashboardsignin" class="col-md-6 col-md-6-custom">
+                <div id="webdashboardsignin" class="col-xs-6 col-xs-6-custom">
                     <h1 id="webDashboardHeader" style="text-align: center;">Web Dashboard Sign in</h1>
     				    				
     				<c:choose>
