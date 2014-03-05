@@ -10,6 +10,7 @@
 	<classpathentry kind="lib" path="lib/extensions/file/jcifs-1.3.17.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/itext-2.1.7.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/itext-rtf-2.1.7.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/doc/pdfbox-1.8.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-beanutils-1.8.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-codec-1.6.jar"/>

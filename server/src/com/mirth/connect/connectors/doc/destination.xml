@@ -16,6 +16,7 @@
 	<library type="SERVER" path="lib/itext-rtf-2.1.7.jar" />
 	<library type="SERVER" path="lib/flying-saucer-core-9.0.1.jar" />
 	<library type="SERVER" path="lib/flying-saucer-pdf-9.0.1.jar" />
+	<library type="SERVER" path="lib/pdfbox-1.8.4.jar" />
 	<transformers></transformers>
 	<protocol>doc</protocol>
 	<type>DESTINATION</type>

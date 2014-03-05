@@ -8,6 +8,7 @@ APACHE-LICENSE-2.0.txt):
 	Apache Derby 10.10.1.1 [Mirth Connect only]
 	Apache Geronimo (only components needed for the JMS API) [Mirth Connect only]
 	Apache Log4j 1.2.16
+	Apache PDFBox 1.8.4 [Mirth Connect only]
 	Apache Velocity Engine 1.7
 	Apache Velocity Tools 2.0
 	Apache XMLBeans [Mirth Connect only]

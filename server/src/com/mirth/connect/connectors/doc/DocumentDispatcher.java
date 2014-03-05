@@ -20,14 +20,14 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
+import org.apache.pdfbox.pdmodel.encryption.StandardProtectionPolicy;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 import org.xhtmlrenderer.resource.FSEntityResolver;
 import org.xml.sax.InputSource;
 
 import com.lowagie.text.html.HtmlParser;
-import com.lowagie.text.pdf.PdfEncryptor;
-import com.lowagie.text.pdf.PdfReader;
-import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.rtf.RtfWriter2;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
@@ -163,15 +163,36 @@ public class DocumentDispatcher extends DestinationConnector {
             if (documentDispatcherProperties.isEncrypt() && (documentDispatcherProperties.getPassword() != null)) {
                 FileInputStream encryptFis = null;
                 FileOutputStream encryptFos = null;
+                PDDocument document = null;
 
                 try {
                     encryptFis = new FileInputStream(file);
-                    PdfReader reader = new PdfReader(encryptFis);
+
+                    document = PDDocument.load(encryptFis);
+
+                    AccessPermission accessPermission = new AccessPermission();
+                    accessPermission.setCanAssembleDocument(false);
+                    accessPermission.setCanExtractContent(true);
+                    accessPermission.setCanExtractForAccessibility(true);
+                    accessPermission.setCanFillInForm(false);
+                    accessPermission.setCanModify(false);
+                    accessPermission.setCanModifyAnnotations(false);
+                    accessPermission.setCanPrint(true);
+                    accessPermission.setCanPrintDegraded(true);
+
+                    StandardProtectionPolicy policy = new StandardProtectionPolicy(null, documentDispatcherProperties.getPassword(), accessPermission);
+                    policy.setEncryptionKeyLength(128);
+
                     encryptFos = new FileOutputStream(file);
-                    PdfEncryptor.encrypt(reader, encryptFos, true, documentDispatcherProperties.getPassword(), null, PdfWriter.ALLOW_PRINTING | PdfWriter.ALLOW_COPY);
+                    document.protect(policy);
+                    document.save(encryptFos);
                 } catch (Exception e) {
                     throw e;
                 } finally {
+                    if (document != null) {
+                        document.close();
+                    }
+
                     if (encryptFis != null) {
                         encryptFis.close();
                     }
