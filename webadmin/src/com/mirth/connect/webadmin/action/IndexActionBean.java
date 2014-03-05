@@ -37,6 +37,8 @@ public class IndexActionBean extends BaseActionBean {
         String httpPort = "8080";
         String contextPath = "/";
         String httpsHost = "0.0.0.0";
+        String maxHeapSize = "512m";
+        String maxHeapSizeOptions = "256m,512m,1g,2g";
 
         if (mirthPropertiesStream != null) {
             Properties mirthProps = new Properties();
@@ -46,6 +48,8 @@ public class IndexActionBean extends BaseActionBean {
 
                 httpsPort = mirthProps.getProperty("https.port", httpsPort);
                 httpPort = mirthProps.getProperty("http.port", httpPort);
+                maxHeapSize = mirthProps.getProperty("administrator.maxheapsize", maxHeapSize);
+                maxHeapSizeOptions = mirthProps.getProperty("administrator.maxheapsizeoptions", maxHeapSizeOptions);
                 contextPath = mirthProps.getProperty("http.contextpath", contextPath);
 
                 // Add a starting slash if one does not exist
@@ -67,6 +71,8 @@ public class IndexActionBean extends BaseActionBean {
         context.setHttpPort(httpPort);
         context.setContextPath(contextPath);
         context.setServerAddress(getWebServerUrl("https://", httpsHost, httpsPort, contextPath));
+        context.setMaxHeapSize(maxHeapSize);
+        context.setMaxHeapSizeOptions(maxHeapSizeOptions);
 
         // Check if http or https
         secureHttps = request.isSecure();

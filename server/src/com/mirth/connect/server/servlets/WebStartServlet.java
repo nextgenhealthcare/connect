@@ -42,8 +42,7 @@ public class WebStartServlet extends HttpServlet {
     private Logger logger = Logger.getLogger(this.getClass());
 
     /*
-     * Override last modified time to always be modified so it updates changes
-     * to JNLP.
+     * Override last modified time to always be modified so it updates changes to JNLP.
      */
     @Override
     protected long getLastModified(HttpServletRequest arg0) {
@@ -54,7 +53,7 @@ public class WebStartServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // MIRTH-1745
         response.setCharacterEncoding("UTF-8");
-        
+
         try {
             response.setContentType("application/x-java-jnlp-file");
             response.setHeader("Pragma", "no-cache");
@@ -117,7 +116,7 @@ public class WebStartServlet extends HttpServlet {
             if (!contextPathProp.startsWith("/")) {
                 contextPathProp = "/" + contextPathProp;
             }
-            
+
             // Remove a trailing slash if one exists
             if (contextPathProp.endsWith("/")) {
                 contextPathProp = contextPathProp.substring(0, contextPathProp.length() - 1);
@@ -129,7 +128,16 @@ public class WebStartServlet extends HttpServlet {
         jnlpElement.setAttribute("codebase", codebase);
 
         Element resourcesElement = (Element) jnlpElement.getElementsByTagName("resources").item(0);
-        
+
+        String maxHeapSize = request.getParameter("maxHeapSize");
+        if (StringUtils.isBlank(maxHeapSize)) {
+            maxHeapSize = mirthProperties.getString("administrator.maxheapsize");
+        }
+        if (StringUtils.isNotBlank(maxHeapSize)) {
+            Element j2se = (Element) resourcesElement.getElementsByTagName("j2se").item(0);
+            j2se.setAttribute("max-heap-size", maxHeapSize);
+        }
+
         List<String> defaultClientLibs = new ArrayList<String>();
         defaultClientLibs.add("mirth-client.jar");
         defaultClientLibs.add("mirth-client-core.jar");
@@ -140,11 +148,11 @@ public class WebStartServlet extends HttpServlet {
             Element jarElement = document.createElement("jar");
             jarElement.setAttribute("download", "eager");
             jarElement.setAttribute("href", "webstart/client-lib/" + defaultClientLib);
-            
+
             if (defaultClientLib.equals("mirth-client.jar")) {
                 jarElement.setAttribute("main", "true");
             }
-            
+
             resourcesElement.appendChild(jarElement);
         }
 

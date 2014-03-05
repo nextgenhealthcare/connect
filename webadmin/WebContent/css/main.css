@@ -538,7 +538,7 @@ tr.notAccepted {
 }
 
 .subpage #centerWrapper {
-	width: 751px; 
+	width: 770px; 
 	background-color: #fff;
 	background-image: -webkit-gradient(linear, left top, left bottom, from(#fff),
 		to(#fff) );
@@ -549,18 +549,69 @@ tr.notAccepted {
 	background-image: linear-gradient(to bottom, #fff, #fff)
 }
 
+#optionsDropdownContainer {
+	display: inline-block;
+}
+
+#optionsDropdownMenu {
+	min-width: 210px;
+	border-radius: 5px 5px 5px 5px;
+	font-size: 10pt;
+}
+
+#optionsDropdownMenu li span.text-center {
+	font-size: 11pt;
+}
+
+#optionsDropdownMenu li span.pull-left {
+	padding-left: 10px;
+	padding-top: 2px;
+}
+
+#optionsDropdownMenu select {
+	margin-bottom: 0;
+}
+
+#optionsButton {
+	height: 38px;
+	width: 38px;
+	padding: 3px 3px 2px 3px;
+	border: none;
+}
+
+#optionsButton:hover {
+	border: 1px solid #CCC;
+}
+
+#optionsButton span {
+	padding-top: 2px;
+	font-size: 24px;
+}
+
+#maxHeapSizeLabel {
+	height: 28px;
+	line-height: 28px;
+}
+
+#maxHeapSizeSelect {
+	height: 28px;
+	width: auto;
+}
+
+#maxHeapSizeWarning {
+	margin: 5px 10px;
+	font-size: 13px;
+	color: #999;
+}
+
 .subpage #webdashboardsignin {	
  	border-left: 1px solid #A5A5A5;
 	padding-left: 38px;
-	margin-left: 6%;
+	margin-left: 3%;
 }
 
 #webLoginSecurityReminder {
 	width: 230px;
-}
-
-#webDashboardHeader, #webLoginButton, #accessSecureSiteButton {
-	margin-left: 30px;
 }
 
 #webLoginButton input {
@@ -577,7 +628,7 @@ tr.notAccepted {
 }
 
 .col-xs-6-custom {
-	width: 46%;
+	width: 48.5%;
 }
 
 .subpage h1 {

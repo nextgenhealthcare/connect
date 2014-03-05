@@ -15,8 +15,7 @@ import com.mirth.connect.client.core.Client;
 import com.mirth.connect.model.User;
 
 /**
- * ActionBeanContext subclass that manages where values like the logged in user
- * are stored.
+ * ActionBeanContext subclass that manages where values like the logged in user are stored.
  */
 public class BaseActionBeanContext extends ActionBeanContext {
     public User getUser() {
@@ -73,6 +72,22 @@ public class BaseActionBeanContext extends ActionBeanContext {
 
     public void setServerAddress(String serverAddress) {
         getRequest().getSession().setAttribute("serverAddress", serverAddress);
+    }
+
+    public String getMaxHeapSize() {
+        return (String) getRequest().getSession().getAttribute("maxHeapSize");
+    }
+
+    public void setMaxHeapSize(String maxHeapSize) {
+        getRequest().getSession().setAttribute("maxHeapSize", maxHeapSize);
+    }
+
+    public String getMaxHeapSizeOptions() {
+        return (String) getRequest().getSession().getAttribute("maxHeapSizeOptions");
+    }
+
+    public void setMaxHeapSizeOptions(String maxHeapSizeOptions) {
+        getRequest().getSession().setAttribute("maxHeapSizeOptions", maxHeapSizeOptions);
     }
 
     // Logs the user out by invalidating the session.
