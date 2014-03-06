@@ -382,20 +382,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 if (message.getErrorCode() > 0) {
                     dao.updateErrors(message);
                 }
-
-                // Set the destination connector's custom column map
-                boolean wasEmpty = message.getMetaDataMap().isEmpty();
-                channel.getSourceConnector().getMetaDataReplacer().setMetaDataMap(message, channel.getMetaDataColumns());
-
-                // Store the custom columns
-                if (storageSettings.isStoreCustomMetaData() && !message.getMetaDataMap().isEmpty()) {
-                    ThreadUtils.checkInterruptedStatus();
-                    if (wasEmpty) {
-                        dao.insertMetaData(message, channel.getMetaDataColumns());
-                    } else {
-                        dao.storeMetaData(message, channel.getMetaDataColumns());
-                    }
-                }
             } catch (DonkeyException e) {
                 logger.error("Error executing response transformer for channel " + message.getChannelId() + " (" + destinationName + ").", e);
                 response.setStatus(Status.ERROR);
@@ -406,6 +392,20 @@ public abstract class DestinationConnector extends Connector implements Runnable
             }
 
             message.getResponseMap().put("d" + String.valueOf(getMetaDataId()), response);
+
+            // Set the destination connector's custom column map
+            boolean wasEmpty = message.getMetaDataMap().isEmpty();
+            channel.getSourceConnector().getMetaDataReplacer().setMetaDataMap(message, channel.getMetaDataColumns());
+
+            // Store the custom columns
+            if (storageSettings.isStoreCustomMetaData() && !message.getMetaDataMap().isEmpty()) {
+                ThreadUtils.checkInterruptedStatus();
+                if (wasEmpty) {
+                    dao.insertMetaData(message, channel.getMetaDataColumns());
+                } else {
+                    dao.storeMetaData(message, channel.getMetaDataColumns());
+                }
+            }
 
             if (storageSettings.isStoreMaps()) {
                 dao.updateMaps(message);
@@ -637,22 +637,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
             if (message.getErrorCode() > 0) {
                 dao.updateErrors(message);
             }
-            
-            if (message.getStatus() == Status.PENDING) {
-                // Set the destination connector's custom column map
-                boolean wasEmpty = message.getMetaDataMap().isEmpty();
-                channel.getSourceConnector().getMetaDataReplacer().setMetaDataMap(message, channel.getMetaDataColumns());
-                
-                // Store the custom columns
-                if (storageSettings.isStoreCustomMetaData() && !message.getMetaDataMap().isEmpty()) {
-                    ThreadUtils.checkInterruptedStatus();
-                    if (wasEmpty) {
-                        dao.insertMetaData(message, channel.getMetaDataColumns());
-                    } else {
-                        dao.storeMetaData(message, channel.getMetaDataColumns());
-                    }
-                }
-            }
         } catch (DonkeyException e) {
             logger.error("Error executing response transformer for channel " + message.getChannelId() + " (" + destinationName + ").", e);
             response.setStatus(Status.ERROR);
@@ -665,6 +649,20 @@ public abstract class DestinationConnector extends Connector implements Runnable
         }
 
         message.getResponseMap().put("d" + String.valueOf(getMetaDataId()), response);
+
+        // Set the destination connector's custom column map
+        boolean wasEmpty = message.getMetaDataMap().isEmpty();
+        channel.getSourceConnector().getMetaDataReplacer().setMetaDataMap(message, channel.getMetaDataColumns());
+
+        // Store the custom columns
+        if (storageSettings.isStoreCustomMetaData() && !message.getMetaDataMap().isEmpty()) {
+            ThreadUtils.checkInterruptedStatus();
+            if (wasEmpty) {
+                dao.insertMetaData(message, channel.getMetaDataColumns());
+            } else {
+                dao.storeMetaData(message, channel.getMetaDataColumns());
+            }
+        }
 
         if (storageSettings.isStoreMaps()) {
             dao.updateMaps(message);
