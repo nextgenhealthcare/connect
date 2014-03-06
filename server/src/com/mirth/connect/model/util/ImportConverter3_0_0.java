@@ -1456,7 +1456,15 @@ public class ImportConverter3_0_0 {
 
         DonkeyElement batchProperties = properties.addChildElement("batchProperties");
         batchProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties");
-        batchProperties.addChildElement("batchSkipRecords").setTextContent(oldProperties.getProperty("batchSkipRecords", "0"));
+
+        String batchSkipRecords = getNonEmptyProperty(oldProperties, "batchSkipRecords", "0");
+        try {
+            Integer.parseInt(batchSkipRecords);
+        } catch (NumberFormatException e) {
+            batchSkipRecords = "0";
+        }
+        batchProperties.addChildElement("batchSkipRecords", batchSkipRecords);
+
         batchProperties.addChildElement("batchSplitByRecord").setTextContent(oldProperties.getProperty("batchSplitByRecord", "true"));
         batchProperties.addChildElement("batchMessageDelimiter").setTextContent(oldProperties.getProperty("batchMessageDelimiter", ""));
         batchProperties.addChildElement("batchMessageDelimiterIncluded").setTextContent(oldProperties.getProperty("batchMessageDelimiterIncluded", "false"));
