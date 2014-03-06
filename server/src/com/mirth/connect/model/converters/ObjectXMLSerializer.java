@@ -167,6 +167,8 @@ public class ObjectXMLSerializer extends XStreamSerializer {
 
                 return (T) getXStream().unmarshal(new DomReader(element.getElement()));
             }
+        } catch (LinkageError e) {
+            return handleDeserializationException(element, e, expectedClass);
         } catch (Exception e) {
             return handleDeserializationException(element, e, expectedClass);
         }
@@ -202,6 +204,8 @@ public class ObjectXMLSerializer extends XStreamSerializer {
                         try {
                             child = ImportConverter3_0_0.migrate(child, expectedListItemClass);
                             list.add((T) getXStream().unmarshal(new DomReader(child.getElement())));
+                        } catch (LinkageError e) {
+                            list.add(handleDeserializationException(child, e, expectedListItemClass));
                         } catch (Exception e) {
                             list.add(handleDeserializationException(child, e, expectedListItemClass));
                         }
@@ -228,9 +232,16 @@ public class ObjectXMLSerializer extends XStreamSerializer {
                     return list;
                 }
             }
-        } catch (Exception e) {
+        } catch (LinkageError e) {
             logger.error(e);
             throw new SerializerException(e);
+        } catch (Exception e) {
+            logger.error(e);
+            if (e instanceof SerializerException) {
+                throw (SerializerException) e;
+            } else {
+                throw new SerializerException(e);
+            }
         }
     }
 
@@ -244,7 +255,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         return (expectedClass.equals(String.class) || expectedClass.equals(Integer.class) || expectedClass.equals(Long.class) || expectedClass.equals(Float.class) || expectedClass.equals(Double.class));
     }
 
-    private <T> T handleDeserializationException(DonkeyElement element, Exception e, Class<T> expectedClass) {
+    private <T> T handleDeserializationException(DonkeyElement element, Throwable e, Class<T> expectedClass) {
         if (expectedClass == Channel.class) {
             logger.error("Error deserializing channel.", e);
             return (T) new InvalidChannel(element, e, null);
