@@ -47,7 +47,7 @@ public class MapContentConverter extends ReflectionConverter {
     public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
         MapContent mapContent = (MapContent) value;
 
-        if (MapUtil.hasInvalidValues(mapContent.getMap())) {
+        if (!mapContent.isEncrypted() && MapUtil.hasInvalidValues(mapContent.getMap())) {
             String serializedMap = MapUtil.serializeMap(ObjectXMLSerializer.getInstance(), mapContent.getMap());
 
             try {
