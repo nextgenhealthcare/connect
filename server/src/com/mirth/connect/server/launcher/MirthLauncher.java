@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import java.util.jar.JarFile;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -63,11 +64,18 @@ public class MirthLauncher {
             ManifestDirectory serverLibDir = new ManifestDirectory("server-lib");
             serverLibDir.setExcludes(new String[] { "mirth-client-core.jar" });
             ManifestDirectory customLibDir = new ManifestDirectory("custom-lib");
-            ManifestEntry[] manifest = new ManifestEntry[] { mirthServerJar, mirthClientCoreJar, serverLibDir, customLibDir };
+            ManifestEntry[] manifest = new ManifestEntry[] { mirthServerJar, mirthClientCoreJar,
+                    serverLibDir, customLibDir };
+
+            // Get the current server version
+            JarFile mirthClientCoreJarFile = new JarFile(mirthClientCoreJar.getName());
+            Properties versionProperties = new Properties();
+            versionProperties.load(mirthClientCoreJarFile.getInputStream(mirthClientCoreJarFile.getJarEntry("version.properties")));
+            String currentVersion = versionProperties.getProperty("mirth.version");
 
             List<URL> classpathUrls = new ArrayList<URL>();
             addManifestToClasspath(manifest, classpathUrls);
-            addExtensionsToClasspath(classpathUrls);
+            addExtensionsToClasspath(classpathUrls, currentVersion);
             URLClassLoader classLoader = new URLClassLoader(classpathUrls.toArray(new URL[classpathUrls.size()]));
             Class<?> mirthClass = classLoader.loadClass("com.mirth.connect.server.Mirth");
             Thread mirthThread = (Thread) mirthClass.newInstance();
@@ -101,8 +109,8 @@ public class MirthLauncher {
     }
 
     /*
-     * This picks up any folders in the installation temp dir and moves them
-     * over to the extensions dir, in effect "installing" them.
+     * This picks up any folders in the installation temp dir and moves them over to the extensions
+     * dir, in effect "installing" them.
      */
     private static void installPendingExtensions() throws Exception {
         File extensionsDir = new File(EXTENSIONS_DIR);
@@ -160,8 +168,9 @@ public class MirthLauncher {
         }
     }
 
-    private static void addExtensionsToClasspath(List<URL> urls) throws Exception {
-        FileFilter extensionFileFilter = new NameFileFilter(new String[] { "plugin.xml", "source.xml", "destination.xml" }, IOCase.INSENSITIVE);
+    private static void addExtensionsToClasspath(List<URL> urls, String currentVersion) throws Exception {
+        FileFilter extensionFileFilter = new NameFileFilter(new String[] { "plugin.xml",
+                "source.xml", "destination.xml" }, IOCase.INSENSITIVE);
         FileFilter directoryFilter = FileFilterUtils.directoryFileFilter();
         File extensionPath = new File(EXTENSIONS_DIR);
 
@@ -169,8 +178,8 @@ public class MirthLauncher {
         File extensionPropertiesFile = new File(appDataDir, EXTENSION_PROPERTIES);
 
         /*
-         * If the file does not exist yet, an empty Properties object will be
-         * used, returning the default of true for all extensions.
+         * If the file does not exist yet, an empty Properties object will be used, returning the
+         * default of true for all extensions.
          */
         if (extensionPropertiesFile.exists()) {
             extensionProperties.load(new FileInputStream(extensionPropertiesFile));
@@ -187,9 +196,11 @@ public class MirthLauncher {
                         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(extensionFile);
                         Element rootElement = document.getDocumentElement();
 
-                        // Only add libraries from extensions that are not
-                        // disabled
-                        if (extensionProperties.getProperty(rootElement.getElementsByTagName("name").item(0).getTextContent(), "true").equalsIgnoreCase("true")) {
+                        boolean enabled = extensionProperties.getProperty(rootElement.getElementsByTagName("name").item(0).getTextContent(), "true").equalsIgnoreCase("true");
+                        boolean compatible = isExtensionCompatible(rootElement.getElementsByTagName("mirthVersion").item(0).getTextContent(), currentVersion);
+
+                        // Only add libraries from extensions that are not disabled and are compatible with the current version
+                        if (enabled && compatible) {
                             NodeList libraries = rootElement.getElementsByTagName("library");
 
                             for (int i = 0; i < libraries.getLength(); i++) {
@@ -216,6 +227,25 @@ public class MirthLauncher {
         } else {
             logger.warn("no extensions found");
         }
+    }
+
+    private static boolean isExtensionCompatible(String extensionVersion, String currentVersion) {
+        if (extensionVersion != null) {
+            String[] extensionMirthVersions = extensionVersion.split(",");
+
+            // If there is no build version, just use the patch version
+            if (currentVersion.split("\\.").length == 4) {
+                currentVersion = currentVersion.substring(0, currentVersion.lastIndexOf('.'));
+            }
+
+            for (int i = 0; i < extensionMirthVersions.length; i++) {
+                if (extensionMirthVersions[i].trim().equals(currentVersion)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private static void createAppdataDir() throws FileNotFoundException, IOException {
