@@ -1541,9 +1541,9 @@ public class ImportConverter3_0_0 {
 
         DonkeyElement responseValidationProperties = properties.addChildElement("responseValidationProperties");
         responseValidationProperties.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v2.HL7v2ResponseValidationProperties");
-        responseValidationProperties.addChildElement("successfulACKCode").setTextContent("AA");
-        responseValidationProperties.addChildElement("errorACKCode").setTextContent("AE");
-        responseValidationProperties.addChildElement("rejectedACKCode").setTextContent("AR");
+        responseValidationProperties.addChildElement("successfulACKCode").setTextContent("AA,CA");
+        responseValidationProperties.addChildElement("errorACKCode").setTextContent("AE,CE");
+        responseValidationProperties.addChildElement("rejectedACKCode").setTextContent("AR,CR");
     }
 
     private static void migrateHL7v3Properties(DonkeyElement properties) {

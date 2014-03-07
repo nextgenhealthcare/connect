@@ -18,9 +18,9 @@ import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.ResponseValidationProperties;
 
 public class HL7v2ResponseValidationProperties extends ResponseValidationProperties {
-    private String successfulACKCode = "AA";
-    private String errorACKCode = "AE";
-    private String rejectedACKCode = "AR";
+    private String successfulACKCode = "AA,CA";
+    private String errorACKCode = "AE,CE";
+    private String rejectedACKCode = "AR,CR";
 
     public HL7v2ResponseValidationProperties() {}
 
@@ -34,9 +34,9 @@ public class HL7v2ResponseValidationProperties extends ResponseValidationPropert
     public Map<String, DataTypePropertyDescriptor> getPropertyDescriptors() {
         Map<String, DataTypePropertyDescriptor> properties = new LinkedHashMap<String, DataTypePropertyDescriptor>();
 
-        properties.put("successfulACKCode", new DataTypePropertyDescriptor(successfulACKCode, "Successful ACK Code", "The ACK code to expect when the message is accepted by the downstream system. By default, the message status will be set to SENT.", PropertyEditorType.STRING));
-        properties.put("errorACKCode", new DataTypePropertyDescriptor(errorACKCode, "Error ACK Code", "The ACK code to expect when an error occurs on the downstream system. By default, the message status will be set to ERROR.", PropertyEditorType.STRING));
-        properties.put("rejectedACKCode", new DataTypePropertyDescriptor(rejectedACKCode, "Rejected ACK Code", "The ACK code to expect when the message is rejected by the downstream system. By default, the message status will be set to ERROR.", PropertyEditorType.STRING));
+        properties.put("successfulACKCode", new DataTypePropertyDescriptor(successfulACKCode, "Successful ACK Codes", "The ACK code(s) to expect when the message is accepted by the downstream system. By default, the message status will be set to SENT. Specify multiple codes with a list of comma separated values.", PropertyEditorType.STRING));
+        properties.put("errorACKCode", new DataTypePropertyDescriptor(errorACKCode, "Error ACK Codes", "The ACK code(s) to expect when an error occurs on the downstream system. By default, the message status will be set to ERROR. Specify multiple codes with a list of comma separated values.", PropertyEditorType.STRING));
+        properties.put("rejectedACKCode", new DataTypePropertyDescriptor(rejectedACKCode, "Rejected ACK Codes", "The ACK code(s) to expect when the message is rejected by the downstream system. By default, the message status will be set to ERROR. Specify multiple codes with a list of comma separated values.", PropertyEditorType.STRING));
 
         return properties;
     }

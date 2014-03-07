@@ -10,6 +10,7 @@
 package com.mirth.connect.plugins.datatypes.hl7v2;
 
 import java.io.CharArrayReader;
+import java.util.Arrays;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPathFactory;
@@ -44,6 +45,10 @@ public class HL7v2ResponseValidator implements ResponseValidator {
     @Override
     public Response validate(Response response, ConnectorMessage connectorMessage) {
         HL7v2ResponseValidationProperties responseValidationProperties = getReplacedResponseValidationProperties(connectorMessage);
+        String[] successfulACKCodes = StringUtils.split(responseValidationProperties.getSuccessfulACKCode(), ',');
+        String[] errorACKCodes = StringUtils.split(responseValidationProperties.getErrorACKCode(), ',');
+        String[] rejectedACKCodes = StringUtils.split(responseValidationProperties.getRejectedACKCode(), ',');
+
         String responseData = response.getMessage();
 
         if (StringUtils.isNotBlank(responseData)) {
@@ -52,9 +57,9 @@ public class HL7v2ResponseValidator implements ResponseValidator {
                 try {
                     Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new CharArrayReader(responseData.toCharArray())));
                     String ackCode = XPathFactory.newInstance().newXPath().compile("//MSA.1/text()").evaluate(doc).trim();
-                    if (ackCode.equals(responseValidationProperties.getErrorACKCode()) || ackCode.equals(responseValidationProperties.getRejectedACKCode())) {
+                    if (Arrays.asList(errorACKCodes).contains(ackCode) || Arrays.asList(rejectedACKCodes).contains(ackCode)) {
                         handleNACK(response);
-                    } else if (ackCode.equals(responseValidationProperties.getSuccessfulACKCode())) {
+                    } else if (Arrays.asList(successfulACKCodes).contains(ackCode)) {
                         response.setStatus(Status.SENT);
                     }
                 } catch (Exception e) {
@@ -77,9 +82,9 @@ public class HL7v2ResponseValidator implements ResponseValidator {
                     // MSA found; add the length of the segment delimiter, MSA, and field separator to get to the index of MSA.1
                     index += serializationSegmentDelimiter.length() + 4;
 
-                    if (responseData.startsWith(responseValidationProperties.getErrorACKCode(), index) || responseData.startsWith(responseValidationProperties.getRejectedACKCode(), index)) {
+                    if (startsWithAny(responseData, errorACKCodes, index) || startsWithAny(responseData, rejectedACKCodes, index)) {
                         handleNACK(response);
-                    } else if (responseData.startsWith(responseValidationProperties.getSuccessfulACKCode(), index)) {
+                    } else if (startsWithAny(responseData, successfulACKCodes, index)) {
                         response.setStatus(Status.SENT);
                     } else {
                         valid = false;
@@ -101,6 +106,15 @@ public class HL7v2ResponseValidator implements ResponseValidator {
         }
 
         return response;
+    }
+
+    private boolean startsWithAny(String str, String[] prefixes, int toffset) {
+        for (String prefix : prefixes) {
+            if (str.startsWith(prefix, toffset)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private HL7v2ResponseValidationProperties getReplacedResponseValidationProperties(ConnectorMessage connectorMessage) {
