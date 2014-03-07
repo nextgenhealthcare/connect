@@ -403,8 +403,10 @@ public class JavaScriptUtil {
                 if (template.getType() == CodeSnippetType.FUNCTION) {
                     if (template.getScope() == CodeTemplate.ContextType.GLOBAL_CONTEXT.getContext() || template.getScope() == CodeTemplate.ContextType.GLOBAL_CHANNEL_CONTEXT.getContext()) {
                         builtScript.append(template.getCode());
+                        builtScript.append('\n');
                     } else if (includeChannelMap && template.getScope() == CodeTemplate.ContextType.CHANNEL_CONTEXT.getContext()) {
                         builtScript.append(template.getCode());
+                        builtScript.append('\n');
                     }
                 }
             }

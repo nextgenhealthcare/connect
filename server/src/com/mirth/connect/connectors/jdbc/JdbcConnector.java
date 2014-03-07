@@ -378,6 +378,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
             for (CodeTemplate template : ControllerFactory.getFactory().createCodeTemplateController().getCodeTemplate(null)) {
                 if (template.getType() == CodeSnippetType.FUNCTION) {
                     script.append(template.getCode());
+                    script.append('\n');
                 }
             }
         } catch (ControllerException e) {

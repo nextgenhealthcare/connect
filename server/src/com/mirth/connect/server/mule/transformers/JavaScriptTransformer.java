@@ -582,6 +582,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
             for (CodeTemplate template : templates) {
                 if (template.getType() == CodeSnippetType.FUNCTION) {
                     newScript.append(template.getCode());
+                    newScript.append('\n');
                 }
             }
         } catch (ControllerException e) {

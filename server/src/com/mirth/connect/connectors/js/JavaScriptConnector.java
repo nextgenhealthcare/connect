@@ -107,6 +107,7 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
             for (CodeTemplate template : templates) {
                 if (template.getType() == CodeSnippetType.FUNCTION) {
                     script.append(template.getCode());
+                    script.append('\n');
                 }
             }
         } catch (ControllerException e) {
