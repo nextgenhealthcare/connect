@@ -49,9 +49,8 @@ public class ValueReplacer {
     }
 
     /**
-     * Replaces all values in a map.
-     * Uses the default context, which includes the global variable map.
-     * The original map is not modified.
+     * Replaces all values in a map. Uses the default context, which includes the global variable
+     * map. The original map is not modified.
      * 
      * @return A cloned HashMap with all the replaced values.
      */
@@ -68,10 +67,8 @@ public class ValueReplacer {
     }
 
     /**
-     * Replaces all values in a map.
-     * Uses the default context along with the connector message and all
-     * available variable maps.
-     * The original map is not modified.
+     * Replaces all values in a map. Uses the default context along with the connector message and
+     * all available variable maps. The original map is not modified.
      * 
      * @return A cloned HashMap with all the replaced values.
      */
@@ -88,8 +85,8 @@ public class ValueReplacer {
     }
 
     /**
-     * Replaces all values in a list.
-     * Uses the default context, which includes the global variable map.
+     * Replaces all values in a list. Uses the default context, which includes the global variable
+     * map.
      * 
      * @return void
      */
@@ -100,9 +97,8 @@ public class ValueReplacer {
     }
 
     /**
-     * Replaces all values in a list.
-     * Uses the default context along with the connector message and all
-     * available variable maps.
+     * Replaces all values in a list. Uses the default context along with the connector message and
+     * all available variable maps.
      * 
      * @return void
      */
@@ -113,8 +109,8 @@ public class ValueReplacer {
     }
 
     /**
-     * Replaces variables in the template with values from the passed in map.
-     * Uses the default context, which includes the global variable map.
+     * Replaces variables in the template with values from the passed in map. Uses the default
+     * context, which includes the global variable map.
      * 
      * @return The replaced template
      */
@@ -129,9 +125,8 @@ public class ValueReplacer {
     }
 
     /**
-     * Replaces variables in the template.
-     * Uses the default context along with the connector message and all
-     * available variable maps.
+     * Replaces variables in the template. Uses the default context along with the connector message
+     * and all available variable maps.
      * 
      * @return The replaced template
      */
@@ -145,10 +140,10 @@ public class ValueReplacer {
         }
     }
 
-    public String replaceValues(String template, Message message, boolean includeMaps) {
+    public String replaceValues(String template, Message message) {
         if (hasReplaceableValues(template)) {
             VelocityContext context = getDefaultContext();
-            loadContextFromMessage(context, message, includeMaps);
+            loadContextFromMessage(context, message);
             return evaluate(context, template);
         } else {
             return template;
@@ -156,8 +151,8 @@ public class ValueReplacer {
     }
 
     /**
-     * Replaces variables in the template.
-     * Uses the default context, which includes the global variable map.
+     * Replaces variables in the template. Uses the default context, which includes the global
+     * variable map.
      * 
      * @return The replaced template
      */
@@ -171,10 +166,8 @@ public class ValueReplacer {
     }
 
     /**
-     * Decodes a MIME application/x-www-form-urlencoded string and then replaces
-     * any variables.
-     * Uses the default context along with the connector message and all
-     * available variable maps.
+     * Decodes a MIME application/x-www-form-urlencoded string and then replaces any variables. Uses
+     * the default context along with the connector message and all available variable maps.
      * 
      * @return The decoded and replaced string
      */
@@ -218,9 +211,8 @@ public class ValueReplacer {
     }
 
     /**
-     * Returns the default VelocityContext used to replace template values.
-     * Includes the global variable map, along with some utility
-     * classes/variables.
+     * Returns the default VelocityContext used to replace template values. Includes the global
+     * variable map, along with some utility classes/variables.
      * 
      * @return The default context
      */
@@ -253,8 +245,8 @@ public class ValueReplacer {
     }
 
     /**
-     * Loads the connector message, global channel map, channel map, connector
-     * map and response map into the passed context.
+     * Loads the connector message, global channel map, channel map, connector map and response map
+     * into the passed context.
      * 
      * @return void
      */
@@ -273,22 +265,19 @@ public class ValueReplacer {
     }
 
     /**
-     * Loads the message, global channel map, merged channel map, merged
-     * connector map and merged response map into the passed context.
+     * Loads the message, global channel map, merged channel map, merged connector map and merged
+     * response map into the passed context.
      * 
      * @return void
      */
-    protected void loadContextFromMessage(VelocityContext context, Message message, boolean includeMaps) {
+    protected void loadContextFromMessage(VelocityContext context, Message message) {
         context.put("message", new ValueReplacerMessage(new ImmutableMessage(message)));
 
-        if (includeMaps) {
-            ConnectorMessage mergedConnectorMessage = message.getMergedConnectorMessage();
+        ConnectorMessage mergedConnectorMessage = message.getMergedConnectorMessage();
 
-            // Load maps
-            loadContextFromMap(context, mergedConnectorMessage.getChannelMap());
-            loadContextFromMap(context, mergedConnectorMessage.getConnectorMap());
-            loadContextFromMap(context, mergedConnectorMessage.getResponseMap());
-        }
+        // Load maps
+        loadContextFromMap(context, mergedConnectorMessage.getChannelMap());
+        loadContextFromMap(context, mergedConnectorMessage.getResponseMap());
 
         // Use the current time as the original file name if there is no original file name.
         if (!context.containsKey("originalFilename")) {

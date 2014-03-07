@@ -21,8 +21,8 @@ import com.mirth.connect.util.ValueReplacer;
 
 public class TemplateValueReplacer extends ValueReplacer {
     /**
-     * Replaces variables in the template.
-     * Uses the default context along with the global channel variable map.
+     * Replaces variables in the template. Uses the default context along with the global channel
+     * variable map.
      * 
      * @return The replaced template
      */
@@ -35,7 +35,7 @@ public class TemplateValueReplacer extends ValueReplacer {
             return template;
         }
     }
-    
+
     /**
      * Replaces variables in a map
      */
@@ -50,9 +50,8 @@ public class TemplateValueReplacer extends ValueReplacer {
     }
 
     /**
-     * Replaces variables in the template.
-     * Uses the default context along with the global channel variable map and
-     * the passed in map.
+     * Replaces variables in the template. Uses the default context along with the global channel
+     * variable map and the passed in map.
      * 
      * @return The replaced template
      */
@@ -93,8 +92,8 @@ public class TemplateValueReplacer extends ValueReplacer {
      * @return void
      */
     @Override
-    protected void loadContextFromMessage(VelocityContext context, Message message, boolean includeMaps) {
+    protected void loadContextFromMessage(VelocityContext context, Message message) {
         loadContextFromMap(context, GlobalChannelVariableStoreFactory.getInstance().get(message.getChannelId()).getVariables());
-        super.loadContextFromMessage(context, message, includeMaps);
+        super.loadContextFromMessage(context, message);
     }
 }

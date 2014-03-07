@@ -101,10 +101,27 @@ public class MessageWriterVfs implements MessageWriter {
     @Override
     public boolean write(Message message) throws MessageWriterException {
         try {
-            String content = (contentType == null) ? toXml(message) : extractContent(message);
+            String file = uri + IOUtils.DIR_SEPARATOR;
+            String content = null;
+            boolean replaced = false;
+
+            if (contentType == null) {
+                // If we're serializing and encrypting the message, we have to do replacement first
+                if (encrypted) {
+                    file += replacer.replaceValues(filePattern, message);
+                    replaced = true;
+                }
+
+                content = toXml(message);
+            } else {
+                content = extractContent(message);
+            }
 
             if (StringUtils.isNotBlank(content)) {
-                String file = uri + IOUtils.DIR_SEPARATOR + replacer.replaceValues(filePattern, message, false);
+                // Do the replacement here if we haven't already
+                if (!replaced) {
+                    file += replacer.replaceValues(filePattern, message);
+                }
 
                 if (!file.equals(currentFile)) {
                     if (writer != null) {
