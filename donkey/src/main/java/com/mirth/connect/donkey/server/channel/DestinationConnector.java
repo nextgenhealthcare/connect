@@ -539,7 +539,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
                          * queues/threads may need to do this as well, we do not reset the queue's
                          * maps of checked in or deleted messages.
                          */
-                        queue.invalidate(true, false);
                         exceptionCaught = true;
                     } finally {
                         if (dao != null) {
@@ -547,10 +546,22 @@ public abstract class DestinationConnector extends Connector implements Runnable
                         }
 
                         /*
-                         * We always want to release the message if it's done (obviously), or if an
-                         * exception was caught while processing or committing anything.
+                         * We always want to release the message if it's done (obviously).
                          */
-                        if (connectorMessage.getStatus() != Status.QUEUED || exceptionCaught) {
+                        if (exceptionCaught) {
+                            /*
+                             * If an runtime exception was caught, we can't guarantee whether that
+                             * message was deleted or is still in the database. When it is released,
+                             * the message will be removed from the in-memory queue. However we need
+                             * to invalidate the queue before allowing any other threads to be able
+                             * to access it in case the message is still in the database.
+                             */
+                            canAcquire = true;
+                            synchronized (queue) {
+                                queue.release(connectorMessage, true);
+                                queue.invalidate(true, false);
+                            }
+                        } else if (connectorMessage.getStatus() != Status.QUEUED) {
                             canAcquire = true;
                             queue.release(connectorMessage, true);
                         } else if (queueProperties.isRotate()) {
