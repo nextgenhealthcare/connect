@@ -87,18 +87,16 @@ public class FileWriter extends ConnectorSettingsPanel {
     }
 
     /**
-     * Parses the scheme and URL to determine the values for the directory, host
-     * and path fields, optionally storing them to the fields, highlighting
-     * field errors, or just testing for valid values.
+     * Parses the scheme and URL to determine the values for the directory, host and path fields,
+     * optionally storing them to the fields, highlighting field errors, or just testing for valid
+     * values.
      * 
      * @param props
      *            The connector properties from which to take the values.
      * @param store
-     *            If true, the parsed values are stored to the corresponding
-     *            form controls.
+     *            If true, the parsed values are stored to the corresponding form controls.
      * @param highlight
-     *            If true, fields for which the parsed values are invalid
-     *            are highlighted.
+     *            If true, fields for which the parsed values are invalid are highlighted.
      */
     public boolean setDirHostPath(FileDispatcherProperties props, boolean store, boolean highlight) {
 
@@ -384,7 +382,7 @@ public class FileWriter extends ConnectorSettingsPanel {
 
         pathLabel.setText("/");
 
-        pathField.setToolTipText("The directory (folder) in which the files to be read can be found.");
+        pathField.setToolTipText("The directory (folder) to which the files will be written.");
 
         fileNameLabel.setText("File Name:");
 

@@ -272,7 +272,7 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="pathField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The directory (folder) in which the files to be read can be found."/>
+        <Property name="toolTipText" type="java.lang.String" value="The directory (folder) to which the files will be written."/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="fileNameLabel">
