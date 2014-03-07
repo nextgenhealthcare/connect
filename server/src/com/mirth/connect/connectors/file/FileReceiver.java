@@ -71,7 +71,6 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
     private String errorMoveToDirectory = null;
     private String errorMoveToFileName = null;
     private String filenamePattern = null;
-    private boolean routingError = false;
 
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
@@ -145,8 +144,6 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
 
     @Override
     public void onStart() throws StartException {
-        setRoutingError(false);
-
         try {
             FileSystemConnection con = fileConnector.getConnection(uri, null, connectorProperties);
             fileConnector.releaseConnection(uri, con, null, connectorProperties);
@@ -227,14 +224,13 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
     private void processFiles(FileInfo[] files) {
         // sort files by specified attribute before processing
         sortFiles(files);
-        routingError = false;
 
         for (int i = 0; i < files.length; i++) {
             if (isTerminated()) {
                 return;
             }
 
-            if (!routingError && !files[i].isDirectory()) {
+            if (!files[i].isDirectory()) {
                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.READING));
                 processFile(files[i]);
                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
@@ -304,6 +300,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 throw new FileConnectorException("File is not readable.");
             } else {
                 Exception fileProcessedException = null;
+                boolean error = false;
 
                 try {
                     Response response = null;
@@ -334,21 +331,19 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                     // True if the response status is ERROR and we're not processing a batch
                     errorResponse = response != null && response.getStatus() == Status.ERROR;
                 } catch (Exception e) {
-                    logger.error("Unable to route: " + ExceptionUtils.getStackTrace(e));
-
-                    // routingError is reset to false at the beginning of the poll method
-                    routingError = true;
+                    error = true;
+                    logger.error("Unable to dispatch message to channel " + getChannelId() + ": " + ExceptionUtils.getStackTrace(e));
                 } catch (Throwable t) {
-                    routingError = true;
+                    error = true;
                     String errorMessage = "Error reading file " + file.getAbsolutePath() + "\n" + t.getMessage();
                     logger.error(errorMessage);
-                    fileProcessedException = new FileConnectorException(errorMessage);
+                    fileProcessedException = new FileConnectorException(errorMessage, t);
                 }
 
                 boolean shouldUseErrorFields = false;
 
                 // If the message wasn't successfully processed through the channel, set the error file action
-                if (routingError) {
+                if (error) {
                     action = connectorProperties.getErrorReadingAction();
                     shouldUseErrorFields = true;
                 } else if (errorResponse && connectorProperties.getErrorResponseAction() != FileAction.AFTER_PROCESSING) {
@@ -563,14 +558,6 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         } finally {
             fileConnector.releaseConnection(uri, con, null, connectorProperties);
         }
-    }
-
-    public boolean isRoutingError() {
-        return routingError;
-    }
-
-    public void setRoutingError(boolean routingError) {
-        this.routingError = routingError;
     }
 
     @Override
