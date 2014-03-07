@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
-import org.apache.commons.validator.routines.EmailValidator;
 
 import com.mirth.connect.connectors.ConnectorService;
 import com.mirth.connect.server.util.TemplateValueReplacer;
@@ -46,13 +45,6 @@ public class SmtpSenderService implements ConnectorService {
             String password = replacer.replaceValues(props.getPassword(), channelId);
             String to = replacer.replaceValues(props.getTo(), channelId);
             String from = replacer.replaceValues(props.getFrom(), channelId);
-
-            if (!EmailValidator.getInstance().isValid(to)) {
-                return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Invalid \"To\" address: \"" + to + "\"");
-            }
-            if (!EmailValidator.getInstance().isValid(from)) {
-                return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Invalid \"From\" address: \"" + from + "\"");
-            }
 
             Email email = new SimpleEmail();
             email.setDebug(true);
@@ -97,5 +89,4 @@ public class SmtpSenderService implements ConnectorService {
 
         return null;
     }
-
 }
