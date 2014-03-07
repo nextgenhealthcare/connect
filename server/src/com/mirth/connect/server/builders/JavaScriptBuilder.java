@@ -402,6 +402,7 @@ public class JavaScriptBuilder {
                 if (template.getType() == CodeSnippetType.FUNCTION) {
                     if (context.getContext() >= template.getScope()) {
                         builder.append(template.getCode());
+                        builder.append('\n');
                     }
                 }
             }
