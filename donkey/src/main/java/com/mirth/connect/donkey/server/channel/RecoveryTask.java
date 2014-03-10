@@ -27,7 +27,7 @@ import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
-public class RecoveryTask implements Callable<List<Message>> {
+public class RecoveryTask implements Callable<Void> {
     private Channel channel;
     private Logger logger = Logger.getLogger(getClass());
 
@@ -36,7 +36,7 @@ public class RecoveryTask implements Callable<List<Message>> {
     }
 
     @Override
-    public List<Message> call() throws Exception {
+    public Void call() throws Exception {
         ThreadUtils.checkInterruptedStatus();
         DonkeyDao dao = channel.getDaoFactory().getDao();
         StorageSettings storageSettings = channel.getStorageSettings();
@@ -66,16 +66,16 @@ public class RecoveryTask implements Callable<List<Message>> {
                                 for (ConnectorMessage connectorMessage : existingConnectorMessages) {
                                     existingMetaDataIds.add(connectorMessage.getMetaDataId());
                                 }
-    
+
                                 // get the list of destination meta data ids to send to
                                 List<Integer> channelMapMetaDataIds = null;
-    
+
                                 if (recoveredConnectorMessage.getChannelMap().containsKey(Constants.DESTINATION_META_DATA_IDS_KEY)) {
                                     channelMapMetaDataIds = (List<Integer>) recoveredConnectorMessage.getChannelMap().get(Constants.DESTINATION_META_DATA_IDS_KEY);
                                 }
-    
+
                                 List<Integer> enabledMetaDataIds = new ArrayList<Integer>();
-    
+
                                 // The order of the enabledMetaDataId list needs to be based on the chain order.
                                 // We do not use ListUtils here because there is no official guarantee of order.
                                 for (Integer id : chainMetaDataIds) {
@@ -87,11 +87,11 @@ public class RecoveryTask implements Callable<List<Message>> {
                                         }
                                     }
                                 }
-    
+
                                 if (!enabledMetaDataIds.contains(metaDataId)) {
                                     enabledMetaDataIds.add(metaDataId);
                                 }
-    
+
                                 chain.setEnabledMetaDataIds(enabledMetaDataIds);
                                 chain.setMessage(recoveredConnectorMessage);
                                 chain.call();
@@ -105,14 +105,9 @@ public class RecoveryTask implements Callable<List<Message>> {
                 }
             }
 
-            // step 2: recover messages for each source (RECEIVED)
-            if (channel.getSourceConnector().isRespondAfterProcessing() && storageSettings.isMessageRecoveryEnabled()) {
-                channel.processSourceQueue(0);
-            }
-
             ThreadUtils.checkInterruptedStatus();
 
-            // step 3: recover any messages that are not marked as processed and all connector messages are either FILTERED, TRANSFORMED, SENT, QUEUED, or ERROR.
+            // step 2: recover any messages that are not marked as processed and all connector messages are either FILTERED, TRANSFORMED, SENT, QUEUED, or ERROR.
             List<Message> unfinishedMessages = dao.getUnfinishedMessages(channel.getChannelId(), channel.getServerId());
             dao.close();
 
@@ -120,47 +115,47 @@ public class RecoveryTask implements Callable<List<Message>> {
                 try {
                     ConnectorMessage sourceMessage = message.getConnectorMessages().get(0);
                     boolean finished = true;
-    
+
                     // merge responses from all of the destinations into the source connector's response map
                     for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
                         Status status = connectorMessage.getStatus();
-    
+
                         if (status == Status.RECEIVED || status == Status.PENDING) {
                             finished = false;
                             break;
                         }
-    
+
                         if (connectorMessage.getMetaDataId() != 0) {
                             sourceMessage.getResponseMap().putAll(connectorMessage.getResponseMap());
                         }
                     }
-    
+
                     if (finished) {
                         ThreadUtils.checkInterruptedStatus();
                         ResponseSelector responseSelector = channel.getResponseSelector();
                         channel.finishMessage(message, !responseSelector.canRespond());
-    
+
                         if (responseSelector.canRespond()) {
                             boolean removeContent = false;
                             boolean removeAttachments = false;
                             boolean messageCompleted = MessageController.getInstance().isMessageCompleted(message);
-    
+
                             if (messageCompleted) {
                                 removeContent = (storageSettings.isRemoveContentOnCompletion());
                                 removeAttachments = (storageSettings.isRemoveAttachmentsOnCompletion());
                             }
-    
+
                             Response response = null;
-    
+
                             /*
-                             * only put a response in the dispatchResult if a
-                             * response was not already stored in the source message
-                             * (which happens when the source queue is enabled)
+                             * only put a response in the dispatchResult if a response was not
+                             * already stored in the source message (which happens when the source
+                             * queue is enabled)
                              */
                             if (sourceMessage.getResponse() == null) {
                                 response = responseSelector.getResponse(sourceMessage, message);
                             }
-    
+
                             DispatchResult dispatchResult = new DispatchResult(message.getMessageId(), message, response, true, removeContent, removeAttachments, false);
                             channel.getSourceConnector().handleRecoveredResponse(dispatchResult);
                         }
@@ -170,7 +165,12 @@ public class RecoveryTask implements Callable<List<Message>> {
                 }
             }
 
-            return unfinishedMessages;
+            // step 3: If source queuing is disabled, recover messages for each source (RECEIVED) and flush out the source queue.
+            if (channel.getSourceConnector().isRespondAfterProcessing() && storageSettings.isMessageRecoveryEnabled()) {
+                channel.processSourceQueue(0);
+            }
+
+            return null;
         } finally {
             if (!dao.isClosed()) {
                 dao.close();

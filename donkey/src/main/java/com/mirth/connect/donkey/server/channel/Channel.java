@@ -1500,8 +1500,8 @@ public class Channel implements Startable, Stoppable, Runnable {
     /**
      * Process all unfinished messages found in storage
      */
-    protected List<Message> processUnfinishedMessages() throws Exception {
-        return channelExecutor.submit(new RecoveryTask(this)).get();
+    protected void processUnfinishedMessages() throws Exception {
+        channelExecutor.submit(new RecoveryTask(this)).get();
     }
 
     @Override

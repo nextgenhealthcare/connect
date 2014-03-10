@@ -48,7 +48,13 @@ public class TestChannel extends Channel {
     public boolean isQueueThreadRunning() {
         return queueThreadRunning;
     }
-    
+
+    /**
+     * Deprecating this method as part of MIRTH-3181 since the tests are the only thing that was
+     * using the returned value from RecoveryTask. RecoveryTask no longer returns anything
+     * 
+     * @deprecated
+     */
     public List<Message> getUnfinishedMessages() {
         return unfinishedMessages;
     }
@@ -78,12 +84,11 @@ public class TestChannel extends Channel {
     }
 
     @Override
-    public List<Message> processUnfinishedMessages() throws Exception {
+    public void processUnfinishedMessages() throws Exception {
         // We only run it once and store it because the tests usually call channel.start() before calling this method directly. 
         // Channel.start() also calls this method so there is nothing left to process by the time we actual want the return value.
-        unfinishedMessages = super.processUnfinishedMessages();
-        
-        return unfinishedMessages;
+
+        super.processUnfinishedMessages();
     }
 
     @Override
