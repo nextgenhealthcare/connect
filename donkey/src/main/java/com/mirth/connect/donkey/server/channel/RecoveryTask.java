@@ -112,7 +112,7 @@ public class RecoveryTask implements Callable<List<Message>> {
 
             ThreadUtils.checkInterruptedStatus();
 
-            // step 3: recover any messages that are not marked as finished
+            // step 3: recover any messages that are not marked as processed and all connector messages are either FILTERED, TRANSFORMED, SENT, QUEUED, or ERROR.
             List<Message> unfinishedMessages = dao.getUnfinishedMessages(channel.getChannelId(), channel.getServerId());
             dao.close();
 
