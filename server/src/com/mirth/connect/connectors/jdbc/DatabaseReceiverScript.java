@@ -180,7 +180,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
                 }
 
                 if (resultMap != null) {
-                    scope.put("resultMap", scope, resultMap);
+                    scope.put("resultMap", scope, Context.javaToJS(resultMap, scope));
                 }
 
                 return JavaScriptUtil.executeScript(this, updateScriptId, scope, connector.getChannelId(), "Source");

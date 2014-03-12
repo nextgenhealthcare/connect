@@ -100,80 +100,82 @@ public class JavaScriptScopeUtil {
     /*
      * Private Scope Builders
      */
+    
+    private static void add(String name, Scriptable scope, Object object) {
+        scope.put(name, scope, Context.javaToJS(object, scope));
+    }
 
     // Raw Message String Builder
     private static void addRawMessage(Scriptable scope, String message) {
-        scope.put("message", scope, message);
+        add("message", scope, message);
     }
 
     // Message Builder
     private static void addMessage(Scriptable scope, Message message) {
         ImmutableMessage immutableMessage = new ImmutableMessage(message);
-        scope.put("message", scope, immutableMessage);
+        add("message", scope, immutableMessage);
 
         // TODO: Deprecated, Remove in 3.1
-        scope.put("messageObject", scope, new MessageObject(immutableMessage.getConnectorMessages().get(0)));
+        add("messageObject", scope, new MessageObject(immutableMessage.getConnectorMessages().get(0)));
 
         ConnectorMessage mergedConnectorMessage = message.getMergedConnectorMessage();
         ImmutableConnectorMessage immutableConnectorMessage = new ImmutableConnectorMessage(mergedConnectorMessage);
 
-        scope.put("channelMap", scope, immutableConnectorMessage.getChannelMap());
-        scope.put("responseMap", scope, new ResponseMap(mergedConnectorMessage.getResponseMap(), immutableMessage.getDestinationNameMap()));
+        add("channelMap", scope, immutableConnectorMessage.getChannelMap());
+        add("responseMap", scope, new ResponseMap(mergedConnectorMessage.getResponseMap(), immutableMessage.getDestinationNameMap()));
     }
 
     // ConnectorMessage Builder
     private static void addConnectorMessage(Scriptable scope, ImmutableConnectorMessage message) {
         // TODO: Deprecated, Remove in 3.1
-        scope.put("messageObject", scope, new MessageObject(message));
+        add("messageObject", scope, new MessageObject(message));
 
-        scope.put("connectorMessage", scope, message);
-        scope.put("connectorMap", scope, message.getConnectorMap());
-        scope.put("channelMap", scope, message.getChannelMap());
-        scope.put("responseMap", scope, new ResponseMap(message.getResponseMap(), message.getDestinationNameMap()));
-        scope.put("connector", scope, message.getConnectorName());
-        scope.put("alerts", scope, new AlertSender(message));
+        add("connectorMessage", scope, message);
+        add("connectorMap", scope, message.getConnectorMap());
+        add("channelMap", scope, message.getChannelMap());
+        add("responseMap", scope, new ResponseMap(message.getResponseMap(), message.getDestinationNameMap()));
+        add("connector", scope, message.getConnectorName());
+        add("alerts", scope, new AlertSender(message));
     }
 
     private static void addResponse(Scriptable scope, Response response) {
-        scope.put("response", scope, new ImmutableResponse(response));
-        // Convert java to JS so we can use the == comparator in javascript
-        scope.put("responseStatus", scope, Context.javaToJS(response.getStatus(), scope));
-        scope.put("responseErrorMessage", scope, response.getError());
-        scope.put("responseStatusMessage", scope, response.getStatusMessage());
+        add("response", scope, new ImmutableResponse(response));
+        add("responseStatus", scope, response.getStatus());
+        add("responseErrorMessage", scope, response.getError());
+        add("responseStatusMessage", scope, response.getStatusMessage());
     }
 
     // Router Builder
     private static void addRouter(Scriptable scope) {
-        scope.put("router", scope, new VMRouter());
+        add("router", scope, new VMRouter());
     }
 
     // Replacer
     private static void addReplacer(Scriptable scope) {
-        scope.put("replacer", scope, new TemplateValueReplacer());
+        add("replacer", scope, new TemplateValueReplacer());
     }
 
     // Global Map Builder
     private static void addGlobalMap(Scriptable scope) {
-        scope.put("globalMap", scope, GlobalVariableStore.getInstance());
+        add("globalMap", scope, GlobalVariableStore.getInstance());
     }
 
     // Channel Builder
     private static void addChannel(Scriptable scope, String channelId) {
-        scope.put("alerts", scope, new AlertSender(channelId));
-        scope.put("channelId", scope, channelId);
-        scope.put("globalChannelMap", scope, GlobalChannelVariableStoreFactory.getInstance().get(channelId));
+        add("alerts", scope, new AlertSender(channelId));
+        add("channelId", scope, channelId);
+        add("globalChannelMap", scope, GlobalChannelVariableStoreFactory.getInstance().get(channelId));
     }
 
     // Logger builder
     private static void addLogger(Scriptable scope, Object logger) {
-        scope.put("logger", scope, logger);
+        add("logger", scope, logger);
     }
 
     // Status enum builder
     private static void addStatusValues(Scriptable scope) {
         for (Status status : Status.values()) {
-            // Convert java to JS so we can use the == comparator in javascript
-            scope.put(status.toString(), scope, Context.javaToJS(status, scope));
+            add(status.toString(), scope, status);
         }
     }
 
@@ -216,7 +218,7 @@ public class JavaScriptScopeUtil {
     public static Scriptable getAttachmentScope(Object logger, String channelId, String message, List<Attachment> attachments) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addRawMessage(scope, message);
-        scope.put("mirth_attachments", scope, attachments);
+        add("mirth_attachments", scope, attachments);
         return scope;
     }
 
@@ -230,7 +232,7 @@ public class JavaScriptScopeUtil {
         addConnectorMessage(scope, connectorMessage);
 
         // TODO: Deprecated, Remove in 3.1
-        scope.put("muleContext", scope, new MuleContext(connectorMessage));
+        add("muleContext", scope, new MuleContext(connectorMessage));
 
         return scope;
     }
@@ -254,7 +256,7 @@ public class JavaScriptScopeUtil {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addMessage(scope, message);
         addStatusValues(scope);
-        scope.put("response", scope, response);
+        add("response", scope, response);
         return scope;
     }
 
@@ -265,8 +267,8 @@ public class JavaScriptScopeUtil {
     public static Scriptable getFilterTransformerScope(Object logger, ImmutableConnectorMessage message, String template, Object phase) {
         Scriptable scope = getBasicScope(getContext(), logger, message);
         addConnectorMessage(scope, message);
-        scope.put("template", scope, template);
-        scope.put("phase", scope, phase);
+        add("template", scope, template);
+        add("phase", scope, phase);
         return scope;
     }
 
@@ -279,7 +281,7 @@ public class JavaScriptScopeUtil {
         addConnectorMessage(scope, message);
         addResponse(scope, response);
         addStatusValues(scope);
-        scope.put("template", scope, template);
+        add("template", scope, template);
         return scope;
     }
 
@@ -352,7 +354,7 @@ public class JavaScriptScopeUtil {
         Scriptable scope = getBasicScope(getContext(), logger);
 
         for (Entry<String, Object> entry : scopeObjects.entrySet()) {
-            scope.put(entry.getKey(), scope, entry.getValue());
+            add(entry.getKey(), scope, entry.getValue());
         }
 
         if (channelId != null)
