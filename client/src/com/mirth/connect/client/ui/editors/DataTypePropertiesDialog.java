@@ -14,15 +14,16 @@ import java.awt.event.ActionListener;
 
 import com.mirth.connect.client.ui.DataTypePropertiesContainer;
 import com.mirth.connect.client.ui.LoadedExtensions;
+import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TransformerType;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
-public class DataTypePropertiesDialog extends javax.swing.JDialog {
-	
-	private boolean revert = true;
-	private DataTypeProperties dataTypeProperties;
-	private TransformerType transformerType;
+public class DataTypePropertiesDialog extends MirthDialog {
+
+    private boolean revert = true;
+    private DataTypeProperties dataTypeProperties;
+    private TransformerType transformerType;
 
     /**
      * Creates new form DataTypePropertiesDialog
@@ -30,44 +31,44 @@ public class DataTypePropertiesDialog extends javax.swing.JDialog {
     public DataTypePropertiesDialog(boolean inbound, final String displayName, DataTypeProperties dataTypeProperties, TransformerType transformerType) {
         super(PlatformUI.MIRTH_FRAME, true);
         initComponents();
-        
-		setTitle((inbound ? "Inbound" : "Outbound") + " Properties");
 
-		this.dataTypeProperties = dataTypeProperties;
-		this.setTransformerType(transformerType);
-		
+        setTitle((inbound ? "Inbound" : "Outbound") + " Properties");
+
+        this.dataTypeProperties = dataTypeProperties;
+        this.setTransformerType(transformerType);
+
         dataTypePropertiesPanel.setInbound(inbound);
         dataTypePropertiesPanel.setUseTitleBorder(false);
         dataTypePropertiesPanel.getDataTypeComboBox().setVisible(false);
         dataTypePropertiesPanel.setDataTypeProperties(displayName, new DataTypePropertiesContainer(dataTypeProperties, transformerType));
         dataTypePropertiesPanel.getDefaultButton().addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(displayName);
-				
-				DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
-				
-				setDataTypeProperties(defaultProperties);
-				dataTypePropertiesPanel.setDataTypeProperties(displayName, new DataTypePropertiesContainer(defaultProperties, getTransformerType()));
-			}
-    	});
-        
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(displayName);
+
+                DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
+
+                setDataTypeProperties(defaultProperties);
+                dataTypePropertiesPanel.setDataTypeProperties(displayName, new DataTypePropertiesContainer(defaultProperties, getTransformerType()));
+            }
+        });
+
         this.setLocationRelativeTo(PlatformUI.MIRTH_FRAME);
-        
+
         setVisible(true);
     }
-    
+
     public boolean isRevert() {
-    	return revert;
+        return revert;
     }
-    
+
     public void setDataTypeProperties(DataTypeProperties dataTypeProperties) {
-    	this.dataTypeProperties = dataTypeProperties;
+        this.dataTypeProperties = dataTypeProperties;
     }
-    
+
     public DataTypeProperties getDataTypeProperties() {
-    	return dataTypeProperties;
+        return dataTypeProperties;
     }
 
     public TransformerType getTransformerType() {

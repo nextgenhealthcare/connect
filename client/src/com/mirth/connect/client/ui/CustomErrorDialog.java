@@ -16,7 +16,7 @@ import javax.swing.Icon;
 import javax.swing.UIManager;
 
 /** Creates the error dialog. */
-public class CustomErrorDialog extends javax.swing.JDialog {
+public class CustomErrorDialog extends MirthDialog {
 
     private Frame parent;
     public static final String ERROR_SAVING_CHANNEL = "There was an error in the validation of your channel.  It has been DISABLED and saved.  Before you can deploy you must fix the following error(s):";

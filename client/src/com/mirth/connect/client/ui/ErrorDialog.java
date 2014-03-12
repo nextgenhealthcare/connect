@@ -17,7 +17,7 @@ import javax.swing.Icon;
 import javax.swing.UIManager;
 
 /** Creates the error dialog. */
-public class ErrorDialog extends javax.swing.JDialog {
+public class ErrorDialog extends MirthDialog {
 
     private Frame parent;
 

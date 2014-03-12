@@ -25,7 +25,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 
-public class CustomAttachmentDialog extends javax.swing.JDialog {
+public class CustomAttachmentDialog extends MirthDialog {
 
     private Frame parent;
     private boolean initialFocus = true;
@@ -75,18 +75,19 @@ public class CustomAttachmentDialog extends javax.swing.JDialog {
 
     private void initPropertiesTable() {
         propertiesTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-        DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] { PROPERTY_NAME_COLUMN_NAME, PROPERTY_VALUE_COLUMN_NAME }) {
+        DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] {
+                PROPERTY_NAME_COLUMN_NAME, PROPERTY_VALUE_COLUMN_NAME }) {
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return true;
             }
-            
+
             @Override
             public void setValueAt(Object value, int row, int column) {
-            	if (!value.equals(getValueAt(row, column))) {
-            		parent.setSaveEnabled(true);
-            	}
-            	
-            	super.setValueAt(value, row, column);
+                if (!value.equals(getValueAt(row, column))) {
+                    parent.setSaveEnabled(true);
+                }
+
+                super.setValueAt(value, row, column);
             }
         };
 
@@ -112,7 +113,7 @@ public class CustomAttachmentDialog extends javax.swing.JDialog {
         model.setNumRows(0);
 
         for (Entry<String, String> entry : properties.entrySet()) {
-            model.addRow(new Object[]{entry.getKey(), entry.getValue()});
+            model.addRow(new Object[] { entry.getKey(), entry.getValue() });
         }
     }
 
@@ -270,13 +271,13 @@ public class CustomAttachmentDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
-    	attachmentHandlerProperties.setClassName(classNameField.getText());
-    	attachmentHandlerProperties.getProperties().clear();
+        attachmentHandlerProperties.setClassName(classNameField.getText());
+        attachmentHandlerProperties.getProperties().clear();
 
         DefaultTableModel model = (DefaultTableModel) propertiesTable.getModel();
 
         for (int i = 0; i < model.getRowCount(); i++) {
-        	attachmentHandlerProperties.getProperties().put((String) model.getValueAt(i, 0), (String) model.getValueAt(i, 1));
+            attachmentHandlerProperties.getProperties().put((String) model.getValueAt(i, 0), (String) model.getValueAt(i, 1));
         }
 
         attachmentHandlerProperties = null;

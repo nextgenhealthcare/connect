@@ -54,7 +54,7 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
-public class DataTypesDialog extends javax.swing.JDialog {
+public class DataTypesDialog extends MirthDialog {
 	
 	public static int CONNECTOR_COLUMN = 1;
 	public static int INBOUND_COLUMN = 2;

@@ -212,6 +212,7 @@ public class Frame extends JXFrame {
     private Map<String, Integer> safeErrorFailCountMap = new HashMap<String, Integer>();
     private Map<Component, String> componentTaskMap = new HashMap<Component, String>();
     private boolean acceleratorKeyPressed = false;
+    private boolean canSave = true;
     private Set<String> allChannelTags;
     private Component initialDashboardTabComponent;
     private RemoveMessagesDialog removeMessagesDialog;
@@ -4705,21 +4706,27 @@ public class Frame extends JXFrame {
         return true;
     }
 
+    public void setCanSave(boolean canSave) {
+        this.canSave = canSave;
+    }
+
     public void doContextSensitiveSave() {
-        if (currentContentPage == channelEditPanel) {
-            doSaveChannel();
-        } else if (currentContentPage == channelEditPanel.filterPane) {
-            doSaveChannel();
-        } else if (currentContentPage == channelEditPanel.transformerPane) {
-            doSaveChannel();
-        } else if (currentContentPage == globalScriptsPanel) {
-            doSaveGlobalScripts();
-        } else if (currentContentPage == codeTemplatePanel) {
-            doSaveCodeTemplates();
-        } else if (currentContentPage == settingsPane) {
-            settingsPane.getCurrentSettingsPanel().doSave();
-        } else if (currentContentPage == alertEditPanel) {
-            doSaveAlerts();
+        if (canSave) {
+            if (currentContentPage == channelEditPanel) {
+                doSaveChannel();
+            } else if (currentContentPage == channelEditPanel.filterPane) {
+                doSaveChannel();
+            } else if (currentContentPage == channelEditPanel.transformerPane) {
+                doSaveChannel();
+            } else if (currentContentPage == globalScriptsPanel) {
+                doSaveGlobalScripts();
+            } else if (currentContentPage == codeTemplatePanel) {
+                doSaveCodeTemplates();
+            } else if (currentContentPage == settingsPane) {
+                settingsPane.getCurrentSettingsPanel().doSave();
+            } else if (currentContentPage == alertEditPanel) {
+                doSaveAlerts();
+            }
         }
     }
 

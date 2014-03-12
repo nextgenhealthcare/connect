@@ -24,7 +24,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 
-public class RegexAttachmentDialog extends javax.swing.JDialog {
+public class RegexAttachmentDialog extends MirthDialog {
 
     private Frame parent;
     private boolean initialFocus = true;
@@ -57,9 +57,11 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
 
         int count = 0;
         while (attachmentHandlerProperties.getProperties().containsKey("regex.replaceKey" + count)) {
-        	DefaultTableModel tableModel = (DefaultTableModel) replacementTable.getModel();
-        	tableModel.addRow(new Object[]{attachmentHandlerProperties.getProperties().get("regex.replaceKey" + count), attachmentHandlerProperties.getProperties().get("regex.replaceValue" + count)});
-        	count++;
+            DefaultTableModel tableModel = (DefaultTableModel) replacementTable.getModel();
+            tableModel.addRow(new Object[] {
+                    attachmentHandlerProperties.getProperties().get("regex.replaceKey" + count),
+                    attachmentHandlerProperties.getProperties().get("regex.replaceValue" + count) });
+            count++;
         }
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -76,21 +78,22 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
 
         setVisible(true);
     }
-    
+
     private void initReplacementTable() {
         replacementTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-        DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] { "Replace All", "Replace With" }) {
+        DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] {
+                "Replace All", "Replace With" }) {
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return true;
             }
-            
+
             @Override
             public void setValueAt(Object value, int row, int column) {
-            	if (!value.equals(getValueAt(row, column))) {
-            		parent.setSaveEnabled(true);
-            	}
-            	
-            	super.setValueAt(value, row, column);
+                if (!value.equals(getValueAt(row, column))) {
+                    parent.setSaveEnabled(true);
+                }
+
+                super.setValueAt(value, row, column);
             }
         };
 
@@ -105,7 +108,7 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
         });
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-        	replacementTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
+            replacementTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
         }
 
         deleteButton.setEnabled(false);
@@ -304,35 +307,35 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
-    	attachmentHandlerProperties.getProperties().put("regex.pattern", RegexTextField.getText());
+        attachmentHandlerProperties.getProperties().put("regex.pattern", RegexTextField.getText());
         attachmentHandlerProperties.getProperties().put("regex.mimetype", MimeTypeField.getText());
-        
+
         DefaultTableModel tableModel = (DefaultTableModel) replacementTable.getModel();
         for (int row = 0; row < tableModel.getRowCount(); row++) {
-        	String replaceKey = (String) tableModel.getValueAt(row, 0);
-        	String replaceValue = (String) tableModel.getValueAt(row, 1);
-        	
-        	attachmentHandlerProperties.getProperties().put("regex.replaceKey" + row, replaceKey);
-        	attachmentHandlerProperties.getProperties().put("regex.replaceValue" + row, replaceValue);
+            String replaceKey = (String) tableModel.getValueAt(row, 0);
+            String replaceValue = (String) tableModel.getValueAt(row, 1);
+
+            attachmentHandlerProperties.getProperties().put("regex.replaceKey" + row, replaceKey);
+            attachmentHandlerProperties.getProperties().put("regex.replaceValue" + row, replaceValue);
         }
-        
+
         attachmentHandlerProperties = null;
         this.dispose();
     }//GEN-LAST:event_closeButtonActionPerformed
 
     private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
-    	DefaultTableModel model = ((DefaultTableModel) replacementTable.getModel());
+        DefaultTableModel model = ((DefaultTableModel) replacementTable.getModel());
         int row = model.getRowCount();
 
-        model.addRow(new Object[]{"", ""});
+        model.addRow(new Object[] { "", "" });
 
         replacementTable.setRowSelectionInterval(row, row);
-        
+
         parent.setSaveEnabled(true);
     }//GEN-LAST:event_newButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-    	int selectedRow = replacementTable.getSelectedRow();
+        int selectedRow = replacementTable.getSelectedRow();
 
         if (selectedRow != -1 && !replacementTable.isEditing()) {
             ((DefaultTableModel) replacementTable.getModel()).removeRow(selectedRow);
@@ -347,7 +350,7 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
 
             replacementTable.setRowSelectionInterval(selectedRow, selectedRow);
         }
-        
+
         parent.setSaveEnabled(true);
     }//GEN-LAST:event_deleteButtonActionPerformed
 

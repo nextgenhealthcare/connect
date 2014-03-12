@@ -34,13 +34,14 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 
-public class DatabaseMetadataDialog extends javax.swing.JDialog {
+public class DatabaseMetadataDialog extends MirthDialog {
     /**
      * The maximum string length of column aliases in generated SELECT queries. Some databases
      * impose a limit as low as 30.
@@ -98,8 +99,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
     }
 
     /**
-     * Makes the alert table with a parameter that is true if a new alert should
-     * be added as well.
+     * Makes the alert table with a parameter that is true if a new alert should be added as well.
      */
     public void makeIncludedMetaDataTable(Set<Table> metaData) {
         updateIncludedMetaDataTable(metaData);
@@ -229,7 +229,8 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
     /**
      * Generates a SELECT query from a map of table names with column names.
      * 
-     * @param metaData A map of String table names to List<String> column names
+     * @param metaData
+     *            A map of String table names to List<String> column names
      * @return The generated SELECT query
      */
     @SuppressWarnings("unchecked")

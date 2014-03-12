@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 import org.syntax.jedit.JEditTextArea;
 
-public class FindRplDialog extends javax.swing.JDialog {
+public class FindRplDialog extends MirthDialog {
 
     static MyOwnFocusTraversalPolicy tabPolicy;
     private Frame parent;
@@ -83,11 +83,9 @@ public class FindRplDialog extends javax.swing.JDialog {
                 }
             }
 
-            public void keyReleased(KeyEvent e) {
-            }
+            public void keyReleased(KeyEvent e) {}
 
-            public void keyTyped(KeyEvent e) {
-            }
+            public void keyTyped(KeyEvent e) {}
         });
     }
 
@@ -333,8 +331,7 @@ public class FindRplDialog extends javax.swing.JDialog {
     // End of variables declaration//GEN-END:variables
     JEditTextArea search_text;
 
-    public static class MyOwnFocusTraversalPolicy
-            extends FocusTraversalPolicy {
+    public static class MyOwnFocusTraversalPolicy extends FocusTraversalPolicy {
 
         Vector<Component> order;
 

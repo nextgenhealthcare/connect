@@ -27,10 +27,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.components.MirthTable;
 
-public class ChannelTagDialog extends javax.swing.JDialog {
+public class ChannelTagDialog extends MirthDialog {
     private Frame parent;
     private MirthTable tagTable;
-    
+
     public ChannelTagDialog(MirthTable tagTable) {
         super(PlatformUI.MIRTH_FRAME, true);
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -39,10 +39,10 @@ public class ChannelTagDialog extends javax.swing.JDialog {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setVisible(true);
     }
-    
+
     protected JRootPane createRootPane() {
         JRootPane rootPane = new JRootPane();
-        
+
         KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
         rootPane.registerKeyboardAction(new ActionListener() {
             @Override
@@ -50,7 +50,7 @@ public class ChannelTagDialog extends javax.swing.JDialog {
                 cancelButtonActionPerformed(null);
             }
         }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
-        
+
         stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
         rootPane.registerKeyboardAction(new ActionListener() {
             @Override
@@ -58,10 +58,10 @@ public class ChannelTagDialog extends javax.swing.JDialog {
                 addButtonActionPerformed(null);
             }
         }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
-        
+
         return rootPane;
     }
-    
+
     @Override
     public void setVisible(boolean visible) {
         if (visible) {
@@ -74,27 +74,27 @@ public class ChannelTagDialog extends javax.swing.JDialog {
             } else {
                 setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
             }
-            
+
             Set<String> availableTags = new LinkedHashSet<String>(parent.getAllChannelTags());
             DefaultTableModel model = (DefaultTableModel) tagTable.getModel();
             int rowCount = model.getRowCount();
-            
+
             for (int i = 0; i < rowCount; i++) {
                 availableTags.remove(model.getValueAt(i, 0));
             }
-            
+
             tagComboBox.setModel(new DefaultComboBoxModel(availableTags.toArray()));
-            
+
             if (availableTags.size() > 0) {
                 tagComboBox.setSelectedIndex(0);
             }
-            
+
             tagComboBox.requestFocusInWindow();
         }
-        
+
         super.setVisible(visible);
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -190,21 +190,21 @@ public class ChannelTagDialog extends javax.swing.JDialog {
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
         String tag = StringUtils.trim((String) tagComboBox.getSelectedItem());
-        
+
         if (tag == null || tag.isEmpty()) {
             parent.alertError(parent, "Please enter a tag");
         } else {
             DefaultTableModel model = (DefaultTableModel) tagTable.getModel();
             int rowCount = model.getRowCount();
-            
+
             for (int i = 0; i < rowCount; i++) {
                 if (model.getValueAt(i, 0).equals(tag)) {
                     parent.alertError(parent, "\"" + tag + "\" is already assigned to this channel");
                     return;
                 }
             }
-            
-            model.addRow(new Object[]{tag});
+
+            model.addRow(new Object[] { tag });
             tagTable.setRowSelectionInterval(rowCount, rowCount);
             dispose();
         }
@@ -215,7 +215,7 @@ public class ChannelTagDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void tagComboBoxKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tagComboBoxKeyReleased
-        
+
     }//GEN-LAST:event_tagComboBoxKeyReleased
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

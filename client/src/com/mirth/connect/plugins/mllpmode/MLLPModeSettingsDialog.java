@@ -14,7 +14,6 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -22,13 +21,14 @@ import javax.swing.text.BadLocationException;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.util.TcpUtil;
 
-public class MLLPModeSettingsDialog extends JDialog implements DocumentListener {
+public class MLLPModeSettingsDialog extends MirthDialog implements DocumentListener {
 
     private boolean saved;
     private String startOfMessageAbbreviation;

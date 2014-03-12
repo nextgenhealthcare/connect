@@ -24,7 +24,7 @@ import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.model.CodeTemplate.ContextType;
 
-public class JavaScriptAttachmentDialog extends javax.swing.JDialog {
+public class JavaScriptAttachmentDialog extends MirthDialog {
 
     private Frame parent;
     private AttachmentHandlerProperties attachmentHandlerProperties;
