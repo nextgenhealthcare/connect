@@ -94,24 +94,24 @@ public class TestUtils {
     final public static String DEFAULT_RESPOND_FROM_NAME = ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED;
     final public static String DEFAULT_DESTINATION_NAME = "testdestination";
     final public static String DEFAULT_OUTBOUND_TEMPLATE = null;
-    
+
     private static Logger logger = Logger.getLogger(TestUtils.class);
 
     public static DonkeyDaoFactory getDaoFactory() {
         return new BufferedDaoFactory(Donkey.getInstance().getDaoFactory());
     }
-    
+
     public static void initChannel(String channelId) throws SQLException {
         ChannelController channelController = ChannelController.getInstance();
-        
+
         if (channelController.channelExists(channelId)) {
             channelController.deleteAllMessages(channelId);
             TestUtils.deleteChannelStatistics(channelId);
         }
-        
+
         ChannelController.getInstance().initChannelStorage(channelId);
     }
-    
+
     public static TestChannel createDefaultChannel(String channelId, String serverId) throws SQLException {
         initChannel(channelId);
 
@@ -156,7 +156,7 @@ public class TestUtils {
 
     private static TestChannel createDefaultChannel(String channelId, String serverId, Boolean respondAfterProcessing, int numChains, int numDestinationsPerChain, StorageSettings storageSettings) throws SQLException {
         initChannel(channelId);
-        
+
         TestChannel channel = new TestChannel();
 
         channel.setChannelId(channelId);
@@ -249,13 +249,13 @@ public class TestUtils {
         filterTransformerExecutor.setFilterTransformer(new TestFilterTransformer());
         return filterTransformerExecutor;
     }
-    
+
     public static ResponseTransformerExecutor createDefaultResponseTransformerExecutor() {
-    	ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new TestDataType(), new TestDataType());
-    	responseTransformerExecutor.setResponseTransformer(new TestResponseTransformer());
+        ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new TestDataType(), new TestDataType());
+        responseTransformerExecutor.setResponseTransformer(new TestResponseTransformer());
         return responseTransformerExecutor;
     }
-    
+
     private static String getCallingMethod() {
         StackTraceElement[] trace = Thread.currentThread().getStackTrace();
         StackTraceElement element = trace[3];
@@ -290,7 +290,7 @@ public class TestUtils {
     public static void assertChannelExists(String channelId, boolean checkMessageTables) throws SQLException {
         boolean channelExists = false;
         long localChannelId = 0;
-        
+
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -305,14 +305,14 @@ public class TestUtils {
                 channelExists = true;
                 localChannelId = result.getLong("local_channel_id");
             }
-            
+
             close(result);
             close(statement);
 
             if (checkMessageTables) {
                 assertChannelMessageTablesExist(connection, localChannelId);
             }
-            
+
             assertTrue(channelExists);
         } finally {
             close(result);
@@ -320,7 +320,7 @@ public class TestUtils {
             close(connection);
         }
     }
-    
+
     public static void assertChannelDoesNotExist(String channelId) throws SQLException {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -350,18 +350,18 @@ public class TestUtils {
 
         try {
             result = connection.getMetaData().getTables(null, null, "d_m%", null);
-            
+
             if (!result.next()) {
                 result = connection.getMetaData().getTables(null, null, "D_M%", null);
-                
+
                 if (!result.next()) {
                     throw new AssertionError();
                 }
             }
-            
+
             do {
                 String name = result.getString("table_name").toLowerCase();
-                
+
                 if (name.equals("d_m" + localChannelId)) {
                     messageTableExists = true;
                 } else if (name.equals("d_mm" + localChannelId)) {
@@ -376,7 +376,7 @@ public class TestUtils {
                     messageStatisticsTableExists = true;
                 }
             } while (result.next());
-            
+
             assertTrue(messageTableExists);
             assertTrue(messageMetaDataTableExists);
             assertTrue(messageContentTableExists);
@@ -480,7 +480,7 @@ public class TestUtils {
             statement.setLong(1, connectorMessage.getMessageId());
             statement.setLong(2, connectorMessage.getMetaDataId());
             result = statement.executeQuery();
-            
+
             if (!result.next()) {
                 throw new AssertionError();
             }
@@ -488,7 +488,7 @@ public class TestUtils {
             Calendar receivedDate = Calendar.getInstance();
             receivedDate.setTimeInMillis(result.getTimestamp("received_date").getTime());
             Status status = Status.fromChar(result.getString("status").charAt(0));
-            
+
             assertDatesEqual(receivedDate, connectorMessage.getReceivedDate());
             assertTrue(testEquality(status, connectorMessage.getStatus()));
         } finally {
@@ -536,7 +536,7 @@ public class TestUtils {
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
-        
+
         try {
             connection = getConnection();
             statement = connection.prepareStatement("SELECT status FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ?");
@@ -593,12 +593,12 @@ public class TestUtils {
     public static void assertDatesEqual(Calendar date1, Calendar date2) {
         assertDatesEqual(date1.getTimeInMillis(), date2.getTimeInMillis());
     }
-    
+
     public static void assertDatesEqual(long timestamp1, long timestamp2) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");
         String date1String = format.format(timestamp1);
         String date2String = format.format(timestamp2);
-        
+
         try {
             assertEquals(date1String, date2String);
         } catch (AssertionError e) {
@@ -609,14 +609,14 @@ public class TestUtils {
 
     public static void assertMessageContentExists(MessageContent content) throws SQLException {
         Connection connection = getConnection();
-        
+
         try {
             assertMessageContentExists(connection, content);
         } finally {
             close(connection);
         }
     }
-    
+
     public static void assertMessageContentExists(Connection connection, MessageContent content) throws SQLException {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(content.getChannelId());
 
@@ -640,7 +640,7 @@ public class TestUtils {
             close(statement);
         }
     }
-    
+
     public static void close(Connection connection) {
         try {
             if (connection != null && !connection.isClosed()) {
@@ -651,7 +651,7 @@ public class TestUtils {
             e.printStackTrace();
         }
     }
-    
+
     public static void close(Statement statement) {
         try {
             DbUtils.close(statement);
@@ -659,7 +659,7 @@ public class TestUtils {
             e.printStackTrace();
         }
     }
-    
+
     public static void close(PreparedStatement preparedStatement) {
         try {
             DbUtils.close(preparedStatement);
@@ -667,7 +667,7 @@ public class TestUtils {
             e.printStackTrace();
         }
     }
-    
+
     public static void close(ResultSet resultSet) {
         try {
             DbUtils.close(resultSet);
@@ -675,7 +675,7 @@ public class TestUtils {
             e.printStackTrace();
         }
     }
-    
+
     public static void close(DonkeyDao dao) {
         if (dao != null && !dao.isClosed()) {
             dao.close();
@@ -723,7 +723,7 @@ public class TestUtils {
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
-        
+
         try {
             connection = getConnection();
             statement = connection.prepareStatement("SELECT * FROM d_ma" + localChannelId + " WHERE message_id = ? AND id = ?");
@@ -747,7 +747,7 @@ public class TestUtils {
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
-        
+
         // Assert that the source connector response was created
         try {
             connection = TestUtils.getConnection();
@@ -769,7 +769,7 @@ public class TestUtils {
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
-        
+
         // Assert that the source connector response was created
         try {
             connection = TestUtils.getConnection();
@@ -801,14 +801,14 @@ public class TestUtils {
         List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
         Connection connection = null;
         ResultSet columns = null;
-        
+
         try {
             connection = getConnection();
             columns = connection.getMetaData().getColumns(connection.getCatalog(), null, "d_mcm" + localChannelId, null);
-            
+
             if (!columns.next()) {
                 columns = connection.getMetaData().getColumns(connection.getCatalog(), null, "D_MCM" + localChannelId, null);
-                
+
                 if (!columns.next()) {
                     return metaDataColumns;
                 }
@@ -816,7 +816,7 @@ public class TestUtils {
 
             do {
                 String name = columns.getString("COLUMN_NAME");
-                
+
                 if (!name.toUpperCase().equals("METADATA_ID") && !name.toUpperCase().equals("MESSAGE_ID")) {
                     int type = columns.getInt("DATA_TYPE");
                     MetaDataColumnType metaDataColumnType = MetaDataColumnType.fromSqlType(type);
@@ -836,46 +836,83 @@ public class TestUtils {
 
         return metaDataColumns;
     }
-    
+
     private static String typeToString(int sqlType) {
         switch (sqlType) {
-            case Types.ARRAY: return "ARRAY";
-            case Types.BIGINT: return "BIGINT";
-            case Types.BINARY: return "BINARY";
-            case Types.BIT: return "BIT";
-            case Types.BLOB: return "BLOB";
-            case Types.BOOLEAN: return "BOOLEAN";
-            case Types.CHAR: return "CHAR";
-            case Types.CLOB: return "CLOB";
-            case Types.DATALINK: return "DATALINK";
-            case Types.DATE: return "DATE";
-            case Types.DECIMAL: return "DECIMAL";
-            case Types.DISTINCT: return "DISTINCT";
-            case Types.DOUBLE: return "DOUBLE";
-            case Types.FLOAT: return "FLOAT";
-            case Types.INTEGER: return "INTEGER";
-            case Types.JAVA_OBJECT: return "JAVA_OBJECT";
-            case Types.LONGNVARCHAR: return "LONGNVARCHAR";
-            case Types.LONGVARBINARY: return "LONGVARBINARY";
-            case Types.LONGVARCHAR: return "LONGVARCHAR";
-            case Types.NCHAR: return "NCHAR";
-            case Types.NCLOB: return "NCLOB";
-            case Types.NULL: return "NULL";
-            case Types.NUMERIC: return "NUMERIC";
-            case Types.NVARCHAR: return "NVARCHAR";
-            case Types.OTHER: return "OTHER";
-            case Types.REAL: return "REAL";
-            case Types.REF: return "REF";
-            case Types.ROWID: return "ROWID";
-            case Types.SMALLINT: return "SMALLINT";
-            case Types.SQLXML: return "SQLXML";
-            case Types.STRUCT: return "STRUCT";
-            case Types.TIME: return "TIME";
-            case Types.TIMESTAMP: return "TIMESTAMP";
-            case Types.TINYINT: return "TINYINT";
-            case Types.VARBINARY: return "VARBINARY";
-            case Types.VARCHAR: return "VARCHAR";
-            default: return "UNKNOWN";
+            case Types.ARRAY:
+                return "ARRAY";
+            case Types.BIGINT:
+                return "BIGINT";
+            case Types.BINARY:
+                return "BINARY";
+            case Types.BIT:
+                return "BIT";
+            case Types.BLOB:
+                return "BLOB";
+            case Types.BOOLEAN:
+                return "BOOLEAN";
+            case Types.CHAR:
+                return "CHAR";
+            case Types.CLOB:
+                return "CLOB";
+            case Types.DATALINK:
+                return "DATALINK";
+            case Types.DATE:
+                return "DATE";
+            case Types.DECIMAL:
+                return "DECIMAL";
+            case Types.DISTINCT:
+                return "DISTINCT";
+            case Types.DOUBLE:
+                return "DOUBLE";
+            case Types.FLOAT:
+                return "FLOAT";
+            case Types.INTEGER:
+                return "INTEGER";
+            case Types.JAVA_OBJECT:
+                return "JAVA_OBJECT";
+            case Types.LONGNVARCHAR:
+                return "LONGNVARCHAR";
+            case Types.LONGVARBINARY:
+                return "LONGVARBINARY";
+            case Types.LONGVARCHAR:
+                return "LONGVARCHAR";
+            case Types.NCHAR:
+                return "NCHAR";
+            case Types.NCLOB:
+                return "NCLOB";
+            case Types.NULL:
+                return "NULL";
+            case Types.NUMERIC:
+                return "NUMERIC";
+            case Types.NVARCHAR:
+                return "NVARCHAR";
+            case Types.OTHER:
+                return "OTHER";
+            case Types.REAL:
+                return "REAL";
+            case Types.REF:
+                return "REF";
+            case Types.ROWID:
+                return "ROWID";
+            case Types.SMALLINT:
+                return "SMALLINT";
+            case Types.SQLXML:
+                return "SQLXML";
+            case Types.STRUCT:
+                return "STRUCT";
+            case Types.TIME:
+                return "TIME";
+            case Types.TIMESTAMP:
+                return "TIMESTAMP";
+            case Types.TINYINT:
+                return "TINYINT";
+            case Types.VARBINARY:
+                return "VARBINARY";
+            case Types.VARCHAR:
+                return "VARCHAR";
+            default:
+                return "UNKNOWN";
         }
     }
 
@@ -899,7 +936,7 @@ public class TestUtils {
                 if (result.next()) {
                     for (MetaDataColumn column : columns) {
                         result.getObject(column.getName());
-    
+
                         if (!result.wasNull()) {
                             // @formatter:off
                             switch (column.getType()) {
@@ -978,7 +1015,7 @@ public class TestUtils {
     public static Map<String, Object> getResponseMap(String channelId, long messageId, int metaDataId) throws SQLException {
         return getMapContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_MAP)).getMap();
     }
-    
+
     private static MapContent getMapContentFromMessageContent(MessageContent content) {
         if (content == null) {
             return new MapContent(new HashMap<String, Object>(), false);
@@ -988,20 +1025,20 @@ public class TestUtils {
 
         return new MapContent(deserializeMap(content.getContent()), true);
     }
-    
+
     @SuppressWarnings("unchecked")
     private static Map<String, Object> deserializeMap(String serializedMap) {
         return Donkey.getInstance().getSerializer().deserialize(serializedMap, Map.class);
     }
-    
+
     public static String getErrorFromMessageContent(MessageContent content) {
         if (content == null) {
             return null;
         }
-        
+
         return content.getContent();
     }
-    
+
     public static MessageContent getMessageContent(String channelId, long messageId, int metaDataId, ContentType contentType) {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         Connection connection = null;
@@ -1061,12 +1098,12 @@ public class TestUtils {
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
-        
+
         try {
             connection = getConnection();
             statement = connection.prepareStatement("SELECT * FROM d_ms" + localChannelId);
             result = statement.executeQuery();
-            
+
             while (result.next()) {
                 Map<Status, Long> connectorStats = new HashMap<Status, Long>();
                 connectorStats.put(Status.RECEIVED, result.getLong("received"));
@@ -1074,11 +1111,11 @@ public class TestUtils {
                 connectorStats.put(Status.SENT, result.getLong("sent"));
                 connectorStats.put(Status.ERROR, result.getLong("error"));
                 Integer metaDataId = result.getInt("metadata_id");
-                
+
                 if (result.wasNull()) {
                     metaDataId = null;
                 }
-                
+
                 stats.put(metaDataId, connectorStats);
             }
         } finally {
@@ -1086,7 +1123,7 @@ public class TestUtils {
             close(statement);
             close(connection);
         }
-        
+
         return stats;
     }
 
@@ -1155,7 +1192,7 @@ public class TestUtils {
     public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId) {
         return createAndStoreNewMessage(rawMessage, channelId, serverId, getDaoFactory());
     }
-    
+
     public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDaoFactory daoFactory) {
         DonkeyDao dao = null;
         Message message = null;
@@ -1172,8 +1209,8 @@ public class TestUtils {
             ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
             sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null, false));
 
-            if (rawMessage.getChannelMap() != null) {
-                sourceMessage.setChannelMap(rawMessage.getChannelMap());
+            if (rawMessage.getSourceMap() != null) {
+                sourceMessage.setChannelMap(rawMessage.getSourceMap());
             }
 
             message.getConnectorMessages().put(0, sourceMessage);
@@ -1194,7 +1231,7 @@ public class TestUtils {
         connectorMessage.setRaw(new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, rawContent, null, false));
 
         DonkeyDao dao = null;
-        
+
         try {
             dao = daoFactory.getDao();
             dao.insertConnectorMessage(connectorMessage, false, true);
@@ -1238,7 +1275,7 @@ public class TestUtils {
             InputStream is = ResourceUtil.getResourceStream(Donkey.class, DONKEY_CONFIGURATION_FILE);
             databaseProperties.load(is);
             IOUtils.closeQuietly(is);
-            
+
             return new DonkeyConfiguration(new File(".").getAbsolutePath(), databaseProperties, null, new EventDispatcher() {
                 @Override
                 public void dispatchEvent(Event event) {}
@@ -1257,7 +1294,7 @@ public class TestUtils {
 
         runChannelTest(testMessage, testName, testSize, testMillis, warmupMillis, channels);
     }
-    
+
     public static String getDatabaseType() {
         return (String) Donkey.getInstance().getConfiguration().getDatabaseProperties().get("database");
     }
@@ -1275,7 +1312,7 @@ public class TestUtils {
                 System.out.print("Vacuuming tables for channel: " + channels[i].getChannelId() + "...");
                 Connection connection = null;
                 Statement statement = null;
-                
+
                 try {
                     connection = getConnection();
                     connection.setAutoCommit(true);
@@ -1288,12 +1325,12 @@ public class TestUtils {
                     statement.execute("VACUUM ANALYZE d_ma" + localChannelId);
                 } finally {
                     close(statement);
-                    
+
                     if (connection != null && !connection.isClosed()) {
                         connection.close();
                     }
                 }
-                
+
                 System.out.println("done");
             }
 
@@ -1335,7 +1372,7 @@ public class TestUtils {
             for (Channel channel : channels) {
                 channel.stop();
             }
-            
+
             for (Channel channel : channels) {
                 channel.undeploy();
             }
@@ -1356,7 +1393,7 @@ public class TestUtils {
                 channel.processSourceQueue(0);
                 channel.stop();
             }
-            
+
             for (Channel channel : channels) {
                 channel.undeploy();
             }
@@ -1437,10 +1474,10 @@ public class TestUtils {
             close(statement);
             close(resultSet);
         }
-        
+
         System.out.println();
     }
-    
+
     public static long getChannelStorageSize(String channelId) throws Exception {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         return getTableSize("d_m" + localChannelId) + getTableSize("d_mm" + localChannelId) + getTableSize("d_mc" + localChannelId) + getTableSize("d_mcm" + localChannelId) + getTableSize("d_ma" + localChannelId) + getTableSize("d_ms" + localChannelId);
@@ -1450,7 +1487,7 @@ public class TestUtils {
         if (!getDatabaseType().equals("postgres")) {
             return 0;
         }
-        
+
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
@@ -1471,7 +1508,7 @@ public class TestUtils {
             close(connection);
         }
     }
-    
+
     public static Message createTestProcessedMessage(String channelId, String serverId, long messageId, String content) {
         Calendar receivedDate = Calendar.getInstance();
 
@@ -1490,10 +1527,10 @@ public class TestUtils {
 
         sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, content, null, false));
         destinationMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 1, ContentType.RAW, content, null, false));
-        
+
         return message;
     }
-    
+
     public static void insertCompleteMessage(Message message, DonkeyDao dao) {
         dao.insertMessage(message);
 

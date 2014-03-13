@@ -254,6 +254,7 @@ public class ValueReplacer {
         context.put("message", new ValueReplacerConnectorMessage(new ImmutableConnectorMessage(connectorMessage)));
 
         // Load maps
+        loadContextFromMap(context, connectorMessage.getSourceMap());
         loadContextFromMap(context, connectorMessage.getChannelMap());
         loadContextFromMap(context, connectorMessage.getConnectorMap());
         loadContextFromMap(context, connectorMessage.getResponseMap());
@@ -276,6 +277,7 @@ public class ValueReplacer {
         ConnectorMessage mergedConnectorMessage = message.getMergedConnectorMessage();
 
         // Load maps
+        loadContextFromMap(context, mergedConnectorMessage.getSourceMap());
         loadContextFromMap(context, mergedConnectorMessage.getChannelMap());
         loadContextFromMap(context, mergedConnectorMessage.getResponseMap());
 

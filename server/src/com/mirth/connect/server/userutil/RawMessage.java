@@ -12,11 +12,14 @@ package com.mirth.connect.server.userutil;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 /**
  * This class represents a raw message as it is received by a channel, and is used to retrieve
  * details such as the raw data or channel map.
  */
 public class RawMessage {
+    private Logger logger = Logger.getLogger(getClass());
     private com.mirth.connect.donkey.model.message.RawMessage rawMessage;
 
     /**
@@ -132,9 +135,14 @@ public class RawMessage {
 
     /**
      * Returns the channel map to be used at the beginning of the channel dispatch.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             {@link #getSourceMap()} instead.
      */
+    // TODO: Remove in 3.1
     public Map<String, Object> getChannelMap() {
-        return rawMessage.getChannelMap();
+        logger.error("This method is deprecated and will soon be removed. Please use getSourceMap() instead.");
+        return getSourceMap();
     }
 
     /**
@@ -143,9 +151,32 @@ public class RawMessage {
      * @param channelMap
      *            Any values placed in this map will be populated in the channel map at the
      *            beginning of the message's lifecycle.
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             {@link #setSourceMap(java.util.Map) setSourceMap(sourceMap)} instead.
      */
+    // TODO: Remove in 3.1
     public void setChannelMap(Map<String, Object> channelMap) {
-        rawMessage.setChannelMap(channelMap);
+        logger.error("This method is deprecated and will soon be removed. Please use setSourceMap(sourceMap) instead.");
+        setSourceMap(channelMap);
+    }
+
+    /**
+     * Returns the source map to be used at the beginning of the channel dispatch.
+     */
+    public Map<String, Object> getSourceMap() {
+        return rawMessage.getSourceMap();
+    }
+
+    /**
+     * Sets the source map to be used at the beginning of the channel dispatch.
+     * 
+     * @param sourceMap
+     *            Any values placed in this map will be populated in the source map at the beginning
+     *            of the message's lifecycle.
+     */
+    public void setSourceMap(Map<String, Object> sourceMap) {
+        rawMessage.setSourceMap(sourceMap);
     }
 
     /**

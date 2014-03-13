@@ -33,6 +33,7 @@ public class ConnectorMessage implements Serializable {
     private MessageContent response;
     private MessageContent responseTransformed;
     private MessageContent processedResponse;
+    private MapContent sourceMapContent = new MapContent();
     private MapContent connectorMapContent = new MapContent();
     private MapContent channelMapContent = new MapContent();
     private MapContent responseMapContent = new MapContent();
@@ -157,10 +158,9 @@ public class ConnectorMessage implements Serializable {
                 break;
             default:
                 /*
-                 * if the content type is not recognized, then this code needs
-                 * to be fixed to include all possible content types. We throw a
-                 * runtime exception since this is an internal error that
-                 * needs to be corrected.
+                 * if the content type is not recognized, then this code needs to be fixed to
+                 * include all possible content types. We throw a runtime exception since this is an
+                 * internal error that needs to be corrected.
                  */
                 throw new RuntimeException("Unrecognized content type: " + messageContent.getContentType().getContentTypeCode());
         }
@@ -238,6 +238,14 @@ public class ConnectorMessage implements Serializable {
         this.messageId = messageId;
     }
 
+    public MapContent getSourceMapContent() {
+        return sourceMapContent;
+    }
+
+    public void setSourceMapContent(MapContent sourceMapContent) {
+        this.sourceMapContent = sourceMapContent;
+    }
+
     public MapContent getConnectorMapContent() {
         return connectorMapContent;
     }
@@ -260,6 +268,14 @@ public class ConnectorMessage implements Serializable {
 
     public void setResponseMapContent(MapContent responseMapContent) {
         this.responseMapContent = responseMapContent;
+    }
+
+    public Map<String, Object> getSourceMap() {
+        return sourceMapContent.getMap();
+    }
+
+    public void setSourceMap(Map<String, Object> sourceMap) {
+        sourceMapContent.setMap(sourceMap);
     }
 
     public Map<String, Object> getConnectorMap() {

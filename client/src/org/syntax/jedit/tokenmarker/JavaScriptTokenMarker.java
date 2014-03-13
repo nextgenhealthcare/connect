@@ -1,10 +1,9 @@
 /*
- * JavaScriptTokenMarker.java - JavaScript token marker
- * Copyright (C) 1999 Slava Pestov
+ * JavaScriptTokenMarker.java - JavaScript token marker Copyright (C) 1999 Slava Pestov
  * 
- * You may use and modify this package for any purpose. Redistribution is
- * permitted, in both source and binary form, provided that this notice
- * remains intact in all source distributions of this package.
+ * You may use and modify this package for any purpose. Redistribution is permitted, in both source
+ * and binary form, provided that this notice remains intact in all source distributions of this
+ * package.
  */
 
 package org.syntax.jedit.tokenmarker;
@@ -56,11 +55,13 @@ public class JavaScriptTokenMarker extends CTokenMarker {
             javaScriptKeywords.add("version", Token.KEYWORD1);
             javaScriptKeywords.add("connectorMap", Token.KEYWORD1);
             javaScriptKeywords.add("channelMap", Token.KEYWORD1);
+            javaScriptKeywords.add("sourceMap", Token.KEYWORD1);
             javaScriptKeywords.add("globalMap", Token.KEYWORD1);
             javaScriptKeywords.add("globalChannelMap", Token.KEYWORD1);
             javaScriptKeywords.add("responseMap", Token.KEYWORD1);
             javaScriptKeywords.add("$co", Token.KEYWORD1);
             javaScriptKeywords.add("$c", Token.KEYWORD1);
+            javaScriptKeywords.add("$s", Token.KEYWORD1);
             javaScriptKeywords.add("$g", Token.KEYWORD1);
             javaScriptKeywords.add("$gc", Token.KEYWORD1);
             javaScriptKeywords.add("$r", Token.KEYWORD1);

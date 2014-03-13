@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -1104,8 +1105,9 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         sourceMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, null, sourceConnector.getInboundDataType().getType(), false));
 
-        if (rawMessage.getChannelMap() != null) {
-            sourceMessage.setChannelMap(rawMessage.getChannelMap());
+        if (rawMessage.getSourceMap() != null) {
+            // We don't create a new map here because the source map is read-only and thus won't ever be changed
+            sourceMessage.setSourceMap(Collections.unmodifiableMap(rawMessage.getSourceMap()));
         }
 
         if (attachmentHandler != null && attachmentHandler.canExtractAttachments()) {
@@ -1160,9 +1162,9 @@ public class Channel implements Startable, Stoppable, Runnable {
         ThreadUtils.checkInterruptedStatus();
 
         /*
-         * If the raw message should be durable, then the channel map from the RawMessage needs to
-         * be persisted even if map storage is disabled. The only map that can be utilized at this
-         * point is the channel map, therefore we can simply tell the Dao to store all maps.
+         * If the raw message should be durable, then the source map from the RawMessage needs to be
+         * persisted even if map storage is disabled. The only map that can be utilized at this
+         * point is the source map, therefore we can simply tell the Dao to store all maps.
          */
         dao.insertConnectorMessage(sourceMessage, storageSettings.isStoreMaps() || storageSettings.isRawDurable(), true);
 
@@ -1375,6 +1377,8 @@ public class Channel implements Startable, Stoppable, Runnable {
                     message.setChainId(chain.getChainId());
                     message.setOrderId(destinationConnector.getOrderId());
 
+                    // We don't create a new map here because the source map is read-only and thus won't ever be changed
+                    message.setSourceMap(sourceMessage.getSourceMap());
                     message.setChannelMap(new HashMap<String, Object>(sourceMessage.getChannelMap()));
                     message.setResponseMap(new HashMap<String, Object>(sourceMessage.getResponseMap()));
                     message.setRaw(raw);

@@ -50,6 +50,8 @@ public class MetaDataReplacer {
             value = connectorMessage.getConnectorMap().get(column.getMappingName());
         } else if (connectorMessage.getChannelMap().containsKey(column.getMappingName())) {
             value = connectorMessage.getChannelMap().get(column.getMappingName());
+        } else if (connectorMessage.getSourceMap().containsKey(column.getMappingName())) {
+            value = connectorMessage.getSourceMap().get(column.getMappingName());
         }
 
         return value;

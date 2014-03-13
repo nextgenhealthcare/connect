@@ -21,7 +21,7 @@ public class RawMessage {
     private Long originalMessageId;
     private String rawData;
     private byte[] rawBytes;
-    private Map<String, Object> channelMap = new HashMap<String, Object>();
+    private Map<String, Object> sourceMap = new HashMap<String, Object>();
     private Boolean binary;
 
     public RawMessage(String rawData) {
@@ -32,11 +32,11 @@ public class RawMessage {
         this(rawData, destinationMetaDataIds, null);
     }
 
-    public RawMessage(String rawData, List<Integer> destinationMetaDataIds, Map<String, Object> channelMap) {
+    public RawMessage(String rawData, List<Integer> destinationMetaDataIds, Map<String, Object> sourceMap) {
         this.rawData = rawData;
 
-        if (channelMap != null) {
-            setChannelMap(channelMap);
+        if (sourceMap != null) {
+            setSourceMap(sourceMap);
         }
 
         setDestinationMetaDataIds(destinationMetaDataIds);
@@ -51,11 +51,11 @@ public class RawMessage {
         this(rawBytes, destinationMetaDataIds, null);
     }
 
-    public RawMessage(byte[] rawBytes, List<Integer> destinationMetaDataIds, Map<String, Object> channelMap) {
+    public RawMessage(byte[] rawBytes, List<Integer> destinationMetaDataIds, Map<String, Object> sourceMap) {
         this.rawBytes = rawBytes;
 
-        if (channelMap != null) {
-            setChannelMap(channelMap);
+        if (sourceMap != null) {
+            setSourceMap(sourceMap);
         }
 
         setDestinationMetaDataIds(destinationMetaDataIds);
@@ -95,8 +95,8 @@ public class RawMessage {
     }
 
     public List<Integer> getDestinationMetaDataIds() {
-        if (channelMap != null) {
-            return (List<Integer>) channelMap.get(Constants.DESTINATION_META_DATA_IDS_KEY);
+        if (sourceMap != null) {
+            return (List<Integer>) sourceMap.get(Constants.DESTINATION_META_DATA_IDS_KEY);
         }
 
         return null;
@@ -104,16 +104,16 @@ public class RawMessage {
 
     public void setDestinationMetaDataIds(List<Integer> destinationMetaDataIds) {
         if (destinationMetaDataIds != null) {
-            channelMap.put(Constants.DESTINATION_META_DATA_IDS_KEY, destinationMetaDataIds);
+            sourceMap.put(Constants.DESTINATION_META_DATA_IDS_KEY, destinationMetaDataIds);
         }
     }
 
-    public Map<String, Object> getChannelMap() {
-        return channelMap;
+    public Map<String, Object> getSourceMap() {
+        return sourceMap;
     }
 
-    public void setChannelMap(Map<String, Object> channelMap) {
-        this.channelMap = channelMap;
+    public void setSourceMap(Map<String, Object> sourceMap) {
+        this.sourceMap = sourceMap;
     }
 
     public Boolean isBinary() {

@@ -361,6 +361,7 @@ public class JavaScriptBuilder {
     private static void appendMapFunctions(StringBuilder builder) {
         builder.append("function $co(key, value) { if (arguments.length == 1) { return connectorMap.get(key); } else { return connectorMap.put(key, value); } }\n");
         builder.append("function $c(key, value) { if (arguments.length == 1) { return channelMap.get(key); } else { return channelMap.put(key, value); } }\n");
+        builder.append("function $s(key, value) { if (arguments.length == 1) { return sourceMap.get(key); } else { return sourceMap.put(key, value); } }\n");
         builder.append("function $gc(key, value) { if (arguments.length == 1) { return globalChannelMap.get(key); } else { return globalChannelMap.put(key, value); } }\n");
         builder.append("function $g(key, value) { if (arguments.length == 1) { return globalMap.get(key); } else { return globalMap.put(key, value); } }\n");
         builder.append("function $r(key, value) { if (arguments.length == 1) { return responseMap.get(key); } else { return responseMap.put(key, value); } }\n");
@@ -370,6 +371,7 @@ public class JavaScriptBuilder {
         builder.append("try { if(responseMap.containsKey(string)) { return $r(string); } } catch(e){}");
         builder.append("try { if(connectorMap.containsKey(string)) { return $co(string); } } catch(e){}");
         builder.append("try { if(channelMap.containsKey(string)) { return $c(string); } } catch(e){}");
+        builder.append("try { if(sourceMap.containsKey(string)) { return $s(string); } } catch(e){}");
         builder.append("try { if(globalChannelMap.containsKey(string)) { return $gc(string); } } catch(e){}");
         builder.append("try { if(globalMap.containsKey(string)) { return $g(string); } } catch(e){}");
         // TODO: This is temporary for the database reader and should not stay

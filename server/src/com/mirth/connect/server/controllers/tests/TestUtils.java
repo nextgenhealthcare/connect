@@ -360,8 +360,8 @@ public class TestUtils {
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
         sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null, false));
 
-        if (rawMessage.getChannelMap() != null) {
-            sourceMessage.setChannelMap(rawMessage.getChannelMap());
+        if (rawMessage.getSourceMap() != null) {
+            sourceMessage.setSourceMap(rawMessage.getSourceMap());
         }
 
         message.getConnectorMessages().put(0, sourceMessage);

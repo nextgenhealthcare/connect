@@ -387,6 +387,13 @@ public class ImmutableConnectorMessage {
     }
 
     /**
+     * Returns the source map. This map is unmodifiable and only data retrieval will be allowed.
+     */
+    public Map<String, Object> getSourceMap() {
+        return connectorMessage.getSourceMap();
+    }
+
+    /**
      * Returns the connector map. If this connector message was instantiated with a 'true' value for
      * modifiableMaps, then this map will allow both data retrieval and updates. Otherwise, the map
      * will be unmodifiable and only data retrieval will be allowed.

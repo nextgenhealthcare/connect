@@ -16,10 +16,10 @@ import org.apache.commons.lang3.text.WordUtils;
  * 
  * RAW, PROCESSED_RAW, TRANSFORMED, ENCODED, SENT, RESPONSE, RESPONSE_TRANSFORMED,
  * PROCESSED_RESPONSE, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP, PROCESSING_ERROR,
- * POSTPROCESSOR_ERROR, RESPONSE_ERROR
+ * POSTPROCESSOR_ERROR, RESPONSE_ERROR, SOURCE_MAP
  */
 public enum ContentType {
-    RAW, PROCESSED_RAW, TRANSFORMED, ENCODED, SENT, RESPONSE, RESPONSE_TRANSFORMED, PROCESSED_RESPONSE, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP, PROCESSING_ERROR, POSTPROCESSOR_ERROR, RESPONSE_ERROR;
+    RAW, PROCESSED_RAW, TRANSFORMED, ENCODED, SENT, RESPONSE, RESPONSE_TRANSFORMED, PROCESSED_RESPONSE, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP, PROCESSING_ERROR, POSTPROCESSOR_ERROR, RESPONSE_ERROR, SOURCE_MAP;
 
     private ContentType() {}
 
@@ -58,6 +58,8 @@ public enum ContentType {
                 return POSTPROCESSOR_ERROR;
             case RESPONSE_ERROR:
                 return RESPONSE_ERROR;
+            case SOURCE_MAP:
+                return SOURCE_MAP;
             default:
                 return null;
         }
@@ -93,6 +95,8 @@ public enum ContentType {
                 return com.mirth.connect.donkey.model.message.ContentType.POSTPROCESSOR_ERROR;
             case RESPONSE_ERROR:
                 return com.mirth.connect.donkey.model.message.ContentType.RESPONSE_ERROR;
+            case SOURCE_MAP:
+                return com.mirth.connect.donkey.model.message.ContentType.SOURCE_MAP;
             default:
                 return null;
         }

@@ -107,6 +107,7 @@ public class BufferedDao implements DonkeyDao {
                     case UPDATE_STATUS: dao.updateStatus((ConnectorMessage) p[0], (Status) p[1]); break;
                     case UPDATE_ERRORS: dao.updateErrors((ConnectorMessage) p[0]); break;
                     case UPDATE_MAPS: dao.updateMaps((ConnectorMessage) p[0]); break;
+                    case UPDATE_SOURCE_MAP: dao.updateSourceMap((ConnectorMessage) p[0]); break;
                     case UPDATE_RESPONSE_MAP: dao.updateResponseMap((ConnectorMessage) p[0]); break;
                     case MARK_AS_PROCESSED: dao.markAsProcessed((String) p[0], (Long) p[1]); break;
                     case RESET_MESSAGE: dao.resetMessage((String) p[0], (Long) p[1]); break;
@@ -226,6 +227,11 @@ public class BufferedDao implements DonkeyDao {
     @Override
     public void updateMaps(ConnectorMessage connectorMessage) {
         tasks.add(new DaoTask(DaoTaskType.UPDATE_MAPS, new Object[] { connectorMessage }));
+    }
+
+    @Override
+    public void updateSourceMap(ConnectorMessage connectorMessage) {
+        tasks.add(new DaoTask(DaoTaskType.UPDATE_SOURCE_MAP, new Object[] { connectorMessage }));
     }
 
     @Override

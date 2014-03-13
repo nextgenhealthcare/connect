@@ -1925,11 +1925,16 @@ public class MessageBrowser extends javax.swing.JPanel {
      * Helper function to update the mappings
      */
     private void updateDescriptionMappings(ConnectorMessage connectorMessage) {
+        Map<String, Object> sourceMap = connectorMessage.getSourceMap();
         Map<String, Object> connectorMap = connectorMessage.getConnectorMap();
         Map<String, Object> channelMap = connectorMessage.getChannelMap();
         Map<String, Object> responseMap = connectorMessage.getResponseMap();
 
         int rowCount = 0;
+
+        if (sourceMap != null) {
+            rowCount += sourceMap.size();
+        }
 
         if (connectorMap != null) {
             rowCount += connectorMap.size();
@@ -1945,6 +1950,15 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         String[][] tableData = new String[rowCount][3];
         int row = 0;
+
+        if (sourceMap != null) {
+            for (Entry<String, Object> variableMapEntry : sourceMap.entrySet()) {
+                tableData[row][0] = "Source";
+                tableData[row][1] = String.valueOf(variableMapEntry.getKey());
+                tableData[row][2] = String.valueOf(variableMapEntry.getValue());
+                row++;
+            }
+        }
 
         if (connectorMap != null) {
             for (Entry<String, Object> variableMapEntry : connectorMap.entrySet()) {

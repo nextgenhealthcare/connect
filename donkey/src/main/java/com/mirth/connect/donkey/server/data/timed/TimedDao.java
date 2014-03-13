@@ -238,6 +238,17 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
+    public void updateSourceMap(ConnectorMessage connectorMessage) {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            dao.updateSourceMap(connectorMessage);
+        } finally {
+            timer.log("updateSourceMap", System.currentTimeMillis() - startTime);
+        }
+    }
+
+    @Override
     public void updateResponseMap(ConnectorMessage connectorMessage) {
         long startTime = System.currentTimeMillis();
 

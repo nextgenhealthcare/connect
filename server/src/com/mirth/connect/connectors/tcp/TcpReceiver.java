@@ -576,14 +576,14 @@ public class TcpReceiver extends SourceConnector {
                                 }
 
                                 // Add the socket information to the channelMap
-                                Map<String, Object> channelMap = new HashMap<String, Object>();
-                                channelMap.put("clientAddress", socket.getLocalAddress().getHostAddress());
-                                channelMap.put("clientPort", socket.getLocalPort());
+                                Map<String, Object> sourceMap = new HashMap<String, Object>();
+                                sourceMap.put("clientAddress", socket.getLocalAddress().getHostAddress());
+                                sourceMap.put("clientPort", socket.getLocalPort());
                                 if (socket.getRemoteSocketAddress() instanceof InetSocketAddress) {
-                                    channelMap.put("localAddress", ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress());
-                                    channelMap.put("localPort", ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort());
+                                    sourceMap.put("localAddress", ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress());
+                                    sourceMap.put("localPort", ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort());
                                 }
-                                rawMessage.setChannelMap(channelMap);
+                                rawMessage.setSourceMap(sourceMap);
 
                                 DispatchResult dispatchResult = null;
 

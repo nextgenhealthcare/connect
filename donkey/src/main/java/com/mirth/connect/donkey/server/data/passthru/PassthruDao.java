@@ -199,6 +199,9 @@ public class PassthruDao implements DonkeyDao {
     public void updateMaps(ConnectorMessage connectorMessage) {}
 
     @Override
+    public void updateSourceMap(ConnectorMessage connectorMessage) {}
+
+    @Override
     public void updateResponseMap(ConnectorMessage connectorMessage) {}
 
     @Override

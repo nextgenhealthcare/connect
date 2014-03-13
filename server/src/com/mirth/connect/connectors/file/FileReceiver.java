@@ -284,8 +284,8 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
 
             // Add the original filename to the channel map
             originalFilename = file.getName();
-            Map<String, Object> channelMap = new HashMap<String, Object>();
-            channelMap.put("originalFilename", originalFilename);
+            Map<String, Object> sourceMap = new HashMap<String, Object>();
+            sourceMap.put("originalFilename", originalFilename);
 
             // Set the default file action
             FileAction action = FileAction.NONE;
@@ -316,7 +316,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                             rawMessage = new RawMessage(new String(getBytesFromFile(file), charsetEncoding));
                         }
 
-                        rawMessage.setChannelMap(channelMap);
+                        rawMessage.setSourceMap(sourceMap);
 
                         DispatchResult dispatchResult = null;
                         try {
@@ -361,14 +361,14 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
 
                     // If the user-specified directory is blank, use the default (file's current directory)
                     if (StringUtils.isNotBlank(destinationDir)) {
-                        destinationDir = replacer.replaceValues(destinationDir, getChannelId(), channelMap);
+                        destinationDir = replacer.replaceValues(destinationDir, getChannelId(), sourceMap);
                     } else {
                         destinationDir = file.getParent();
                     }
 
                     // If the user-specified filename is blank, use the default (original filename)
                     if (StringUtils.isNotBlank(destinationName)) {
-                        destinationName = replacer.replaceValues(destinationName, getChannelId(), channelMap);
+                        destinationName = replacer.replaceValues(destinationName, getChannelId(), sourceMap);
                     } else {
                         destinationName = originalFilename;
                     }
@@ -566,11 +566,11 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             return false;
         }
 
-        Map<String, Object> channelMap = new HashMap<String, Object>();
-        channelMap.put("originalFilename", originalFilename);
+        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        sourceMap.put("originalFilename", originalFilename);
 
         RawMessage rawMessage = new RawMessage(message);
-        rawMessage.setChannelMap(channelMap);
+        rawMessage.setSourceMap(sourceMap);
         DispatchResult dispatchResult = null;
 
         try {

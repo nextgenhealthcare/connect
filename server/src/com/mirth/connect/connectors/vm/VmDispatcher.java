@@ -108,31 +108,31 @@ public class VmDispatcher extends DestinationConnector {
                     rawMessage = new RawMessage(StringUtils.newString(data, Constants.ATTACHMENT_CHARSET));
                 }
 
-                Map<String, Object> rawChannelMap = rawMessage.getChannelMap();
-                Map<String, Object> channelMap = message.getChannelMap();
+                Map<String, Object> rawSourceMap = rawMessage.getSourceMap();
+                Map<String, Object> sourceMap = message.getSourceMap();
 
                 /*
-                 * Build the lists of source channel and message Ids if this
-                 * channel is not the start of the chain.
+                 * Build the lists of source channel and message Ids if this channel is not the
+                 * start of the chain.
                  */
-                List<String> sourceChannelIds = getSourceChannelIds(channelMap);
-                List<Long> sourceMessageIds = getSourceMessageIds(channelMap);
+                List<String> sourceChannelIds = getSourceChannelIds(sourceMap);
+                List<Long> sourceMessageIds = getSourceMessageIds(sourceMap);
 
                 // Add the current channelId to the chain if it is built
                 if (sourceChannelIds != null) {
                     sourceChannelIds.add(currentChannelId);
-                    rawChannelMap.put(SOURCE_CHANNEL_IDS, sourceChannelIds);
+                    rawSourceMap.put(SOURCE_CHANNEL_IDS, sourceChannelIds);
                 }
 
                 // Add the current messageId to the chain if it is built
                 if (sourceMessageIds != null) {
                     sourceMessageIds.add(message.getMessageId());
-                    rawChannelMap.put(SOURCE_MESSAGE_IDS, sourceMessageIds);
+                    rawSourceMap.put(SOURCE_MESSAGE_IDS, sourceMessageIds);
                 }
 
                 // Always store the originating channelId and messageId
-                rawChannelMap.put(SOURCE_CHANNEL_ID, currentChannelId);
-                rawChannelMap.put(SOURCE_MESSAGE_ID, message.getMessageId());
+                rawSourceMap.put(SOURCE_CHANNEL_ID, currentChannelId);
+                rawSourceMap.put(SOURCE_MESSAGE_ID, message.getMessageId());
 
                 // Remove the reference to the raw message so its doesn't hold the entire message in memory.
                 data = null;
@@ -164,8 +164,8 @@ public class VmDispatcher extends DestinationConnector {
         List<String> sourceChannelIds = null;
 
         /*
-         * If the source channel id already exists, then a source channel id
-         * list needs to be created to store the historical channel ids.
+         * If the source channel id already exists, then a source channel id list needs to be
+         * created to store the historical channel ids.
          */
         if (object != null && object instanceof String) {
             String sourceChannelId = (String) object;
@@ -174,9 +174,8 @@ public class VmDispatcher extends DestinationConnector {
             Object listObject = map.get(SOURCE_CHANNEL_IDS);
 
             /*
-             * If the source channel id list already exists, add all items into
-             * the new list. Otherwise only add the previous channel id to the
-             * new list.
+             * If the source channel id list already exists, add all items into the new list.
+             * Otherwise only add the previous channel id to the new list.
              */
             if (listObject == null) {
                 sourceChannelIds.add(sourceChannelId);
@@ -198,8 +197,8 @@ public class VmDispatcher extends DestinationConnector {
         List<Long> sourceMessageIds = null;
 
         /*
-         * If the source message id already exists, then a source message id
-         * list needs to be created to store the historical message ids.
+         * If the source message id already exists, then a source message id list needs to be
+         * created to store the historical message ids.
          */
         if (object != null && object instanceof Long) {
             Long sourceMessageId = (Long) object;
@@ -208,9 +207,8 @@ public class VmDispatcher extends DestinationConnector {
             Object listObject = map.get(SOURCE_MESSAGE_IDS);
 
             /*
-             * If the source message id list already exists, add all items into
-             * the new list. Otherwise only add the previous message id to the
-             * new list.
+             * If the source message id list already exists, add all items into the new list.
+             * Otherwise only add the previous message id to the new list.
              */
             if (listObject == null) {
                 sourceMessageIds.add(sourceMessageId);

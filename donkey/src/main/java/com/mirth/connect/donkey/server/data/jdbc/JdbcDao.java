@@ -592,6 +592,7 @@ public class JdbcDao implements DonkeyDao {
             statement.executeUpdate();
 
             if (storeMaps) {
+                updateSourceMap(connectorMessage);
                 updateMaps(connectorMessage);
             }
 
@@ -785,6 +786,7 @@ public class JdbcDao implements DonkeyDao {
     public void updateMaps(ConnectorMessage connectorMessage) {
         logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating maps");
 
+        // We do not include the source map here because that should only be inserted once with the raw content, and after that it's read-only
         updateMap(connectorMessage.getConnectorMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.CONNECTOR_MAP);
         updateMap(connectorMessage.getChannelMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.CHANNEL_MAP);
         updateMap(connectorMessage.getResponseMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_MAP);
@@ -813,6 +815,16 @@ public class JdbcDao implements DonkeyDao {
             }
         } else if (persisted) {
             deleteMessageContentByMetaDataIdAndContentType(channelId, messageId, metaDataId, contentType);
+        }
+    }
+
+    @Override
+    public void updateSourceMap(ConnectorMessage connectorMessage) {
+        // Only insert the source map content for the source connector message
+        if (connectorMessage.getMetaDataId() == 0) {
+            logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating source map");
+
+            updateMap(connectorMessage.getSourceMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.SOURCE_MAP);
         }
     }
 
@@ -1883,6 +1895,18 @@ public class JdbcDao implements DonkeyDao {
             connectorMessage.setOrderId(resultSet.getInt("order_id"));
 
             if (includeContent) {
+                /*
+                 * The source map is read-only and inserted only once on the source connector
+                 * message along with the source raw content. So even for destination connectors, we
+                 * grab the source map content from the source connector message.
+                 */
+                MessageContent sourceMapContent = getMessageContent(channelId, messageId, 0, ContentType.SOURCE_MAP, true);
+
+                if (sourceMapContent != null && metaDataId > 0) {
+                    sourceMapContent.setMetaDataId(metaDataId);
+                }
+
+                connectorMessage.setSourceMapContent(getMapContentFromMessageContent(sourceMapContent));
                 connectorMessage.setConnectorMapContent(getMapContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CONNECTOR_MAP, true)));
                 connectorMessage.setChannelMapContent(getMapContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CHANNEL_MAP, true)));
                 connectorMessage.setResponseMapContent(getMapContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_MAP, true)));

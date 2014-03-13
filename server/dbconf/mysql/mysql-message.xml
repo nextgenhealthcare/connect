@@ -112,7 +112,7 @@
 		FROM D_MC${localChannelId}
 		WHERE MESSAGE_ID = #{messageId}
 		AND METADATA_ID = 0
-		AND CONTENT_TYPE = 1
+		AND CONTENT_TYPE IN (1, 15)
 	</select>
 	
 	<sql id="searchMessagesBody">

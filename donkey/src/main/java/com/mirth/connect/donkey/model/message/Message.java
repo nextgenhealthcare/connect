@@ -110,6 +110,8 @@ public class Message implements Serializable {
             mergedConnectorMessage.setRaw(sourceConnectorMessage.getRaw());
             mergedConnectorMessage.setProcessedRaw(sourceConnectorMessage.getProcessedRaw());
 
+            mergedConnectorMessage.setSourceMap(sourceConnectorMessage.getSourceMap());
+
             Map<String, Object> responseMap = new HashMap<String, Object>(sourceConnectorMessage.getResponseMap());
             for (ConnectorMessage destinationMessage : connectorMessages.values()) {
                 responseMap.putAll(destinationMessage.getResponseMap());

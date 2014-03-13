@@ -50,6 +50,8 @@ public interface DonkeyDao {
 
     public void updateMaps(ConnectorMessage connectorMessage);
 
+    public void updateSourceMap(ConnectorMessage connectorMessage);
+
     public void updateResponseMap(ConnectorMessage connectorMessage);
 
     public void markAsProcessed(String channelId, long messageId);

@@ -28,6 +28,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.server.userutil.AlertSender;
 import com.mirth.connect.server.userutil.Attachment;
+import com.mirth.connect.server.userutil.ChannelMap;
 import com.mirth.connect.server.userutil.ImmutableResponse;
 import com.mirth.connect.server.userutil.MessageObject;
 import com.mirth.connect.server.userutil.MuleContext;
@@ -100,7 +101,7 @@ public class JavaScriptScopeUtil {
     /*
      * Private Scope Builders
      */
-    
+
     private static void add(String name, Scriptable scope, Object object) {
         scope.put(name, scope, Context.javaToJS(object, scope));
     }
@@ -121,7 +122,8 @@ public class JavaScriptScopeUtil {
         ConnectorMessage mergedConnectorMessage = message.getMergedConnectorMessage();
         ImmutableConnectorMessage immutableConnectorMessage = new ImmutableConnectorMessage(mergedConnectorMessage);
 
-        add("channelMap", scope, immutableConnectorMessage.getChannelMap());
+        add("sourceMap", scope, immutableConnectorMessage.getSourceMap());
+        add("channelMap", scope, new ChannelMap(immutableConnectorMessage.getChannelMap(), immutableConnectorMessage.getSourceMap()));
         add("responseMap", scope, new ResponseMap(mergedConnectorMessage.getResponseMap(), immutableMessage.getDestinationNameMap()));
     }
 
@@ -131,8 +133,9 @@ public class JavaScriptScopeUtil {
         add("messageObject", scope, new MessageObject(message));
 
         add("connectorMessage", scope, message);
+        add("sourceMap", scope, message.getSourceMap());
         add("connectorMap", scope, message.getConnectorMap());
-        add("channelMap", scope, message.getChannelMap());
+        add("channelMap", scope, new ChannelMap(message.getChannelMap(), message.getSourceMap()));
         add("responseMap", scope, new ResponseMap(message.getResponseMap(), message.getDestinationNameMap()));
         add("connector", scope, message.getConnectorName());
         add("alerts", scope, new AlertSender(message));

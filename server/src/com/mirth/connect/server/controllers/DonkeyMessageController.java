@@ -24,6 +24,7 @@ import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
@@ -42,7 +43,10 @@ import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.message.DataType;
+import com.mirth.connect.donkey.util.MapUtil;
+import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.MessageImportResult;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.server.mybatis.MessageSearchResult;
 import com.mirth.connect.server.util.DICOMMessageUtil;
@@ -332,7 +336,7 @@ public class DonkeyMessageController extends MessageController {
 
                             if (clearStatistics) {
                                 logger.debug("Clearing statistics for channel \"" + channel.getName() + "\"");
-                                
+
                                 Set<Status> statuses = Statistics.getTrackedStatuses();
                                 dao.resetStatistics(channelId, null, statuses);
 
@@ -381,7 +385,21 @@ public class DonkeyMessageController extends MessageController {
             Long messageId = (Long) result.get("id");
             Long importId = (Long) result.get("import_id");
             params.put("messageId", messageId);
-            MessageContent rawContent = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageForReprocessing", params);
+
+            List<MessageContent> contentList = SqlConfig.getSqlSessionManager().selectList("Message.selectMessageForReprocessing", params);
+
+            MessageContent rawContent = null;
+            MessageContent sourceMapContent = null;
+
+            if (contentList != null) {
+                for (MessageContent content : contentList) {
+                    if (content.getContentType() == ContentType.RAW) {
+                        rawContent = content;
+                    } else if (content.getContentType() == ContentType.SOURCE_MAP) {
+                        sourceMapContent = content;
+                    }
+                }
+            }
 
             if (rawContent != null) {
                 if (rawContent.isEncrypted()) {
@@ -406,11 +424,21 @@ public class DonkeyMessageController extends MessageController {
                 rawMessage.setOverwrite(replace);
                 rawMessage.setImported(importId != null);
                 rawMessage.setOriginalMessageId(messageId);
-
                 rawMessage.setDestinationMetaDataIds(reprocessMetaDataIds);
 
                 try {
+                    if (sourceMapContent != null) {
+                        if (sourceMapContent.isEncrypted()) {
+                            sourceMapContent.setContent(encryptor.decrypt(sourceMapContent.getContent()));
+                            sourceMapContent.setEncrypted(false);
+                        }
+
+                        rawMessage.setSourceMap(MapUtil.deserializeMap(ObjectXMLSerializer.getInstance(), sourceMapContent.getContent()));
+                    }
+
                     engineController.dispatchRawMessage(channelId, rawMessage, true);
+                } catch (SerializerException e) {
+                    logger.error("Could not reprocess message " + messageId + " for channel " + channelId + " because the source map content is invalid.", e);
                 } catch (ChannelException e) {
                     if (e.isStopped()) {
                         // This should only return true if the entire channel is stopped, since we are forcing the message even if the source connector is stopped.
