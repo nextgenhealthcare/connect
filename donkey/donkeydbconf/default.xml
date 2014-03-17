@@ -212,11 +212,18 @@
 	</query>
 	
 	<query id="getMessageContent">
-		SELECT CONTENT, DATA_TYPE, IS_ENCRYPTED
+		SELECT CONTENT, CONTENT_TYPE, DATA_TYPE, IS_ENCRYPTED
 		FROM D_MC${localChannelId}
 		WHERE MESSAGE_ID = ?
 		AND METADATA_ID = ?
-		AND CONTENT_TYPE = ?
+	</query>
+	
+	<query id="getDestinationMessageContentFromSource">
+		SELECT CONTENT, CONTENT_TYPE, DATA_TYPE, IS_ENCRYPTED
+		FROM D_MC${localChannelId}
+		WHERE MESSAGE_ID = ?
+		AND METADATA_ID = 0
+		AND CONTENT_TYPE IN (4, 15)
 	</query>
 	
 	<query id="getMetaDataMap">

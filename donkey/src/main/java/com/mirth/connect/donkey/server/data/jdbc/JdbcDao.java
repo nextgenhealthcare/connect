@@ -21,8 +21,10 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -60,6 +62,7 @@ public class JdbcDao implements DonkeyDao {
     private Serializer serializer;
     private boolean encryptData;
     private boolean decryptData;
+    private Set<ContentType> alwaysDecrypt = new HashSet<ContentType>();
     private Encryptor encryptor;
     private Statistics currentStats;
     private Statistics totalStats;
@@ -85,7 +88,9 @@ public class JdbcDao implements DonkeyDao {
         this.currentStats = currentStats;
         this.totalStats = totalStats;
         this.statsServerId = statsServerId;
-        encryptor = donkey.getEncryptor();
+
+        alwaysDecrypt.addAll(Arrays.asList(ContentType.getMapTypes()));
+        alwaysDecrypt.addAll(Arrays.asList(ContentType.getErrorTypes()));
 
         logger.debug("Opened connection");
     }
@@ -1895,80 +1900,149 @@ public class JdbcDao implements DonkeyDao {
             connectorMessage.setOrderId(resultSet.getInt("order_id"));
 
             if (includeContent) {
-                /*
-                 * The source map is read-only and inserted only once on the source connector
-                 * message along with the source raw content. So even for destination connectors, we
-                 * grab the source map content from the source connector message.
-                 */
-                MessageContent sourceMapContent = getMessageContent(channelId, messageId, 0, ContentType.SOURCE_MAP, true);
-
-                if (sourceMapContent != null && metaDataId > 0) {
-                    sourceMapContent.setMetaDataId(metaDataId);
+                if (metaDataId > 0) {
+                    // For destination connectors, retrieve and load any content that is stored on the source connector
+                    loadMessageContent(connectorMessage, getDestinationMessageContentFromSource(channelId, messageId, metaDataId));
                 }
 
-                connectorMessage.setSourceMapContent(getMapContentFromMessageContent(sourceMapContent));
-                connectorMessage.setConnectorMapContent(getMapContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CONNECTOR_MAP, true)));
-                connectorMessage.setChannelMapContent(getMapContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CHANNEL_MAP, true)));
-                connectorMessage.setResponseMapContent(getMapContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_MAP, true)));
-
-                connectorMessage.setProcessingErrorContent(getErrorContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.PROCESSING_ERROR, true)));
-                connectorMessage.setPostProcessorErrorContent(getErrorContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.POSTPROCESSOR_ERROR, true)));
-                connectorMessage.setResponseErrorContent(getErrorContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_ERROR, true)));
-
-                MessageContent rawContent = getMessageContent(channelId, messageId, 0, (metaDataId == 0) ? ContentType.RAW : ContentType.ENCODED, decryptData);
-
-                if (rawContent != null && metaDataId > 0) {
-                    rawContent.setMetaDataId(metaDataId);
-                    rawContent.setContentType(ContentType.RAW);
-                }
-
-                connectorMessage.setRaw(rawContent);
-                connectorMessage.setProcessedRaw(getMessageContent(channelId, messageId, metaDataId, ContentType.PROCESSED_RAW, decryptData));
-                connectorMessage.setTransformed(getMessageContent(channelId, messageId, metaDataId, ContentType.TRANSFORMED, decryptData));
-                connectorMessage.setEncoded(getMessageContent(channelId, messageId, metaDataId, ContentType.ENCODED, decryptData));
-                connectorMessage.setSent(getMessageContent(channelId, messageId, metaDataId, ContentType.SENT, decryptData));
-                connectorMessage.setResponse(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE, decryptData));
-                connectorMessage.setResponseTransformed(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_TRANSFORMED, decryptData));
-                connectorMessage.setProcessedResponse(getMessageContent(channelId, messageId, metaDataId, ContentType.PROCESSED_RESPONSE, decryptData));
+                // Retrive all content for the connector and load it into the connector message
+                loadMessageContent(connectorMessage, getMessageContent(channelId, messageId, metaDataId));
             }
 
             connectorMessage.setMetaDataMap(getMetaDataMap(channelId, messageId, metaDataId));
-
             return connectorMessage;
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         }
     }
 
-    private MessageContent getMessageContent(String channelId, long messageId, int metaDataId, ContentType contentType, boolean decrypt) {
+    /**
+     * Get all message content for a messageId and metaDataId
+     */
+    private List<MessageContent> getMessageContent(String channelId, long messageId, int metaDataId) {
+        List<MessageContent> messageContents = new ArrayList<MessageContent>();
         ResultSet resultSet = null;
 
         try {
             PreparedStatement statement = prepareStatement("getMessageContent", channelId);
             statement.setLong(1, messageId);
             statement.setInt(2, metaDataId);
-            statement.setInt(3, contentType.getContentTypeCode());
 
             resultSet = statement.executeQuery();
 
-            if (resultSet.next()) {
+            while (resultSet.next()) {
                 String content = resultSet.getString("content");
+                ContentType contentType = ContentType.fromCode(resultSet.getInt("content_type"));
                 String dataType = resultSet.getString("data_type");
                 boolean encrypted = resultSet.getBoolean("is_encrypted");
 
-                if (decrypt && encrypted && encryptor != null) {
+                if ((decryptData || alwaysDecrypt.contains(contentType)) && encrypted && encryptor != null) {
                     content = encryptor.decrypt(content);
                     encrypted = false;
                 }
 
-                return new MessageContent(channelId, messageId, metaDataId, contentType, content, dataType, encrypted);
+                messageContents.add(new MessageContent(channelId, messageId, metaDataId, contentType, content, dataType, encrypted));
             }
-
-            return null;
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
             close(resultSet);
+        }
+
+        return messageContents;
+    }
+
+    /**
+     * Get all content for a destination connector that is stored with the source connector
+     */
+    private List<MessageContent> getDestinationMessageContentFromSource(String channelId, long messageId, int metaDataId) {
+        List<MessageContent> messageContents = new ArrayList<MessageContent>();
+        ResultSet resultSet = null;
+
+        try {
+            PreparedStatement statement = prepareStatement("getDestinationMessageContentFromSource", channelId);
+            statement.setLong(1, messageId);
+
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                String content = resultSet.getString("content");
+                ContentType contentType = ContentType.fromCode(resultSet.getInt("content_type"));
+                String dataType = resultSet.getString("data_type");
+                boolean encrypted = resultSet.getBoolean("is_encrypted");
+
+                if ((decryptData || alwaysDecrypt.contains(contentType)) && encrypted && encryptor != null) {
+                    content = encryptor.decrypt(content);
+                    encrypted = false;
+                }
+
+                if (contentType == ContentType.ENCODED) {
+                    contentType = ContentType.RAW;
+                }
+
+                messageContents.add(new MessageContent(channelId, messageId, metaDataId, contentType, content, dataType, encrypted));
+            }
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        } finally {
+            close(resultSet);
+        }
+
+        return messageContents;
+    }
+
+    /**
+     * Load message content into the connector message based on the content type
+     */
+    private void loadMessageContent(ConnectorMessage connectorMessage, List<MessageContent> messageContents) {
+        for (MessageContent messageContent : messageContents) {
+            switch (messageContent.getContentType()) {
+                case RAW:
+                    connectorMessage.setRaw(messageContent);
+                    break;
+                case PROCESSED_RAW:
+                    connectorMessage.setProcessedRaw(messageContent);
+                    break;
+                case TRANSFORMED:
+                    connectorMessage.setTransformed(messageContent);
+                    break;
+                case ENCODED:
+                    connectorMessage.setEncoded(messageContent);
+                    break;
+                case SENT:
+                    connectorMessage.setSent(messageContent);
+                    break;
+                case RESPONSE:
+                    connectorMessage.setResponse(messageContent);
+                    break;
+                case RESPONSE_TRANSFORMED:
+                    connectorMessage.setResponseTransformed(messageContent);
+                    break;
+                case PROCESSED_RESPONSE:
+                    connectorMessage.setProcessedResponse(messageContent);
+                    break;
+                case CONNECTOR_MAP:
+                    connectorMessage.setConnectorMapContent(getMapContentFromMessageContent(messageContent));
+                    break;
+                case CHANNEL_MAP:
+                    connectorMessage.setChannelMapContent(getMapContentFromMessageContent(messageContent));
+                    break;
+                case RESPONSE_MAP:
+                    connectorMessage.setResponseMapContent(getMapContentFromMessageContent(messageContent));
+                    break;
+                case PROCESSING_ERROR:
+                    connectorMessage.setProcessingErrorContent(getErrorContentFromMessageContent(messageContent));
+                    break;
+                case POSTPROCESSOR_ERROR:
+                    connectorMessage.setPostProcessorErrorContent(getErrorContentFromMessageContent(messageContent));
+                    break;
+                case RESPONSE_ERROR:
+                    connectorMessage.setResponseErrorContent(getErrorContentFromMessageContent(messageContent));
+                    break;
+                case SOURCE_MAP:
+                    connectorMessage.setSourceMapContent(getMapContentFromMessageContent(messageContent));
+                    break;
+            }
         }
     }
 
