@@ -135,8 +135,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
             try {
                 /*
                  * If the keepConnectionOpen option is not enabled, we open the database
-                 * connection(s)
-                 * here. They will be closed in afterPoll().
+                 * connection(s) here. They will be closed in afterPoll().
                  */
                 if (!connectorProperties.isKeepConnectionOpen()) {
                     initSelectConnection();
@@ -150,11 +149,9 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
 
                 /*
                  * Using the list of placeholder keys found in the select statement (selectParams),
-                 * get
-                 * the corresponding values from JdbcUtils.getParameters() which uses a
+                 * get the corresponding values from JdbcUtils.getParameters() which uses a
                  * TemplateValueReplacer to to look up values from a default context based on the
-                 * given
-                 * channel id
+                 * given channel id
                  */
                 for (Object param : JdbcUtils.getParameters(selectParams, connector.getChannelId(), null, null, null)) {
                     selectStatement.setObject(objectIndex++, param);
@@ -268,7 +265,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
         String password = replacer.replaceValues(connectorProperties.getPassword(), connector.getChannelId());
 
         selectConnection = DriverManager.getConnection(url, username, password);
-        selectConnection.setAutoCommit(false);
+        selectConnection.setAutoCommit(true);
 
         /*
          * Before preparing the select statement, we extract the Apache velocity variables from the
