@@ -187,18 +187,18 @@
                 var selectHtml = '';
                 for (var i = 0; i < options.length; i++) {
                 	var num = options[i];
+                	var selected = (num.toString() == defaultMaxHeapSize);
                 	var letter = 'm';
                 	
                 	if (num % 1024 == 0) {
                 		num /= 1024;
                 		letter = 'g';
                 	}
-                	selectHtml += '<option value="' + num + letter + '">' + num + ' ' + letter.toUpperCase() + 'B</option>';
+                	selectHtml += '<option value="' + num + letter + '"' + (selected ? ' selected' : '') + '>' + num + ' ' + letter.toUpperCase() + 'B</option>';
                 }
                 
-                // Set the options and the default value
+                // Set the options
                 $('#maxHeapSizeSelect').html(selectHtml);
-                $('#maxHeapSizeSelect').val(defaultMaxHeapSize);
                 
                 // This prevents closing the Bootstrap dropdown when clicking on the select input 
                 $('#optionsDropdownMenu').click(function(e) {
