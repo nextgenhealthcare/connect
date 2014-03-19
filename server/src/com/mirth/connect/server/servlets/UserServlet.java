@@ -27,6 +27,7 @@ import org.eclipse.jetty.io.RuntimeIOException;
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.LoginStatus;
+import com.mirth.connect.model.LoginStatus.Status;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
 import com.mirth.connect.model.ServerEvent.Outcome;
@@ -51,16 +52,31 @@ public class UserServlet extends MirthServlet {
 
         UserController userController = ControllerFactory.getFactory().createUserController();
         EventController eventController = ControllerFactory.getFactory().createEventController();
+        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
         PrintWriter out = response.getWriter();
         Operation operation = Operations.getOperation(request.getParameter("op"));
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
         try {
             if (operation.equals(Operations.USER_LOGIN)) {
+                response.setContentType(TEXT_PLAIN);
+
+                int tryCount = 0;
+                int status = configurationController.getStatus();
+                while (status != ConfigurationController.STATUS_INITIAL_DEPLOY && status != ConfigurationController.STATUS_OK) {
+                    if (tryCount >= 5) {
+                        serializer.serialize(new LoginStatus(Status.FAIL, "Server is still starting. Please try again shortly."), out);
+                        return;
+                    }
+
+                    Thread.sleep(1000);
+                    status = configurationController.getStatus();
+                    tryCount++;
+                }
+
                 String username = request.getParameter("username");
                 String password = request.getParameter("password");
                 String version = request.getParameter("version");
-                response.setContentType(TEXT_PLAIN);
                 serializer.serialize(login(request, response, userController, eventController, username, password, version), out);
             } else if (!isUserLoggedIn(request)) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN);
