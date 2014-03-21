@@ -205,6 +205,18 @@ public class Client {
     }
     
     /**
+     * Enables/disables the specified channels.
+     * 
+     * @param channel
+     * @throws ClientException
+     */
+    public synchronized void setChannelEnabled(Set<String> channelIds, boolean enabled) throws ClientException {
+        logger.debug("updating channel: channelIds=" + channelIds + ", enabled=" + enabled);
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_SET_ENABLED.getName()), new NameValuePair("channelIds", serializer.serialize(channelIds)), new NameValuePair("enabled", new Boolean(enabled).toString()) };
+        serverConnection.executePostMethod(CHANNEL_SERVLET, params);
+    }
+    
+    /**
      * Updates the specified channel.
      * 
      * @param channel

@@ -34,6 +34,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -2693,35 +2694,46 @@ public class Frame extends JXFrame {
     }
 
     public void doEnableChannel() {
-        List<Channel> selectedChannels = channelPanel.getSelectedChannels();
+        final List<Channel> selectedChannels = channelPanel.getSelectedChannels();
         if (selectedChannels.size() == 0) {
             alertWarning(this, "Channel no longer exists.");
             return;
         }
 
-        for (final Channel channel : selectedChannels) {
+        final Set<String> channelIds = new HashSet<String>();
+        Set<Channel> failedChannels = new HashSet<Channel>();
+        String firstValidationMessage = null;
+
+        for (Iterator<Channel> it = selectedChannels.iterator(); it.hasNext();) {
+            Channel channel = it.next();
+            String validationMessage = null;
+
             if (channel instanceof InvalidChannel) {
-                InvalidChannel invalidChannel = (InvalidChannel) channel;
-                Throwable cause = invalidChannel.getCause();
-                alertException(this, cause.getStackTrace(), "Channel \"" + channel.getName() + "\" is invalid and cannot be enabled. " + getMissingExtensions(invalidChannel) + "Original cause:\n" + cause.getMessage());
-                return;
-            }
+                failedChannels.add(channel);
+                it.remove();
+            } else if ((validationMessage = channelEditPanel.checkAllForms(channel)) != null) {
+                if (firstValidationMessage == null) {
+                    firstValidationMessage = validationMessage;
+                }
 
-            String validationMessage = channelEditPanel.checkAllForms(channel);
-            if (validationMessage != null) {
-                alertCustomError(this, validationMessage, CustomErrorDialog.ERROR_ENABLING_CHANNEL);
-                return;
+                failedChannels.add(channel);
+                it.remove();
+            } else {
+                channelIds.add(channel.getId());
             }
+        }
 
+        if (!channelIds.isEmpty()) {
             final String workingId = startWorking("Enabling channel...");
 
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
                 public Void doInBackground() {
+                    for (Channel channel : selectedChannels) {
+                        channel.setEnabled(true);
+                    }
 
-                    channel.setEnabled(true);
                     try {
-                        updateChannel(channel, false);
+                        mirthClient.setChannelEnabled(channelIds, true);
                     } catch (ClientException e) {
                         alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
@@ -2735,42 +2747,65 @@ public class Frame extends JXFrame {
             };
 
             worker.execute();
+        }
 
+        if (!failedChannels.isEmpty()) {
+            if (failedChannels.size() == 1) {
+                Channel channel = failedChannels.iterator().next();
+
+                if (channel instanceof InvalidChannel) {
+                    InvalidChannel invalidChannel = (InvalidChannel) channel;
+                    Throwable cause = invalidChannel.getCause();
+                    alertException(this, cause.getStackTrace(), "Channel \"" + invalidChannel.getName() + "\" is invalid and cannot be enabled. " + getMissingExtensions(invalidChannel) + "Original cause:\n" + cause.getMessage());
+                } else {
+                    alertCustomError(this, firstValidationMessage, CustomErrorDialog.ERROR_ENABLING_CHANNEL);
+                }
+            } else {
+                String message = "The following channels are invalid or not configured properly:\n\n";
+                for (Channel channel : failedChannels) {
+                    message += "    " + channel.getName() + " (" + channel.getId() + ")\n";
+                }
+                alertError(this, message);
+            }
         }
     }
 
     public void doDisableChannel() {
-        List<Channel> selectedChannels = channelPanel.getSelectedChannels();
+        final List<Channel> selectedChannels = channelPanel.getSelectedChannels();
         if (selectedChannels.size() == 0) {
             alertWarning(this, "Channel no longer exists.");
             return;
         }
 
-        for (final Channel channel : selectedChannels) {
-            if (!(channel instanceof InvalidChannel)) {
-                final String workingId = startWorking("Disabling channel...");
+        final String workingId = startWorking("Disabling channels...");
 
-                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
-                    public Void doInBackground() {
+            public Void doInBackground() {
+                Set<String> channelIds = new HashSet<String>();
+
+                for (Channel channel : selectedChannels) {
+                    if (!(channel instanceof InvalidChannel)) {
                         channel.setEnabled(false);
-                        try {
-                            updateChannel(channel, false);
-                        } catch (ClientException e) {
-                            alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                        }
-                        return null;
+                        channelIds.add(channel.getId());
                     }
+                }
 
-                    public void done() {
-                        doRefreshChannels();
-                        stopWorking(workingId);
-                    }
-                };
-
-                worker.execute();
+                try {
+                    mirthClient.setChannelEnabled(channelIds, false);
+                } catch (ClientException e) {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                }
+                return null;
             }
-        }
+
+            public void done() {
+                doRefreshChannels();
+                stopWorking(workingId);
+            }
+        };
+
+        worker.execute();
     }
 
     public void doNewUser() {

@@ -44,7 +44,7 @@ public class ChannelServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // MIRTH-1745
         response.setCharacterEncoding("UTF-8");
-        
+
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {
@@ -56,7 +56,7 @@ public class ChannelServlet extends MirthServlet {
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
                 ServerEventContext context = new ServerEventContext();
                 context.setUserId(getCurrentUserId(request));
-                
+
                 if (operation.equals(Operations.CHANNEL_GET)) {
                     response.setContentType(APPLICATION_XML);
                     List<Channel> channels = null;
@@ -73,6 +73,17 @@ public class ChannelServlet extends MirthServlet {
                     }
 
                     serializer.serialize(channels, out);
+                } else if (operation.equals(Operations.CHANNEL_SET_ENABLED)) {
+                    Set<String> channelIds = serializer.deserialize(request.getParameter("channelIds"), Set.class);
+                    boolean enabled = Boolean.valueOf(request.getParameter("enabled")).booleanValue();
+                    parameterMap.put("channelIds", channelIds);
+                    parameterMap.put("enabled", enabled);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        channelController.setChannelEnabled(channelIds, context, enabled);
+                    }
                 } else if (operation.equals(Operations.CHANNEL_UPDATE)) {
                     Channel channel = serializer.deserialize(request.getParameter("channel"), Channel.class);
                     boolean override = Boolean.valueOf(request.getParameter("override")).booleanValue();
@@ -83,8 +94,7 @@ public class ChannelServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         response.setContentType(TEXT_PLAIN);
-                        // NOTE: This needs to be print rather than println to
-                        // avoid the newline
+                        // NOTE: This needs to be print rather than println to avoid the newline
                         out.print(channelController.updateChannel(channel, context, override));
                     }
                 } else if (operation.equals(Operations.CHANNEL_REMOVE)) {
@@ -129,7 +139,7 @@ public class ChannelServlet extends MirthServlet {
                     response.setContentType(APPLICATION_XML);
                     String channelId = request.getParameter("channelId");
                     parameterMap.put("channelId", channelId);
-                    
+
                     Map<Integer, String> connectorNames = null;
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -147,7 +157,7 @@ public class ChannelServlet extends MirthServlet {
                     response.setContentType(APPLICATION_XML);
                     String channelId = request.getParameter("channelId");
                     parameterMap.put("channelId", channelId);
-                    
+
                     List<MetaDataColumn> metaDataColumns = null;
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -170,30 +180,30 @@ public class ChannelServlet extends MirthServlet {
             }
         }
     }
-    
+
     private List<Channel> redactChannels(HttpServletRequest request, List<Channel> channels) throws ServletException {
         List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
         List<Channel> authorizedChannels = new ArrayList<Channel>();
-        
+
         for (Channel channel : channels) {
             if (authorizedChannelIds.contains(channel.getId())) {
                 authorizedChannels.add(channel);
             }
         }
-        
+
         return authorizedChannels;
     }
-    
+
     private List<ChannelSummary> redactChannelSummaries(HttpServletRequest request, List<ChannelSummary> channelSummaries) throws ServletException {
         List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
         List<ChannelSummary> authorizedChannelSummaries = new ArrayList<ChannelSummary>();
-        
+
         for (ChannelSummary channelSummary : channelSummaries) {
             if (authorizedChannelIds.contains(channelSummary.getId())) {
                 authorizedChannelSummaries.add(channelSummary);
             }
         }
-        
+
         return authorizedChannelSummaries;
     }
 }

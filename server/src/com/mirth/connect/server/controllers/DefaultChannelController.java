@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.log4j.Logger;
 
@@ -181,13 +182,57 @@ public class DefaultChannelController extends ChannelController {
 
         return channelTags;
     }
+    
+    @Override
+    public synchronized void setChannelEnabled(Set<String> channelIds, ServerEventContext context, boolean enabled) throws ControllerException {
+        /*
+         * Methods that update the channel must be synchronized to ensure the channel cache and
+         * database never contain different versions of a channel.
+         */
+        ControllerException firstCause = null;
+
+        for (String channelId : channelIds) {
+            Channel cachedChannel = getChannelById(channelId);
+
+            // If the channel exists, is not invalid, and its enabled flag isn't already the same as what was passed in
+            if (cachedChannel != null && !(cachedChannel instanceof InvalidChannel) && cachedChannel.isEnabled() != enabled) {
+                Channel channel = (Channel) SerializationUtils.clone(cachedChannel);
+                channel.setEnabled(enabled);
+                channel.setRevision(channel.getRevision() + 1);
+        
+                try {
+                    Map<String, Object> params = new HashMap<String, Object>();
+                    params.put("id", channel.getId());
+                    params.put("name", channel.getName());
+                    params.put("revision", channel.getRevision());
+                    params.put("channel", channel);
+        
+                    // Update the new channel in the database
+                    logger.debug("updating channel");
+                    SqlConfig.getSqlSessionManager().update("Channel.updateChannel", params);
+        
+                    // invoke the channel plugins
+                    for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+                        channelPlugin.save(channel, context);
+                    }
+                } catch (Exception e) {
+                    if (firstCause == null) {
+                        firstCause = new ControllerException(e);
+                    }
+                }
+            }
+        }
+        
+        if (firstCause != null) {
+            throw firstCause;
+        }
+    }
 
     @Override
     public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
         /*
-         * updateChannel and removeChannel must be synchronized to ensure the
-         * channel cache and database
-         * never contain different versions of a channel.
+         * Methods that update the channel must be synchronized to ensure the channel cache and
+         * database never contain different versions of a channel.
          */
 
         int newRevision = channel.getRevision();
@@ -284,9 +329,8 @@ public class DefaultChannelController extends ChannelController {
     @Override
     public synchronized void removeChannel(Channel channel, ServerEventContext context) throws ControllerException {
         /*
-         * updateChannel and removeChannel must be synchronized to ensure the
-         * channel cache and database
-         * never contain different versions of a channel.
+         * Methods that update the channel must be synchronized to ensure the channel cache and
+         * database never contain different versions of a channel.
          */
 
         logger.debug("removing channel");

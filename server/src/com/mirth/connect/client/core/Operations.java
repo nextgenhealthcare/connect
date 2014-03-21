@@ -24,6 +24,7 @@ public class Operations {
     // Channels
     public static final Operation CHANNEL_GET = new Operation("getChannel", "Get channel", true);
     public static final Operation CHANNEL_UPDATE = new Operation("updateChannel", "Update channel", true);
+    public static final Operation CHANNEL_SET_ENABLED = new Operation("setChannelEnabled", "Set channel enabled flag", true);
     public static final Operation CHANNEL_REMOVE = new Operation("removeChannel", "Remove channel", true);
     public static final Operation CHANNEL_GET_SUMMARY = new Operation("getChannelSummary", "Get channel summary", false);
     public static final Operation CHANNEL_GET_TAGS = new Operation("getChannelTags", "Get channel tags", false);
@@ -135,6 +136,7 @@ public class Operations {
         operationMap.put(ALERT_GET_STATUS.getName(), ALERT_GET_STATUS);
         operationMap.put(CHANNEL_GET.getName(), CHANNEL_GET);
         operationMap.put(CHANNEL_UPDATE.getName(), CHANNEL_UPDATE);
+        operationMap.put(CHANNEL_SET_ENABLED.getName(), CHANNEL_SET_ENABLED);
         operationMap.put(CHANNEL_REMOVE.getName(), CHANNEL_REMOVE);
         operationMap.put(CHANNEL_GET_SUMMARY.getName(), CHANNEL_GET_SUMMARY);
         operationMap.put(CHANNEL_GET_TAGS.getName(), CHANNEL_GET_TAGS);

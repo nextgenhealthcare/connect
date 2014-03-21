@@ -40,6 +40,8 @@ public abstract class ChannelController extends Controller {
     public abstract Set<String> getChannelIds();
     
     public abstract List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException;
+    
+    public abstract void setChannelEnabled(Set<String> channelIds, ServerEventContext context, boolean enabled) throws ControllerException;
 
     public abstract boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException;
 
