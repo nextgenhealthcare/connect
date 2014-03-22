@@ -26,6 +26,7 @@ import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DeployedChannelInfo;
 import com.mirth.connect.model.DriverInfo;
@@ -78,6 +79,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         Connector.class,
         ConnectorMetaData.class,
         DashboardStatus.class,
+        DashboardChannelInfo.class,
         DefaultTrigger.class,
         DeployedChannelInfo.class,
         DriverInfo.class,

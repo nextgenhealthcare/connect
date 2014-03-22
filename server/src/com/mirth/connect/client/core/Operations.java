@@ -44,7 +44,9 @@ public class Operations {
     public static final Operation CHANNEL_RESUME = new Operation("resumeChannel", "Resume channel", true);
     public static final Operation CHANNEL_START_CONNECTOR = new Operation("startConnector", "Start connector", true);
     public static final Operation CHANNEL_STOP_CONNECTOR = new Operation("stopConnector", "Stop connector", true);
-    public static final Operation CHANNEL_GET_STATUS = new Operation("getChannelStatusList", "Get channel status list", false);
+    public static final Operation CHANNEL_GET_STATUS_INITIAL = new Operation("getChannelStatusListInitial", "Get initial channel status list", false);
+    public static final Operation CHANNEL_GET_STATUS = new Operation("getChannelStatusList", "Get status list for specific channels", false);
+    public static final Operation CHANNEL_GET_STATUS_ALL = new Operation("getChannelStatusListAll", "Get channel status list for all channels", false);
 
     // Code Templates
     public static final Operation CODE_TEMPLATE_GET = new Operation("getCodeTemplate", "Get code template", true);
@@ -152,7 +154,9 @@ public class Operations {
         operationMap.put(CHANNEL_RESUME.getName(), CHANNEL_RESUME);
         operationMap.put(CHANNEL_START_CONNECTOR.getName(), CHANNEL_START_CONNECTOR);
         operationMap.put(CHANNEL_STOP_CONNECTOR.getName(), CHANNEL_STOP_CONNECTOR);
+        operationMap.put(CHANNEL_GET_STATUS_INITIAL.getName(), CHANNEL_GET_STATUS_INITIAL);
         operationMap.put(CHANNEL_GET_STATUS.getName(), CHANNEL_GET_STATUS);
+        operationMap.put(CHANNEL_GET_STATUS_ALL.getName(), CHANNEL_GET_STATUS_ALL);
         operationMap.put(CODE_TEMPLATE_GET.getName(), CODE_TEMPLATE_GET);
         operationMap.put(CODE_TEMPLATE_UPDATE.getName(), CODE_TEMPLATE_UPDATE);
         operationMap.put(CODE_TEMPLATE_REMOVE.getName(), CODE_TEMPLATE_REMOVE);
@@ -218,11 +222,11 @@ public class Operations {
         operationMap.put(USER_PREFERENCES_GET.getName(), USER_PREFERENCES_GET);
         operationMap.put(USER_PREFERENCES_SET.getName(), USER_PREFERENCES_SET);
     }
-    
+
     public static void addOperation(Operation operation) {
         operationMap.put(operation.getName(), operation);
     }
-    
+
     public static Operation getOperation(String operationName) {
         return operationMap.get(operationName);
     }

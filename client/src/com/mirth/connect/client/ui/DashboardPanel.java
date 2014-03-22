@@ -404,28 +404,49 @@ public class DashboardPanel extends javax.swing.JPanel {
         return false;
     }
 
-    public synchronized void updateTable(List<DashboardStatus> statuses) {
+    public synchronized void updateTableChannelNodes(List<DashboardStatus> intermediateStatuses) {
         boolean tagFilterEnabled = parent.channelFilter.isTagFilterEnabled();
         Set<String> visibleTags = parent.channelFilter.getVisibleTags();
 
         if (tagFilterEnabled) {
-            int totalChannelCount = statuses.size();
             List<DashboardStatus> filteredStatuses = new ArrayList<DashboardStatus>();
 
-            for (DashboardStatus currentStatus : statuses) {
+            for (DashboardStatus currentStatus : intermediateStatuses) {
                 if (tagFilterEnabled && CollectionUtils.containsAny(visibleTags, currentStatus.getTags())) {
                     filteredStatuses.add(currentStatus);
                 }
             }
 
-            statuses = filteredStatuses;
-            tagsLabel.setText(statuses.size() + " of " + totalChannelCount + " Deployed Channels (" + StringUtils.join(visibleTags, ", ") + ")");
-        } else {
-            tagsLabel.setText(statuses.size() + " Deployed Channels");
+            intermediateStatuses = filteredStatuses;
         }
 
         DashboardTreeTableModel model = (DashboardTreeTableModel) statusTable.getTreeTableModel();
-        model.setStatuses(statuses);
+        model.setStatuses(intermediateStatuses);
+        model.setShowLifetimeStats(showLifetimeStatsButton.isSelected());
+
+        updateTableHighlighting();
+    }
+
+    public synchronized void finishUpdatingTable(List<DashboardStatus> finishedStatuses) {
+        boolean tagFilterEnabled = parent.channelFilter.isTagFilterEnabled();
+        Set<String> visibleTags = parent.channelFilter.getVisibleTags();
+
+        if (tagFilterEnabled) {
+            int filteredChannelCount = 0;
+
+            for (DashboardStatus currentStatus : finishedStatuses) {
+                if (tagFilterEnabled && CollectionUtils.containsAny(visibleTags, currentStatus.getTags())) {
+                    filteredChannelCount++;
+                }
+            }
+
+            tagsLabel.setText(filteredChannelCount + " of " + finishedStatuses.size() + " Deployed Channels (" + StringUtils.join(visibleTags, ", ") + ")");
+        } else {
+            tagsLabel.setText(finishedStatuses.size() + " Deployed Channels");
+        }
+
+        DashboardTreeTableModel model = (DashboardTreeTableModel) statusTable.getTreeTableModel();
+        model.finishStatuses(finishedStatuses);
         model.setShowLifetimeStats(showLifetimeStatsButton.isSelected());
 
         // The ListSelectionListener is not notified that the tree table model has changed so we must update the menu items manually.

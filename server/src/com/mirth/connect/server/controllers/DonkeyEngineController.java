@@ -373,7 +373,26 @@ public class DonkeyEngineController implements EngineController {
 
     @Override
     public List<DashboardStatus> getChannelStatusList() {
-        return getDashboardStatuses(donkey.getDeployedChannels().values());
+        return getChannelStatusList(null);
+    }
+
+    @Override
+    public List<DashboardStatus> getChannelStatusList(Set<String> channelIds) {
+        Collection<com.mirth.connect.donkey.server.channel.Channel> donkeyChannels = null;
+
+        if (channelIds != null) {
+            donkeyChannels = new ArrayList<com.mirth.connect.donkey.server.channel.Channel>(channelIds.size());
+
+            for (com.mirth.connect.donkey.server.channel.Channel donkeyChannel : donkey.getDeployedChannels().values()) {
+                if (channelIds.contains(donkeyChannel.getChannelId())) {
+                    donkeyChannels.add(donkeyChannel);
+                }
+            }
+        } else {
+            donkeyChannels = donkey.getDeployedChannels().values();
+        }
+
+        return getDashboardStatuses(donkeyChannels);
     }
 
     private List<DashboardStatus> getDashboardStatuses(Collection<com.mirth.connect.donkey.server.channel.Channel> donkeyChannels) {

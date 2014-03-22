@@ -35,6 +35,7 @@ import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
@@ -971,7 +972,32 @@ public class Client {
      */
     public List<DashboardStatus> getChannelStatusList() throws ClientException {
         logger.debug("retrieving channel status list");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_STATUS.getName()) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_STATUS_ALL.getName()) };
+        return serializer.deserializeList(serverConnection.executePostMethodAsync(CHANNEL_STATUS_SERVLET, params), DashboardStatus.class);
+    }
+
+    /**
+     * Returns a DashboardChannelInfo object containing a partial channel status list and a set of
+     * remaining channel IDs. The block size specifies the maximum number of statuses to return.
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public DashboardChannelInfo getDashboardChannelInfo(int fetchSize) throws ClientException {
+        logger.debug("retrieving channel status list: fetchSize=" + String.valueOf(fetchSize));
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_STATUS_INITIAL.getName()), new NameValuePair("fetchSize", String.valueOf(fetchSize)) };
+        return serializer.deserialize(serverConnection.executePostMethodAsync(CHANNEL_STATUS_SERVLET, params), DashboardChannelInfo.class);
+    }
+
+    /**
+     * Returns the channel status list for specific channel IDs.
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public List<DashboardStatus> getChannelStatusList(Set<String> channelIds) throws ClientException {
+        logger.debug("retrieving channel status list: channelIds=" + String.valueOf(channelIds));
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_STATUS.getName()), new NameValuePair("channelIds", serializer.serialize(channelIds)) };
         return serializer.deserializeList(serverConnection.executePostMethodAsync(CHANNEL_STATUS_SERVLET, params), DashboardStatus.class);
     }
 

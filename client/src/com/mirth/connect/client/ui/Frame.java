@@ -111,6 +111,7 @@ import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
+import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.PluginMetaData;
@@ -220,6 +221,8 @@ public class Frame extends JXFrame {
     private MessageExportDialog messageExportDialog;
     private MessageImportDialog messageImportDialog;
     private KeyEventDispatcher keyEventDispatcher = null;
+    
+    private static final int REFRESH_BLOCK_SIZE = 100;
 
     public Frame() {
         rightContainer = new JXTitledPanel();
@@ -2429,13 +2432,35 @@ public class Frame extends JXFrame {
         // background only when the 'status' object is done assessed in the
         // background.
 
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, DashboardStatus> worker = new SwingWorker<Void, DashboardStatus>() {
             public Void doInBackground() {
                 try {
-                    status = mirthClient.getChannelStatusList();
-                    resetSafeErrorFailCount(TaskConstants.DASHBOARD_REFRESH);
-
+                    DashboardChannelInfo dashboardStatusList = mirthClient.getDashboardChannelInfo(REFRESH_BLOCK_SIZE);
+                    status = dashboardStatusList.getDashboardStatuses();
+                    Set<String> remainingIds = dashboardStatusList.getRemainingChannelIds();
+                    
                     if (status != null) {
+                        publish(status.toArray(new DashboardStatus[status.size()]));
+                        
+                        if (CollectionUtils.isNotEmpty(remainingIds)) {
+                            Set<String> statusChannelIds = new HashSet<String>(Math.min(remainingIds.size(), REFRESH_BLOCK_SIZE));
+                            
+                            for (Iterator<String> it = remainingIds.iterator(); it.hasNext();) {
+                                statusChannelIds.add(it.next());
+                                
+                                if (!it.hasNext() || statusChannelIds.size() == REFRESH_BLOCK_SIZE) {
+                                    // Processing a new block, retrieve dashboard statuses from server
+                                    List<DashboardStatus> intermediateStatusList = mirthClient.getChannelStatusList(statusChannelIds);
+                                    // Publish the intermediate statuses
+                                    publish(intermediateStatusList.toArray(new DashboardStatus[intermediateStatusList.size()]));
+                                    // Add the statuses to the master list
+                                    status.addAll(intermediateStatusList);
+                                    // Clear the set of channel IDs
+                                    statusChannelIds.clear();
+                                }
+                            }
+                        }
+                        
                         for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
                             plugin.tableUpdate(status);
                         }
@@ -2447,12 +2472,20 @@ public class Frame extends JXFrame {
 
                 return null;
             }
+            
+            @Override
+            public void process(List<DashboardStatus> chunks) {
+                logger.debug("Processing chunk: " + (chunks != null ? chunks.size() : "null"));
+                if (chunks != null) {
+                    dashboardPanel.updateTableChannelNodes(chunks);
+                }
+            }
 
             public void done() {
                 stopWorking(workingId);
 
                 if (status != null) {
-                    dashboardPanel.updateTable(status);
+                    dashboardPanel.finishUpdatingTable(status);
                     dashboardPanel.updateCurrentPluginPanel();
                 }
 

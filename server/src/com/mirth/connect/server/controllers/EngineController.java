@@ -84,6 +84,14 @@ public interface EngineController {
     public List<DashboardStatus> getChannelStatusList();
 
     /**
+     * Returns a list of DashboardStatus objects representing the running channels.
+     * 
+     * @return
+     * @throws ControllerException
+     */
+    public List<DashboardStatus> getChannelStatusList(Set<String> channelIds);
+
+    /**
      * Returns a DashboardStatus object representing a running channel.
      */
     public DashboardStatus getChannelStatus(String channelId);

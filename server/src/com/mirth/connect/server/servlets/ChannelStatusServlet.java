@@ -12,9 +12,13 @@ package com.mirth.connect.server.servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +30,7 @@ import org.eclipse.jetty.io.RuntimeIOException;
 
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
+import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -47,19 +52,19 @@ public class ChannelStatusServlet extends MirthServlet {
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         PrintWriter out = response.getWriter();
         Operation operation = Operations.getOperation(request.getParameter("op"));
-        String channelId = request.getParameter("id");
-
         Map<String, Object> parameterMap = new HashMap<String, Object>();
-        parameterMap.put("channelId", channelId);
 
-        Integer metaDataId = null;
-        if (request.getParameterMap().containsKey("metaDataId")) {
-            metaDataId = Integer.parseInt(request.getParameter("metaDataId"));
-            parameterMap.put("metaDataId", metaDataId);
+        String channelId = request.getParameter("id");
+        if (channelId != null) {
+            parameterMap.put("channelId", channelId);
         }
 
         try {
-            if ((!operation.equals(Operations.CHANNEL_GET_STATUS) && !isUserAuthorized(request, parameterMap)) || (operation.equals(Operations.CHANNEL_GET_STATUS) && (!isUserAuthorized(request, null)))) {
+            Integer metaDataId = getIntegerParameter(request, "metaDataId", parameterMap);
+            Set<String> channelIds = getSerializedParameter(request, "channelIds", parameterMap, serializer, Set.class);
+            Integer fetchSize = getIntegerParameter(request, "fetchSize", parameterMap);
+
+            if (!isUserAuthorized(request, parameterMap.isEmpty() ? null : parameterMap)) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             } else if (operation.equals(Operations.CHANNEL_START)) {
                 engineController.startChannel(channelId);
@@ -75,7 +80,41 @@ public class ChannelStatusServlet extends MirthServlet {
                 engineController.startConnector(channelId, metaDataId);
             } else if (operation.equals(Operations.CHANNEL_STOP_CONNECTOR)) {
                 engineController.stopConnector(channelId, metaDataId);
+            } else if (operation.equals(Operations.CHANNEL_GET_STATUS_INITIAL)) {
+                response.setContentType(APPLICATION_XML);
+
+                // Return a partial dashboard status list, and a list of remaining channel IDs
+                Set<String> remainingChannelIds = engineController.getDeployedIds();
+
+                if (remainingChannelIds.size() > fetchSize) {
+                    channelIds = new HashSet<String>(fetchSize);
+
+                    for (Iterator<String> it = remainingChannelIds.iterator(); it.hasNext() && channelIds.size() < fetchSize;) {
+                        channelIds.add(it.next());
+                        it.remove();
+                    }
+                } else {
+                    channelIds = remainingChannelIds;
+                    remainingChannelIds = Collections.emptySet();
+                }
+
+                List<DashboardStatus> channelStatuses = engineController.getChannelStatusList(channelIds);
+                if (doesUserHaveChannelRestrictions(request)) {
+                    channelStatuses = redactChannelStatuses(request, channelStatuses);
+                }
+
+                serializer.serialize(new DashboardChannelInfo(channelStatuses, remainingChannelIds), out);
             } else if (operation.equals(Operations.CHANNEL_GET_STATUS)) {
+                response.setContentType(APPLICATION_XML);
+
+                // Return dashboard statuses only for the list of channel IDs
+                List<DashboardStatus> channelStatuses = engineController.getChannelStatusList(channelIds);
+                if (doesUserHaveChannelRestrictions(request)) {
+                    channelStatuses = redactChannelStatuses(request, channelStatuses);
+                }
+
+                serializer.serialize(channelStatuses, out);
+            } else if (operation.equals(Operations.CHANNEL_GET_STATUS_ALL)) {
                 response.setContentType(APPLICATION_XML);
                 List<DashboardStatus> channelStatuses = null;
 

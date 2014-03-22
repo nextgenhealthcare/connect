@@ -17,6 +17,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.server.controllers.AuthorizationController;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -76,5 +79,28 @@ public abstract class MirthServlet extends HttpServlet {
         }
 
         return address;
+    }
+
+    protected Integer getIntegerParameter(HttpServletRequest request, String key, Map<String, Object> parameterMap) {
+        Integer param = null;
+
+        if (request.getParameterMap().containsKey(key)) {
+            param = Integer.parseInt(request.getParameter(key));
+            parameterMap.put(key, param);
+        }
+
+        return param;
+    }
+
+    protected <T> T getSerializedParameter(HttpServletRequest request, String key, Map<String, Object> parameterMap, Serializer serializer, Class<T> clazz) {
+        T param = null;
+        String requestValue = request.getParameter(key);
+
+        if (StringUtils.isNotBlank(requestValue)) {
+            param = serializer.deserialize(requestValue, clazz);
+            parameterMap.put(key, param);
+        }
+
+        return param;
     }
 }
