@@ -89,17 +89,16 @@ public class FrameStreamHandler extends StreamHandler {
     }
 
     /**
-     * Returns the next message from the stream (could be the entire stream
-     * contents or part of a batch).
+     * Returns the next message from the stream (could be the entire stream contents or part of a
+     * batch).
      * 
-     * @return A byte array representing the next whole message in the stream
-     *         (could be the entire stream contents or part of a batch), or null
-     *         if the stream is done. If an IOException is caught while reading
-     *         (e.g. a socket timeout) and returnDataOnException is true, then
-     *         all bytes accumulated up to that point are returned.
+     * @return A byte array representing the next whole message in the stream (could be the entire
+     *         stream contents or part of a batch), or null if the stream is done. If an IOException
+     *         is caught while reading (e.g. a socket timeout) and returnDataOnException is true,
+     *         then all bytes accumulated up to that point are returned.
      * @throws IOException
-     *             If an IOException is caught while reading (e.g. a socket
-     *             timeout) and returnDataOnException is false.
+     *             If an IOException is caught while reading (e.g. a socket timeout) and
+     *             returnDataOnException is false.
      */
     @Override
     public byte[] read() throws IOException {
@@ -217,6 +216,18 @@ public class FrameStreamHandler extends StreamHandler {
             }
         }
 
+        if (endOfMessageBytes.length > 0) {
+            // If we got here, then the end of message bytes were not captured
+            throw new FrameStreamHandlerException(false, endOfMessageBytes, getLastBytes());
+        } else {
+            /*
+             * If we got here, no end of message bytes were expected, but we should reset the check
+             * flag so that the next time a read is performed, it will attempt to capture the
+             * starting bytes again.
+             */
+            checkStartOfMessageBytes = true;
+        }
+
         // Flush the buffer to the main output stream
         for (Byte bufByte : endBytesBuffer) {
             capturedBytes.write(bufByte);
@@ -257,19 +268,28 @@ public class FrameStreamHandler extends StreamHandler {
     }
 
     private byte[] getLastBytes() {
-        List<Byte> lastBytes = new ArrayList<Byte>();
+        int capturedBytesLength = capturedBytes != null ? capturedBytes.size() : 0;
+        int endBytesBufferLength = endBytesBuffer != null ? endBytesBuffer.size() : 0;
+        // If the total bytes read is less than the number of expected end bytes, use the smaller value
+        byte[] lastBytes = new byte[Math.min(capturedBytesLength + endBytesBufferLength, endOfMessageBytes.length)];
+        int index = 0;
 
-        if (endBytesBuffer != null) {
-            lastBytes.addAll(endBytesBuffer);
-        }
-
+        // Add any captured bytes, leaving room for the end bytes buffer
         if (capturedBytes != null) {
             byte[] capturedByteArray = capturedBytes.toByteArray();
-            for (int i = capturedByteArray.length - 1; i >= 0 && lastBytes.size() < endOfMessageBytes.length; i--) {
-                lastBytes.add(capturedByteArray[i]);
+
+            for (int i = capturedBytesLength - lastBytes.length + endBytesBufferLength; i >= 0 && i < capturedBytesLength; i++) {
+                lastBytes[index++] = capturedByteArray[i];
             }
         }
 
-        return ArrayUtils.toPrimitive(lastBytes.toArray(new Byte[0]));
+        // Fill the remainder of the array with the end bytes buffer
+        if (endBytesBuffer != null) {
+            for (byte b : endBytesBuffer) {
+                lastBytes[index++] = b;
+            }
+        }
+
+        return lastBytes;
     }
 }

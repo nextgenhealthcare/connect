@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 public class TcpUtil {
 
     public static final String DEFAULT_LLP_START_BYTES = "0B"; // <VT>
-    public static final String DEFAULT_LLP_END_BYTES = "1C0D"; // <CR><LF>
+    public static final String DEFAULT_LLP_END_BYTES = "1C0D"; // <FS><CR>
 
     public static boolean isValidHexString(String str) {
         return str.matches("^[0-9A-F]*$");
