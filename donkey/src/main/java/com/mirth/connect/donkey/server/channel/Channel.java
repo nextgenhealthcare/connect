@@ -1868,7 +1868,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         @Override
         public Void call() throws Exception {
-            if (currentState != DeployedState.STARTED) {
+            if (currentState == DeployedState.STOPPED) {
                 // Prevent the channel for being started while messages are being deleted.
                 synchronized (Channel.this) {
                     updateCurrentState(DeployedState.STARTING);
@@ -2086,7 +2086,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             DestinationConnector destinationConnector = getDestinationConnector(metaDataId);
 
             if (currentState == DeployedState.STARTED || currentState == DeployedState.PAUSED) {
-                if (destinationConnector.getCurrentState() != DeployedState.STARTED) {
+                if (destinationConnector.getCurrentState() == DeployedState.STOPPED) {
                     try {
                         destinationConnector.start();
                     } catch (Throwable t) {
