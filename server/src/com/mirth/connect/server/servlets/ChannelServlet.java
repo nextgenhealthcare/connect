@@ -37,6 +37,7 @@ import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EngineController;
 
 public class ChannelServlet extends MirthServlet {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -49,6 +50,7 @@ public class ChannelServlet extends MirthServlet {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {
             try {
+                EngineController engineController = ControllerFactory.getFactory().createEngineController();
                 ChannelController channelController = ControllerFactory.getFactory().createChannelController();
                 ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 PrintWriter out = response.getWriter();
@@ -98,13 +100,34 @@ public class ChannelServlet extends MirthServlet {
                         out.print(channelController.updateChannel(channel, context, override));
                     }
                 } else if (operation.equals(Operations.CHANNEL_REMOVE)) {
-                    Channel channel = serializer.deserialize(request.getParameter("channel"), Channel.class);
-                    parameterMap.put("channel", channel);
+                    Set<String> channelIds = getSerializedParameter(request, "channelIds", parameterMap, serializer, Set.class);
+                    boolean undeployFirst = getBooleanParameter(request, "undeployFirst", parameterMap);
 
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        channelController.removeChannel(channel, context);
+                        if (doesUserHaveChannelRestrictions(request)) {
+                            channelIds = redactChannelIds(request, channelIds);
+                        }
+
+                        if (undeployFirst) {
+                            // Undeploy any currently deployed channels in the set
+                            Set<String> deployedChannelIds = new HashSet<String>();
+
+                            for (String channelId : channelIds) {
+                                if (engineController.isDeployed(channelId)) {
+                                    deployedChannelIds.add(channelId);
+                                }
+                            }
+
+                            if (!deployedChannelIds.isEmpty()) {
+                                engineController.undeployChannels(deployedChannelIds, context);
+                            }
+                        }
+
+                        for (String channelId : channelIds) {
+                            channelController.removeChannel(channelId, context);
+                        }
                     }
                 } else if (operation.equals(Operations.CHANNEL_GET_SUMMARY)) {
                     response.setContentType(APPLICATION_XML);

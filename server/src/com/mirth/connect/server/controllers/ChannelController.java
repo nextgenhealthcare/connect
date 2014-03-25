@@ -30,29 +30,29 @@ public abstract class ChannelController extends Controller {
     }
 
     public abstract List<Channel> getChannels(Set<String> channelIds);
-    
+
     public abstract Channel getChannelById(String channelId);
 
     public abstract Channel getChannelByName(String channelName);
 
     public abstract String getDestinationName(String channelId, int metaDataId);
-    
+
     public abstract Set<String> getChannelIds();
-    
+
     public abstract List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException;
-    
+
     public abstract void setChannelEnabled(Set<String> channelIds, ServerEventContext context, boolean enabled) throws ControllerException;
 
     public abstract boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException;
 
-    public abstract void removeChannel(Channel channel, ServerEventContext context) throws ControllerException;
-    
+    public abstract void removeChannel(String channelId, ServerEventContext context) throws ControllerException;
+
     public abstract Map<String, Integer> getChannelRevisions() throws ControllerException;
-    
+
     public abstract Set<String> getChannelTags(Set<String> channelIds);
-    
+
     public abstract Map<Integer, String> getConnectorNames(String channelId);
-    
+
     public abstract List<MetaDataColumn> getMetaDataColumns(String channelId);
 
     // deployed channel cache

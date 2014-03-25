@@ -11,6 +11,7 @@ package com.mirth.connect.client.core;
 
 import java.io.File;
 import java.security.Provider;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -236,8 +237,20 @@ public class Client {
      * @throws ClientException
      */
     public synchronized void removeChannel(Channel channel) throws ClientException {
-        logger.debug("removing channel: channelId=" + channel.getId());
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_REMOVE.getName()), new NameValuePair("channel", serializer.serialize(channel)) };
+        removeChannels(Collections.singleton(channel.getId()), false);
+    }
+
+    /**
+     * Removes the channel with the specified IDs. If undeployFirst is true, any currently deployed
+     * channels will also first attempt to be undeployed.
+     * 
+     * @param channelIds
+     * @param undeployFirst
+     * @throws ClientException
+     */
+    public synchronized void removeChannels(Set<String> channelIds, boolean undeployFirst) throws ClientException {
+        logger.debug("removing channel: channelIds=" + String.valueOf(channelIds) + ", undeployFirst=" + undeployFirst);
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_REMOVE.getName()), new NameValuePair("channelIds", serializer.serialize(channelIds)), new NameValuePair("undeployFirst", new Boolean(undeployFirst).toString()) };
         serverConnection.executePostMethod(CHANNEL_SERVLET, params);
     }
 

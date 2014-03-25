@@ -416,28 +416,28 @@ public class DefaultConfigurationController extends ConfigurationController {
             if (serverConfiguration.getChannels() != null) {
                 // Undeploy all channels before updating or removing them
                 engineController.undeployChannels(engineController.getDeployedIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
-    
+
                 // Remove channels that don't exist in the new configuration
                 for (Channel channel : channelController.getChannels(null)) {
                     boolean found = false;
-    
+
                     for (Channel newChannel : serverConfiguration.getChannels()) {
                         if (newChannel.getId().equals(channel.getId())) {
                             found = true;
                         }
                     }
-    
+
                     if (!found) {
-                        channelController.removeChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+                        channelController.removeChannel(channel.getId(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
                     }
                 }
-    
+
                 // Update all channels from the server configuration
                 for (Channel channel : serverConfiguration.getChannels()) {
                     channelController.updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
                 }
             }
-    
+
             if (serverConfiguration.getAlerts() != null) {
                 // Remove all existing alerts
                 for (AlertModel alert : alertController.getAlerts()) {
@@ -448,34 +448,34 @@ public class DefaultConfigurationController extends ConfigurationController {
                     alertController.updateAlert(alert);
                 }
             }
-    
+
             if (serverConfiguration.getCodeTemplates() != null) {
                 codeTemplateController.removeCodeTemplate(null);
                 codeTemplateController.updateCodeTemplates(serverConfiguration.getCodeTemplates());
             }
-    
+
             if (serverConfiguration.getServerSettings() != null) {
                 setServerSettings(serverConfiguration.getServerSettings());
             }
-    
+
             if (serverConfiguration.getUpdateSettings() != null) {
                 setUpdateSettings(serverConfiguration.getUpdateSettings());
             }
-    
+
             if (serverConfiguration.getGlobalScripts() != null) {
                 scriptController.setGlobalScripts(serverConfiguration.getGlobalScripts());
             }
-    
+
             // Set the properties for all plugins in the server configuration,
             // whether or not the plugin is actually installed on this server.
             if (serverConfiguration.getPluginProperties() != null) {
                 ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-    
+
                 for (Entry<String, Properties> pluginEntry : serverConfiguration.getPluginProperties().entrySet()) {
                     extensionController.setPluginProperties(pluginEntry.getKey(), pluginEntry.getValue());
                 }
             }
-    
+
             // Redeploy all channels
             engineController.redeployAllChannels();
         }
@@ -594,8 +594,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     public void initializeSecuritySettings() {
         try {
             /*
-             * Load the encryption settings so that they can be referenced
-             * client side.
+             * Load the encryption settings so that they can be referenced client side.
              */
             encryptionConfig = new EncryptionSettings(ConfigurationConverter.getProperties(mirthConfig));
 
@@ -661,9 +660,8 @@ public class DefaultConfigurationController extends ConfigurationController {
                         mirthConfig.setProperty("database.password", encryptedPassword);
 
                         /*
-                         * Save using a FileOutputStream so that the file will
-                         * be saved to the proper location, even if running from
-                         * the IDE.
+                         * Save using a FileOutputStream so that the file will be saved to the
+                         * proper location, even if running from the IDE.
                          */
                         File confDir = new File(ControllerFactory.getFactory().createConfigurationController().getConfigurationDir());
                         OutputStream os = new FileOutputStream(new File(confDir, "mirth.properties"));
@@ -682,14 +680,12 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     /*
-     * If we have the encryption key property in the database, that
-     * means the previous keystore was of type JKS, so we want to delete
-     * it so that a new JCEKS one can be created.
+     * If we have the encryption key property in the database, that means the previous keystore was
+     * of type JKS, so we want to delete it so that a new JCEKS one can be created.
      * 
-     * If we migrated from a version prior to 2.2, then the key from the
-     * ENCRYTPION_KEY table has been added to the CONFIGURATION table.
-     * We want to deserialize it and put it in the new keystore. We also
-     * need to delete the property.
+     * If we migrated from a version prior to 2.2, then the key from the ENCRYTPION_KEY table has
+     * been added to the CONFIGURATION table. We want to deserialize it and put it in the new
+     * keystore. We also need to delete the property.
      * 
      * NOTE that this method should only execute once.
      */
@@ -718,8 +714,8 @@ public class DefaultConfigurationController extends ConfigurationController {
                 String xml = getProperty(PROPERTIES_CORE, "encryption.key");
 
                 /*
-                 * This is a fix to account for an error that occurred when testing migration
-                 * from version 1.8.2 to 3.0.0. The key was serialized as an instance of
+                 * This is a fix to account for an error that occurred when testing migration from
+                 * version 1.8.2 to 3.0.0. The key was serialized as an instance of
                  * com.sun.crypto.provider.DESedeKey, but fails to correctly deserialize as an
                  * instance of java.security.KeyRep. The fix below extracts the "<default>" node
                  * from the serialized xml and uses that to deserialize to java.security.KeyRep.
@@ -765,9 +761,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     /**
-     * Instantiates the encryptor and digester using the configuration
-     * properties. If the properties are not found, reasonable defaults are
-     * used.
+     * Instantiates the encryptor and digester using the configuration properties. If the properties
+     * are not found, reasonable defaults are used.
      * 
      * @param provider
      *            The provider to use (ex. BC)
@@ -793,8 +788,8 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
 
         /*
-         * Now that we have a secret key, store it in the encryption settings so
-         * that we can use it to encryption things client side.
+         * Now that we have a secret key, store it in the encryption settings so that we can use it
+         * to encryption things client side.
          */
         encryptionConfig.setSecretKey(secretKey.getEncoded());
 
@@ -810,9 +805,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     /**
-     * Checks for an existing certificate to use for secure communication
-     * between the server and client. If no certficate exists, this will
-     * generate a new one.
+     * Checks for an existing certificate to use for secure communication between the server and
+     * client. If no certficate exists, this will generate a new one.
      * 
      */
     private void generateDefaultCertificate(Provider provider, KeyStore keyStore, char[] keyPassword) throws Exception {
@@ -873,8 +867,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     /**
-     * Checks for the existance of a trust store. If one does not exist, it will
-     * create a new one.
+     * Checks for the existance of a trust store. If one does not exist, it will create a new one.
      * 
      */
     private void generateDefaultTrustStore() throws Exception {

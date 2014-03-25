@@ -74,10 +74,10 @@ public class ChannelControllerTest extends TestCase {
     public void testUpdateChannel() throws ControllerException {
         Channel sampleChannel = sampleChannelList.get(0);
         channelController.updateChannel(sampleChannel, null, true);
-        
+
         Set<String> channelIds = new LinkedHashSet<String>();
         channelIds.add(sampleChannel.getId());
-        
+
         List<Channel> testChannelList = channelController.getChannels(channelIds);
         Channel testChannel = testChannelList.get(0);
 
@@ -100,7 +100,7 @@ public class ChannelControllerTest extends TestCase {
         insertSampleChannels();
 
         Channel sampleChannel = sampleChannelList.get(0);
-        channelController.removeChannel(sampleChannel, null);
+        channelController.removeChannel(sampleChannel.getId(), null);
         List<Channel> testChannelList = channelController.getChannels(null);
 
         Assert.assertFalse(testChannelList.contains(sampleChannel));

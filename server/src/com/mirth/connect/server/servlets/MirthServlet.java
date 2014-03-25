@@ -9,8 +9,10 @@
 
 package com.mirth.connect.server.servlets;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -92,6 +94,18 @@ public abstract class MirthServlet extends HttpServlet {
         return param;
     }
 
+    protected boolean getBooleanParameter(HttpServletRequest request, String key, Map<String, Object> parameterMap) {
+        boolean param = false;
+        String paramString = request.getParameter(key);
+
+        if (StringUtils.isNotBlank(paramString)) {
+            param = Boolean.valueOf(paramString).booleanValue();
+            parameterMap.put(key, param);
+        }
+
+        return param;
+    }
+
     protected <T> T getSerializedParameter(HttpServletRequest request, String key, Map<String, Object> parameterMap, Serializer serializer, Class<T> clazz) {
         T param = null;
         String requestValue = request.getParameter(key);
@@ -102,5 +116,18 @@ public abstract class MirthServlet extends HttpServlet {
         }
 
         return param;
+    }
+
+    protected Set<String> redactChannelIds(HttpServletRequest request, Set<String> channelIds) throws ServletException {
+        List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
+        Set<String> finishedChannelIds = new HashSet<String>();
+
+        for (String channelId : channelIds) {
+            if (authorizedChannelIds.contains(channelId)) {
+                finishedChannelIds.add(channelId);
+            }
+        }
+
+        return finishedChannelIds;
     }
 }

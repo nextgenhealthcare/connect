@@ -2227,6 +2227,11 @@ public class Frame extends JXFrame {
     }
 
     public void doDeleteChannel() {
+        final List<Channel> selectedChannels = channelPanel.getSelectedChannels();
+        if (selectedChannels.size() == 0) {
+            return;
+        }
+
         if (!alertOption(this, "Are you sure you want to delete the selected channel(s)?\nAny selected deployed channel(s) will first be undeployed.")) {
             return;
         }
@@ -2236,45 +2241,15 @@ public class Frame extends JXFrame {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
+                Set<String> channelIds = new HashSet<String>(selectedChannels.size());
+                for (Channel channel : selectedChannels) {
+                    channelIds.add(channel.getId());
+                }
+
                 try {
-                    status = mirthClient.getChannelStatusList();
+                    mirthClient.removeChannels(channelIds, true);
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                    return null;
-                }
-                List<Channel> selectedChannels = channelPanel.getSelectedChannels();
-                if (selectedChannels.size() == 0) {
-                    return null;
-                }
-
-                Set<String> undeployChannelIds = new LinkedHashSet<String>();
-
-                for (Channel channel : selectedChannels) {
-
-                    String channelId = channel.getId();
-                    for (int i = 0; i < status.size(); i++) {
-                        if (status.get(i).getChannelId().equals(channelId)) {
-                            undeployChannelIds.add(channelId);
-                        }
-                    }
-                }
-
-                if (undeployChannelIds.size() > 0) {
-                    try {
-                        mirthClient.undeployChannels(undeployChannelIds);
-                    } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                        return null;
-                    }
-                }
-
-                for (Channel channel : selectedChannels) {
-                    try {
-                        mirthClient.removeChannel(channel);
-                    } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                        return null;
-                    }
                 }
 
                 return null;
