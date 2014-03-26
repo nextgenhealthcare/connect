@@ -177,7 +177,7 @@
               <SubComponents>
                 <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="blockSizeTextField">
                   <Properties>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If this number is 0, all messages are pruned in a single query. If the single query is slowing down&lt;br&gt;the system for too long, messages can be pruned in blocks of the specified size. Block pruning can&lt;br&gt;be a much longer process, but it will not slow down the system as much as a single query.&lt;/html&gt;"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The maximum number of messages that will be pruned in a single query. If this number is 0, there is&lt;br&gt;no limit to the number of messages that may be pruned in a single query. Setting a block size may&lt;br&gt;improve performance for channels that receive a high volume of messages.&lt;/html&gt;"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="blockSizeLabel">
