@@ -315,98 +315,75 @@
 		SET DEADLOCK_PRIORITY LOW
 	</update>
 
-	<delete id="pruneMessagesByIds" parameterType="map">
+	<delete id="pruneMessages" parameterType="map">
 		DELETE FROM D_M${localChannelId}
+		
 		<where>
 			<if test="includeMessageList != null">
 				ID IN (${includeMessageList})
 			</if>
 			
-			<if test="excludeMessageList != null">
-				AND ID NOT IN (${excludeMessageList})
+			<if test="maxMessageId != null">
+				AND ID <![CDATA[ <= ]]> #{maxMessageId}
 			</if>
 			
-			<if test="includeMessageRanges != null">
-				AND
-				<foreach item="range" collection="includeMessageRanges" open="(" separator="OR" close=")">
-					ID BETWEEN #{range[0]} AND #{range[1]}
-				</foreach>
-			</if>
-			
-			<if test="excludeMessageRanges != null">
-				AND
-				<foreach item="range" collection="excludeMessageRanges" open="(" separator="AND" close=")">
-					ID NOT BETWEEN #{range[0]} AND #{range[1]}
-				</foreach>
-			</if>
-	
-			<if test="minMessageId != null and maxMessageId != null">
-				AND ID BETWEEN #{minMessageId} AND #{maxMessageId}
+			<if test="minMessageId != null">
+				AND ID <![CDATA[ >= ]]> #{minMessageId}
 			</if>
 		</where>
 	</delete>
 	
 	<delete id="pruneConnectorMessages" parameterType="map">
 		DELETE FROM D_MM${localChannelId}
-		<where><include refid="pruneWhere" /></where>
+		<include refid="pruneWhere" />
 	</delete>
 	
 	<delete id="pruneMessageContent" parameterType="map">
 		DELETE FROM D_MC${localChannelId}
-		<where><include refid="pruneWhere" /></where>
+		<include refid="pruneWhere" />
 	</delete>
 	
 	<delete id="pruneCustomMetaData" parameterType="map">
 		DELETE FROM D_MCM${localChannelId}
-		<where><include refid="pruneWhere" /></where>
+		<include refid="pruneWhere" />
 	</delete>
 	
 	<delete id="pruneAttachments" parameterType="map">
 		DELETE FROM D_MA${localChannelId}
-		<where><include refid="pruneWhere" /></where>
+		<include refid="pruneWhere" />
 	</delete>
 	
 	<sql id="pruneWhere">
-		<if test="includeMessageList != null">
-			MESSAGE_ID IN (${includeMessageList})
-		</if>
-		
-		<if test="excludeMessageList != null">
-			AND MESSAGE_ID NOT IN (${excludeMessageList})
-		</if>
-		
-		<if test="includeMessageRanges != null">
-			AND
-			<foreach item="range" collection="includeMessageRanges" open="(" separator="OR" close=")">
-				MESSAGE_ID BETWEEN #{range[0]} AND #{range[1]}
-			</foreach>
-		</if>
-		
-		<if test="excludeMessageRanges != null">
-			AND
-			<foreach item="range" collection="excludeMessageRanges" open="(" separator="AND" close=")">
-				MESSAGE_ID NOT BETWEEN #{range[0]} AND #{range[1]}
-			</foreach>
-		</if>
-
-		<if test="minMessageId != null and maxMessageId != null">
-			AND MESSAGE_ID BETWEEN #{minMessageId} AND #{maxMessageId}
-		</if>
+		<where>
+			<if test="includeMessageList != null">
+				MESSAGE_ID IN (${includeMessageList})
+			</if>
+			
+			<if test="maxMessageId != null">
+				AND MESSAGE_ID <![CDATA[ <= ]]> #{maxMessageId}
+			</if>
+	
+			<if test="minMessageId != null">
+				AND MESSAGE_ID <![CDATA[ >= ]]> #{minMessageId}
+			</if>
+		</where>
 	</sql>
 	
 	<select id="getMessagesToPrune" parameterType="map" resultMap="pruner-message-map">
-		<if test="offset != null and limit != null">
+		<if test="limit != null">
 			SELECT A.* FROM (
 		</if>
 			
 			SELECT
 				M.ID,
-				M.SERVER_ID,
-				M.RECEIVED_DATE,
-				M.PROCESSED,
-				M.ORIGINAL_ID,
-				M.IMPORT_ID,
-				M.IMPORT_CHANNEL_ID,
+				<if test="archive == true">
+					M.SERVER_ID,
+					M.RECEIVED_DATE,
+					M.PROCESSED,
+					M.ORIGINAL_ID,
+					M.IMPORT_ID,
+					M.IMPORT_CHANNEL_ID,
+				</if>
 				MM.RECEIVED_DATE AS MM_RECEIVED_DATE,
 				ROW_NUMBER() OVER (ORDER BY M.ID) AS ROWNUM
 			
@@ -422,6 +399,14 @@
 		
 			WHERE MM.RECEIVED_DATE <![CDATA[ < ]]> #{dateThreshold}
 			
+			<if test="maxMessageId != null">
+				AND M.ID <![CDATA[ <= ]]> #{maxMessageId}
+			</if>
+			
+			<if test="minMessageId != null">
+				AND M.ID <![CDATA[ >= ]]> #{minMessageId}
+			</if>
+			
 			<if test="skipIncomplete == true">
 				AND M.PROCESSED = 1
 			</if>
@@ -430,8 +415,8 @@
 				AND MM_SKIP.ID IS NULL
 			</if>
 			
-		<if test="offset != null and limit != null">
-			) AS A WHERE A.ROWNUM <![CDATA[ > ]]> ${offset} AND A.ROWNUM <![CDATA[ <= ]]> (${offset} + ${limit})
+		<if test="limit != null">
+			) AS A WHERE A.ROWNUM <![CDATA[ <= ]]> (${limit})
 		</if>
 	</select>
 	

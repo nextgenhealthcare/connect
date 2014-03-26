@@ -38,7 +38,6 @@ import com.mirth.connect.donkey.server.DonkeyConfiguration;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.plugins.datapruner.DataPruner;
-import com.mirth.connect.plugins.datapruner.DataPruner.Strategy;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
@@ -51,7 +50,6 @@ public class DataPrunerTest {
     private final static String TEMP_ARCHIVE_FOLDER = "/tmp/prunertest";
     private final static int TEST_POWER = 7;
     private final static int PERFORMANCE_TEST_POWER = 10;
-    private final static int ARCHIVER_PAGE_SIZE = 1000;
     private final static String TEST_CHANNEL_ID = "prunerTestChannel";
     private final static String TEST_SERVER_ID = "testServerId";
     private final static String TEST_MESSAGE_CONTENT = TestUtils.TEST_HL7_MESSAGE;
@@ -103,33 +101,29 @@ public class DataPrunerTest {
         assertEquals(messagesPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(contentPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
 
-        for (Strategy strategy : Strategy.values()) {
-            for (int blockSize : blockSizes) {
-                try {
-                    MessageWriterOptions writerOptions = new MessageWriterOptions();
-                    writerOptions.setRootFolder(TEMP_ARCHIVE_FOLDER);
-                    writerOptions.setFilePattern("message${message.messageId}.xml");
+        for (int blockSize : blockSizes) {
+            try {
+                MessageWriterOptions writerOptions = new MessageWriterOptions();
+                writerOptions.setRootFolder(TEMP_ARCHIVE_FOLDER);
+                writerOptions.setFilePattern("message${message.messageId}.xml");
 
-                    DataPruner pruner = new DataPruner();
-                    pruner.setArchiveEnabled(true);
-                    pruner.setArchiverOptions(writerOptions);
-                    pruner.setPageSize(ARCHIVER_PAGE_SIZE);
-                    pruner.setStrategy(strategy);
-                    pruner.setRetryCount(0);
-                    pruner.setBlockSize(blockSize);
+                DataPruner pruner = new DataPruner();
+                pruner.setArchiveEnabled(true);
+                pruner.setArchiverOptions(writerOptions);
+                pruner.setRetryCount(0);
+                pruner.setBlockSize(blockSize);
 
-                    logger.info("Running pruner w/ archiver test, strategy: " + strategy + ", block size: " + blockSize + ", prune messages: " + messagesPrunable + ", prune content: " + contentPrunable);
+                logger.info("Running pruner w/ archiver test, block size: " + blockSize + ", prune messages: " + messagesPrunable + ", prune content: " + contentPrunable);
 
-                    prepareTestMessages(TEST_CHANNEL_ID, messagesPrunable, contentPrunable, true, Status.SENT, TEST_POWER);
-                    pruner.pruneChannel(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, pruner.getArchiverOptions().getRootFolder(), true);
-                    assertEquals(messagesPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
-                    assertEquals(contentPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
-                } catch (AssertionError e) {
-                    logger.error(e);
-                    throw e;
-                } finally {
-                    FileUtils.deleteQuietly(new File(TEMP_ARCHIVE_FOLDER));
-                }
+                prepareTestMessages(TEST_CHANNEL_ID, messagesPrunable, contentPrunable, true, Status.SENT, TEST_POWER);
+                pruner.pruneChannel(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, pruner.getArchiverOptions().getRootFolder(), true);
+                assertEquals(messagesPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
+                assertEquals(contentPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
+            } catch (AssertionError e) {
+                logger.error(e);
+                throw e;
+            } finally {
+                FileUtils.deleteQuietly(new File(TEMP_ARCHIVE_FOLDER));
             }
         }
     }
@@ -211,7 +205,6 @@ public class DataPrunerTest {
 
         DataPruner pruner = new DataPruner();
         pruner.setBlockSize(1);
-        pruner.setStrategy(Strategy.INCLUDE_LIST);
         pruner.setRetryCount(0);
 
         TestUtils.deleteAllMessages(readerChannelId);

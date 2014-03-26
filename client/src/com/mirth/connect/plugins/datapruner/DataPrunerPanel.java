@@ -458,7 +458,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         pruneSettingsPanel.setBackground(new java.awt.Color(255, 255, 255));
         pruneSettingsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Prune Settings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
 
-        blockSizeTextField.setToolTipText("<html>If this number is 0, all messages are pruned in a single query. If the single query is slowing down<br>the system for too long, messages can be pruned in blocks of the specified size. Block pruning can<br>be a much longer process, but it will not slow down the system as much as a single query.</html>");
+        blockSizeTextField.setToolTipText("<html>The maximum number of messages that will be pruned in a single query. If this number is 0, there is<br>no limit to the number of messages that may be pruned in a single query. Setting a block size may<br>improve performance for channels that receive a high volume of messages.</html>");
 
         blockSizeLabel.setText("Block Size:");
 

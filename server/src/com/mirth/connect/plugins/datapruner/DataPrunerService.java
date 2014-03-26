@@ -166,7 +166,7 @@ public class DataPrunerService implements ServicePlugin {
                 stringBuilder.append(" channel \"" + status.getCurrentChannelName() + "\"");
                 
                 if (status.isArchiving()) {
-                    int count = pruner.getMessageExporter().getNumExported();
+                    int count = pruner.getNumExported();
                     stringBuilder.append(", " + count + " message" + ((count != 1) ? "s" : "") + " archived");
                 }
                 

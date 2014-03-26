@@ -29,8 +29,13 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
+import com.mirth.connect.donkey.server.data.DonkeyDao;
+import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.util.ThreadUtils;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
@@ -43,7 +48,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
-import com.mirth.connect.util.MessageExporter;
+import com.mirth.connect.util.MessageExporter.MessageExportException;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterFactory;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
@@ -54,25 +59,21 @@ public class DataPruner implements Runnable {
      * allow the list size to exceed 1000.
      */
     private final static int LIST_LIMIT = 1000;
+    private final static int ID_RETRIEVE_LIMIT = 100000;
 
-    public enum Strategy {
-        INCLUDE_LIST, EXCLUDE_LIST, INCLUDE_RANGES, EXCLUDE_RANGES;
-    }
-
+    private int numExported;
     private int retryCount;
     private boolean skipIncomplete;
     private Status[] skipStatuses;
     private Integer blockSize;
-    private int pageSize = 1000;
-    private Strategy strategy;
     private boolean archiveEnabled;
     private MessageWriterOptions archiverOptions;
     private boolean pruneEvents;
     private Integer maxEventAge;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private DonkeyDaoFactory daoFactory;
     private AtomicBoolean running = new AtomicBoolean(false);
     private Thread pruneThread;
-    private MessageExporter messageExporter = new MessageExporter();
     private DataPrunerStatus status = new DataPrunerStatus();
     private DataPrunerStatus lastStatus;
     private Logger logger = Logger.getLogger(getClass());
@@ -81,6 +82,14 @@ public class DataPruner implements Runnable {
         this.retryCount = 3;
         this.skipIncomplete = true;
         this.skipStatuses = new Status[] { Status.ERROR, Status.QUEUED };
+    }
+
+    public int getNumExported() {
+        return numExported;
+    }
+
+    public void setNumExported(int numExported) {
+        this.numExported = numExported;
     }
 
     public int getRetryCount() {
@@ -117,22 +126,6 @@ public class DataPruner implements Runnable {
         } else {
             this.blockSize = null;
         }
-    }
-
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(int archiverPageSize) {
-        this.pageSize = archiverPageSize;
-    }
-
-    public Strategy getStrategy() {
-        return strategy;
-    }
-
-    public void setStrategy(Strategy strategy) {
-        this.strategy = strategy;
     }
 
     public boolean isArchiveEnabled() {
@@ -175,10 +168,6 @@ public class DataPruner implements Runnable {
         return lastStatus;
     }
 
-    public MessageExporter getMessageExporter() {
-        return messageExporter;
-    }
-
     public boolean isRunning() {
         return running.get();
     }
@@ -211,6 +200,18 @@ public class DataPruner implements Runnable {
 
             logger.debug("Data Pruner halted successfully");
         }
+    }
+
+    private DonkeyDaoFactory getDaoFactory() {
+        /*
+         * The DaoFactory can't be retrieved in the constructor because it will not have been
+         * instantiated yet at that point.
+         */
+        if (daoFactory == null) {
+            daoFactory = Donkey.getInstance().getDaoFactory();
+        }
+
+        return daoFactory;
     }
 
     private Queue<PrunerTask> buildTaskQueue() throws Exception {
@@ -396,46 +397,44 @@ public class DataPruner implements Runnable {
             ThreadUtils.checkInterruptedStatus();
 
             try {
-                /*
-                 * Choose the method of pruning. If we are not archiving, then prune by date.
-                 * Otherwise select the message ids to prune first, then constrain the deletion to
-                 * those ids. This is necessary when archiving in order to be sure that only
-                 * messages that were successfully archived get deleted.
-                 */
-                if ((!archiveEnabled || !channelArchiveEnabled) && strategy == null && !DatabaseUtil.statementExists("Message.pruneMessagesByIds")) {
-                    return pruneChannelByDate(localChannelId, messageDateThreshold, contentDateThreshold);
-                } else {
-                    PruneIds ids;
-                    PruneResult result = new PruneResult();
+                long maxMessageId;
 
-                    if (!archiveEnabled || !channelArchiveEnabled) {
-                        ids = getIdsToPrune(localChannelId, messageDateThreshold, contentDateThreshold);
-                    } else {
-                        ids = archive(channelId, messageDateThreshold, contentDateThreshold, archiveFolder);
-                        result.numMessagesArchived = ids.messageIds.size();
-                    }
-
-                    Integer blockSize = getBlockSize();
-
-                    if (blockSize == null) {
-                        result.numContentPruned = pruneChannelByIds(localChannelId, ids.contentMessageIds, true);
-                        result.numMessagesPruned = pruneChannelByIds(localChannelId, ids.messageIds, false);
-                    } else {
-                        int listSize = ids.contentMessageIds.size();
-
-                        for (int i = 0; i < listSize; i += blockSize) {
-                            result.numContentPruned = pruneChannelByIds(localChannelId, ids.contentMessageIds.subList(i, Math.min(listSize, i + blockSize)), true);
-                        }
-
-                        listSize = ids.messageIds.size();
-
-                        for (int i = 0; i < listSize; i += blockSize) {
-                            result.numMessagesPruned = pruneChannelByIds(localChannelId, ids.messageIds.subList(i, Math.min(listSize, i + blockSize)), false);
-                        }
-                    }
-
-                    return result;
+                DonkeyDao dao = getDaoFactory().getDao();
+                try {
+                    maxMessageId = dao.getMaxMessageId(channelId);
+                } finally {
+                    dao.close();
                 }
+
+                Map<String, Object> params = new HashMap<String, Object>();
+                params.put("localChannelId", localChannelId);
+                params.put("maxMessageId", maxMessageId);
+                params.put("skipIncomplete", isSkipIncomplete());
+                params.put("dateThreshold", (contentDateThreshold == null) ? messageDateThreshold : contentDateThreshold);
+
+                if (getSkipStatuses().length > 0) {
+                    params.put("skipStatuses", getSkipStatuses());
+                }
+
+                PruneResult result = new PruneResult();
+                PruneIds messageIds = new PruneIds();
+                PruneIds contentMessageIds = new PruneIds();
+
+                if (!archiveEnabled || !channelArchiveEnabled) {
+                    getIdsToPrune(params, messageDateThreshold, messageIds, contentMessageIds);
+                } else {
+                    archiveAndGetIdsToPrune(params, channelId, messageDateThreshold, archiveFolder, messageIds, contentMessageIds);
+                }
+
+                while (contentMessageIds.hasNext()) {
+                    result.numContentPruned += pruneChannelByIds(localChannelId, contentMessageIds, true);
+                }
+
+                while (messageIds.hasNext()) {
+                    result.numMessagesPruned += pruneChannelByIds(localChannelId, messageIds, false);
+                }
+
+                return result;
             } catch (InterruptedException e) {
                 throw e;
             } catch (Exception e) {
@@ -448,99 +447,41 @@ public class DataPruner implements Runnable {
         }
     }
 
-    private PruneResult pruneChannelByDate(long localChannelId, Calendar messageDateThreshold, Calendar contentDateThreshold) throws InterruptedException {
-        Integer blockSize = getBlockSize();
+    private void getIdsToPrune(Map<String, Object> params, Calendar messageDateThreshold, PruneIds messageIds, PruneIds contentMessageIds) throws DataPrunerException, InterruptedException {
+        params.put("limit", ID_RETRIEVE_LIMIT);
+        params.put("archive", false);
 
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("localChannelId", localChannelId);
-        params.put("skipIncomplete", isSkipIncomplete());
-
-        if (getSkipStatuses().length > 0) {
-            params.put("skipStatuses", getSkipStatuses());
-        }
-
-        if (blockSize != null) {
-            params.put("limit", blockSize);
-        }
-
-        PruneResult result = new PruneResult();
-        long startTime = System.currentTimeMillis();
-
-        if (contentDateThreshold != null) {
-            logger.debug("Pruning content");
-            params.put("dateThreshold", contentDateThreshold);
-            result.numContentPruned += runDelete("Message.pruneMessageContent", params, blockSize);
-        }
-
-        logger.debug("Pruning messages");
-        params.put("dateThreshold", messageDateThreshold);
-
-        if (DatabaseUtil.statementExists("Message.pruneAttachments")) {
-            runDelete("Message.pruneAttachments", params, blockSize);
-        }
-
-        if (DatabaseUtil.statementExists("Message.pruneCustomMetaData")) {
-            runDelete("Message.pruneCustomMetaData", params, blockSize);
-        }
-
-        runDelete("Message.pruneMessageContent", params, blockSize);
-
-        if (DatabaseUtil.statementExists("Message.pruneConnectorMessages")) {
-            runDelete("Message.pruneConnectorMessages", params, blockSize);
-        }
-
-        result.numMessagesPruned += runDelete("Message.pruneMessages", params, blockSize);
-
-        logger.debug("Pruning completed in " + (System.currentTimeMillis() - startTime) + "ms");
-        return result;
-    }
-
-    private PruneIds getIdsToPrune(long localChannelId, Calendar messageDateThreshold, Calendar contentDateThreshold) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("localChannelId", localChannelId);
-        params.put("skipIncomplete", isSkipIncomplete());
-        params.put("dateThreshold", (contentDateThreshold == null) ? messageDateThreshold : contentDateThreshold);
-
-        if (getSkipStatuses().length > 0) {
-            params.put("skipStatuses", getSkipStatuses());
-        }
+        long minMessageId = 0;
 
         List<Map<String, Object>> maps;
-        SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
+        do {
+            SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
 
-        try {
-            maps = session.selectList("Message.getMessagesToPrune", params);
-        } finally {
-            session.close();
-        }
-
-        PruneIds pruneIds = new PruneIds();
-
-        for (Map<String, Object> map : maps) {
-            long receivedDate = ((Calendar) map.get("mm_received_date")).getTimeInMillis();
-            long id = (Long) map.get("id");
-
-            if (messageDateThreshold != null && receivedDate < messageDateThreshold.getTimeInMillis()) {
-                pruneIds.messageIds.add(id);
+            try {
+                params.put("minMessageId", minMessageId);
+                maps = session.selectList("Message.getMessagesToPrune", params);
+            } finally {
+                session.close();
             }
 
-            pruneIds.contentMessageIds.add(id);
-        }
+            for (Map<String, Object> map : maps) {
+                long receivedDate = ((Calendar) map.get("mm_received_date")).getTimeInMillis();
+                long id = (Long) map.get("id");
 
-        return pruneIds;
+                if (messageDateThreshold != null && receivedDate < messageDateThreshold.getTimeInMillis()) {
+                    messageIds.add(id);
+                }
+
+                contentMessageIds.add(id);
+                minMessageId = id + 1;
+            }
+        } while (maps != null && maps.size() == ID_RETRIEVE_LIMIT);
     }
 
-    private PruneIds archive(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder) throws DataPrunerException {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
-        params.put("skipIncomplete", isSkipIncomplete());
-        params.put("dateThreshold", (contentDateThreshold == null) ? messageDateThreshold : contentDateThreshold);
+    private void archiveAndGetIdsToPrune(Map<String, Object> params, String channelId, Calendar messageDateThreshold, String archiveFolder, PruneIds messageIds, PruneIds contentMessageIds) throws DataPrunerException, InterruptedException {
+        params.put("limit", LIST_LIMIT);
+        params.put("archive", true);
 
-        if (getSkipStatuses().length > 0) {
-            params.put("skipStatuses", getSkipStatuses());
-        }
-
-        DataPrunerMessageList messageList = new DataPrunerMessageList(channelId, pageSize, params, messageDateThreshold);
         String tempChannelFolder = archiveFolder + "/." + channelId;
         String finalChannelFolder = archiveFolder + "/" + channelId;
 
@@ -558,7 +499,41 @@ public class DataPruner implements Runnable {
             logger.debug("Running archiver, channel: " + channelId + ", root folder: " + messageWriterOptions.getRootFolder() + ", archive format: " + messageWriterOptions.getArchiveFormat() + ", archive filename: " + messageWriterOptions.getArchiveFileName() + ", file pattern: " + messageWriterOptions.getFilePattern());
             status.setArchiving(true);
             MessageWriter archiver = MessageWriterFactory.getInstance().getMessageWriter(messageWriterOptions, ConfigurationController.getInstance().getEncryptor());
-            messageExporter.exportMessages(messageList, archiver);
+
+            numExported = 0;
+            long minMessageId = 0;
+            List<Message> messageList = null;
+            do {
+                ThreadUtils.checkInterruptedStatus();
+                try {
+                    params.put("minMessageId", minMessageId);
+
+                    messageList = getMessagesForArchive(channelId, params, messageDateThreshold, messageIds, contentMessageIds);
+
+                    for (Message message : messageList) {
+                        ThreadUtils.checkInterruptedStatus();
+
+                        try {
+                            if (archiver.write(message)) {
+                                numExported++;
+                            }
+
+                        } catch (Exception e) {
+                            Throwable cause = ExceptionUtils.getRootCause(e);
+                            throw new MessageExportException("Failed to export message: " + cause.getMessage(), cause);
+                        }
+
+                        minMessageId = message.getMessageId() + 1;
+                    }
+                } catch (Exception e) {
+                    if (e instanceof MessageExportException) {
+                        throw (MessageExportException) e;
+                    }
+
+                    throw new MessageExportException(e);
+                }
+            } while (messageList != null && messageList.size() == LIST_LIMIT);
+
             archiver.close();
 
             if (messageWriterOptions.getArchiveFormat() == null && new File(tempChannelFolder).isDirectory()) {
@@ -568,12 +543,6 @@ public class DataPruner implements Runnable {
                     logger.error("Failed to move " + tempChannelFolder + " to " + finalChannelFolder, e);
                 }
             }
-
-            PruneIds ids = new PruneIds();
-            ids.messageIds = messageList.getMessageIds();
-            ids.contentMessageIds = messageList.getContentMessageIds();
-
-            return ids;
         } catch (Throwable t) {
             FileUtils.deleteQuietly(new File(tempChannelFolder));
             FileUtils.deleteQuietly(new File(finalChannelFolder));
@@ -583,113 +552,207 @@ public class DataPruner implements Runnable {
         }
     }
 
-    private long pruneChannelByIds(long localChannelId, List<Long> messageIds, boolean contentOnly) throws DataPrunerException, InterruptedException {
-        if (messageIds.size() == 0) {
+    private List<Message> getMessagesForArchive(String channelId, Map<String, Object> params, Calendar messageDateThreshold, PruneIds messageIds, PruneIds contentMessageIds) {
+        List<Map<String, Object>> maps;
+        SqlSession session = SqlConfig.getSqlSessionManager().openSession();
+
+        try {
+            maps = session.selectList("Message.getMessagesToPrune", params);
+        } finally {
+            session.close();
+        }
+
+        List<Message> messages = new ArrayList<Message>();
+
+        DonkeyDao dao = getDaoFactory().getDao();
+
+        try {
+            for (Map<String, Object> map : maps) {
+                Long messageId = (Long) map.get("id");
+                long connectorReceivedDateMillis = ((Calendar) map.get("mm_received_date")).getTimeInMillis();
+
+                Map<Integer, ConnectorMessage> connectorMessages = null;
+                connectorMessages = dao.getConnectorMessages(channelId, messageId);
+
+                Message message = new Message();
+                message.setMessageId(messageId);
+                message.setChannelId(channelId);
+                message.setReceivedDate((Calendar) map.get("received_date"));
+                message.setProcessed((Boolean) map.get("processed"));
+                message.setServerId((String) map.get("server_id"));
+                message.setOriginalId((Long) map.get("original_id"));
+                message.setImportId((Long) map.get("import_id"));
+                message.getConnectorMessages().putAll(connectorMessages);
+
+                messages.add(message);
+
+                contentMessageIds.add(messageId);
+
+                if (messageDateThreshold != null && connectorReceivedDateMillis < messageDateThreshold.getTimeInMillis()) {
+                    messageIds.add(messageId);
+                }
+            }
+            return messages;
+        } finally {
+            dao.close();
+        }
+    }
+
+    private long pruneChannelByIds(long localChannelId, PruneIds ids, boolean contentOnly) throws DataPrunerException, InterruptedException {
+        if (!ids.hasNext()) {
             logger.debug("Skipping pruner since no messages were found to prune");
             return 0;
         }
 
-        List<Long> invertedMessageIdList = getInvertedList(messageIds);
-        List<long[]> includeRanges = null;
-        List<long[]> excludeRanges = null;
-        Strategy strategy = this.strategy;
-
-        /*
-         * If a query strategy hasn't been defined, automatically choose one. If the # of archived
-         * messages is less than the # unarchived, then we want to prune using DELETE ... WHERE IN
-         * ([archived message ids]). Otherwise, we want to delete by excluding the unarchived
-         * messages: DELETE ... WHERE NOT IN ([unarchived message ids]) AND id BETWEEN min AND max.
-         */
-        if (strategy == null) {
-            if (messageIds.size() > LIST_LIMIT && invertedMessageIdList.size() > LIST_LIMIT) {
-                includeRanges = getRanges(messageIds);
-                excludeRanges = getRanges(invertedMessageIdList);
-
-                strategy = (includeRanges.size() < excludeRanges.size()) ? Strategy.INCLUDE_RANGES : Strategy.EXCLUDE_RANGES;
-            } else {
-                strategy = (messageIds.size() < invertedMessageIdList.size()) ? Strategy.INCLUDE_LIST : Strategy.EXCLUDE_LIST;
-            }
-        }
-
-        ThreadUtils.checkInterruptedStatus();
-        Integer limit = getBlockSize();
-
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("localChannelId", localChannelId);
 
-        switch (strategy) {
-            case INCLUDE_LIST:
-                params.put("includeMessageList", StringUtils.join(messageIds, ','));
-                break;
+        List<Long> sparseMessageIds = new ArrayList<Long>(LIST_LIMIT);
+        List<Long> buffer = new ArrayList<Long>(LIST_LIMIT);
 
-            case EXCLUDE_LIST:
-                params.put("minMessageId", messageIds.get(0));
-                params.put("maxMessageId", messageIds.get(messageIds.size() - 1));
+        long lastMessageId = ids.next();
+        long startContiguous = lastMessageId;
+        long endContiguous = lastMessageId;
+        int numPruned = 0;
+        int count = 1;
+        boolean finished = false;
 
-                if (invertedMessageIdList.size() > 0) {
-                    params.put("excludeMessageList", StringUtils.join(invertedMessageIdList, ','));
+        // Iterate across all the message Ids in the list
+        while (!finished) {
+            boolean pruneCurrentList = false;
+            boolean pruneCurrentRange = false;
+
+            if (ids.hasNext() && (blockSize == null || count++ < blockSize)) {
+                // Retreive the next messageId that needs to be pruned
+                long messageId = ids.next();
+
+                if (messageId == lastMessageId + 1) {
+                    // If the current message Id is still contiguous, update the end contiguous Id with the current message Id
+                    endContiguous = messageId;
+                } else {
+                    if ((endContiguous - startContiguous + 1) >= LIST_LIMIT) {
+                        /*
+                         * If the current contiguous block is greater than or equal to the max list
+                         * size, then prune the current list and then the current range
+                         */
+                        pruneCurrentList = true;
+                        pruneCurrentRange = true;
+                    } else {
+                        /*
+                         * If the current contiguous block is less than the max list size, iterate
+                         * across all the message Ids from the start to the end of the contiguous
+                         * block. Since this contiguous block will never be greater than the max
+                         * list size, we need to add each of its values to the current list
+                         */
+                        for (long id = startContiguous; id <= endContiguous; id++) {
+                            if (sparseMessageIds.size() < LIST_LIMIT) {
+                                // Add the message Id to the current list until it is full
+                                sparseMessageIds.add(id);
+                            } else {
+                                /*
+                                 * Add any remaining message Ids to the buffer. This buffer should
+                                 * never be greater than the max list size since the current
+                                 * contiguous block can never be greater than the max list size
+                                 */
+                                buffer.add(id);
+                            }
+                        }
+
+                        // Prune the current list if it is full
+                        if (sparseMessageIds.size() == LIST_LIMIT) {
+                            pruneCurrentList = true;
+                        }
+
+                        /*
+                         * Since we've already distributed all the message Ids in the contiguous
+                         * block to the list or the buffer, we can reset the contiguous block to
+                         * just the current message Id
+                         */
+                        startContiguous = messageId;
+                        endContiguous = messageId;
+                    }
+
                 }
-                break;
 
-            case INCLUDE_RANGES:
-                if (includeRanges == null) {
-                    includeRanges = getRanges(messageIds);
-                }
-
-                params.put("includeMessageRanges", includeRanges);
-                break;
-
-            case EXCLUDE_RANGES:
-                if (excludeRanges == null) {
-                    excludeRanges = getRanges(invertedMessageIdList);
-                }
-
-                List<long[]> ranges = excludeRanges;
-
-                params.put("minMessageId", messageIds.get(0));
-                params.put("maxMessageId", messageIds.get(messageIds.size() - 1));
-
-                if (!ranges.isEmpty()) {
-                    params.put("excludeMessageRanges", ranges);
-                }
-                break;
-        }
-
-        ThreadUtils.checkInterruptedStatus();
-        logger.debug("Pruning " + messageIds.size() + " message " + (contentOnly ? "content " : "") + "records in local channel id " + localChannelId + " with strategy: " + strategy);
-        ThreadUtils.checkInterruptedStatus();
-        int numPruned;
-        long startTime = System.currentTimeMillis();
-
-        if (contentOnly) {
-            numPruned = runDelete("Message.pruneMessageContent", params, limit);
-        } else {
-            if (DatabaseUtil.statementExists("Message.pruneAttachments")) {
-                runDelete("Message.pruneAttachments", params, limit);
-            }
-
-            if (DatabaseUtil.statementExists("Message.pruneCustomMetaData")) {
-                runDelete("Message.pruneCustomMetaData", params, limit);
-            }
-
-            runDelete("Message.pruneMessageContent", params, limit);
-
-            if (DatabaseUtil.statementExists("Message.pruneConnectorMessages")) {
-                runDelete("Message.pruneConnectorMessages", params, limit);
-            }
-
-            if (DatabaseUtil.statementExists("Message.pruneMessagesByIds")) {
-                numPruned = runDelete("Message.pruneMessagesByIds", params, limit);
+                lastMessageId = messageId;
             } else {
-                numPruned = runDelete("Message.pruneMessages", params, limit);
+                pruneCurrentList = true;
+
+                if (startContiguous == lastMessageId && endContiguous == lastMessageId && sparseMessageIds.size() < LIST_LIMIT) {
+                    sparseMessageIds.add(lastMessageId);
+                } else {
+                    // Prune both the current list and the current range once the end of the list has been reached
+                    pruneCurrentRange = true;
+                }
+
+                finished = true;
+            }
+
+            if (pruneCurrentList && !sparseMessageIds.isEmpty()) {
+                logger.debug("Pruning with include list: " + sparseMessageIds.get(0) + " " + sparseMessageIds.get(sparseMessageIds.size() - 1));
+                params.remove("minMessageId");
+                params.remove("maxMessageId");
+                params.put("includeMessageList", StringUtils.join(sparseMessageIds, ","));
+
+                numPruned += runDeleteQueries(params, contentOnly);
+
+                sparseMessageIds.clear();
+
+                /*
+                 * If there are message Ids in the buffer then add them to the list and clear the
+                 * buffer
+                 */
+                if (!buffer.isEmpty()) {
+                    sparseMessageIds.addAll(buffer);
+                    buffer.clear();
+                }
+            }
+
+            if (pruneCurrentRange) {
+                logger.debug("Pruning with ranges: " + startContiguous + " - " + endContiguous);
+                params.remove("includeMessageList");
+                params.put("minMessageId", startContiguous);
+                params.put("maxMessageId", endContiguous);
+
+                numPruned = runDeleteQueries(params, contentOnly);
+                /*
+                 * Since we've already pruned all the message Ids in the contiguous block, we can
+                 * reset the contiguous block to just the current message Id
+                 */
+                startContiguous = lastMessageId;
+                endContiguous = lastMessageId;
             }
         }
 
-        logger.debug("Pruning ended in " + (System.currentTimeMillis() - startTime) + "ms");
         return numPruned;
     }
 
-    private int runDelete(String query, Map<String, Object> params, Integer limit) throws InterruptedException {
+    private int runDeleteQueries(Map<String, Object> params, boolean contentOnly) throws InterruptedException {
+        int numPruned;
+
+        if (contentOnly) {
+            numPruned = runDelete("Message.pruneMessageContent", params);
+        } else {
+            if (DatabaseUtil.statementExists("Message.pruneAttachments")) {
+                runDelete("Message.pruneAttachments", params);
+            }
+
+            if (DatabaseUtil.statementExists("Message.pruneCustomMetaData")) {
+                runDelete("Message.pruneCustomMetaData", params);
+            }
+
+            runDelete("Message.pruneMessageContent", params);
+
+            if (DatabaseUtil.statementExists("Message.pruneConnectorMessages")) {
+                runDelete("Message.pruneConnectorMessages", params);
+            }
+
+            numPruned = runDelete("Message.pruneMessages", params);
+        }
+        return numPruned;
+    }
+
+    private int runDelete(String query, Map<String, Object> params) throws InterruptedException {
         SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
         ThreadUtils.checkInterruptedStatus();
 
@@ -700,83 +763,13 @@ public class DataPruner implements Runnable {
         try {
             status.setPruning(true);
 
-            if (limit == null) {
-                int count = session.delete(query, params);
-                ThreadUtils.checkInterruptedStatus();
-                return count;
-            }
-
-            int deletedRows;
-            int total = 0;
-
-            do {
-                deletedRows = session.delete(query, params);
-                ThreadUtils.checkInterruptedStatus();
-                total += deletedRows;
-            } while (deletedRows >= limit && deletedRows > 0);
-
-            return total;
+            int count = session.delete(query, params);
+            ThreadUtils.checkInterruptedStatus();
+            return count;
         } finally {
             session.close();
             status.setPruning(false);
         }
-    }
-
-    private List<long[]> getRanges(List<Long> sortedValues) {
-        List<long[]> ranges = new ArrayList<long[]>();
-        int size = sortedValues.size();
-
-        if (size == 0) {
-            return ranges;
-        }
-
-        long start = sortedValues.get(0);
-        long end = start;
-
-        for (int i = 1; i < size; i++) {
-            long value = sortedValues.get(i);
-
-            if (value == (end + 1)) {
-                end = value;
-            } else {
-                ranges.add(new long[] { start, end });
-                start = value;
-                end = start;
-            }
-        }
-
-        ranges.add(new long[] { start, end });
-        return ranges;
-    }
-
-    private List<Long> getInvertedList(List<Long> sortedValues) {
-        List<Long> invertedList = new ArrayList<Long>();
-        int numValues = sortedValues.size();
-
-        if (numValues == 0) {
-            return invertedList;
-        }
-
-        long lastValue = sortedValues.get(0);
-        long currentValue;
-
-        for (int i = 1; i < numValues; i++) {
-            currentValue = sortedValues.get(i);
-
-            /*
-             * See if there is a gap at the current position in the list, if there is, then add all
-             * of the gap values in the inverted list
-             */
-            if (currentValue > (lastValue + 1)) {
-                for (long j = lastValue + 1; j < currentValue; j++) {
-                    invertedList.add(j);
-                }
-            }
-
-            lastValue = currentValue;
-        }
-
-        return invertedList;
     }
 
     private String getTimeElapsed() {
@@ -788,8 +781,59 @@ public class DataPruner implements Runnable {
     }
 
     private class PruneIds {
-        public List<Long> messageIds = new ArrayList<Long>();
-        public List<Long> contentMessageIds = new ArrayList<Long>();
+        private int currentIdIndex = 0;
+        private int currentRangeIndex = 0;
+        private long lastId = 0;
+
+        private List<Long> ids = new ArrayList<Long>();
+        private List<Long> ranges = new ArrayList<Long>();
+
+        public void add(Long messageId) {
+            int lastIdIndex = ids.size() - 1;
+            int lastRangeIndex = ranges.size() - 1;
+
+            if (!ids.isEmpty() && messageId == ids.get(lastIdIndex) + 1) {
+                ids.remove(lastIdIndex);
+
+                ranges.add(messageId - 1);
+                ranges.add(messageId);
+            } else if (!ranges.isEmpty() && messageId == ranges.get(lastRangeIndex) + 1) {
+                ranges.set(lastRangeIndex, messageId);
+            } else {
+                ids.add(messageId);
+            }
+        }
+
+        public void reset() {
+            currentIdIndex = 0;
+            currentRangeIndex = 0;
+            lastId = 0;
+        }
+
+        public boolean hasNext() {
+            return currentIdIndex < ids.size() || currentRangeIndex < ranges.size();
+        }
+
+        public long next() {
+            if (!ranges.isEmpty() && currentRangeIndex < ranges.size()) {
+                if (lastId >= ranges.get(currentRangeIndex) && lastId < ranges.get(currentRangeIndex + 1)) {
+                    if (++lastId == ranges.get(currentRangeIndex + 1)) {
+                        currentRangeIndex += 2;
+                    }
+
+                    return lastId;
+                }
+
+                if (currentIdIndex < ids.size() && ids.get(currentIdIndex) < ranges.get(currentRangeIndex)) {
+                    return ids.get(currentIdIndex++);
+                } else {
+                    lastId = ranges.get(currentRangeIndex);
+                    return lastId;
+                }
+            } else {
+                return ids.get(currentIdIndex++);
+            }
+        }
     }
 
     private class PruneResult {

@@ -337,125 +337,50 @@
 	<delete id="pruneMessages" parameterType="map">
 		DELETE FROM D_M${localChannelId}
 		
-		<!-- USING/JOIN cannot be used in conjuction with LIMIT, see http://dev.mysql.com/doc/refman/5.0/en/delete.html -->
-		<if test="limit == null">
-			USING D_M${localChannelId}
-			
-			<if test="dateThreshold != null">
-				INNER JOIN D_MM${localChannelId} MM ON MM.MESSAGE_ID = D_M${localChannelId}.ID AND MM.ID = 0 AND MM.RECEIVED_DATE <![CDATA[ < ]]> #{dateThreshold}
-			</if>
-		</if>
-		
 		<where>
-			<include refid="pruneWhere" />
+			<if test="includeMessageList != null">
+				ID IN (${includeMessageList})
+			</if>
 			
-			<if test="limit != null and dateThreshold != null">
-				AND id IN (
-					SELECT MM.MESSAGE_ID
-					FROM D_MM${localChannelId} MM
-					WHERE MM.ID = 0
-					AND MM.RECEIVED_DATE <![CDATA[ < ]]> #{dateThreshold}
-				)
+			<if test="maxMessageId != null">
+				AND ID <![CDATA[ <= ]]> #{maxMessageId}
+			</if>
+	
+			<if test="minMessageId != null">
+				AND ID <![CDATA[ >= ]]> #{minMessageId}
 			</if>
 		</where>
-		
-		<if test="limit != null">
-			LIMIT #{limit}
-		</if>
 	</delete>
 	
 	<delete id="pruneMessageContent" parameterType="map">
 		DELETE FROM D_MC${localChannelId}
 		
-		<choose>
-			<when test="limit == null">
-				USING D_MC${localChannelId}
-				INNER JOIN D_M${localChannelId} ON D_M${localChannelId}.ID = D_MC${localChannelId}.MESSAGE_ID
-				
-				<if test="dateThreshold != null">
-					INNER JOIN D_MM${localChannelId} MM ON MM.MESSAGE_ID = D_MC${localChannelId}.MESSAGE_ID AND MM.ID = 0 AND MM.RECEIVED_DATE <![CDATA[ < ]]> #{dateThreshold}
-				</if>
-				
-				<where>
-					<include refid="pruneWhere" />
-				</where>
-			</when>
-			<otherwise>
-				WHERE MESSAGE_ID IN (
-					SELECT MESSAGE_ID
-					FROM D_M${localChannelId}
-					<if test="dateThreshold != null">
-						JOIN D_MM${localChannelId} MM0 ON MM0.MESSAGE_ID = D_M${localChannelId}.ID AND MM0.ID = 0 AND MM0.RECEIVED_DATE <![CDATA[ < ]]> #{dateThreshold}
-					</if>
-					<where>
-						<include refid="pruneWhere" />
-					</where>
-				)
-				
-				LIMIT #{limit}
-			</otherwise>
-		</choose>
+		<where>
+			<if test="includeMessageList != null">
+				MESSAGE_ID IN (${includeMessageList})
+			</if>
+			
+			<if test="maxMessageId != null">
+				AND MESSAGE_ID <![CDATA[ <= ]]> #{maxMessageId}
+			</if>
+	
+			<if test="minMessageId != null">
+				AND MESSAGE_ID <![CDATA[ >= ]]> #{minMessageId}
+			</if>
+		</where>
 	</delete>
-	
-	<sql id="pruneWhere">
-	
-		<!-- The following criteria are intended to be used only by the archiver, or the pruner if there is no archiver. -->
-		
-		<if test="skipIncomplete == true">
-			D_M${localChannelId}.PROCESSED = TRUE
-		</if>
-		
-		<if test="skipStatuses != null">
-			AND NOT EXISTS (
-				SELECT 1
-				FROM D_MM${localChannelId} MM2
-				WHERE MM2.MESSAGE_ID = D_M${localChannelId}.ID
-				AND MM2.STATUS IN
-				<foreach item="status" collection="skipStatuses" open="(" separator="," close=")">
-					#{status}
-				</foreach>
-			)
-		</if>
-		
-				
-		<!-- The following criteria are intended to be used only by the pruner to constrain pruning to messages that were archived. -->
-		
-		<if test="includeMessageList != null">
-			AND D_M${localChannelId}.ID IN (${includeMessageList})
-		</if>
-		
-		<if test="excludeMessageList != null">
-			AND D_M${localChannelId}.ID NOT IN (${excludeMessageList})
-		</if>
-		
-		<if test="includeMessageRanges != null">
-			AND
-			<foreach item="range" collection="includeMessageRanges" open="(" separator="OR" close=")">
-				D_M${localChannelId}.ID BETWEEN #{range[0]} AND #{range[1]}
-			</foreach>
-		</if>
-		
-		<if test="excludeMessageRanges != null">
-			AND
-			<foreach item="range" collection="excludeMessageRanges" open="(" separator="AND" close=")">
-				D_M${localChannelId}.ID NOT BETWEEN #{range[0]} AND #{range[1]}
-			</foreach>
-		</if>
-
-		<if test="minMessageId != null and maxMessageId != null">
-			AND D_M${localChannelId}.ID BETWEEN #{minMessageId} AND #{maxMessageId}
-		</if>
-	</sql>
 	
 	<select id="getMessagesToPrune" parameterType="map" resultMap="pruner-message-map">
 		SELECT
 			M.ID,
-			M.SERVER_ID,
-			M.RECEIVED_DATE,
-			M.PROCESSED,
-			M.ORIGINAL_ID,
-			M.IMPORT_ID,
-			M.IMPORT_CHANNEL_ID,
+			<if test="archive == true">
+				M.SERVER_ID,
+				M.RECEIVED_DATE,
+				M.PROCESSED,
+				M.ORIGINAL_ID,
+				M.IMPORT_ID,
+				M.IMPORT_CHANNEL_ID,
+			</if>
 			MM.RECEIVED_DATE AS MM_RECEIVED_DATE
 		
 		FROM D_M${localChannelId} M
@@ -470,6 +395,14 @@
 	
 		WHERE MM.RECEIVED_DATE <![CDATA[ < ]]> #{dateThreshold}
 		
+		<if test="maxMessageId != null">
+			AND M.ID <![CDATA[ <= ]]> #{maxMessageId}
+		</if>
+		
+		<if test="minMessageId != null">
+			AND M.ID <![CDATA[ >= ]]> #{minMessageId}
+		</if>
+		
 		<if test="skipIncomplete == true">
 			AND M.PROCESSED = TRUE
 		</if>
@@ -482,10 +415,6 @@
 		
 		<if test="limit != null">
 			LIMIT #{limit}
-		</if>
-
-		<if test="offset != null">
-			OFFSET #{offset}
 		</if>
 	</select>
 	
