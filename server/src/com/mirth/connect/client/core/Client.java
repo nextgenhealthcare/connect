@@ -633,8 +633,18 @@ public class Client {
      * @throws ClientException
      */
     public void startChannel(String channelId) throws ClientException {
-        logger.debug("starting channel: channelId=" + channelId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_START.getName()), new NameValuePair("id", channelId) };
+        startChannels(Collections.singleton(channelId));
+    }
+    
+    /**
+     * Starts the channels with the specified IDs.
+     * 
+     * @param channelIds
+     * @throws ClientException
+     */
+    public void startChannels(Set<String> channelIds) throws ClientException {
+        logger.debug("starting channels: channelIds=" + String.valueOf(channelIds));
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_START.getName()), new NameValuePair("channelIds", serializer.serialize(channelIds)) };
         serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
     }
 
@@ -645,8 +655,18 @@ public class Client {
      * @throws ClientException
      */
     public void stopChannel(String channelId) throws ClientException {
-        logger.debug("stopping channel: channelId=" + channelId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STOP.getName()), new NameValuePair("id", channelId) };
+        stopChannels(Collections.singleton(channelId));
+    }
+    
+    /**
+     * Stops the channels with the specified IDs.
+     * 
+     * @param channelIds
+     * @throws ClientException
+     */
+    public void stopChannels(Set<String> channelIds) throws ClientException {
+        logger.debug("stopping channels: channelIds=" + String.valueOf(channelIds));
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STOP.getName()), new NameValuePair("channelIds", serializer.serialize(channelIds)) };
         serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
     }
     
@@ -657,8 +677,18 @@ public class Client {
      * @throws ClientException
      */
     public void haltChannel(String channelId) throws ClientException {
-        logger.debug("halting channel: channelId=" + channelId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_HALT.getName()), new NameValuePair("id", channelId) };
+        haltChannels(Collections.singleton(channelId));
+    }
+    
+    /**
+     * Halts the channels with the specified IDs.
+     * 
+     * @param channelIds
+     * @throws ClientException
+     */
+    public void haltChannels(Set<String> channelIds) throws ClientException {
+        logger.debug("halting channels: channelIds=" + String.valueOf(channelIds));
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_HALT.getName()), new NameValuePair("channelIds", serializer.serialize(channelIds)) };
         serverConnection.executePostMethodAsync(CHANNEL_STATUS_SERVLET, params);
     }
 
@@ -669,8 +699,18 @@ public class Client {
      * @throws ClientException
      */
     public void pauseChannel(String channelId) throws ClientException {
-        logger.debug("pausing channel: channelId=" + channelId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_PAUSE.getName()), new NameValuePair("id", channelId) };
+        pauseChannels(Collections.singleton(channelId));
+    }
+    
+    /**
+     * Pauses the channels with the specified IDs.
+     * 
+     * @param channelIds
+     * @throws ClientException
+     */
+    public void pauseChannels(Set<String> channelIds) throws ClientException {
+        logger.debug("pausing channels: channelIds=" + String.valueOf(channelIds));
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_PAUSE.getName()), new NameValuePair("channelIds", serializer.serialize(channelIds)) };
         serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
     }
 
@@ -681,8 +721,18 @@ public class Client {
      * @throws ClientException
      */
     public void resumeChannel(String channelId) throws ClientException {
-        logger.debug("resuming channel: channelId=" + channelId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_RESUME.getName()), new NameValuePair("id", channelId) };
+        resumeChannels(Collections.singleton(channelId));
+    }
+    
+    /**
+     * Resumes the channels with the specified IDs.
+     * 
+     * @param channelIds
+     * @throws ClientException
+     */
+    public void resumeChannels(Set<String> channelIds) throws ClientException {
+        logger.debug("resuming channels: channelIds=" + String.valueOf(channelIds));
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_RESUME.getName()), new NameValuePair("channelIds", serializer.serialize(channelIds)) };
         serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
     }
     
@@ -694,8 +744,18 @@ public class Client {
      * @throws ClientException
      */
     public void startConnector(String channelId, Integer metaDataId) throws ClientException {
-        logger.debug("starting connector: channelId=" + channelId + ", metaDataId=" + metaDataId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_START_CONNECTOR.getName()), new NameValuePair("id", channelId), new NameValuePair("metaDataId", String.valueOf(metaDataId)) };
+        startConnectors(Collections.singletonMap(channelId, Collections.singletonList(metaDataId)));
+    }
+    
+    /**
+     * Starts the connectors with the specified channels and metadata IDs.
+     * 
+     * @param connectorInfo
+     * @throws ClientException
+     */
+    public void startConnectors(Map<String, List<Integer>> connectorInfo) throws ClientException {
+        logger.debug("starting connectors: connectorInfo=" + String.valueOf(connectorInfo));
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_START_CONNECTOR.getName()), new NameValuePair("connectorInfo", serializer.serialize(connectorInfo)) };
         serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
     }
     
@@ -707,8 +767,18 @@ public class Client {
      * @throws ClientException
      */
     public void stopConnector(String channelId, Integer metaDataId) throws ClientException {
-        logger.debug("stopping connector: channelId=" + channelId + ", metaDataId=" + metaDataId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STOP_CONNECTOR.getName()), new NameValuePair("id", channelId), new NameValuePair("metaDataId", String.valueOf(metaDataId)) };
+        stopConnectors(Collections.singletonMap(channelId, Collections.singletonList(metaDataId)));
+    }
+    
+    /**
+     * Stops the connectors with the specified channel and metadata IDs.
+     * 
+     * @param connectorInfo
+     * @throws ClientException
+     */
+    public void stopConnectors(Map<String, List<Integer>> connectorInfo) throws ClientException {
+        logger.debug("stopping connectors: connectorInfo=" + String.valueOf(connectorInfo));
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STOP_CONNECTOR.getName()), new NameValuePair("connectorInfo", serializer.serialize(connectorInfo)) };
         serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
     }
 

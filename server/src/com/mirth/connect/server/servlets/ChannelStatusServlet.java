@@ -52,34 +52,19 @@ public class ChannelStatusServlet extends MirthServlet {
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         PrintWriter out = response.getWriter();
         Operation operation = Operations.getOperation(request.getParameter("op"));
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
-
-        String channelId = request.getParameter("id");
-        if (channelId != null) {
-            parameterMap.put("channelId", channelId);
-        }
 
         try {
-            Integer metaDataId = getIntegerParameter(request, "metaDataId", parameterMap);
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
+
             Set<String> channelIds = getSerializedParameter(request, "channelIds", parameterMap, serializer, Set.class);
+            Map<String, List<Integer>> connectorInfo = getSerializedParameter(request, "connectorInfo", parameterMap, serializer, Map.class);
             Integer fetchSize = getIntegerParameter(request, "fetchSize", parameterMap);
+
+            boolean isChannelOperation = operation.equals(Operations.CHANNEL_START) || operation.equals(Operations.CHANNEL_STOP) || operation.equals(Operations.CHANNEL_HALT) || operation.equals(Operations.CHANNEL_PAUSE) || operation.equals(Operations.CHANNEL_RESUME);
+            boolean isConnectorOperation = operation.equals(Operations.CHANNEL_START_CONNECTOR) || operation.equals(Operations.CHANNEL_STOP_CONNECTOR);
 
             if (!isUserAuthorized(request, parameterMap.isEmpty() ? null : parameterMap)) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-            } else if (operation.equals(Operations.CHANNEL_START)) {
-                engineController.startChannel(channelId);
-            } else if (operation.equals(Operations.CHANNEL_STOP)) {
-                engineController.stopChannel(channelId);
-            } else if (operation.equals(Operations.CHANNEL_HALT)) {
-                engineController.haltChannel(channelId);
-            } else if (operation.equals(Operations.CHANNEL_PAUSE)) {
-                engineController.pauseChannel(channelId);
-            } else if (operation.equals(Operations.CHANNEL_RESUME)) {
-                engineController.resumeChannel(channelId);
-            } else if (operation.equals(Operations.CHANNEL_START_CONNECTOR)) {
-                engineController.startConnector(channelId, metaDataId);
-            } else if (operation.equals(Operations.CHANNEL_STOP_CONNECTOR)) {
-                engineController.stopConnector(channelId, metaDataId);
             } else if (operation.equals(Operations.CHANNEL_GET_STATUS_INITIAL)) {
                 response.setContentType(APPLICATION_XML);
 
@@ -125,6 +110,38 @@ public class ChannelStatusServlet extends MirthServlet {
                 }
 
                 serializer.serialize(channelStatuses, out);
+            } else if (isChannelOperation) {
+                if (doesUserHaveChannelRestrictions(request)) {
+                    channelIds = redactChannelIds(request, channelIds);
+                }
+
+                for (String channelId : channelIds) {
+                    if (operation.equals(Operations.CHANNEL_START)) {
+                        engineController.startChannel(channelId);
+                    } else if (operation.equals(Operations.CHANNEL_STOP)) {
+                        engineController.stopChannel(channelId);
+                    } else if (operation.equals(Operations.CHANNEL_HALT)) {
+                        engineController.haltChannel(channelId);
+                    } else if (operation.equals(Operations.CHANNEL_PAUSE)) {
+                        engineController.pauseChannel(channelId);
+                    } else if (operation.equals(Operations.CHANNEL_RESUME)) {
+                        engineController.resumeChannel(channelId);
+                    }
+                }
+            } else if (isConnectorOperation) {
+                if (doesUserHaveChannelRestrictions(request)) {
+                    connectorInfo = redactConnectorInfo(request, connectorInfo);
+                }
+
+                for (String channelId : connectorInfo.keySet()) {
+                    for (Integer metaDataId : connectorInfo.get(channelId)) {
+                        if (operation.equals(Operations.CHANNEL_START_CONNECTOR)) {
+                            engineController.startConnector(channelId, metaDataId);
+                        } else if (operation.equals(Operations.CHANNEL_STOP_CONNECTOR)) {
+                            engineController.stopConnector(channelId, metaDataId);
+                        }
+                    }
+                }
             }
         } catch (RuntimeIOException rio) {
             logger.debug(rio);
@@ -145,5 +162,18 @@ public class ChannelStatusServlet extends MirthServlet {
         }
 
         return authorizedStatuses;
+    }
+
+    private Map<String, List<Integer>> redactConnectorInfo(HttpServletRequest request, Map<String, List<Integer>> connectorInfo) throws ServletException {
+        List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
+        Map<String, List<Integer>> finishedConnectorInfo = new HashMap<String, List<Integer>>();
+
+        for (String channelId : connectorInfo.keySet()) {
+            if (authorizedChannelIds.contains(channelId)) {
+                finishedConnectorInfo.put(channelId, connectorInfo.get(channelId));
+            }
+        }
+
+        return finishedConnectorInfo;
     }
 }

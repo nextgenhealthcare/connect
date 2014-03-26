@@ -37,13 +37,13 @@ public class Operations {
     public static final Operation CHANNEL_STATS_CLEAR_ALL = new Operation("clearAllStatistics", "Clear all statistics", true);
 
     // Channel Status
-    public static final Operation CHANNEL_START = new Operation("startChannel", "Start channel", true);
-    public static final Operation CHANNEL_STOP = new Operation("stopChannel", "Stop channel", true);
-    public static final Operation CHANNEL_HALT = new Operation("haltChannel", "Halt channel", true);
-    public static final Operation CHANNEL_PAUSE = new Operation("pauseChannel", "Pause channel", true);
-    public static final Operation CHANNEL_RESUME = new Operation("resumeChannel", "Resume channel", true);
-    public static final Operation CHANNEL_START_CONNECTOR = new Operation("startConnector", "Start connector", true);
-    public static final Operation CHANNEL_STOP_CONNECTOR = new Operation("stopConnector", "Stop connector", true);
+    public static final Operation CHANNEL_START = new Operation("startChannels", "Start channels", true);
+    public static final Operation CHANNEL_STOP = new Operation("stopChannels", "Stop channels", true);
+    public static final Operation CHANNEL_HALT = new Operation("haltChannels", "Halt channels", true);
+    public static final Operation CHANNEL_PAUSE = new Operation("pauseChannels", "Pause channels", true);
+    public static final Operation CHANNEL_RESUME = new Operation("resumeChannels", "Resume channels", true);
+    public static final Operation CHANNEL_START_CONNECTOR = new Operation("startConnectors", "Start connectors", true);
+    public static final Operation CHANNEL_STOP_CONNECTOR = new Operation("stopConnectors", "Stop connectors", true);
     public static final Operation CHANNEL_GET_STATUS_INITIAL = new Operation("getChannelStatusListInitial", "Get initial channel status list", false);
     public static final Operation CHANNEL_GET_STATUS = new Operation("getChannelStatusList", "Get status list for specific channels", false);
     public static final Operation CHANNEL_GET_STATUS_ALL = new Operation("getChannelStatusListAll", "Get channel status list for all channels", false);

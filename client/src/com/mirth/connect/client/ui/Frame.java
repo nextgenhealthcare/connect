@@ -2478,199 +2478,242 @@ public class Frame extends JXFrame {
     }
 
     public void doStart() {
-        Set<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedChannelStatuses();
+        final Set<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedChannelStatuses();
 
         if (selectedStatuses.size() == 0) {
             return;
         }
 
-        for (final DashboardStatus status : selectedStatuses) {
-            final String workingId = startWorking("Starting channel...");
+        final String workingId = startWorking("Starting or resuming channels...");
 
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                public Void doInBackground() {
-                    try {
-                        if (status.getState() == DeployedState.PAUSED) {
-                            mirthClient.resumeChannel(status.getChannelId());
-                        } else {
-                            mirthClient.startChannel(status.getChannelId());
-                        }
-                    } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            public Void doInBackground() {
+                Set<String> startChannelIds = new HashSet<String>();
+                Set<String> resumeChannelIds = new HashSet<String>();
+
+                for (DashboardStatus dashboardStatus : selectedStatuses) {
+                    if (dashboardStatus.getState() == DeployedState.PAUSED) {
+                        resumeChannelIds.add(dashboardStatus.getChannelId());
+                    } else {
+                        startChannelIds.add(dashboardStatus.getChannelId());
                     }
-
-                    return null;
                 }
 
-                public void done() {
-                    doRefreshStatuses(true);
-                    stopWorking(workingId);
+                try {
+                    mirthClient.startChannels(startChannelIds);
+                    mirthClient.resumeChannels(resumeChannelIds);
+                } catch (ClientException e) {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
-            };
 
-            worker.execute();
-        }
+                return null;
+            }
+
+            public void done() {
+                doRefreshStatuses(true);
+                stopWorking(workingId);
+            }
+        };
+
+        worker.execute();
     }
 
     public void doStop() {
-        Set<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedChannelStatuses();
+        final Set<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedChannelStatuses();
 
         if (selectedStatuses.size() == 0) {
             return;
         }
 
-        for (final DashboardStatus status : selectedStatuses) {
-            final String workingId = startWorking("Stopping channel...");
+        final String workingId = startWorking("Stopping channel...");
 
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                public Void doInBackground() {
-                    try {
-                        mirthClient.stopChannel(status.getChannelId());
-                    } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                    }
-
-                    return null;
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            public Void doInBackground() {
+                Set<String> channelIds = new HashSet<String>();
+                for (DashboardStatus dashboardStatus : selectedStatuses) {
+                    channelIds.add(dashboardStatus.getChannelId());
                 }
 
-                public void done() {
-                    doRefreshStatuses(true);
-                    stopWorking(workingId);
+                try {
+                    mirthClient.stopChannels(channelIds);
+                } catch (ClientException e) {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
-            };
 
-            worker.execute();
-        }
+                return null;
+            }
+
+            public void done() {
+                doRefreshStatuses(true);
+                stopWorking(workingId);
+            }
+        };
+
+        worker.execute();
     }
 
     public void doHalt() {
-        Set<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedChannelStatuses();
+        final Set<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedChannelStatuses();
 
-        if (selectedStatuses.size() == 0 || !alertOption(this, "Are you sure you want to halt this channel?")) {
+        int size = selectedStatuses.size();
+        if (size == 0 || !alertOption(this, "Are you sure you want to halt " + (size == 1 ? "this channel" : "these channels") + "?")) {
             return;
         }
 
-        for (final DashboardStatus status : selectedStatuses) {
-            final String workingId = startWorking("Halting channel...");
+        final String workingId = startWorking("Halting channels...");
 
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                public Void doInBackground() {
-                    try {
-                        mirthClient.haltChannel(status.getChannelId());
-                    } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                    }
-
-                    return null;
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            public Void doInBackground() {
+                Set<String> channelIds = new HashSet<String>();
+                for (DashboardStatus dashboardStatus : selectedStatuses) {
+                    channelIds.add(dashboardStatus.getChannelId());
                 }
 
-                public void done() {
-                    doRefreshStatuses(true);
-                    stopWorking(workingId);
+                try {
+                    mirthClient.haltChannels(channelIds);
+                } catch (ClientException e) {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
-            };
 
-            worker.execute();
-        }
+                return null;
+            }
+
+            public void done() {
+                doRefreshStatuses(true);
+                stopWorking(workingId);
+            }
+        };
+
+        worker.execute();
     }
 
     public void doPause() {
-        Set<DashboardStatus> selectedChannelStatuses = dashboardPanel.getSelectedChannelStatuses();
+        final Set<DashboardStatus> selectedChannelStatuses = dashboardPanel.getSelectedChannelStatuses();
 
         if (selectedChannelStatuses.size() == 0) {
             return;
         }
 
-        for (final DashboardStatus channelStatus : selectedChannelStatuses) {
-            final String workingId = startWorking("Pausing channel...");
+        final String workingId = startWorking("Pausing channels...");
 
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
-                public Void doInBackground() {
-                    try {
-                        mirthClient.pauseChannel(channelStatus.getChannelId());
-                    } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                    }
-                    return null;
+            public Void doInBackground() {
+                Set<String> channelIds = new HashSet<String>();
+                for (DashboardStatus dashboardStatus : selectedChannelStatuses) {
+                    channelIds.add(dashboardStatus.getChannelId());
                 }
 
-                public void done() {
-                    doRefreshStatuses(true);
-                    stopWorking(workingId);
+                try {
+                    mirthClient.pauseChannels(channelIds);
+                } catch (ClientException e) {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
-            };
+                return null;
+            }
 
-            worker.execute();
-        }
+            public void done() {
+                doRefreshStatuses(true);
+                stopWorking(workingId);
+            }
+        };
+
+        worker.execute();
     }
 
     public void doStartConnector() {
-        List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
+        final List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
 
         if (selectedStatuses.size() == 0) {
             return;
         }
 
-        for (final DashboardStatus status : selectedStatuses) {
-            final String workingId = startWorking("Starting connector...");
+        final String workingId = startWorking("Starting connectors...");
 
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                public Void doInBackground() {
-                    try {
-                        mirthClient.startConnector(status.getChannelId(), status.getMetaDataId());
-                    } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            public Void doInBackground() {
+                Map<String, List<Integer>> connectorInfo = new HashMap<String, List<Integer>>();
+
+                for (DashboardStatus dashboardStatus : selectedStatuses) {
+                    String channelId = dashboardStatus.getChannelId();
+                    Integer metaDataId = dashboardStatus.getMetaDataId();
+
+                    if (metaDataId != null) {
+                        if (!connectorInfo.containsKey(channelId)) {
+                            connectorInfo.put(channelId, new ArrayList<Integer>());
+                        }
+                        connectorInfo.get(channelId).add(metaDataId);
                     }
-
-                    return null;
                 }
 
-                public void done() {
-                    doRefreshStatuses(true);
-                    stopWorking(workingId);
+                try {
+                    mirthClient.startConnectors(connectorInfo);
+                } catch (ClientException e) {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
-            };
 
-            worker.execute();
-        }
+                return null;
+            }
+
+            public void done() {
+                doRefreshStatuses(true);
+                stopWorking(workingId);
+            }
+        };
+
+        worker.execute();
     }
 
     public void doStopConnector() {
-        List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
+        final List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
 
         if (selectedStatuses.size() == 0) {
             return;
         }
 
         boolean warnQueueDisabled = false;
-
-        for (final DashboardStatus status : selectedStatuses) {
-            if (status.getMetaDataId() != 0 && !status.isQueueEnabled()) {
+        for (Iterator<DashboardStatus> it = selectedStatuses.iterator(); it.hasNext();) {
+            DashboardStatus dashboardStatus = it.next();
+            if (dashboardStatus.getMetaDataId() != 0 && !dashboardStatus.isQueueEnabled()) {
                 warnQueueDisabled = true;
-            } else {
-                final String workingId = startWorking("Stopping connector...");
-
-                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                    public Void doInBackground() {
-                        try {
-                            mirthClient.stopConnector(status.getChannelId(), status.getMetaDataId());
-                        } catch (ClientException e) {
-                            alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                        }
-
-                        return null;
-                    }
-
-                    public void done() {
-                        doRefreshStatuses(true);
-                        stopWorking(workingId);
-                    }
-                };
-
-                worker.execute();
+                it.remove();
             }
         }
+
+        final String workingId = startWorking("Stopping connectors...");
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            public Void doInBackground() {
+                Map<String, List<Integer>> connectorInfo = new HashMap<String, List<Integer>>();
+
+                for (DashboardStatus dashboardStatus : selectedStatuses) {
+                    String channelId = dashboardStatus.getChannelId();
+                    Integer metaDataId = dashboardStatus.getMetaDataId();
+
+                    if (metaDataId != null) {
+                        if (!connectorInfo.containsKey(channelId)) {
+                            connectorInfo.put(channelId, new ArrayList<Integer>());
+                        }
+                        connectorInfo.get(channelId).add(metaDataId);
+                    }
+                }
+
+                try {
+                    mirthClient.stopConnectors(connectorInfo);
+                } catch (ClientException e) {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                }
+
+                return null;
+            }
+
+            public void done() {
+                doRefreshStatuses(true);
+                stopWorking(workingId);
+            }
+        };
+
+        worker.execute();
 
         if (warnQueueDisabled) {
             alertWarning(this, "<html>One or more destination connectors were not stopped because queueing was not enabled.<br>Queueing must be enabled for a destination connector to be stopped individually.</html>");
