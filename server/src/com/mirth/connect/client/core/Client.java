@@ -32,6 +32,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
@@ -194,7 +195,7 @@ public class Client {
         return serializer.deserializeList(serverConnection.executePostMethod(CHANNEL_SERVLET, params), Channel.class);
     }
 
-    public List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ClientException {
+    public List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> cachedChannels) throws ClientException {
         logger.debug("getting channel summary");
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_SUMMARY.getName()), new NameValuePair("cachedChannels", serializer.serialize(cachedChannels)) };
         return serializer.deserializeList(serverConnection.executePostMethodAsync(CHANNEL_SERVLET, params), ChannelSummary.class);

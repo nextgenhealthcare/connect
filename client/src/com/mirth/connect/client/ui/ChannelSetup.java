@@ -1046,7 +1046,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         boolean updated = false;
 
         try {
-            if (!parent.channels.containsKey(currentChannel.getId())) {
+            if (!parent.channelStatuses.containsKey(currentChannel.getId())) {
                 currentChannel.setId(parent.mirthClient.getGuid());
             }
 
@@ -1055,7 +1055,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             updated = parent.updateChannel(currentChannel, false);
 
             try {
-                currentChannel = (Channel) SerializationUtils.clone(parent.channels.get(currentChannel.getId()));
+                currentChannel = (Channel) SerializationUtils.clone(parent.channelStatuses.get(currentChannel.getId()).getChannel());
 
                 if (parent.currentContentPage == transformerPane) {
                     if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {

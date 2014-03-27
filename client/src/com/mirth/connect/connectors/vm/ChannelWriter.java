@@ -19,6 +19,7 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelStatus;
 
 public class ChannelWriter extends ConnectorSettingsPanel {
 
@@ -59,7 +60,8 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
         String selectedChannelName = "None";
 
-        for (Channel channel : parent.channels.values()) {
+        for (ChannelStatus channelStatus : parent.channelStatuses.values()) {
+            Channel channel = channelStatus.getChannel();
             if (props.getChannelId().equalsIgnoreCase(channel.getId())) {
                 selectedChannelName = channel.getName();
             }

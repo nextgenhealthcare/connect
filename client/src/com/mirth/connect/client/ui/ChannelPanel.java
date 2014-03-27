@@ -43,8 +43,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTableTransferHandler;
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.DashboardStatus;
-import com.mirth.connect.model.DashboardStatus.StatusType;
+import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.plugins.ChannelColumnPlugin;
 import com.mirth.connect.plugins.ChannelPanelPlugin;
 
@@ -246,18 +245,19 @@ public class ChannelPanel extends javax.swing.JPanel {
         });
     }
 
-    public void updateChannelTable(List<Channel> channels) {
+    public void updateChannelTable(List<ChannelStatus> channelStatuses) {
         Object[][] tableData = null;
 
-        if (channels != null) {
+        if (channelStatuses != null) {
             boolean tagFilterEnabled = parent.channelFilter.isTagFilterEnabled();
             Set<String> visibleTags = parent.channelFilter.getVisibleTags();
-            List<Channel> filteredChannels = new ArrayList<Channel>();
+            List<ChannelStatus> filteredChannelStatuses = new ArrayList<ChannelStatus>();
             int enabled = 0;
 
-            for (Channel channel : channels) {
+            for (ChannelStatus channelStatus : channelStatuses) {
+                Channel channel = channelStatus.getChannel();
                 if (!tagFilterEnabled || CollectionUtils.containsAny(visibleTags, channel.getProperties().getTags())) {
-                    filteredChannels.add(channel);
+                    filteredChannelStatuses.add(channelStatus);
 
                     if (channel.isEnabled()) {
                         enabled++;
@@ -265,8 +265,8 @@ public class ChannelPanel extends javax.swing.JPanel {
                 }
             }
 
-            int totalChannelCount = channels.size();
-            int visibleChannelCount = filteredChannels.size();
+            int totalChannelCount = channelStatuses.size();
+            int visibleChannelCount = filteredChannelStatuses.size();
 
             if (tagFilterEnabled) {
                 tagsLabel.setText(visibleChannelCount + " of " + totalChannelCount + " Channels, " + enabled + " Enabled (" + StringUtils.join(visibleTags, ", ") + ")");
@@ -274,14 +274,20 @@ public class ChannelPanel extends javax.swing.JPanel {
                 tagsLabel.setText(totalChannelCount + " Channels, " + enabled + " Enabled");
             }
 
+            List<Channel> filteredChannels = new ArrayList<Channel>();
+            for (ChannelStatus filteredChannelStatus : filteredChannelStatuses) {
+                filteredChannels.add(filteredChannelStatus.getChannel());
+            }
+
             for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
                 plugin.tableUpdate(filteredChannels);
             }
 
-            tableData = new Object[filteredChannels.size()][LoadedExtensions.getInstance().getChannelColumnPlugins().size() + DEFAULT_COLUMNS.length];
+            tableData = new Object[filteredChannelStatuses.size()][LoadedExtensions.getInstance().getChannelColumnPlugins().size() + DEFAULT_COLUMNS.length];
             int i = 0;
 
-            for (Channel channel : filteredChannels) {
+            for (ChannelStatus channelStatus : filteredChannelStatuses) {
+                Channel channel = channelStatus.getChannel();
                 int j = 0;
 
                 for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
@@ -300,17 +306,8 @@ public class ChannelPanel extends javax.swing.JPanel {
                 tableData[i][j++] = channel.getId();
                 tableData[i][j++] = channel.getDescription();
 
-                tableData[i][j] = null;
-                tableData[i][j + 1] = null;
-
-                for (DashboardStatus status : parent.status.toArray(new DashboardStatus[] {})) {
-                    if (status.getStatusType() == StatusType.CHANNEL && status.getChannelId().equals(channel.getId())) {
-                        tableData[i][j] = status.getDeployedRevisionDelta();
-                        tableData[i][j + 1] = status.getDeployedDate();
-                    }
-                }
-
-                j += 2;
+                tableData[i][j++] = channelStatus.getDeployedRevisionDelta();
+                tableData[i][j++] = channelStatus.getDeployedDate();
 
                 for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
                     if (!plugin.isDisplayFirst()) {
@@ -390,8 +387,8 @@ public class ChannelPanel extends javax.swing.JPanel {
     }
 
     /**
-     * Shows the popup menu when the trigger button (right-click) has been
-     * pushed. Deselects the rows if no row was selected.
+     * Shows the popup menu when the trigger button (right-click) has been pushed. Deselects the
+     * rows if no row was selected.
      */
     private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
         int row = channelTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
@@ -445,17 +442,16 @@ public class ChannelPanel extends javax.swing.JPanel {
     }
 
     /**
-     * Gets the selected channel index that corresponds to the saved channels
-     * list
+     * Gets the selected channel index that corresponds to the saved channels list
      */
     public List<Channel> getSelectedChannels() {
         int[] selectedRows = channelTable.getSelectedModelRows();
         List<Channel> selectedChannels = new ArrayList<Channel>();
         for (int i = 0; i < selectedRows.length; i++) {
             String channelId = (String) channelTable.getModel().getValueAt(selectedRows[i], channelTable.getColumnModelIndex(ID_COLUMN_NAME));
-            Channel selectedChannel = parent.channels.get(channelId);
-            if (selectedChannel != null) {
-                selectedChannels.add(selectedChannel);
+            ChannelStatus selectedChannelStatus = parent.channelStatuses.get(channelId);
+            if (selectedChannelStatus != null) {
+                selectedChannels.add(selectedChannelStatus.getChannel());
             }
         }
 

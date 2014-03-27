@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.DeployedChannelInfo;
 import com.mirth.connect.model.ServerEventContext;
@@ -39,7 +40,7 @@ public abstract class ChannelController extends Controller {
 
     public abstract Set<String> getChannelIds();
 
-    public abstract List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException;
+    public abstract List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> cachedChannels) throws ControllerException;
 
     public abstract void setChannelEnabled(Set<String> channelIds, ServerEventContext context, boolean enabled) throws ControllerException;
 

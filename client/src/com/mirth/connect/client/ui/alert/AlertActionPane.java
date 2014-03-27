@@ -51,6 +51,7 @@ import com.mirth.connect.client.ui.components.MirthTextArea;
 import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.components.MirthVariableList;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.alert.AlertAction;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertActionProtocol;
@@ -137,9 +138,10 @@ public class AlertActionPane extends JPanel {
 
         // An id->name map is needed locally
         Map<String, String> channelNameMap = new HashMap<String, String>();
-        
-        if (PlatformUI.MIRTH_FRAME.channels != null) {
-            for (Channel channel : PlatformUI.MIRTH_FRAME.channels.values()) {
+
+        if (PlatformUI.MIRTH_FRAME.channelStatuses != null) {
+            for (ChannelStatus channelStatus : PlatformUI.MIRTH_FRAME.channelStatuses.values()) {
+                Channel channel = channelStatus.getChannel();
                 // Sort the channels by channel name
                 channelMap.put(channel.getName(), channel.getId());
                 channelNameMap.put(channel.getId(), channel.getName());
@@ -189,13 +191,13 @@ public class AlertActionPane extends JPanel {
 
     public void setActionGroup(AlertActionGroup actionGroup) {
         this.actionGroup = actionGroup;
-        
+
         subjectTextField.setText(this.actionGroup.getSubject());
         templateTextArea.setText(this.actionGroup.getTemplate());
 
         updateActionTable(this.actionGroup.getActions());
     }
-    
+
     public void setVariableList(List<String> variables) {
         variableList.removeAll();
         variableList.setListData(variables.toArray());

@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.DeployedChannelInfo;
@@ -102,62 +103,82 @@ public class DefaultChannelController extends ChannelController {
     }
 
     @Override
-    public List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException {
+    public List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> clientChannels) throws ControllerException {
         logger.debug("getting channel summary");
         List<ChannelSummary> channelSummaries = new ArrayList<ChannelSummary>();
 
         try {
-            Map<String, Integer> serverChannels = getChannelRevisions();
+            Map<String, Channel> serverChannels = new HashMap<String, Channel>();
+            for (Channel serverChannel : getChannels(null)) {
+                serverChannels.put(serverChannel.getId(), serverChannel);
+            }
 
             /*
              * Iterate through the cached channel list and check if a channel with the id exists on
              * the server. If it does, and the revision numbers aren't equal, then add the channel
-             * to the updated list. Otherwise, if the channel is not found, add it to the deleted
-             * list.
+             * to the updated list. If the cached deployed date is outdated, also add the updated
+             * deployed channel info (date and revision delta). Otherwise, if the channel is not
+             * found, add it to the deleted list.
              */
-            for (String cachedChannelId : cachedChannels.keySet()) {
-                boolean channelExistsOnServer = false;
+            for (String cachedChannelId : clientChannels.keySet()) {
+                ChannelSummary summary = new ChannelSummary(cachedChannelId);
+                boolean addSummary = false;
 
-                // iterate through all of the channels on the server
-                for (Entry<String, Integer> entry : serverChannels.entrySet()) {
-                    String id = entry.getKey();
-                    Integer revision = entry.getValue();
+                if (serverChannels.containsKey(cachedChannelId)) {
+                    ChannelHeader header = clientChannels.get(cachedChannelId);
 
-                    // if the channel with the cached id exists
-                    if (id.equals(cachedChannelId)) {
-                        // and the revision numbers aren't equal, add it as
-                        // updated
-                        if (!revision.equals(cachedChannels.get(cachedChannelId))) {
-                            ChannelSummary summary = new ChannelSummary();
-                            summary.setId(id);
-                            channelSummaries.add(summary);
-                        }
-
-                        channelExistsOnServer = true;
+                    // If the revision numbers aren't equal, add the updated Channel object
+                    Integer revision = serverChannels.get(cachedChannelId).getRevision();
+                    boolean channelOutdated = !revision.equals(header.getRevision());
+                    if (channelOutdated) {
+                        summary.getChannelStatus().setChannel(serverChannels.get(cachedChannelId));
+                        addSummary = true;
                     }
+
+                    DeployedChannelInfo deployedChannelInfo = getDeployedChannelInfoById(cachedChannelId);
+                    boolean serverChannelDeployed = deployedChannelInfo != null;
+                    boolean clientChannelDeployed = header.getDeployedDate() != null;
+
+                    if (!serverChannelDeployed) {
+                        if (clientChannelDeployed) {
+                            // The channel is not deployed, but the client still thinks it's deployed
+                            summary.setUndeployed(true);
+                            addSummary = true;
+                        }
+                    } else {
+                        if (channelOutdated || !clientChannelDeployed || deployedChannelInfo.getDeployedDate().compareTo(header.getDeployedDate()) != 0) {
+                            // The channel is deployed, but the client doesn't think it's deployed, or it's deployed date/revision is outdated
+                            summary.getChannelStatus().setDeployedRevisionDelta(revision - deployedChannelInfo.getDeployedRevision());
+                            summary.getChannelStatus().setDeployedDate(deployedChannelInfo.getDeployedDate());
+                            addSummary = true;
+                        }
+                    }
+                } else {
+                    // If a channel with the ID is never found on the server, add it as deleted
+                    summary.setDeleted(true);
+                    addSummary = true;
                 }
 
-                // if a channel with the id is never found on the server, add it
-                // as deleted
-                if (!channelExistsOnServer) {
-                    ChannelSummary summary = new ChannelSummary();
-                    summary.setId(cachedChannelId);
-                    summary.setDeleted(true);
+                if (addSummary) {
                     channelSummaries.add(summary);
                 }
             }
 
             /*
-             * Iterate through the server channel list, check if every id exists in the cached
-             * channel list. If it doesn't, add it to the summary list as added.
+             * Add summaries for any entries on the server but not in the client's cache.
              */
-            for (Entry<String, Integer> entry : serverChannels.entrySet()) {
-                String id = entry.getKey();
+            for (String serverChannelId : serverChannels.keySet()) {
+                if (!clientChannels.containsKey(serverChannelId)) {
+                    ChannelSummary summary = new ChannelSummary(serverChannelId);
+                    summary.getChannelStatus().setChannel(serverChannels.get(serverChannelId));
 
-                if (!cachedChannels.keySet().contains(id)) {
-                    ChannelSummary summary = new ChannelSummary();
-                    summary.setId(id);
-                    summary.setAdded(true);
+                    DeployedChannelInfo deployedChannelInfo = getDeployedChannelInfoById(serverChannelId);
+                    boolean serverChannelDeployed = deployedChannelInfo != null;
+                    if (serverChannelDeployed) {
+                        summary.getChannelStatus().setDeployedRevisionDelta(serverChannels.get(serverChannelId).getRevision() - deployedChannelInfo.getDeployedRevision());
+                        summary.getChannelStatus().setDeployedDate(deployedChannelInfo.getDeployedDate());
+                    }
+
                     channelSummaries.add(summary);
                 }
             }

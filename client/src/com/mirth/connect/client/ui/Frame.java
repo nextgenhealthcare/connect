@@ -103,15 +103,17 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelHeader;
+import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
-import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.PluginMetaData;
@@ -150,7 +152,7 @@ public class Frame extends JXFrame {
     public JXTaskPaneContainer taskPaneContainer;
     public ChannelFilter channelFilter = null;
     public List<DashboardStatus> status = null;
-    public Map<String, Channel> channels = null;
+    public Map<String, ChannelStatus> channelStatuses = null;
     public List<User> users = null;
     public List<CodeTemplate> codeTemplates = null;
     public ActionManager manager = ActionManager.getInstance();
@@ -208,7 +210,9 @@ public class Frame extends JXFrame {
     private Map<String, ConnectorMetaData> loadedConnectors;
     private UpdateClient updateClient = null;
     private boolean refreshingStatuses = false;
+    private boolean refreshingChannels = false;
     private boolean queueRefreshStatus = false;
+    private boolean queueRefreshChannel = false;
     private boolean refreshingAlerts = false;
     private boolean queueRefreshAlert = false;
     private Map<String, Integer> safeErrorFailCountMap = new HashMap<String, Integer>();
@@ -221,12 +225,12 @@ public class Frame extends JXFrame {
     private MessageExportDialog messageExportDialog;
     private MessageImportDialog messageImportDialog;
     private KeyEventDispatcher keyEventDispatcher = null;
-    
+
     private static final int REFRESH_BLOCK_SIZE = 100;
 
     public Frame() {
         rightContainer = new JXTitledPanel();
-        channels = new HashMap<String, Channel>();
+        channelStatuses = new HashMap<String, ChannelStatus>();
 
         taskPaneContainer = new JXTaskPaneContainer();
 
@@ -1652,8 +1656,8 @@ public class Frame extends JXFrame {
      * Checks to see if the passed in channel id already exists
      */
     public boolean checkChannelId(String id) {
-        for (Channel channel : channels.values()) {
-            if (channel.getId().equalsIgnoreCase(id)) {
+        for (ChannelStatus channelStatus : channelStatuses.values()) {
+            if (channelStatus.getChannel().getId().equalsIgnoreCase(id)) {
                 return false;
             }
         }
@@ -1682,8 +1686,8 @@ public class Frame extends JXFrame {
             return false;
         }
 
-        for (Channel channel : channels.values()) {
-            if (channel.getName().equalsIgnoreCase(name) && !channel.getId().equals(id)) {
+        for (ChannelStatus channelStatus : channelStatuses.values()) {
+            if (channelStatus.getChannel().getName().equalsIgnoreCase(name) && !channelStatus.getChannel().getId().equals(id)) {
                 alertWarning(this, "Channel \"" + name + "\" already exists.");
                 return false;
             }
@@ -2265,6 +2269,21 @@ public class Frame extends JXFrame {
     }
 
     public void doRefreshChannels() {
+        doRefreshChannels(true);
+    }
+
+    public void doRefreshChannels(boolean queue) {
+        synchronized (this) {
+            if (isRefreshingChannels()) {
+                if (queue) {
+                    queueRefreshChannel = true;
+                }
+                return;
+            }
+
+            setRefreshingChannels(true);
+        }
+
         final String workingId = startWorking("Loading channels...");
 
         final List<String> selectedChannelIds = new ArrayList<String>();
@@ -2276,23 +2295,17 @@ public class Frame extends JXFrame {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                try {
-                    status = mirthClient.getChannelStatusList();
-                } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                }
-
                 retrieveChannels();
                 return null;
             }
 
             public void done() {
-                channelPanel.updateChannelTable(new ArrayList<Channel>(channels.values()));
+                channelPanel.updateChannelTable(new ArrayList<ChannelStatus>(channelStatuses.values()));
 
                 setVisibleTasks(channelTasks, channelPopupMenu, 1, 2, false);
                 setVisibleTasks(channelTasks, channelPopupMenu, 7, -1, false);
 
-                if (channels.size() > 0) {
+                if (channelStatuses.size() > 0) {
                     if (!channelFilter.isTagFilterEnabled()) {
                         setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, true);
                     }
@@ -2300,9 +2313,18 @@ public class Frame extends JXFrame {
                     setVisibleTasks(channelTasks, channelPopupMenu, 7, 7, true);
                 }
 
+                // TODO: This may still be making requests on the event dispatch thread
                 channelPanel.setSelectedChannels(selectedChannelIds);
 
                 stopWorking(workingId);
+
+                setRefreshingChannels(false);
+
+                // Perform another refresh if any were queued up to ensure the dashboard is up to date.
+                if (queueRefreshChannel) {
+                    queueRefreshChannel = false;
+                    doRefreshChannels(false);
+                }
             }
         };
 
@@ -2311,30 +2333,42 @@ public class Frame extends JXFrame {
 
     public void retrieveChannels() {
         try {
-            Map<String, Integer> channelHeaders = new HashMap<String, Integer>();
+            Map<String, ChannelHeader> channelHeaders = new HashMap<String, ChannelHeader>();
 
-            for (Channel channel : channels.values()) {
-                channelHeaders.put(channel.getId(), channel.getRevision());
+            for (ChannelStatus channelStatus : channelStatuses.values()) {
+                Channel channel = channelStatus.getChannel();
+                channelHeaders.put(channel.getId(), new ChannelHeader(channel.getRevision(), channelStatus.getDeployedDate()));
             }
 
             List<ChannelSummary> changedChannels = mirthClient.getChannelSummary(channelHeaders);
 
-            if (changedChannels.size() == 0) {
-                return;
-            } else {
-                Set<String> addedOrUpdatedChannelIds = new LinkedHashSet<String>();
+            for (ChannelSummary channelSummary : changedChannels) {
+                String channelId = channelSummary.getChannelId();
 
-                for (ChannelSummary channelSummary : changedChannels) {
-                    if (channelSummary.isDeleted()) {
-                        channels.remove(channelSummary.getId());
-                    } else {
-                        addedOrUpdatedChannelIds.add(channelSummary.getId());
+                if (channelSummary.isDeleted()) {
+                    channelStatuses.remove(channelId);
+                } else {
+                    ChannelStatus channelStatus = channelStatuses.get(channelId);
+                    if (channelStatus == null) {
+                        channelStatus = new ChannelStatus();
+                        channelStatuses.put(channelId, channelStatus);
                     }
-                }
 
-                List<Channel> channelsToAddOrUpdate = mirthClient.getChannels(addedOrUpdatedChannelIds);
-                for (Channel channel : channelsToAddOrUpdate) {
-                    channels.put(channel.getId(), channel);
+                    /*
+                     * If the status coming back from the server is for an entirely new channel, the
+                     * Channel object should never be null.
+                     */
+                    if (channelSummary.getChannelStatus().getChannel() != null) {
+                        channelStatus.setChannel(channelSummary.getChannelStatus().getChannel());
+                    }
+
+                    if (channelSummary.isUndeployed()) {
+                        channelStatus.setDeployedDate(null);
+                        channelStatus.setDeployedRevisionDelta(null);
+                    } else if (channelSummary.getChannelStatus().getDeployedDate() != null) {
+                        channelStatus.setDeployedDate(channelSummary.getChannelStatus().getDeployedDate());
+                        channelStatus.setDeployedRevisionDelta(channelSummary.getChannelStatus().getDeployedRevisionDelta());
+                    }
                 }
             }
         } catch (ClientException e) {
@@ -2343,7 +2377,7 @@ public class Frame extends JXFrame {
     }
 
     public void clearChannelCache() {
-        channels = new HashMap<String, Channel>();
+        channelStatuses = new HashMap<String, ChannelStatus>();
     }
 
     public synchronized void setRefreshingStatuses(boolean refreshingStatuses) {
@@ -2352,6 +2386,14 @@ public class Frame extends JXFrame {
 
     public synchronized boolean isRefreshingStatuses() {
         return refreshingStatuses;
+    }
+    
+    public synchronized void setRefreshingChannels(boolean refreshingChannels) {
+        this.refreshingChannels = refreshingChannels;
+    }
+
+    public synchronized boolean isRefreshingChannels() {
+        return refreshingChannels;
     }
 
     public synchronized void setRefreshingAlerts(boolean refreshingAlerts) {
@@ -3287,7 +3329,8 @@ public class Frame extends JXFrame {
                 } else {
                     overwrite = true;
 
-                    for (Channel channel : channels.values()) {
+                    for (ChannelStatus channelStatus : channelStatuses.values()) {
+                        Channel channel = channelStatus.getChannel();
                         if (channel.getName().equalsIgnoreCase(channelName)) {
                             // If overwriting, use the old revision number and id
                             importChannel.setRevision(channel.getRevision());
@@ -3307,7 +3350,7 @@ public class Frame extends JXFrame {
 
             }
 
-            channels.put(importChannel.getId(), importChannel);
+            channelStatuses.put(importChannel.getId(), new ChannelStatus(importChannel));
         } catch (ClientException e) {
             alertException(this, e.getStackTrace(), e.getMessage());
         }
@@ -3326,7 +3369,7 @@ public class Frame extends JXFrame {
                     alertException(this, cause.getStackTrace(), "Channel \"" + importChannel.getName() + "\" is invalid. " + getMissingExtensions(invalidChannel) + " Original cause:\n" + cause.getMessage());
                 }
             } catch (Exception e) {
-                channels.remove(importChannel.getId());
+                channelStatuses.remove(importChannel.getId());
                 alertException(this, e.getStackTrace(), e.getMessage());
                 return;
             } finally {
@@ -3351,7 +3394,7 @@ public class Frame extends JXFrame {
                         editChannel(importChannelFinal);
                         setSaveEnabled(!overwriteFinal);
                     } catch (Exception e) {
-                        channels.remove(importChannelFinal.getId());
+                        channelStatuses.remove(importChannelFinal.getId());
                         alertError(PlatformUI.MIRTH_FRAME, "Channel had an unknown problem. Channel import aborted.");
                         channelEditPanel = new ChannelSetup();
                         doShowChannel();
@@ -3414,7 +3457,9 @@ public class Frame extends JXFrame {
             try {
                 exportDirectory = exportFileChooser.getSelectedFile();
 
-                for (Channel channel : channels.values()) {
+                for (ChannelStatus channelStatus : channelStatuses.values()) {
+                    Channel channel = channelStatus.getChannel();
+
                     if (!tagFilteredEnabled || CollectionUtils.containsAny(visibleTags, channel.getProperties().getTags())) {
                         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                         String channelXML = serializer.serialize(channel);
@@ -3666,7 +3711,7 @@ public class Frame extends JXFrame {
         } while (!checkChannelName(channelName, channel.getId()));
 
         channel.setName(channelName);
-        channels.put(channel.getId(), channel);
+        channelStatuses.put(channel.getId(), new ChannelStatus(channel));
 
         editChannel(channel);
         setSaveEnabled(true);
@@ -3700,14 +3745,14 @@ public class Frame extends JXFrame {
             }
         }
 
-        Channel channel = channels.get(channelId);
+        ChannelStatus channelStatus = channelStatuses.get(channelId);
 
-        if (channel == null) {
+        if (channelStatus == null) {
             alertError(this, "Channel no longer exists!");
             return;
         }
 
-        editMessageDialog.setPropertiesAndShow("", channel.getSourceConnector().getTransformer().getInboundDataType(), channel.getId(), dashboardPanel.getDestinationConnectorNames(channelId), selectedMetaDataIds);
+        editMessageDialog.setPropertiesAndShow("", channelStatus.getChannel().getSourceConnector().getTransformer().getInboundDataType(), channelStatus.getChannel().getId(), dashboardPanel.getDestinationConnectorNames(channelId), selectedMetaDataIds);
     }
 
     public void doExportMessages() {
@@ -3888,7 +3933,7 @@ public class Frame extends JXFrame {
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             public Void doInBackground() {
-                if (channels == null || channels.values().size() == 0) {
+                if (channelStatuses == null || channelStatuses.values().size() == 0) {
                     retrieveChannels();
                 }
 
@@ -4843,11 +4888,6 @@ public class Frame extends JXFrame {
 
     public String getSelectedChannelIdFromDashboard() {
         return dashboardPanel.getSelectedStatuses().get(0).getChannelId();
-    }
-
-    public Channel getSelectedChannelFromDashboard() {
-        retrieveChannels();
-        return channels.get(getSelectedChannelIdFromDashboard());
     }
 
     public List<Integer> getSelectedMetaDataIdsFromDashboard(String channelId) {

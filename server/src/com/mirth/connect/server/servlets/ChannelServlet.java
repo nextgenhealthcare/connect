@@ -32,6 +32,7 @@ import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -133,7 +134,7 @@ public class ChannelServlet extends MirthServlet {
                     response.setContentType(APPLICATION_XML);
                     List<ChannelSummary> channelSummaries = null;
                     @SuppressWarnings("unchecked")
-                    Map<String, Integer> cachedChannels = serializer.deserialize(request.getParameter("cachedChannels"), Map.class);
+                    Map<String, ChannelHeader> cachedChannels = serializer.deserialize(request.getParameter("cachedChannels"), Map.class);
                     parameterMap.put("cachedChannels", cachedChannels);
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -222,7 +223,7 @@ public class ChannelServlet extends MirthServlet {
         List<ChannelSummary> authorizedChannelSummaries = new ArrayList<ChannelSummary>();
 
         for (ChannelSummary channelSummary : channelSummaries) {
-            if (authorizedChannelIds.contains(channelSummary.getId())) {
+            if (authorizedChannelIds.contains(channelSummary.getChannelId())) {
                 authorizedChannelSummaries.add(channelSummary);
             }
         }

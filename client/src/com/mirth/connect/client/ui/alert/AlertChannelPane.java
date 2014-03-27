@@ -51,6 +51,7 @@ import com.mirth.connect.client.ui.SortableTreeTableModel;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.alert.AlertChannels;
 
@@ -173,11 +174,12 @@ public class AlertChannelPane extends JPanel {
     }
 
     public void setChannels(AlertChannels alertChannels, boolean includeConnectors) {
-        if (PlatformUI.MIRTH_FRAME.channels != null) {
+        if (PlatformUI.MIRTH_FRAME.channelStatuses != null) {
             TreeMap<String, Channel> channelMap = new TreeMap<String, Channel>(String.CASE_INSENSITIVE_ORDER);
 
             // Sort the channels by channel name
-            for (Channel channel : PlatformUI.MIRTH_FRAME.channels.values()) {
+            for (ChannelStatus channelStatus : PlatformUI.MIRTH_FRAME.channelStatuses.values()) {
+                Channel channel = channelStatus.getChannel();
                 channelMap.put(channel.getName(), channel);
             }
 

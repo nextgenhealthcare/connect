@@ -10,51 +10,50 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
-import java.util.Calendar;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("channelSummary")
 public class ChannelSummary implements Serializable {
-	private String id;
-	private boolean added;
-	private boolean deleted;
-	private Calendar lastUpdated;
+    private String channelId;
+    private boolean deleted;
+    private boolean undeployed;
+    private ChannelStatus channelStatus;
 
-	public ChannelSummary() {
-		this.added = false;
-		this.deleted = false;
-	}
+    public ChannelSummary(String channelId) {
+        this.channelId = channelId;
+        this.channelStatus = new ChannelStatus();
+    }
 
-	public boolean isAdded() {
-		return this.added;
-	}
+    public boolean isDeleted() {
+        return this.deleted;
+    }
 
-	public void setAdded(boolean added) {
-		this.added = added;
-	}
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
 
-	public boolean isDeleted() {
-		return this.deleted;
-	}
+    public String getChannelId() {
+        return this.channelId;
+    }
 
-	public void setDeleted(boolean deleted) {
-		this.deleted = deleted;
-	}
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    }
 
-	public String getId() {
-		return this.id;
-	}
+    public boolean isUndeployed() {
+        return undeployed;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setUndeployed(boolean undeployed) {
+        this.undeployed = undeployed;
+    }
 
-	public Calendar getLastUpdated() {
-		return this.lastUpdated;
-	}
+    public ChannelStatus getChannelStatus() {
+        return channelStatus;
+    }
 
-	public void setLastUpdated(Calendar lastUpdated) {
-		this.lastUpdated = lastUpdated;
-	}
+    public void setChannelStatus(ChannelStatus channelStatus) {
+        this.channelStatus = channelStatus;
+    }
 }
