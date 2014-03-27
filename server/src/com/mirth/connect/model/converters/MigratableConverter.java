@@ -43,7 +43,7 @@ public class MigratableConverter extends ReflectionConverter {
     protected String currentVersion;
 
     public MigratableConverter(String currentVersion, Mapper mapper) {
-        super(mapper, new JVM().bestReflectionProvider());
+        super(mapper, JVM.newReflectionProvider());
         this.currentVersion = currentVersion;
     }
 
