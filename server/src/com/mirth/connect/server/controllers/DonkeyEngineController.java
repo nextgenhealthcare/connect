@@ -406,71 +406,73 @@ public class DonkeyEngineController implements EngineController {
         }
 
         for (com.mirth.connect.donkey.server.channel.Channel donkeyChannel : donkeyChannels) {
-            Statistics stats = donkeyChannelController.getStatistics();
-            Statistics lifetimeStats = donkeyChannelController.getTotalStatistics();
-
             String channelId = donkeyChannel.getChannelId();
-
-            DashboardStatus status = new DashboardStatus();
-            status.setStatusType(StatusType.CHANNEL);
-            status.setChannelId(channelId);
-            status.setName(donkeyChannel.getName());
-            status.setState(donkeyChannel.getCurrentState());
-            status.setDeployedDate(donkeyChannel.getDeployDate());
-
             Channel deployedChannel = channelController.getDeployedChannelById(channelId);
 
-            int channelRevision = 0;
-            // Just in case the channel no longer exists
-            if (channelRevisions != null && channelRevisions.containsKey(channelId)) {
-                channelRevision = channelRevisions.get(channelId);
-                status.setDeployedRevisionDelta(channelRevision - deployedChannel.getRevision());
-            }
+            // Make sure the channel is actually still deployed
+            if (deployedChannel != null) {
+                Statistics stats = donkeyChannelController.getStatistics();
+                Statistics lifetimeStats = donkeyChannelController.getTotalStatistics();
 
-            status.setStatistics(stats.getConnectorStats(channelId, null));
-            status.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, null));
-            status.setTags(deployedChannel.getProperties().getTags());
+                DashboardStatus status = new DashboardStatus();
+                status.setStatusType(StatusType.CHANNEL);
+                status.setChannelId(channelId);
+                status.setName(donkeyChannel.getName());
+                status.setState(donkeyChannel.getCurrentState());
+                status.setDeployedDate(donkeyChannel.getDeployDate());
 
-            DashboardStatus sourceStatus = new DashboardStatus();
-            sourceStatus.setStatusType(StatusType.SOURCE_CONNECTOR);
-            sourceStatus.setChannelId(channelId);
-            sourceStatus.setMetaDataId(0);
-            sourceStatus.setName("Source");
-            sourceStatus.setState(donkeyChannel.getSourceConnector().getCurrentState());
-            sourceStatus.setStatistics(stats.getConnectorStats(channelId, 0));
-            sourceStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, 0));
-            sourceStatus.setTags(deployedChannel.getProperties().getTags());
-            sourceStatus.setQueueEnabled(!donkeyChannel.getSourceConnector().isRespondAfterProcessing());
-            sourceStatus.setQueued(new Long(donkeyChannel.getSourceQueue().size()));
-
-            status.setQueued(sourceStatus.getQueued());
-
-            status.getChildStatuses().add(sourceStatus);
-
-            for (DestinationChain chain : donkeyChannel.getDestinationChains()) {
-                for (Entry<Integer, DestinationConnector> connectorEntry : chain.getDestinationConnectors().entrySet()) {
-                    Integer metaDataId = connectorEntry.getKey();
-                    DestinationConnector connector = connectorEntry.getValue();
-
-                    DashboardStatus destinationStatus = new DashboardStatus();
-                    destinationStatus.setStatusType(StatusType.DESTINATION_CONNECTOR);
-                    destinationStatus.setChannelId(channelId);
-                    destinationStatus.setMetaDataId(metaDataId);
-                    destinationStatus.setName(connector.getDestinationName());
-                    destinationStatus.setState(connector.getCurrentState());
-                    destinationStatus.setStatistics(stats.getConnectorStats(channelId, metaDataId));
-                    destinationStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, metaDataId));
-                    destinationStatus.setTags(deployedChannel.getProperties().getTags());
-                    destinationStatus.setQueueEnabled(connector.isQueueEnabled());
-                    destinationStatus.setQueued(new Long(connector.getQueue().size()));
-
-                    status.setQueued(status.getQueued() + destinationStatus.getQueued());
-
-                    status.getChildStatuses().add(destinationStatus);
+                int channelRevision = 0;
+                // Just in case the channel no longer exists
+                if (channelRevisions != null && channelRevisions.containsKey(channelId)) {
+                    channelRevision = channelRevisions.get(channelId);
+                    status.setDeployedRevisionDelta(channelRevision - deployedChannel.getRevision());
                 }
-            }
 
-            statuses.add(status);
+                status.setStatistics(stats.getConnectorStats(channelId, null));
+                status.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, null));
+                status.setTags(deployedChannel.getProperties().getTags());
+
+                DashboardStatus sourceStatus = new DashboardStatus();
+                sourceStatus.setStatusType(StatusType.SOURCE_CONNECTOR);
+                sourceStatus.setChannelId(channelId);
+                sourceStatus.setMetaDataId(0);
+                sourceStatus.setName("Source");
+                sourceStatus.setState(donkeyChannel.getSourceConnector().getCurrentState());
+                sourceStatus.setStatistics(stats.getConnectorStats(channelId, 0));
+                sourceStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, 0));
+                sourceStatus.setTags(deployedChannel.getProperties().getTags());
+                sourceStatus.setQueueEnabled(!donkeyChannel.getSourceConnector().isRespondAfterProcessing());
+                sourceStatus.setQueued(new Long(donkeyChannel.getSourceQueue().size()));
+
+                status.setQueued(sourceStatus.getQueued());
+
+                status.getChildStatuses().add(sourceStatus);
+
+                for (DestinationChain chain : donkeyChannel.getDestinationChains()) {
+                    for (Entry<Integer, DestinationConnector> connectorEntry : chain.getDestinationConnectors().entrySet()) {
+                        Integer metaDataId = connectorEntry.getKey();
+                        DestinationConnector connector = connectorEntry.getValue();
+
+                        DashboardStatus destinationStatus = new DashboardStatus();
+                        destinationStatus.setStatusType(StatusType.DESTINATION_CONNECTOR);
+                        destinationStatus.setChannelId(channelId);
+                        destinationStatus.setMetaDataId(metaDataId);
+                        destinationStatus.setName(connector.getDestinationName());
+                        destinationStatus.setState(connector.getCurrentState());
+                        destinationStatus.setStatistics(stats.getConnectorStats(channelId, metaDataId));
+                        destinationStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, metaDataId));
+                        destinationStatus.setTags(deployedChannel.getProperties().getTags());
+                        destinationStatus.setQueueEnabled(connector.isQueueEnabled());
+                        destinationStatus.setQueued(new Long(connector.getQueue().size()));
+
+                        status.setQueued(status.getQueued() + destinationStatus.getQueued());
+
+                        status.getChildStatuses().add(destinationStatus);
+                    }
+                }
+
+                statuses.add(status);
+            }
         }
 
         Collections.sort(statuses, new Comparator<DashboardStatus>() {
