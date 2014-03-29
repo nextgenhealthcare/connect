@@ -44,6 +44,7 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
+import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.model.DashboardStatus;
@@ -113,18 +114,49 @@ public class DashboardPanel extends javax.swing.JPanel {
         }
     }
 
-    public void loadPanelPlugin(String pluginName) {
-        DashboardPanelPlugin plugin = LoadedExtensions.getInstance().getDashboardPanelPlugins().get(pluginName);
-        if (plugin != null && getSelectedStatuses().size() != 0) {
-            plugin.update(getSelectedStatuses());
-        } else {
-            plugin.update();
+    private DashboardPanelPlugin getPanelPlugin(String pluginName) {
+        if (LoadedExtensions.getInstance().getDashboardPanelPlugins().size() > 0) {
+            return LoadedExtensions.getInstance().getDashboardPanelPlugins().get(pluginName);
         }
+        return null;
     }
 
-    public synchronized void updateCurrentPluginPanel() {
-        if (LoadedExtensions.getInstance().getDashboardPanelPlugins().size() > 0) {
-            loadPanelPlugin(tabs.getTitleAt(tabs.getSelectedIndex()));
+    private String getCurrentPanelPluginName() {
+        return tabs.getTitleAt(tabs.getSelectedIndex());
+    }
+
+    private void loadPanelPlugin(final String pluginName) {
+        final DashboardPanelPlugin plugin = getPanelPlugin(pluginName);
+
+        if (plugin != null) {
+            final List<DashboardStatus> selectedStatuses = getSelectedStatuses();
+
+            QueuingSwingWorkerTask<Void, Void> task = new QueuingSwingWorkerTask<Void, Void>(pluginName, "Updating " + pluginName + " dashboard panel plugin...") {
+                @Override
+                public Void doInBackground() {
+                    try {
+                        if (selectedStatuses.size() != 0) {
+                            plugin.prepareData(selectedStatuses);
+                        } else {
+                            plugin.prepareData();
+                        }
+                    } catch (ClientException e) {
+                        parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                    }
+                    return null;
+                }
+
+                @Override
+                public void done() {
+                    if (selectedStatuses.size() != 0) {
+                        plugin.update(selectedStatuses);
+                    } else {
+                        plugin.update();
+                    }
+                }
+            };
+
+            new QueuingSwingWorker<Void, Void>(task, true).executeDelegate();
         }
     }
 
@@ -208,7 +240,17 @@ public class DashboardPanel extends javax.swing.JPanel {
 
         statusTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent event) {
-                updatePopupMenu();
+                /*
+                 * MIRTH-3199: Only update the panel plugin if the selection is finished. This does
+                 * mean that the logs aren't updated live when adding to or removing from a
+                 * currently adjusting selection, but it's much more efficient when it comes to the
+                 * number of requests being done from the client. Plus, it actually will still
+                 * update while a selection is adjusting if the refresh interval on the dashboard
+                 * elapses. We can change this so that plugins are updated during a selection
+                 * adjustment, but it would first require a major rewrite of the connection log /
+                 * status column plugin.
+                 */
+                updatePopupMenu(!event.getValueIsAdjusting());
             }
         });
     }
@@ -248,17 +290,23 @@ public class DashboardPanel extends javax.swing.JPanel {
     private void checkSelectionAndPopupMenu(MouseEvent event) {
         TreePath path = statusTable.getPathForLocation(event.getX(), event.getY());
 
+        /*
+         * On mouse events we don't need to update the dashboard panel plugins. They will already
+         * have been updated because of the ListSelectionEvent, and multiple mouse events will enter
+         * here (as many as three, one pressed and two released) so we would basically be doing four
+         * times the work.
+         */
         if (path == null) {
-            deselectRows();
+            deselectRows(false);
         } else {
-            updatePopupMenu();
+            updatePopupMenu(false);
         }
 
         if (event.isPopupTrigger()) {
             TreeSelectionModel selectionModel = statusTable.getTreeSelectionModel();
 
             if (!selectionModel.isPathSelected(path)) {
-                deselectRows();
+                deselectRows(false);
                 selectionModel.addSelectionPath(path);
             }
 
@@ -270,20 +318,11 @@ public class DashboardPanel extends javax.swing.JPanel {
      * Action when something on the status list has been selected. Sets all appropriate tasks
      * visible.
      */
-    private void updatePopupMenu() {
+    private void updatePopupMenu(boolean loadPanelPlugin) {
         /*
-         * 0 - Refresh
-         * 1 - Send Message
-         * 2 - View Messages
-         * 3 - Remove All Messages
-         * 4 - Clear Statistics
-         * 5 - Start
-         * 6 - Pause
-         * 7 - Stop
-         * 8 - Halt
-         * 9 - Undeploy Channel
-         * 10 - Start Connector
-         * 11 - Stop Connector
+         * 0 - Refresh 1 - Send Message 2 - View Messages 3 - Remove All Messages 4 - Clear
+         * Statistics 5 - Start 6 - Pause 7 - Stop 8 - Halt 9 - Undeploy Channel 10 - Start
+         * Connector 11 - Stop Connector
          */
 
         parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, -1, false); // hide all
@@ -353,7 +392,7 @@ public class DashboardPanel extends javax.swing.JPanel {
                         }
                     }
                 }
-            } else if (selectedChannelNodes.size() == 0){
+            } else if (selectedChannelNodes.size() == 0) {
                 DashboardTableNode channelNode = (DashboardTableNode) node.getParent();
                 if (channelNode.getStatus().getState() != DeployedState.STARTED && channelNode.getStatus().getState() != DeployedState.PAUSED) {
                     parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 10, 11, false);
@@ -377,7 +416,9 @@ public class DashboardPanel extends javax.swing.JPanel {
             parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 4, 4, false);
         }
 
-        updateCurrentPluginPanel();
+        if (loadPanelPlugin) {
+            loadPanelPlugin(getCurrentPanelPluginName());
+        }
     }
 
     /**
@@ -452,9 +493,9 @@ public class DashboardPanel extends javax.swing.JPanel {
         // The ListSelectionListener is not notified that the tree table model has changed so we must update the menu items manually.
         // If we switch everything to use a TreeSelectionListener then we should remove this.
         if (statusTable.getSelectedRowCount() == 0) {
-            deselectRows();
+            deselectRows(true);
         } else {
-            updatePopupMenu();
+            updatePopupMenu(true);
         }
         updateTableHighlighting();
     }
@@ -610,10 +651,13 @@ public class DashboardPanel extends javax.swing.JPanel {
         return destinationConnectors;
     }
 
-    public void deselectRows() {
+    public void deselectRows(boolean loadPanelPlugin) {
         statusTable.clearSelection();
         parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, -1, false);
-        updateCurrentPluginPanel();
+
+        if (loadPanelPlugin) {
+            loadPanelPlugin(getCurrentPanelPluginName());
+        }
     }
 
     public static int getNumberOfDefaultColumns() {
@@ -744,9 +788,9 @@ public class DashboardPanel extends javax.swing.JPanel {
         showLifetimeStats = false;
         model.setShowLifetimeStats(showLifetimeStats);
         if (statusTable.getSelectedRowCount() == 0) {
-            deselectRows();
+            deselectRows(false);
         } else {
-            updatePopupMenu();
+            updatePopupMenu(false);
         }
 
         // TODO: updateTableHighlighting() is called to force the table to refresh, there is probably a more direct way to do this
@@ -758,9 +802,9 @@ public class DashboardPanel extends javax.swing.JPanel {
         showLifetimeStats = true;
         model.setShowLifetimeStats(showLifetimeStats);
         if (statusTable.getSelectedRowCount() == 0) {
-            deselectRows();
+            deselectRows(false);
         } else {
-            updatePopupMenu();
+            updatePopupMenu(false);
         }
 
         // TODO: updateTableHighlighting() is called to force the table to refresh, there is probably a more direct way to do this

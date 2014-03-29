@@ -24,10 +24,12 @@ public class ServerLogClient extends DashboardPanelPlugin {
     private static final String SERVER_LOG_SERVICE_PLUGINPOINT = "Server Log";
     private ServerLogPanel serverLogPanel;
     private LinkedList<String[]> serverLogs;
-    private static final String[] unauthorizedLog = new String[] { "0", "You are not authorized to view the server log." };
+    private static final String[] unauthorizedLog = new String[] { "0",
+            "You are not authorized to view the server log." };
     private static final String GET_SERVER_LOGS = "getMirthServerLogs";
     private static final String REMOVE_SESSIONID = "removeSessionId";
     private int currentServerLogSize;
+    private boolean receivedNewLogs;
 
     public ServerLogClient(String name) {
         super(name);
@@ -62,13 +64,15 @@ public class ServerLogClient extends DashboardPanelPlugin {
         currentServerLogSize = newServerLogSize;
     }
 
-    // used for setting actions to be called for updating when there is no status selected
-    public void update() {
+    @Override
+    public void prepareData() throws ClientException {
+        receivedNewLogs = false;
+
         if (!serverLogPanel.isPaused()) {
             LinkedList<String[]> serverLogReceived = new LinkedList<String[]>();
             //get logs from server
             try {
-                serverLogReceived = (LinkedList<String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_LOG_SERVICE_PLUGINPOINT, GET_SERVER_LOGS, null);
+                serverLogReceived = (LinkedList<String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethodAsync(SERVER_LOG_SERVICE_PLUGINPOINT, GET_SERVER_LOGS, null);
             } catch (ClientException e) {
                 if (e.getCause() instanceof UnauthorizedException) {
                     LinkedList<String[]> unauthorizedLogs = new LinkedList<String[]>();
@@ -78,11 +82,13 @@ public class ServerLogClient extends DashboardPanelPlugin {
                     }
                     serverLogReceived = unauthorizedLogs;
                 } else {
-                    parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                    throw e;
                 }
             }
 
             if (serverLogReceived.size() > 0) {
+                receivedNewLogs = true;
+
                 synchronized (this) {
                     for (int i = serverLogReceived.size() - 1; i >= 0; i--) {
                         while (currentServerLogSize <= serverLogs.size()) {
@@ -91,10 +97,21 @@ public class ServerLogClient extends DashboardPanelPlugin {
                         serverLogs.addFirst(serverLogReceived.get(i));
                     }
                 }
-
-                // for mirth.log, channel being selected does not matter. display either way.
-                serverLogPanel.updateTable(serverLogs);
             }
+        }
+    }
+
+    @Override
+    public void prepareData(List<DashboardStatus> statuses) throws ClientException {
+        prepareData();
+    }
+
+    // used for setting actions to be called for updating when there is no status selected
+    @Override
+    public void update() {
+        if (!serverLogPanel.isPaused() && receivedNewLogs) {
+            // for mirth.log, channel being selected does not matter. display either way.
+            serverLogPanel.updateTable(serverLogs);
         }
     }
 
@@ -105,7 +122,7 @@ public class ServerLogClient extends DashboardPanelPlugin {
         update();
 
     }
-    
+
     @Override
     public JComponent getComponent() {
         return serverLogPanel;
@@ -113,9 +130,8 @@ public class ServerLogClient extends DashboardPanelPlugin {
 
     // used for starting processes in the plugin when the program is started
     @Override
-    public void start() {
-    }
-    
+    public void start() {}
+
     // used for stopping processes in the plugin when the program is exited
     @Override
     public void stop() {
@@ -126,14 +142,14 @@ public class ServerLogClient extends DashboardPanelPlugin {
     @Override
     public void reset() {
         clearLog();
-        
+
         // invoke method to remove everything involving this client's sessionId.
         try {
             // FYI, method below returns a boolean value.
             // returned 'true' - sessionId found and removed.
             // returned 'false' - sessionId not found. - should never be this case.
             // either way, the sessionId is gone.
-            PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_LOG_SERVICE_PLUGINPOINT, REMOVE_SESSIONID, null);
+            PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethodAsync(SERVER_LOG_SERVICE_PLUGINPOINT, REMOVE_SESSIONID, null);
         } catch (ClientException e) {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }

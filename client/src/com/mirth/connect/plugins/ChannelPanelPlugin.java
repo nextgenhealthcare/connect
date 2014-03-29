@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
+import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.model.Channel;
 
 public abstract class ChannelPanelPlugin extends ClientPlugin {
@@ -22,6 +23,10 @@ public abstract class ChannelPanelPlugin extends ClientPlugin {
     }
 
     public abstract JComponent getComponent();
+
+    public void prepareData() throws ClientException {};
+
+    public void prepareData(List<Channel> channels) throws ClientException {};
 
     // used for setting actions to be called for updating when there is no
     // channel selected

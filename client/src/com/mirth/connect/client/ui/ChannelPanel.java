@@ -40,6 +40,7 @@ import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
+import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTableTransferHandler;
 import com.mirth.connect.model.Channel;
@@ -106,11 +107,37 @@ public class ChannelPanel extends javax.swing.JPanel {
     }
 
     public void loadPanelPlugin(String pluginName) {
-        ChannelPanelPlugin plugin = LoadedExtensions.getInstance().getChannelPanelPlugins().get(pluginName);
-        if (plugin != null && getSelectedChannels().size() != 0) {
-            plugin.update(getSelectedChannels());
-        } else {
-            plugin.update();
+        final ChannelPanelPlugin plugin = LoadedExtensions.getInstance().getChannelPanelPlugins().get(pluginName);
+
+        if (plugin != null) {
+            final List<Channel> selectedChannels = getSelectedChannels();
+
+            QueuingSwingWorkerTask<Void, Void> task = new QueuingSwingWorkerTask<Void, Void>(pluginName, "Updating " + pluginName + " channel panel plugin...") {
+                @Override
+                public Void doInBackground() {
+                    try {
+                        if (selectedChannels.size() > 0) {
+                            plugin.prepareData(selectedChannels);
+                        } else {
+                            plugin.prepareData();
+                        }
+                    } catch (ClientException e) {
+                        parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                    }
+                    return null;
+                }
+
+                @Override
+                public void done() {
+                    if (selectedChannels.size() > 0) {
+                        plugin.update(selectedChannels);
+                    } else {
+                        plugin.update();
+                    }
+                }
+            };
+
+            new QueuingSwingWorker<Void, Void>(task, true).executeDelegate();
         }
     }
 

@@ -209,12 +209,6 @@ public class Frame extends JXFrame {
     private Map<String, PluginMetaData> loadedPlugins;
     private Map<String, ConnectorMetaData> loadedConnectors;
     private UpdateClient updateClient = null;
-    private boolean refreshingStatuses = false;
-    private boolean refreshingChannels = false;
-    private boolean queueRefreshStatus = false;
-    private boolean queueRefreshChannel = false;
-    private boolean refreshingAlerts = false;
-    private boolean queueRefreshAlert = false;
     private Map<String, Integer> safeErrorFailCountMap = new HashMap<String, Integer>();
     private Map<Component, String> componentTaskMap = new HashMap<Component, String>();
     private boolean acceleratorKeyPressed = false;
@@ -2273,32 +2267,20 @@ public class Frame extends JXFrame {
     }
 
     public void doRefreshChannels(boolean queue) {
-        synchronized (this) {
-            if (isRefreshingChannels()) {
-                if (queue) {
-                    queueRefreshChannel = true;
-                }
-                return;
-            }
-
-            setRefreshingChannels(true);
-        }
-
-        final String workingId = startWorking("Loading channels...");
-
         final List<String> selectedChannelIds = new ArrayList<String>();
 
         for (Channel channel : channelPanel.getSelectedChannels()) {
             selectedChannelIds.add(channel.getId());
         }
 
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
+        QueuingSwingWorkerTask<Void, Void> task = new QueuingSwingWorkerTask<Void, Void>("doRefreshChannels", "Loading channels...") {
+            @Override
             public Void doInBackground() {
                 retrieveChannels();
                 return null;
             }
 
+            @Override
             public void done() {
                 channelPanel.updateChannelTable(new ArrayList<ChannelStatus>(channelStatuses.values()));
 
@@ -2313,22 +2295,11 @@ public class Frame extends JXFrame {
                     setVisibleTasks(channelTasks, channelPopupMenu, 7, 7, true);
                 }
 
-                // TODO: This may still be making requests on the event dispatch thread
                 channelPanel.setSelectedChannels(selectedChannelIds);
-
-                stopWorking(workingId);
-
-                setRefreshingChannels(false);
-
-                // Perform another refresh if any were queued up to ensure the dashboard is up to date.
-                if (queueRefreshChannel) {
-                    queueRefreshChannel = false;
-                    doRefreshChannels(false);
-                }
             }
         };
 
-        worker.execute();
+        new QueuingSwingWorker<Void, Void>(task, queue).executeDelegate();
     }
 
     public void retrieveChannels() {
@@ -2380,30 +2351,6 @@ public class Frame extends JXFrame {
         channelStatuses = new HashMap<String, ChannelStatus>();
     }
 
-    public synchronized void setRefreshingStatuses(boolean refreshingStatuses) {
-        this.refreshingStatuses = refreshingStatuses;
-    }
-
-    public synchronized boolean isRefreshingStatuses() {
-        return refreshingStatuses;
-    }
-    
-    public synchronized void setRefreshingChannels(boolean refreshingChannels) {
-        this.refreshingChannels = refreshingChannels;
-    }
-
-    public synchronized boolean isRefreshingChannels() {
-        return refreshingChannels;
-    }
-
-    public synchronized void setRefreshingAlerts(boolean refreshingAlerts) {
-        this.refreshingAlerts = refreshingAlerts;
-    }
-
-    public synchronized boolean isRefreshingAlerts() {
-        return refreshingAlerts;
-    }
-
     public synchronized void increaseSafeErrorFailCount(String safeErrorKey) {
         int safeErrorFailCount = getSafeErrorFailCount(safeErrorKey) + 1;
         this.safeErrorFailCountMap.put(safeErrorKey, safeErrorFailCount);
@@ -2426,45 +2373,27 @@ public class Frame extends JXFrame {
     }
 
     public void doRefreshStatuses(boolean queue) {
-        // Don't allow anything to be getting or setting refreshingStatuses
-        // while this block is being executed.
-        synchronized (this) {
-            if (isRefreshingStatuses()) {
-                if (queue) {
-                    queueRefreshStatus = true;
-                }
-                return;
-            }
-
-            setRefreshingStatuses(true);
-        }
-        final String workingId = startWorking("Loading statistics...");
-
-        // moving SwingWorker into the refreshStatuses() method...
-        // ArrayIndexOutOfBound exception occurs due to updateTable method on
-        // the UI executed concurrently on multiple threads in the background.
-        // and they share a global 'parent.status' variable that changes its
-        // state between threads.
-        // updateTable() method should be called in done(), not in the
-        // background only when the 'status' object is done assessed in the
-        // background.
-
-        SwingWorker<Void, DashboardStatus> worker = new SwingWorker<Void, DashboardStatus>() {
+        QueuingSwingWorkerTask<Void, DashboardStatus> task = new QueuingSwingWorkerTask<Void, DashboardStatus>("doRefreshStatuses", "Loading statistics...") {
+            @Override
             public Void doInBackground() {
                 try {
+                    for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
+                        plugin.tableUpdate(status);
+                    }
+
                     DashboardChannelInfo dashboardStatusList = mirthClient.getDashboardChannelInfo(REFRESH_BLOCK_SIZE);
                     status = dashboardStatusList.getDashboardStatuses();
                     Set<String> remainingIds = dashboardStatusList.getRemainingChannelIds();
-                    
+
                     if (status != null) {
                         publish(status.toArray(new DashboardStatus[status.size()]));
-                        
+
                         if (CollectionUtils.isNotEmpty(remainingIds)) {
                             Set<String> statusChannelIds = new HashSet<String>(Math.min(remainingIds.size(), REFRESH_BLOCK_SIZE));
-                            
+
                             for (Iterator<String> it = remainingIds.iterator(); it.hasNext();) {
                                 statusChannelIds.add(it.next());
-                                
+
                                 if (!it.hasNext() || statusChannelIds.size() == REFRESH_BLOCK_SIZE) {
                                     // Processing a new block, retrieve dashboard statuses from server
                                     List<DashboardStatus> intermediateStatusList = mirthClient.getChannelStatusList(statusChannelIds);
@@ -2477,10 +2406,6 @@ public class Frame extends JXFrame {
                                 }
                             }
                         }
-                        
-                        for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
-                            plugin.tableUpdate(status);
-                        }
                     }
                 } catch (ClientException e) {
                     status = null;
@@ -2489,7 +2414,7 @@ public class Frame extends JXFrame {
 
                 return null;
             }
-            
+
             @Override
             public void process(List<DashboardStatus> chunks) {
                 logger.debug("Processing chunk: " + (chunks != null ? chunks.size() : "null"));
@@ -2498,25 +2423,15 @@ public class Frame extends JXFrame {
                 }
             }
 
+            @Override
             public void done() {
-                stopWorking(workingId);
-
                 if (status != null) {
                     dashboardPanel.finishUpdatingTable(status);
-                    dashboardPanel.updateCurrentPluginPanel();
-                }
-
-                setRefreshingStatuses(false);
-
-                // Perform another refresh if any were queued up to ensure the dashboard is up to date.
-                if (queueRefreshStatus) {
-                    queueRefreshStatus = false;
-                    doRefreshStatuses(false);
                 }
             }
         };
 
-        worker.execute();
+        new QueuingSwingWorker<Void, DashboardStatus>(task, queue).executeDelegate();
     }
 
     public void doStart() {
@@ -3003,7 +2918,7 @@ public class Frame extends JXFrame {
 
     public void doRedeployAll() {
         final String workingId = startWorking("Deploying channels...");
-        dashboardPanel.deselectRows();
+        dashboardPanel.deselectRows(false);
         doShowDashboard();
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -3051,7 +2966,7 @@ public class Frame extends JXFrame {
         String plural = (selectedChannels.size() > 1) ? "s" : "";
         final String workingId = startWorking("Deploying channel" + plural + "...");
 
-        dashboardPanel.deselectRows();
+        dashboardPanel.deselectRows(false);
         doShowDashboard();
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -3081,7 +2996,7 @@ public class Frame extends JXFrame {
             return;
         }
 
-        dashboardPanel.deselectRows();
+        dashboardPanel.deselectRows(false);
 
         String plural = (selectedChannelStatuses.size() > 1) ? "s" : "";
         final String workingId = startWorking("Undeploying channel" + plural + "...");
@@ -3795,7 +3710,7 @@ public class Frame extends JXFrame {
         if (channelStatuses.size() != 0) {
             new DeleteStatisticsDialog(channelStatuses);
         } else {
-            dashboardPanel.deselectRows();
+            dashboardPanel.deselectRows(false);
         }
     }
 
@@ -4097,24 +4012,9 @@ public class Frame extends JXFrame {
     }
 
     public void doRefreshAlerts(boolean queue) {
-        // Don't allow anything to be getting or setting refreshingAlerts
-        // while this block is being executed.
-        synchronized (this) {
-            if (isRefreshingAlerts()) {
-                if (queue) {
-                    queueRefreshAlert = true;
-                }
-                return;
-            }
-
-            setRefreshingAlerts(true);
-        }
-
-        final String workingId = startWorking("Loading alerts...");
-
         final List<String> selectedAlertIds = alertPanel.getSelectedAlertIds();
 
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+        QueuingSwingWorkerTask<Void, Void> task = new QueuingSwingWorkerTask<Void, Void>("doRefreshAlerts", "Loading alerts...") {
 
             private List<AlertStatus> alertStatusList;
 
@@ -4130,19 +4030,10 @@ public class Frame extends JXFrame {
             public void done() {
                 alertPanel.updateAlertTable(alertStatusList);
                 alertPanel.setSelectedAlertIds(selectedAlertIds);
-                stopWorking(workingId);
-
-                setRefreshingAlerts(false);
-
-                // Perform another refresh if any were queued up to ensure the alert dashboard is up to date.
-                if (queueRefreshAlert) {
-                    queueRefreshAlert = false;
-                    doRefreshAlerts(false);
-                }
             }
         };
 
-        worker.execute();
+        new QueuingSwingWorker<Void, Void>(task, queue).executeDelegate();
     }
 
     public void doSaveAlerts() {

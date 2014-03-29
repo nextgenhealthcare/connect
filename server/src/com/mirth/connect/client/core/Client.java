@@ -328,6 +328,18 @@ public class Client {
     }
 
     /**
+     * Invoke a method on a plugin and pass back the Object returned
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public Object invokePluginMethodAsync(String pluginName, String method, Object object) throws ClientException {
+        logger.debug("invoking method " + method + " on " + pluginName);
+        NameValuePair[] params = { new NameValuePair("op", Operations.PLUGIN_SERVICE_INVOKE.getName()), new NameValuePair("name", pluginName), new NameValuePair("method", method), new NameValuePair("object", serializer.serialize(object)) };
+        return serializer.deserialize(serverConnection.executePostMethodAsync(EXTENSION_SERVLET, params), Object.class);
+    }
+
+    /**
      * Invoke a method on a connector and pass back the Object returned
      * 
      * @return

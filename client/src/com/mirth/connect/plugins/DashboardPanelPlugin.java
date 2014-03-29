@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
+import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.model.DashboardStatus;
 
 public abstract class DashboardPanelPlugin extends ClientPlugin {
@@ -23,12 +24,14 @@ public abstract class DashboardPanelPlugin extends ClientPlugin {
 
     public abstract JComponent getComponent();
 
-    // used for setting actions to be called for updating when there is no
-    // status selected
+    public void prepareData() throws ClientException {};
+
+    public void prepareData(List<DashboardStatus> statuses) throws ClientException {};
+
+    // used for setting actions to be called for updating when there is no status selected
     public abstract void update();
 
-    // used for setting actions to be called for updating when there is a status
-    // selected
+    // used for setting actions to be called for updating when there is a status selected
     public abstract void update(List<DashboardStatus> statuses);
 
 }

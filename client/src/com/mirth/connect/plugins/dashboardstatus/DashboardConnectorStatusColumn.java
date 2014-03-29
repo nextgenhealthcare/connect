@@ -105,7 +105,7 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
     public void tableUpdate(List<DashboardStatus> status) {
         // get states from server
         try {
-            currentStates = (HashMap<String, Object[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(DASHBOARD_SERVICE_PLUGINPOINT, GET_STATES, null);
+            currentStates = (HashMap<String, Object[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethodAsync(DASHBOARD_SERVICE_PLUGINPOINT, GET_STATES, null);
         } catch (ClientException e) {
             if (e.getCause() instanceof UnauthorizedException) {
                 currentStates = null;
