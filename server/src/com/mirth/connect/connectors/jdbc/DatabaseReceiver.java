@@ -155,8 +155,6 @@ public class DatabaseReceiver extends PollConnector {
     @SuppressWarnings("unchecked")
     private void processResultSet(ResultSet resultSet) throws SQLException, InterruptedException, DatabaseReceiverException {
         BasicRowProcessor basicRowProcessor = new BasicRowProcessor();
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        int columnCount = metaData.getColumnCount();
 
         // loop through the ResultSet rows and convert them into hash maps for processing
         while (resultSet.next()) {

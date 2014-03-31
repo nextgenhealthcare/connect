@@ -24,8 +24,6 @@ import javax.sql.rowset.CachedRowSet;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.log4j.Logger;
 
-import com.sun.rowset.CachedRowSetImpl;
-
 /**
  * Provides the ability to run SQL queries again the database connection object instantiated using
  * DatabaseConnectionFactory.
@@ -86,7 +84,7 @@ public class DatabaseConnection {
             statement = connection.createStatement();
             logger.debug("executing query:\n" + expression);
             ResultSet result = statement.executeQuery(expression);
-            CachedRowSetImpl crs = new CachedRowSetImpl();
+            CachedRowSet crs = new MirthCachedRowSet();
             crs.populate(result);
             DbUtils.closeQuietly(result);
             return crs;
@@ -189,7 +187,7 @@ public class DatabaseConnection {
             }
 
             ResultSet result = statement.executeQuery();
-            CachedRowSetImpl crs = new CachedRowSetImpl();
+            CachedRowSet crs = new MirthCachedRowSet();
             crs.populate(result);
             DbUtils.closeQuietly(result);
             return crs;
@@ -258,7 +256,7 @@ public class DatabaseConnection {
             statement = connection.createStatement();
             logger.debug("executing update:\n" + expression);
             statement.executeUpdate(expression, Statement.RETURN_GENERATED_KEYS);
-            CachedRowSetImpl crs = new CachedRowSetImpl();
+            CachedRowSet crs = new MirthCachedRowSet();
             crs.populate(statement.getGeneratedKeys());
             return crs;
         } catch (SQLException e) {
@@ -296,7 +294,7 @@ public class DatabaseConnection {
             }
 
             statement.executeUpdate();
-            CachedRowSetImpl crs = new CachedRowSetImpl();
+            CachedRowSet crs = new MirthCachedRowSet();
             crs.populate(statement.getGeneratedKeys());
             return crs;
         } catch (SQLException e) {
