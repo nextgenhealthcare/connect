@@ -473,15 +473,16 @@ public class DashboardPanel extends javax.swing.JPanel {
         Set<String> visibleTags = parent.channelFilter.getVisibleTags();
 
         if (tagFilterEnabled) {
-            int filteredChannelCount = 0;
+            List<DashboardStatus> filteredStatuses = new ArrayList<DashboardStatus>();
 
             for (DashboardStatus currentStatus : finishedStatuses) {
                 if (tagFilterEnabled && CollectionUtils.containsAny(visibleTags, currentStatus.getTags())) {
-                    filteredChannelCount++;
+                    filteredStatuses.add(currentStatus);
                 }
             }
 
-            tagsLabel.setText(filteredChannelCount + " of " + finishedStatuses.size() + " Deployed Channels (" + StringUtils.join(visibleTags, ", ") + ")");
+            tagsLabel.setText(filteredStatuses.size() + " of " + finishedStatuses.size() + " Deployed Channels (" + StringUtils.join(visibleTags, ", ") + ")");
+            finishedStatuses = filteredStatuses;
         } else {
             tagsLabel.setText(finishedStatuses.size() + " Deployed Channels");
         }
