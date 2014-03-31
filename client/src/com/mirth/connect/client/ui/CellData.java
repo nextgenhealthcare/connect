@@ -12,10 +12,10 @@ package com.mirth.connect.client.ui;
 import javax.swing.ImageIcon;
 
 /**
- * Holds an ImageIcon and a String value. These are used for a cell that has an
- * image in it. This class has accessor methods to get and set these values.
+ * Holds an ImageIcon and a String value. These are used for a cell that has an image in it. This
+ * class has accessor methods to get and set these values.
  */
-public class CellData {
+public class CellData implements Comparable<CellData> {
 
     private ImageIcon icon;
     private String text;
@@ -43,5 +43,21 @@ public class CellData {
 
     public String toString() {
         return text;
+    }
+
+    @Override
+    public int compareTo(CellData o) {
+        if (o != null) {
+            if (text == null && o.getText() == null) {
+                return 0;
+            } else if (text == null) {
+                return -1;
+            } else if (o.getText() == null) {
+                return 1;
+            } else {
+                return text.compareTo(o.getText());
+            }
+        }
+        return 1;
     }
 }
