@@ -9,7 +9,8 @@
 
 package com.mirth.connect.client.ui.util;
 
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,7 +23,7 @@ import org.apache.log4j.Logger;
 public class SQLParserUtil {
 
     private Logger logger = Logger.getLogger(this.getClass());
-    private String[] keywords = {"INTO", "DISTINCT", "UNIQUE", "FIRST", "MIDDLE", "SKIP", "LIMIT"};
+    private String[] keywords = { "INTO", "DISTINCT", "UNIQUE", "FIRST", "MIDDLE", "SKIP", "LIMIT" };
     private final String SQL_PATTERN = "[s|S][e|E][l|L][e|E][c|C][t|T].*[f|F][r|R][o|O][m|M][\\s]";
     String _sqlStatement = "";
 
@@ -30,8 +31,7 @@ public class SQLParserUtil {
         _sqlStatement = statement.replaceAll("\\[", "").replaceAll("\\]", "").replace('\n', ' ').replace('\r', ' ');
     }
 
-    public SQLParserUtil() {
-    }
+    public SQLParserUtil() {}
 
     public String[] Parse(String statement) {
         _sqlStatement = statement.replaceAll("\\[", "").replaceAll("\\]", "").replace('\n', ' ').replace('\r', ' ');
@@ -40,7 +40,7 @@ public class SQLParserUtil {
 
     public String[] Parse() {
         try {
-            LinkedHashSet<String> varList = new LinkedHashSet<String>();
+            List<String> varList = new ArrayList<String>();
 
             Pattern pattern = Pattern.compile(SQL_PATTERN, Pattern.MULTILINE);
             Matcher matcher = pattern.matcher(_sqlStatement);
@@ -71,7 +71,7 @@ public class SQLParserUtil {
                             }
                             if (vars[i].length() > 0) {
                                 String var;
-                                
+
                                 if (vars[i].toUpperCase().indexOf(" AS ") != -1) {
                                     var = (vars[i].substring(vars[i].toUpperCase().indexOf(" AS ") + 4)).replaceAll(" ", "").replaceAll("\\(", "").replaceAll("\\)", "");
                                 } else if (vars[i].indexOf('(') != -1 || vars[i].indexOf(')') != -1 || vars[i].indexOf('}') != -1 || vars[i].indexOf('{') != -1 || vars[i].indexOf('*') != -1) {
@@ -79,12 +79,16 @@ public class SQLParserUtil {
                                 } else {
                                     vars[i] = vars[i].trim();
                                     var = vars[i].replaceAll(" ", "").replaceAll("\\(", "").replaceAll("\\)", "");
+
+                                    if (var.lastIndexOf('.') != -1) {
+                                        var = var.substring(var.lastIndexOf('.') + 1);
+                                    }
                                 }
 
                                 if ((StringUtils.substring(var, 0, 1).equals("\"") && StringUtils.substring(var, -1).equals("\"")) || (StringUtils.substring(var, 0, 1).equals("'") && StringUtils.substring(var, -1).equals("'"))) {
                                     var = StringUtils.substring(var, 1, -1);
                                 }
-                                
+
                                 if ((StringUtils.substring(var, 0, 2).equals("\\\"") && StringUtils.substring(var, -2).equals("\\\"")) || (StringUtils.substring(var, 0, 2).equals("\\'") && StringUtils.substring(var, -2).equals("\\'"))) {
                                     var = StringUtils.substring(var, 2, -2);
                                 }

@@ -137,32 +137,35 @@ public class BasicRowProcessor implements RowProcessor {
 	 * 
 	 * @see org.apache.commons.dbutils.RowProcessor#toMap(java.sql.ResultSet)
 	 */
-	public Map toMap(ResultSet rs) throws SQLException {
-		Map result = new CaseInsensitiveHashMap();
-		ResultSetMetaData rsmd = rs.getMetaData();
-		boolean multipleTableNames = false;
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Map toMap(ResultSet resultSet) throws SQLException {
+        Map resultMap = new CaseInsensitiveHashMap();
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int colCount = metaData.getColumnCount();
 
-		int cols = rsmd.getColumnCount();
-		if (cols >= 1) {
-			// first check if we have multiple tables
-			String tableName = rsmd.getTableName(1);
-			for (int i = 2; i <= cols; i++) {
-				if (!rsmd.getTableName(i).equals(tableName)) {
-					multipleTableNames = true;
-				}
-			}
-		}
-		if (multipleTableNames) {
-			for (int i = 1; i <= cols; i++) {
-				result.put(rsmd.getTableName(i) + "." + rsmd.getColumnName(i), rs.getObject(i));
-			}
-		} else {
-			for (int i = 1; i <= cols; i++) {
-				result.put(rsmd.getColumnName(i), rs.getObject(i));
-			}
-		}
-		return result;
-	}
+        for (int i = 1; i <= colCount; i++) {
+            /*
+             * Retrieve the alias for the column. If no alias was specified, this method should
+             * return the actual column name.
+             */
+            String alias = metaData.getColumnLabel(i);
+
+            if (resultMap.containsKey(alias)) {
+                /*
+                 * Currently, duplicate keys/aliases would get overwritten in the resultMap, so we
+                 * throw an exception to keep the message from processing since it would contain
+                 * incomplete data and so that the user can have a chance to modify the query and
+                 * select those records again. In the future, we plan to allow duplicate field names
+                 * (MIRTH-3138).
+                 */
+                throw new SQLException("Multiple columns have the alias '" + alias + "'. To prevent this error from occurring, specify unique aliases for each column.");
+            }
+
+            resultMap.put(alias, resultSet.getObject(i));
+        }
+
+        return resultMap;
+    }
 
 	/**
 	 * A Map that converts all keys to lowercase Strings for case insensitive

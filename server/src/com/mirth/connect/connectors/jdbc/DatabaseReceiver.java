@@ -152,6 +152,7 @@ public class DatabaseReceiver extends PollConnector {
      * For each record in the given ResultSet, convert it to XML and dispatch it as a raw message to
      * the channel. Then run the post-process if applicable.
      */
+    @SuppressWarnings("unchecked")
     private void processResultSet(ResultSet resultSet) throws SQLException, InterruptedException, DatabaseReceiverException {
         BasicRowProcessor basicRowProcessor = new BasicRowProcessor();
         ResultSetMetaData metaData = resultSet.getMetaData();
@@ -163,14 +164,7 @@ public class DatabaseReceiver extends PollConnector {
                 return;
             }
 
-            @SuppressWarnings("unchecked")
-            Map<String, Object> resultMap = basicRowProcessor.toMap(resultSet);
-
-            for (int i = 1; i <= columnCount; i++) {
-                resultMap.put(metaData.getColumnLabel(i), resultSet.getObject(i));
-            }
-
-            processRecord(resultMap);
+            processRecord((Map<String, Object>) basicRowProcessor.toMap(resultSet));
         }
     }
 
