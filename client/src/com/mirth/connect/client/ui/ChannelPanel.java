@@ -18,7 +18,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Set;
 import java.util.prefs.Preferences;
 
 import javax.swing.DropMode;
@@ -41,6 +40,7 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.ChannelFilter.ChannelFilterSaveTask;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTableTransferHandler;
 import com.mirth.connect.model.Channel;
@@ -276,14 +276,13 @@ public class ChannelPanel extends javax.swing.JPanel {
         Object[][] tableData = null;
 
         if (channelStatuses != null) {
-            boolean tagFilterEnabled = parent.channelFilter.isTagFilterEnabled();
-            Set<String> visibleTags = parent.channelFilter.getVisibleTags();
+            ChannelTagInfo channelTagInfo = parent.getChannelTagInfo(false);
             List<ChannelStatus> filteredChannelStatuses = new ArrayList<ChannelStatus>();
             int enabled = 0;
 
             for (ChannelStatus channelStatus : channelStatuses) {
                 Channel channel = channelStatus.getChannel();
-                if (!tagFilterEnabled || CollectionUtils.containsAny(visibleTags, channel.getProperties().getTags())) {
+                if (!channelTagInfo.isEnabled() || CollectionUtils.containsAny(channelTagInfo.getVisibleTags(), channel.getProperties().getTags())) {
                     filteredChannelStatuses.add(channelStatus);
 
                     if (channel.isEnabled()) {
@@ -295,8 +294,8 @@ public class ChannelPanel extends javax.swing.JPanel {
             int totalChannelCount = channelStatuses.size();
             int visibleChannelCount = filteredChannelStatuses.size();
 
-            if (tagFilterEnabled) {
-                tagsLabel.setText(visibleChannelCount + " of " + totalChannelCount + " Channels, " + enabled + " Enabled (" + StringUtils.join(visibleTags, ", ") + ")");
+            if (channelTagInfo.isEnabled()) {
+                tagsLabel.setText(visibleChannelCount + " of " + totalChannelCount + " Channels, " + enabled + " Enabled (" + StringUtils.join(channelTagInfo.getVisibleTags(), ", ") + ")");
             } else {
                 tagsLabel.setText(totalChannelCount + " Channels, " + enabled + " Enabled");
             }
@@ -613,7 +612,13 @@ public class ChannelPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tagFilterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tagFilterButtonActionPerformed
-        parent.channelFilter.setVisible(true);
+        new ChannelFilter(parent.getChannelTagInfo(false), new ChannelFilterSaveTask() {
+            @Override
+            public void save(ChannelTagInfo channelTagInfo) {
+                parent.setFilteredChannelTags(false, channelTagInfo.getVisibleTags(), channelTagInfo.isEnabled());
+                parent.doRefreshChannels(true);
+            }
+        });
     }//GEN-LAST:event_tagFilterButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

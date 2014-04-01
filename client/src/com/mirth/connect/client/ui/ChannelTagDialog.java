@@ -75,7 +75,7 @@ public class ChannelTagDialog extends MirthDialog {
                 setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
             }
 
-            Set<String> availableTags = new LinkedHashSet<String>(parent.getAllChannelTags());
+            Set<String> availableTags = new LinkedHashSet<String>(parent.getChannelTagInfo(false).getTags());
             DefaultTableModel model = (DefaultTableModel) tagTable.getModel();
             int rowCount = model.getRowCount();
 

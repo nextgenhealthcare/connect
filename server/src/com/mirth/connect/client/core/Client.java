@@ -200,13 +200,7 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_SUMMARY.getName()), new NameValuePair("cachedChannels", serializer.serialize(cachedChannels)) };
         return serializer.deserializeList(serverConnection.executePostMethodAsync(CHANNEL_SERVLET, params), ChannelSummary.class);
     }
-    
-    public Set<String> getChannelTags() throws ClientException {
-        logger.debug("getting channel tags");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_TAGS.getName()) };
-        return serializer.deserialize(serverConnection.executePostMethod(CHANNEL_SERVLET, params), Set.class);
-    }
-    
+
     /**
      * Enables/disables the specified channels.
      * 

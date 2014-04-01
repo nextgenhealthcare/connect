@@ -11,7 +11,6 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -19,101 +18,74 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import com.mirth.connect.client.ui.components.ItemSelectionTable;
 import com.mirth.connect.client.ui.components.ItemSelectionTableModel;
 
 public class ChannelFilter extends javax.swing.JDialog {
     private Frame parent;
     private ItemSelectionTableModel<String, String> filterTableModel;
-    private boolean tagFilterEnabled = false;
-    private Set<String> visibleTags;
-    private ActionListener onSave;
-    private boolean positionSet = false;
-    
+    private ChannelTagInfo channelTagInfo;
+    private ChannelFilterSaveTask onSave;
+
+    interface ChannelFilterSaveTask {
+        public void save(ChannelTagInfo channelTagInfo);
+    }
+
     /**
      * Creates new form DashboardFilter
      */
-    public ChannelFilter() {
+    public ChannelFilter(ChannelTagInfo channelTagInfo, ChannelFilterSaveTask onSave) {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
+        this.channelTagInfo = channelTagInfo;
+        this.onSave = onSave;
+
         initComponents();
         filterTable.setSortable(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModal(true);
         pack();
-    }
-    
-    public boolean isTagFilterEnabled() {
-        return tagFilterEnabled;
-    }
 
-    public void setTagFilterEnabled(boolean tagFilterEnabled) {
-        this.tagFilterEnabled = tagFilterEnabled;
-    }
+        Dimension dlgSize = getPreferredSize();
+        Dimension frmSize = parent.getSize();
+        Point loc = parent.getLocation();
 
-    public Set<String> getVisibleTags() {
-        return visibleTags;
-    }
-
-    public void setVisibleTags(Set<String> visibleTags) {
-        this.visibleTags = visibleTags;
-    }
-    
-    public ActionListener getOnSave() {
-        return onSave;
-    }
-
-    public void setOnSave(ActionListener onSave) {
-        this.onSave = onSave;
-    }
-    
-    @Override
-    public void setVisible(boolean visible) {
-        if (visible) {
-            if (!positionSet) {
-                Dimension dlgSize = getPreferredSize();
-                Dimension frmSize = parent.getSize();
-                Point loc = parent.getLocation();
-    
-                if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
-                    setLocationRelativeTo(null);
-                } else {
-                    setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
-                }
-                
-                positionSet = true;
-            }
-            
-            reset();
+        if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
+            setLocationRelativeTo(null);
+        } else {
+            setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
-        
-        super.setVisible(visible);
-    }
 
-    private void reset() {
         Map<String, String> tagMap = new LinkedHashMap<String, String>();
-        
-        for (String tag : parent.getAllChannelTags()) {
+
+        for (String tag : channelTagInfo.getTags()) {
             tagMap.put(tag, tag);
         }
-        
+
         List<String> selectedTags = null;
-        Set<String> visibleTags = getVisibleTags();
-        
-        if (visibleTags != null) {
-            selectedTags = new ArrayList(visibleTags);
+
+        if (CollectionUtils.isNotEmpty(channelTagInfo.getVisibleTags())) {
+            selectedTags = new ArrayList<String>(channelTagInfo.getVisibleTags());
         } else {
-            selectedTags = new ArrayList(tagMap.values());
+            selectedTags = new ArrayList<String>(tagMap.values());
         }
-        
+
         filterTableModel = new ItemSelectionTableModel<String, String>(tagMap, selectedTags, "Channel Tag", "Enabled");
         filterTable = new ItemSelectionTable();
         filterTable.setModel(filterTableModel);
         jScrollPane1.setViewportView(filterTable);
-        
-        enableFilterCheckbox.setSelected(isTagFilterEnabled());
-        filterTable.setEnabled(isTagFilterEnabled());
-        invertButton.setEnabled(isTagFilterEnabled());
+
+        enableFilterCheckbox.setSelected(channelTagInfo.isEnabled());
+        filterTable.setEnabled(channelTagInfo.isEnabled());
+        invertButton.setEnabled(channelTagInfo.isEnabled());
+
+        setVisible(true);
+    }
+
+    public ChannelTagInfo getChannelTagInfo() {
+        return channelTagInfo;
     }
 
     /**
@@ -244,13 +216,13 @@ public class ChannelFilter extends javax.swing.JDialog {
                 parent.alertError(parent, "Please select at least one tag");
                 return;
             } else {
-                setVisibleTags(visibleTags);
+                channelTagInfo.setVisibleTags(visibleTags);
             }
         }
 
-        setTagFilterEnabled(tagFilterEnabled);
-        setVisible(false);
-        onSave.actionPerformed(evt);
+        channelTagInfo.setEnabled(tagFilterEnabled);
+        onSave.save(channelTagInfo);
+        dispose();
     }//GEN-LAST:event_okButtonActionPerformed
 
     private void enableFilterCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enableFilterCheckboxActionPerformed
@@ -259,7 +231,7 @@ public class ChannelFilter extends javax.swing.JDialog {
     }//GEN-LAST:event_enableFilterCheckboxActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        setVisible(false);
+        dispose();
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void invertButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_invertButtonActionPerformed

@@ -150,7 +150,6 @@ public class Frame extends JXFrame {
     public GlobalScriptsPanel globalScriptsPanel = null;
     public ExtensionManagerPanel extensionsPanel = null;
     public JXTaskPaneContainer taskPaneContainer;
-    public ChannelFilter channelFilter = null;
     public List<DashboardStatus> status = null;
     public Map<String, ChannelStatus> channelStatuses = null;
     public List<User> users = null;
@@ -213,7 +212,8 @@ public class Frame extends JXFrame {
     private Map<Component, String> componentTaskMap = new HashMap<Component, String>();
     private boolean acceleratorKeyPressed = false;
     private boolean canSave = true;
-    private Set<String> allChannelTags;
+    private ChannelTagInfo channelTagInfo;
+    private ChannelTagInfo deployedChannelTagInfo;
     private Component initialDashboardTabComponent;
     private RemoveMessagesDialog removeMessagesDialog;
     private MessageExportDialog messageExportDialog;
@@ -225,6 +225,8 @@ public class Frame extends JXFrame {
     public Frame() {
         rightContainer = new JXTitledPanel();
         channelStatuses = new HashMap<String, ChannelStatus>();
+        channelTagInfo = new ChannelTagInfo();
+        deployedChannelTagInfo = new ChannelTagInfo();
 
         taskPaneContainer = new JXTaskPaneContainer();
 
@@ -1771,22 +1773,10 @@ public class Frame extends JXFrame {
             return;
         }
 
-        if (channelFilter == null) {
-            channelFilter = new ChannelFilter();
-        }
-
-        channelFilter.setOnSave(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                doRefreshStatuses(true);
-            }
-        });
-
         setBold(viewPane, 0);
         setPanelName("Dashboard");
         setCurrentContentPage(dashboardPanel);
         setFocus(dashboardTasks);
-        retrieveAllChannelTags();
 
         doRefreshStatuses(true);
     }
@@ -1800,22 +1790,10 @@ public class Frame extends JXFrame {
             return;
         }
 
-        if (channelFilter == null) {
-            channelFilter = new ChannelFilter();
-        }
-
-        channelFilter.setOnSave(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                doRefreshChannels();
-            }
-        });
-
         setBold(viewPane, 1);
         setPanelName("Channels");
         setCurrentContentPage(channelPanel);
         setFocus(channelTasks);
-        retrieveAllChannelTags();
 
         doRefreshChannels();
     }
@@ -2288,7 +2266,7 @@ public class Frame extends JXFrame {
                 setVisibleTasks(channelTasks, channelPopupMenu, 7, -1, false);
 
                 if (channelStatuses.size() > 0) {
-                    if (!channelFilter.isTagFilterEnabled()) {
+                    if (!getChannelTagInfo(false).isEnabled()) {
                         setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, true);
                     }
 
@@ -2342,6 +2320,8 @@ public class Frame extends JXFrame {
                     }
                 }
             }
+
+            updateChannelTags(false);
         } catch (ClientException e) {
             alertException(this, e.getStackTrace(), e.getMessage());
         }
@@ -2349,6 +2329,7 @@ public class Frame extends JXFrame {
 
     public void clearChannelCache() {
         channelStatuses = new HashMap<String, ChannelStatus>();
+        updateChannelTags(false);
     }
 
     public synchronized void increaseSafeErrorFailCount(String safeErrorKey) {
@@ -2426,6 +2407,7 @@ public class Frame extends JXFrame {
             @Override
             public void done() {
                 if (status != null) {
+                    updateChannelTags(true);
                     dashboardPanel.finishUpdatingTable(status);
                 }
             }
@@ -3266,6 +3248,7 @@ public class Frame extends JXFrame {
             }
 
             channelStatuses.put(importChannel.getId(), new ChannelStatus(importChannel));
+            updateChannelTags(false);
         } catch (ClientException e) {
             alertException(this, e.getStackTrace(), e.getMessage());
         }
@@ -3285,6 +3268,7 @@ public class Frame extends JXFrame {
                 }
             } catch (Exception e) {
                 channelStatuses.remove(importChannel.getId());
+                updateChannelTags(false);
                 alertException(this, e.getStackTrace(), e.getMessage());
                 return;
             } finally {
@@ -3310,6 +3294,7 @@ public class Frame extends JXFrame {
                         setSaveEnabled(!overwriteFinal);
                     } catch (Exception e) {
                         channelStatuses.remove(importChannelFinal.getId());
+                        updateChannelTags(false);
                         alertError(PlatformUI.MIRTH_FRAME, "Channel had an unknown problem. Channel import aborted.");
                         channelEditPanel = new ChannelSetup();
                         doShowChannel();
@@ -3365,17 +3350,15 @@ public class Frame extends JXFrame {
         File exportDirectory = null;
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            boolean tagFilteredEnabled = channelFilter.isTagFilterEnabled();
-            Set<String> visibleTags = channelFilter.getVisibleTags();
-
             userPreferences.put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
             try {
                 exportDirectory = exportFileChooser.getSelectedFile();
 
                 for (ChannelStatus channelStatus : channelStatuses.values()) {
                     Channel channel = channelStatus.getChannel();
+                    ChannelTagInfo channelTagInfo = getChannelTagInfo(false);
 
-                    if (!tagFilteredEnabled || CollectionUtils.containsAny(visibleTags, channel.getProperties().getTags())) {
+                    if (!channelTagInfo.isEnabled() || CollectionUtils.containsAny(channelTagInfo.getVisibleTags(), channel.getProperties().getTags())) {
                         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                         String channelXML = serializer.serialize(channel);
 
@@ -3627,6 +3610,7 @@ public class Frame extends JXFrame {
 
         channel.setName(channelName);
         channelStatuses.put(channel.getId(), new ChannelStatus(channel));
+        updateChannelTags(false);
 
         editChannel(channel);
         setSaveEnabled(true);
@@ -4814,16 +4798,42 @@ public class Frame extends JXFrame {
         return acceleratorKeyPressed;
     }
 
-    public void retrieveAllChannelTags() {
-        try {
-            allChannelTags = mirthClient.getChannelTags();
-        } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
+    public ChannelTagInfo getChannelTagInfo(boolean deployed) {
+        ChannelTagInfo channelTagInfo = deployed ? deployedChannelTagInfo : this.channelTagInfo;
+
+        synchronized (channelTagInfo) {
+            return new ChannelTagInfo(channelTagInfo);
         }
     }
 
-    public Set<String> getAllChannelTags() {
-        return allChannelTags;
+    public void setFilteredChannelTags(boolean deployed, Set<String> visibleTags, boolean enabled) {
+        ChannelTagInfo channelTagInfo = deployed ? deployedChannelTagInfo : this.channelTagInfo;
+
+        synchronized (channelTagInfo) {
+            channelTagInfo.setVisibleTags(visibleTags);
+            channelTagInfo.setEnabled(enabled);
+        }
+    }
+
+    private void updateChannelTags(boolean deployed) {
+        ChannelTagInfo channelTagInfo;
+        Set<String> tags = new HashSet<String>();
+
+        if (deployed) {
+            channelTagInfo = deployedChannelTagInfo;
+            for (DashboardStatus dashboardStatus : status) {
+                tags.addAll(dashboardStatus.getTags());
+            }
+        } else {
+            channelTagInfo = this.channelTagInfo;
+            for (ChannelStatus channelStatus : channelStatuses.values()) {
+                tags.addAll(channelStatus.getChannel().getProperties().getTags());
+            }
+        }
+
+        synchronized (channelTagInfo) {
+            channelTagInfo.setTags(tags);
+        }
     }
 
     /**

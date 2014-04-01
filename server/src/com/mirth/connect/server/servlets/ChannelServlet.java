@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -146,19 +145,6 @@ public class ChannelServlet extends MirthServlet {
                     }
 
                     serializer.serialize(channelSummaries, out);
-                } else if (operation.equals(Operations.CHANNEL_GET_TAGS)) {
-                    response.setContentType(APPLICATION_XML);
-                    Set<String> tags = null;
-
-                    if (!isUserAuthorized(request, parameterMap)) {
-                        tags = new LinkedHashSet<String>();
-                    } else if (doesUserHaveChannelRestrictions(request)) {
-                        tags = channelController.getChannelTags(new HashSet<String>(getAuthorizedChannelIds(request)));
-                    } else {
-                        tags = channelController.getChannelTags(null);
-                    }
-
-                    serializer.serialize(tags, out);
                 } else if (operation.equals(Operations.CHANNEL_GET_CONNECTOR_NAMES)) {
                     response.setContentType(APPLICATION_XML);
                     String channelId = request.getParameter("channelId");

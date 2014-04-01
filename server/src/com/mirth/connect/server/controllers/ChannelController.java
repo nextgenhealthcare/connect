@@ -50,8 +50,6 @@ public abstract class ChannelController extends Controller {
 
     public abstract Map<String, Integer> getChannelRevisions() throws ControllerException;
 
-    public abstract Set<String> getChannelTags(Set<String> channelIds);
-
     public abstract Map<Integer, String> getConnectorNames(String channelId);
 
     public abstract List<MetaDataColumn> getMetaDataColumns(String channelId);

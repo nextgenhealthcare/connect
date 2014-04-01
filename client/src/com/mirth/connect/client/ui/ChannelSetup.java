@@ -575,8 +575,6 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         sourceConnectorPanel.updateQueueWarning(currentChannel.getProperties().getMessageStorageMode());
         destinationConnectorPanel.updateQueueWarning(currentChannel.getProperties().getMessageStorageMode());
-
-        parent.retrieveAllChannelTags();
     }
 
     /**
@@ -630,7 +628,6 @@ public class ChannelSetup extends javax.swing.JPanel {
         channelView.setSelectedIndex(0);
         summaryNameField.requestFocus();
         parent.setSaveEnabled(true);
-        parent.retrieveAllChannelTags();
 
         DefaultTableModel model = (DefaultTableModel) tagTable.getModel();
         model.setRowCount(0);

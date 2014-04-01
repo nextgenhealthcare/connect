@@ -45,6 +45,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.ChannelFilter.ChannelFilterSaveTask;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.model.DashboardStatus;
@@ -319,11 +320,22 @@ public class DashboardPanel extends javax.swing.JPanel {
      * visible.
      */
     private void updatePopupMenu(boolean loadPanelPlugin) {
+        // @formatter:off
         /*
-         * 0 - Refresh 1 - Send Message 2 - View Messages 3 - Remove All Messages 4 - Clear
-         * Statistics 5 - Start 6 - Pause 7 - Stop 8 - Halt 9 - Undeploy Channel 10 - Start
-         * Connector 11 - Stop Connector
+         * 0 - Refresh
+         * 1 - Send Message
+         * 2 - View Messages
+         * 3 - Remove All Messages
+         * 4 - Clear Statistics
+         * 5 - Start
+         * 6 - Pause
+         * 7 - Stop
+         * 8 - Halt
+         * 9 - Undeploy Channel
+         * 10 - Start Connector
+         * 11 - Stop Connector
          */
+        // @formatter:on
 
         parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, -1, false); // hide all
         parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 2, 2, true); // show "View Messages"
@@ -446,14 +458,13 @@ public class DashboardPanel extends javax.swing.JPanel {
     }
 
     public synchronized void updateTableChannelNodes(List<DashboardStatus> intermediateStatuses) {
-        boolean tagFilterEnabled = parent.channelFilter.isTagFilterEnabled();
-        Set<String> visibleTags = parent.channelFilter.getVisibleTags();
+        ChannelTagInfo channelTagInfo = parent.getChannelTagInfo(true);
 
-        if (tagFilterEnabled) {
+        if (channelTagInfo.isEnabled()) {
             List<DashboardStatus> filteredStatuses = new ArrayList<DashboardStatus>();
 
             for (DashboardStatus currentStatus : intermediateStatuses) {
-                if (tagFilterEnabled && CollectionUtils.containsAny(visibleTags, currentStatus.getTags())) {
+                if (channelTagInfo.isEnabled() && CollectionUtils.containsAny(channelTagInfo.getVisibleTags(), currentStatus.getTags())) {
                     filteredStatuses.add(currentStatus);
                 }
             }
@@ -469,19 +480,18 @@ public class DashboardPanel extends javax.swing.JPanel {
     }
 
     public synchronized void finishUpdatingTable(List<DashboardStatus> finishedStatuses) {
-        boolean tagFilterEnabled = parent.channelFilter.isTagFilterEnabled();
-        Set<String> visibleTags = parent.channelFilter.getVisibleTags();
+        ChannelTagInfo channelTagInfo = parent.getChannelTagInfo(true);
 
-        if (tagFilterEnabled) {
+        if (channelTagInfo.isEnabled()) {
             List<DashboardStatus> filteredStatuses = new ArrayList<DashboardStatus>();
 
             for (DashboardStatus currentStatus : finishedStatuses) {
-                if (tagFilterEnabled && CollectionUtils.containsAny(visibleTags, currentStatus.getTags())) {
+                if (channelTagInfo.isEnabled() && CollectionUtils.containsAny(channelTagInfo.getVisibleTags(), currentStatus.getTags())) {
                     filteredStatuses.add(currentStatus);
                 }
             }
 
-            tagsLabel.setText(filteredStatuses.size() + " of " + finishedStatuses.size() + " Deployed Channels (" + StringUtils.join(visibleTags, ", ") + ")");
+            tagsLabel.setText(filteredStatuses.size() + " of " + finishedStatuses.size() + " Deployed Channels (" + StringUtils.join(channelTagInfo.getVisibleTags(), ", ") + ")");
             finishedStatuses = filteredStatuses;
         } else {
             tagsLabel.setText(finishedStatuses.size() + " Deployed Channels");
@@ -813,7 +823,13 @@ public class DashboardPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_showLifetimeStatsButtonActionPerformed
 
     private void tagFilterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tagFilterButtonActionPerformed
-        parent.channelFilter.setVisible(true);
+        new ChannelFilter(parent.getChannelTagInfo(true), new ChannelFilterSaveTask() {
+            @Override
+            public void save(ChannelTagInfo channelTagInfo) {
+                parent.setFilteredChannelTags(true, channelTagInfo.getVisibleTags(), channelTagInfo.isEnabled());
+                parent.doRefreshStatuses(true);
+            }
+        });
     }//GEN-LAST:event_tagFilterButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

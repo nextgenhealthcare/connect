@@ -190,19 +190,6 @@ public class DefaultChannelController extends ChannelController {
     }
 
     @Override
-    public Set<String> getChannelTags(Set<String> channelIds) {
-
-        Set<String> channelTags = new LinkedHashSet<String>();
-        List<Channel> channels = getChannels(channelIds);
-
-        for (Channel channel : channels) {
-            channelTags.addAll(channel.getProperties().getTags());
-        }
-
-        return channelTags;
-    }
-
-    @Override
     public synchronized void setChannelEnabled(Set<String> channelIds, ServerEventContext context, boolean enabled) throws ControllerException {
         /*
          * Methods that update the channel must be synchronized to ensure the channel cache and
