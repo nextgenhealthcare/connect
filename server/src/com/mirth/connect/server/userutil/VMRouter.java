@@ -164,9 +164,9 @@ public class VMRouter {
 
     private com.mirth.connect.donkey.model.message.RawMessage convertRawMessage(RawMessage message) {
         if (message.isBinary()) {
-            return new com.mirth.connect.donkey.model.message.RawMessage(message.getRawBytes(), message.getDestinationMetaDataIds(), message.getChannelMap());
+            return new com.mirth.connect.donkey.model.message.RawMessage(message.getRawBytes(), message.getDestinationMetaDataIds(), message.getSourceMap());
         } else {
-            return new com.mirth.connect.donkey.model.message.RawMessage(message.getRawData(), message.getDestinationMetaDataIds(), message.getChannelMap());
+            return new com.mirth.connect.donkey.model.message.RawMessage(message.getRawData(), message.getDestinationMetaDataIds(), message.getSourceMap());
         }
     }
 }

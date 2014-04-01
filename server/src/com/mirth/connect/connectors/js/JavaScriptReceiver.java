@@ -160,9 +160,9 @@ public class JavaScriptReceiver extends PollConnector {
     private RawMessage convertRawMessage(Object object) {
         com.mirth.connect.server.userutil.RawMessage rawMessage = (com.mirth.connect.server.userutil.RawMessage) object;
         if (rawMessage.isBinary()) {
-            return new RawMessage(rawMessage.getRawBytes(), rawMessage.getDestinationMetaDataIds(), rawMessage.getChannelMap());
+            return new RawMessage(rawMessage.getRawBytes(), rawMessage.getDestinationMetaDataIds(), rawMessage.getSourceMap());
         } else {
-            return new RawMessage(rawMessage.getRawData(), rawMessage.getDestinationMetaDataIds(), rawMessage.getChannelMap());
+            return new RawMessage(rawMessage.getRawData(), rawMessage.getDestinationMetaDataIds(), rawMessage.getSourceMap());
         }
     }
 }
