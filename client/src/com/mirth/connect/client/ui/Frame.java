@@ -2439,8 +2439,13 @@ public class Frame extends JXFrame {
                 }
 
                 try {
-                    mirthClient.startChannels(startChannelIds);
-                    mirthClient.resumeChannels(resumeChannelIds);
+                    if (!startChannelIds.isEmpty()) {
+                        mirthClient.startChannels(startChannelIds);
+                    }
+
+                    if (!resumeChannelIds.isEmpty()) {
+                        mirthClient.resumeChannels(resumeChannelIds);
+                    }
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
