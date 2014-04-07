@@ -54,6 +54,8 @@ public class DocumentDispatcher extends DestinationConnector {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
+    private static long ownerPasswordSeq = System.currentTimeMillis();
+
     @Override
     public void onDeploy() throws DeployException {
         this.connectorProperties = (DocumentDispatcherProperties) getConnectorProperties();
@@ -173,14 +175,22 @@ public class DocumentDispatcher extends DestinationConnector {
                     AccessPermission accessPermission = new AccessPermission();
                     accessPermission.setCanAssembleDocument(false);
                     accessPermission.setCanExtractContent(true);
-                    accessPermission.setCanExtractForAccessibility(true);
+                    accessPermission.setCanExtractForAccessibility(false);
                     accessPermission.setCanFillInForm(false);
                     accessPermission.setCanModify(false);
                     accessPermission.setCanModifyAnnotations(false);
                     accessPermission.setCanPrint(true);
                     accessPermission.setCanPrintDegraded(true);
 
-                    StandardProtectionPolicy policy = new StandardProtectionPolicy(null, documentDispatcherProperties.getPassword(), accessPermission);
+                    /*
+                     * In 2.x when using iText for encryption, a "random" owner password was
+                     * actually being generated even when null was passed in. However that doesn't
+                     * happen by default with PDFBox, so we need to create one here instead. This
+                     * method of concatenating the current time with the current free memory bytes
+                     * is the same as was used in 2.x.
+                     */
+                    String ownerPassword = System.currentTimeMillis() + "+" + Runtime.getRuntime().freeMemory() + "+" + (ownerPasswordSeq++);
+                    StandardProtectionPolicy policy = new StandardProtectionPolicy(ownerPassword, documentDispatcherProperties.getPassword(), accessPermission);
                     policy.setEncryptionKeyLength(128);
 
                     encryptFos = new FileOutputStream(file);
