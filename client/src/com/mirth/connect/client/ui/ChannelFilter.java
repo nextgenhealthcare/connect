@@ -20,7 +20,6 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import com.mirth.connect.client.ui.components.ItemSelectionTable;
 import com.mirth.connect.client.ui.components.ItemSelectionTableModel;
 
 public class ChannelFilter extends javax.swing.JDialog {
@@ -43,7 +42,6 @@ public class ChannelFilter extends javax.swing.JDialog {
         this.onSave = onSave;
 
         initComponents();
-        filterTable.setSortable(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModal(true);
         pack();
@@ -73,10 +71,8 @@ public class ChannelFilter extends javax.swing.JDialog {
         }
 
         filterTableModel = new ItemSelectionTableModel<String, String>(tagMap, selectedTags, "Channel Tag", "Enabled");
-        filterTable = new ItemSelectionTable();
         filterTable.setModel(filterTableModel);
-        jScrollPane1.setViewportView(filterTable);
-
+        filterTable.setSortable(true);
         enableFilterCheckbox.setSelected(channelTagInfo.isEnabled());
         filterTable.setEnabled(channelTagInfo.isEnabled());
         invertButton.setEnabled(channelTagInfo.isEnabled());
@@ -99,7 +95,7 @@ public class ChannelFilter extends javax.swing.JDialog {
 
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        filterTable = new com.mirth.connect.client.ui.components.MirthTable();
+        filterTable = new com.mirth.connect.client.ui.components.ItemSelectionTable();
         okButton = new com.mirth.connect.client.ui.components.MirthButton();
         cancelButton = new com.mirth.connect.client.ui.components.MirthButton();
         invertButton = new com.mirth.connect.client.ui.components.MirthButton();
@@ -241,7 +237,7 @@ public class ChannelFilter extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthButton cancelButton;
     private com.mirth.connect.client.ui.components.MirthCheckBox enableFilterCheckbox;
-    private com.mirth.connect.client.ui.components.MirthTable filterTable;
+    private com.mirth.connect.client.ui.components.ItemSelectionTable filterTable;
     private com.mirth.connect.client.ui.components.MirthButton invertButton;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
