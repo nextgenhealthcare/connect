@@ -26,6 +26,7 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.plugins.datatypes.xml.DefaultXMLSerializer;
 import com.mirth.connect.server.Mirth;
 import com.mirth.connect.server.controllers.ConfigurationController;
@@ -40,12 +41,12 @@ public class TestFilterTransformer {
     private final static String TEST_SCRIPT_ID = "testscript";
     private final static String PERFORMANCE_SCRIPT_ID = "performancescript";
     private final static String CONNECTOR_NAME = "testconnector";
-    
+
     private static Mirth server = new Mirth();
     private static ExecutorService executor = Executors.newSingleThreadExecutor();
     private static FilterTransformer filterTransformer;
     private static FilterTransformer filterTransformerPerformance;
-    
+
     @BeforeClass
     public static void beforeClass() throws Exception {
         executor.execute(new Runnable() {
@@ -54,35 +55,35 @@ public class TestFilterTransformer {
                 server.run();
             }
         });
-        
+
         while (ConfigurationController.getInstance().getStatus() != ConfigurationController.STATUS_OK) {
             Thread.sleep(100);
         }
-        
+
         StringBuilder script = new StringBuilder();
         script.append("var start = new Date().getTime();");
         script.append("for (var i = 0; i < 1e7; i++) {");
         script.append("if ((new Date().getTime() - start) > " + SCRIPT_SLEEP_MILLIS + ") break;");
         script.append("} return false;");
-        
-        JavaScriptUtil.compileAndAddScript(TEST_SCRIPT_ID, script.toString());
-        
+
+        JavaScriptUtil.compileAndAddScript(TEST_SCRIPT_ID, script.toString(), ContextType.MESSAGE_CONTEXT);
+
         script = new StringBuilder();
         script.append("var result;");
         script.append("for (var i = 0; i < " + PERFORMANCE_TEST_SIZE + "; i++) {");
         script.append("result = Math.sqrt(i);");
         script.append("} return false;");
-        
-        JavaScriptUtil.compileAndAddScript(PERFORMANCE_SCRIPT_ID, script.toString());
+
+        JavaScriptUtil.compileAndAddScript(PERFORMANCE_SCRIPT_ID, script.toString(), ContextType.MESSAGE_CONTEXT);
 
         initJavaScriptFilterTransformer();
     }
-    
+
     private static void initJavaScriptFilterTransformer() throws Exception {
         filterTransformer = new JavaScriptFilterTransformer(CHANNEL_ID, CONNECTOR_NAME, TEST_SCRIPT_ID, null, null);
         filterTransformerPerformance = new JavaScriptFilterTransformer(CHANNEL_ID, CONNECTOR_NAME, PERFORMANCE_SCRIPT_ID, null, null);
     }
-    
+
     @Test
     public final void testDoFilterTransform() throws Exception {
         ConnectorMessage connectorMessage = createConnectorMessage(CHANNEL_ID, 1, 0);
@@ -94,7 +95,7 @@ public class TestFilterTransformer {
         assertTrue(duration >= SCRIPT_SLEEP_MILLIS);
         System.out.println("\ntestDoFilterTransform: " + duration + "ms");
     }
-    
+
     @Test
     public final void testCancel() throws Exception {
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -115,7 +116,7 @@ public class TestFilterTransformer {
         assertTrue(duration < SCRIPT_SLEEP_MILLIS);
         System.out.println("\ntestCancel: " + duration + "ms");
     }
-    
+
     @Test
     public final void testPerformance() throws Exception {
         ConnectorMessage connectorMessage = createConnectorMessage(CHANNEL_ID, 1, 0);
@@ -126,17 +127,17 @@ public class TestFilterTransformer {
         assertTrue(result);
         System.out.println("\nFilter/Transformer Performance: " + duration + "ms\n");
     }
-    
+
     private ConnectorMessage createConnectorMessage(String channelId, long messageId, int metaDataId) throws XmlSerializerException {
         ConnectorMessage connectorMessage = new ConnectorMessage();
         connectorMessage.setChannelId(channelId);
         connectorMessage.setMessageId(messageId);
         connectorMessage.setMetaDataId(metaDataId);
         connectorMessage.setMessageContent(new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, TEST_HL7_MESSAGE, "HL7V2", false));
-        
+
         XmlSerializer xmlSerializer = new DefaultXMLSerializer(null);
         String serializedMessage = xmlSerializer.toXML(connectorMessage.getRaw().getContent());
-        
+
         connectorMessage.setTransformed(new MessageContent(channelId, messageId, metaDataId, ContentType.TRANSFORMED, serializedMessage, "XML", false));
         return connectorMessage;
     }

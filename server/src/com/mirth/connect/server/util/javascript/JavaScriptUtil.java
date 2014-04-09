@@ -34,6 +34,7 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
@@ -519,17 +520,17 @@ public class JavaScriptUtil {
             String postprocessorScriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channel.getId());
 
             if (channel.isEnabled()) {
-                compileAndAddScript(deployScriptId, channel.getDeployScript());
-                compileAndAddScript(shutdownScriptId, channel.getShutdownScript());
+                compileAndAddScript(deployScriptId, channel.getDeployScript(), ContextType.CHANNEL_CONTEXT);
+                compileAndAddScript(shutdownScriptId, channel.getShutdownScript(), ContextType.CHANNEL_CONTEXT);
 
                 // Only compile and run preprocessor if it's not the default
-                if (!compileAndAddScript(preprocessorScriptId, channel.getPreprocessingScript())) {
+                if (!compileAndAddScript(preprocessorScriptId, channel.getPreprocessingScript(), ContextType.CHANNEL_CONTEXT)) {
                     logger.debug("removing " + preprocessorScriptId);
                     removeScriptFromCache(preprocessorScriptId);
                 }
 
                 // Only compile and run post processor if it's not the default
-                if (!compileAndAddScript(postprocessorScriptId, channel.getPostprocessingScript())) {
+                if (!compileAndAddScript(postprocessorScriptId, channel.getPostprocessingScript(), ContextType.CHANNEL_CONTEXT)) {
                     logger.debug("removing " + postprocessorScriptId);
                     removeScriptFromCache(postprocessorScriptId);
                 }
@@ -549,7 +550,8 @@ public class JavaScriptUtil {
             String value = entry.getValue();
 
             try {
-                if (!compileAndAddScript(key, value)) {
+                // In 2.x templates with the Channel context were allowed in the global postprocessor, so for now we're keeping that the same.
+                if (!compileAndAddScript(key, value, key.equals(ScriptController.POSTPROCESSOR_SCRIPT_KEY) ? ContextType.CHANNEL_CONTEXT : ContextType.GLOBAL_CHANNEL_CONTEXT)) {
                     logger.debug("removing global " + key.toLowerCase());
                     removeScriptFromCache(key);
                 }
@@ -564,15 +566,15 @@ public class JavaScriptUtil {
      * Encapsulates a JavaScript script into the doScript() function, compiles it, and adds it to
      * the compiled script cache.
      */
-    public static boolean compileAndAddScript(String scriptId, String script) throws Exception {
-        return compileAndAddScript(scriptId, script, null);
+    public static boolean compileAndAddScript(String scriptId, String script, ContextType contextType) throws Exception {
+        return compileAndAddScript(scriptId, script, contextType, null);
     }
 
-    public static boolean compileAndAddScript(String scriptId, String script, Set<String> scriptOptions) throws Exception {
-        return compileAndAddScript(scriptId, script, scriptOptions, JavaScriptBuilder.generateDefaultKeyScript(ScriptController.getScriptKey(scriptId), ScriptController.isScriptGlobal(scriptId)));
+    public static boolean compileAndAddScript(String scriptId, String script, ContextType contextType, Set<String> scriptOptions) throws Exception {
+        return compileAndAddScript(scriptId, script, contextType, scriptOptions, JavaScriptBuilder.generateDefaultKeyScript(ScriptController.getScriptKey(scriptId), ScriptController.isScriptGlobal(scriptId)));
     }
 
-    public static boolean compileAndAddScript(String scriptId, String script, Set<String> scriptOptions, String defaultScript) throws Exception {
+    public static boolean compileAndAddScript(String scriptId, String script, ContextType contextType, Set<String> scriptOptions, String defaultScript) throws Exception {
         // Note: If the defaultScript is NULL, this means that the script should
         // always be inserted without being compared.
 
@@ -582,14 +584,14 @@ public class JavaScriptUtil {
         try {
             Context context = JavaScriptScopeUtil.getContext();
             logger.debug("compiling script " + scriptId);
-            generatedScript = JavaScriptBuilder.generateScript(script, scriptOptions);
+            generatedScript = JavaScriptBuilder.generateScript(script, scriptOptions, contextType);
             Script compiledScript = compileScript(context, generatedScript, scriptId);
             String decompiledScript = context.decompileScript(compiledScript, 0);
 
             String decompiledDefaultScript = null;
 
             if (defaultScript != null) {
-                String generatedDefaultScript = JavaScriptBuilder.generateScript(defaultScript, scriptOptions);
+                String generatedDefaultScript = JavaScriptBuilder.generateScript(defaultScript, scriptOptions, contextType);
                 Script compiledDefaultScript = compileScript(context, generatedDefaultScript, scriptId);
                 decompiledDefaultScript = context.decompileScript(compiledDefaultScript, 0);
             }

@@ -28,6 +28,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
@@ -54,7 +55,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
         scriptId = UUID.randomUUID().toString();
 
         try {
-            JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getQuery(), null, null);
+            JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getQuery(), ContextType.MESSAGE_CONTEXT, null, null);
         } catch (Exception e) {
             throw new DeployException("Error compiling script " + scriptId + ".", e);
         }
@@ -105,11 +106,9 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
 
                 if (result != null && !(result instanceof Undefined)) {
                     /*
-                     * If the script return value is a response, return it
-                     * as-is. If it's a
-                     * status, only update the response status. Otherwise, set
-                     * the response data
-                     * to the string representation of the object.
+                     * If the script return value is a response, return it as-is. If it's a status,
+                     * only update the response status. Otherwise, set the response data to the
+                     * string representation of the object.
                      */
                     if (result instanceof NativeJavaObject) {
                         Object object = ((NativeJavaObject) result).unwrap();

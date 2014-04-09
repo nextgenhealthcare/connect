@@ -31,6 +31,7 @@ import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
@@ -51,7 +52,7 @@ public class JavaScriptReceiver extends PollConnector {
         String scriptId = UUID.randomUUID().toString();
 
         try {
-            JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getScript(), null, null);
+            JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getScript(), ContextType.MESSAGE_CONTEXT, null, null);
         } catch (Exception e) {
             throw new DeployException("Error compiling " + connectorProperties.getName() + " script " + scriptId + ".", e);
         }

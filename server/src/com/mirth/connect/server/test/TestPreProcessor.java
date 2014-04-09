@@ -35,6 +35,7 @@ import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.plugins.datatypes.xml.DefaultXMLSerializer;
 import com.mirth.connect.server.Mirth;
@@ -108,7 +109,7 @@ public class TestPreProcessor {
         script.append("result = Math.sqrt(i);");
         script.append("} return '" + testResult + "';");
 
-        JavaScriptUtil.compileAndAddScript(ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, CHANNEL_ID), script.toString());
+        JavaScriptUtil.compileAndAddScript(ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, CHANNEL_ID), script.toString(), ContextType.CHANNEL_CONTEXT);
 
         ScriptRunner scriptRunner = new ScriptRunner() {
             @Override
@@ -138,7 +139,7 @@ public class TestPreProcessor {
         script.append("result = Math.sqrt(i);");
         script.append("} return false;");
 
-        JavaScriptUtil.compileAndAddScript(scriptId, script.toString());
+        JavaScriptUtil.compileAndAddScript(scriptId, script.toString(), ContextType.MESSAGE_CONTEXT);
 
         ScriptRunner scriptRunner = new ScriptRunner() {
             @Override
@@ -168,7 +169,7 @@ public class TestPreProcessor {
         script.append("result = Math.sqrt(i);");
         script.append("} return 'test';");
 
-        JavaScriptUtil.compileAndAddScript(ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, CHANNEL_ID), script.toString());
+        JavaScriptUtil.compileAndAddScript(ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, CHANNEL_ID), script.toString(), ContextType.CHANNEL_CONTEXT);
 
         ScriptRunner scriptRunner = new ScriptRunner() {
             @Override

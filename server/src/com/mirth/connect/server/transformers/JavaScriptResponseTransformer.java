@@ -24,6 +24,7 @@ import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformerException;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -58,14 +59,13 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
     private void initialize(String script) throws JavaScriptInitializationException {
         try {
             /*
-             * Scripts are not compiled if they are blank or do not exist in the
-             * database. Note that in Oracle, a blank script is the same as a
-             * NULL script.
+             * Scripts are not compiled if they are blank or do not exist in the database. Note that
+             * in Oracle, a blank script is the same as a NULL script.
              */
             if (StringUtils.isNotBlank(script)) {
                 logger.debug("compiling response transformer script");
                 this.scriptId = ServerUUIDGenerator.getUUID();
-                JavaScriptUtil.compileAndAddScript(scriptId, script, null, null);
+                JavaScriptUtil.compileAndAddScript(scriptId, script, ContextType.MESSAGE_CONTEXT, null, null);
             }
         } catch (Exception e) {
             if (e instanceof RhinoException) {

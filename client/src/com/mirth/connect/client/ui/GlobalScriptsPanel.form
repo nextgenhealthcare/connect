@@ -28,7 +28,7 @@
   <SubComponents>
     <Component class="com.mirth.connect.client.ui.ScriptPanel" name="scriptPanel">
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new ScriptPanel(ContextType.CHANNEL_CONTEXT.getContext());"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new ScriptPanel(ContextType.GLOBAL_CHANNEL_CONTEXT.getContext());"/>
       </AuxValues>
     </Component>
   </SubComponents>

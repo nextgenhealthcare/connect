@@ -67,6 +67,7 @@ import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardStatus;
@@ -688,7 +689,7 @@ public class DonkeyEngineController implements EngineController {
                         try {
                             Set<String> scriptOptions = new HashSet<String>();
                             scriptOptions.add("useAttachmentList");
-                            JavaScriptUtil.compileAndAddScript(scriptId, attachmentScript, scriptOptions);
+                            JavaScriptUtil.compileAndAddScript(scriptId, attachmentScript, ContextType.CHANNEL_CONTEXT, scriptOptions);
                         } catch (Exception e) {
                             logger.error("Error compiling attachment handler script " + scriptId + ".", e);
                         }
@@ -708,7 +709,7 @@ public class DonkeyEngineController implements EngineController {
         String scriptId = ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId);
 
         try {
-            JavaScriptUtil.compileAndAddScript(scriptId, preProcessingScript);
+            JavaScriptUtil.compileAndAddScript(scriptId, preProcessingScript, ContextType.CHANNEL_CONTEXT);
         } catch (Exception e) {
             logger.error("Error compiling preprocessor script " + scriptId + ".", e);
         }
@@ -720,7 +721,7 @@ public class DonkeyEngineController implements EngineController {
         String scriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channelId);
 
         try {
-            JavaScriptUtil.compileAndAddScript(scriptId, postProcessingScript);
+            JavaScriptUtil.compileAndAddScript(scriptId, postProcessingScript, ContextType.CHANNEL_CONTEXT);
         } catch (Exception e) {
             logger.error("Error compiling postprocessor script " + scriptId + ".", e);
         }

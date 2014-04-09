@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
@@ -66,16 +67,12 @@ public class JavaScriptBuilder {
      * Generation functions for general scripts
      */
 
-    public static String generateScript(String script, Set<String> scriptOptions) {
-        return generateScript(script, CodeTemplate.ContextType.GLOBAL_CONTEXT, scriptOptions);
-    }
-
-    public static String generateScript(String script, CodeTemplate.ContextType context, Set<String> scriptOptions) {
+    public static String generateScript(String script, Set<String> scriptOptions, ContextType contextType) {
         StringBuilder builder = new StringBuilder();
 
         appendMapFunctions(builder);
         appendAttachmentFunctions(builder, scriptOptions);
-        appendCodeTemplates(builder, context);
+        appendCodeTemplates(builder, contextType);
         appendMiscFunctions(builder);
 
         builder.append("function doScript() {\n" + script + " \n}\n");
@@ -398,11 +395,11 @@ public class JavaScriptBuilder {
         }
     }
 
-    private static void appendCodeTemplates(StringBuilder builder, CodeTemplate.ContextType context) {
+    private static void appendCodeTemplates(StringBuilder builder, ContextType contextType) {
         try {
             for (CodeTemplate template : ControllerFactory.getFactory().createCodeTemplateController().getCodeTemplate(null)) {
                 if (template.getType() == CodeSnippetType.FUNCTION) {
-                    if (context.getContext() >= template.getScope()) {
+                    if (contextType.getContext() >= template.getScope()) {
                         builder.append(template.getCode());
                         builder.append('\n');
                     }

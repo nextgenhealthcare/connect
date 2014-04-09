@@ -24,6 +24,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
@@ -51,7 +52,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
         selectScriptId = UUID.randomUUID().toString();
 
         try {
-            JavaScriptUtil.compileAndAddScript(selectScriptId, connectorProperties.getSelect(), null, null);
+            JavaScriptUtil.compileAndAddScript(selectScriptId, connectorProperties.getSelect(), ContextType.MESSAGE_CONTEXT, null, null);
         } catch (Exception e) {
             throw new DeployException("Error compiling select script " + selectScriptId + ".", e);
         }
@@ -60,7 +61,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
             updateScriptId = UUID.randomUUID().toString();
 
             try {
-                JavaScriptUtil.compileAndAddScript(updateScriptId, connectorProperties.getUpdate(), null, null);
+                JavaScriptUtil.compileAndAddScript(updateScriptId, connectorProperties.getUpdate(), ContextType.MESSAGE_CONTEXT, null, null);
             } catch (Exception e) {
                 throw new DeployException("Error compiling update script " + updateScriptId + ".", e);
             }

@@ -55,6 +55,7 @@ import com.mirth.connect.donkey.server.message.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.BatchMessageProcessor;
 import com.mirth.connect.donkey.server.message.BatchMessageProcessorException;
 import com.mirth.connect.donkey.server.message.DataType;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ExtensionController;
@@ -121,7 +122,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             try {
                 String batchScriptId = UUID.randomUUID().toString();
 
-                JavaScriptUtil.compileAndAddScript(batchScriptId, batchScript.toString());
+                JavaScriptUtil.compileAndAddScript(batchScriptId, batchScript.toString(), ContextType.CHANNEL_CONTEXT);
 
                 this.batchScriptId = batchScriptId;
             } catch (Exception e) {
