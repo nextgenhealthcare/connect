@@ -244,6 +244,11 @@ public class PassthruDao implements DonkeyDao {
     }
 
     @Override
+    public long getMinMessageId(String channelId) {
+        return 1L;
+    }
+
+    @Override
     public long getNextMessageId(String channelId) {
         return 1L;
     }

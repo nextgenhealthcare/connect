@@ -29,13 +29,11 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("messageFilter")
 public class MessageFilter implements Serializable {
     /*
-     * Note that any filter criteria that is an int must be represented using
-     * Integer otherwise it will default to 0 and not pass the isNotNull check
-     * in the SQL mapping.
+     * Note that any filter criteria that is an int must be represented using Integer otherwise it
+     * will default to 0 and not pass the isNotNull check in the SQL mapping.
      */
     private Long maxMessageId;
-    private Long messageIdUpper;
-    private Long messageIdLower;
+    private Long minMessageId;
     private Long originalIdUpper;
     private Long originalIdLower;
     private Long importIdUpper;
@@ -52,26 +50,8 @@ public class MessageFilter implements Serializable {
     private List<String> textSearchMetaDataColumns;
     private Integer sendAttemptsLower;
     private Integer sendAttemptsUpper;
-    private String type;
-    private String source;
     private Boolean attachment;
     private Boolean error;
-
-    public Long getMessageIdUpper() {
-        return messageIdUpper;
-    }
-
-    public void setMessageIdUpper(Long messageIdUpper) {
-        this.messageIdUpper = messageIdUpper;
-    }
-
-    public Long getMessageIdLower() {
-        return messageIdLower;
-    }
-
-    public void setMessageIdLower(Long messageIdLower) {
-        this.messageIdLower = messageIdLower;
-    }
 
     public Long getOriginalIdUpper() {
         return originalIdUpper;
@@ -201,28 +181,20 @@ public class MessageFilter implements Serializable {
         this.sendAttemptsUpper = sendAttemptsUpper;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
     public Long getMaxMessageId() {
         return maxMessageId;
     }
 
     public void setMaxMessageId(Long maxMessageId) {
         this.maxMessageId = maxMessageId;
+    }
+
+    public Long getMinMessageId() {
+        return minMessageId;
+    }
+
+    public void setMinMessageId(Long minMessageId) {
+        this.minMessageId = minMessageId;
     }
 
     public Boolean getAttachment() {

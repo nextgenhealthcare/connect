@@ -3789,8 +3789,8 @@ public class Frame extends JXFrame {
                 public Void doInBackground() {
                     try {
                         MessageFilter filter = new MessageFilter();
-                        filter.setMessageIdLower(messageId);
-                        filter.setMessageIdUpper(messageId);
+                        filter.setMinMessageId(messageId);
+                        filter.setMaxMessageId(messageId);
                         List<Integer> metaDataIds = new ArrayList<Integer>();
                         metaDataIds.add(metaDataId);
                         filter.setIncludedMetaDataIds(metaDataIds);
@@ -3824,8 +3824,8 @@ public class Frame extends JXFrame {
 
         if (messageBrowser.canReprocessMessage(messageId)) {
             MessageFilter filter = new MessageFilter();
-            filter.setMessageIdLower(messageId);
-            filter.setMessageIdUpper(messageId);
+            filter.setMinMessageId(messageId);
+            filter.setMaxMessageId(messageId);
             doReprocess(filter, messageBrowser.getSelectedMetaDataId());
         } else {
             alertError(this, "Message " + messageId + " cannot be reprocessed because no source raw content was found.");

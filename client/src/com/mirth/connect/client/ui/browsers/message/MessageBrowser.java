@@ -535,12 +535,14 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         advancedSearchPopup.applySelectionsToFilter(messageFilter);
 
-        try {
-            Long maxMessageId = parent.mirthClient.getMaxMessageId(channelId);
-            messageFilter.setMaxMessageId(maxMessageId);
-        } catch (ClientException e) {
-            parent.alertException(parent, e.getStackTrace(), e.getMessage());
-            return false;
+        if (messageFilter.getMaxMessageId() == null) {
+            try {
+                Long maxMessageId = parent.mirthClient.getMaxMessageId(channelId);
+                messageFilter.setMaxMessageId(maxMessageId);
+            } catch (ClientException e) {
+                parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                return false;
+            }
         }
 
         return true;
@@ -577,6 +579,11 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         text.append("Max Message Id: ");
         text.append(messageFilter.getMaxMessageId());
+
+        if (messageFilter.getMinMessageId() != null) {
+            text.append(padding + "Min Message Id: ");
+            text.append(messageFilter.getMinMessageId());
+        }
 
         String startDateFormatString = mirthTimePicker1.isEnabled() ? "yyyy-MM-dd HH:mm" : "yyyy-MM-dd";
         String endDateFormatString = mirthTimePicker2.isEnabled() ? "yyyy-MM-dd HH:mm" : "yyyy-MM-dd";
@@ -648,17 +655,6 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
 
             text.append(StringUtils.join(connectorNames, ", "));
-        }
-
-        if (messageFilter.getMessageIdLower() != null || messageFilter.getMessageIdUpper() != null) {
-            text.append(padding + "Message Id: ");
-            if (messageFilter.getMessageIdUpper() == null) {
-                text.append("Greater than " + messageFilter.getMessageIdLower());
-            } else if (messageFilter.getMessageIdLower() == null) {
-                text.append("Less than " + messageFilter.getMessageIdUpper());
-            } else {
-                text.append("Between " + messageFilter.getMessageIdLower() + " and " + messageFilter.getMessageIdUpper());
-            }
         }
 
         if (messageFilter.getOriginalIdLower() != null || messageFilter.getOriginalIdUpper() != null) {

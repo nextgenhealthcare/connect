@@ -10,10 +10,7 @@
 package com.mirth.connect.server.mybatis;
 
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.model.message.Message;
 
@@ -21,12 +18,11 @@ public class MessageSearchResult {
     private Long messageId;
     private String serverId;
     private Calendar receivedDate;
-    private boolean processed;
+    private Boolean processed;
     private Long originalId;
     private Long importId;
     private String importChannelId;
     private String metaDataIds;
-    private int metaDataId;
     private Set<Integer> metaDataIdSet;
 
     public Long getMessageId() {
@@ -53,11 +49,11 @@ public class MessageSearchResult {
         this.receivedDate = receivedDate;
     }
 
-    public boolean isProcessed() {
+    public Boolean isProcessed() {
         return processed;
     }
 
-    public void setProcessed(boolean processed) {
+    public void setProcessed(Boolean processed) {
         this.processed = processed;
     }
 
@@ -87,23 +83,6 @@ public class MessageSearchResult {
 
     public String getMetaDataIds() {
         return metaDataIds;
-    }
-
-    public void setMetaDataIds(String metaDataIds) {
-        this.metaDataIds = metaDataIds;
-        metaDataIdSet = new HashSet<Integer>();
-
-        for (String piece : StringUtils.split(metaDataIds, ',')) {
-            metaDataIdSet.add(Integer.parseInt(piece));
-        }
-    }
-
-    public int getMetaDataId() {
-        return metaDataId;
-    }
-
-    public void setMetaDataId(int metaDataId) {
-        this.metaDataId = metaDataId;
     }
 
     public Message getMessage() {

@@ -88,6 +88,8 @@ public interface DonkeyDao {
 
     public long getMaxMessageId(String channelId);
 
+    public long getMinMessageId(String channelId);
+
     public long getNextMessageId(String channelId);
 
     public List<ConnectorMessage> getUnfinishedConnectorMessages(String channelId, String serverId, int metaDataId, Status status);

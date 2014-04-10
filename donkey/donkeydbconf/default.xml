@@ -103,6 +103,11 @@
 		FROM D_M${localChannelId}
 	</query>
 	
+	<query id="getMinMessageId">
+		SELECT COALESCE(MIN(ID), 0)
+		FROM D_M${localChannelId}
+	</query>
+	
 	<query id="getUnfinishedMessages">
 		SELECT M.*
 		FROM D_M${localChannelId} M

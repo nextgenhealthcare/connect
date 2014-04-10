@@ -255,12 +255,12 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
 
         String id = messageIdLowerField.getText();
         if (!StringUtils.isEmpty(id)) {
-            messageFilter.setMessageIdLower(Long.parseLong(id));
+            messageFilter.setMinMessageId(Long.parseLong(id));
         }
 
         id = messageIdUpperField.getText();
         if (!StringUtils.isEmpty(id)) {
-            messageFilter.setMessageIdUpper(Long.parseLong(id));
+            messageFilter.setMaxMessageId(Long.parseLong(id));
         }
         
         id = originalIdLowerField.getText();
@@ -302,7 +302,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         messageFilter.setError(errorCheckBox.isSelected());
         messageFilter.setSendAttemptsLower(sendAttemptsLower);
         messageFilter.setSendAttemptsUpper(sendAttemptsUpper);
-        messageFilter.setContentSearch(getContentSearch(messageFilter.getTextSearch()));
+        messageFilter.setContentSearch(getContentSearch());
 
         try {
             messageFilter.setMetaDataSearch(getMetaDataSearch());
@@ -324,7 +324,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         return (serverId.length() == 0) ? null : serverId;
     }
 
-    private List<ContentSearchElement> getContentSearch(String textSearch) {
+    private List<ContentSearchElement> getContentSearch() {
         List<ContentSearchElement> contentSearch = new ArrayList<ContentSearchElement>();
         Map<ContentType, List<String>> contentSearchMap = new HashMap<ContentType, List<String>>();
         DefaultTableModel model = ((DefaultTableModel) contentSearchTable.getModel());
@@ -348,12 +348,6 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         for (ContentType contentType : ContentType.getMessageTypes()) {
             if (contentSearchMap.containsKey(contentType)) {
                 contentSearch.add(new ContentSearchElement(contentType.getContentTypeCode(), contentSearchMap.get(contentType)));
-            } else if (textSearch != null) {
-                /*
-                 * If text search is active, always add the content type to the content search so
-                 * the content is joined for text search.
-                 */
-                contentSearch.add(new ContentSearchElement(contentType.getContentTypeCode(), new ArrayList<String>()));
             }
         }
 

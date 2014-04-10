@@ -1071,6 +1071,20 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
+    public long getMinMessageId(String channelId) {
+        ResultSet resultSet = null;
+
+        try {
+            resultSet = prepareStatement("getMinMessageId", channelId).executeQuery();
+            return (resultSet.next()) ? resultSet.getLong(1) : null;
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        } finally {
+            close(resultSet);
+        }
+    }
+
+    @Override
     public long getNextMessageId(String channelId) {
         Statement statement = null;
         ResultSet resultSet = null;

@@ -447,6 +447,17 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
+    public long getMinMessageId(String channelId) {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            return dao.getMinMessageId(channelId);
+        } finally {
+            timer.log("getMinMessageId", System.currentTimeMillis() - startTime);
+        }
+    }
+
+    @Override
     public long getNextMessageId(String channelId) {
         long startTime = System.currentTimeMillis();
 

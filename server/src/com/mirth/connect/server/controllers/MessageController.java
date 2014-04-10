@@ -28,28 +28,30 @@ public abstract class MessageController {
     }
 
     public abstract long getMaxMessageId(String channelId);
-    
+
+    public abstract long getMinMessageId(String channelId);
+
     public abstract List<Message> getMessages(MessageFilter filter, Channel channel, Boolean includeContent, Integer offset, Integer limit);
-    
+
     public abstract Long getMessageCount(MessageFilter filter, Channel channel);
-    
+
     public abstract Message getMessageContent(String channelId, Long messageId);
-    
+
     public abstract List<Attachment> getMessageAttachmentIds(String channelId, Long messageId);
-    
+
     public abstract Attachment getMessageAttachment(String channelId, String attachmentId);
-    
+
     public abstract List<Attachment> getMessageAttachment(String channelId, Long messageId);
 
     public abstract void removeMessages(String channelId, MessageFilter filter);
-    
+
     public abstract void clearMessages(Set<String> channelIds, Boolean restartRunningChannels, Boolean clearStatistics) throws ControllerException;
 
     public abstract void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds);
 
     public abstract void importMessage(String channelId, Message message) throws MessageImportException;
-    
+
     public abstract MessageImportResult importMessagesServer(String channelId, String path, boolean includeSubfolders) throws MessageImportException, InterruptedException, MessageImportInvalidPathException;
-    
+
     public abstract int exportMessages(final String channelId, final MessageFilter messageFilter, int pageSize, boolean includeAttachments, MessageWriterOptions options) throws MessageExportException, InterruptedException;
 }
