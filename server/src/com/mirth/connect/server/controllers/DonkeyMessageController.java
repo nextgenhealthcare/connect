@@ -175,7 +175,6 @@ public class DonkeyMessageController extends MessageController {
             return count;
         } finally {
             long endTime = System.currentTimeMillis();
-            System.out.println(endTime - startTime + " count improved");
             logger.debug("Count executed in " + (endTime - startTime) + "ms");
         }
     }
@@ -712,7 +711,6 @@ public class DonkeyMessageController extends MessageController {
             return results;
         } finally {
             long endTime = System.currentTimeMillis();
-            System.out.println(endTime - startTime + " search improved");
             logger.debug("Search executed in " + (endTime - startTime) + "ms");
         }
     }

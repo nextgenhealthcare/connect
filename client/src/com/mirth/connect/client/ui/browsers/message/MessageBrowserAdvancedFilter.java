@@ -109,8 +109,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         }
 
         TableColumn column = contentSearchTable.getColumnModel().getColumn(0);
-        column.setCellRenderer(new MirthComboBoxTableCellRenderer(ContentType.getMessageTypes()));
-        column.setCellEditor(new MirthComboBoxTableCellEditor(contentSearchTable, ContentType.getMessageTypes(), 1, false, null));
+        column.setCellRenderer(new MirthComboBoxTableCellRenderer(ContentType.getDisplayValues()));
+        column.setCellEditor(new MirthComboBoxTableCellEditor(contentSearchTable, ContentType.getDisplayValues(), 1, false, null));
         column.setMinWidth(CONTENT_TYPE_COLUMN_WIDTH);
         column.setMaxWidth(CONTENT_TYPE_COLUMN_WIDTH);
 
@@ -345,7 +345,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
             }
         }
 
-        for (ContentType contentType : ContentType.getMessageTypes()) {
+        for (ContentType contentType : ContentType.getDisplayValues()) {
             if (contentSearchMap.containsKey(contentType)) {
                 contentSearch.add(new ContentSearchElement(contentType.getContentTypeCode(), contentSearchMap.get(contentType)));
             }

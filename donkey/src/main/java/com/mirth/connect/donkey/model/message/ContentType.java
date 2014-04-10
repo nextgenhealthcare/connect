@@ -9,6 +9,7 @@
 
 package com.mirth.connect.donkey.model.message;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
 /**
@@ -129,5 +130,9 @@ public enum ContentType {
         }
 
         return 0;
+    }
+
+    public static ContentType[] getDisplayValues() {
+        return ArrayUtils.addAll(ArrayUtils.addAll(getMessageTypes(), getMapTypes()), getErrorTypes());
     }
 }
