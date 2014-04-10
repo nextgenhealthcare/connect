@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,8 @@ import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.ListRangeIterator;
+import com.mirth.connect.server.util.ListRangeIterator.ListRangeItem;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.MessageExporter.MessageExportException;
 import com.mirth.connect.util.messagewriter.MessageWriter;
@@ -54,11 +57,7 @@ import com.mirth.connect.util.messagewriter.MessageWriterFactory;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DataPruner implements Runnable {
-    /**
-     * The maximum allowed list size for executing DELETE ... WHERE IN ([list]). Oracle does not
-     * allow the list size to exceed 1000.
-     */
-    private final static int LIST_LIMIT = 1000;
+    private final static int ARCHIVE_BATCH_SIZE = 1000;
     private final static int ID_RETRIEVE_LIMIT = 100000;
 
     private int numExported;
@@ -479,7 +478,7 @@ public class DataPruner implements Runnable {
     }
 
     private void archiveAndGetIdsToPrune(Map<String, Object> params, String channelId, Calendar messageDateThreshold, String archiveFolder, PruneIds messageIds, PruneIds contentMessageIds) throws DataPrunerException, InterruptedException {
-        params.put("limit", LIST_LIMIT);
+        params.put("limit", ARCHIVE_BATCH_SIZE);
         params.put("archive", true);
 
         String tempChannelFolder = archiveFolder + "/." + channelId;
@@ -532,7 +531,7 @@ public class DataPruner implements Runnable {
 
                     throw new MessageExportException(e);
                 }
-            } while (messageList != null && messageList.size() == LIST_LIMIT);
+            } while (messageList != null && messageList.size() == ARCHIVE_BATCH_SIZE);
 
             archiver.close();
 
@@ -604,123 +603,33 @@ public class DataPruner implements Runnable {
             return 0;
         }
 
+        int numPruned = 0;
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("localChannelId", localChannelId);
 
-        List<Long> sparseMessageIds = new ArrayList<Long>(LIST_LIMIT);
-        List<Long> buffer = new ArrayList<Long>(LIST_LIMIT);
+        ListRangeIterator listRangeIterator = new ListRangeIterator(ids, ListRangeIterator.DEFAULT_LIST_LIMIT, true, blockSize);
 
-        long lastMessageId = ids.next();
-        long startContiguous = lastMessageId;
-        long endContiguous = lastMessageId;
-        int numPruned = 0;
-        int count = 1;
-        boolean finished = false;
+        while (listRangeIterator.hasNext()) {
+            ListRangeItem item = listRangeIterator.next();
+            List<Long> list = item.getList();
+            Long startRange = item.getStartRange();
+            Long endRange = item.getEndRange();
 
-        // Iterate across all the message Ids in the list
-        while (!finished) {
-            boolean pruneCurrentList = false;
-            boolean pruneCurrentRange = false;
-
-            if (ids.hasNext() && (blockSize == null || count++ < blockSize)) {
-                // Retreive the next messageId that needs to be pruned
-                long messageId = ids.next();
-
-                if (messageId == lastMessageId + 1) {
-                    // If the current message Id is still contiguous, update the end contiguous Id with the current message Id
-                    endContiguous = messageId;
+            if (list != null || (startRange != null && endRange != null)) {
+                if (list != null) {
+                    logger.debug("Pruning with include list: " + list.get(0) + " " + list.get(list.size() - 1));
+                    params.remove("minMessageId");
+                    params.remove("maxMessageId");
+                    params.put("includeMessageList", StringUtils.join(list, ","));
                 } else {
-                    if ((endContiguous - startContiguous + 1) >= LIST_LIMIT) {
-                        /*
-                         * If the current contiguous block is greater than or equal to the max list
-                         * size, then prune the current list and then the current range
-                         */
-                        pruneCurrentList = true;
-                        pruneCurrentRange = true;
-                    } else {
-                        /*
-                         * If the current contiguous block is less than the max list size, iterate
-                         * across all the message Ids from the start to the end of the contiguous
-                         * block. Since this contiguous block will never be greater than the max
-                         * list size, we need to add each of its values to the current list
-                         */
-                        for (long id = startContiguous; id <= endContiguous; id++) {
-                            if (sparseMessageIds.size() < LIST_LIMIT) {
-                                // Add the message Id to the current list until it is full
-                                sparseMessageIds.add(id);
-                            } else {
-                                /*
-                                 * Add any remaining message Ids to the buffer. This buffer should
-                                 * never be greater than the max list size since the current
-                                 * contiguous block can never be greater than the max list size
-                                 */
-                                buffer.add(id);
-                            }
-                        }
-
-                        // Prune the current list if it is full
-                        if (sparseMessageIds.size() == LIST_LIMIT) {
-                            pruneCurrentList = true;
-                        }
-
-                        /*
-                         * Since we've already distributed all the message Ids in the contiguous
-                         * block to the list or the buffer, we can reset the contiguous block to
-                         * just the current message Id
-                         */
-                        startContiguous = messageId;
-                        endContiguous = messageId;
-                    }
-
+                    logger.debug("Pruning with ranges: " + startRange + " - " + endRange);
+                    params.remove("includeMessageList");
+                    params.put("minMessageId", startRange);
+                    params.put("maxMessageId", endRange);
                 }
-
-                lastMessageId = messageId;
-            } else {
-                pruneCurrentList = true;
-
-                if (startContiguous == lastMessageId && endContiguous == lastMessageId && sparseMessageIds.size() < LIST_LIMIT) {
-                    sparseMessageIds.add(lastMessageId);
-                } else {
-                    // Prune both the current list and the current range once the end of the list has been reached
-                    pruneCurrentRange = true;
-                }
-
-                finished = true;
-            }
-
-            if (pruneCurrentList && !sparseMessageIds.isEmpty()) {
-                logger.debug("Pruning with include list: " + sparseMessageIds.get(0) + " " + sparseMessageIds.get(sparseMessageIds.size() - 1));
-                params.remove("minMessageId");
-                params.remove("maxMessageId");
-                params.put("includeMessageList", StringUtils.join(sparseMessageIds, ","));
-
-                numPruned += runDeleteQueries(params, contentOnly);
-
-                sparseMessageIds.clear();
-
-                /*
-                 * If there are message Ids in the buffer then add them to the list and clear the
-                 * buffer
-                 */
-                if (!buffer.isEmpty()) {
-                    sparseMessageIds.addAll(buffer);
-                    buffer.clear();
-                }
-            }
-
-            if (pruneCurrentRange) {
-                logger.debug("Pruning with ranges: " + startContiguous + " - " + endContiguous);
-                params.remove("includeMessageList");
-                params.put("minMessageId", startContiguous);
-                params.put("maxMessageId", endContiguous);
 
                 numPruned = runDeleteQueries(params, contentOnly);
-                /*
-                 * Since we've already pruned all the message Ids in the contiguous block, we can
-                 * reset the contiguous block to just the current message Id
-                 */
-                startContiguous = lastMessageId;
-                endContiguous = lastMessageId;
             }
         }
 
@@ -780,7 +689,7 @@ public class DataPruner implements Runnable {
         return mins + " minute" + (mins == 1 ? "" : "s") + ", " + secs + " second" + (secs == 1 ? "" : "s");
     }
 
-    private class PruneIds {
+    private class PruneIds implements Iterator<Long> {
         private int currentIdIndex = 0;
         private int currentRangeIndex = 0;
         private long lastId = 0;
@@ -804,17 +713,13 @@ public class DataPruner implements Runnable {
             }
         }
 
-        public void reset() {
-            currentIdIndex = 0;
-            currentRangeIndex = 0;
-            lastId = 0;
-        }
-
+        @Override
         public boolean hasNext() {
             return currentIdIndex < ids.size() || currentRangeIndex < ranges.size();
         }
 
-        public long next() {
+        @Override
+        public Long next() {
             if (!ranges.isEmpty() && currentRangeIndex < ranges.size()) {
                 if (lastId >= ranges.get(currentRangeIndex) && lastId < ranges.get(currentRangeIndex + 1)) {
                     if (++lastId == ranges.get(currentRangeIndex + 1)) {
@@ -834,6 +739,9 @@ public class DataPruner implements Runnable {
                 return ids.get(currentIdIndex++);
             }
         }
+
+        @Override
+        public void remove() {}
     }
 
     private class PruneResult {
