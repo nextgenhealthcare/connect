@@ -125,8 +125,8 @@ public class ChannelServlet extends MirthServlet {
                             }
                         }
 
-                        for (String channelId : channelIds) {
-                            channelController.removeChannel(channelId, context);
+                        for (Channel channel : channelController.getChannels(channelIds)) {
+                            channelController.removeChannel(channel, context);
                         }
                     }
                 } else if (operation.equals(Operations.CHANNEL_GET_SUMMARY)) {

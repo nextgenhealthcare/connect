@@ -428,7 +428,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                     }
 
                     if (!found) {
-                        channelController.removeChannel(channel.getId(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+                        channelController.removeChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
                     }
                 }
 

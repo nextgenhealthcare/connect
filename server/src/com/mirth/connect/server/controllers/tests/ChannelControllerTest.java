@@ -100,7 +100,7 @@ public class ChannelControllerTest extends TestCase {
         insertSampleChannels();
 
         Channel sampleChannel = sampleChannelList.get(0);
-        channelController.removeChannel(sampleChannel.getId(), null);
+        channelController.removeChannel(sampleChannel, null);
         List<Channel> testChannelList = channelController.getChannels(null);
 
         Assert.assertFalse(testChannelList.contains(sampleChannel));

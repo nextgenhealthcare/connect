@@ -196,12 +196,11 @@ public class DefaultChannelController extends ChannelController {
          * database never contain different versions of a channel.
          */
         ControllerException firstCause = null;
+        List<Channel> cachedChannels = getChannels(channelIds);
 
-        for (String channelId : channelIds) {
-            Channel cachedChannel = getChannelById(channelId);
-
-            // If the channel exists, is not invalid, and its enabled flag isn't already the same as what was passed in
-            if (cachedChannel != null && !(cachedChannel instanceof InvalidChannel) && cachedChannel.isEnabled() != enabled) {
+        for (Channel cachedChannel : cachedChannels) {
+            // If the channel is not invalid, and its enabled flag isn't already the same as what was passed in
+            if (!(cachedChannel instanceof InvalidChannel) && cachedChannel.isEnabled() != enabled) {
                 Channel channel = (Channel) SerializationUtils.clone(cachedChannel);
                 channel.setEnabled(enabled);
                 channel.setRevision(channel.getRevision() + 1);
@@ -333,7 +332,7 @@ public class DefaultChannelController extends ChannelController {
      * @throws ControllerException
      */
     @Override
-    public synchronized void removeChannel(String channelId, ServerEventContext context) throws ControllerException {
+    public synchronized void removeChannel(Channel channel, ServerEventContext context) throws ControllerException {
         /*
          * Methods that update the channel must be synchronized to ensure the channel cache and
          * database never contain different versions of a channel.
@@ -341,9 +340,7 @@ public class DefaultChannelController extends ChannelController {
 
         logger.debug("removing channel");
 
-        Channel channel = getChannelById(channelId);
-
-        if (channel != null && ControllerFactory.getFactory().createEngineController().isDeployed(channelId)) {
+        if (channel != null && ControllerFactory.getFactory().createEngineController().isDeployed(channel.getId())) {
             logger.warn("Cannot remove deployed channel.");
             return;
         }
@@ -351,9 +348,9 @@ public class DefaultChannelController extends ChannelController {
         try {
             //TODO combine and organize these.
             // Delete the "d_" tables and the channel record from "d_channels"
-            com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().removeChannel(channelId);
+            com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().removeChannel(channel.getId());
             // Delete the channel record from the "channel" table
-            SqlConfig.getSqlSessionManager().delete("Channel.deleteChannel", channelId);
+            SqlConfig.getSqlSessionManager().delete("Channel.deleteChannel", channel.getId());
 
             if (DatabaseUtil.statementExists("Channel.vacuumChannelTable")) {
                 SqlConfig.getSqlSessionManager().update("Channel.vacuumChannelTable");
