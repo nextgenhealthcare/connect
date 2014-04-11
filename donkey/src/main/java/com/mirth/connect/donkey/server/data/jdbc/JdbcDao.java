@@ -798,28 +798,30 @@ public class JdbcDao implements DonkeyDao {
     }
 
     private void updateMap(MapContent mapContent, String channelId, long messageId, int metaDataId, ContentType contentType) {
-        boolean encrypted = mapContent.isEncrypted();
-        boolean persisted = mapContent.isPersisted();
+        if (mapContent != null) {
+            boolean encrypted = mapContent.isEncrypted();
+            boolean persisted = mapContent.isPersisted();
 
-        String content = null;
-        if (encrypted) {
-            content = (String) mapContent.getContent();
-        } else {
-            Map<String, Object> map = mapContent.getMap();
-            if (MapUtils.isNotEmpty(map)) {
-                content = MapUtil.serializeMap(serializer, map);
-            }
-        }
-
-        if (content != null) {
-            if (persisted) {
-                storeContent(channelId, messageId, metaDataId, contentType, content, null, encrypted);
+            String content = null;
+            if (encrypted) {
+                content = (String) mapContent.getContent();
             } else {
-                insertContent(channelId, messageId, metaDataId, contentType, content, null, encrypted);
-                mapContent.setPersisted(true);
+                Map<String, Object> map = mapContent.getMap();
+                if (MapUtils.isNotEmpty(map)) {
+                    content = MapUtil.serializeMap(serializer, map);
+                }
             }
-        } else if (persisted) {
-            deleteMessageContentByMetaDataIdAndContentType(channelId, messageId, metaDataId, contentType);
+
+            if (content != null) {
+                if (persisted) {
+                    storeContent(channelId, messageId, metaDataId, contentType, content, null, encrypted);
+                } else {
+                    insertContent(channelId, messageId, metaDataId, contentType, content, null, encrypted);
+                    mapContent.setPersisted(true);
+                }
+            } else if (persisted) {
+                deleteMessageContentByMetaDataIdAndContentType(channelId, messageId, metaDataId, contentType);
+            }
         }
     }
 
