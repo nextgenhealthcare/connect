@@ -41,7 +41,7 @@ public class DashboardTableNode extends AbstractSortableTreeTableNode {
     }
 
     public void setStatus(DashboardStatus status) {
-        if (status.getChannelId() != channelId) {
+        if (!status.getChannelId().equals(channelId)) {
             throw new RuntimeException("Supplied status is for the wrong channel, this node is associated with channel ID " + channelId);
         }
 
