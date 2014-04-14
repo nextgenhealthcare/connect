@@ -1017,7 +1017,7 @@ public class Client {
         Long maxMessageId = null;
         
         try {
-            maxMessageId = Long.parseLong(serverConnection.executePostMethod(Client.MESSAGE_SERVLET, params));
+            maxMessageId = Long.parseLong(serverConnection.executePostMethodAsync(Client.MESSAGE_SERVLET, params));
         } catch (NumberFormatException e) {
             return null;
         }
@@ -1051,7 +1051,7 @@ public class Client {
     
     public Message getMessageContent(String channelId, Long messageId) throws ClientException {
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_GET_CONTENT.getName()), new NameValuePair("channelId", channelId), new NameValuePair("messageId", serializer.serialize(messageId)) };
-        return serializer.deserialize(serverConnection.executePostMethod(Client.MESSAGE_SERVLET, params), Message.class);
+        return serializer.deserialize(serverConnection.executePostMethodAsync(Client.MESSAGE_SERVLET, params), Message.class);
     }
 
     /**
@@ -1166,25 +1166,25 @@ public class Client {
     public Attachment getAttachment(String channelId, String attachmentId) throws ClientException {
         logger.debug("getting Attachment: " + attachmentId);
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET.getName()), new NameValuePair("channelId", channelId), new NameValuePair("attachmentId", attachmentId) };
-        return serializer.deserialize(serverConnection.executePostMethod(MESSAGE_SERVLET, params), Attachment.class);
+        return serializer.deserialize(serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params), Attachment.class);
     }
 
     public List<Attachment> getAttachmentsByMessageId(String channelId, Long messageId) throws ClientException {
         logger.debug("getting Attachments for message: " + messageId);
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID.getName()), new NameValuePair("channelId", channelId), new NameValuePair("messageId", serializer.serialize(messageId)) };
-        return serializer.deserializeList(serverConnection.executePostMethod(MESSAGE_SERVLET, params), Attachment.class);
+        return serializer.deserializeList(serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params), Attachment.class);
     }
 
     public List<Attachment> getAttachmentIdsByMessageId(String channelId, Long messageId) throws ClientException {
         logger.debug("getting Attachments for message: " + messageId);
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID.getName()), new NameValuePair("channelId", channelId), new NameValuePair("messageId", serializer.serialize(messageId)) };
-        return serializer.deserializeList(serverConnection.executePostMethod(MESSAGE_SERVLET, params), Attachment.class);
+        return serializer.deserializeList(serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params), Attachment.class);
     }
 
     public String getDICOMMessage(ConnectorMessage message) throws ClientException {
         logger.debug("Getting DICOM message for message: " + message);
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_DICOM_MESSAGE_GET.getName()), new NameValuePair("message", serializer.serialize(message)) };
-        return serverConnection.executePostMethod(MESSAGE_SERVLET, params);
+        return serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params);
     }
 
     public UpdateClient getUpdateClient(User requestUser) {

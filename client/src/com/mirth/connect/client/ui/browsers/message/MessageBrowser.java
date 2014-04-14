@@ -357,7 +357,6 @@ public class MessageBrowser extends javax.swing.JPanel {
         List<Operation> operations = new ArrayList<Operation>();
 
         operations.add(Operations.MESSAGE_GET);
-        operations.add(Operations.MESSAGE_GET_CONTENT);
         operations.add(Operations.MESSAGE_GET_COUNT);
         operations.add(Operations.MESSAGE_REMOVE);
 
