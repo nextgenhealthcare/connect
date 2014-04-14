@@ -100,28 +100,38 @@ public class Message implements Serializable {
 
     public ConnectorMessage getMergedConnectorMessage() {
         if (mergedConnectorMessage == null) {
-            ConnectorMessage sourceConnectorMessage = connectorMessages.get(0);
-
             mergedConnectorMessage = new ConnectorMessage();
             mergedConnectorMessage.setChannelId(channelId);
             mergedConnectorMessage.setMessageId(messageId);
             mergedConnectorMessage.setServerId(serverId);
             mergedConnectorMessage.setReceivedDate(receivedDate);
-            mergedConnectorMessage.setRaw(sourceConnectorMessage.getRaw());
-            mergedConnectorMessage.setProcessedRaw(sourceConnectorMessage.getProcessedRaw());
 
-            mergedConnectorMessage.setSourceMap(sourceConnectorMessage.getSourceMap());
+            Map<String, Object> sourceMap = null;
+            Map<String, Object> responseMap = new HashMap<String, Object>();
+            Map<String, Object> channelMap = new HashMap<String, Object>();
 
-            Map<String, Object> responseMap = new HashMap<String, Object>(sourceConnectorMessage.getResponseMap());
-            for (ConnectorMessage destinationMessage : connectorMessages.values()) {
-                responseMap.putAll(destinationMessage.getResponseMap());
+            ConnectorMessage sourceConnectorMessage = connectorMessages.get(0);
+
+            if (sourceConnectorMessage != null) {
+                mergedConnectorMessage.setRaw(sourceConnectorMessage.getRaw());
+                mergedConnectorMessage.setProcessedRaw(sourceConnectorMessage.getProcessedRaw());
+                sourceMap = sourceConnectorMessage.getSourceMap();
+                responseMap.putAll(sourceConnectorMessage.getResponseMap());
+                channelMap.putAll(sourceConnectorMessage.getChannelMap());
             }
+
+            for (ConnectorMessage connectorMessage : connectorMessages.values()) {
+                if (connectorMessage.getMetaDataId() > 0) {
+                    if (sourceMap == null) {
+                        sourceMap = connectorMessage.getSourceMap();
+                    }
+                    responseMap.putAll(connectorMessage.getResponseMap());
+                    channelMap.putAll(connectorMessage.getChannelMap());
+                }
+            }
+
+            mergedConnectorMessage.setSourceMap(sourceMap);
             mergedConnectorMessage.setResponseMap(responseMap);
-
-            Map<String, Object> channelMap = new HashMap<String, Object>(sourceConnectorMessage.getChannelMap());
-            for (ConnectorMessage destinationMessage : connectorMessages.values()) {
-                channelMap.putAll(destinationMessage.getChannelMap());
-            }
             mergedConnectorMessage.setChannelMap(channelMap);
         }
 
