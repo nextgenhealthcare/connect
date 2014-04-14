@@ -116,16 +116,20 @@ public class ChannelStatusServlet extends MirthServlet {
                 }
 
                 for (String channelId : channelIds) {
-                    if (operation.equals(Operations.CHANNEL_START)) {
-                        engineController.startChannel(channelId);
-                    } else if (operation.equals(Operations.CHANNEL_STOP)) {
-                        engineController.stopChannel(channelId);
-                    } else if (operation.equals(Operations.CHANNEL_HALT)) {
-                        engineController.haltChannel(channelId);
-                    } else if (operation.equals(Operations.CHANNEL_PAUSE)) {
-                        engineController.pauseChannel(channelId);
-                    } else if (operation.equals(Operations.CHANNEL_RESUME)) {
-                        engineController.resumeChannel(channelId);
+                    try {
+                        if (operation.equals(Operations.CHANNEL_START)) {
+                            engineController.startChannel(channelId);
+                        } else if (operation.equals(Operations.CHANNEL_STOP)) {
+                            engineController.stopChannel(channelId);
+                        } else if (operation.equals(Operations.CHANNEL_HALT)) {
+                            engineController.haltChannel(channelId);
+                        } else if (operation.equals(Operations.CHANNEL_PAUSE)) {
+                            engineController.pauseChannel(channelId);
+                        } else if (operation.equals(Operations.CHANNEL_RESUME)) {
+                            engineController.resumeChannel(channelId);
+                        }
+                    } catch (Exception e) {
+                        // Do nothing and allow other channel operations to be performed
                     }
                 }
             } else if (isConnectorOperation) {
@@ -135,10 +139,14 @@ public class ChannelStatusServlet extends MirthServlet {
 
                 for (String channelId : connectorInfo.keySet()) {
                     for (Integer metaDataId : connectorInfo.get(channelId)) {
-                        if (operation.equals(Operations.CHANNEL_START_CONNECTOR)) {
-                            engineController.startConnector(channelId, metaDataId);
-                        } else if (operation.equals(Operations.CHANNEL_STOP_CONNECTOR)) {
-                            engineController.stopConnector(channelId, metaDataId);
+                        try {
+                            if (operation.equals(Operations.CHANNEL_START_CONNECTOR)) {
+                                engineController.startConnector(channelId, metaDataId);
+                            } else if (operation.equals(Operations.CHANNEL_STOP_CONNECTOR)) {
+                                engineController.stopConnector(channelId, metaDataId);
+                            }
+                        } catch (Exception e) {
+                            // Do nothing and allow other connectors to be started/stopped
                         }
                     }
                 }
