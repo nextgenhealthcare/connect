@@ -168,9 +168,6 @@
 			<if test="maxMessageId != null">
 				AND MESSAGE_ID <![CDATA[ <= ]]> #{maxMessageId}
 			</if>
-			<if test="includeMessageList != null">
-				AND MESSAGE_ID IN (${includeMessageList})
-			</if>
 			<if test="includedMetaDataIds != null">
 				AND METADATA_ID IN
 				<foreach item="metaDataId" collection="includedMetaDataIds" open="(" separator="," close=")">
@@ -261,9 +258,6 @@
 			</if>
 			<if test="maxMessageId != null">
 				AND MESSAGE_ID <![CDATA[ <= ]]> #{maxMessageId}
-			</if>
-			<if test="includeMessageList != null">
-				AND MESSAGE_ID IN (${includeMessageList})
 			</if>
 			<if test="metaDataId != null">
 				AND METADATA_ID = #{metaDataId}

@@ -790,8 +790,91 @@ public class DonkeyMessageController extends MessageController {
                 // If lengthy search is not being run, add all text messages to found messages
                 foundMessages.putAll(textMessages);
             } else {
-                // Otherwise run lengthy search and existing text messages will be joined within
-                searchLengthy(localChannelId, potentialMessages, foundMessages, textMessages, filter, filterOptions);
+                Map<String, Object> contentParams = new HashMap<String, Object>();
+                contentParams.put("localChannelId", localChannelId);
+                contentParams.put("includedMetaDataIds", filter.getIncludedMetaDataIds());
+                contentParams.put("excludedMetaDataIds", filter.getExcludedMetaDataIds());
+                contentParams.put("minMessageId", params.get("minMessageId"));
+                contentParams.put("maxMessageId", params.get("maxMessageId"));
+
+                boolean searchCustomMetaData = filterOptions.isSearchCustomMetaData();
+                boolean searchContent = filterOptions.isSearchContent();
+                boolean searchText = filterOptions.isSearchText();
+
+                /*
+                 * The map of messages that contains the combined results from all of the lengthy
+                 * searches. For all searches that are being performed, a message and metadata id
+                 * must be found in all three in order for the message to remain in this map
+                 */
+                Map<Long, MessageSearchResult> tempMessages = null;
+
+                if (searchCustomMetaData) {
+                    tempMessages = new HashMap<Long, MessageSearchResult>();
+                    // Perform the custom metadata search
+                    searchCustomMetaData(session, new HashMap<String, Object>(contentParams), potentialMessages, tempMessages, filter.getMetaDataSearch());
+
+                    /*
+                     * If tempMessages is empty, there is no need to search on either the content or
+                     * text because the join will never return any results
+                     */
+                    if (tempMessages.isEmpty()) {
+                        searchContent = false;
+                        searchText = false;
+                    }
+                }
+                if (searchContent) {
+                    Map<Long, MessageSearchResult> contentMessages = new HashMap<Long, MessageSearchResult>();
+                    // Perform the content search
+                    searchContent(session, new HashMap<String, Object>(contentParams), potentialMessages, contentMessages, filter.getContentSearch());
+
+                    if (tempMessages == null) {
+                        /*
+                         * If temp messages has not been created yet, then there is no need to join
+                         * the results from this search and previous searches. Just set the current
+                         * messages as the temp messages
+                         */
+                        tempMessages = contentMessages;
+                    } else {
+                        /*
+                         * Otherwise join the two maps so that the only results left in tempMessages
+                         * are those that also exist in the current message map
+                         */
+                        joinMessages(tempMessages, contentMessages);
+                    }
+
+                    /*
+                     * If tempMessages is empty, there is no need to search on either the text
+                     * because the join will never return any results
+                     */
+                    if (tempMessages.isEmpty()) {
+                        searchText = false;
+                    }
+                }
+                if (searchText) {
+                    // Perform the text search
+                    searchText(session, new HashMap<String, Object>(contentParams), potentialMessages, textMessages, filter.getTextSearch(), filter.getTextSearchMetaDataColumns());
+
+                    if (tempMessages == null) {
+                        /*
+                         * If temp messages has not been created yet, then there is no need to join
+                         * the results from this search and previous searches. Just set the current
+                         * messages as the temp messages
+                         */
+                        tempMessages = textMessages;
+                    } else {
+                        /*
+                         * Otherwise join the two maps so that the only results left in tempMessages
+                         * are those that also exist in the current message map
+                         */
+                        joinMessages(tempMessages, textMessages);
+                    }
+                }
+
+                /*
+                 * Add all the results from tempMessages after all the joins have been completed
+                 * into foundMessages
+                 */
+                foundMessages.putAll(tempMessages);
             }
 
             /*
@@ -825,115 +908,6 @@ public class DonkeyMessageController extends MessageController {
         return foundMessages;
     }
 
-    private void searchLengthy(Long localChannelId, Map<Long, MessageSearchResult> potentialMessages, Map<Long, MessageSearchResult> foundMessages, Map<Long, MessageSearchResult> textMessages, MessageFilter filter, FilterOptions filterOptions) {
-        SqlSession session = SqlConfig.getSqlSessionManager();
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("localChannelId", localChannelId);
-        params.put("includedMetaDataIds", filter.getIncludedMetaDataIds());
-        params.put("excludedMetaDataIds", filter.getExcludedMetaDataIds());
-
-        // Use a list range iterator to find the ranges or list of ids to perform each search on.
-        ListRangeIterator listRangeIterator = new ListRangeIterator(new TreeSet<Long>(potentialMessages.keySet()).descendingIterator(), ListRangeIterator.DEFAULT_LIST_LIMIT, false, null);
-
-        while (listRangeIterator.hasNext()) {
-            ListRangeItem item = listRangeIterator.next();
-            List<Long> list = item.getList();
-            Long startRange = item.getStartRange();
-            Long endRange = item.getEndRange();
-
-            if (list != null || (startRange != null && endRange != null)) {
-                if (list != null) {
-                    params.remove("minMessageId");
-                    params.remove("maxMessageId");
-                    params.put("includeMessageList", StringUtils.join(list, ","));
-                } else {
-                    params.remove("includeMessageList");
-                    params.put("minMessageId", endRange);
-                    params.put("maxMessageId", startRange);
-                }
-
-                boolean searchCustomMetaData = filterOptions.isSearchCustomMetaData();
-                boolean searchContent = filterOptions.isSearchContent();
-                boolean searchText = filterOptions.isSearchText();
-
-                /*
-                 * The map of messages that contains the combined results from all of the lengthy
-                 * searches. For all searches that are being performed, a message and metadata id
-                 * must be found in all three in order for the message to remain in this map
-                 */
-                Map<Long, MessageSearchResult> tempMessages = null;
-
-                if (searchCustomMetaData) {
-                    tempMessages = new HashMap<Long, MessageSearchResult>();
-                    // Perform the custom metadata search
-                    searchCustomMetaData(session, new HashMap<String, Object>(params), potentialMessages, tempMessages, filter.getMetaDataSearch());
-
-                    /*
-                     * If tempMessages is empty, there is no need to search on either the content or
-                     * text because the join will never return any results
-                     */
-                    if (tempMessages.isEmpty()) {
-                        searchContent = false;
-                        searchText = false;
-                    }
-                }
-                if (searchContent) {
-                    Map<Long, MessageSearchResult> contentMessages = new HashMap<Long, MessageSearchResult>();
-                    // Perform the content search
-                    searchContent(session, new HashMap<String, Object>(params), potentialMessages, contentMessages, filter.getContentSearch());
-
-                    if (tempMessages == null) {
-                        /*
-                         * If temp messages has not been created yet, then there is no need to join
-                         * the results from this search and previous searches. Just set the current
-                         * messages as the temp messages
-                         */
-                        tempMessages = contentMessages;
-                    } else {
-                        /*
-                         * Otherwise join the two maps so that the only results left in tempMessages
-                         * are those that also exist in the current message map
-                         */
-                        joinMessages(tempMessages, contentMessages);
-                    }
-
-                    /*
-                     * If tempMessages is empty, there is no need to search on either the text
-                     * because the join will never return any results
-                     */
-                    if (tempMessages.isEmpty()) {
-                        searchText = false;
-                    }
-                }
-                if (searchText) {
-                    // Perform the text search
-                    searchText(session, new HashMap<String, Object>(params), potentialMessages, textMessages, filter.getTextSearch(), filter.getTextSearchMetaDataColumns());
-
-                    if (tempMessages == null) {
-                        /*
-                         * If temp messages has not been created yet, then there is no need to join
-                         * the results from this search and previous searches. Just set the current
-                         * messages as the temp messages
-                         */
-                        tempMessages = textMessages;
-                    } else {
-                        /*
-                         * Otherwise join the two maps so that the only results left in tempMessages
-                         * are those that also exist in the current message map
-                         */
-                        joinMessages(tempMessages, textMessages);
-                    }
-                }
-
-                /*
-                 * Add all the results from tempMessages after all the joins have been completed
-                 * into foundMessages
-                 */
-                foundMessages.putAll(tempMessages);
-            }
-        }
-    }
-
     private void searchCustomMetaData(SqlSession session, Map<String, Object> params, Map<Long, MessageSearchResult> potentialMessages, Map<Long, MessageSearchResult> customMetaDataMessages, List<MetaDataSearchElement> metaDataSearchElements) {
         params.put("metaDataSearch", metaDataSearchElements);
 
@@ -947,13 +921,15 @@ public class DonkeyMessageController extends MessageController {
             Long messageId = result.getMessageId();
             Integer metaDataId = result.getMetaDataId();
 
-            Set<Integer> allowedMetaDataIds = potentialMessages.get(messageId).getMetaDataIdSet();
-            /*
-             * Ignore the message and metadata id if they are not allowed because they were already
-             * filtered in a previous step
-             */
-            if (allowedMetaDataIds.contains(metaDataId)) {
-                addMessageToMap(customMetaDataMessages, messageId, metaDataId);
+            if (potentialMessages.containsKey(messageId)) {
+                Set<Integer> allowedMetaDataIds = potentialMessages.get(messageId).getMetaDataIdSet();
+                /*
+                 * Ignore the message and metadata id if they are not allowed because they were
+                 * already filtered in a previous step
+                 */
+                if (allowedMetaDataIds.contains(metaDataId)) {
+                    addMessageToMap(customMetaDataMessages, messageId, metaDataId);
+                }
             }
         }
     }
@@ -980,24 +956,26 @@ public class DonkeyMessageController extends MessageController {
                     Long messageId = result.getMessageId();
                     Integer metaDataId = result.getMetaDataId();
 
-                    Set<Integer> allowedMetaDataIds = potentialMessages.get(messageId).getMetaDataIdSet();
-                    /*
-                     * Ignore the message and metadata id if they are not allowed because they were
-                     * already filtered in a previous step
-                     */
-                    if (allowedMetaDataIds.contains(metaDataId)) {
-                        if (index == 0) {
-                            /*
-                             * For the first search, add the results to the final result map since
-                             * there is nothing to join from
-                             */
-                            addMessageToMap(contentMessages, messageId, metaDataId);
-                        } else {
-                            /*
-                             * For other searches, add the results to the temp result map so they
-                             * can be joined with the final result map
-                             */
-                            addMessageToMap(tempMessages, messageId, metaDataId);
+                    if (potentialMessages.containsKey(messageId)) {
+                        Set<Integer> allowedMetaDataIds = potentialMessages.get(messageId).getMetaDataIdSet();
+                        /*
+                         * Ignore the message and metadata id if they are not allowed because they
+                         * were already filtered in a previous step
+                         */
+                        if (allowedMetaDataIds.contains(metaDataId)) {
+                            if (index == 0) {
+                                /*
+                                 * For the first search, add the results to the final result map
+                                 * since there is nothing to join from
+                                 */
+                                addMessageToMap(contentMessages, messageId, metaDataId);
+                            } else {
+                                /*
+                                 * For other searches, add the results to the temp result map so
+                                 * they can be joined with the final result map
+                                 */
+                                addMessageToMap(tempMessages, messageId, metaDataId);
+                            }
                         }
                     }
                 }
@@ -1016,26 +994,28 @@ public class DonkeyMessageController extends MessageController {
                     for (MessageTextResult result : results) {
                         Long messageId = result.getMessageId();
 
-                        Set<Integer> allowedMetaDataIds = potentialMessages.get(messageId).getMetaDataIdSet();
-                        for (Integer allowedMetaDataId : allowedMetaDataIds) {
-                            if (allowedMetaDataId != 0) {
-                                /*
-                                 * If the source encoded is found, then all destinations have
-                                 * matched on the raw content, so all allowed metadata ids other
-                                 * than 0 (source) need to be added
-                                 */
-                                if (index == 0) {
+                        if (potentialMessages.containsKey(messageId)) {
+                            Set<Integer> allowedMetaDataIds = potentialMessages.get(messageId).getMetaDataIdSet();
+                            for (Integer allowedMetaDataId : allowedMetaDataIds) {
+                                if (allowedMetaDataId != 0) {
                                     /*
-                                     * For the first search, add the results to the final result map
-                                     * since there is nothing to join from
+                                     * If the source encoded is found, then all destinations have
+                                     * matched on the raw content, so all allowed metadata ids other
+                                     * than 0 (source) need to be added
                                      */
-                                    addMessageToMap(contentMessages, messageId, allowedMetaDataId);
-                                } else {
-                                    /*
-                                     * For other searches, add the results to the temp result map so
-                                     * they can be joined with the final result map
-                                     */
-                                    addMessageToMap(tempMessages, messageId, allowedMetaDataId);
+                                    if (index == 0) {
+                                        /*
+                                         * For the first search, add the results to the final result
+                                         * map since there is nothing to join from
+                                         */
+                                        addMessageToMap(contentMessages, messageId, allowedMetaDataId);
+                                    } else {
+                                        /*
+                                         * For other searches, add the results to the temp result
+                                         * map so they can be joined with the final result map
+                                         */
+                                        addMessageToMap(tempMessages, messageId, allowedMetaDataId);
+                                    }
                                 }
                             }
                         }
@@ -1071,13 +1051,15 @@ public class DonkeyMessageController extends MessageController {
             Long messageId = result.getMessageId();
             Integer metaDataId = result.getMetaDataId();
 
-            Set<Integer> allowedMetaDataIds = potentialMessages.get(messageId).getMetaDataIdSet();
-            /*
-             * Ignore the message and metadata id if they are not allowed because they were already
-             * filtered in a previous step
-             */
-            if (allowedMetaDataIds.contains(metaDataId)) {
-                addMessageToMap(textMessages, messageId, metaDataId);
+            if (potentialMessages.containsKey(messageId)) {
+                Set<Integer> allowedMetaDataIds = potentialMessages.get(messageId).getMetaDataIdSet();
+                /*
+                 * Ignore the message and metadata id if they are not allowed because they were
+                 * already filtered in a previous step
+                 */
+                if (allowedMetaDataIds.contains(metaDataId)) {
+                    addMessageToMap(textMessages, messageId, metaDataId);
+                }
             }
         }
 
@@ -1092,22 +1074,24 @@ public class DonkeyMessageController extends MessageController {
             Integer contentCode = result.getContentType();
             ContentType contentType = ContentType.fromCode(contentCode);
 
-            Set<Integer> allowedMetaDataIds = potentialMessages.get(messageId).getMetaDataIdSet();
-            if (metaDataId == 0 && contentType == ContentType.ENCODED) {
-                /*
-                 * If the text search is found in the source encoded content, then all the allowed
-                 * destinations would match on the raw content so all allowed metadata ids for this
-                 * message need to be added
-                 */
-                for (Integer allowedMetaDataId : allowedMetaDataIds) {
-                    addMessageToMap(textMessages, messageId, allowedMetaDataId);
+            if (potentialMessages.containsKey(messageId)) {
+                Set<Integer> allowedMetaDataIds = potentialMessages.get(messageId).getMetaDataIdSet();
+                if (metaDataId == 0 && contentType == ContentType.ENCODED) {
+                    /*
+                     * If the text search is found in the source encoded content, then all the
+                     * allowed destinations would match on the raw content so all allowed metadata
+                     * ids for this message need to be added
+                     */
+                    for (Integer allowedMetaDataId : allowedMetaDataIds) {
+                        addMessageToMap(textMessages, messageId, allowedMetaDataId);
+                    }
+                } else if (allowedMetaDataIds.contains(metaDataId)) {
+                    /*
+                     * Ignore the message and metadata id if they are not allowed because they were
+                     * already filtered in a previous step
+                     */
+                    addMessageToMap(textMessages, messageId, metaDataId);
                 }
-            } else if (allowedMetaDataIds.contains(metaDataId)) {
-                /*
-                 * Ignore the message and metadata id if they are not allowed because they were
-                 * already filtered in a previous step
-                 */
-                addMessageToMap(textMessages, messageId, metaDataId);
             }
         }
     }
