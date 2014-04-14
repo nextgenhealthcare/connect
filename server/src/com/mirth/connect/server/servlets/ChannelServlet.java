@@ -36,6 +36,7 @@ import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ChannelController;
+import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 
@@ -125,8 +126,20 @@ public class ChannelServlet extends MirthServlet {
                             }
                         }
 
+                        ControllerException firstCause = null;
+
                         for (Channel channel : channelController.getChannels(channelIds)) {
-                            channelController.removeChannel(channel, context);
+                            try {
+                                channelController.removeChannel(channel, context);
+                            } catch (ControllerException e) {
+                                if (firstCause == null) {
+                                    firstCause = e;
+                                }
+                            }
+                        }
+
+                        if (firstCause != null) {
+                            throw firstCause;
                         }
                     }
                 } else if (operation.equals(Operations.CHANNEL_GET_SUMMARY)) {
