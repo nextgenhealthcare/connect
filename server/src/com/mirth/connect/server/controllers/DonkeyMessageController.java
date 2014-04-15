@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -167,7 +168,7 @@ public class DonkeyMessageController extends MessageController {
                 params.put("minMessageId", currentMinMessageId);
                 maxMessageId -= batchSize;
 
-                TreeMap<Long, MessageSearchResult> foundMessages = searchAll(session, params, filter, localChannelId, false, filterOptions);
+                Map<Long, MessageSearchResult> foundMessages = searchAll(session, params, filter, localChannelId, false, filterOptions);
 
                 count += foundMessages.size();
             }
@@ -310,7 +311,7 @@ public class DonkeyMessageController extends MessageController {
                 params.put("minMessageId", currentMinMessageId);
                 maxMessageId -= batchSize;
 
-                TreeMap<Long, MessageSearchResult> results = searchAll(session, params, filter, localChannelId, true, filterOptions);
+                Map<Long, MessageSearchResult> results = searchAll(session, params, filter, localChannelId, true, filterOptions);
 
                 Map<Long, Set<Integer>> messages = new HashMap<Long, Set<Integer>>();
 
@@ -459,7 +460,7 @@ public class DonkeyMessageController extends MessageController {
             params.put("minMessageId", minMessageId);
             minMessageId += batchSize;
 
-            TreeMap<Long, MessageSearchResult> foundMessages = searchAll(session, params, filter, localChannelId, true, filterOptions);
+            Map<Long, MessageSearchResult> foundMessages = new TreeMap<Long, MessageSearchResult>(searchAll(session, params, filter, localChannelId, true, filterOptions));
 
             for (Entry<Long, MessageSearchResult> entry : foundMessages.entrySet()) {
                 Long messageId = entry.getKey();
@@ -603,7 +604,7 @@ public class DonkeyMessageController extends MessageController {
         Map<String, Object> params = getBasicParameters(filter, localChannelId);
 
         try {
-            TreeMap<Long, MessageSearchResult> messages = new TreeMap<Long, MessageSearchResult>();
+            NavigableMap<Long, MessageSearchResult> messages = new TreeMap<Long, MessageSearchResult>();
             SqlSession session = SqlConfig.getSqlSessionManager();
 
             int offsetRemaining = offset;
@@ -637,7 +638,7 @@ public class DonkeyMessageController extends MessageController {
                 maxMessageId -= batchSize;
                 totalSearched += batchSize;
 
-                TreeMap<Long, MessageSearchResult> foundMessages = searchAll(session, params, filter, localChannelId, false, filterOptions);
+                Map<Long, MessageSearchResult> foundMessages = searchAll(session, params, filter, localChannelId, false, filterOptions);
 
                 if (!foundMessages.isEmpty()) {
                     /*
@@ -646,12 +647,16 @@ public class DonkeyMessageController extends MessageController {
                      */
                     if (offsetRemaining >= foundMessages.size()) {
                         offsetRemaining -= foundMessages.size();
+                    } else if (offsetRemaining == 0) {
+                        messages.putAll(foundMessages);
                     } else {
+                        NavigableMap<Long, MessageSearchResult> orderedMessages = new TreeMap<Long, MessageSearchResult>(foundMessages);
+
                         while (offsetRemaining-- > 0) {
-                            foundMessages.pollLastEntry();
+                            orderedMessages.pollLastEntry();
                         }
 
-                        messages.putAll(foundMessages);
+                        messages.putAll(orderedMessages);
                     }
                 }
             }
@@ -715,8 +720,8 @@ public class DonkeyMessageController extends MessageController {
         }
     }
 
-    private TreeMap<Long, MessageSearchResult> searchAll(SqlSession session, Map<String, Object> params, MessageFilter filter, Long localChannelId, boolean includeMessageData, FilterOptions filterOptions) {
-        TreeMap<Long, MessageSearchResult> foundMessages = new TreeMap<Long, MessageSearchResult>();
+    private Map<Long, MessageSearchResult> searchAll(SqlSession session, Map<String, Object> params, MessageFilter filter, Long localChannelId, boolean includeMessageData, FilterOptions filterOptions) {
+        Map<Long, MessageSearchResult> foundMessages = new HashMap<Long, MessageSearchResult>();
 
         // Search the message table to find which message ids meet the search criteria.
         List<MessageTextResult> messageResults = session.selectList("Message.searchMessageTable", params);
@@ -790,12 +795,24 @@ public class DonkeyMessageController extends MessageController {
                 // If lengthy search is not being run, add all text messages to found messages
                 foundMessages.putAll(textMessages);
             } else {
+                long potentialMin = Long.MAX_VALUE;
+                long potentialMax = Long.MIN_VALUE;
+
+                for (long key : potentialMessages.keySet()) {
+                    if (key < potentialMin) {
+                        potentialMin = key;
+                    }
+                    if (key > potentialMax) {
+                        potentialMax = key;
+                    }
+                }
+
                 Map<String, Object> contentParams = new HashMap<String, Object>();
                 contentParams.put("localChannelId", localChannelId);
                 contentParams.put("includedMetaDataIds", filter.getIncludedMetaDataIds());
                 contentParams.put("excludedMetaDataIds", filter.getExcludedMetaDataIds());
-                contentParams.put("minMessageId", params.get("minMessageId"));
-                contentParams.put("maxMessageId", params.get("maxMessageId"));
+                contentParams.put("minMessageId", potentialMin);
+                contentParams.put("maxMessageId", potentialMax);
 
                 boolean searchCustomMetaData = filterOptions.isSearchCustomMetaData();
                 boolean searchContent = filterOptions.isSearchContent();
