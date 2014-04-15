@@ -14,7 +14,6 @@ import java.io.Reader;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
