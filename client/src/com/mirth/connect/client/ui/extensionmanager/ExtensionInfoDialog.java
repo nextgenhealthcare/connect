@@ -14,9 +14,10 @@ import java.awt.Dimension;
 import java.awt.Point;
 
 import com.mirth.connect.client.ui.BareBonesBrowserLaunch;
+import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 
-public class ExtensionInfoDialog extends javax.swing.JDialog {
+public class ExtensionInfoDialog extends MirthDialog {
 
     public ExtensionInfoDialog(String name,
             String type,
@@ -25,10 +26,9 @@ public class ExtensionInfoDialog extends javax.swing.JDialog {
             String pluginVersion,
             String url,
             String description) {
-        super(PlatformUI.MIRTH_FRAME);
+        super(PlatformUI.MIRTH_FRAME, true);
 
         initComponents();
-        setModal(true);
         nameLabel.setText(name);
         typeLabel.setText(type);
         priorityLabel.setText(priority);

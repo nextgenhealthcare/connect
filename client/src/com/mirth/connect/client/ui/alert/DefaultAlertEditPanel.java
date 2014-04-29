@@ -14,6 +14,8 @@ import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -48,6 +50,31 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
 
         nameLabel = new JLabel("Alert Name: ");
         nameTextField = new MirthTextField();
+
+        nameTextField.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                setPanelName();
+                System.out.println("Inserrt");
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                setPanelName();
+                System.out.println("Remove");
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                setPanelName();
+                System.out.println("Update");
+            }
+
+            private void setPanelName() {
+                parent.setPanelName("Edit Alert - " + nameTextField.getText());
+            }
+        });
 
         enabledCheckBox = new MirthCheckBox("Enabled");
         enabledCheckBox.setBackground(UIConstants.BACKGROUND_COLOR);

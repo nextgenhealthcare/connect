@@ -33,7 +33,7 @@ import com.mirth.connect.client.ui.components.ItemSelectionTable;
 import com.mirth.connect.client.ui.components.ItemSelectionTableModel;
 import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
 
-public class EditMessageDialog extends javax.swing.JDialog implements DropTargetListener {
+public class EditMessageDialog extends MirthDialog implements DropTargetListener {
 
     private Frame parent;
     private String channelId;

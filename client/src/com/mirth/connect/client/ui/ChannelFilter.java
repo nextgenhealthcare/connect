@@ -22,7 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import com.mirth.connect.client.ui.components.ItemSelectionTableModel;
 
-public class ChannelFilter extends javax.swing.JDialog {
+public class ChannelFilter extends MirthDialog {
     private Frame parent;
     private ItemSelectionTableModel<String, String> filterTableModel;
     private ChannelTagInfo channelTagInfo;

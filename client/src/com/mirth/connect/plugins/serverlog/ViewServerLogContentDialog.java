@@ -9,7 +9,9 @@
 
 package com.mirth.connect.plugins.serverlog;
 
-public class ViewServerLogContentDialog extends javax.swing.JDialog {
+import com.mirth.connect.client.ui.MirthDialog;
+
+public class ViewServerLogContentDialog extends MirthDialog {
 
     public ViewServerLogContentDialog(com.mirth.connect.client.ui.Frame parent, String text) {
         super(parent);

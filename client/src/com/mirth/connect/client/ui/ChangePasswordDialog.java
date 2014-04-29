@@ -21,7 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.model.User;
 
-public class ChangePasswordDialog extends javax.swing.JDialog {
+public class ChangePasswordDialog extends MirthDialog {
 
     private Frame parent;
     private User currentUser;

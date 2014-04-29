@@ -14,7 +14,7 @@ import java.awt.Point;
 import java.util.Calendar;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
-public class AboutMirth extends javax.swing.JDialog {
+public class AboutMirth extends MirthDialog {
 
     private Frame parent;
 

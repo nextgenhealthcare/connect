@@ -17,7 +17,7 @@ import com.mirth.connect.model.User;
 /**
  * A dialog for creating a new user or editing a current user
  */
-public class UserDialog extends javax.swing.JDialog implements UserDialogInterface {
+public class UserDialog extends MirthDialog implements UserDialogInterface {
 
     private Frame parent;
     private boolean editingLoggedInUser = false;

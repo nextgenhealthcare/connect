@@ -13,7 +13,7 @@ package com.mirth.connect.client.ui;
  *
  * @author brentm
  */
-public class FilterDialog extends javax.swing.JDialog {
+public class FilterDialog extends MirthDialog {
 
     /**
      * Creates new form FilterDialog

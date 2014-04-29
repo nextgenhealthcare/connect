@@ -12,7 +12,7 @@ package com.mirth.connect.client.ui;
 import java.awt.Dimension;
 import java.awt.Point;
 
-public class ViewContentDialog extends javax.swing.JDialog {
+public class ViewContentDialog extends MirthDialog {
 
     private Frame parent;
 

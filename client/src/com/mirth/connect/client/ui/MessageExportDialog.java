@@ -16,7 +16,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JSeparator;
 
 import net.miginfocom.swing.MigLayout;
@@ -27,7 +26,6 @@ import org.apache.commons.lang3.SystemUtils;
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.client.core.PaginatedMessageList;
 import com.mirth.connect.client.ui.panels.export.MessageExportPanel;
-import com.mirth.connect.client.ui.util.DialogUtils;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.util.MessageExporter;
 import com.mirth.connect.util.messagewriter.MessageWriter;
@@ -38,7 +36,7 @@ import com.mirth.connect.util.messagewriter.MessageWriterOptions;
  * Dialog containing MessageExportPanel that is used in the message browser to
  * export messages
  */
-public class MessageExportDialog extends JDialog {
+public class MessageExportDialog extends MirthDialog {
     private Frame parent;
     private String channelId;
     private MessageFilter messageFilter;
@@ -104,7 +102,6 @@ public class MessageExportDialog extends JDialog {
 
         exportButton.addActionListener(exportAction);
         cancelButton.addActionListener(cancelAction);
-        DialogUtils.registerEscapeKey(this, cancelAction);
     }
 
     private void initLayout() {

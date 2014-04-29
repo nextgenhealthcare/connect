@@ -18,7 +18,6 @@ import java.io.File;
 import java.util.prefs.Preferences;
 
 import javax.swing.ButtonGroup;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JSeparator;
@@ -34,7 +33,6 @@ import com.mirth.connect.client.ui.components.MirthButton;
 import com.mirth.connect.client.ui.components.MirthCheckBox;
 import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTextField;
-import com.mirth.connect.client.ui.util.DialogUtils;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.util.MessageImporter;
@@ -42,7 +40,7 @@ import com.mirth.connect.util.MessageImporter.MessageImportInvalidPathException;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
 
-public class MessageImportDialog extends JDialog {
+public class MessageImportDialog extends MirthDialog {
     private String channelId;
     private MessageBrowser messageBrowser;
     private Frame parent;
@@ -142,7 +140,6 @@ public class MessageImportDialog extends JDialog {
         importLocalRadio.addActionListener(importDestinationChanged);
         importButton.addActionListener(importMessages);
         cancelButton.addActionListener(cancel);
-        DialogUtils.registerEscapeKey(this, cancel);
     }
 
     private void browseSelected() {

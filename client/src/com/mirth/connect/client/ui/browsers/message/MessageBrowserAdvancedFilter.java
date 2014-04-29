@@ -33,6 +33,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.ItemSelectionTable;
 import com.mirth.connect.client.ui.components.ItemSelectionTableModel;
@@ -49,7 +50,7 @@ import com.mirth.connect.model.filters.elements.ContentSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchOperator;
 
-public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
+public class MessageBrowserAdvancedFilter extends MirthDialog {
     private Frame parent;
     private static final int CONTENT_TYPE_COLUMN_WIDTH = 120;
     private static final int METADATA_NAME_COLUMN_WIDTH = 140;

@@ -37,6 +37,7 @@ import com.mirth.connect.client.core.IgnoredComponent;
 import com.mirth.connect.client.ui.BareBonesBrowserLaunch;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.UIConstants;
@@ -44,7 +45,7 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.UpdateInfo;
 
-public class ExtensionUpdateDialog extends javax.swing.JDialog {
+public class ExtensionUpdateDialog extends MirthDialog {
 
     private final String EXTENSION_NEW_COLUMN_NAME = "New Extension";
     private final String EXTENSION_INSTALL_COLUMN_NAME = "Install";

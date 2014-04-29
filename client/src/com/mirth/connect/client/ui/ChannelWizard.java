@@ -20,7 +20,7 @@ import com.mirth.connect.model.Channel;
 /**
  * A dialog for creating a new channel
  */
-public class ChannelWizard extends javax.swing.JDialog {
+public class ChannelWizard extends MirthDialog {
 
     private Frame parent;
     private final String DEFAULT_COMBOBOX_VALUE = "Select Channel Wizard";
