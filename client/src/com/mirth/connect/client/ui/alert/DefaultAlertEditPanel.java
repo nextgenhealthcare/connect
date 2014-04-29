@@ -9,13 +9,13 @@
 
 package com.mirth.connect.client.ui.alert;
 
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -51,27 +51,9 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
         nameLabel = new JLabel("Alert Name: ");
         nameTextField = new MirthTextField();
 
-        nameTextField.getDocument().addDocumentListener(new DocumentListener() {
-
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                setPanelName();
-                System.out.println("Inserrt");
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                setPanelName();
-                System.out.println("Remove");
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                setPanelName();
-                System.out.println("Update");
-            }
-
-            private void setPanelName() {
+        nameTextField.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent evt) {
+                parent.setName(nameTextField.getText());
                 parent.setPanelName("Edit Alert - " + nameTextField.getText());
             }
         });
@@ -137,6 +119,7 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
     @Override
     public boolean editAlert(AlertModel alertModel) {
         if (alertModel.getTrigger() instanceof DefaultTrigger) {
+            parent.setPanelName("Edit Alert - " + (alertModel.getName() == null ? "" : alertModel.getName()));
             nameTextField.setText(alertModel.getName());
 
             enabledCheckBox.setSelected(alertModel.isEnabled());
