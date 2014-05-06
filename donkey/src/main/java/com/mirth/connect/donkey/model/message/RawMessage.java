@@ -105,6 +105,8 @@ public class RawMessage {
     public void setDestinationMetaDataIds(List<Integer> destinationMetaDataIds) {
         if (destinationMetaDataIds != null) {
             sourceMap.put(Constants.DESTINATION_META_DATA_IDS_KEY, destinationMetaDataIds);
+        } else {
+            sourceMap.remove(Constants.DESTINATION_META_DATA_IDS_KEY);
         }
     }
 

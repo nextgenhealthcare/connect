@@ -505,17 +505,25 @@ public class DonkeyMessageController extends MessageController {
                     rawMessage.setOverwrite(replace);
                     rawMessage.setImported(importId != null);
                     rawMessage.setOriginalMessageId(messageId);
-                    rawMessage.setDestinationMetaDataIds(reprocessMetaDataIds);
 
                     try {
-                        if (sourceMapContent != null) {
+                        if (sourceMapContent != null && sourceMapContent.getContent() != null) {
                             if (sourceMapContent.isEncrypted()) {
                                 sourceMapContent.setContent(encryptor.decrypt(sourceMapContent.getContent()));
                                 sourceMapContent.setEncrypted(false);
                             }
 
-                            rawMessage.setSourceMap(MapUtil.deserializeMap(ObjectXMLSerializer.getInstance(), sourceMapContent.getContent()));
+                            /*
+                             * We do putAll instead of setting the source map directly here because
+                             * the previously stored map will be unmodifiable. We need to set the
+                             * destination metadata IDs after this, so the map needs to be
+                             * modifiable.
+                             */
+                            rawMessage.getSourceMap().putAll(MapUtil.deserializeMap(ObjectXMLSerializer.getInstance(), sourceMapContent.getContent()));
                         }
+
+                        // Set the destination metadata ID list here to overwrite anything that was previously stored 
+                        rawMessage.setDestinationMetaDataIds(reprocessMetaDataIds);
 
                         engineController.dispatchRawMessage(channelId, rawMessage, true);
                     } catch (SerializerException e) {

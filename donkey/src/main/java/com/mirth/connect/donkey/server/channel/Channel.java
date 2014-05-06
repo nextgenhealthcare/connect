@@ -1346,6 +1346,8 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             if (sourceMessage.getChannelMap().containsKey(Constants.DESTINATION_META_DATA_IDS_KEY)) {
                 metaDataIds = (List<Integer>) sourceMessage.getChannelMap().get(Constants.DESTINATION_META_DATA_IDS_KEY);
+            } else if (sourceMessage.getSourceMap().containsKey(Constants.DESTINATION_META_DATA_IDS_KEY)) {
+                metaDataIds = (List<Integer>) sourceMessage.getSourceMap().get(Constants.DESTINATION_META_DATA_IDS_KEY);
             }
 
             for (DestinationChain chain : destinationChains) {
