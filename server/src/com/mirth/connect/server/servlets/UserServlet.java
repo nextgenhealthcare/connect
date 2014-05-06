@@ -65,7 +65,7 @@ public class UserServlet extends MirthServlet {
                 int status = configurationController.getStatus();
                 while (status != ConfigurationController.STATUS_INITIAL_DEPLOY && status != ConfigurationController.STATUS_OK) {
                     if (tryCount >= 5) {
-                        serializer.serialize(new LoginStatus(Status.FAIL, "Server is still starting. Please try again shortly."), out);
+                        serializer.serialize(new LoginStatus(Status.FAIL, "Server is still starting or otherwise unavailable. Please try again shortly."), out);
                         return;
                     }
 
