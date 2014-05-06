@@ -19,7 +19,7 @@ public class ErrorMessageBuilder {
     public static String buildErrorMessage(String errorType, String customMessage, Throwable e) {
         String errorSourceLine = null;
 
-        // if the exception occured during execution of the script, get the
+        // if the exception occurred during execution of the script, get the
         // line of code that caused the error
         if (e instanceof RhinoException) {
             errorSourceLine = ((RhinoException) e).lineSource();

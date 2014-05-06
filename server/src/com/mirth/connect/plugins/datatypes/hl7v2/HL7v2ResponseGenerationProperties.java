@@ -22,7 +22,7 @@ public class HL7v2ResponseGenerationProperties extends ResponseGenerationPropert
     private String successfulACKCode = "AA";
     private String successfulACKMessage = "";
     private String errorACKCode = "AE";
-    private String errorACKMessage = "An Error Occured Processing Message.";
+    private String errorACKMessage = "An Error Occurred Processing Message.";
     private String rejectedACKCode = "AR";
     private String rejectedACKMessage = "Message Rejected.";
     private boolean msh15ACKAccept = false;
