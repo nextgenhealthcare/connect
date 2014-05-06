@@ -446,7 +446,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         } else {
             StringBuilder connectionString = new StringBuilder();
             for (String statement : statements) {
-                connectionString.append("var result = dbConn.executeUpdate(\"");
+                connectionString.append("\tvar result = dbConn.executeUpdate(\"");
                 connectionString.append(statement.replaceAll("\\n", " "));
                 connectionString.append("\");\n");
             }
@@ -467,10 +467,11 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         }
 
         StringBuilder connectionString = new StringBuilder();
-        connectionString.append("var dbConn = DatabaseConnectionFactory.createDatabaseConnection('");
+        connectionString.append("var dbConn;\n");
+        connectionString.append("\ntry {\n\tdbConn = DatabaseConnectionFactory.createDatabaseConnection('");
         connectionString.append(driver + "','" + databaseURLField.getText() + "','");
-        connectionString.append(databaseUsernameField.getText() + "','" + new String(databasePasswordField.getPassword()) + "\');\n");
-        connectionString.append("\ndbConn.close();");
+        connectionString.append(databaseUsernameField.getText() + "','" + new String(databasePasswordField.getPassword()) + "\');\n\n} finally {");
+        connectionString.append("\n\tif (dbConn) { \n\t\tdbConn.close();\n\t}\n}");
 
         return connectionString.toString();
     }
@@ -479,7 +480,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
     {// GEN-HEADEREND:event_generateConnectionActionPerformed
         databaseSQLTextPane.setText(generateConnectionString() + "\n\n" + databaseSQLTextPane.getText());
         databaseSQLTextPane.requestFocus();
-        databaseSQLTextPane.setCaretPosition(databaseSQLTextPane.getText().indexOf("\n\n") + 1);
+        databaseSQLTextPane.setCaretPosition(databaseSQLTextPane.getText().lastIndexOf("\n\n", databaseSQLTextPane.getText().length() - 3) + 1);
         parent.setSaveEnabled(true);
     }// GEN-LAST:event_generateConnectionActionPerformed
 

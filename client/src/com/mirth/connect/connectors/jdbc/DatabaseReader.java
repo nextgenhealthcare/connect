@@ -790,11 +790,9 @@ public class DatabaseReader extends ConnectorSettingsPanel {
     }//GEN-LAST:event_generateUpdateUpdateActionPerformed
 
     private void generateUpdateConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateUpdateConnectionActionPerformed
-        String connString = "// This update script will be executed once for every result returned from the above query.\n";
-        connString += generateConnectionString();
-        updateTextPane.setText(connString + "\n\n" + updateTextPane.getText());
+        updateTextPane.setText(generateUpdateConnectionString() + "\n\n" + updateTextPane.getText());
         updateTextPane.requestFocus();
-        updateTextPane.setCaretPosition(updateTextPane.getText().indexOf("\n\n") + 1);
+        updateTextPane.setCaretPosition(updateTextPane.getText().lastIndexOf("\n\n", updateTextPane.getText().length() - 3) + 1);
         parent.setSaveEnabled(true);
     }//GEN-LAST:event_generateUpdateConnectionActionPerformed
 
@@ -838,11 +836,8 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         runUpdateLabel.setText("Run Post-Process Script:");
         selectTextPane.setDocument(jsMappingDoc);
         updateTextPane.setDocument(jsUpdateMappingDoc);
-        String connString = generateConnectionString();
-        String query = connString + "\n// You may access this result below with $('column_name')\nreturn result;";
-        selectTextPane.setText(query);
-        String update = "// This update script will be executed once for every result returned from the above query.\n" + connString;
-        updateTextPane.setText(update);
+        selectTextPane.setText(generateConnectionString());
+        updateTextPane.setText(generateUpdateConnectionString());
         generateConnection.setEnabled(true);
 
         keepConnOpenLabel.setEnabled(false);
@@ -955,7 +950,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
             selectTextPane.setText(statement + "\n\n" + selectTextPane.getText());
         } else {
             StringBuilder connectionString = new StringBuilder();
-            connectionString.append("var result = dbConn.executeCachedQuery(\"");
+            connectionString.append("\tvar result = dbConn.executeCachedQuery(\"");
             connectionString.append(statement.replaceAll("\\n", " "));
             connectionString.append("\");\n");
             selectTextPane.setSelectedText("\n" + connectionString.toString());
@@ -971,7 +966,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         } else {
             StringBuilder connectionString = new StringBuilder();
             for (String statement : statements) {
-                connectionString.append("var result = dbConn.executeUpdate(\"");
+                connectionString.append("\tvar result = dbConn.executeUpdate(\"");
                 connectionString.append(statement.replaceAll("\\n", " "));
                 connectionString.append("\");\n");
             }
@@ -984,10 +979,9 @@ public class DatabaseReader extends ConnectorSettingsPanel {
     private void generateConnectionActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_generateConnectionActionPerformed
     {// GEN-HEADEREND:event_generateConnectionActionPerformed
         String connString = generateConnectionString();
-        connString += "\n// You may access this result below with $('column_name')\nreturn result;";
         selectTextPane.setText(connString + "\n\n" + selectTextPane.getText());
         selectTextPane.requestFocus();
-        selectTextPane.setCaretPosition(selectTextPane.getText().indexOf("\n\n") + 1);
+        selectTextPane.setCaretPosition(selectTextPane.getText().lastIndexOf("\n\n", selectTextPane.getText().length() - 3) + 1);
         parent.setSaveEnabled(true);
     }// GEN-LAST:event_generateConnectionActionPerformed
 
@@ -1002,10 +996,32 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         }
 
         StringBuilder connectionString = new StringBuilder();
-        connectionString.append("var dbConn = DatabaseConnectionFactory.createDatabaseConnection('");
+        connectionString.append("var dbConn;\n");
+        connectionString.append("\ntry {\n\tdbConn = DatabaseConnectionFactory.createDatabaseConnection('");
         connectionString.append(driver + "','" + databaseURLField.getText() + "','");
-        connectionString.append(databaseUsernameField.getText() + "','" + new String(databasePasswordField.getPassword()) + "\');\n");
-        connectionString.append("\ndbConn.close();");
+        connectionString.append(databaseUsernameField.getText() + "','" + new String(databasePasswordField.getPassword()) + "\');\n\n\t// You may access this result below with $('column_name')\n\treturn result;\n} finally {");
+        connectionString.append("\n\tif (dbConn) { \n\t\tdbConn.close();\n\t}\n}");
+
+        return connectionString.toString();
+    }
+
+    private String generateUpdateConnectionString() {
+        String driver = "";
+
+        for (int i = 0; i < drivers.size(); i++) {
+            DriverInfo driverInfo = drivers.get(i);
+            if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
+                driver = driverInfo.getClassName();
+            }
+        }
+
+        StringBuilder connectionString = new StringBuilder();
+        connectionString.append("// This update script will be executed once for every result returned from the above query.\n");
+        connectionString.append("var dbConn;\n");
+        connectionString.append("\ntry {\n\tdbConn = DatabaseConnectionFactory.createDatabaseConnection('");
+        connectionString.append(driver + "','" + databaseURLField.getText() + "','");
+        connectionString.append(databaseUsernameField.getText() + "','" + new String(databasePasswordField.getPassword()) + "\');\n\n} finally {");
+        connectionString.append("\n\tif (dbConn) { \n\t\tdbConn.close();\n\t}\n}");
 
         return connectionString.toString();
     }
