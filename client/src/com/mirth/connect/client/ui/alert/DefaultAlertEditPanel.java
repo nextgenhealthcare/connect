@@ -53,7 +53,6 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
 
         nameTextField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent evt) {
-                parent.setName(nameTextField.getText());
                 parent.setPanelName("Edit Alert - " + nameTextField.getText());
             }
         });
