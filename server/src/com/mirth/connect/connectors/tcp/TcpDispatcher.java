@@ -116,6 +116,23 @@ public class TcpDispatcher extends DestinationConnector {
             Thread.currentThread().interrupt();
             throw new StopException(e);
         }
+
+        StopException firstCause = null;
+
+        // Close the connector client sockets
+        for (String socketKey : connectedSockets.keySet().toArray(new String[connectedSockets.size()])) {
+            try {
+                closeSocket(socketKey);
+            } catch (IOException e) {
+                if (firstCause == null) {
+                    firstCause = new StopException("Error closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+                }
+            }
+        }
+
+        if (firstCause != null) {
+            throw firstCause;
+        }
     }
 
     @Override
