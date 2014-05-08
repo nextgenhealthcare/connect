@@ -502,6 +502,8 @@ public class TcpReceiver extends SourceConnector {
 
                     try {
                         boolean streamDone = false;
+                        boolean firstMessage = true;
+
                         // TODO: Put this on the DataType object; let it decide based on the properties which stream handler to use
                         BatchStreamReader batchStreamReader = null;
                         if (connectorProperties.isProcessBatch() && getInboundDataType().getType().equals("HL7V2")) {
@@ -597,32 +599,39 @@ public class TcpReceiver extends SourceConnector {
                                     // Send the message to the source connector
                                     try {
                                         dispatchResult = dispatchRawMessage(rawMessage);
-                                        streamHandler.commit(true);
 
-                                        // Check to see if we have a response to send
-                                        if (dispatchResult.getSelectedResponse() != null) {
-                                            // Send the response
-                                            attemptedResponse = true;
+                                        // Only send a response for the first message
+                                        if (firstMessage) {
+                                            streamHandler.commit(true);
 
-                                            try {
-                                                // If the response socket hasn't been initialized, do that now
-                                                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
-                                                    responseSocket = createResponseSocket();
-                                                    connectResponseSocket(responseSocket, streamHandler);
-                                                }
+                                            // Check to see if we have a response to send
+                                            if (dispatchResult.getSelectedResponse() != null) {
+                                                // Send the response
+                                                attemptedResponse = true;
 
-                                                sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION);
-                                            } catch (IOException e) {
-                                                errorMessage = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error sending response.", e);
-                                            } finally {
-                                                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
-                                                    closeSocketQuietly(responseSocket);
+                                                try {
+                                                    // If the response socket hasn't been initialized, do that now
+                                                    if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
+                                                        responseSocket = createResponseSocket();
+                                                        connectResponseSocket(responseSocket, streamHandler);
+                                                    }
+
+                                                    sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION);
+                                                } catch (IOException e) {
+                                                    errorMessage = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error sending response.", e);
+                                                } finally {
+                                                    if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
+                                                        closeSocketQuietly(responseSocket);
+                                                    }
                                                 }
                                             }
                                         }
                                     } catch (ChannelException e) {
-                                        streamHandler.commit(false);
+                                        if (firstMessage) {
+                                            streamHandler.commit(false);
+                                        }
                                     } finally {
+                                        firstMessage = false;
                                         finishDispatch(dispatchResult, attemptedResponse, errorMessage);
                                     }
                                 }
