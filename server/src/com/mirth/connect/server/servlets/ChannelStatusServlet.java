@@ -18,7 +18,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +43,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 
 public class ChannelStatusServlet extends MirthServlet {
+    private static int MAX_WORKER_COUNT = 10;
     private Logger logger = Logger.getLogger(this.getClass());
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -48,10 +55,10 @@ public class ChannelStatusServlet extends MirthServlet {
             return;
         }
 
-        EngineController engineController = ControllerFactory.getFactory().createEngineController();
+        final EngineController engineController = ControllerFactory.getFactory().createEngineController();
         ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         PrintWriter out = response.getWriter();
-        Operation operation = Operations.getOperation(request.getParameter("op"));
+        final Operation operation = Operations.getOperation(request.getParameter("op"));
 
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
@@ -115,40 +122,87 @@ public class ChannelStatusServlet extends MirthServlet {
                     channelIds = redactChannelIds(request, channelIds);
                 }
 
-                for (String channelId : channelIds) {
-                    try {
-                        if (operation.equals(Operations.CHANNEL_START)) {
-                            engineController.startChannel(channelId);
-                        } else if (operation.equals(Operations.CHANNEL_STOP)) {
-                            engineController.stopChannel(channelId);
-                        } else if (operation.equals(Operations.CHANNEL_HALT)) {
-                            engineController.haltChannel(channelId);
-                        } else if (operation.equals(Operations.CHANNEL_PAUSE)) {
-                            engineController.pauseChannel(channelId);
-                        } else if (operation.equals(Operations.CHANNEL_RESUME)) {
-                            engineController.resumeChannel(channelId);
+                // Allow as many simultaneous jobs as there are tasks, up to the MAX_WORKER_COUNT
+                ExecutorService executor = new ThreadPoolExecutor(0, Math.min(MAX_WORKER_COUNT, channelIds.size()), 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+                List<Future<?>> futures = new ArrayList<Future<?>>();
+
+                // Multiple threads will perform the operations simultaneously for each channel
+                for (final String channelId : channelIds) {
+                    futures.add(executor.submit(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            try {
+                                if (operation.equals(Operations.CHANNEL_START)) {
+                                    engineController.startChannel(channelId);
+                                } else if (operation.equals(Operations.CHANNEL_STOP)) {
+                                    engineController.stopChannel(channelId);
+                                } else if (operation.equals(Operations.CHANNEL_HALT)) {
+                                    engineController.haltChannel(channelId);
+                                } else if (operation.equals(Operations.CHANNEL_PAUSE)) {
+                                    engineController.pauseChannel(channelId);
+                                } else if (operation.equals(Operations.CHANNEL_RESUME)) {
+                                    engineController.resumeChannel(channelId);
+                                }
+                            } catch (Exception e) {
+                                // Do nothing and allow other channel operations to be performed
+                            }
                         }
-                    } catch (Exception e) {
-                        // Do nothing and allow other channel operations to be performed
-                    }
+
+                    }));
+                }
+
+                // Shutdown the executor so no more tasks can be submitted from here on
+                executor.shutdown();
+
+                // Wait for each task to complete
+                for (Future<?> future : futures) {
+                    future.get();
                 }
             } else if (isConnectorOperation) {
                 if (doesUserHaveChannelRestrictions(request)) {
                     connectorInfo = redactConnectorInfo(request, connectorInfo);
                 }
 
-                for (String channelId : connectorInfo.keySet()) {
-                    for (Integer metaDataId : connectorInfo.get(channelId)) {
-                        try {
-                            if (operation.equals(Operations.CHANNEL_START_CONNECTOR)) {
-                                engineController.startConnector(channelId, metaDataId);
-                            } else if (operation.equals(Operations.CHANNEL_STOP_CONNECTOR)) {
-                                engineController.stopConnector(channelId, metaDataId);
+                int numberOfConnectors = 0;
+                for (List<Integer> entry : connectorInfo.values()) {
+                    numberOfConnectors += entry.size();
+                }
+
+                // Allow as many simultaneous jobs as there are tasks, up to the MAX_WORKER_COUNT
+                ExecutorService executor = new ThreadPoolExecutor(0, Math.min(MAX_WORKER_COUNT, numberOfConnectors), 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+                List<Future<?>> futures = new ArrayList<Future<?>>();
+
+                // Multiple threads will perform the operations simultaneously
+                for (Entry<String, List<Integer>> entry : connectorInfo.entrySet()) {
+                    final String channelId = entry.getKey();
+                    List<Integer> metaDataIds = entry.getValue();
+
+                    for (final Integer metaDataId : metaDataIds) {
+                        futures.add(executor.submit(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                try {
+                                    if (operation.equals(Operations.CHANNEL_START_CONNECTOR)) {
+                                        engineController.startConnector(channelId, metaDataId);
+                                    } else if (operation.equals(Operations.CHANNEL_STOP_CONNECTOR)) {
+                                        engineController.stopConnector(channelId, metaDataId);
+                                    }
+                                } catch (Exception e) {
+                                    // Do nothing and allow other connectors to be started/stopped
+                                }
                             }
-                        } catch (Exception e) {
-                            // Do nothing and allow other connectors to be started/stopped
-                        }
+                        }));
                     }
+                }
+
+                // Shutdown the executor so no more tasks can be submitted from here on
+                executor.shutdown();
+
+                // Wait for each task to complete
+                for (Future<?> future : futures) {
+                    future.get();
                 }
             }
         } catch (RuntimeIOException rio) {
