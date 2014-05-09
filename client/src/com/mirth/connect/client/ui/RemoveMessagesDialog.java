@@ -18,7 +18,7 @@ import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.model.DashboardStatus;
 
-public class RemoveMessagesDialog extends javax.swing.JDialog {
+public class RemoveMessagesDialog extends MirthDialog {
     private Frame parent;
     private Set<String> channelIds;
 

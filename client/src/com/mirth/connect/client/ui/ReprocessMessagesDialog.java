@@ -22,7 +22,7 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.filters.MessageFilter;
 
-public class ReprocessMessagesDialog extends javax.swing.JDialog {
+public class ReprocessMessagesDialog extends MirthDialog {
 
     private Frame parent;
     private MessageFilter filter = null;

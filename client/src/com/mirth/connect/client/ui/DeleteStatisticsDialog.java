@@ -16,7 +16,7 @@ import java.util.List;
 import com.mirth.connect.model.DashboardStatus;
 
 /** Creates the Delete Statistics dialog. */
-public class DeleteStatisticsDialog extends javax.swing.JDialog {
+public class DeleteStatisticsDialog extends MirthDialog {
 
     private Frame parent;
     private List<DashboardStatus> statusToClear;
