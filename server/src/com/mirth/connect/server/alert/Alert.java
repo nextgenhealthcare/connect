@@ -28,7 +28,7 @@ public class Alert {
 
     public Alert(AlertModel model) {
         this.model = model;
-        enabledDateTime = System.nanoTime();
+        enabledDateTime = System.currentTimeMillis();
         enabledNanoTime = System.nanoTime();
         alertedCount = new AtomicInteger(0);
         properties = new HashMap<Object, Object>();
