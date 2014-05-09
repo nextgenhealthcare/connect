@@ -662,8 +662,22 @@ public class TcpReceiver extends SourceConnector {
                                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.FAILURE, "Timeout waiting for message from " + SocketUtil.getLocalAddress(socket) + ". "));
                             } else {
                                 // Set the return value and send an alert
-                                t = new Exception("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                                logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                                String errorMessage = "Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").";
+
+                                SocketException cause = null;
+                                if (e instanceof SocketException) {
+                                    cause = (SocketException) e;
+                                } else if (e.getCause() != null && e.getCause() instanceof SocketException) {
+                                    cause = (SocketException) e.getCause();
+                                }
+
+                                if (cause != null && cause.getMessage() != null && cause.getMessage().contains("Connection reset")) {
+                                    logger.warn(errorMessage, e);
+                                } else {
+                                    logger.error(errorMessage, e);
+                                }
+
+                                t = new Exception(errorMessage, e);
                                 eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error receiving message", e));
                                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.FAILURE, "Error receiving message from " + SocketUtil.getLocalAddress(socket) + ": " + e.getMessage()));
                             }
