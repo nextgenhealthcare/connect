@@ -66,7 +66,7 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
         initComponents();
         queueWarningLabel.setVisible(false);
     }
-    
+
     public void setChannelSetup(ChannelSetup channelSetup) {
         this.channelSetup = channelSetup;
     }
@@ -80,35 +80,11 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
         } else {
             sourceQueueComboBox.setSelectedIndex(1);
         }
-        sourceQueueComboBoxActionPerformed(null);
     }
 
     public void updateResponseDropDown(ResponseConnectorProperties properties, boolean channelLoad) {
         boolean enabled = parent.isSaveEnabled();
         Channel channel = parent.channelEditPanel.currentChannel;
-
-        Object selectedItem;
-        if (channelLoad) {
-            /*
-             * The response variable is the response map key. To ensure that the
-             * destination name still shows up in the combo box, we use an Entry
-             * object for the selected item, rather than a single String.
-             */
-            selectedItem = properties.getResponseVariable();
-            for (Connector connector : channel.getDestinationConnectors()) {
-                if (selectedItem.equals("d" + String.valueOf(connector.getMetaDataId()))) {
-                    selectedItem = new SimpleEntry<String, String>("d" + String.valueOf(connector.getMetaDataId()), connector.getName()) {
-                        @Override
-                        public String toString() {
-                            return getValue();
-                        }
-                    };
-                    break;
-                }
-            }
-        } else {
-            selectedItem = responseComboBox.getSelectedItem();
-        }
 
         Set<Object> variables = new LinkedHashSet<Object>();
 
@@ -124,9 +100,9 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
             scripts.addAll(tempConnector.getScripts(connector.getProperties()));
 
             /*
-             * We add an Entry object instead of just the connector name, so
-             * that the back-end response variable is the "d#" key, while the
-             * front-end combo box display is the full connector name.
+             * We add an Entry object instead of just the connector name, so that the back-end
+             * response variable is the "d#" key, while the front-end combo box display is the full
+             * connector name.
              */
             variables.add(new SimpleEntry<String, String>("d" + String.valueOf(connector.getMetaDataId()), connector.getName()) {
                 @Override
@@ -173,12 +149,50 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
 
         queueOnRespondFromNames = new ArrayList<String>(Arrays.asList(properties.getDefaultQueueOnResponses()));
         queueOffRespondFromNames = new ArrayList<Object>(variables);
-        responseComboBox.setModel(new DefaultComboBoxModel(variables.toArray()));
+
+        if (channelLoad) {
+            /*
+             * The response variable is the response map key. To ensure that the destination name
+             * still shows up in the combo box, we use an Entry object for the selected item, rather
+             * than a single String.
+             */
+            Object selectedItem = properties.getResponseVariable();
+            for (Connector connector : channel.getDestinationConnectors()) {
+                if (selectedItem.equals("d" + String.valueOf(connector.getMetaDataId()))) {
+                    selectedItem = new SimpleEntry<String, String>("d" + String.valueOf(connector.getMetaDataId()), connector.getName()) {
+                        @Override
+                        public String toString() {
+                            return getValue();
+                        }
+                    };
+                    break;
+                }
+            }
+
+            responseComboBox.setModel(new DefaultComboBoxModel(variables.toArray()));
+            setSelectedItem(selectedItem);
+        } else {
+            updateSelectedResponseItem();
+        }
+
+        parent.setSaveEnabled(enabled);
+    }
+
+    private void updateSelectedResponseItem() {
+        Object selectedItem = responseComboBox.getSelectedItem();
+
+        if (sourceQueueComboBox.getSelectedIndex() == 0) {
+            responseComboBox.setModel(new DefaultComboBoxModel(queueOffRespondFromNames.toArray()));
+        } else {
+            responseComboBox.setModel(new DefaultComboBoxModel(queueOnRespondFromNames.toArray()));
+        }
 
         setSelectedItem(selectedItem);
 
-        sourceQueueComboBoxActionPerformed(null);
-        parent.setSaveEnabled(enabled);
+        channelSetup.saveSourcePanel();
+        MessageStorageMode messageStorageMode = channelSetup.getMessageStorageMode();
+        channelSetup.updateQueueWarning(messageStorageMode);
+        updateQueueWarning(messageStorageMode);
     }
 
     public void fillProperties(ResponseConnectorProperties properties) {
@@ -198,11 +212,10 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
 
     private String getMapKey(Matcher matcher) {
         /*
-         * Since multiple capturing groups are used and the final key could
-         * reside on either side of the alternation, we use two specific group
-         * indices (2 and 5), one for the full "responseMap" case and one for
-         * the short "$r" case. We also replace JavaScript-specific escape
-         * sequences like \', \", etc.
+         * Since multiple capturing groups are used and the final key could reside on either side of
+         * the alternation, we use two specific group indices (2 and 5), one for the full
+         * "responseMap" case and one for the short "$r" case. We also replace JavaScript-specific
+         * escape sequences like \', \", etc.
          */
         String key = matcher.group(FULL_NAME_MATCHER_INDEX);
         if (key == null) {
@@ -216,9 +229,8 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
 
         if (selectedItem instanceof Entry) {
             /*
-             * If the selected item is an Entry and the key ("d#") is the same
-             * as an Entry in the model, then they're "the same", and that entry
-             * is selected.
+             * If the selected item is an Entry and the key ("d#") is the same as an Entry in the
+             * model, then they're "the same", and that entry is selected.
              */
             for (int i = 0; i <= model.getSize() - 1; i++) {
                 if (model.getElementAt(i) instanceof Entry && ((Entry<String, String>) selectedItem).getKey().equals(((Entry<String, String>) model.getElementAt(i)).getKey())) {
@@ -234,7 +246,7 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
     }
 
     public void resetInvalidProperties() {}
-    
+
     public void updateQueueWarning(MessageStorageMode messageStorageMode) {
         switch (messageStorageMode) {
             case METADATA:
@@ -329,20 +341,7 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void sourceQueueComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sourceQueueComboBoxActionPerformed
-        Object selectedItem = responseComboBox.getSelectedItem();
-
-        if (sourceQueueComboBox.getSelectedIndex() == 0) {
-            responseComboBox.setModel(new DefaultComboBoxModel(queueOffRespondFromNames.toArray()));
-        } else {
-            responseComboBox.setModel(new DefaultComboBoxModel(queueOnRespondFromNames.toArray()));
-        }
-
-        setSelectedItem(selectedItem);
-        
-        channelSetup.saveSourcePanel();
-        MessageStorageMode messageStorageMode = channelSetup.getMessageStorageMode();
-        channelSetup.updateQueueWarning(messageStorageMode);
-        updateQueueWarning(messageStorageMode);
+        updateSelectedResponseItem();
     }//GEN-LAST:event_sourceQueueComboBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
