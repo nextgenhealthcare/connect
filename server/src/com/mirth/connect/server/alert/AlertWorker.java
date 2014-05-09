@@ -92,77 +92,85 @@ public abstract class AlertWorker extends EventListener {
 
     protected class ActionTask implements Callable<Void> {
 
+        private String alertId;
         private AlertActionGroup actionGroup;
         private Map<String, Object> context;
+        private long taskCreatedNanoTime;
 
-        public ActionTask(AlertActionGroup actionGroup, Map<String, Object> context) {
+        public ActionTask(String alertId, AlertActionGroup actionGroup, Map<String, Object> context) {
+            this.alertId = alertId;
             this.actionGroup = actionGroup;
             this.context = context;
+            this.taskCreatedNanoTime = System.nanoTime();
         }
 
         @Override
         public Void call() throws Exception {
-            TemplateValueReplacer replacer = new TemplateValueReplacer();
+            Alert alert = enabledAlerts.get(alertId);
 
-            String subject = null;
-            String body = null;
+            if (alert != null && alert.getEnabledNanoTime() <= taskCreatedNanoTime) {
+                TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-            if (actionGroup.getSubject() != null) {
-                subject = replacer.replaceValues(actionGroup.getSubject(), context);
-            }
+                String subject = null;
+                String body = null;
 
-            if (actionGroup.getTemplate() != null) {
-                body = replacer.replaceValues(actionGroup.getTemplate(), context);
-            }
+                if (actionGroup.getSubject() != null) {
+                    subject = replacer.replaceValues(actionGroup.getSubject(), context);
+                }
 
-            List<String> emails = new ArrayList<String>();
-            List<String> channels = new ArrayList<String>();
+                if (actionGroup.getTemplate() != null) {
+                    body = replacer.replaceValues(actionGroup.getTemplate(), context);
+                }
 
-            // Split the recipients into separate lists for emails and channels
-            for (AlertAction action : actionGroup.getActions()) {
-                String recipient = replacer.replaceValues(action.getRecipient(), context);
+                List<String> emails = new ArrayList<String>();
+                List<String> channels = new ArrayList<String>();
 
-                if (StringUtils.isNotBlank(recipient)) {
-                    switch (action.getProtocol()) {
-                        case EMAIL:
-                            emails.add(recipient);
-                            break;
+                // Split the recipients into separate lists for emails and channels
+                for (AlertAction action : actionGroup.getActions()) {
+                    String recipient = replacer.replaceValues(action.getRecipient(), context);
 
-                        case CHANNEL:
-                            channels.add(recipient);
-                            break;
+                    if (StringUtils.isNotBlank(recipient)) {
+                        switch (action.getProtocol()) {
+                            case EMAIL:
+                                emails.add(recipient);
+                                break;
+
+                            case CHANNEL:
+                                channels.add(recipient);
+                                break;
+                        }
                     }
                 }
-            }
 
-            // Send the alert emails
-            if (!emails.isEmpty()) {
-                // If there is no subject, set it to the default value
-                if (StringUtils.isEmpty(subject)) {
-                    subject = "Mirth Connect Alert";
+                // Send the alert emails
+                if (!emails.isEmpty()) {
+                    // If there is no subject, set it to the default value
+                    if (StringUtils.isEmpty(subject)) {
+                        subject = "Mirth Connect Alert";
+                    }
+
+                    try {
+                        ServerSMTPConnectionFactory.createSMTPConnection().send(StringUtils.join(emails, ","), null, subject, body);
+                    } catch (ControllerException e) {
+                        logger.error("Could not load default SMTP settings.", e);
+                    } catch (EmailException e) {
+                        logger.error("Error sending alert email.", e);
+                    }
                 }
 
-                try {
-                    ServerSMTPConnectionFactory.createSMTPConnection().send(StringUtils.join(emails, ","), null, subject, body);
-                } catch (ControllerException e) {
-                    logger.error("Could not load default SMTP settings.", e);
-                } catch (EmailException e) {
-                    logger.error("Error sending alert email.", e);
+                // Route the alert message to the specified channels
+                for (String channelId : channels) {
+                    engineController.dispatchRawMessage(channelId, new RawMessage(body), false);
                 }
-            }
 
-            // Route the alert message to the specified channels
-            for (String channelId : channels) {
-                engineController.dispatchRawMessage(channelId, new RawMessage(body), false);
+                // Dispatch a server event to notify that an alert was dispatched
+                ServerEvent serverEvent = new ServerEvent("Alert Dispatched");
+                for (Entry<String, Object> entry : context.entrySet()) {
+                    String value = entry.getValue().toString();
+                    serverEvent.addAttribute(entry.getKey(), value);
+                }
+                eventController.dispatchEvent(serverEvent);
             }
-
-            // Dispatch a server event to notify that an alert was dispatched
-            ServerEvent serverEvent = new ServerEvent("Alert Dispatched");
-            for (Entry<String, Object> entry : context.entrySet()) {
-                String value = entry.getValue().toString();
-                serverEvent.addAttribute(entry.getKey(), value);
-            }
-            eventController.dispatchEvent(serverEvent);
 
             return null;
         }

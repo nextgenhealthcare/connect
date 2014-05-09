@@ -70,7 +70,7 @@ public class DefaultAlertWorker extends AlertWorker {
     protected void triggerAction(Alert alert, Map<String, Object> context) {
         for (AlertActionGroup actionGroup : alert.getModel().getActionGroups()) {
             if (CollectionUtils.isNotEmpty(actionGroup.getActions())) {
-                actionExecutor.submit(new ActionTask(actionGroup, context));
+                actionExecutor.submit(new ActionTask(alert.getModel().getId(), actionGroup, context));
                 alert.incrementAlertedCount();
             }
         }
