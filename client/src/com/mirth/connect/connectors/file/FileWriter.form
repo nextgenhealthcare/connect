@@ -524,7 +524,7 @@
           <ComponentRef name="buttonGroup5"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Binary"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If ASCII is selected, messages are written as text,&lt;br&gt; and the character set encoding used can be selected in the Encoding control below.&lt;br&gt;If Binary is selected, messages are written as binary byte streams.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Binary is selected, messages are written as binary byte streams.&lt;br&gt;If Text is selected, messages are written and encoded with the specified character set encoding.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -547,8 +547,8 @@
           <ComponentRef name="buttonGroup5"/>
         </Property>
         <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="ASCII"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If ASCII is selected, messages are written as text,&lt;br&gt; and the character set encoding used can be selected in the Encoding control below.&lt;br&gt;If Binary is selected, messages are written as binary byte streams.&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="Text"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Binary is selected, messages are written as binary byte streams.&lt;br&gt;If Text is selected, messages are written and encoded with the specified character set encoding.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

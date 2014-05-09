@@ -517,7 +517,7 @@
             <StringItem index="6" value="US-ASCII"/>
           </StringArray>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="If File Type ASCII is selected, select the character set encoding (ASCII, UTF-8, etc.) to be used in reading the contents of each file."/>
+        <Property name="toolTipText" type="java.lang.String" value="If File Type Text is selected, select the character set encoding (ASCII, UTF-8, etc.) to be used in reading the contents of each file."/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="charsetEncodingComboboxActionPerformed"/>
@@ -594,8 +594,8 @@
           <ComponentRef name="buttonGroup7"/>
         </Property>
         <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="ASCII"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select No if files contain text (ASCII is a misnomer here)."/>
+        <Property name="text" type="java.lang.String" value="Text"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if files contain binary data; the contents will be Base64 encoded before processing.&lt;br&gt;Select Text if files contain text data; the contents will be encoded using the specified character set encoding.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -618,7 +618,7 @@
           <ComponentRef name="buttonGroup7"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Binary"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select Yes if files contain binary data which should be Base64 encoded before processing."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if files contain binary data; the contents will be Base64 encoded before processing.&lt;br&gt;Select Text if files contain text data; the contents will be encoded using the specified character set encoding.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

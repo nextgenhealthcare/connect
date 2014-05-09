@@ -384,7 +384,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         responseTimeoutLabel.setText("Response Timeout (ms):");
 
         charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
-        charsetEncodingCombobox.setToolTipText("<html>The character set encoding to use when converting the outbound message to a byte stream if Data Type ASCII is selected.<br>Select Default to use the default character set encoding for the JVM running the Mirth server.</html>");
+        charsetEncodingCombobox.setToolTipText("<html>The character set encoding to use when converting the outbound message to a byte stream if Data Type Text is selected.<br>Select Default to use the default character set encoding for the JVM running the Mirth server.</html>");
         charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 charsetEncodingComboboxActionPerformed(evt);
@@ -412,8 +412,8 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         dataTypeASCIIRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         dataTypeButtonGroup.add(dataTypeASCIIRadio);
         dataTypeASCIIRadio.setSelected(true);
-        dataTypeASCIIRadio.setText("ASCII");
-        dataTypeASCIIRadio.setToolTipText("<html>Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).<br/>Select ASCII if the outbound message is text (will be encoded with the specified charset).</html>");
+        dataTypeASCIIRadio.setText("Text");
+        dataTypeASCIIRadio.setToolTipText("<html>Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).<br/>Select Text if the outbound message is text (will be encoded with the specified character set encoding).</html>");
         dataTypeASCIIRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         dataTypeASCIIRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -425,7 +425,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         dataTypeBinaryRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         dataTypeButtonGroup.add(dataTypeBinaryRadio);
         dataTypeBinaryRadio.setText("Binary");
-        dataTypeBinaryRadio.setToolTipText("<html>Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).<br/>Select ASCII if the outbound message is text (will be encoded with the specified charset).</html>");
+        dataTypeBinaryRadio.setToolTipText("<html>Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).<br/>Select Text if the outbound message is text (will be encoded with the specified character set encoding).</html>");
         dataTypeBinaryRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         dataTypeBinaryRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

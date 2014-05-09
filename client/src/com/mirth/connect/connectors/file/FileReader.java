@@ -549,7 +549,7 @@ public class FileReader extends ConnectorSettingsPanel {
         sortBy.setToolTipText("<html>Selects the order in which files should be processed, if there are multiple files available to be processed.<br>Files can be processed by Date (oldest last modification date first), Size (smallest first) or name (a before z, etc.).</html>");
 
         charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
-        charsetEncodingCombobox.setToolTipText("If File Type ASCII is selected, select the character set encoding (ASCII, UTF-8, etc.) to be used in reading the contents of each file.");
+        charsetEncodingCombobox.setToolTipText("If File Type Text is selected, select the character set encoding (ASCII, UTF-8, etc.) to be used in reading the contents of each file.");
         charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 charsetEncodingComboboxActionPerformed(evt);
@@ -589,8 +589,8 @@ public class FileReader extends ConnectorSettingsPanel {
         fileTypeASCII.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup7.add(fileTypeASCII);
         fileTypeASCII.setSelected(true);
-        fileTypeASCII.setText("ASCII");
-        fileTypeASCII.setToolTipText("Select No if files contain text (ASCII is a misnomer here).");
+        fileTypeASCII.setText("Text");
+        fileTypeASCII.setToolTipText("<html>Select Binary if files contain binary data; the contents will be Base64 encoded before processing.<br>Select Text if files contain text data; the contents will be encoded using the specified character set encoding.</html>");
         fileTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
         fileTypeASCII.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -602,7 +602,7 @@ public class FileReader extends ConnectorSettingsPanel {
         fileTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup7.add(fileTypeBinary);
         fileTypeBinary.setText("Binary");
-        fileTypeBinary.setToolTipText("Select Yes if files contain binary data which should be Base64 encoded before processing.");
+        fileTypeBinary.setToolTipText("<html>Select Binary if files contain binary data; the contents will be Base64 encoded before processing.<br>Select Text if files contain text data; the contents will be encoded using the specified character set encoding.</html>");
         fileTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
         fileTypeBinary.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

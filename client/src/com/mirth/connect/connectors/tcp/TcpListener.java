@@ -417,8 +417,8 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         dataTypeASCIIRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         dataTypeButtonGroup.add(dataTypeASCIIRadio);
         dataTypeASCIIRadio.setSelected(true);
-        dataTypeASCIIRadio.setText("ASCII");
-        dataTypeASCIIRadio.setToolTipText("<html>Select Binary if the inbound messages are raw byte streams; the payload will be Base64 encoded.<br>Select ASCII if the inbound messages are text streams; the payload will be encoded with the specified charset.</html>");
+        dataTypeASCIIRadio.setText("Text");
+        dataTypeASCIIRadio.setToolTipText("<html>Select Binary if the inbound messages are raw byte streams; the payload will be Base64 encoded.<br>Select Text if the inbound messages are text streams; the payload will be encoded with the specified character set encoding.</html>");
         dataTypeASCIIRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         dataTypeASCIIRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -430,7 +430,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         dataTypeBinaryRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         dataTypeButtonGroup.add(dataTypeBinaryRadio);
         dataTypeBinaryRadio.setText("Binary");
-        dataTypeBinaryRadio.setToolTipText("<html>Select Binary if the inbound messages are raw byte streams; the payload will be Base64 encoded.<br>Select ASCII if the inbound messages are text streams; the payload will be encoded with the specified charset.</html>");
+        dataTypeBinaryRadio.setToolTipText("<html>Select Binary if the inbound messages are raw byte streams; the payload will be Base64 encoded.<br>Select Text if the inbound messages are text streams; the payload will be encoded with the specified character set encoding.</html>");
         dataTypeBinaryRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         dataTypeBinaryRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

@@ -498,7 +498,7 @@ public class FileWriter extends ConnectorSettingsPanel {
         fileTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup5.add(fileTypeBinary);
         fileTypeBinary.setText("Binary");
-        fileTypeBinary.setToolTipText("<html>If ASCII is selected, messages are written as text,<br> and the character set encoding used can be selected in the Encoding control below.<br>If Binary is selected, messages are written as binary byte streams.</html>");
+        fileTypeBinary.setToolTipText("<html>If Binary is selected, messages are written as binary byte streams.<br>If Text is selected, messages are written and encoded with the specified character set encoding.</html>");
         fileTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
         fileTypeBinary.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -510,8 +510,8 @@ public class FileWriter extends ConnectorSettingsPanel {
         fileTypeASCII.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup5.add(fileTypeASCII);
         fileTypeASCII.setSelected(true);
-        fileTypeASCII.setText("ASCII");
-        fileTypeASCII.setToolTipText("<html>If ASCII is selected, messages are written as text,<br> and the character set encoding used can be selected in the Encoding control below.<br>If Binary is selected, messages are written as binary byte streams.</html>");
+        fileTypeASCII.setText("Text");
+        fileTypeASCII.setToolTipText("<html>If Binary is selected, messages are written as binary byte streams.<br>If Text is selected, messages are written and encoded with the specified character set encoding.</html>");
         fileTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
         fileTypeASCII.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

@@ -332,7 +332,7 @@
             <StringItem index="6" value="US-ASCII"/>
           </StringArray>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The character set encoding to use when converting the outbound message to a byte stream if Data Type ASCII is selected.&lt;br&gt;Select Default to use the default character set encoding for the JVM running the Mirth server.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The character set encoding to use when converting the outbound message to a byte stream if Data Type Text is selected.&lt;br&gt;Select Default to use the default character set encoding for the JVM running the Mirth server.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="charsetEncodingComboboxActionPerformed"/>
@@ -391,8 +391,8 @@
           <ComponentRef name="dataTypeButtonGroup"/>
         </Property>
         <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="ASCII"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).&lt;br/&gt;Select ASCII if the outbound message is text (will be encoded with the specified charset).&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="Text"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).&lt;br/&gt;Select Text if the outbound message is text (will be encoded with the specified character set encoding).&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -415,7 +415,7 @@
           <ComponentRef name="dataTypeButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Binary"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).&lt;br/&gt;Select ASCII if the outbound message is text (will be encoded with the specified charset).&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).&lt;br/&gt;Select Text if the outbound message is text (will be encoded with the specified character set encoding).&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

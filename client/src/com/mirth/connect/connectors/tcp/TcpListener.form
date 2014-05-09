@@ -369,8 +369,8 @@
           <ComponentRef name="dataTypeButtonGroup"/>
         </Property>
         <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="ASCII"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the inbound messages are raw byte streams; the payload will be Base64 encoded.&lt;br&gt;Select ASCII if the inbound messages are text streams; the payload will be encoded with the specified charset.&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="Text"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the inbound messages are raw byte streams; the payload will be Base64 encoded.&lt;br&gt;Select Text if the inbound messages are text streams; the payload will be encoded with the specified character set encoding.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -393,7 +393,7 @@
           <ComponentRef name="dataTypeButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Binary"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the inbound messages are raw byte streams; the payload will be Base64 encoded.&lt;br&gt;Select ASCII if the inbound messages are text streams; the payload will be encoded with the specified charset.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the inbound messages are raw byte streams; the payload will be Base64 encoded.&lt;br&gt;Select Text if the inbound messages are text streams; the payload will be encoded with the specified character set encoding.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
