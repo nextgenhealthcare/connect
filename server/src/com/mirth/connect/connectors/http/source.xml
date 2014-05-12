@@ -2,7 +2,7 @@
 	<name>HTTP Listener</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.0.2</mirthVersion>
+	<mirthVersion>3.0.3</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to listen for incoming HTTP data. Messages are received as XML and include the full header contents.</description>
 	<clientClassName>com.mirth.connect.connectors.http.HttpListener</clientClassName>
