@@ -72,6 +72,8 @@ public class RecoveryTask implements Callable<Void> {
 
                                 if (recoveredConnectorMessage.getChannelMap().containsKey(Constants.DESTINATION_META_DATA_IDS_KEY)) {
                                     channelMapMetaDataIds = (List<Integer>) recoveredConnectorMessage.getChannelMap().get(Constants.DESTINATION_META_DATA_IDS_KEY);
+                                } else if (recoveredConnectorMessage.getSourceMap().containsKey(Constants.DESTINATION_META_DATA_IDS_KEY)) {
+                                    channelMapMetaDataIds = (List<Integer>) recoveredConnectorMessage.getSourceMap().get(Constants.DESTINATION_META_DATA_IDS_KEY);
                                 }
 
                                 List<Integer> enabledMetaDataIds = new ArrayList<Integer>();
