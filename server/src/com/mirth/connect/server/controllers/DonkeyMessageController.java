@@ -1065,25 +1065,28 @@ public class DonkeyMessageController extends MessageController {
         params.put("contents", Collections.singletonList(text));
         params.put("textSearch", text);
         params.put("textSearchMetaDataColumns", textSearchMetaDataColumns);
+        List<MessageTextResult> results;
 
-        /*
-         * Search the custom meta data table for message and metadata ids matching the text search
-         * criteria
-         */
-        List<MessageTextResult> results = session.selectList("Message.searchCustomMetaDataTable", params);
+        if (CollectionUtils.isNotEmpty(textSearchMetaDataColumns)) {
+            /*
+             * Search the custom meta data table for message and metadata ids matching the text
+             * search criteria
+             */
+            results = session.selectList("Message.searchCustomMetaDataTable", params);
 
-        for (MessageTextResult result : results) {
-            Long messageId = result.getMessageId();
-            Integer metaDataId = result.getMetaDataId();
+            for (MessageTextResult result : results) {
+                Long messageId = result.getMessageId();
+                Integer metaDataId = result.getMetaDataId();
 
-            if (potentialMessages.containsKey(messageId)) {
-                Set<Integer> allowedMetaDataIds = potentialMessages.get(messageId).getMetaDataIdSet();
-                /*
-                 * Ignore the message and metadata id if they are not allowed because they were
-                 * already filtered in a previous step
-                 */
-                if (allowedMetaDataIds.contains(metaDataId)) {
-                    addMessageToMap(textMessages, messageId, metaDataId);
+                if (potentialMessages.containsKey(messageId)) {
+                    Set<Integer> allowedMetaDataIds = potentialMessages.get(messageId).getMetaDataIdSet();
+                    /*
+                     * Ignore the message and metadata id if they are not allowed because they were
+                     * already filtered in a previous step
+                     */
+                    if (allowedMetaDataIds.contains(metaDataId)) {
+                        addMessageToMap(textMessages, messageId, metaDataId);
+                    }
                 }
             }
         }
