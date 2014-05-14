@@ -18,10 +18,11 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.model.ServerEvent.Outcome;
 
-public class EventBrowserAdvancedFilter extends javax.swing.JDialog {
+public class EventBrowserAdvancedFilter extends MirthDialog {
 
     private Map<Integer, String> userMapById;
     private Map<String, Integer> userMapByName;
