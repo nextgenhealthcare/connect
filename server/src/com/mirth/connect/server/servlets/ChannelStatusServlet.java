@@ -123,7 +123,8 @@ public class ChannelStatusServlet extends MirthServlet {
                 }
 
                 // Allow as many simultaneous jobs as there are tasks, up to the MAX_WORKER_COUNT
-                ExecutorService executor = new ThreadPoolExecutor(0, Math.min(MAX_WORKER_COUNT, channelIds.size()), 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+                int poolSize = Math.min(MAX_WORKER_COUNT, channelIds.size());
+                ExecutorService executor = new ThreadPoolExecutor(poolSize, poolSize, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
                 List<Future<?>> futures = new ArrayList<Future<?>>();
 
                 // Multiple threads will perform the operations simultaneously for each channel
@@ -170,7 +171,8 @@ public class ChannelStatusServlet extends MirthServlet {
                 }
 
                 // Allow as many simultaneous jobs as there are tasks, up to the MAX_WORKER_COUNT
-                ExecutorService executor = new ThreadPoolExecutor(0, Math.min(MAX_WORKER_COUNT, numberOfConnectors), 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+                int poolSize = Math.min(MAX_WORKER_COUNT, numberOfConnectors);
+                ExecutorService executor = new ThreadPoolExecutor(poolSize, poolSize, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
                 List<Future<?>> futures = new ArrayList<Future<?>>();
 
                 // Multiple threads will perform the operations simultaneously
