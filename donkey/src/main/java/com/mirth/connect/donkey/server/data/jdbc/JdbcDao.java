@@ -88,6 +88,7 @@ public class JdbcDao implements DonkeyDao {
         this.currentStats = currentStats;
         this.totalStats = totalStats;
         this.statsServerId = statsServerId;
+        encryptor = donkey.getEncryptor();
 
         alwaysDecrypt.addAll(Arrays.asList(ContentType.getMapTypes()));
         alwaysDecrypt.addAll(Arrays.asList(ContentType.getErrorTypes()));
