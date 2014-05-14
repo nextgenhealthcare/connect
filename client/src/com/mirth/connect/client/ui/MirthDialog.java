@@ -19,7 +19,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.KeyStroke;
 
-public class MirthDialog extends JDialog {
+public abstract class MirthDialog extends JDialog {
     public MirthDialog(Frame owner) {
         super(owner);
         registerCloseAction();
@@ -44,7 +44,7 @@ public class MirthDialog extends JDialog {
         super(owner, modal);
         registerCloseAction();
     }
-    
+
     public MirthDialog(Dialog owner, String title, boolean modal) {
         super(owner, title, modal);
         registerCloseAction();
@@ -61,15 +61,21 @@ public class MirthDialog extends JDialog {
         PlatformUI.MIRTH_FRAME.setCanSave(true);
         super.dispose();
     }
-    
+
     public void registerCloseAction() {
         ActionListener closeAction = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                    dispose();
+                onCloseAction();
+                dispose();
             }
         };
-        
+
         getRootPane().registerKeyboardAction(closeAction, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
+
+    /**
+     * Called when escape is pressed before disposing the dialog
+     */
+    public void onCloseAction() {}
 }

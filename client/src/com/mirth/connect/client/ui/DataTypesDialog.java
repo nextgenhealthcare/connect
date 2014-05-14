@@ -939,6 +939,11 @@ public class DataTypesDialog extends MirthDialog {
     		updateSelectionStatus(node.getChildAt(i), status, containerIds);
     	}
     }
+
+    @Override
+    public void onCloseAction() {
+        revertProperties();
+    }
     
     /**
      * Container for transformer and type, as well as previous data types and properties for reverting.

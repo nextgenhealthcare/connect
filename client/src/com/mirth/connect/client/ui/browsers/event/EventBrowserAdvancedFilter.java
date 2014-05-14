@@ -126,6 +126,11 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
         return ipAddressField.getText();
     }
 
+    @Override
+    public void onCloseAction() {
+        formWindowClosing(null);
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
