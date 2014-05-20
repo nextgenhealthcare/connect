@@ -1532,6 +1532,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 logger.error("An error occurred in channel " + name + " (" + channelId + ") while processing message ID " + sourceMessage.getMessageId() + " from the source queue", e);
                 eventDispatcher.dispatchEvent(new ErrorEvent(channelId, 0, ErrorEventType.SOURCE_CONNECTOR, sourceConnector.getSourceName(), null, e.getMessage(), e));
                 sourceQueue.invalidate(false, false);
+                Thread.sleep(Constants.SOURCE_QUEUE_ERROR_SLEEP_TIME);
             }
 
             sourceMessage = sourceQueue.poll();

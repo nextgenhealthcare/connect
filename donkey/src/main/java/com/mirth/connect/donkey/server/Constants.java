@@ -11,17 +11,22 @@ package com.mirth.connect.donkey.server;
 
 public class Constants {
     /**
-     * Reserved channel map key for the destination metadata ids that a message
-     * is being sent through
+     * Reserved channel map key for the destination metadata ids that a message is being sent
+     * through
      */
     public static final String DESTINATION_META_DATA_IDS_KEY = "mirth_destinations";
 
     /**
-     * The number of milliseconds to wait for incoming messages on the source
-     * queue before timing
+     * The number of milliseconds to wait for incoming messages on the source queue before timing
      * out and checking the channel state
      */
     public static final int SOURCE_QUEUE_POLL_TIMEOUT_MILLIS = 1000;
+
+    /**
+     * The number of milliseconds to wait when a runtime exception occurs on the source queue before
+     * trying the message again
+     */
+    public static final int SOURCE_QUEUE_ERROR_SLEEP_TIME = 1000;
 
     /**
      * The number of milliseconds to wait when a destination queue is empty before peeking again
@@ -45,8 +50,7 @@ public class Constants {
 
     /**
      * The charset to use when converting attachment Strings to byte arrays for storage in the
-     * database
-     * and reattaching them.
+     * database and reattaching them.
      */
     public static final String ATTACHMENT_CHARSET = "UTF-8";
 }
