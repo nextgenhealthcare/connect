@@ -30,6 +30,7 @@ public class ConnectorMessageQueue {
     private int bufferCapacity = 1000;
     private boolean reachedCapacity = false;
     private boolean rotate = false;
+    private boolean invalidated = false;
     private ConnectorMessageQueueDataSource dataSource;
     private final AtomicBoolean timeoutLock = new AtomicBoolean(false);
 
@@ -90,6 +91,7 @@ public class ConnectorMessageQueue {
         }
 
         size = null;
+        invalidated = true;
 
         if (updateSize) {
             eventDispatcher.dispatchEvent(new MessageEvent(channelId, metaDataId, MessageEventType.QUEUED, (long) size(), true));
@@ -120,27 +122,45 @@ public class ConnectorMessageQueue {
     }
 
     public synchronized void add(ConnectorMessage connectorMessage) {
-        if (size == null) {
-            updateSize();
-        }
-
-        if (!reachedCapacity) {
-            if (size < bufferCapacity && !dataSource.isQueueRotated()) {
-                buffer.put(connectorMessage.getMessageId(), connectorMessage);
-
-                // If there is a poll with timeout waiting, notify that an item was added to the buffer.
-                if (timeoutLock.get()) {
-                    synchronized (timeoutLock) {
-                        timeoutLock.notifyAll();
-                        timeoutLock.set(false);
-                    }
-                }
-            } else {
-                reachedCapacity = true;
+        if (invalidated) {
+            /*
+             * If the buffer's size was already updated after an invalidate, then we need to
+             * increment the size by one in order to account for the new message that was just
+             * added, since this method is only ever called after a new message is added to the
+             * database
+             */
+            if (size != null) {
+                size++;
             }
-        }
 
-        size++;
+            /*
+             * If the buffer was never filled after an invalidate, we can't just insert the message
+             * directly into the buffer because there could be messages that should process before
+             * it. Therefore we'll just fill the buffer to resync it with the database. This method
+             * can only be called after a new message was added to the database
+             */
+            fillBuffer();
+        } else {
+            if (size == null) {
+                updateSize();
+            }
+            if (!reachedCapacity) {
+                if (size < bufferCapacity && !dataSource.isQueueRotated()) {
+                    buffer.put(connectorMessage.getMessageId(), connectorMessage);
+
+                    // If there is a poll with timeout waiting, notify that an item was added to the buffer.
+                    if (timeoutLock.get()) {
+                        synchronized (timeoutLock) {
+                            timeoutLock.notifyAll();
+                            timeoutLock.set(false);
+                        }
+                    }
+                } else {
+                    reachedCapacity = true;
+                }
+            }
+            size++;
+        }
 
         eventDispatcher.dispatchEvent(new MessageEvent(channelId, metaDataId, MessageEventType.QUEUED, (long) size(), false));
     }
@@ -309,6 +329,7 @@ public class ConnectorMessageQueue {
             updateSize();
         }
 
+        invalidated = false;
         buffer = dataSource.getItems(0, Math.min(bufferCapacity, size));
 
         if (buffer.size() == size) {
