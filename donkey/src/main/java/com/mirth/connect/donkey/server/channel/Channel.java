@@ -1530,6 +1530,8 @@ public class Channel implements Startable, Stoppable, Runnable {
                 process(sourceMessage, true);
             } catch (RuntimeException e) {
                 logger.error("An error occurred in channel " + name + " (" + channelId + ") while processing message ID " + sourceMessage.getMessageId() + " from the source queue", e);
+                eventDispatcher.dispatchEvent(new ErrorEvent(channelId, 0, ErrorEventType.SOURCE_CONNECTOR, sourceConnector.getSourceName(), null, e.getMessage(), e));
+                sourceQueue.invalidate(false, false);
             }
 
             sourceMessage = sourceQueue.poll();
