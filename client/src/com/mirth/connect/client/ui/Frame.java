@@ -1159,7 +1159,7 @@ public class Frame extends JXFrame {
                 this.dispose();
                 LoginPanel.getInstance().initialize(PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION, "", "");
                 return;
-            } else if (message.startsWith("java.net.ConnectException: Connection refused")) {
+            } else if (message.startsWith("org.apache.http.conn.HttpHostConnectException") && message.indexOf("Connection refused") != -1) {
                 connectionError = true;
                 statusUpdaterExecutor.shutdownNow();
 

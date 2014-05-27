@@ -10,37 +10,58 @@
 package com.mirth.connect.client.core;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpConnectionManager;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
-import org.apache.commons.httpclient.params.HttpClientParams;
-import org.apache.commons.httpclient.protocol.Protocol;
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.utils.HttpClientUtils;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.log4j.Logger;
 
 public final class ServerConnection {
     private Logger logger = Logger.getLogger(this.getClass());
-    private HttpClient client;
+    private CloseableHttpClient client;
+    private RequestConfig requestConfig;
     private String address;
-    private PostMethod post = null;
-    private PostMethod channelPost = null;
+    private HttpPost post = null;
+    private HttpPost channelPost = null;
+    private HttpClientContext channelPostContext = null;
     final private Operation currentOp = new Operation(null, null, false);
     final private AbortTask abortTask = new AbortTask();
     private ExecutorService abortExecutor = Executors.newSingleThreadExecutor();
+
+    private static final Charset CONTENT_CHARSET = Charset.forName("UTF-8");
+    private static final int CONNECT_TIMEOUT = 10000;
 
     public ServerConnection(String address) {
         // Default timeout is infinite.
@@ -50,26 +71,23 @@ public final class ServerConnection {
     public ServerConnection(String address, int timeout) {
         this.address = address;
 
-        HttpClientParams httpClientParams = new HttpClientParams();
-        HttpConnectionManager httpConnectionManager = new MultiThreadedHttpConnectionManager();
-        httpClientParams.setSoTimeout(timeout);
-        httpConnectionManager.getParams().setConnectionTimeout(10 * 1000);
-        httpConnectionManager.getParams().setSoTimeout(timeout);
-        httpConnectionManager.getParams().setDefaultMaxConnectionsPerHost(5);
-
-        client = new HttpClient(httpClientParams, httpConnectionManager);
-        
-        // MIRTH-1872
-        HttpClientParams clientParams = new HttpClientParams();
-        clientParams.setContentCharset("UTF-8");
-        client.setParams(clientParams);
-        
+        SSLContext sslContext = null;
         try {
-            Protocol mirthHttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 8443);
-            Protocol.registerProtocol("https", mirthHttps);
+            sslContext = SSLContexts.custom().useTLS().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build();
         } catch (Exception e) {
-            logger.error("Unable to register HTTPS protocol.", e);
+            logger.error("Unable to build SSL context.", e);
         }
+        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("https", sslConnectionSocketFactory).build();
+
+        PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+        httpClientConnectionManager.setDefaultMaxPerRoute(5);
+        httpClientConnectionManager.setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build());
+
+        client = HttpClients.custom().setConnectionManager(httpClientConnectionManager).build();
+        requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setConnectionRequestTimeout(CONNECT_TIMEOUT).setSocketTimeout(timeout).build();
+        post = getDefaultHttpPost();
+        channelPost = getDefaultHttpPost();
     }
 
     /**
@@ -83,7 +101,7 @@ public final class ServerConnection {
      * @throws ClientException
      */
     public synchronized String executePostMethod(String servletName, NameValuePair[] params) throws ClientException {
-        synchronized(currentOp) {
+        synchronized (currentOp) {
             if (params[0].getName().equals("op")) {
                 Operation op = Operations.getOperation(params[0].getValue());
                 currentOp.setName(op.getName());
@@ -91,26 +109,15 @@ public final class ServerConnection {
                 currentOp.setAuditable(op.isAuditable());
             }
         }
-        
-        post = null;
+
+        CloseableHttpResponse response = null;
 
         try {
-            post = new PostMethod(address + servletName);
-            post.addResponseFooter(new Header("Content-Encoding", "gzip"));
-            post.addResponseFooter(new Header("Accept-Encoding", "gzip,deflate"));
-            post.setRequestBody(params);
+            post.setURI(URI.create(address + servletName));
+            post.setEntity(new UrlEncodedFormEntity(Arrays.asList(params), CONTENT_CHARSET));
 
-            int statusCode = client.executeMethod(post);
-
-            if (statusCode == HttpStatus.SC_FORBIDDEN) {
-                throw new InvalidLoginException(post.getStatusLine().toString());
-            } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
-                throw new UnauthorizedException(post.getStatusLine().toString());
-            } else if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
-                throw new ClientException("method failed: " + post.getStatusLine());
-            }
-
-            return IOUtils.toString(post.getResponseBodyAsStream(), post.getResponseCharSet()).trim();
+            response = client.execute(post);
+            return getResponsePayload(response);
         } catch (Exception e) {
             if (post.isAborted()) {
                 throw new ClientException(new RequestAbortedException(e));
@@ -118,21 +125,21 @@ public final class ServerConnection {
                 throw new ClientException(e);
             }
         } finally {
-            if (post != null) {
-                post.releaseConnection();
-            }
-            
-            synchronized(currentOp) {
+            HttpClientUtils.closeQuietly(response);
+            post.reset();
+
+            synchronized (currentOp) {
                 currentOp.setName(null);
                 currentOp.setDisplayName(null);
                 currentOp.setAuditable(false);
             }
         }
     }
-    
+
     /**
-     * Executes a POST method on a servlet with a set of parameters. The requests sent through this channel will be aborted on the client side
-     * when a new request arrives. Currently there is no guarantee of the order that pending requests will be sent
+     * Executes a POST method on a servlet with a set of parameters. The requests sent through this
+     * channel will be aborted on the client side when a new request arrives. Currently there is no
+     * guarantee of the order that pending requests will be sent
      * 
      * @param servletName
      *            The name of the servlet.
@@ -141,34 +148,28 @@ public final class ServerConnection {
      * @return
      * @throws ClientException
      */
-    public String executePostMethodAbortPending(String servletName, NameValuePair[] params) throws ClientException {      
+    public String executePostMethodAbortPending(String servletName, NameValuePair[] params) throws ClientException {
         //TODO make order sequential
         abortTask.incrementRequestsInQueue();
-        
-        synchronized(abortExecutor) { 
+
+        synchronized (abortExecutor) {
             if (!abortExecutor.isShutdown() && !abortTask.isRunning()) {
                 abortExecutor.execute(abortTask);
             }
-            
+
+            CloseableHttpResponse response = null;
+
             try {
-                channelPost = new PostMethod(address + servletName);
-                channelPost.addResponseFooter(new Header("Content-Encoding", "gzip"));
-                channelPost.addResponseFooter(new Header("Accept-Encoding", "gzip,deflate"));
-                channelPost.setRequestBody(params);
-    
+                channelPostContext = HttpClientContext.create();
+                channelPostContext.setRequestConfig(requestConfig);
+                channelPost.setURI(URI.create(address + servletName));
+                channelPost.setEntity(new UrlEncodedFormEntity(Arrays.asList(params), CONTENT_CHARSET));
+
                 abortTask.setAbortAllowed(true);
-                int statusCode = client.executeMethod(channelPost);
+                response = client.execute(channelPost, channelPostContext);
                 abortTask.setAbortAllowed(false);
-    
-                if (statusCode == HttpStatus.SC_FORBIDDEN) {
-                    throw new InvalidLoginException(channelPost.getStatusLine().toString());
-                } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
-                    throw new UnauthorizedException(channelPost.getStatusLine().toString());
-                } else if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
-                    throw new ClientException("method failed: " + channelPost.getStatusLine());
-                }
-                
-                return IOUtils.toString(channelPost.getResponseBodyAsStream(), channelPost.getResponseCharSet()).trim();
+
+                return getResponsePayload(response);
             } catch (Exception e) {
                 if (channelPost.isAborted()) {
                     return null;
@@ -177,16 +178,15 @@ public final class ServerConnection {
                 }
             } finally {
                 abortTask.decrementRequestsInQueue();
-                
-                if (channelPost != null) {
-                    channelPost.releaseConnection();
-                }
+                HttpClientUtils.closeQuietly(response);
+                channelPost.reset();
             }
         }
     }
-    
+
     /**
-     * Executes a POST method on a servlet with a set of parameters, but allows multiple simultaneous requests.
+     * Executes a POST method on a servlet with a set of parameters, but allows multiple
+     * simultaneous requests.
      * 
      * @param servletName
      *            The name of the servlet.
@@ -195,26 +195,17 @@ public final class ServerConnection {
      * @return
      * @throws ClientException
      */
-    public String executePostMethodAsync(String servletName, NameValuePair[] params) throws ClientException {       
-        PostMethod post = null;
+    public String executePostMethodAsync(String servletName, NameValuePair[] params) throws ClientException {
+        HttpPost post = null;
+        CloseableHttpResponse response = null;
 
         try {
-            post = new PostMethod(address + servletName);
-            post.addResponseFooter(new Header("Content-Encoding", "gzip"));
-            post.addResponseFooter(new Header("Accept-Encoding", "gzip,deflate"));
-            post.setRequestBody(params);
+            post = getDefaultHttpPost();
+            post.setURI(URI.create(address + servletName));
+            post.setEntity(new UrlEncodedFormEntity(Arrays.asList(params), CONTENT_CHARSET));
 
-            int statusCode = client.executeMethod(post);
-
-            if (statusCode == HttpStatus.SC_FORBIDDEN) {
-                throw new InvalidLoginException(post.getStatusLine().toString());
-            } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
-                throw new UnauthorizedException(post.getStatusLine().toString());
-            } else if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
-                throw new ClientException("method failed: " + post.getStatusLine());
-            }
-
-            return IOUtils.toString(post.getResponseBodyAsStream(), post.getResponseCharSet()).trim();
+            response = client.execute(post);
+            return getResponsePayload(response);
         } catch (Exception e) {
             if (post.isAborted()) {
                 throw new ClientException(new RequestAbortedException(e));
@@ -222,14 +213,16 @@ public final class ServerConnection {
                 throw new ClientException(e);
             }
         } finally {
+            HttpClientUtils.closeQuietly(response);
+
             if (post != null) {
-                post.releaseConnection();
+                post.reset();
             }
         }
     }
 
     public synchronized String executeFileUpload(String servletName, NameValuePair[] params, File file) throws ClientException {
-        synchronized(currentOp) {
+        synchronized (currentOp) {
             if (params[0].getName().equals("op")) {
                 Operation op = Operations.getOperation(params[0].getValue());
                 currentOp.setName(op.getName());
@@ -237,35 +230,21 @@ public final class ServerConnection {
                 currentOp.setAuditable(op.isAuditable());
             }
         }
-        
-        post = null;
+
+        CloseableHttpResponse response = null;
 
         try {
-            post = new PostMethod(address + servletName);
-            post.addResponseFooter(new Header("Content-Encoding", "gzip"));
-            post.addResponseFooter(new Header("Accept-Encoding", "gzip,deflate"));
+            post.setURI(URI.create(address + servletName));
 
-            // Create a multipart request from the parameters and the file.
-            Part[] parts = new Part[params.length + 1];
-
-            for (int i = 0; i < params.length; i++) {
-                parts[i] = new StringPart(params[i].getName(), params[i].getValue());
+            MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
+            for (NameValuePair param : params) {
+                multipartEntityBuilder.addTextBody(param.getName(), param.getValue());
             }
+            multipartEntityBuilder.addPart(file.getName(), new FileBody(file));
+            post.setEntity(multipartEntityBuilder.build());
 
-            parts[params.length] = new FilePart(file.getName(), file);
-            post.setRequestEntity(new MultipartRequestEntity(parts, post.getParams()));
-
-            int statusCode = client.executeMethod(post);
-
-            if (statusCode == HttpStatus.SC_FORBIDDEN) {
-                throw new InvalidLoginException(post.getStatusLine().toString());
-            } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
-                throw new UnauthorizedException(post.getStatusLine().toString());
-            } else if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
-                throw new ClientException("method failed: " + post.getStatusLine());
-            }
-
-            return IOUtils.toString(post.getResponseBodyAsStream(), post.getResponseCharSet()).trim();
+            response = client.execute(post);
+            return getResponsePayload(response);
         } catch (Exception e) {
             if (post.isAborted()) {
                 throw new ClientException(new RequestAbortedException(e));
@@ -273,25 +252,25 @@ public final class ServerConnection {
                 throw new ClientException(e);
             }
         } finally {
-            if (post != null) {
-                post.releaseConnection();
-            }
-            
-            synchronized(currentOp) {
+            HttpClientUtils.closeQuietly(response);
+            post.reset();
+
+            synchronized (currentOp) {
                 currentOp.setName(null);
                 currentOp.setDisplayName(null);
                 currentOp.setAuditable(false);
             }
         }
     }
-    
+
     /**
-     * Aborts the request if the currentOp is equal to the passed operation,
-     * or if the passed operation is null
+     * Aborts the request if the currentOp is equal to the passed operation, or if the passed
+     * operation is null
+     * 
      * @param operation
      */
     public void abort(List<Operation> operations) {
-        synchronized(currentOp) {
+        synchronized (currentOp) {
             for (Operation operation : operations) {
                 if (currentOp.equals(operation)) {
                     post.abort();
@@ -304,29 +283,31 @@ public final class ServerConnection {
     public void shutdown() {
         // Shutdown the abort thread
         abortExecutor.shutdownNow();
+
+        HttpClientUtils.closeQuietly(client);
     }
 
     public class AbortTask implements Runnable {
         private final AtomicBoolean running = new AtomicBoolean(false);
         private int requestsInQueue = 0;
         private boolean abortAllowed = false;
-        
+
         public synchronized void incrementRequestsInQueue() {
             requestsInQueue++;
         }
-        
+
         public synchronized void decrementRequestsInQueue() {
             requestsInQueue--;
         }
-        
+
         public synchronized void setAbortAllowed(boolean abortAllowed) {
             this.abortAllowed = abortAllowed;
         }
-        
+
         public boolean isRunning() {
             return running.get();
         }
-        
+
         @Override
         public void run() {
             try {
@@ -336,12 +317,12 @@ public final class ServerConnection {
                         if (requestsInQueue == 0) {
                             return;
                         }
-                        if (requestsInQueue > 1 && abortAllowed && channelPost.isRequestSent()) {
+                        if (requestsInQueue > 1 && abortAllowed && channelPostContext.isRequestSent()) {
                             channelPost.abort();
                             abortAllowed = false;
-                        } 
+                        }
                     }
-                    
+
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
@@ -352,5 +333,34 @@ public final class ServerConnection {
                 running.set(false);
             }
         }
+    }
+
+    private HttpPost getDefaultHttpPost() {
+        HttpPost post = new HttpPost();
+        post.setConfig(requestConfig);
+        return post;
+    }
+
+    private String getResponsePayload(HttpResponse response) throws ClientException, IOException {
+        StatusLine statusLine = response.getStatusLine();
+        int statusCode = statusLine.getStatusCode();
+
+        if (statusCode == HttpStatus.SC_FORBIDDEN) {
+            throw new InvalidLoginException(statusLine.toString());
+        } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
+            throw new UnauthorizedException(statusLine.toString());
+        } else if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
+            throw new ClientException("method failed: " + statusLine);
+        }
+
+        HttpEntity responseEntity = response.getEntity();
+        Charset responseCharset = null;
+        try {
+            responseCharset = ContentType.getOrDefault(responseEntity).getCharset();
+        } catch (Exception e) {
+            responseCharset = ContentType.TEXT_PLAIN.getCharset();
+        }
+
+        return IOUtils.toString(responseEntity.getContent(), responseCharset).trim();
     }
 }

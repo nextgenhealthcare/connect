@@ -10,16 +10,22 @@
 package com.mirth.connect.connectors.http;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map.Entry;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.http.protocol.HTTP;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -70,7 +76,7 @@ public class HttpReceiver extends SourceConnector {
         }
 
         try {
-            configuration.configureConnector(getChannelId(), getMetaDataId(), connectorProperties.getListenerConnectorProperties().getHost());
+            configuration.configureConnector(getChannelId(), getMetaDataId(), connectorProperties.getListenerConnectorProperties().getHost(), null);
         } catch (Exception e) {
             throw new DeployException(e);
         }
@@ -156,22 +162,24 @@ public class HttpReceiver extends SourceConnector {
                 Response selectedResponse = dispatchResult.getSelectedResponse();
 
                 /*
-                 * set the response body and status code (if we choose a
-                 * response from the drop-down)
+                 * set the response body and status code (if we choose a response from the
+                 * drop-down)
                  */
                 if (selectedResponse != null) {
                     attemptedResponse = true;
                     String message = selectedResponse.getMessage();
 
                     if (message != null) {
+                        OutputStream responseOutputStream = servletResponse.getOutputStream();
+
                         // If the client accepts GZIP compression, compress the content
                         String acceptEncoding = baseRequest.getHeader("Accept-Encoding");
                         if (acceptEncoding != null && acceptEncoding.contains("gzip")) {
-                            servletResponse.setHeader("Content-Encoding", "gzip");
-                            servletResponse.getOutputStream().write(HttpUtil.compressGzip(message, connectorProperties.getCharset()));
-                        } else {
-                            servletResponse.getOutputStream().write(message.getBytes(connectorProperties.getCharset()));
+                            servletResponse.setHeader(HTTP.CONTENT_ENCODING, "gzip");
+                            responseOutputStream = new GZIPOutputStream(responseOutputStream);
                         }
+
+                        responseOutputStream.write(message.getBytes(connectorProperties.getCharset()));
 
                         // TODO include full HTTP payload in sentResponse
                         sentResponse = message;
@@ -180,11 +188,9 @@ public class HttpReceiver extends SourceConnector {
                     Status newMessageStatus = selectedResponse.getStatus();
 
                     /*
-                     * If the status code is custom, use the
-                     * entered/replaced string
-                     * If is is not a variable, use the status of the
-                     * destination's response (success = 200, failure = 500)
-                     * Otherwise, return 200
+                     * If the status code is custom, use the entered/replaced string If is is not a
+                     * variable, use the status of the destination's response (success = 200,
+                     * failure = 500) Otherwise, return 200
                      */
                     if (statusCode != -1) {
                         servletResponse.setStatus(statusCode);
@@ -195,9 +201,8 @@ public class HttpReceiver extends SourceConnector {
                     }
                 } else {
                     /*
-                     * If the status code is custom, use the
-                     * entered/replaced string
-                     * Otherwise, return 200
+                     * If the status code is custom, use the entered/replaced string Otherwise,
+                     * return 200
                      */
                     if (statusCode != -1) {
                         servletResponse.setStatus(statusCode);
@@ -236,13 +241,21 @@ public class HttpReceiver extends SourceConnector {
         requestMessage.setHeaders(converter.convertFieldEnumerationToMap(request));
 
         /*
-         * XXX: extractParameters must be called before the parameters are
-         * accessed, otherwise the map will be null.
+         * XXX: extractParameters must be called before the parameters are accessed, otherwise the
+         * map will be null.
          */
         request.extractParameters();
         requestMessage.setParameters(request.getParameters());
 
-        requestMessage.setContent(IOUtils.toString(request.getInputStream(), converter.getDefaultHttpCharset(request.getCharacterEncoding())));
+        InputStream requestInputStream = request.getInputStream();
+
+        // If the request is GZIP encoded, uncompress the content
+        String contentEncoding = (String) new CaseInsensitiveMap(requestMessage.getHeaders()).get(HTTP.CONTENT_ENCODING);
+        if (contentEncoding != null && (contentEncoding.toLowerCase().equals("gzip") || contentEncoding.toLowerCase().equals("x-gzip"))) {
+            requestInputStream = new GZIPInputStream(requestInputStream);
+        }
+
+        requestMessage.setContent(IOUtils.toString(requestInputStream, converter.getDefaultHttpCharset(request.getCharacterEncoding())));
         requestMessage.setIncludeHeaders(!connectorProperties.isBodyOnly());
         requestMessage.setContentType(request.getContentType());
         requestMessage.setRemoteAddress(request.getRemoteAddr());
@@ -254,12 +267,7 @@ public class HttpReceiver extends SourceConnector {
         if (requestMessage.isIncludeHeaders()) {
             rawMessageContent = new HttpMessageConverter().httpRequestToXml(requestMessage);
         } else {
-            // If the request is GZIP encoded, uncompress the content
-            if ("gzip".equals(requestMessage.getHeaders().get("Content-Encoding"))) {
-                rawMessageContent = HttpUtil.uncompressGzip(requestMessage.getContent(), HttpUtil.getCharset(request.getContentType()));
-            } else {
-                rawMessageContent = requestMessage.getContent();
-            }
+            rawMessageContent = requestMessage.getContent();
         }
 
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));

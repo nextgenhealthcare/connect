@@ -20,8 +20,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.httpclient.Header;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
@@ -65,19 +65,11 @@ public class HttpMessageConverter {
 
             DonkeyElement contentElement = requestElement.addChildElement("Content");
 
-            String content = null;
-            // If the request is GZIP encoded, uncompress the content
-            if ("gzip".equals(request.getHeaders().get("Content-Encoding"))) {
-                content = HttpUtil.uncompressGzip(request.getContent(), HttpUtil.getCharset(request.getContentType()));
-            } else {
-                content = request.getContent();
-            }
-
             if (isBinaryContentType(request.getContentType())) {
-                contentElement.setTextContent(new String(Base64.encodeBase64Chunked(content.getBytes())));
+                contentElement.setTextContent(new String(Base64.encodeBase64Chunked(request.getContent().getBytes())));
                 contentElement.setAttribute("encoding", "Base64");
             } else {
-                contentElement.setTextContent(content);
+                contentElement.setTextContent(request.getContent());
             }
 
             return requestElement.toXml();
@@ -134,6 +126,7 @@ public class HttpMessageConverter {
     }
 
     private boolean isBinaryContentType(String contentType) {
-        return StringUtils.startsWithAny(contentType, new String[] { "application/", "image/", "video/", "audio/" });
+        return StringUtils.startsWithAny(contentType, new String[] { "application/", "image/",
+                "video/", "audio/" });
     }
 }

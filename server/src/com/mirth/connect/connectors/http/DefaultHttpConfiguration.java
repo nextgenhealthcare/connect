@@ -12,12 +12,14 @@ package com.mirth.connect.connectors.http;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
 
 public class DefaultHttpConfiguration implements HttpConfiguration {
-    public void configureConnector(String channelId, Integer metaDataId, String host) throws Exception {
+    public void configureConnector(String channelId, Integer metaDataId, String host, RegistryBuilder<ConnectionSocketFactory> socketFactoryRegistryBuilder) throws Exception {
         checkHost(host);
     }
 
@@ -32,7 +34,7 @@ public class DefaultHttpConfiguration implements HttpConfiguration {
     public void configureDispatcher(String channelId, Integer metaDataId, String host) throws Exception {
         checkHost(host);
     }
-    
+
     private void checkHost(String host) throws Exception {
         try {
             String scheme = new URI(host).getScheme();

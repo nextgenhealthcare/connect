@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.http;
 
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.eclipse.jetty.server.Server;
 
 public interface HttpConfiguration {
@@ -19,7 +21,7 @@ public interface HttpConfiguration {
      * @param connector
      *            the HTTP connector to configure
      */
-    public void configureConnector(String channelId, Integer metaDataId, String host) throws Exception;
+    public void configureConnector(String channelId, Integer metaDataId, String host, RegistryBuilder<ConnectionSocketFactory> socketFactoryRegistryBuilder) throws Exception;
 
     public void configureReceiver(Server server, String channelId, String host, int port, int timeout) throws Exception;
 

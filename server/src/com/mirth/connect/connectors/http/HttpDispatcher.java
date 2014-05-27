@@ -10,7 +10,8 @@
 package com.mirth.connect.connectors.http;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,28 +19,52 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthPolicy;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.auth.AuthSchemeProvider;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.GzipCompressingEntity;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.utils.HttpClientUtils;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.auth.BasicSchemeFactory;
+import org.apache.http.impl.auth.DigestSchemeFactory;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -70,8 +95,9 @@ public class HttpDispatcher extends DestinationConnector {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-    private Map<Long, HttpClient> clients = new ConcurrentHashMap<Long, HttpClient>();
+    private Map<Long, CloseableHttpClient> clients = new ConcurrentHashMap<Long, CloseableHttpClient>();
     private HttpConfiguration configuration = null;
+    private Registry<ConnectionSocketFactory> socketFactoryRegistry = null;
 
     @Override
     public void onDeploy() throws DeployException {
@@ -88,7 +114,9 @@ public class HttpDispatcher extends DestinationConnector {
         }
 
         try {
-            configuration.configureConnector(getChannelId(), getMetaDataId(), connectorProperties.getHost());
+            RegistryBuilder<ConnectionSocketFactory> socketFactoryRegistryBuilder = RegistryBuilder.<ConnectionSocketFactory> create().register("http", PlainConnectionSocketFactory.getSocketFactory());
+            configuration.configureConnector(getChannelId(), getMetaDataId(), connectorProperties.getHost(), socketFactoryRegistryBuilder);
+            socketFactoryRegistry = socketFactoryRegistryBuilder.build();
         } catch (Exception e) {
             throw new DeployException(e);
         }
@@ -102,11 +130,19 @@ public class HttpDispatcher extends DestinationConnector {
 
     @Override
     public void onStop() throws StopException {
+        for (CloseableHttpClient client : clients.values().toArray(new CloseableHttpClient[clients.size()])) {
+            HttpClientUtils.closeQuietly(client);
+        }
+
         clients.clear();
     }
 
     @Override
     public void onHalt() throws HaltException {
+        for (CloseableHttpClient client : clients.values().toArray(new CloseableHttpClient[clients.size()])) {
+            HttpClientUtils.closeQuietly(client);
+        }
+
         clients.clear();
     }
 
@@ -128,8 +164,6 @@ public class HttpDispatcher extends DestinationConnector {
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {
         HttpDispatcherProperties httpDispatcherProperties = (HttpDispatcherProperties) connectorProperties;
-
-        String info = "Host: " + httpDispatcherProperties.getHost() + "   Method: " + httpDispatcherProperties.getMethod();
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.WRITING));
 
         String responseData = null;
@@ -137,67 +171,99 @@ public class HttpDispatcher extends DestinationConnector {
         String responseStatusMessage = null;
         Status responseStatus = Status.QUEUED;
 
-        HttpMethod httpMethod = null;
+        CloseableHttpClient client = null;
+        HttpRequestBase httpMethod = null;
+        CloseableHttpResponse httpResponse = null;
         File tempFile = null;
+        int socketTimeout = NumberUtils.toInt(httpDispatcherProperties.getSocketTimeout(), 30000);
 
         try {
+            configuration.configureDispatcher(getChannelId(), getMetaDataId(), httpDispatcherProperties.getHost());
+
             long dispatcherId = getDispatcherId();
-            HttpClient client = clients.get(dispatcherId);
+            client = clients.get(dispatcherId);
             if (client == null) {
-                client = new HttpClient();
+                BasicHttpClientConnectionManager httpClientConnectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry);
+                httpClientConnectionManager.setSocketConfig(SocketConfig.custom().setSoTimeout(socketTimeout).build());
+                client = HttpClients.custom().setConnectionManager(httpClientConnectionManager).build();
                 clients.put(dispatcherId, client);
             }
 
-            configuration.configureDispatcher(getChannelId(), getMetaDataId(), httpDispatcherProperties.getHost());
-            httpMethod = buildHttpRequest(httpDispatcherProperties, connectorMessage, tempFile);
+            URI hostURI = new URI(httpDispatcherProperties.getHost());
+            String host = hostURI.getHost();
+            String scheme = hostURI.getScheme();
+            int port = hostURI.getPort();
+            if (port == -1) {
+                if (scheme.equalsIgnoreCase("https")) {
+                    port = 443;
+                } else {
+                    port = 80;
+                }
+            }
+
+            // Parse the content type field first, and then add the charset if needed
+            ContentType contentType = ContentType.parse(httpDispatcherProperties.getContentType());
+            Charset charset = null;
+            if (contentType.getCharset() == null) {
+                charset = Charset.forName(httpDispatcherProperties.getCharset());
+                contentType = contentType.withCharset(charset);
+            } else {
+                charset = contentType.getCharset();
+            }
+
+            HttpHost target = new HttpHost(host, port, scheme);
+
+            httpMethod = buildHttpRequest(hostURI, httpDispatcherProperties, connectorMessage, tempFile, contentType);
+
+            HttpClientContext context = HttpClientContext.create();
 
             // authentication
             if (httpDispatcherProperties.isUseAuthentication()) {
-                List<String> authenticationPreferences = new ArrayList<String>();
+                CredentialsProvider credsProvider = new BasicCredentialsProvider();
+                AuthScope authScope = new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM);
+                Credentials credentials = new UsernamePasswordCredentials(httpDispatcherProperties.getUsername(), httpDispatcherProperties.getPassword());
+                credsProvider.setCredentials(authScope, credentials);
+                AuthCache authCache = new BasicAuthCache();
+                RegistryBuilder<AuthSchemeProvider> registryBuilder = RegistryBuilder.<AuthSchemeProvider> create();
 
                 if ("Digest".equalsIgnoreCase(httpDispatcherProperties.getAuthenticationType())) {
-                    authenticationPreferences.add(AuthPolicy.DIGEST);
                     logger.debug("using Digest authentication");
+                    // TODO: Cannot preemptively authenticate without realm/nonce values
+                    //authCache.put(target, new DigestScheme());
+                    registryBuilder.register("digest", new DigestSchemeFactory(charset));
                 } else {
-                    authenticationPreferences.add(AuthPolicy.BASIC);
                     logger.debug("using Basic authentication");
+                    registryBuilder.register("basic", new BasicSchemeFactory(charset));
+                    authCache.put(target, new BasicScheme());
                 }
 
-                client.getParams().setAuthenticationPreemptive(true);
-                client.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authenticationPreferences);
-                Credentials credentials = new UsernamePasswordCredentials(httpDispatcherProperties.getUsername(), httpDispatcherProperties.getPassword());
-                client.getState().setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM), credentials);
+                context.setCredentialsProvider(credsProvider);
+                context.setAuthSchemeRegistry(registryBuilder.build());
+                context.setAuthCache(authCache);
+
                 logger.debug("using authentication with credentials: " + credentials);
             }
 
-            client.getParams().setSoTimeout(NumberUtils.toInt(replacer.replaceValues(httpDispatcherProperties.getSocketTimeout()), 30000));
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(socketTimeout).setSocketTimeout(socketTimeout).build();
+            context.setRequestConfig(requestConfig);
 
             // execute the method
-            logger.debug("executing method: type=" + httpMethod.getName() + ", uri=" + httpMethod.getURI().toString());
-            int statusCode = client.executeMethod(httpMethod);
+            logger.debug("executing method: type=" + httpMethod.getMethod() + ", uri=" + httpMethod.getURI().toString());
+            httpResponse = client.execute(target, httpMethod, context);
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
             logger.debug("received status code: " + statusCode);
 
-            String responseBody = null;
-
-            // If the response is GZIP encoded, uncompress the content
-            boolean gzipEncoded = false;
-
-            for (int i = 0; i < httpMethod.getResponseHeaders().length && !gzipEncoded; i++) {
-                Header header = httpMethod.getResponseHeaders()[i];
-
-                if (header.getName().equals("Content-Encoding") && header.getValue().equals("gzip")) {
-                    responseBody = HttpUtil.uncompressGzip(httpMethod.getResponseBody(), httpDispatcherProperties.getCharset());
-                    gzipEncoded = true;
-                }
+            Charset responseCharset = charset;
+            ContentType responseContentType = ContentType.get(httpResponse.getEntity());
+            if (responseContentType != null && responseContentType.getCharset() != null) {
+                responseCharset = responseContentType.getCharset();
             }
 
-            if (!gzipEncoded) {
-                responseBody = new String(httpMethod.getResponseBody(), httpDispatcherProperties.getCharset());
-            }
+            String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), responseCharset);
 
             if (httpDispatcherProperties.isIncludeHeadersInResponse()) {
                 HttpMessageConverter converter = new HttpMessageConverter();
-                responseData = converter.httpResponseToXml(httpMethod.getStatusLine().toString(), httpMethod.getResponseHeaders(), responseBody);
+                responseData = converter.httpResponseToXml(httpResponse.getStatusLine().toString(), httpResponse.getAllHeaders(), responseBody);
             } else {
                 responseData = responseBody;
             }
@@ -213,14 +279,9 @@ public class HttpDispatcher extends DestinationConnector {
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error connecting to HTTP server.", e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error connecting to HTTP server", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error connecting to HTTP server", e);
-
-            // TODO: Handle Exception
-            // connector.handleException(e);
         } finally {
             try {
-                if (httpMethod != null) {
-                    httpMethod.releaseConnection();
-                }
+                HttpClientUtils.closeQuietly(httpResponse);
 
                 // Delete temp files if we created them
                 if (tempFile != null) {
@@ -235,92 +296,83 @@ public class HttpDispatcher extends DestinationConnector {
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);
     }
 
-    private HttpMethod buildHttpRequest(HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage, File tempFile) throws Exception {
-        String address = httpDispatcherProperties.getHost();
+    private HttpRequestBase buildHttpRequest(URI hostURI, HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage, File tempFile, ContentType contentType) throws Exception {
         String method = httpDispatcherProperties.getMethod();
-        Object content = getAttachmentHandler().reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage);
-        String contentType = httpDispatcherProperties.getContentType();
-        String charset = httpDispatcherProperties.getCharset();
+        String content = getAttachmentHandler().reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage);
         boolean isMultipart = httpDispatcherProperties.isMultipart();
         Map<String, String> headers = httpDispatcherProperties.getHeaders();
         Map<String, String> parameters = httpDispatcherProperties.getParameters();
 
-        HttpMethod httpMethod = null;
-
         // populate the query parameters
-        NameValuePair[] queryParameters = new NameValuePair[parameters.size()];
-        int index = 0;
+        List<NameValuePair> queryParameters = new ArrayList<NameValuePair>(parameters.size());
 
         for (Entry<String, String> parameterEntry : parameters.entrySet()) {
-            queryParameters[index] = new NameValuePair(parameterEntry.getKey(), parameterEntry.getValue());
-            index++;
             logger.debug("setting query parameter: [" + parameterEntry.getKey() + ", " + parameterEntry.getValue() + "]");
+            queryParameters.add(new BasicNameValuePair(parameterEntry.getKey(), parameterEntry.getValue()));
         }
 
-        // If GZIP compression is enabled, compress the content
-        if ("gzip".equals(headers.get("Content-Encoding"))) {
-            content = HttpUtil.compressGzip((String) content, charset);
-        }
+        HttpRequestBase httpMethod = null;
+        HttpEntity httpEntity = null;
+        URIBuilder uriBuilder = new URIBuilder(hostURI);
 
         // create the method
         if ("GET".equalsIgnoreCase(method)) {
-            httpMethod = new GetMethod(address);
-            setQueryString(httpMethod, queryParameters);
+            setQueryString(uriBuilder, queryParameters);
+            httpMethod = new HttpGet(uriBuilder.build());
         } else if ("POST".equalsIgnoreCase(method)) {
-            PostMethod postMethod = new PostMethod(address);
-
             if (isMultipart) {
                 logger.debug("setting multipart file content");
+                setQueryString(uriBuilder, queryParameters);
+                httpMethod = new HttpPost(uriBuilder.build());
                 tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tmp");
 
                 if (content instanceof String) {
-                    FileUtils.writeStringToFile(tempFile, (String) content, charset);
-                } else {
-                    FileUtils.writeByteArrayToFile(tempFile, (byte[]) content);
+                    FileUtils.writeStringToFile(tempFile, (String) content, contentType.getCharset(), false);
                 }
 
-                Part[] parts = new Part[] { new FilePart(tempFile.getName(), tempFile, contentType, charset) };
-                setQueryString(postMethod, queryParameters);
-                postMethod.setRequestEntity(new MultipartRequestEntity(parts, postMethod.getParams()));
-            } else if (StringUtils.equals(contentType, "application/x-www-form-urlencoded")) {
-                postMethod.setRequestBody(queryParameters);
+                MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
+                multipartEntityBuilder.addPart(tempFile.getName(), new FileBody(tempFile, contentType, tempFile.getName()));
+                httpEntity = multipartEntityBuilder.build();
+            } else if (contentType.getMimeType().equals(ContentType.APPLICATION_FORM_URLENCODED.getMimeType())) {
+                httpMethod = new HttpPost(uriBuilder.build());
+                httpEntity = new UrlEncodedFormEntity(queryParameters, contentType.getCharset());
             } else {
-                setQueryString(postMethod, queryParameters);
-                setRequestEntity(postMethod, content, contentType, charset);
+                setQueryString(uriBuilder, queryParameters);
+                httpMethod = new HttpPost(uriBuilder.build());
+                httpEntity = new StringEntity(content, contentType);
+            }
+        } else if ("PUT".equalsIgnoreCase(method)) {
+            setQueryString(uriBuilder, queryParameters);
+            httpMethod = new HttpPut(uriBuilder.build());
+            httpEntity = new StringEntity(content, contentType);
+        } else if ("DELETE".equalsIgnoreCase(method)) {
+            setQueryString(uriBuilder, queryParameters);
+            httpMethod = new HttpDelete(uriBuilder.build());
+        }
+
+        if (httpMethod instanceof HttpEntityEnclosingRequestBase) {
+            // Compress the request entity if necessary
+            String contentEncoding = (String) new CaseInsensitiveMap(headers).get(HTTP.CONTENT_ENCODING);
+            if (contentEncoding != null && (contentEncoding.toLowerCase().equals("gzip") || contentEncoding.toLowerCase().equals("x-gzip"))) {
+                httpEntity = new GzipCompressingEntity(httpEntity);
             }
 
-            httpMethod = postMethod;
-        } else if ("PUT".equalsIgnoreCase(method)) {
-            PutMethod putMethod = new PutMethod(address);
-            setRequestEntity(putMethod, content, contentType, charset);
-            setQueryString(putMethod, queryParameters);
-
-            httpMethod = putMethod;
-        } else if ("DELETE".equalsIgnoreCase(method)) {
-            httpMethod = new DeleteMethod(address);
-            setQueryString(httpMethod, queryParameters);
+            ((HttpEntityEnclosingRequestBase) httpMethod).setEntity(httpEntity);
         }
 
         // set the headers
         for (Entry<String, String> headerEntry : headers.entrySet()) {
-            httpMethod.setRequestHeader(new Header(headerEntry.getKey(), headerEntry.getValue()));
             logger.debug("setting method header: [" + headerEntry.getKey() + ", " + headerEntry.getValue() + "]");
+            httpMethod.addHeader(headerEntry.getKey(), headerEntry.getValue());
         }
+        httpMethod.setHeader(HTTP.CONTENT_TYPE, contentType.toString());
 
         return httpMethod;
     }
 
-    private void setRequestEntity(EntityEnclosingMethod method, Object content, String contentType, String charset) throws UnsupportedEncodingException {
-        if (content instanceof String) {
-            method.setRequestEntity(new StringRequestEntity((String) content, contentType, charset));
-        } else {
-            method.setRequestEntity(new ByteArrayRequestEntity((byte[]) content, contentType));
-        }
-    }
-
-    private void setQueryString(HttpMethod method, NameValuePair[] queryParameters) {
-        if (queryParameters.length > 0) {
-            method.setQueryString(queryParameters);
+    private void setQueryString(URIBuilder uriBuilder, List<NameValuePair> queryParameters) {
+        if (queryParameters.size() > 0) {
+            uriBuilder.setParameters(queryParameters);
         }
     }
 }
