@@ -210,8 +210,8 @@ public class DefaultExtensionController extends ExtensionController {
         }
 
         /*
-         * Remove extensions from the extensionProperties if they are not in the
-         * pluginMetaDataMap or connectorMetaDataMap
+         * Remove extensions from the extensionProperties if they are not in the pluginMetaDataMap
+         * or connectorMetaDataMap
          */
         @SuppressWarnings("unchecked")
         Iterator<String> keys = extensionProperties.getKeys();
@@ -282,14 +282,14 @@ public class DefaultExtensionController extends ExtensionController {
                                 serverPlugins.add(dataTypePlugin);
                                 logger.debug("sucessfully loaded server data type plugin: " + serverPlugin.getPluginPointName());
                             }
-                            
+
                             if (serverPlugin instanceof AuthorizationPlugin) {
                                 AuthorizationPlugin authorizationPlugin = (AuthorizationPlugin) serverPlugin;
-                                
+
                                 if (this.authorizationPlugin != null) {
                                     throw new Exception("Multiple Authorization Plugins are not permitted.");
                                 }
-                                
+
                                 this.authorizationPlugin = authorizationPlugin;
                                 serverPlugins.add(authorizationPlugin);
                                 logger.debug("sucessfully loaded server authorization plugin: " + serverPlugin.getPluginPointName());
@@ -322,7 +322,7 @@ public class DefaultExtensionController extends ExtensionController {
     public Map<String, DataTypeServerPlugin> getDataTypePlugins() {
         return dataTypePlugins;
     }
-    
+
     @Override
     public AuthorizationPlugin getAuthorizationPlugin() {
         return authorizationPlugin;
@@ -419,8 +419,7 @@ public class DefaultExtensionController extends ExtensionController {
 
         try {
             /*
-             * create a new temp file (in the install temp dir) to store the zip
-             * file contents
+             * create a new temp file (in the install temp dir) to store the zip file contents
              */
             tempFile = File.createTempFile(ServerUUIDGenerator.getUUID(), ".zip", installTempDir);
             // write the contents of the multipart fileitem to the temp file
@@ -452,9 +451,9 @@ public class DefaultExtensionController extends ExtensionController {
 
                 if (entry.isDirectory()) {
                     /*
-                     * assume directories are stored parents first then
-                     * children. TODO: this is not robust, just for
-                     * demonstration purposes.
+                     * assume directories are stored parents first then children.
+                     * 
+                     * TODO: this is not robust, just for demonstration purposes.
                      */
                     File directory = new File(installTempDir, entry.getName());
                     directory.mkdir();
@@ -468,7 +467,7 @@ public class DefaultExtensionController extends ExtensionController {
                 }
             }
         } catch (Exception e) {
-            throw new ControllerException("Error extracting extension.", e);
+            throw new ControllerException("Error extracting extension. " + e.toString(), e);
         } finally {
             if (zipFile != null) {
                 try {
@@ -484,11 +483,10 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     /**
-     * Adds the specified plugin path to a list of plugins that should be
-     * deleted on next server startup. Also deletes the schema version property
-     * from the database. If this function fails to add the extension path to
-     * the uninstall file, it will still continue to remove add the database
-     * uninstall scripts, and the folder must be deleted manually.
+     * Adds the specified plugin path to a list of plugins that should be deleted on next server
+     * startup. Also deletes the schema version property from the database. If this function fails
+     * to add the extension path to the uninstall file, it will still continue to remove add the
+     * database uninstall scripts, and the folder must be deleted manually.
      * 
      */
     @Override
@@ -542,8 +540,8 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     /*
-     * append the extension path name to a list of extensions that should be
-     * deleted on next startup by MirthLauncher
+     * append the extension path name to a list of extensions that should be deleted on next startup
+     * by MirthLauncher
      */
     private void addExtensionToUninstallFile(String pluginPath) {
         File uninstallFile = new File(getExtensionsPath(), EXTENSIONS_UNINSTALL_FILE);
@@ -630,10 +628,9 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     /**
-     * Executes the script that removes that database tables for plugins that
-     * are marked for removal. The actual removal of the plugin directory
-     * happens in MirthLauncher.java, before they can be added to the server
-     * classpath.
+     * Executes the script that removes that database tables for plugins that are marked for
+     * removal. The actual removal of the plugin directory happens in MirthLauncher.java, before
+     * they can be added to the server classpath.
      * 
      */
     @Override

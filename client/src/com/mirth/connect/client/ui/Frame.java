@@ -4669,21 +4669,20 @@ public class Frame extends JXFrame {
                 return false;
             }
         } catch (Exception e) {
-            String errorMessage = "Unable to install extension.";
+            String errorMessage = e.getMessage();
             try {
-                String tempErrorMessage = java.net.URLDecoder.decode(e.getMessage(), "UTF-8");
-                String versionError = "VersionMismatchException: ";
-                int messageIndex = tempErrorMessage.indexOf(versionError);
-
-                if (messageIndex != -1) {
-                    errorMessage = tempErrorMessage.substring(messageIndex + versionError.length());
-                }
-
+                errorMessage = java.net.URLDecoder.decode(errorMessage, "UTF-8");
             } catch (UnsupportedEncodingException e1) {
-                alertException(this, e1.getStackTrace(), e1.getMessage());
             }
 
-            alertError(this, errorMessage);
+            String versionError = "VersionMismatchException: ";
+            int messageIndex = errorMessage.indexOf(versionError);
+
+            if (messageIndex != -1) {
+                alertError(this, errorMessage.substring(messageIndex + versionError.length()));
+            } else {
+                alertException(this, e.getStackTrace(), "Unable to install extension: " + errorMessage);
+            }
 
             return false;
         }
