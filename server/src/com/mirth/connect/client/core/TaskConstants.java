@@ -161,4 +161,5 @@ public class TaskConstants {
     public static final String OTHER_VISIT_MIRTH = "goToMirth";
     public static final String OTHER_REPORT_ISSUE = "doReportIssue";
     public static final String OTHER_LOGOUT = "doLogout";
+    public static final String OTHER_VIEW_USER_API = "goToUserAPI";
 }

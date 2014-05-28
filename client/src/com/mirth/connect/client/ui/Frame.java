@@ -1022,6 +1022,7 @@ public class Frame extends JXFrame {
         addTask(TaskConstants.OTHER_ABOUT, "About Mirth Connect", "View the about page for Mirth Connect.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/information.png")), otherPane, null);
         addTask(TaskConstants.OTHER_VISIT_MIRTH, "Visit mirthcorp.com", "View Mirth's homepage.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/house.png")), otherPane, null);
         addTask(TaskConstants.OTHER_REPORT_ISSUE, "Report Issue", "Visit Mirth's issue tracker.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bug.png")), otherPane, null);
+        addTask(TaskConstants.OTHER_VIEW_USER_API, "View User API", "View documentation for the Mirth Connect User API.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_text.png")), otherPane, null);
         addTask(TaskConstants.OTHER_LOGOUT, "Logout", "Logout and return to the login screen.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/disconnect.png")), otherPane, null);
         setNonFocusable(otherPane);
         taskPaneContainer.add(otherPane);
@@ -1740,6 +1741,10 @@ public class Frame extends JXFrame {
     // ////////////////////////////////////////////////////////////
     public void goToMirth() {
         BareBonesBrowserLaunch.openURL("http://www.mirthcorp.com/");
+    }
+    
+    public void goToUserAPI() {
+        BareBonesBrowserLaunch.openURL(PlatformUI.SERVER_NAME + UIConstants.USER_API_LOCATION);
     }
 
     public void goToAbout() {
