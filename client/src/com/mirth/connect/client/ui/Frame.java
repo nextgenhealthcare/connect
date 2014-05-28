@@ -2321,6 +2321,8 @@ public class Frame extends JXFrame {
                         channelStatus.setDeployedDate(channelSummary.getChannelStatus().getDeployedDate());
                         channelStatus.setDeployedRevisionDelta(channelSummary.getChannelStatus().getDeployedRevisionDelta());
                     }
+
+                    channelStatus.setLocalChannelId(channelSummary.getChannelStatus().getLocalChannelId());
                 }
             }
 
@@ -3332,8 +3334,8 @@ public class Frame extends JXFrame {
         } else {
             List<Channel> selectedChannels = channelPanel.getSelectedChannels();
             if (selectedChannels.size() > 1) {
-                JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
-                return false;
+                exportChannels(selectedChannels);
+                return true;
             }
             channel = selectedChannels.get(0);
         }
@@ -3345,6 +3347,16 @@ public class Frame extends JXFrame {
     }
 
     public void doExportAll() {
+        if (!channelStatuses.isEmpty()) {
+            List<Channel> selectedChannels = new ArrayList<Channel>();
+            for (ChannelStatus channelStatus : channelStatuses.values()) {
+                selectedChannels.add(channelStatus.getChannel());
+            }
+            exportChannels(selectedChannels);
+        }
+    }
+
+    private void exportChannels(List<Channel> channelList) {
         JFileChooser exportFileChooser = new JFileChooser();
         exportFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
@@ -3360,28 +3372,25 @@ public class Frame extends JXFrame {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             userPreferences.put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
             try {
+                int exportCount = 0;
                 exportDirectory = exportFileChooser.getSelectedFile();
 
-                for (ChannelStatus channelStatus : channelStatuses.values()) {
-                    Channel channel = channelStatus.getChannel();
-                    ChannelTagInfo channelTagInfo = getChannelTagInfo(false);
+                for (Channel channel : channelList) {
+                    ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+                    String channelXML = serializer.serialize(channel);
 
-                    if (!channelTagInfo.isEnabled() || CollectionUtils.containsAny(channelTagInfo.getVisibleTags(), channel.getProperties().getTags())) {
-                        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-                        String channelXML = serializer.serialize(channel);
+                    exportFile = new File(exportDirectory.getAbsolutePath() + "/" + channel.getName() + ".xml");
 
-                        exportFile = new File(exportDirectory.getAbsolutePath() + "/" + channel.getName() + ".xml");
-
-                        if (exportFile.exists()) {
-                            if (!alertOption(this, "The file " + channel.getName() + ".xml already exists.  Would you like to overwrite it?")) {
-                                continue;
-                            }
+                    if (exportFile.exists()) {
+                        if (!alertOption(this, "The file " + channel.getName() + ".xml already exists.  Would you like to overwrite it?")) {
+                            continue;
                         }
-
-                        FileUtils.writeStringToFile(exportFile, channelXML, UIConstants.CHARSET);
                     }
+
+                    FileUtils.writeStringToFile(exportFile, channelXML, UIConstants.CHARSET);
+                    exportCount++;
                 }
-                alertInformation(this, "All files were written successfully to " + exportDirectory.getPath() + ".");
+                alertInformation(this, exportCount + " files were written successfully to " + exportDirectory.getPath() + ".");
             } catch (IOException ex) {
                 alertError(this, "File could not be written.");
             }
