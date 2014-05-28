@@ -36,21 +36,24 @@ public class Statistics {
     
     public void resetStats(String channelId, Integer metaDataId, Set<Status> statuses) {
         Set<Status> trackedStatuses = getTrackedStatuses();
-        
+
         for (Status status : statuses) {
             if (trackedStatuses.contains(status)) {
-                getChannelStats(channelId).get(metaDataId).put(status, 0L);
-                
-                if (sendEvents && metaDataId != null) {
-                    MessageEventType type = MessageEventType.fromStatus(status);
-                    
-                    if (type != null) {
-                        // Dispatch a message event if the the status is in MessageEventType and the connector stat was updated
-                        if (eventDispatcher == null) {
-                            eventDispatcher = Donkey.getInstance().getEventDispatcher();
+                Map<Integer, Map<Status, Long>> channelStats = getChannelStats(channelId);
+                if (channelStats.containsKey(metaDataId)) {
+                    channelStats.get(metaDataId).put(status, 0L);
+
+                    if (sendEvents && metaDataId != null) {
+                        MessageEventType type = MessageEventType.fromStatus(status);
+
+                        if (type != null) {
+                            // Dispatch a message event if the the status is in MessageEventType and the connector stat was updated
+                            if (eventDispatcher == null) {
+                                eventDispatcher = Donkey.getInstance().getEventDispatcher();
+                            }
+
+                            eventDispatcher.dispatchEvent(new MessageEvent(channelId, metaDataId, type, 0L, true));
                         }
-                        
-                        eventDispatcher.dispatchEvent(new MessageEvent(channelId, metaDataId, type, 0L, true));
                     }
                 }
             }

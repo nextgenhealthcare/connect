@@ -9,7 +9,13 @@
 
 package com.mirth.connect.server.userutil;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,6 +36,7 @@ public class ChannelUtil {
     private static EngineController engineController = ControllerFactory.getFactory().createEngineController();
     private static ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private static ExecutorService executor = Executors.newCachedThreadPool();
+    private static com.mirth.connect.donkey.server.controllers.ChannelController donkeyController = com.mirth.connect.donkey.server.controllers.ChannelController.getInstance();
 
     private ChannelUtil() {}
 
@@ -463,6 +470,117 @@ public class ChannelUtil {
                 return com.mirth.connect.donkey.model.message.Status.PENDING;
             default:
                 return null;
+        }
+    }
+
+    /**
+     * Reset all statistics for the specified channel by name.
+     * 
+     * @param channelIdOrName
+     *            The channel id or current name of the deployed channel.
+     * @return A {@link Future} object representing the result of the asynchronous operation. You
+     *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
+     *         to wait for the operation to finish.
+     * @throws Exception
+     */
+    public static Future<Void> resetStatistics(final String channelIdOrName) throws Exception {
+        return new Future<Void>(executor.submit(new Callable<Void>(){
+            @Override
+            public Void call() throws Exception {
+                clearStatistics(channelIdOrName, null, null);
+                return null;
+            }
+        }));
+    }
+
+    /**
+     * Reset all statistics for the specified connector on the given channel.
+     *
+     * @param channelIdOrName
+     *            The channel id or current name of the deployed channel.
+          * @param metaDataId
+     *            The metadata id of the deployed connector. Note that the source connector has a metadata id
+     *            of 0 and the aggregate of null.
+     * @return A {@link Future} object representing the result of the asynchronous operation. You
+     *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
+     *         to wait for the operation to finish.
+     * @throws Exception
+     */
+    public static Future<Void> resetStatistics(final String channelIdOrName, final Integer metaDataId) throws Exception {
+        return new Future<Void>(executor.submit(new Callable<Void>(){
+            @Override
+            public Void call() throws Exception {
+                clearStatistics(channelIdOrName, metaDataId, null);
+                return null;
+            }
+        }));
+    }
+
+    /**
+     * Reset the specified statistics for the specified connector on the given channel.
+     * 
+     * @param channelIdOrName
+     *            The channel id or current name of the deployed channel.
+     * @param metaDataId
+     *            The metadata id of the deployed connector. Note that the source connector has a metadata id
+     *            of 0 and the aggregate of null.
+     * @param statuses
+     *            A collection of statuses to reset.
+     * @return A {@link Future} object representing the result of the asynchronous operation. You
+     *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
+     *         to wait for the operation to finish.
+     * @throws Exception
+     */
+    public static Future<Void> resetStatistics(final String channelIdOrName, final Integer metaDataId, final Collection<Status> statuses) throws Exception {
+        return new Future<Void>(executor.submit(new Callable<Void>(){
+            @Override
+            public Void call() throws Exception {
+                clearStatistics(channelIdOrName, metaDataId, statuses);
+                return null;
+            }
+        }));
+    }
+
+    private static void clearStatistics(String channelIdOrName, Integer metaDataId, Collection<Status> statuses) {
+        Map<String, List<Integer>> channelMap = new HashMap<String, List<Integer>>();
+        Set<com.mirth.connect.donkey.model.message.Status> statusesToReset = new HashSet<com.mirth.connect.donkey.model.message.Status>();
+        Set<com.mirth.connect.donkey.model.message.Status> resetableStatuses = new HashSet<com.mirth.connect.donkey.model.message.Status>();
+
+        resetableStatuses.add(com.mirth.connect.donkey.model.message.Status.RECEIVED);
+        resetableStatuses.add(com.mirth.connect.donkey.model.message.Status.FILTERED);
+        resetableStatuses.add(com.mirth.connect.donkey.model.message.Status.ERROR);
+        resetableStatuses.add(com.mirth.connect.donkey.model.message.Status.SENT);
+
+        com.mirth.connect.donkey.server.channel.Channel deployedChannel = engineController.getDeployedChannel(convertId(channelIdOrName));
+        if (deployedChannel != null) {
+            List<Integer> connectorList = deployedChannel.getMetaDataIds();
+
+            if (metaDataId == null) {
+                connectorList.add(null);
+            } else {
+                Set<Integer> metaDataIds = new HashSet<Integer>(connectorList);
+                connectorList.clear();
+                if (metaDataIds.contains(metaDataId)) {
+                    connectorList.add(metaDataId);
+                }
+            }
+
+            if (!connectorList.isEmpty()) {
+                channelMap.put(convertId(channelIdOrName), connectorList);
+
+                if (statuses == null) {
+                    statusesToReset.addAll(resetableStatuses);
+                } else {
+                    for (Status status : statuses) {
+                        com.mirth.connect.donkey.model.message.Status convertedStatus = convertStatus(status);
+                        if (resetableStatuses.contains(convertedStatus)) {
+                            statusesToReset.add(convertedStatus);
+                        }
+                    }
+                }
+
+                donkeyController.resetStatistics(channelMap, statusesToReset);
+            }
         }
     }
 }
