@@ -258,7 +258,7 @@ public class JavaScriptBuilder {
                 }
             }
 
-            builder.append("function doFilter() { phase[0] = 'filter'; return !!(");
+            builder.append("function doFilter() { phase[0] = 'filter'; return (");
 
             // call each of the above functions in a big boolean expression
             for (ListIterator<Rule> iter = filter.getRules().listIterator(); iter.hasNext();) {
@@ -271,7 +271,7 @@ public class JavaScriptBuilder {
                     operator = " || ";
                 }
 
-                builder.append(operator + "filterRule" + iter.nextIndex() + "()");
+                builder.append(operator + "(filterRule" + iter.nextIndex() + "() == true)");
             }
 
             builder.append("); }\n");
