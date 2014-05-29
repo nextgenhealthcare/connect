@@ -1920,8 +1920,8 @@ public class Frame extends JXFrame {
         LoadedExtensions.getInstance().stopPlugins();
 
         try {
-            mirthClient.cleanup();
             mirthClient.logout();
+            mirthClient.cleanup();
             this.dispose();
 
             if (!quit) {

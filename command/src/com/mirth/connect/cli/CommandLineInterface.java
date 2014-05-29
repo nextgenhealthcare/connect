@@ -183,8 +183,8 @@ public class CommandLineInterface {
             } else {
                 runConsole();
             }
-            client.cleanup();
             client.logout();
+            client.cleanup();
             out.println("Disconnected from server.");
         } catch (ClientException ce) {
             ce.printStackTrace();
