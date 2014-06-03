@@ -26,6 +26,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     private ResponseConnectorProperties responseConnectorProperties;
 
     private boolean bodyOnly;
+    private boolean xmlBody;
     private String responseContentType;
     private String responseStatusCode;
     private Map<String, String> responseHeaders;
@@ -38,6 +39,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         responseConnectorProperties = new ResponseConnectorProperties();
 
         this.bodyOnly = true;
+        this.xmlBody = false;
         this.responseContentType = "text/plain";
         this.responseStatusCode = "";
         this.responseHeaders = new LinkedHashMap<String, String>();
@@ -52,6 +54,14 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
 
     public void setBodyOnly(boolean bodyOnly) {
         this.bodyOnly = bodyOnly;
+    }
+
+    public boolean isXmlBody() {
+        return xmlBody;
+    }
+
+    public void setXmlBody(boolean xmlBody) {
+        this.xmlBody = xmlBody;
     }
 
     public String getResponseContentType() {

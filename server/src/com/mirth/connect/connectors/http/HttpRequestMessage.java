@@ -11,16 +11,20 @@ package com.mirth.connect.connectors.http;
 
 import java.util.Map;
 
+import org.apache.commons.collections.map.CaseInsensitiveMap;
+import org.apache.http.entity.ContentType;
+
 public class HttpRequestMessage {
     private String method;
-    private String content;
+    private Object content;
     private Map<String, String> headers;
+    private CaseInsensitiveMap caseInsensitiveHeaders;
     private Map<String, Object> parameters;
-    private boolean includeHeaders;
-    private String contentType;
+    private ContentType contentType;
     private String remoteAddress;
     private String queryString;
     private String requestUrl;
+    private String contextPath;
 
     public String getMethod() {
         return method;
@@ -30,11 +34,11 @@ public class HttpRequestMessage {
         this.method = method;
     }
 
-    public String getContent() {
+    public Object getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public void setContent(Object content) {
         this.content = content;
     }
 
@@ -42,8 +46,13 @@ public class HttpRequestMessage {
         return headers;
     }
 
+    public Map<String, String> getCaseInsensitiveHeaders() {
+        return caseInsensitiveHeaders;
+    }
+
     public void setHeaders(Map<String, String> headers) {
         this.headers = headers;
+        caseInsensitiveHeaders = new CaseInsensitiveMap(headers);
     }
 
     public Map<String, Object> getParameters() {
@@ -54,19 +63,11 @@ public class HttpRequestMessage {
         this.parameters = parameters;
     }
 
-    public boolean isIncludeHeaders() {
-        return includeHeaders;
-    }
-
-    public void setIncludeHeaders(boolean includeHeaders) {
-        this.includeHeaders = includeHeaders;
-    }
-
-    public String getContentType() {
+    public ContentType getContentType() {
         return contentType;
     }
 
-    public void setContentType(String contentType) {
+    public void setContentType(ContentType contentType) {
         this.contentType = contentType;
     }
 
@@ -94,4 +95,11 @@ public class HttpRequestMessage {
         this.requestUrl = requestUrl;
     }
 
+    public String getContextPath() {
+        return contextPath;
+    }
+
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
 }

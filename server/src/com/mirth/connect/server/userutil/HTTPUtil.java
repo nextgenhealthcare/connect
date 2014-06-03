@@ -10,11 +10,24 @@
 package com.mirth.connect.server.userutil;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpParser;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.entity.ContentType;
+
+import com.mirth.connect.connectors.http.HttpMessageConverter;
+import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 
 /**
  * Provides HTTP utility methods.
@@ -39,5 +52,65 @@ public class HTTPUtil {
         }
 
         return headersMap;
+    }
+
+    /**
+     * Serializes an HTTP request body into XML.
+     * 
+     * @param httpBody
+     *            The request body/payload input stream to parse.
+     * @param contentType
+     *            The MIME content type of the request.
+     * @return The serialized XML string.
+     * @throws MessagingException
+     * @throws IOException
+     * @throws DonkeyElementException
+     * @throws ParserConfigurationException
+     */
+    public static String httpBodyToXml(InputStream httpBody, String contentType) throws MessagingException, IOException, DonkeyElementException, ParserConfigurationException {
+        ContentType type = getContentType(contentType);
+        Object content;
+
+        if (type.getMimeType().startsWith(FileUploadBase.MULTIPART)) {
+            content = new MimeMultipart(new ByteArrayDataSource(httpBody, type.toString()));
+        } else {
+            content = IOUtils.toString(httpBody, HttpMessageConverter.getDefaultHttpCharset(type.getCharset().name()));
+        }
+
+        return HttpMessageConverter.contentToXml(content, type, true);
+    }
+
+    /**
+     * Serializes an HTTP request body into XML.
+     * 
+     * @param httpBody
+     *            The request body/payload string to parse.
+     * @param contentType
+     *            The MIME content type of the request.
+     * @return The serialized XML string.
+     * @throws MessagingException
+     * @throws IOException
+     * @throws DonkeyElementException
+     * @throws ParserConfigurationException
+     */
+    public static String httpBodyToXml(String httpBody, String contentType) throws MessagingException, IOException, DonkeyElementException, ParserConfigurationException {
+        ContentType type = getContentType(contentType);
+        Object content;
+
+        if (type.getMimeType().startsWith(FileUploadBase.MULTIPART)) {
+            content = new MimeMultipart(new ByteArrayDataSource(httpBody, type.toString()));
+        } else {
+            content = httpBody;
+        }
+
+        return HttpMessageConverter.contentToXml(content, type, true);
+    }
+
+    private static ContentType getContentType(String contentType) {
+        try {
+            return ContentType.parse(contentType);
+        } catch (RuntimeException e) {
+            return ContentType.TEXT_PLAIN;
+        }
     }
 }

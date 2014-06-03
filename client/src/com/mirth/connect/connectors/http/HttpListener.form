@@ -52,9 +52,11 @@
                   <Component id="responseContentTypeField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
                   <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="responseStatusCodeField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
-                  <Component id="responseHeadersPane" alignment="0" pref="337" max="32767" attributes="0"/>
+                  <Component id="responseHeadersPane" alignment="0" pref="437" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="messageContentBodyOnlyRadio" min="-2" max="-2" attributes="0"/>
+                      <Component id="messageContentPlainBodyRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="messageContentXmlBodyRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="messageContentHeadersQueryAndBodyRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -84,7 +86,8 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="messageContentLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="messageContentHeadersQueryAndBodyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="messageContentBodyOnlyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="messageContentPlainBodyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="messageContentXmlBodyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -122,27 +125,22 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="messageContentBodyOnlyRadio">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="messageContentPlainBodyRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="includeHeadersGroup"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Body Only"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If selected, the message content will only include the body as a string.&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="Plain Body"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If selected, the request body will be sent to the channel as a raw string.&lt;br/&gt;Multipart messages will not be automatically parsed.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="messageContentBodyOnlyRadioActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="messageContentPlainBodyRadioActionPerformed"/>
       </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="messageContentHeadersQueryAndBodyRadio">
@@ -150,16 +148,11 @@
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="includeHeadersGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Headers, Query, and Body as XML"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If selected, the message content will include the request headers, query parameters, and body as XML.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If selected, the message content will include the request headers,&lt;br/&gt;query parameters, and body as XML. Multipart messages will not&lt;br/&gt;be automatically parsed.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -287,6 +280,24 @@
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the status code for the HTTP response.  If this field is left blank a &lt;br&gt;default status code of 200 will be returned for a successful message, &lt;br&gt;and 500 will be returned for an errored message. If a &quot;Respond from&quot; &lt;br&gt;value is chosen, that response will be used to determine a successful &lt;br&gt;or errored response.&lt;html&gt;"/>
       </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="messageContentXmlBodyRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="includeHeadersGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="XML Body"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If selected, the request body will be sent to the channel as serialized XML.&lt;br/&gt;Multipart messages will be automatically parsed into separate XML nodes.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="messageContentXmlBodyRadioActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

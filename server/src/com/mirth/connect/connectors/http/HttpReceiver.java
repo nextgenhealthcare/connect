@@ -12,19 +12,29 @@ package com.mirth.connect.connectors.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.collections.map.CaseInsensitiveMap;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.http.entity.ContentType;
 import org.apache.http.protocol.HTTP;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Request;
@@ -46,10 +56,13 @@ import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
+import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 public class HttpReceiver extends SourceConnector {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -92,10 +105,18 @@ public class HttpReceiver extends SourceConnector {
         int timeout = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getTimeout(), getChannelId()), 0);
 
         // Initialize contextPath to "" or its value after replacements
-        String contextPath = (connectorProperties.getContextPath() == null ? "" : replacer.replaceValues(connectorProperties.getContextPath(), getChannelId()));
+        String contextPath = (connectorProperties.getContextPath() == null ? "" : replacer.replaceValues(connectorProperties.getContextPath(), getChannelId())).trim();
 
+        /*
+         * Empty string and "/" are both valid and equal functionally. However if there is a
+         * resource defined, we need to make sure that the context path starts with a slash and
+         * doesn't end with one.
+         */
         if (!contextPath.startsWith("/")) {
             contextPath = "/" + contextPath;
+        }
+        if (contextPath.endsWith("/")) {
+            contextPath = contextPath.substring(0, contextPath.length() - 1);
         }
 
         try {
@@ -233,46 +254,82 @@ public class HttpReceiver extends SourceConnector {
         }
     };
 
-    private DispatchResult processData(Request request) throws IOException, ChannelException {
-        HttpMessageConverter converter = new HttpMessageConverter();
-
+    private DispatchResult processData(Request request) throws IOException, ChannelException, MessagingException, DonkeyElementException, ParserConfigurationException {
         HttpRequestMessage requestMessage = new HttpRequestMessage();
         requestMessage.setMethod(request.getMethod());
-        requestMessage.setHeaders(converter.convertFieldEnumerationToMap(request));
+        requestMessage.setHeaders(HttpMessageConverter.convertFieldEnumerationToMap(request));
 
         /*
          * XXX: extractParameters must be called before the parameters are accessed, otherwise the
          * map will be null.
          */
         request.extractParameters();
-        requestMessage.setParameters(request.getParameters());
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+
+        for (Entry<String, Object> entry : request.getParameters().entrySet()) {
+            if (entry.getValue() instanceof List<?>) {
+                String name = entry.getKey();
+                int index = name.indexOf("[]");
+                if (index >= 0) {
+                    name = name.substring(0, index);
+                }
+                List<String> list = (List<String>) entry.getValue();
+                parameterMap.put(name, list.toArray(new String[list.size()]));
+            } else {
+                parameterMap.put(entry.getKey(), entry.getValue().toString());
+            }
+        }
+
+        requestMessage.setParameters(parameterMap);
 
         InputStream requestInputStream = request.getInputStream();
 
         // If the request is GZIP encoded, uncompress the content
-        String contentEncoding = (String) new CaseInsensitiveMap(requestMessage.getHeaders()).get(HTTP.CONTENT_ENCODING);
+        String contentEncoding = requestMessage.getCaseInsensitiveHeaders().get(HTTP.CONTENT_ENCODING);
         if (contentEncoding != null && (contentEncoding.toLowerCase().equals("gzip") || contentEncoding.toLowerCase().equals("x-gzip"))) {
             requestInputStream = new GZIPInputStream(requestInputStream);
         }
 
-        requestMessage.setContent(IOUtils.toString(requestInputStream, converter.getDefaultHttpCharset(request.getCharacterEncoding())));
-        requestMessage.setIncludeHeaders(!connectorProperties.isBodyOnly());
-        requestMessage.setContentType(request.getContentType());
+        // Only parse multipart if XML Body is selected
+        if (connectorProperties.isXmlBody() && ServletFileUpload.isMultipartContent(request)) {
+            requestMessage.setContent(new MimeMultipart(new ByteArrayDataSource(requestInputStream, request.getContentType())));
+        } else {
+            requestMessage.setContent(IOUtils.toString(requestInputStream, HttpMessageConverter.getDefaultHttpCharset(request.getCharacterEncoding())));
+        }
+
+        requestMessage.setContentType(ContentType.parse(request.getContentType()));
         requestMessage.setRemoteAddress(request.getRemoteAddr());
         requestMessage.setQueryString(request.getQueryString());
         requestMessage.setRequestUrl(request.getRequestURL().toString());
+        requestMessage.setContextPath(new URL(requestMessage.getRequestUrl()).getPath());
 
         String rawMessageContent;
 
-        if (requestMessage.isIncludeHeaders()) {
-            rawMessageContent = new HttpMessageConverter().httpRequestToXml(requestMessage);
+        if (connectorProperties.isBodyOnly()) {
+            if (connectorProperties.isXmlBody()) {
+                rawMessageContent = HttpMessageConverter.contentToXml(requestMessage.getContent(), requestMessage.getContentType(), true);
+            } else {
+                rawMessageContent = (String) requestMessage.getContent();
+            }
         } else {
-            rawMessageContent = requestMessage.getContent();
+            rawMessageContent = HttpMessageConverter.httpRequestToXml(requestMessage);
         }
 
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));
 
-        return dispatchRawMessage(new RawMessage(rawMessageContent));
+        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        sourceMap.put("remoteAddress", requestMessage.getRemoteAddress());
+        sourceMap.put("remotePort", request.getRemotePort());
+        sourceMap.put("localAddress", request.getLocalAddr());
+        sourceMap.put("localPort", request.getLocalPort());
+        sourceMap.put("method", requestMessage.getMethod());
+        sourceMap.put("url", requestMessage.getRequestUrl());
+        sourceMap.put("query", StringUtils.trimToEmpty(requestMessage.getQueryString()));
+        sourceMap.put("contextPath", requestMessage.getContextPath());
+        sourceMap.put("headers", Collections.unmodifiableMap(requestMessage.getCaseInsensitiveHeaders()));
+        sourceMap.put("parameters", Collections.unmodifiableMap(requestMessage.getParameters()));
+
+        return dispatchRawMessage(new RawMessage(rawMessageContent, null, sourceMap));
     }
 
     private String replaceValues(String template, DispatchResult dispatchResult) {

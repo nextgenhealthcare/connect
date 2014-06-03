@@ -10,6 +10,7 @@
 package com.mirth.connect.connectors.http;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -32,7 +33,11 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.panels.connectors.ListenerSettingsPanel;
+import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 
 public class HttpListener extends ConnectorSettingsPanel {
 
@@ -41,7 +46,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     private final String NAME_COLUMN_NAME = "Name";
     private final String VALUE_COLUMN_NAME = "Value";
     private int responseHeadersLastIndex = -1;
-    
+
     private Frame parent;
 
     public HttpListener() {
@@ -49,26 +54,39 @@ public class HttpListener extends ConnectorSettingsPanel {
         initComponents();
         httpUrlField.setEditable(false);
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
+
+        // This is required because of MIRTH-3305
+        Map<String, ArrayList<CodeTemplate>> references = ReferenceListFactory.getInstance().getReferences();
+        references.put(getConnectorName() + " Functions", getReferenceItems());
     }
 
     @Override
     public String getConnectorName() {
         return new HttpReceiverProperties().getName();
     }
-    
+
     @Override
     public ConnectorProperties getProperties() {
         HttpReceiverProperties properties = new HttpReceiverProperties();
         properties.setContextPath(contextPathField.getText());
         properties.setTimeout(receiveTimeoutField.getText());
 
-        properties.setBodyOnly(messageContentBodyOnlyRadio.isSelected());
+        if (messageContentPlainBodyRadio.isSelected()) {
+            properties.setBodyOnly(true);
+            properties.setXmlBody(false);
+        } else if (messageContentXmlBodyRadio.isSelected()) {
+            properties.setBodyOnly(true);
+            properties.setXmlBody(true);
+        } else {
+            properties.setBodyOnly(false);
+            properties.setXmlBody(false);
+        }
 
         properties.setResponseContentType(responseContentTypeField.getText());
         properties.setCharset(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
         properties.setResponseStatusCode(responseStatusCodeField.getText());
-        
+
         properties.setResponseHeaders(getResponseHeaders());
 
         return properties;
@@ -84,7 +102,11 @@ public class HttpListener extends ConnectorSettingsPanel {
         updateHttpUrl();
 
         if (props.isBodyOnly()) {
-            messageContentBodyOnlyRadio.setSelected(true);
+            if (props.isXmlBody()) {
+                messageContentXmlBodyRadio.setSelected(true);
+            } else {
+                messageContentPlainBodyRadio.setSelected(true);
+            }
         } else {
             messageContentHeadersQueryAndBodyRadio.setSelected(true);
         }
@@ -94,7 +116,7 @@ public class HttpListener extends ConnectorSettingsPanel {
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, props.getCharset());
 
         responseStatusCodeField.setText(props.getResponseStatusCode());
-        
+
         if (props.getResponseHeaders() != null) {
             setResponseHeaders(props.getResponseHeaders());
         } else {
@@ -137,10 +159,23 @@ public class HttpListener extends ConnectorSettingsPanel {
         receiveTimeoutField.setBackground(null);
         responseContentTypeField.setBackground(null);
     }
-    
+
+    @Override
+    public ArrayList<CodeTemplate> getReferenceItems() {
+        ArrayList<CodeTemplate> referenceItems = new ArrayList<CodeTemplate>();
+
+        referenceItems.add(new CodeTemplate("Get HTTP Request Method", "Retrieves the method (e.g. GET, POST) from an incoming HTTP request.", "sourceMap.get('method')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+        referenceItems.add(new CodeTemplate("Get HTTP Request Context Path", "Retrieves the context path from an incoming HTTP request.", "sourceMap.get('contextPath')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+        referenceItems.add(new CodeTemplate("Get HTTP Request Header", "Retrieves a header value from an incoming HTTP request.", "sourceMap.get('headers').get('Header-Name')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+        referenceItems.add(new CodeTemplate("Get HTTP Request Parameter", "Retrieves a query/form parameter from an incoming HTTP request. If multiple values exist for the parameter, an array will be returned.", "sourceMap.get('parameters').get('parameterName')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+
+        return referenceItems;
+    }
+
     @Override
     public boolean requiresXmlDataType() {
-        return !((HttpReceiverProperties) getProperties()).isBodyOnly();
+        HttpReceiverProperties props = (HttpReceiverProperties) getProperties();
+        return props.isXmlBody() || !props.isBodyOnly();
     }
 
     public void updateHttpUrl() {
@@ -169,9 +204,10 @@ public class HttpListener extends ConnectorSettingsPanel {
             j++;
         }
 
-        responseHeadersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{NAME_COLUMN_NAME, VALUE_COLUMN_NAME}) {
+        responseHeadersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
+                NAME_COLUMN_NAME, VALUE_COLUMN_NAME }) {
 
-            boolean[] canEdit = new boolean[]{true, true};
+            boolean[] canEdit = new boolean[] { true, true };
 
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -296,7 +332,7 @@ public class HttpListener extends ConnectorSettingsPanel {
         }
         return "";
     }
-    
+
     @Override
     public void updatedField(String field) {
         if (ListenerSettingsPanel.FIELD_PORT.equals(field)) {
@@ -315,7 +351,7 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         listenerAddressButtonGroup = new javax.swing.ButtonGroup();
         includeHeadersGroup = new javax.swing.ButtonGroup();
-        messageContentBodyOnlyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        messageContentPlainBodyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         messageContentHeadersQueryAndBodyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         messageContentLabel = new javax.swing.JLabel();
         responseContentTypeField = new com.mirth.connect.client.ui.components.MirthTextField();
@@ -335,27 +371,26 @@ public class HttpListener extends ConnectorSettingsPanel {
         responseHeadersDeleteButton = new javax.swing.JButton();
         receiveTimeoutLabel1 = new javax.swing.JLabel();
         responseStatusCodeField = new com.mirth.connect.client.ui.components.MirthTextField();
+        messageContentXmlBodyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
-        messageContentBodyOnlyRadio.setBackground(new java.awt.Color(255, 255, 255));
-        messageContentBodyOnlyRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        includeHeadersGroup.add(messageContentBodyOnlyRadio);
-        messageContentBodyOnlyRadio.setText("Body Only");
-        messageContentBodyOnlyRadio.setToolTipText("<html>If selected, the message content will only include the body as a string.</html>");
-        messageContentBodyOnlyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        messageContentBodyOnlyRadio.addActionListener(new java.awt.event.ActionListener() {
+        messageContentPlainBodyRadio.setBackground(new java.awt.Color(255, 255, 255));
+        includeHeadersGroup.add(messageContentPlainBodyRadio);
+        messageContentPlainBodyRadio.setText("Plain Body");
+        messageContentPlainBodyRadio.setToolTipText("<html>If selected, the request body will be sent to the channel as a raw string.<br/>Multipart messages will not be automatically parsed.</html>");
+        messageContentPlainBodyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        messageContentPlainBodyRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                messageContentBodyOnlyRadioActionPerformed(evt);
+                messageContentPlainBodyRadioActionPerformed(evt);
             }
         });
 
         messageContentHeadersQueryAndBodyRadio.setBackground(new java.awt.Color(255, 255, 255));
-        messageContentHeadersQueryAndBodyRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         includeHeadersGroup.add(messageContentHeadersQueryAndBodyRadio);
         messageContentHeadersQueryAndBodyRadio.setText("Headers, Query, and Body as XML");
-        messageContentHeadersQueryAndBodyRadio.setToolTipText("<html>If selected, the message content will include the request headers, query parameters, and body as XML.</html>");
+        messageContentHeadersQueryAndBodyRadio.setToolTipText("<html>If selected, the message content will include the request headers,<br/>query parameters, and body as XML. Multipart messages will not<br/>be automatically parsed.</html>");
         messageContentHeadersQueryAndBodyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         messageContentHeadersQueryAndBodyRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -422,6 +457,17 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         responseStatusCodeField.setToolTipText("<html>Enter the status code for the HTTP response.  If this field is left blank a <br>default status code of 200 will be returned for a successful message, <br>and 500 will be returned for an errored message. If a \"Respond from\" <br>value is chosen, that response will be used to determine a successful <br>or errored response.<html>");
 
+        messageContentXmlBodyRadio.setBackground(new java.awt.Color(255, 255, 255));
+        includeHeadersGroup.add(messageContentXmlBodyRadio);
+        messageContentXmlBodyRadio.setText("XML Body");
+        messageContentXmlBodyRadio.setToolTipText("<html>If selected, the request body will be sent to the channel as serialized XML.<br/>Multipart messages will be automatically parsed into separate XML nodes.</html>");
+        messageContentXmlBodyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        messageContentXmlBodyRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                messageContentXmlBodyRadioActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -445,9 +491,11 @@ public class HttpListener extends ConnectorSettingsPanel {
                     .addComponent(responseContentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(responseStatusCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(responseHeadersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
+                    .addComponent(responseHeadersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(messageContentBodyOnlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(messageContentPlainBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(messageContentXmlBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(messageContentHeadersQueryAndBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -470,7 +518,8 @@ public class HttpListener extends ConnectorSettingsPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(messageContentLabel)
                     .addComponent(messageContentHeadersQueryAndBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(messageContentBodyOnlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(messageContentPlainBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(messageContentXmlBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(httpUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -503,19 +552,20 @@ public class HttpListener extends ConnectorSettingsPanel {
         parent.channelEditPanel.checkAndSetXmlDataType();
     }//GEN-LAST:event_messageContentHeadersQueryAndBodyRadioActionPerformed
 
-    private void messageContentBodyOnlyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageContentBodyOnlyRadioActionPerformed
+    private void messageContentPlainBodyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageContentPlainBodyRadioActionPerformed
         parent.channelEditPanel.checkAndSetXmlDataType();
-    }//GEN-LAST:event_messageContentBodyOnlyRadioActionPerformed
+    }//GEN-LAST:event_messageContentPlainBodyRadioActionPerformed
 
     private void contextPathFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_contextPathFieldKeyReleased
         updateHttpUrl();
     }//GEN-LAST:event_contextPathFieldKeyReleased
 
     private void responseHeadersNewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_responseHeadersNewButtonActionPerformed
-        ((DefaultTableModel) responseHeadersTable.getModel()).addRow(new Object[]{getNewPropertyName(responseHeadersTable), ""});
+        ((DefaultTableModel) responseHeadersTable.getModel()).addRow(new Object[] {
+                getNewPropertyName(responseHeadersTable), "" });
         responseHeadersTable.setRowSelectionInterval(responseHeadersTable.getRowCount() - 1, responseHeadersTable.getRowCount() - 1);
         parent.setSaveEnabled(true);
-}//GEN-LAST:event_responseHeadersNewButtonActionPerformed
+    }//GEN-LAST:event_responseHeadersNewButtonActionPerformed
 
     private void responseHeadersDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_responseHeadersDeleteButtonActionPerformed
         if (getSelectedRow(responseHeadersTable) != -1 && !responseHeadersTable.isEditing()) {
@@ -533,7 +583,12 @@ public class HttpListener extends ConnectorSettingsPanel {
 
             parent.setSaveEnabled(true);
         }
-}//GEN-LAST:event_responseHeadersDeleteButtonActionPerformed
+    }//GEN-LAST:event_responseHeadersDeleteButtonActionPerformed
+
+    private void messageContentXmlBodyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageContentXmlBodyRadioActionPerformed
+        parent.channelEditPanel.checkAndSetXmlDataType();
+    }//GEN-LAST:event_messageContentXmlBodyRadioActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private javax.swing.JLabel charsetEncodingLabel;
@@ -544,9 +599,10 @@ public class HttpListener extends ConnectorSettingsPanel {
     private javax.swing.JLabel httpUrlLabel;
     private javax.swing.ButtonGroup includeHeadersGroup;
     private javax.swing.ButtonGroup listenerAddressButtonGroup;
-    private com.mirth.connect.client.ui.components.MirthRadioButton messageContentBodyOnlyRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton messageContentHeadersQueryAndBodyRadio;
     private javax.swing.JLabel messageContentLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton messageContentPlainBodyRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton messageContentXmlBodyRadio;
     private com.mirth.connect.client.ui.components.MirthTextField receiveTimeoutField;
     private javax.swing.JLabel receiveTimeoutLabel;
     private javax.swing.JLabel receiveTimeoutLabel1;
