@@ -1949,8 +1949,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         if (sourceMap != null) {
             for (Entry<String, Object> variableMapEntry : sourceMap.entrySet()) {
                 tableData[row][0] = "Source";
-                tableData[row][1] = String.valueOf(variableMapEntry.getKey());
-                tableData[row][2] = String.valueOf(variableMapEntry.getValue());
+                tableData[row][1] = valueOf(variableMapEntry.getKey());
+                tableData[row][2] = valueOf(variableMapEntry.getValue());
                 row++;
             }
         }
@@ -1958,8 +1958,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         if (connectorMap != null) {
             for (Entry<String, Object> variableMapEntry : connectorMap.entrySet()) {
                 tableData[row][0] = "Connector";
-                tableData[row][1] = String.valueOf(variableMapEntry.getKey());
-                tableData[row][2] = String.valueOf(variableMapEntry.getValue());
+                tableData[row][1] = valueOf(variableMapEntry.getKey());
+                tableData[row][2] = valueOf(variableMapEntry.getValue());
                 row++;
             }
         }
@@ -1967,8 +1967,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         if (channelMap != null) {
             for (Entry<String, Object> variableMapEntry : channelMap.entrySet()) {
                 tableData[row][0] = "Channel";
-                tableData[row][1] = String.valueOf(variableMapEntry.getKey());
-                tableData[row][2] = String.valueOf(variableMapEntry.getValue());
+                tableData[row][1] = valueOf(variableMapEntry.getKey());
+                tableData[row][2] = valueOf(variableMapEntry.getValue());
                 row++;
             }
         }
@@ -1976,13 +1976,49 @@ public class MessageBrowser extends javax.swing.JPanel {
         if (responseMap != null) {
             for (Entry<String, Object> variableMapEntry : responseMap.entrySet()) {
                 tableData[row][0] = "Response";
-                tableData[row][1] = String.valueOf(variableMapEntry.getKey());
-                tableData[row][2] = String.valueOf(variableMapEntry.getValue());
+                tableData[row][1] = valueOf(variableMapEntry.getKey());
+                tableData[row][2] = valueOf(variableMapEntry.getValue());
                 row++;
             }
         }
 
         updateMappingsTable(tableData, false);
+    }
+    
+    /**
+     * A glorified version of String.valueOf that calls Arrays.toString for arrays (and arrays
+     * within maps).
+     */
+    private String valueOf(Object object) {
+        if (object != null) {
+            if (object instanceof Object[]) {
+                // Convert using Arrays.toString so that it will show up as "[a,b,c]", instead of the object hash code.
+                return Arrays.toString((Object[]) object);
+            } else if (object instanceof Map) {
+                // Build a custom string representation of the map that also converts arrays using Arrays.toString. 
+                Map<?, ?> map = (Map<?, ?>) object;
+                StringBuilder builder = new StringBuilder("{");
+                
+                for (Iterator<?> it = map.entrySet().iterator(); it.hasNext();) {
+                    Entry<?, ?> entry = (Entry<?, ?>) it.next();
+                    Object key = entry.getKey();
+                    Object value = entry.getValue();
+                    
+                    builder.append(key == map ? "(this Map)" : valueOf(key));
+                    builder.append('=');
+                    builder.append(value == map ? "(this Map)" : valueOf(value));
+                    
+                    if (it.hasNext()) {
+                        builder.append(", ");
+                    }
+                }
+                
+                builder.append('}');
+                return builder.toString();
+            }
+        }
+        
+        return String.valueOf(object);
     }
 
     /**
