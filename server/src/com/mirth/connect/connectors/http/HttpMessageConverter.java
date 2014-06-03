@@ -77,7 +77,7 @@ public class HttpMessageConverter {
 
         return null;
     }
-    
+
     public static String contentToXml(Object content, ContentType contentType, boolean parseMultipart) throws DonkeyElementException, MessagingException, IOException, ParserConfigurationException {
         DonkeyElement contentElement = new DonkeyElement("<Content/>");
         processContent(contentElement, content, contentType, parseMultipart);
@@ -109,7 +109,10 @@ public class HttpMessageConverter {
                     headersElement.addChildElement(header.getName(), header.getValue());
 
                     if (header.getValue().equalsIgnoreCase("Content-Type")) {
-                        partContentType = ContentType.parse(header.getValue());
+                        try {
+                            partContentType = ContentType.parse(header.getValue());
+                        } catch (RuntimeException e) {
+                        }
                     }
                 }
 

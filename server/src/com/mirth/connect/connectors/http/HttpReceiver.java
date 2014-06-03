@@ -192,15 +192,18 @@ public class HttpReceiver extends SourceConnector {
 
                     if (message != null) {
                         OutputStream responseOutputStream = servletResponse.getOutputStream();
+                        byte[] responseBytes = message.getBytes(connectorProperties.getCharset());
 
                         // If the client accepts GZIP compression, compress the content
                         String acceptEncoding = baseRequest.getHeader("Accept-Encoding");
                         if (acceptEncoding != null && acceptEncoding.contains("gzip")) {
                             servletResponse.setHeader(HTTP.CONTENT_ENCODING, "gzip");
-                            responseOutputStream = new GZIPOutputStream(responseOutputStream);
+                            GZIPOutputStream gzipOutputStream = new GZIPOutputStream(responseOutputStream);
+                            gzipOutputStream.write(responseBytes);
+                            gzipOutputStream.finish();
+                        } else {
+                            responseOutputStream.write(responseBytes);
                         }
-
-                        responseOutputStream.write(message.getBytes(connectorProperties.getCharset()));
 
                         // TODO include full HTTP payload in sentResponse
                         sentResponse = message;
@@ -297,7 +300,14 @@ public class HttpReceiver extends SourceConnector {
             requestMessage.setContent(IOUtils.toString(requestInputStream, HttpMessageConverter.getDefaultHttpCharset(request.getCharacterEncoding())));
         }
 
-        requestMessage.setContentType(ContentType.parse(request.getContentType()));
+        ContentType contentType;
+        try {
+            contentType = ContentType.parse(request.getContentType());
+        } catch (RuntimeException e) {
+            contentType = ContentType.TEXT_PLAIN;
+        }
+
+        requestMessage.setContentType(contentType);
         requestMessage.setRemoteAddress(request.getRemoteAddr());
         requestMessage.setQueryString(request.getQueryString());
         requestMessage.setRequestUrl(request.getRequestURL().toString());
