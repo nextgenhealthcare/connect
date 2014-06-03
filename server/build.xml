@@ -46,6 +46,7 @@
 		<property name="plugins.mapper" value="${extensions}/mapper" />
 		<property name="plugins.messagebuilder" value="${extensions}/messagebuilder" />
 		<property name="plugins.datapruner" value="${extensions}/datapruner" />
+		<property name="plugins.globalmapviewer" value="${extensions}/globalmapviewer" />
 		<property name="plugins.mllpmode" value="${extensions}/mllpmode" />
 		<property name="plugins.pdfviewer" value="${extensions}/pdfviewer" />
 		<property name="plugins.rtfviewer" value="${extensions}/rtfviewer" />
@@ -544,6 +545,21 @@
 		<copy todir="${plugins.dicomviewer}/lib" failonerror="false">
 			<fileset dir="${lib.extensions}/dicomviewer" />
 		</copy>
+		
+		<!-- plugins.globalmapviewer -->
+		<mkdir dir="${plugins.globalmapviewer}" />
+		<copy todir="${plugins.globalmapviewer}">
+			<fileset dir="${src}/com/mirth/connect/plugins/globalmapviewer">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.globalmapviewer}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/globalmapviewer" />
+		</copy>
+		<jar destfile="${plugins.globalmapviewer}/globalmapviewer-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/globalmapviewer/**" />
+		</jar>
+		
 
 		<!-- plugins.imageviewer -->
 		<mkdir dir="${plugins.imageviewer}" />
@@ -875,6 +891,7 @@
 		<zip destfile="${dist.extensions}/pdfviewer-${version}.zip" basedir="${extensions}" includes="pdfviewer/**/*" />
 		<zip destfile="${dist.extensions}/rtfviewer-${version}.zip" basedir="${extensions}" includes="rtfviewer/**/*" />
 		<zip destfile="${dist.extensions}/imageviewer-${version}.zip" basedir="${extensions}" includes="imageviewer/**/*" />
+		<zip destfile="${dist.extensions}/globalmapviewer-${version}.zip" basedir="${extensions}" includes="globalmapviewer/**/*" />
 	</target>
 
 	<target name="create-dist" depends="create-extension-zips">

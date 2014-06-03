@@ -1,0 +1,16 @@
+<pluginMetaData path="globalmapviewer">
+	<name>Global Map Viewer</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.0.3</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin allows you to view the global map and global channel maps in the Mirth Connect Administrator.</description>
+	<serverClasses>
+		<string>com.mirth.connect.plugins.globalmapviewer.GlobalMapProvider</string>
+	</serverClasses>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.globalmapviewer.GlobalMapClient</string>
+	</clientClasses>
+	<library type="CLIENT" path="globalmapviewer-client.jar" />
+	<library type="SERVER" path="globalmapviewer-server.jar" />
+</pluginMetaData>

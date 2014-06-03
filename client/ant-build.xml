@@ -50,6 +50,7 @@
 		<property name="plugins.mapper" value="${extensions}/mapper" />
 		<property name="plugins.messagebuilder" value="${extensions}/messagebuilder" />
 		<property name="plugins.datapruner" value="${extensions}/datapruner" />
+		<property name="plugins.globalmapviewer" value="${extensions}/globalmapviewer" />
 		<property name="plugins.mllpmode" value="${extensions}/mllpmode" />
 		<property name="plugins.pdfviewer" value="${extensions}/pdfviewer" />
 		<property name="plugins.rtfviewer" value="${extensions}/rtfviewer" />
@@ -201,6 +202,11 @@
 		<mkdir dir="${plugins.extensionmanager}" />
 		<jar destfile="${plugins.extensionmanager}/extensionmanager-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/extensionmanager/**" />
+		</jar>
+		
+		<mkdir dir="${plugins.globalmapviewer}" />
+		<jar destfile="${plugins.globalmapviewer}/globalmapviewer-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/globalmapviewer/**" />
 		</jar>
 
 		<mkdir dir="${plugins.imageviewer}" />
