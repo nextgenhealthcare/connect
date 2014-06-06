@@ -17,6 +17,7 @@ import org.apache.velocity.VelocityContext;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.util.ValueReplacer;
 
 public class TemplateValueReplacer extends ValueReplacer {
@@ -69,6 +70,7 @@ public class TemplateValueReplacer extends ValueReplacer {
     @Override
     protected VelocityContext getDefaultContext() {
         VelocityContext context = super.getDefaultContext();
+        loadContextFromMap(context, ConfigurationController.getInstance().getConfigurationMap());
         loadContextFromMap(context, GlobalVariableStore.getInstance().getVariables());
         return context;
     }

@@ -56,6 +56,7 @@ import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
+import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class Client {
@@ -959,6 +960,18 @@ public class Client {
         serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
 
+    public Map<String, ConfigurationProperty> getConfigurationMap() throws ClientException {
+        logger.debug("getting configuration map");
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_MAP_GET.getName()) };
+        return serializer.deserialize(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), Map.class);
+    }
+
+    public void setConfigurationMap(Map<String, ConfigurationProperty> map) throws ClientException {
+        logger.debug("setting configuration map");
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_MAP_SET.getName()), new BasicNameValuePair("map", serializer.serialize(map)) };
+        serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+    }
+    
     /**
      * Sets properties for a given plugin
      * 

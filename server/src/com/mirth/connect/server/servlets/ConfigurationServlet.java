@@ -177,6 +177,22 @@ public class ConfigurationServlet extends MirthServlet {
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
+                } else if (operation.equals(Operations.CONFIGURATION_MAP_GET)) {
+                    if (isUserAuthorized(request, null)) {
+                        response.setContentType(APPLICATION_XML);
+                        serializer.serialize(configurationController.getConfigurationProperties(), out);
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
+                } else if (operation.equals(Operations.CONFIGURATION_MAP_SET)) {
+                    String map = request.getParameter("map");
+                    parameterMap.put("map", map);
+
+                    if (isUserAuthorized(request, parameterMap)) {
+                        configurationController.setConfigurationProperties(serializer.deserialize(map, Map.class), true);
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
                 } else if (operation.equals(Operations.CONFIGURATION_PASSWORD_REQUIREMENTS_GET)) {
                     if (isUserAuthorized(request, null)) {
                         response.setContentType(APPLICATION_XML);

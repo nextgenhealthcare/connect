@@ -26,6 +26,7 @@ public class TaskConstants {
     public static final String VIEW_KEY = "view";
     public static final String SETTINGS_KEY_PREFIX = "settings_";
     public static final String SETTINGS_SERVER_KEY = SETTINGS_KEY_PREFIX + "Server";
+    public static final String SETTINGS_CONFIGURATION_MAP_KEY = SETTINGS_KEY_PREFIX + "Configuration Map";
 
     // View Tasks
     public static final String VIEW_DASHBOARD = "doShowDashboard";
@@ -44,6 +45,10 @@ public class TaskConstants {
     public static final String SETTINGS_SERVER_BACKUP = "doBackup";
     public static final String SETTINGS_SERVER_RESTORE = "doRestore";
     public static final String SETTINGS_CLEAR_ALL_STATS = "doClearAllStats";
+
+    // Configuration Map Settings Tasks
+    public static final String SETTINGS_CONFIGURATION_MAP_IMPORT = "doImportMap";
+    public static final String SETTINGS_CONFIGURATION_MAP_EXPORT = "doExportMap";
 
     // Alert Tasks
     public static final String ALERT_REFRESH = "doRefreshAlerts";

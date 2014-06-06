@@ -31,6 +31,7 @@ public class SettingsPane extends javax.swing.JPanel {
 
         loadPanel(new SettingsPanelServer(SettingsPanelServer.TAB_NAME));
         loadPanel(new SettingsPanelAdministrator(SettingsPanelAdministrator.TAB_NAME));
+        loadPanel(new SettingsPanelMap(SettingsPanelMap.TAB_NAME));
         loadPluginPanels();
 
         SingleSelectionModel model = new DefaultSingleSelectionModel() {

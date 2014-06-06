@@ -25,8 +25,10 @@ import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -45,6 +47,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.configuration.ConfigurationConverter;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.PropertiesConfigurationLayout;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -84,6 +87,7 @@ import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.PasswordRequirementsChecker;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.MigrationUtil;
 
 /**
@@ -97,10 +101,13 @@ public class DefaultConfigurationController extends ConfigurationController {
     private Logger logger = Logger.getLogger(this.getClass());
     private String appDataDir = null;
     private String baseDir = null;
+    private String configurationFile = null;
     private static String serverId = null;
     private int status = ConfigurationController.STATUS_UNAVAILABLE;
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private PasswordRequirements passwordRequirements;
+    private volatile Map<String, String> configurationMap = Collections.unmodifiableMap(new HashMap<String, String>());
+    private volatile Map<String, String> commentMap = Collections.unmodifiableMap(new HashMap<String, String>());
     private static PropertiesConfiguration versionConfig = new PropertiesConfiguration();
     private static PropertiesConfiguration mirthConfig = new PropertiesConfiguration();
     private static EncryptionSettings encryptionConfig;
@@ -112,6 +119,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
     private static final String PROPERTY_TEMP_DIR = "dir.tempdata";
     private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
+    private static final String CONFIGURATION_MAP_PATH = "configurationmap.path";
 
     // singleton pattern
     private static DefaultConfigurationController instance = null;
@@ -201,6 +209,28 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
 
             passwordRequirements = PasswordRequirementsChecker.getInstance().loadPasswordRequirements(mirthConfig);
+
+            // Check for configuration map properties
+            if (mirthConfig.getString(CONFIGURATION_MAP_PATH) != null) {
+                configurationFile = mirthConfig.getString(CONFIGURATION_MAP_PATH);
+            } else {
+                configurationFile = getApplicationDataDir() + File.separator + "configuration.properties";
+            }
+
+            PropertiesConfiguration configurationMapProperties = new PropertiesConfiguration(new File(configurationFile));
+
+            Map<String, ConfigurationProperty> configurationMap = new HashMap<String, ConfigurationProperty>();
+            Iterator<String> iterator = configurationMapProperties.getKeys();
+
+            while (iterator.hasNext()) {
+                String key = iterator.next();
+                String value = configurationMapProperties.getString(key);
+                String comment = configurationMapProperties.getLayout().getCanonicalComment(key, false);
+
+                configurationMap.put(key, new ConfigurationProperty(value, comment));
+            }
+
+            setConfigurationProperties(configurationMap, false);
         } catch (Exception e) {
             logger.error("Failed to initialize configuration controller", e);
         }
@@ -479,6 +509,44 @@ public class DefaultConfigurationController extends ConfigurationController {
             // Redeploy all channels
             engineController.redeployAllChannels();
         }
+    }
+
+    @Override
+    public Map<String, String> getConfigurationMap() {
+        return configurationMap;
+    }
+
+    @Override
+    public synchronized Map<String, ConfigurationProperty> getConfigurationProperties() {
+        Map<String, ConfigurationProperty> map = new HashMap<String, ConfigurationProperty>();
+
+        for (Entry<String, String> entry : configurationMap.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            String comment = commentMap.get(key);
+
+            map.put(key, new ConfigurationProperty(value, comment));
+        }
+
+        return map;
+    }
+
+    @Override
+    public synchronized void setConfigurationProperties(Map<String, ConfigurationProperty> map, boolean persist) throws ControllerException {
+        if (persist) {
+            saveConfigurationProperties(map);
+        }
+
+        Map<String, String> valueMap = new HashMap<String, String>();
+        Map<String, String> commentMap = new HashMap<String, String>();
+
+        for (Entry<String, ConfigurationProperty> entry : map.entrySet()) {
+            valueMap.put(entry.getKey(), entry.getValue().getValue());
+            commentMap.put(entry.getKey(), entry.getValue().getComment());
+        }
+
+        configurationMap = Collections.unmodifiableMap(valueMap);
+        this.commentMap = Collections.unmodifiableMap(commentMap);
     }
 
     @Override
@@ -903,6 +971,29 @@ public class DefaultConfigurationController extends ConfigurationController {
             if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
                 SqlConfig.getSqlSessionManager().close();
             }
+        }
+    }
+
+    private void saveConfigurationProperties(Map<String, ConfigurationProperty> map) throws ControllerException {
+        try {
+            PropertiesConfiguration configurationMapProperties = new PropertiesConfiguration(new File(configurationFile));
+            PropertiesConfigurationLayout layout = configurationMapProperties.getLayout();
+
+            configurationMapProperties.clear();
+            for (Entry<String, ConfigurationProperty> entry : map.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue().getValue();
+                String comment = entry.getValue().getComment();
+
+                if (StringUtils.isNotBlank(key)) {
+                    configurationMapProperties.addProperty(key, value);
+                    layout.setComment(key, StringUtils.isBlank(comment) ? null : comment);
+                }
+            }
+
+            configurationMapProperties.save();
+        } catch (Exception e) {
+            throw new ControllerException(e);
         }
     }
 }

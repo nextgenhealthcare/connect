@@ -14,6 +14,7 @@ import java.util.Map;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
 import com.mirth.connect.server.util.GlobalVariableStore;
 
@@ -27,11 +28,14 @@ public class MirthMetaDataReplacer extends MetaDataReplacer {
         if (value == null) {
             Map<String, Object> globalChannelMap = GlobalChannelVariableStoreFactory.getInstance().get(connectorMessage.getChannelId()).getVariables();
             Map<String, Object> globalMap = GlobalVariableStore.getInstance().getVariables();
+            Map<String, String> configurationMap = ConfigurationController.getInstance().getConfigurationMap();
             
             if (globalChannelMap.containsKey(column.getMappingName())) {
                 value = globalChannelMap.get(column.getMappingName());
             } else if (globalMap.containsKey(column.getMappingName())) {
                 value = globalMap.get(column.getMappingName());
+            } else if (configurationMap.containsKey(column.getMappingName())) {
+                value = configurationMap.get(column.getMappingName());
             }
         }
         

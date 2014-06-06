@@ -361,6 +361,7 @@ public class JavaScriptBuilder {
         builder.append("function $s(key, value) { if (arguments.length == 1) { return sourceMap.get(key); } else { return sourceMap.put(key, value); } }\n");
         builder.append("function $gc(key, value) { if (arguments.length == 1) { return globalChannelMap.get(key); } else { return globalChannelMap.put(key, value); } }\n");
         builder.append("function $g(key, value) { if (arguments.length == 1) { return globalMap.get(key); } else { return globalMap.put(key, value); } }\n");
+        builder.append("function $cfg(key, value) { if (arguments.length == 1) { return configurationMap.get(key); } else { return configurationMap.put(key, value); } }\n");
         builder.append("function $r(key, value) { if (arguments.length == 1) { return responseMap.get(key); } else { return responseMap.put(key, value); } }\n");
 
         // No need to check the code context here; the function checks whether each individual map exists first 
@@ -371,6 +372,7 @@ public class JavaScriptBuilder {
         builder.append("try { if(sourceMap.containsKey(string)) { return $s(string); } } catch(e){}");
         builder.append("try { if(globalChannelMap.containsKey(string)) { return $gc(string); } } catch(e){}");
         builder.append("try { if(globalMap.containsKey(string)) { return $g(string); } } catch(e){}");
+        builder.append("try { if(configurationMap.containsKey(string)) { return $cfg(string); } } catch(e){}");
         // TODO: This is temporary for the database reader and should not stay
         builder.append("try { if(resultMap.containsKey(string)) { return resultMap.get(string); } } catch(e){}");
         builder.append("return ''; }\n");

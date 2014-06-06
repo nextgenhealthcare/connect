@@ -26,6 +26,7 @@ import org.mozilla.javascript.Undefined;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.userutil.AlertSender;
 import com.mirth.connect.server.userutil.Attachment;
 import com.mirth.connect.server.userutil.ChannelMap;
@@ -162,6 +163,11 @@ public class JavaScriptScopeUtil {
     private static void addGlobalMap(Scriptable scope) {
         add("globalMap", scope, GlobalVariableStore.getInstance());
     }
+    
+    // Configuration Map Builder
+    private static void addConfigurationMap(Scriptable scope) {
+        add("configurationMap", scope, ConfigurationController.getInstance().getConfigurationMap());
+    }
 
     // Channel Builder
     private static void addChannel(Scriptable scope, String channelId) {
@@ -190,6 +196,7 @@ public class JavaScriptScopeUtil {
         Scriptable scope = getScope(context);
         addRouter(scope);
         addReplacer(scope);
+        addConfigurationMap(scope);
         addGlobalMap(scope);
         return scope;
     }
