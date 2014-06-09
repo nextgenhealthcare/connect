@@ -17,9 +17,9 @@ import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
 
 public class DICOMDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
-    
+
     private QueueConnectorProperties queueConnectorProperties;
-    
+
     private String host;
     private String port;
     private String applicationEntity;
@@ -57,7 +57,7 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Di
     private String tls;
     private String trustStore;
     private String trustStorePW;
-    
+
     public DICOMDispatcherProperties() {
         queueConnectorProperties = new QueueConnectorProperties();
 
@@ -77,7 +77,7 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Di
         rspTo = "60";
         shutdownDelay = "1000";
         sndpdulen = "16";
-        soCloseDelay = "50";        
+        soCloseDelay = "50";
         sorcvbuf = "0";
         sosndbuf = "0";
         stgcmt = false;
@@ -86,7 +86,7 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Di
         uidnegrsp = false;
         username = "";
         applicationEntity = "";
-        
+
         keyPW = "";
         keyStore = "";
         keyStorePW = "";
@@ -95,15 +95,16 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Di
         tls = "notls";
         trustStore = "";
         trustStorePW = "";
-        
+
         localHost = "";
         localPort = "";
         localApplicationEntity = "";
     }
-    
+
     public DICOMDispatcherProperties(DICOMDispatcherProperties props) {
+        super(props);
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
-        
+
         host = props.getHost();
         port = props.getPort();
         template = props.getTemplate();
@@ -129,7 +130,7 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Di
         uidnegrsp = props.isUidnegrsp();
         username = props.getUsername();
         applicationEntity = props.getApplicationEntity();
-        
+
         keyPW = props.getKeyPW();
         keyStore = props.getKeyStore();
         keyStorePW = props.getKeyStorePW();
@@ -138,7 +139,7 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Di
         tls = props.getTls();
         trustStore = props.getTrustStore();
         trustStorePW = props.getTrustStorePW();
-        
+
         localHost = props.getLocalHost();
         localPort = props.getLocalPort();
         localApplicationEntity = props.getLocalApplicationEntity();
@@ -454,7 +455,7 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Di
         builder.append("HOST: ");
         builder.append(host + ":" + port);
         builder.append(newLine);
-        
+
         builder.append(newLine);
         builder.append("[CONTENT]");
         builder.append(newLine);

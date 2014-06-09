@@ -59,10 +59,11 @@ public class FileDispatcherProperties extends ConnectorProperties implements Dis
         charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
         template = "";
     }
-    
+
     public FileDispatcherProperties(FileDispatcherProperties props) {
+        super(props);
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
-        
+
         scheme = props.getScheme();
         host = props.getHost();
         outputPattern = props.getOutputPattern();

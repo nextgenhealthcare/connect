@@ -70,6 +70,7 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Dis
     }
     
     public SmtpDispatcherProperties(SmtpDispatcherProperties props) {
+        super(props);
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
 
         smtpHost = props.getSmtpHost();

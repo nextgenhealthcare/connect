@@ -25,6 +25,7 @@ import com.mirth.connect.plugins.ChannelPanelPlugin;
 import com.mirth.connect.plugins.ChannelWizardPlugin;
 import com.mirth.connect.plugins.ClientPlugin;
 import com.mirth.connect.plugins.CodeTemplatePlugin;
+import com.mirth.connect.plugins.ConnectorPropertiesPlugin;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
@@ -48,6 +49,7 @@ public class LoadedExtensions {
     private Map<String, CodeTemplatePlugin> codeTemplatePlugins = new HashMap<String, CodeTemplatePlugin>();
     private Map<String, DataTypeClientPlugin> dataTypePlugins = new TreeMap<String, DataTypeClientPlugin>();
     private Map<String, TransmissionModePlugin> transmissionModePlugins = new TreeMap<String, TransmissionModePlugin>();
+    private Map<String, ConnectorPropertiesPlugin> connectorPropertiesPlugins = new TreeMap<String, ConnectorPropertiesPlugin>();
     private Map<String, ConnectorSettingsPanel> connectors = new TreeMap<String, ConnectorSettingsPanel>();
     private Map<String, ConnectorSettingsPanel> sourceConnectors = new TreeMap<String, ConnectorSettingsPanel>();
     private Map<String, ConnectorSettingsPanel> destinationConnectors = new TreeMap<String, ConnectorSettingsPanel>();
@@ -140,8 +142,8 @@ public class LoadedExtensions {
     }
 
     /**
-     * Add all plugin points in the given ClientPlugin class. A single class
-     * could implement multiple plugin points.
+     * Add all plugin points in the given ClientPlugin class. A single class could implement
+     * multiple plugin points.
      * 
      * @param plugin
      */
@@ -195,6 +197,10 @@ public class LoadedExtensions {
         if (plugin instanceof TransmissionModePlugin) {
             transmissionModePlugins.put(plugin.getPluginPointName(), (TransmissionModePlugin) plugin);
         }
+
+        if (plugin instanceof ConnectorPropertiesPlugin) {
+            connectorPropertiesPlugins.put(plugin.getPluginPointName(), (ConnectorPropertiesPlugin) plugin);
+        }
     }
 
     private void clearExtensionMaps() {
@@ -212,6 +218,7 @@ public class LoadedExtensions {
         codeTemplatePlugins.clear();
         dataTypePlugins.clear();
         transmissionModePlugins.clear();
+        connectorPropertiesPlugins.clear();
 
         connectors.clear();
         sourceConnectors.clear();
@@ -268,6 +275,10 @@ public class LoadedExtensions {
 
     public Map<String, TransmissionModePlugin> getTransmissionModePlugins() {
         return transmissionModePlugins;
+    }
+
+    public Map<String, ConnectorPropertiesPlugin> getConnectorPropertiesPlugins() {
+        return connectorPropertiesPlugins;
     }
 
     public Map<String, ConnectorSettingsPanel> getConnectors() {

@@ -9,17 +9,27 @@
 
 package com.mirth.connect.connectors.ws;
 
+import static com.mirth.connect.connectors.ws.WebServiceConnectorServiceMethods.*;
+
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.prefs.Preferences;
 
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.SwingWorker;
 import javax.swing.TransferHandler;
@@ -27,12 +37,14 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -44,6 +56,10 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class WebServiceSender extends ConnectorSettingsPanel {
+
+    private static final ImageIcon ICON_LOCK_X = new ImageIcon(Frame.class.getResource("images/lock_x.png"));
+    private static final Color COLOR_SSL_NOT_CONFIGURED = new Color(0xFFF099);
+    private static final String SSL_TOOL_TIP = "<html>SSL has not been configured for this destination.<br/>Messages dispatched via HTTPS will use the default<br/>Java truststore for validating server certificates, and<br/>client/two-way authentication will not be supported.</html>";
 
     private final int ID_COLUMN_NUMBER = 0;
     private final int CONTENT_COLUMN_NUMBER = 1;
@@ -61,6 +77,14 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         SyntaxDocument document = new SyntaxDocument();
         document.setTokenMarker(new XMLTokenMarker());
         soapEnvelope.setDocument(document);
+
+        KeyListener keyListener = new KeyAdapter() {
+            public void keyReleased(KeyEvent evt) {
+                urlFieldChanged();
+            }
+        };
+        wsdlUrlField.addKeyListener(keyListener);
+        soapActionField.addKeyListener(keyListener);
     }
 
     @Override
@@ -115,6 +139,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         serviceField.setText(props.getService());
         portField.setText(props.getPort());
         soapActionField.setText(props.getSoapAction());
+        urlFieldChanged();
 
         soapEnvelope.setText(props.getEnvelope());
 
@@ -208,9 +233,84 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     @Override
     public void resetInvalidProperties() {
         wsdlUrlField.setBackground(null);
+        urlFieldChanged();
         serviceField.setBackground(new java.awt.Color(222, 222, 222));
         portField.setBackground(new java.awt.Color(222, 222, 222));
         soapEnvelope.setBackground(null);
+    }
+
+    @Override
+    public ConnectorTypeDecoration getConnectorTypeDecoration() {
+        if (isUsingHttps(wsdlUrlField.getText()) || isUsingHttps(soapActionField.getText())) {
+            return new ConnectorTypeDecoration("(SSL Not Configured)", ICON_LOCK_X, SSL_TOOL_TIP, null, COLOR_SSL_NOT_CONFIGURED);
+        } else {
+            return new ConnectorTypeDecoration();
+        }
+    }
+
+    @Override
+    public void doLocalDecoration(ConnectorTypeDecoration connectorTypeDecoration) {
+        if (connectorTypeDecoration != null) {
+            wsdlUrlField.setIcon(connectorTypeDecoration.getIcon());
+            wsdlUrlField.setAlternateToolTipText(connectorTypeDecoration.getIconToolTipText());
+            wsdlUrlField.setIconPopupMenuComponent(connectorTypeDecoration.getIconPopupComponent());
+            wsdlUrlField.setBackground(connectorTypeDecoration.getHighlightColor());
+            soapActionField.setIcon(connectorTypeDecoration.getIcon());
+            soapActionField.setBackground(connectorTypeDecoration.getHighlightColor());
+            soapActionField.setAlternateToolTipText(connectorTypeDecoration.getIconToolTipText());
+            soapActionField.setIconPopupMenuComponent(connectorTypeDecoration.getIconPopupComponent());
+        }
+    }
+
+    @Override
+    public void handleConnectorServiceResponse(String method, Object response) {
+        if (response != null) {
+            GetOperationsResult getOperationsResult = (GetOperationsResult) response;
+
+            if (getOperationsResult.getLoadedMethods() != null) {
+                String[] methodNames = new String[getOperationsResult.getLoadedMethods().size()];
+                getOperationsResult.getLoadedMethods().toArray(methodNames);
+
+                operationComboBox.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
+                generateEnvelope.setEnabled(!isDefaultOperations());
+
+                if (methodNames.length > 0) {
+                    operationComboBox.setSelectedIndex(0);
+                }
+            }
+
+            if (getOperationsResult.getServiceName() != null) {
+                serviceField.setText(getOperationsResult.getServiceName());
+            }
+
+            if (getOperationsResult.getPortName() != null) {
+                portField.setText(getOperationsResult.getPortName());
+            }
+        }
+
+        parent.setSaveEnabled(true);
+    }
+
+    private boolean isUsingHttps(String url) {
+        if (StringUtils.isNotBlank(url)) {
+            try {
+                URI hostURI = new URI(url);
+                String hostScheme = hostURI.getScheme();
+                if (hostScheme != null && hostScheme.toLowerCase().equals("https")) {
+                    return true;
+                }
+            } catch (URISyntaxException e) {
+                if (url.toLowerCase().startsWith("https")) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void urlFieldChanged() {
+        decorateConnectorType();
     }
 
     private boolean isDefaultOperations() {
@@ -227,7 +327,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         boolean isWsdlCached = false;
 
         try {
-            isWsdlCached = (Boolean) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), "isWsdlCached", wsdlUrl);
+            isWsdlCached = (Boolean) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), IS_WSDL_CACHED, wsdlUrl);
         } catch (ClientException e) {
             parent.alertError(parent, "Error checking if the wsdl is cached.");
         }
@@ -238,16 +338,17 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     private boolean cacheWsdl() {
         try {
             String wsdlUrl = wsdlUrlField.getText().trim();
-            Map<String, String> cacheWsdlMap = new HashMap<String, String>();
+            Map<String, Object> cacheWsdlMap = new HashMap<String, Object>();
 
             cacheWsdlMap.put("wsdlUrl", wsdlUrl);
+            cacheWsdlMap.put("properties", connectorPanel.getProperties());
 
             if (authenticationYesRadio.isSelected()) {
                 cacheWsdlMap.put("username", usernameField.getText());
                 cacheWsdlMap.put("password", new String(passwordField.getPassword()));
             }
 
-            parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), "cacheWsdlFromUrl", cacheWsdlMap);
+            parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), CACHE_WSDL_FROM_URL, cacheWsdlMap);
 
             return true;
         } catch (ClientException e) {
@@ -278,7 +379,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         try {
             returnObject = parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), method, params);
         } catch (ClientException e) {
-            if (method.equals("generateEnvelope")) {
+            if (method.equals(GENERATE_ENVELOPE)) {
                 parent.alertError(parent, "There was an error generating the envelope.");
             } else {
                 parent.alertError(parent, "Error calling " + method + " with parameter: " + params.toString());
@@ -314,7 +415,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             tableData[i][MIME_TYPE_COLUMN_NUMBER] = attachmentTypes.get(i);
         }
 
-        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { ID_COLUMN_NAME, CONTENT_COLUMN_NAME, MIME_TYPE_COLUMN_NAME }) {
+        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
+                ID_COLUMN_NAME, CONTENT_COLUMN_NAME, MIME_TYPE_COLUMN_NAME }) {
 
             boolean[] canEdit = new boolean[] { true, true, true };
 
@@ -499,7 +601,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         invocationButtonGroup = new javax.swing.ButtonGroup();
         useMtomButtonGroup = new javax.swing.ButtonGroup();
         wsdlUrlLabel = new javax.swing.JLabel();
-        wsdlUrlField = new com.mirth.connect.client.ui.components.MirthTextField();
+        wsdlUrlField = new com.mirth.connect.client.ui.components.MirthIconTextField();
         getOperationsButton = new javax.swing.JButton();
         operationComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
         jLabel1 = new javax.swing.JLabel();
@@ -528,7 +630,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         useMtomLabel = new javax.swing.JLabel();
         useMtomYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         useMtomNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        soapActionField = new com.mirth.connect.client.ui.components.MirthTextField();
+        soapActionField = new com.mirth.connect.client.ui.components.MirthIconTextField();
         soapActionLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -809,7 +911,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
     private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
         stopCellEditing();
-        ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[] { getNewAttachmentId(attachmentsTable.getModel().getRowCount() + 1), "" });
+        ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[] {
+                getNewAttachmentId(attachmentsTable.getModel().getRowCount() + 1), "" });
         int newViewIndex = attachmentsTable.convertRowIndexToView(attachmentsTable.getModel().getRowCount() - 1);
         attachmentsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
 
@@ -857,44 +960,31 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         // Get the new operations
         final String workingId = parent.startWorking("Getting operations...");
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker worker = new SwingWorker<GetOperationsResult, Void>() {
 
-            private List<String> loadedMethods = null;
-            private String serviceName = null;
-            private String portName = null;
-
-            public Void doInBackground() {
+            @Override
+            public GetOperationsResult doInBackground() {
                 if (cacheWsdl()) {
-                    loadedMethods = (List<String>) invokeConnectorService("getOperations");
-                    serviceName = (String) invokeConnectorService("getService");
-                    portName = (String) invokeConnectorService("getPort");
+                    List<String> loadedMethods = (List<String>) invokeConnectorService(GET_OPERATIONS);
+                    String serviceName = (String) invokeConnectorService(GET_SERVICE);
+                    String portName = (String) invokeConnectorService(GET_PORT);
+                    return new GetOperationsResult(loadedMethods, serviceName, portName);
                 }
 
                 return null;
             }
 
+            @Override
             public void done() {
-                if (loadedMethods != null) {
-                    String[] methodNames = new String[loadedMethods.size()];
-                    loadedMethods.toArray(methodNames);
-
-                    operationComboBox.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
-                    generateEnvelope.setEnabled(!isDefaultOperations());
-
-                    if (methodNames.length > 0) {
-                        operationComboBox.setSelectedIndex(0);
+                try {
+                    handlePluginConnectorServiceResponse(CACHE_WSDL_FROM_URL, get());
+                } catch (Exception e) {
+                    Throwable cause = e;
+                    if (e instanceof ExecutionException && e.getCause() != null) {
+                        cause = e.getCause();
                     }
+                    parent.alertError(parent, cause.getMessage());
                 }
-
-                if (serviceName != null) {
-                    serviceField.setText(serviceName);
-                }
-
-                if (portName != null) {
-                    portField.setText(portName);
-                }
-
-                parent.setSaveEnabled(true);
 
                 parent.stopWorking(workingId);
             }
@@ -964,8 +1054,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                 if (!isWsdlCached()) {
                     parent.alertInformation(parent, "The WSDL is no longer cached on the server. Press \"Get Operations\" to fetch the latest WSDL.");
                 } else {
-                    generatedEnvelope = (String) invokeConnectorService("generateEnvelope", "operation", (String) operationComboBox.getSelectedItem());
-                    soapAction = (String) invokeConnectorService("getSoapAction", "operation", (String) operationComboBox.getSelectedItem());
+                    generatedEnvelope = (String) invokeConnectorService(GENERATE_ENVELOPE, "operation", (String) operationComboBox.getSelectedItem());
+                    soapAction = (String) invokeConnectorService(GET_SOAP_ACTION, "operation", (String) operationComboBox.getSelectedItem());
                 }
 
                 return null;
@@ -981,6 +1071,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                     soapActionField.setText(soapAction);
                     parent.setSaveEnabled(true);
                 }
+
+                urlFieldChanged();
 
                 parent.stopWorking(workingId);
             }
@@ -1012,7 +1104,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     private javax.swing.JLabel portLabel;
     private com.mirth.connect.client.ui.components.MirthTextField serviceField;
     private javax.swing.JLabel serviceLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField soapActionField;
+    private com.mirth.connect.client.ui.components.MirthIconTextField soapActionField;
     private javax.swing.JLabel soapActionLabel;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea soapEnvelope;
     private javax.swing.ButtonGroup useMtomButtonGroup;
@@ -1022,7 +1114,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     private javax.swing.ButtonGroup userPersistentQueuesButtonGroup;
     private com.mirth.connect.client.ui.components.MirthTextField usernameField;
     private javax.swing.JLabel usernameLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField wsdlUrlField;
+    private com.mirth.connect.client.ui.components.MirthIconTextField wsdlUrlField;
     private javax.swing.JLabel wsdlUrlLabel;
     // End of variables declaration//GEN-END:variables
 }

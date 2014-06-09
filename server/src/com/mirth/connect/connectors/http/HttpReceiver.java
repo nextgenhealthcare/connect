@@ -70,16 +70,18 @@ public class HttpReceiver extends SourceConnector {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
-
-    private Server server = null;
     private HttpConfiguration configuration = null;
+    private Server server;
+    private String host;
+    private int port;
+    private int timeout;
 
     @Override
     public void onDeploy() throws DeployException {
         this.connectorProperties = (HttpReceiverProperties) getConnectorProperties();
 
         // load the default configuration
-        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "configurationClass");
+        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "httpConfigurationClass");
 
         try {
             configuration = (HttpConfiguration) Class.forName(configurationClass).newInstance();
@@ -89,20 +91,22 @@ public class HttpReceiver extends SourceConnector {
         }
 
         try {
-            configuration.configureConnector(getChannelId(), getMetaDataId(), connectorProperties.getListenerConnectorProperties().getHost(), null);
+            configuration.configureConnectorDeploy(this);
         } catch (Exception e) {
             throw new DeployException(e);
         }
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {}
+    public void onUndeploy() throws UndeployException {
+        configuration.configureConnectorUndeploy(this);
+    }
 
     @Override
     public void onStart() throws StartException {
-        String host = replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), getChannelId());
-        int port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), getChannelId()));
-        int timeout = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getTimeout(), getChannelId()), 0);
+        host = replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), getChannelId());
+        port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), getChannelId()));
+        timeout = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getTimeout(), getChannelId()), 0);
 
         // Initialize contextPath to "" or its value after replacements
         String contextPath = (connectorProperties.getContextPath() == null ? "" : replacer.replaceValues(connectorProperties.getContextPath(), getChannelId())).trim();
@@ -121,7 +125,7 @@ public class HttpReceiver extends SourceConnector {
 
         try {
             server = new Server();
-            configuration.configureReceiver(server, getChannelId(), host, port, timeout);
+            configuration.configureReceiver(this);
 
             // add the request handler
             ContextHandler contextHandler = new ContextHandler();
@@ -355,5 +359,21 @@ public class HttpReceiver extends SourceConnector {
     @Override
     public void handleRecoveredResponse(DispatchResult dispatchResult) {
         finishDispatch(dispatchResult);
+    }
+
+    public Server getServer() {
+        return server;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public int getTimeout() {
+        return timeout;
     }
 }

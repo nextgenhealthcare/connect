@@ -10,10 +10,28 @@
 package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import com.mirth.connect.donkey.util.migration.Migratable;
 
 public abstract class ConnectorProperties implements Serializable, Migratable {
+
+    private Set<ConnectorPluginProperties> pluginProperties;
+
+    public ConnectorProperties() {}
+
+    public ConnectorProperties(ConnectorProperties props) {
+        pluginProperties = props.getPluginProperties();
+    }
+
+    public Set<ConnectorPluginProperties> getPluginProperties() {
+        return pluginProperties;
+    }
+
+    public void setPluginProperties(Set<ConnectorPluginProperties> pluginProperties) {
+        this.pluginProperties = pluginProperties;
+    }
+
     public abstract String getProtocol();
 
     public abstract String getName();

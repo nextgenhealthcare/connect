@@ -46,7 +46,6 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -96,15 +95,15 @@ public class HttpDispatcher extends DestinationConnector {
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     private Map<Long, CloseableHttpClient> clients = new ConcurrentHashMap<Long, CloseableHttpClient>();
-    private HttpConfiguration configuration = null;
-    private Registry<ConnectionSocketFactory> socketFactoryRegistry = null;
+    private HttpConfiguration configuration;
+    private RegistryBuilder<ConnectionSocketFactory> socketFactoryRegistry;
 
     @Override
     public void onDeploy() throws DeployException {
         this.connectorProperties = (HttpDispatcherProperties) getConnectorProperties();
 
         // load the default configuration
-        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "configurationClass");
+        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "httpConfigurationClass");
 
         try {
             configuration = (HttpConfiguration) Class.forName(configurationClass).newInstance();
@@ -114,16 +113,17 @@ public class HttpDispatcher extends DestinationConnector {
         }
 
         try {
-            RegistryBuilder<ConnectionSocketFactory> socketFactoryRegistryBuilder = RegistryBuilder.<ConnectionSocketFactory> create().register("http", PlainConnectionSocketFactory.getSocketFactory());
-            configuration.configureConnector(getChannelId(), getMetaDataId(), connectorProperties.getHost(), socketFactoryRegistryBuilder);
-            socketFactoryRegistry = socketFactoryRegistryBuilder.build();
+            socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("http", PlainConnectionSocketFactory.getSocketFactory());
+            configuration.configureConnectorDeploy(this);
         } catch (Exception e) {
             throw new DeployException(e);
         }
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {}
+    public void onUndeploy() throws UndeployException {
+        configuration.configureConnectorUndeploy(this);
+    }
 
     @Override
     public void onStart() throws StartException {}
@@ -178,12 +178,12 @@ public class HttpDispatcher extends DestinationConnector {
         int socketTimeout = NumberUtils.toInt(httpDispatcherProperties.getSocketTimeout(), 30000);
 
         try {
-            configuration.configureDispatcher(getChannelId(), getMetaDataId(), httpDispatcherProperties.getHost());
+            configuration.configureDispatcher(this, httpDispatcherProperties);
 
             long dispatcherId = getDispatcherId();
             client = clients.get(dispatcherId);
             if (client == null) {
-                BasicHttpClientConnectionManager httpClientConnectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry);
+                BasicHttpClientConnectionManager httpClientConnectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry.build());
                 httpClientConnectionManager.setSocketConfig(SocketConfig.custom().setSoTimeout(socketTimeout).build());
                 client = HttpClients.custom().setConnectionManager(httpClientConnectionManager).build();
                 clients.put(dispatcherId, client);
@@ -294,6 +294,10 @@ public class HttpDispatcher extends DestinationConnector {
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);
+    }
+
+    public RegistryBuilder<ConnectionSocketFactory> getSocketFactoryRegistry() {
+        return socketFactoryRegistry;
     }
 
     private HttpRequestBase buildHttpRequest(URI hostURI, HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage, File tempFile, ContentType contentType) throws Exception {

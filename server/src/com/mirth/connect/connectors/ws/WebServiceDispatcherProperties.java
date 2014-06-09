@@ -67,16 +67,17 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         this.attachmentTypes = new ArrayList<String>();
         this.soapAction = "";
     }
-    
+
     public WebServiceDispatcherProperties(WebServiceDispatcherProperties props) {
+        super(props);
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
 
         wsdlUrl = props.getWsdlUrl();
         wsdlCacheId = props.getWsdlCacheId();
         operation = props.getOperation();
-        
+
         wsdlOperations = props.getWsdlOperations();
-        
+
         service = props.getService();
         port = props.getPort();
         useAuthentication = props.isUseAuthentication();

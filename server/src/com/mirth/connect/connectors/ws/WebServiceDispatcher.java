@@ -62,6 +62,7 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
@@ -71,21 +72,41 @@ public class WebServiceDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     protected WebServiceDispatcherProperties connectorProperties;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    private WebServiceConfiguration configuration;
 
     /*
-     * Dispatch object used for pooling the soap connection, and the current
-     * properties used to create the dispatch object
+     * Dispatch object used for pooling the soap connection, and the current properties used to
+     * create the dispatch object
      */
     private Map<Long, DispatchContainer> dispatchContainers = new ConcurrentHashMap<Long, DispatchContainer>();
 
     @Override
     public void onDeploy() throws DeployException {
         this.connectorProperties = (WebServiceDispatcherProperties) getConnectorProperties();
+
+        // load the default configuration
+        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "wsConfigurationClass");
+
+        try {
+            configuration = (WebServiceConfiguration) Class.forName(configurationClass).newInstance();
+        } catch (Exception e) {
+            logger.trace("could not find custom configuration class, using default");
+            configuration = new DefaultWebServiceConfiguration();
+        }
+
+        try {
+            configuration.configureConnectorDeploy(this);
+        } catch (Exception e) {
+            throw new DeployException(e);
+        }
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {}
+    public void onUndeploy() throws UndeployException {
+        configuration.configureConnectorUndeploy(this);
+    }
 
     @Override
     public void onStart() throws StartException {}
@@ -117,10 +138,10 @@ public class WebServiceDispatcher extends DestinationConnector {
         String portName = webServiceDispatcherProperties.getPort();
 
         /*
-         * The dispatch needs to be created if it hasn't been created yet
-         * (null). It needs to be recreated if any of the above variables are
-         * different than what were used to create the current dispatch object.
-         * This could happen if variables are being used for these properties.
+         * The dispatch needs to be created if it hasn't been created yet (null). It needs to be
+         * recreated if any of the above variables are different than what were used to create the
+         * current dispatch object. This could happen if variables are being used for these
+         * properties.
          */
         if (dispatchContainer.getDispatch() == null || !StringUtils.equals(wsdlUrl, dispatchContainer.getCurrentWsdlUrl()) || !StringUtils.equals(username, dispatchContainer.getCurrentUsername()) || !StringUtils.equals(password, dispatchContainer.getCurrentPassword()) || !StringUtils.equals(serviceName, dispatchContainer.getCurrentServiceName()) || !StringUtils.equals(portName, dispatchContainer.getCurrentPortName())) {
             dispatchContainer.setCurrentWsdlUrl(wsdlUrl);
@@ -142,9 +163,8 @@ public class WebServiceDispatcher extends DestinationConnector {
     }
 
     /**
-     * Returns the URL for the passed in String. If the URL requires
-     * authentication, then the WSDL is saved as a temp file and the URL for
-     * that file is returned.
+     * Returns the URL for the passed in String. If the URL requires authentication, then the WSDL
+     * is saved as a temp file and the URL for that file is returned.
      * 
      * @param wsdlUrl
      * @param username
@@ -221,13 +241,13 @@ public class WebServiceDispatcher extends DestinationConnector {
             }
 
             /*
-             * Initialize the dispatch object if it hasn't been initialized yet,
-             * or create a new one if the connector properties have changed due
-             * to variables.
+             * Initialize the dispatch object if it hasn't been initialized yet, or create a new one
+             * if the connector properties have changed due to variables.
              */
             createDispatch(webServiceDispatcherProperties, dispatchContainer);
 
             Dispatch<SOAPMessage> dispatch = dispatchContainer.getDispatch();
+            configuration.configureDispatcher(this, webServiceDispatcherProperties, dispatch.getRequestContext());
 
             SOAPBinding soapBinding = (SOAPBinding) dispatch.getBinding();
 
@@ -321,8 +341,8 @@ public class WebServiceDispatcher extends DestinationConnector {
 
     private class DispatchContainer {
         /*
-         * Dispatch object used for pooling the soap connection, and the current
-         * properties used to create the dispatch object
+         * Dispatch object used for pooling the soap connection, and the current properties used to
+         * create the dispatch object
          */
         private Dispatch<SOAPMessage> dispatch = null;
         private String currentWsdlUrl = null;

@@ -9,12 +9,19 @@
 
 package com.mirth.connect.connectors.http;
 
+import java.awt.Color;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.prefs.Preferences;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
@@ -25,6 +32,7 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -36,6 +44,10 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class HttpSender extends ConnectorSettingsPanel {
+
+    private static final ImageIcon ICON_LOCK_X = new ImageIcon(Frame.class.getResource("images/lock_x.png"));
+    private static final Color COLOR_SSL_NOT_CONFIGURED = new Color(0xFFF099);
+    private static final String SSL_TOOL_TIP = "<html>SSL has not been configured for this destination.<br/>Messages dispatched via HTTPS will use the default<br/>Java truststore for validating server certificates, and<br/>client/two-way authentication will not be supported.</html>";
 
     private final int NAME_COLUMN = 0;
     private final int VALUE_COLUMN = 1;
@@ -65,6 +77,12 @@ public class HttpSender extends ConnectorSettingsPanel {
         });
         queryParametersDeleteButton.setEnabled(false);
         headersDeleteButton.setEnabled(false);
+
+        urlField.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent evt) {
+                urlFieldChanged();
+            }
+        });
     }
 
     @Override
@@ -121,6 +139,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         HttpDispatcherProperties props = (HttpDispatcherProperties) properties;
 
         urlField.setText(props.getHost());
+        urlFieldChanged();
 
         if (props.getMethod().equalsIgnoreCase("post")) {
             postButton.setSelected(true);
@@ -494,9 +513,60 @@ public class HttpSender extends ConnectorSettingsPanel {
     @Override
     public void resetInvalidProperties() {
         urlField.setBackground(null);
+        urlFieldChanged();
         sendTimeoutField.setBackground(null);
         contentTypeField.setBackground(null);
         contentTextArea.setBackground(null);
+    }
+
+    @Override
+    public ConnectorTypeDecoration getConnectorTypeDecoration() {
+        boolean usingHttps = false;
+
+        try {
+            URI hostURI = new URI(urlField.getText());
+            String hostScheme = hostURI.getScheme();
+            if (hostScheme != null && hostScheme.toLowerCase().equals("https")) {
+                usingHttps = true;
+            }
+        } catch (URISyntaxException e) {
+            if (urlField.getText().toLowerCase().startsWith("https")) {
+                usingHttps = true;
+            }
+        }
+
+        if (usingHttps) {
+            return new ConnectorTypeDecoration("(SSL Not Configured)", ICON_LOCK_X, null, null, COLOR_SSL_NOT_CONFIGURED);
+        } else {
+            return new ConnectorTypeDecoration();
+        }
+    }
+
+    @Override
+    public void doLocalDecoration(ConnectorTypeDecoration connectorTypeDecoration) {
+        if (connectorTypeDecoration != null) {
+            urlField.setIcon(connectorTypeDecoration.getIcon());
+            urlField.setAlternateToolTipText(connectorTypeDecoration.getIconToolTipText());
+            urlField.setIconPopupMenuComponent(connectorTypeDecoration.getIconPopupComponent());
+            urlField.setBackground(connectorTypeDecoration.getHighlightColor());
+        }
+    }
+
+    @Override
+    public void handleConnectorServiceResponse(String method, Object response) {
+        ConnectionTestResponse connectionTestResponse = (ConnectionTestResponse) response;
+
+        if (connectionTestResponse == null) {
+            parent.alertError(parent, "Failed to invoke service.");
+        } else if (connectionTestResponse.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
+            parent.alertInformation(parent, connectionTestResponse.getMessage());
+        } else {
+            parent.alertWarning(parent, connectionTestResponse.getMessage());
+        }
+    }
+
+    private void urlFieldChanged() {
+        decorateConnectorType();
     }
 
     private void checkMultipartEnabled() {
@@ -564,7 +634,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         authenticationButtonGroup = new javax.swing.ButtonGroup();
         authenticationTypeButtonGroup = new javax.swing.ButtonGroup();
         urlLabel = new javax.swing.JLabel();
-        urlField = new com.mirth.connect.client.ui.components.MirthTextField();
+        urlField = new com.mirth.connect.client.ui.components.MirthIconTextField();
         queryParametersNewButton = new javax.swing.JButton();
         queryParametersDeleteButton = new javax.swing.JButton();
         queryParametersPane = new javax.swing.JScrollPane();
@@ -1036,29 +1106,24 @@ public class HttpSender extends ConnectorSettingsPanel {
     private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
         final String workingId = parent.startWorking("Testing connection...");
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-
-                try {
-                    ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), "testConnection", getProperties());
-
-                    if (response == null) {
-                        throw new ClientException("Failed to invoke service.");
-                    } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
-                        parent.alertInformation(parent, response.getMessage());
-                    } else {
-                        parent.alertWarning(parent, response.getMessage());
-                    }
-
-                    return null;
-                } catch (ClientException e) {
-                    parent.alertError(parent, e.getMessage());
-                    return null;
-                }
+        SwingWorker worker = new SwingWorker<Object, Void>() {
+            @Override
+            public Object doInBackground() throws ClientException {
+                return parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), "testConnection", connectorPanel.getProperties());
             }
 
+            @Override
             public void done() {
+                try {
+                    handlePluginConnectorServiceResponse("testConnection", get());
+                } catch (Exception e) {
+                    Throwable cause = e;
+                    if (e instanceof ExecutionException && e.getCause() != null) {
+                        cause = e.getCause();
+                    }
+                    parent.alertError(parent, cause.getMessage());
+                }
+
                 parent.stopWorking(workingId);
             }
         };
@@ -1142,7 +1207,7 @@ public class HttpSender extends ConnectorSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthTextField sendTimeoutField;
     private javax.swing.JLabel sendTimeoutLabel;
     private javax.swing.JButton testConnection;
-    private com.mirth.connect.client.ui.components.MirthTextField urlField;
+    private com.mirth.connect.client.ui.components.MirthIconTextField urlField;
     private javax.swing.JLabel urlLabel;
     private javax.swing.ButtonGroup usePersistantQueuesButtonGroup;
     private com.mirth.connect.client.ui.components.MirthTextField usernameField;

@@ -71,6 +71,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
     }
 
     public TcpDispatcherProperties(TcpDispatcherProperties props) {
+        super(props);
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
 
         transmissionModeProperties = props.getTransmissionModeProperties();

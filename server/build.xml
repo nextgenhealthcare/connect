@@ -350,12 +350,14 @@
 		<jar destfile="${connectors.ws}/ws-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/connectors/ws/WebServiceReceiverProperties.class" />
 			<include name="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties.class" />
+			<include name="com/mirth/connect/connectors/ws/WebServiceConnectorServiceMethods.class" />
 		</jar>
 		<jar destfile="${connectors.ws}/ws-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/ws/**" />
 				<exclude name="com/mirth/connect/connectors/ws/WebServiceReceiverProperties.class" />
 				<exclude name="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties.class" />
+				<exclude name="com/mirth/connect/connectors/ws/WebServiceConnectorServiceMethods.class" />
 			</fileset>
 		</jar>
 

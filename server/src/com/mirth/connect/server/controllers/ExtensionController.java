@@ -20,15 +20,15 @@ import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.plugins.AuthorizationPlugin;
 import com.mirth.connect.plugins.ChannelPlugin;
+import com.mirth.connect.plugins.ConnectorServicePlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.server.tools.ClassPathResource;
 
 public abstract class ExtensionController extends Controller {
     /**
-     * If in an IDE, extensions will be on the classpath as a resource. If
-     * that's the case, use that directory. Otherwise, use the mirth home
-     * directory and append extensions.
+     * If in an IDE, extensions will be on the classpath as a resource. If that's the case, use that
+     * directory. Otherwise, use the mirth home directory and append extensions.
      * 
      * @return
      */
@@ -49,18 +49,18 @@ public abstract class ExtensionController extends Controller {
     }
 
     /**
-     * Returns a list of the names of all of the jar files in the client library
-     * directory. If the "client-lib" directory does not exist, it will check
-     * build/client-lib and use that to scan for jar files.
+     * Returns a list of the names of all of the jar files in the client library directory. If the
+     * "client-lib" directory does not exist, it will check build/client-lib and use that to scan
+     * for jar files.
      * 
      * @return
      */
     public abstract List<String> getClientLibraries();
 
     /**
-     * Loads the metadata files (plugin.xml, source.xml, destination.xml) for
-     * all extensions of the specified type. If this function fails to parse the
-     * metadata file for an extension, it will skip it and continue.
+     * Loads the metadata files (plugin.xml, source.xml, destination.xml) for all extensions of the
+     * specified type. If this function fails to parse the metadata file for an extension, it will
+     * skip it and continue.
      */
     public abstract void loadExtensions();
 
@@ -79,8 +79,8 @@ public abstract class ExtensionController extends Controller {
     public abstract void setExtensionEnabled(String name, boolean enabled) throws ControllerException;
 
     /**
-     * Returns true if the extension (either plugin or connector) with the
-     * specified name is enabled, false otherwise.
+     * Returns true if the extension (either plugin or connector) with the specified name is
+     * enabled, false otherwise.
      * 
      * @param name
      * @return
@@ -109,15 +109,14 @@ public abstract class ExtensionController extends Controller {
     // TODO: the following two should be combined
 
     /**
-     * Updates the properties for the specified server plugin. Note that this
-     * calls the update on the plugin itself and does not store the properties
-     * in the database.
+     * Updates the properties for the specified server plugin. Note that this calls the update on
+     * the plugin itself and does not store the properties in the database.
      */
     public abstract void updatePluginProperties(String name, Properties properties);
 
     /**
-     * Stores the properties for the specified plugin in the database. Removes
-     * any properties beforehand.
+     * Stores the properties for the specified plugin in the database. Removes any properties
+     * beforehand.
      * 
      * @param name
      * @param properties
@@ -142,8 +141,7 @@ public abstract class ExtensionController extends Controller {
      * @param method
      *            the signature of the method to invoke
      * @param object
-     *            parameters for the method (for example, a Map for multiple
-     *            parameters)
+     *            parameters for the method (for example, a Map for multiple parameters)
      * @param sessionId
      *            the user's session ID
      * @return the result of invoking the plugin service
@@ -169,8 +167,7 @@ public abstract class ExtensionController extends Controller {
      * @param method
      *            the signature of the method to invoke
      * @param object
-     *            parameters for the method (for example, a Map for multiple
-     *            parameters)
+     *            parameters for the method (for example, a Map for multiple parameters)
      * @param sessionId
      *            the user's session ID
      * @return the result of invoking the connector service
@@ -183,15 +180,14 @@ public abstract class ExtensionController extends Controller {
     // ************************************************************
 
     /**
-     * Extracts the contents of the uploaded zip file into the installation temp
-     * directory to be picked up by MirthLauncher on next restart.
+     * Extracts the contents of the uploaded zip file into the installation temp directory to be
+     * picked up by MirthLauncher on next restart.
      */
     public abstract void extractExtension(FileItem fileItem) throws ControllerException;
 
     /**
-     * Adds the extension's SQL uninstall script to the server uninstallation
-     * script. Also adds the extenion path to the uninstallation list that is
-     * read on startup.
+     * Adds the extension's SQL uninstall script to the server uninstallation script. Also adds the
+     * extenion path to the uninstallation list that is read on startup.
      * 
      * @param extensionPath
      * @throws ControllerException
@@ -204,8 +200,8 @@ public abstract class ExtensionController extends Controller {
     public abstract void uninstallExtensions();
 
     /**
-     * Removes all properties stored in the database for extensions that were
-     * marked for uninstalltion.
+     * Removes all properties stored in the database for extensions that were marked for
+     * uninstalltion.
      */
     public abstract void removePropertiesForUninstalledExtensions();
 
@@ -218,6 +214,8 @@ public abstract class ExtensionController extends Controller {
     public abstract Map<String, ChannelPlugin> getChannelPlugins();
 
     public abstract Map<String, DataTypeServerPlugin> getDataTypePlugins();
-    
+
+    public abstract Map<String, ConnectorServicePlugin> getConnectorServicePlugins();
+
     public abstract AuthorizationPlugin getAuthorizationPlugin();
 }

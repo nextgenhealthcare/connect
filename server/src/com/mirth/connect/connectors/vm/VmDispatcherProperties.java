@@ -30,6 +30,7 @@ public class VmDispatcherProperties extends ConnectorProperties implements Dispa
     }
 
     public VmDispatcherProperties(VmDispatcherProperties props) {
+        super(props);
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
 
         channelId = props.getChannelId();

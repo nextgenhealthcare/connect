@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.ws;
 
+import static com.mirth.connect.connectors.ws.WebServiceConnectorServiceMethods.*;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,12 +51,12 @@ public class WebServiceConnectorService implements ConnectorService {
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
-        if (method.equals("cacheWsdlFromUrl")) {
-            Map<String, String> params = (Map<String, String>) object;
-            String wsdlUrl = replacer.replaceValues(params.get("wsdlUrl"), channelId);
+        if (method.equals(CACHE_WSDL_FROM_URL)) {
+            Map<String, Object> params = (Map<String, Object>) object;
+            String wsdlUrl = replacer.replaceValues((String) params.get("wsdlUrl"), channelId);
             URI wsdlUri = new URI(wsdlUrl);
-            String username = replacer.replaceValues(params.get("username"), channelId);
-            String password = replacer.replaceValues(params.get("password"), channelId);
+            String username = replacer.replaceValues((String) params.get("username"), channelId);
+            String password = replacer.replaceValues((String) params.get("password"), channelId);
 
             WsdlInterface wsdlInterface = getWsdlInterface(wsdlUri, username, password);
             if (wsdlInterface != null) {
@@ -62,14 +64,14 @@ public class WebServiceConnectorService implements ConnectorService {
             } else {
                 throw new Exception("Could not find any definitions in " + wsdlUri);
             }
-        } else if (method.equals("isWsdlCached")) {
+        } else if (method.equals(IS_WSDL_CACHED)) {
             String id = replacer.replaceValues((String) object, channelId);
             return (wsdlInterfaceCache.get(id) != null);
-        } else if (method.equals("getOperations")) {
+        } else if (method.equals(GET_OPERATIONS)) {
             String id = replacer.replaceValues((String) object, channelId);
             WsdlInterface wsdlInterface = wsdlInterfaceCache.get(id);
             return getOperations(wsdlInterface);
-        } else if (method.equals("getService")) {
+        } else if (method.equals(GET_SERVICE)) {
             String id = replacer.replaceValues((String) object, channelId);
             WsdlInterface wsdlInterface = wsdlInterfaceCache.get(id);
 
@@ -77,7 +79,7 @@ public class WebServiceConnectorService implements ConnectorService {
                 Service service = (Service) wsdlInterface.getWsdlContext().getDefinition().getServices().values().iterator().next();
                 return service.getQName().toString();
             }
-        } else if (method.equals("getPort")) {
+        } else if (method.equals(GET_PORT)) {
             String id = replacer.replaceValues((String) object, channelId);
             WsdlInterface wsdlInterface = wsdlInterfaceCache.get(id);
 
@@ -87,13 +89,13 @@ public class WebServiceConnectorService implements ConnectorService {
                 QName qName = new QName(service.getQName().getNamespaceURI(), port.getName());
                 return qName.toString();
             }
-        } else if (method.equals("generateEnvelope")) {
+        } else if (method.equals(GENERATE_ENVELOPE)) {
             Map<String, String> params = (Map<String, String>) object;
             String id = replacer.replaceValues(params.get("id"), channelId);
             String operationName = params.get("operation");
             WsdlInterface wsdlInterface = wsdlInterfaceCache.get(id);
             return buildEnvelope(wsdlInterface, operationName);
-        } else if (method.equals("getSoapAction")) {
+        } else if (method.equals(GET_SOAP_ACTION)) {
             Map<String, String> params = (Map<String, String>) object;
             String id = replacer.replaceValues(params.get("id"), channelId);
             String operationName = params.get("operation");
@@ -105,9 +107,9 @@ public class WebServiceConnectorService implements ConnectorService {
     }
 
     /*
-     * Retrieves the WSDL interface from the specified URL (with optional
-     * credentials). Uses a Future to execute the request in the background and
-     * timeout after 30 seconds if the server could not be contacted.
+     * Retrieves the WSDL interface from the specified URL (with optional credentials). Uses a
+     * Future to execute the request in the background and timeout after 30 seconds if the server
+     * could not be contacted.
      */
     private WsdlInterface getWsdlInterface(URI wsdlUrl, String username, String password) throws Exception {
         /* add the username:password to the URL if using authentication */
@@ -159,8 +161,7 @@ public class WebServiceConnectorService implements ConnectorService {
     }
 
     /*
-     * This is needed to prevent soapUI from disabling logging for the entire
-     * application.
+     * This is needed to prevent soapUI from disabling logging for the entire application.
      */
     private class EmbeddedSoapUICore extends DefaultSoapUICore {
         @Override

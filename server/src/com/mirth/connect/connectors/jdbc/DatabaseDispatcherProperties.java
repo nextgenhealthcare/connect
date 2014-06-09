@@ -44,6 +44,7 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
     }
 
     public DatabaseDispatcherProperties(DatabaseDispatcherProperties props) {
+        super(props);
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
 
         this.driver = props.getDriver();

@@ -61,6 +61,7 @@ import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.AuthorizationPlugin;
 import com.mirth.connect.plugins.ChannelPlugin;
+import com.mirth.connect.plugins.ConnectorServicePlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.plugins.ServicePlugin;
@@ -84,6 +85,7 @@ public class DefaultExtensionController extends ExtensionController {
     private Map<String, ServicePlugin> servicePlugins = new HashMap<String, ServicePlugin>();
     private Map<String, ChannelPlugin> channelPlugins = new HashMap<String, ChannelPlugin>();
     private Map<String, DataTypeServerPlugin> dataTypePlugins = new HashMap<String, DataTypeServerPlugin>();
+    private Map<String, ConnectorServicePlugin> connectorServicePlugins = new HashMap<String, ConnectorServicePlugin>();
     private AuthorizationPlugin authorizationPlugin = null;
 
     private static PropertiesConfiguration extensionProperties = null;
@@ -283,6 +285,13 @@ public class DefaultExtensionController extends ExtensionController {
                                 logger.debug("sucessfully loaded server data type plugin: " + serverPlugin.getPluginPointName());
                             }
 
+                            if (serverPlugin instanceof ConnectorServicePlugin) {
+                                ConnectorServicePlugin connectorService = (ConnectorServicePlugin) serverPlugin;
+                                connectorServicePlugins.put(connectorService.getTransportName(), connectorService);
+                                serverPlugins.add(connectorService);
+                                logger.debug("sucessfully loaded connector service plugin: " + serverPlugin.getPluginPointName());
+                            }
+                            
                             if (serverPlugin instanceof AuthorizationPlugin) {
                                 AuthorizationPlugin authorizationPlugin = (AuthorizationPlugin) serverPlugin;
 
@@ -321,6 +330,11 @@ public class DefaultExtensionController extends ExtensionController {
     @Override
     public Map<String, DataTypeServerPlugin> getDataTypePlugins() {
         return dataTypePlugins;
+    }
+
+    @Override
+    public Map<String, ConnectorServicePlugin> getConnectorServicePlugins() {
+        return connectorServicePlugins;
     }
 
     @Override
@@ -395,12 +409,17 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     @Override
-    public Object invokeConnectorService(String channelId, String name, String method, Object object, String sessionsId) throws Exception {
+    public Object invokeConnectorService(String channelId, String name, String method, Object object, String sessionId) throws Exception {
         ConnectorMetaData connectorMetaData = connectorMetaDataMap.get(name);
 
         if (StringUtils.isNotBlank(connectorMetaData.getServiceClassName())) {
             ConnectorService connectorService = (ConnectorService) Class.forName(connectorMetaData.getServiceClassName()).newInstance();
-            return connectorService.invoke(channelId, method, object, sessionsId);
+            
+            if (connectorServicePlugins.containsKey(name)) {
+                return connectorServicePlugins.get(name).invoke(connectorService, channelId, method, object, sessionId);
+            } else {
+                return connectorService.invoke(channelId, method, object, sessionId);
+            }
         }
 
         return null;

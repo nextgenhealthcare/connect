@@ -15,6 +15,11 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
 
 public class TestConnectorProperties extends ConnectorProperties {
+
+    public TestConnectorProperties(ConnectorProperties props) {
+        super(props);
+    }
+
     @Override
     public String toFormattedString() {
         return null;

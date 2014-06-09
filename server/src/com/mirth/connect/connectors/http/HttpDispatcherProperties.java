@@ -59,6 +59,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
     }
 
     public HttpDispatcherProperties(HttpDispatcherProperties props) {
+        super(props);
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
 
         host = props.getHost();

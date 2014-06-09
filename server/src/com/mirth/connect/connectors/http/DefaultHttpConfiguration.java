@@ -12,29 +12,36 @@ package com.mirth.connect.connectors.http;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
 
+import com.mirth.connect.donkey.server.channel.Connector;
+
 public class DefaultHttpConfiguration implements HttpConfiguration {
-    public void configureConnector(String channelId, Integer metaDataId, String host, RegistryBuilder<ConnectionSocketFactory> socketFactoryRegistryBuilder) throws Exception {
-        checkHost(host);
+
+    @Override
+    public void configureConnectorDeploy(Connector connector) throws Exception {
+        if (connector instanceof HttpDispatcher) {
+            checkHost(((HttpDispatcherProperties) connector.getConnectorProperties()).getHost());
+        }
     }
 
-    public void configureReceiver(Server server, String channelId, String host, int port, int timeout) throws Exception {
-        Connector connector = new SocketConnector();
-        connector.setHost(host);
-        connector.setPort(port);
-        connector.setMaxIdleTime(timeout);
-        server.addConnector(connector);
+    @Override
+    public void configureConnectorUndeploy(Connector connector) {}
+
+    @Override
+    public void configureReceiver(HttpReceiver connector) throws Exception {
+        SocketConnector listener = new SocketConnector();
+        listener.setHost(connector.getHost());
+        listener.setPort(connector.getPort());
+        listener.setMaxIdleTime(connector.getTimeout());
+        connector.getServer().addConnector(listener);
     }
 
-    public void configureDispatcher(String channelId, Integer metaDataId, String host) throws Exception {
-        checkHost(host);
+    @Override
+    public void configureDispatcher(HttpDispatcher connector, HttpDispatcherProperties connectorProperties) throws Exception {
+        checkHost(connectorProperties.getHost());
     }
-
+    
     private void checkHost(String host) throws Exception {
         try {
             String scheme = new URI(host).getScheme();

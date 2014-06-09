@@ -57,6 +57,7 @@ import com.mirth.connect.client.ui.editors.filter.FilterPane;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.util.VariableListUtil;
+import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
@@ -72,6 +73,7 @@ import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.Filter;
+import com.mirth.connect.model.InvalidConnectorPluginProperties;
 import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
@@ -346,7 +348,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 }
                 tableData[i][1] = connector.getName();
                 tableData[i][2] = connector.getMetaDataId();
-                tableData[i][3] = connector.getTransportName();
+                tableData[i][3] = new ConnectorTypeData(destinationConnectors.get(i).getTransportName());
 
                 if (i > 0 && !connector.isWaitForPrevious()) {
                     chain++;
@@ -362,7 +364,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 }
                 tableData[i][1] = destinationConnectors.get(i).getName();
                 tableData[i][2] = destinationConnectors.get(i).getMetaDataId();
-                tableData[i][3] = destinationConnectors.get(i).getTransportName();
+                tableData[i][3] = new ConnectorTypeData(destinationConnectors.get(i).getTransportName());
 
                 if (i > 0 && !destinationConnectors.get(i).isWaitForPrevious()) {
                     chain++;
@@ -402,6 +404,9 @@ public class ChannelSetup extends javax.swing.JPanel {
         destinationTable.getColumnExt(METADATA_COLUMN_NAME).setMaxWidth(UIConstants.METADATA_ID_COLUMN_WIDTH);
         destinationTable.getColumnExt(METADATA_COLUMN_NAME).setMinWidth(UIConstants.METADATA_ID_COLUMN_WIDTH);
         destinationTable.getColumnExt(METADATA_COLUMN_NAME).setCellRenderer(new NumberCellRenderer(SwingConstants.CENTER, false));
+
+        // Set the cell renderer for the destination connector type
+        destinationTable.getColumnExt(CONNECTOR_TYPE_COLUMN_NAME).setCellRenderer(new ConnectorTypeCellRenderer());
 
         // Set the cell renderer and the max width for the destination chain column
         destinationTable.getColumnExt(DESTINATION_CHAIN_COLUMN_NAME).setCellRenderer(new NumberCellRenderer(SwingConstants.CENTER, false));
@@ -468,6 +473,12 @@ public class ChannelSetup extends javax.swing.JPanel {
         // Checks to see what to set the new row selection to based on
         // last index and if a new destination was added.
         int last = lastModelIndex;
+
+        // Select each destination in turn so that the connector types can be decorated
+        for (int row = 0; row < destinationTable.getRowCount(); row++) {
+            destinationTable.setRowSelectionInterval(row, row);
+            destinationConnectorPanel.decorateConnectorType();
+        }
 
         if (addNew) {
             destinationTable.setRowSelectionInterval(destinationTable.getRowCount() - 1, destinationTable.getRowCount() - 1);
@@ -738,6 +749,54 @@ public class ChannelSetup extends javax.swing.JPanel {
         attachmentStoreCheckBox.setSelected(currentChannel.getProperties().isStoreAttachments());
 
         parent.setSaveEnabled(enabled);
+    }
+
+    public void decorateConnectorType(ConnectorTypeDecoration connectorTypeDecoration) {
+        if (connectorTypeDecoration != null && destinationTable.getSelectedRow() >= 0) {
+            ConnectorTypeData connectorTypeData = (ConnectorTypeData) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME));
+            connectorTypeData.setDecoration(connectorTypeDecoration);
+            destinationTable.getModel().setValueAt(connectorTypeData, destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME));
+        }
+    }
+
+    public String checkInvalidPluginProperties(Connector connector) {
+        return checkInvalidPluginProperties(null, connector);
+    }
+
+    public String checkInvalidPluginProperties(Channel channel) {
+        return checkInvalidPluginProperties(channel, null);
+    }
+
+    private String checkInvalidPluginProperties(Channel channel, Connector connector) {
+        Set<String> invalidPluginPropertiesNames = new HashSet<String>();
+
+        if (channel != null) {
+            checkInvalidPluginProperties(channel.getSourceConnector(), invalidPluginPropertiesNames);
+            for (Connector destinationConnector : channel.getDestinationConnectors()) {
+                checkInvalidPluginProperties(destinationConnector, invalidPluginPropertiesNames);
+            }
+        } else {
+            checkInvalidPluginProperties(connector, invalidPluginPropertiesNames);
+        }
+
+        if (!invalidPluginPropertiesNames.isEmpty()) {
+            StringBuilder alertMessage = new StringBuilder("The following invalid connector plugin properties were found:\n\n");
+            for (String name : invalidPluginPropertiesNames) {
+                alertMessage.append(name);
+                alertMessage.append('\n');
+            }
+            return alertMessage.toString();
+        }
+
+        return null;
+    }
+
+    private void checkInvalidPluginProperties(Connector connector, Set<String> invalidPluginPropertiesNames) {
+        for (ConnectorPluginProperties pluginProperties : connector.getProperties().getPluginProperties()) {
+            if (pluginProperties instanceof InvalidConnectorPluginProperties) {
+                invalidPluginPropertiesNames.add(pluginProperties.getName());
+            }
+        }
     }
 
     private void updateStorageMode() {
@@ -2843,8 +2902,10 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         // If the connector type has changed then set the new value in the
         // destination table.
-        if (destinationConnector.getTransportName() != null && !((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME))).equals(destinationConnector.getTransportName()) && destinationTable.getSelectedModelIndex() != -1) {
-            destinationTable.getModel().setValueAt(destinationSourceDropdown.getSelectedItem(), destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME));
+        String transportName = ((ConnectorTypeData) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME))).getTransportName();
+        if (destinationConnector.getTransportName() != null && !transportName.equals(destinationConnector.getTransportName()) && destinationTable.getSelectedModelIndex() != -1) {
+            ConnectorTypeData connectorTypeData = new ConnectorTypeData((String) destinationSourceDropdown.getSelectedItem());
+            destinationTable.getModel().setValueAt(connectorTypeData, destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME));
         }
 
         // Debug with:
@@ -2991,6 +3052,13 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     public void importConnector(Connector connector) {
+        String alertMessage = checkInvalidPluginProperties(connector);
+        if (StringUtils.isNotBlank(alertMessage)) {
+            if (!parent.alertOption(parent, alertMessage + "\nWhen this channel is saved, those properties will be lost. You can choose to import this\nconnector at a later time after verifying that all necessary extensions are properly loaded.\nAre you sure you wish to continue?")) {
+                return;
+            }
+        }
+
         loadingChannel = true;
 
         // If the connector is a source, then set it, change the dropdown, and set the incoming dataType.

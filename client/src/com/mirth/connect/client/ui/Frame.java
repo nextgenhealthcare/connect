@@ -563,6 +563,13 @@ public class Frame extends JXFrame {
      * editor.
      */
     public void editChannel(Channel channel) {
+        String alertMessage = channelEditPanel.checkInvalidPluginProperties(channel);
+        if (StringUtils.isNotBlank(alertMessage)) {
+            if (!alertOption(this, alertMessage + "\nWhen this channel is saved, those properties will be lost. You can choose to import/edit\nthis channel at a later time after verifying that all necessary extensions are properly loaded.\nAre you sure you wish to continue?")) {
+                return;
+            }
+        }
+
         setBold(viewPane, UIConstants.ERROR_CONSTANT);
         setCurrentContentPage(channelEditPanel);
         setFocus(channelEditTasks);

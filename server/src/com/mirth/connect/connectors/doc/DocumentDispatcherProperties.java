@@ -40,8 +40,9 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
         this.password = "";
         this.template = "";
     }
-    
+
     public DocumentDispatcherProperties(DocumentDispatcherProperties props) {
+        super(props);
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
 
         host = props.getHost();

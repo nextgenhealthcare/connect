@@ -9,7 +9,6 @@
 
 package com.mirth.connect.connectors.ws;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
@@ -26,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
@@ -34,6 +34,7 @@ import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
@@ -43,20 +44,40 @@ import com.sun.net.httpserver.HttpServer;
 
 public class WebServiceReceiver extends SourceConnector {
     private Logger logger = Logger.getLogger(this.getClass());
-    protected WebServiceReceiverProperties connectorProperties;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private HttpServer server;
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ExecutorService executor;
     private Endpoint webServiceEndpoint;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    private WebServiceConfiguration configuration;
+    private HttpServer server;
+    private WebServiceReceiverProperties connectorProperties;
 
     @Override
-    public void onDeploy() {
+    public void onDeploy() throws DeployException {
         this.connectorProperties = (WebServiceReceiverProperties) getConnectorProperties();
+
+        // load the default configuration
+        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "wsConfigurationClass");
+
+        try {
+            configuration = (WebServiceConfiguration) Class.forName(configurationClass).newInstance();
+        } catch (Exception e) {
+            logger.trace("could not find custom configuration class, using default");
+            configuration = new DefaultWebServiceConfiguration();
+        }
+
+        try {
+            configuration.configureConnectorDeploy(this);
+        } catch (Exception e) {
+            throw new DeployException(e);
+        }
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {}
+    public void onUndeploy() throws UndeployException {
+        configuration.configureConnectorUndeploy(this);
+    }
 
     @Override
     public void onStart() throws StartException {
@@ -68,8 +89,9 @@ public class WebServiceReceiver extends SourceConnector {
         java.util.logging.Logger.getLogger("javax.enterprise.resource.webservices.jaxws.server").setLevel(java.util.logging.Level.OFF);
 
         try {
-            server = HttpServer.create(new InetSocketAddress(host, port), 5);
-        } catch (IOException e) {
+            configuration.configureReceiver(this);
+            server.bind(new InetSocketAddress(host, port), 5);
+        } catch (Exception e) {
             throw new StartException("Error creating HTTP Server.", e);
         }
 
@@ -194,5 +216,9 @@ public class WebServiceReceiver extends SourceConnector {
         // TODO find a way to call this after the response was sent
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
         return response;
+    }
+
+    public void setServer(HttpServer server) {
+        this.server = server;
     }
 }

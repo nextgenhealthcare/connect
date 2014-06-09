@@ -46,6 +46,7 @@ public class JmsConnectorProperties extends ConnectorProperties {
     }
 
     protected JmsConnectorProperties(JmsConnectorProperties props) {
+        super(props);
         useJndi = props.isUseJndi();
         jndiProviderUrl = props.getJndiProviderUrl();
         jndiInitialContextFactory = props.getJndiInitialContextFactory();

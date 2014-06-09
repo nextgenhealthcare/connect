@@ -27,8 +27,9 @@ public class JavaScriptDispatcherProperties extends ConnectorProperties implemen
 
         script = "";
     }
-    
+
     public JavaScriptDispatcherProperties(JavaScriptDispatcherProperties props) {
+        super(props);
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
 
         script = props.getScript();

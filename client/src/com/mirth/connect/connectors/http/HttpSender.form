@@ -233,7 +233,7 @@
         <Property name="text" type="java.lang.String" value="URL:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="urlField">
+    <Component class="com.mirth.connect.client.ui.components.MirthIconTextField" name="urlField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the URL of the HTTP server to send each message to."/>
       </Properties>

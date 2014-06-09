@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
@@ -135,6 +136,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
             getXStream().registerConverter(new MigratableConverter(normalizedVersion, getXStream().getMapper()));
             getXStream().registerConverter(new ChannelConverter(normalizedVersion, getXStream().getMapper()));
             getXStream().registerConverter(new MapContentConverter(getXStream().getMapper()));
+            getXStream().registerLocalConverter(ConnectorProperties.class, "pluginProperties", new PluginPropertiesConverter(normalizedVersion, getXStream().getMapper()));
         } else {
             throw new Exception("Serializer has already been initialized.");
         }
@@ -267,7 +269,6 @@ public class ObjectXMLSerializer extends XStreamSerializer {
             return (T) new InvalidChannel(element, e, null);
         }
 
-//        logger.error(e);
         throw new SerializerException(e);
     }
 }

@@ -181,7 +181,7 @@
         <Property name="text" type="java.lang.String" value="WSDL URL:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="wsdlUrlField">
+    <Component class="com.mirth.connect.client.ui.components.MirthIconTextField" name="wsdlUrlField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the full URL to the WSDL describing the web service method to be called, and then click the Get Operations button."/>
       </Properties>
@@ -470,7 +470,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useMtomNoRadioActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="soapActionField">
+    <Component class="com.mirth.connect.client.ui.components.MirthIconTextField" name="soapActionField">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="de" green="de" red="de" type="rgb"/>
