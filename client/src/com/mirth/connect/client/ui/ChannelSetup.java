@@ -792,9 +792,11 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     private void checkInvalidPluginProperties(Connector connector, Set<String> invalidPluginPropertiesNames) {
-        for (ConnectorPluginProperties pluginProperties : connector.getProperties().getPluginProperties()) {
-            if (pluginProperties instanceof InvalidConnectorPluginProperties) {
-                invalidPluginPropertiesNames.add(pluginProperties.getName());
+        if (connector.getProperties().getPluginProperties() != null) {
+            for (ConnectorPluginProperties pluginProperties : connector.getProperties().getPluginProperties()) {
+                if (pluginProperties instanceof InvalidConnectorPluginProperties) {
+                    invalidPluginPropertiesNames.add(pluginProperties.getName());
+                }
             }
         }
     }
