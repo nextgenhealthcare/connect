@@ -579,11 +579,11 @@ public class TcpReceiver extends SourceConnector {
 
                                 // Add the socket information to the channelMap
                                 Map<String, Object> sourceMap = new HashMap<String, Object>();
-                                sourceMap.put("clientAddress", socket.getLocalAddress().getHostAddress());
-                                sourceMap.put("clientPort", socket.getLocalPort());
+                                sourceMap.put("localAddress", socket.getLocalAddress().getHostAddress());
+                                sourceMap.put("localPort", socket.getLocalPort());
                                 if (socket.getRemoteSocketAddress() instanceof InetSocketAddress) {
-                                    sourceMap.put("localAddress", ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress());
-                                    sourceMap.put("localPort", ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort());
+                                    sourceMap.put("remoteAddress", ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress());
+                                    sourceMap.put("remotePort", ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort());
                                 }
                                 rawMessage.setSourceMap(sourceMap);
 
