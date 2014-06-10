@@ -28,7 +28,9 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
     private String method;
     private Map<String, String> headers;
     private Map<String, String> parameters;
-    private boolean includeHeadersInResponse;
+    private boolean responseXmlBody;
+    private boolean responseParseMultipart;
+    private boolean responseIncludeMetadata;
     private boolean multipart;
     private boolean useAuthentication;
     private String authenticationType;
@@ -46,7 +48,9 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
         this.method = "post";
         this.headers = new LinkedHashMap<String, String>();
         this.parameters = new LinkedHashMap<String, String>();
-        this.includeHeadersInResponse = false;
+        this.responseXmlBody = false;
+        this.responseParseMultipart = true;
+        this.responseIncludeMetadata = false;
         this.multipart = false;
         this.useAuthentication = false;
         this.authenticationType = "Basic";
@@ -66,7 +70,9 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
         method = props.getMethod();
         headers = new LinkedHashMap<String, String>(props.getHeaders());
         parameters = new LinkedHashMap<String, String>(props.getParameters());
-        includeHeadersInResponse = props.isIncludeHeadersInResponse();
+        responseXmlBody = props.isResponseXmlBody();
+        responseParseMultipart = props.isResponseParseMultipart();
+        responseIncludeMetadata = props.isResponseIncludeMetadata();
         multipart = props.isMultipart();
         useAuthentication = props.isUseAuthentication();
         authenticationType = props.getAuthenticationType();
@@ -110,12 +116,28 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
         this.parameters = parameters;
     }
 
-    public boolean isIncludeHeadersInResponse() {
-        return includeHeadersInResponse;
+    public boolean isResponseXmlBody() {
+        return responseXmlBody;
     }
 
-    public void setIncludeHeadersInResponse(boolean includeHeadersInResponse) {
-        this.includeHeadersInResponse = includeHeadersInResponse;
+    public void setResponseXmlBody(boolean responseXmlBody) {
+        this.responseXmlBody = responseXmlBody;
+    }
+
+    public boolean isResponseParseMultipart() {
+        return responseParseMultipart;
+    }
+
+    public void setResponseParseMultipart(boolean responseParseMultipart) {
+        this.responseParseMultipart = responseParseMultipart;
+    }
+
+    public boolean isResponseIncludeMetadata() {
+        return responseIncludeMetadata;
+    }
+
+    public void setResponseIncludeMetadata(boolean responseIncludeMetadata) {
+        this.responseIncludeMetadata = responseIncludeMetadata;
     }
 
     public boolean isMultipart() {

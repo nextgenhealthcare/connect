@@ -25,8 +25,9 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     private ListenerConnectorProperties listenerConnectorProperties;
     private ResponseConnectorProperties responseConnectorProperties;
 
-    private boolean bodyOnly;
     private boolean xmlBody;
+    private boolean parseMultipart;
+    private boolean includeMetadata;
     private String responseContentType;
     private String responseStatusCode;
     private Map<String, String> responseHeaders;
@@ -38,8 +39,9 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         listenerConnectorProperties = new ListenerConnectorProperties("80");
         responseConnectorProperties = new ResponseConnectorProperties();
 
-        this.bodyOnly = true;
         this.xmlBody = false;
+        this.parseMultipart = true;
+        this.includeMetadata = false;
         this.responseContentType = "text/plain";
         this.responseStatusCode = "";
         this.responseHeaders = new LinkedHashMap<String, String>();
@@ -48,20 +50,28 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         this.timeout = "0";
     }
 
-    public boolean isBodyOnly() {
-        return bodyOnly;
-    }
-
-    public void setBodyOnly(boolean bodyOnly) {
-        this.bodyOnly = bodyOnly;
-    }
-
     public boolean isXmlBody() {
         return xmlBody;
     }
 
     public void setXmlBody(boolean xmlBody) {
         this.xmlBody = xmlBody;
+    }
+
+    public boolean isParseMultipart() {
+        return parseMultipart;
+    }
+
+    public void setParseMultipart(boolean parseMultipart) {
+        this.parseMultipart = parseMultipart;
+    }
+
+    public boolean isIncludeMetadata() {
+        return includeMetadata;
+    }
+
+    public void setIncludeMetadata(boolean includeMetadata) {
+        this.includeMetadata = includeMetadata;
     }
 
     public String getResponseContentType() {

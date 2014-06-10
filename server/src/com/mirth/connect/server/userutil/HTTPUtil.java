@@ -55,7 +55,8 @@ public class HTTPUtil {
     }
 
     /**
-     * Serializes an HTTP request body into XML.
+     * Serializes an HTTP request body into XML. Multipart requests will also automatically be
+     * parsed into separate XML nodes.
      * 
      * @param httpBody
      *            The request body/payload input stream to parse.
@@ -81,7 +82,8 @@ public class HTTPUtil {
     }
 
     /**
-     * Serializes an HTTP request body into XML.
+     * Serializes an HTTP request body into XML. Multipart requests will also automatically be
+     * parsed into separate XML nodes.
      * 
      * @param httpBody
      *            The request body/payload string to parse.

@@ -297,8 +297,8 @@ public class HttpReceiver extends SourceConnector {
             requestInputStream = new GZIPInputStream(requestInputStream);
         }
 
-        // Only parse multipart if XML Body is selected
-        if (connectorProperties.isXmlBody() && ServletFileUpload.isMultipartContent(request)) {
+        // Only parse multipart if XML Body is selected and Parse Multipart is enabled
+        if (connectorProperties.isXmlBody() && connectorProperties.isParseMultipart() && ServletFileUpload.isMultipartContent(request)) {
             requestMessage.setContent(new MimeMultipart(new ByteArrayDataSource(requestInputStream, request.getContentType())));
         } else {
             requestMessage.setContent(IOUtils.toString(requestInputStream, HttpMessageConverter.getDefaultHttpCharset(request.getCharacterEncoding())));
@@ -319,14 +319,10 @@ public class HttpReceiver extends SourceConnector {
 
         String rawMessageContent;
 
-        if (connectorProperties.isBodyOnly()) {
-            if (connectorProperties.isXmlBody()) {
-                rawMessageContent = HttpMessageConverter.contentToXml(requestMessage.getContent(), requestMessage.getContentType(), true);
-            } else {
-                rawMessageContent = (String) requestMessage.getContent();
-            }
+        if (connectorProperties.isXmlBody()) {
+            rawMessageContent = HttpMessageConverter.httpRequestToXml(requestMessage, connectorProperties.isParseMultipart(), connectorProperties.isIncludeMetadata());
         } else {
-            rawMessageContent = HttpMessageConverter.httpRequestToXml(requestMessage);
+            rawMessageContent = (String) requestMessage.getContent();
         }
 
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));

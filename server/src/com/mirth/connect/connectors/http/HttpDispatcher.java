@@ -13,20 +13,28 @@ import java.io.File;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
+
 import org.apache.commons.collections.map.CaseInsensitiveMap;
+import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthSchemeProvider;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
@@ -250,22 +258,41 @@ public class HttpDispatcher extends DestinationConnector {
             // execute the method
             logger.debug("executing method: type=" + httpMethod.getMethod() + ", uri=" + httpMethod.getURI().toString());
             httpResponse = client.execute(target, httpMethod, context);
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            StatusLine statusLine = httpResponse.getStatusLine();
+            int statusCode = statusLine.getStatusCode();
             logger.debug("received status code: " + statusCode);
 
-            Charset responseCharset = charset;
+            Map<String, String> headers = new HashMap<String, String>();
+            for (Header header : httpResponse.getAllHeaders()) {
+                headers.put(header.getName(), header.getValue());
+            }
+
+            connectorMessage.getConnectorMap().put("responseStatusLine", statusLine.toString());
+            connectorMessage.getConnectorMap().put("responseHeaders", Collections.unmodifiableMap(new CaseInsensitiveMap(headers)));
+
             ContentType responseContentType = ContentType.get(httpResponse.getEntity());
-            if (responseContentType != null && responseContentType.getCharset() != null) {
+            if (responseContentType == null) {
+                responseContentType = ContentType.TEXT_PLAIN;
+            }
+
+            Charset responseCharset = charset;
+            if (responseContentType.getCharset() != null) {
                 responseCharset = responseContentType.getCharset();
             }
 
-            String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), responseCharset);
+            Object responseBody;
 
-            if (httpDispatcherProperties.isIncludeHeadersInResponse()) {
-                HttpMessageConverter converter = new HttpMessageConverter();
-                responseData = converter.httpResponseToXml(httpResponse.getStatusLine().toString(), httpResponse.getAllHeaders(), responseBody);
+            // Only parse multipart if XML Body is selected and Parse Multipart is enabled
+            if (httpDispatcherProperties.isResponseXmlBody() && httpDispatcherProperties.isResponseParseMultipart() && responseContentType.getMimeType().startsWith(FileUploadBase.MULTIPART)) {
+                responseBody = new MimeMultipart(new ByteArrayDataSource(httpResponse.getEntity().getContent(), responseContentType.toString()));
             } else {
-                responseData = responseBody;
+                responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), responseCharset);
+            }
+
+            if (httpDispatcherProperties.isResponseXmlBody()) {
+                responseData = HttpMessageConverter.httpResponseToXml(statusLine.toString(), headers, responseBody, responseContentType, httpDispatcherProperties.isResponseParseMultipart(), httpDispatcherProperties.isResponseIncludeMetadata());
+            } else {
+                responseData = (String) responseBody;
             }
 
             if (statusCode < HttpStatus.SC_BAD_REQUEST) {

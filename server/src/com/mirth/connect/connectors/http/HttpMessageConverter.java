@@ -26,7 +26,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
 import org.apache.http.entity.ContentType;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -37,38 +36,40 @@ import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 public class HttpMessageConverter {
     private static Logger logger = Logger.getLogger(HttpMessageConverter.class);
 
-    public static String httpRequestToXml(HttpRequestMessage request) {
+    public static String httpRequestToXml(HttpRequestMessage request, boolean parseMultipart, boolean includeMetadata) {
         try {
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             DonkeyElement requestElement = new DonkeyElement(document.createElement("HttpRequest"));
 
-            requestElement.addChildElement("RemoteAddress", request.getRemoteAddress());
-            requestElement.addChildElement("RequestUrl", request.getRequestUrl());
-            requestElement.addChildElement("Method", request.getMethod());
-            requestElement.addChildElement("RequestPath", request.getQueryString());
-            requestElement.addChildElement("RequestContextPath", request.getContextPath());
+            if (includeMetadata) {
+                requestElement.addChildElement("RemoteAddress", request.getRemoteAddress());
+                requestElement.addChildElement("RequestUrl", request.getRequestUrl());
+                requestElement.addChildElement("Method", request.getMethod());
+                requestElement.addChildElement("RequestPath", request.getQueryString());
+                requestElement.addChildElement("RequestContextPath", request.getContextPath());
 
-            if (!request.getParameters().isEmpty()) {
-                DonkeyElement parametersElement = requestElement.addChildElement("Parameters");
+                if (!request.getParameters().isEmpty()) {
+                    DonkeyElement parametersElement = requestElement.addChildElement("Parameters");
 
-                for (Entry<String, Object> entry : request.getParameters().entrySet()) {
-                    if (entry.getValue() instanceof String[]) {
-                        for (String value : (String[]) entry.getValue()) {
-                            parametersElement.addChildElement(entry.getKey(), value);
+                    for (Entry<String, Object> entry : request.getParameters().entrySet()) {
+                        if (entry.getValue() instanceof String[]) {
+                            for (String value : (String[]) entry.getValue()) {
+                                parametersElement.addChildElement(entry.getKey(), value);
+                            }
+                        } else {
+                            parametersElement.addChildElement(entry.getKey(), entry.getValue().toString());
                         }
-                    } else {
-                        parametersElement.addChildElement(entry.getKey(), entry.getValue().toString());
                     }
+                }
+
+                DonkeyElement headerElement = requestElement.addChildElement("Header");
+
+                for (Entry<String, String> entry : request.getHeaders().entrySet()) {
+                    headerElement.addChildElement(entry.getKey(), entry.getValue());
                 }
             }
 
-            DonkeyElement headerElement = requestElement.addChildElement("Header");
-
-            for (Entry<String, String> entry : request.getHeaders().entrySet()) {
-                headerElement.addChildElement(entry.getKey(), entry.getValue());
-            }
-
-            processContent(requestElement.addChildElement("Content"), request.getContent(), request.getContentType(), false);
+            processContent(requestElement.addChildElement("Content"), request.getContent(), request.getContentType(), parseMultipart);
 
             return requestElement.toXml();
         } catch (Exception e) {
@@ -86,21 +87,21 @@ public class HttpMessageConverter {
 
     private static void processContent(DonkeyElement contentElement, Object content, ContentType contentType, boolean parseMultipart) throws DonkeyElementException, MessagingException, IOException {
         if (parseMultipart && content instanceof MimeMultipart) {
+            contentElement.setAttribute("multipart", "yes");
             MimeMultipart multipart = (MimeMultipart) content;
-            DonkeyElement multipartElement = contentElement.addChildElement("Multipart");
 
             String boundary = contentType.getParameter("boundary");
             if (StringUtils.isNotBlank(boundary)) {
-                multipartElement.setAttribute("boundary", boundary);
+                contentElement.setAttribute("boundary", boundary);
             }
 
             if (StringUtils.isNotEmpty(multipart.getPreamble())) {
-                multipartElement.addChildElement("Preamble", multipart.getPreamble());
+                contentElement.addChildElement("Preamble", multipart.getPreamble());
             }
 
             for (int partIndex = 0; partIndex < multipart.getCount(); partIndex++) {
                 BodyPart part = multipart.getBodyPart(partIndex);
-                DonkeyElement partElement = multipartElement.addChildElement("Part");
+                DonkeyElement partElement = contentElement.addChildElement("Part");
                 DonkeyElement headersElement = partElement.addChildElement("Headers");
                 ContentType partContentType = contentType;
 
@@ -118,37 +119,43 @@ public class HttpMessageConverter {
 
                 processContent(partElement.addChildElement("Content"), part.getContent(), partContentType, true);
             }
-        } else if (content instanceof InputStream) {
-            contentElement.setAttribute("encoding", "Base64");
-            contentElement.setTextContent(new String(Base64.encodeBase64Chunked(IOUtils.toByteArray((InputStream) content)), "US-ASCII"));
         } else {
-            String stringContent = content != null ? content.toString() : "";
+            contentElement.setAttribute("multipart", "no");
 
-            if (isBinaryContentType(contentType.getMimeType())) {
+            if (content instanceof InputStream) {
                 contentElement.setAttribute("encoding", "Base64");
-                contentElement.setTextContent(new String(Base64.encodeBase64Chunked(stringContent.getBytes(getDefaultHttpCharset(contentType.getCharset().name()))), "US-ASCII"));
+                contentElement.setTextContent(new String(Base64.encodeBase64Chunked(IOUtils.toByteArray((InputStream) content)), "US-ASCII"));
             } else {
-                contentElement.setTextContent(stringContent);
+                String stringContent = content != null ? content.toString() : "";
+
+                if (isBinaryContentType(contentType.getMimeType())) {
+                    contentElement.setAttribute("encoding", "Base64");
+                    contentElement.setTextContent(new String(Base64.encodeBase64Chunked(stringContent.getBytes(getDefaultHttpCharset(contentType.getCharset().name()))), "US-ASCII"));
+                } else {
+                    contentElement.setTextContent(stringContent);
+                }
             }
         }
     }
 
-    public static String httpResponseToXml(String status, Header[] headers, String content) {
+    public static String httpResponseToXml(String status, Map<String, String> headers, Object content, ContentType contentType, boolean parseMultipart, boolean includeMetadata) {
         try {
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             DonkeyElement requestElement = new DonkeyElement(document.createElement("HttpResponse"));
 
-            requestElement.addChildElement("Status", status);
+            if (includeMetadata) {
+                requestElement.addChildElement("Status", status);
 
-            DonkeyElement headerElement = requestElement.addChildElement("Header");
+                DonkeyElement headerElement = requestElement.addChildElement("Header");
 
-            for (Header header : headers) {
-                DonkeyElement fieldElement = headerElement.addChildElement("Field");
-                fieldElement.addChildElement("Name", header.getName());
-                fieldElement.addChildElement("Value", header.getValue());
+                for (Entry<String, String> entry : headers.entrySet()) {
+                    DonkeyElement fieldElement = headerElement.addChildElement("Field");
+                    fieldElement.addChildElement("Name", entry.getKey());
+                    fieldElement.addChildElement("Value", entry.getValue());
+                }
             }
 
-            requestElement.addChildElement("Body", content);
+            processContent(requestElement.addChildElement("Body"), content, contentType, parseMultipart);
 
             return requestElement.toXml();
         } catch (Exception e) {

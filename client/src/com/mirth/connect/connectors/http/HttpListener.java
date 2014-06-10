@@ -70,18 +70,9 @@ public class HttpListener extends ConnectorSettingsPanel {
         HttpReceiverProperties properties = new HttpReceiverProperties();
         properties.setContextPath(contextPathField.getText());
         properties.setTimeout(receiveTimeoutField.getText());
-
-        if (messageContentPlainBodyRadio.isSelected()) {
-            properties.setBodyOnly(true);
-            properties.setXmlBody(false);
-        } else if (messageContentXmlBodyRadio.isSelected()) {
-            properties.setBodyOnly(true);
-            properties.setXmlBody(true);
-        } else {
-            properties.setBodyOnly(false);
-            properties.setXmlBody(false);
-        }
-
+        properties.setXmlBody(messageContentXmlBodyRadio.isSelected());
+        properties.setParseMultipart(parseMultipartYesRadio.isSelected());
+        properties.setIncludeMetadata(includeMetadataYesRadio.isSelected());
         properties.setResponseContentType(responseContentTypeField.getText());
         properties.setCharset(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
@@ -101,14 +92,24 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         updateHttpUrl();
 
-        if (props.isBodyOnly()) {
-            if (props.isXmlBody()) {
-                messageContentXmlBodyRadio.setSelected(true);
-            } else {
-                messageContentPlainBodyRadio.setSelected(true);
-            }
+        if (props.isXmlBody()) {
+            messageContentXmlBodyRadio.setSelected(true);
+            messageContentXmlBodyRadioActionPerformed(null);
         } else {
-            messageContentHeadersQueryAndBodyRadio.setSelected(true);
+            messageContentPlainBodyRadio.setSelected(true);
+            messageContentPlainBodyRadioActionPerformed(null);
+        }
+
+        if (props.isParseMultipart()) {
+            parseMultipartYesRadio.setSelected(true);
+        } else {
+            parseMultipartNoRadio.setSelected(true);
+        }
+
+        if (props.isIncludeMetadata()) {
+            includeMetadataYesRadio.setSelected(true);
+        } else {
+            includeMetadataNoRadio.setSelected(true);
         }
 
         responseContentTypeField.setText(props.getResponseContentType());
@@ -168,14 +169,14 @@ public class HttpListener extends ConnectorSettingsPanel {
         referenceItems.add(new CodeTemplate("Get HTTP Request Context Path", "Retrieves the context path from an incoming HTTP request.", "sourceMap.get('contextPath')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
         referenceItems.add(new CodeTemplate("Get HTTP Request Header", "Retrieves a header value from an incoming HTTP request.", "sourceMap.get('headers').get('Header-Name')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
         referenceItems.add(new CodeTemplate("Get HTTP Request Parameter", "Retrieves a query/form parameter from an incoming HTTP request. If multiple values exist for the parameter, an array will be returned.", "sourceMap.get('parameters').get('parameterName')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+        referenceItems.add(new CodeTemplate("Convert HTTP Payload to XML", "Serializes an HTTP request body into XML. Multipart requests will also automatically be parsed into separate XML nodes. The body may be passed in as a string or input stream.", "HTTPUtil.httpBodyToXml(httpBody, contentType)", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
 
         return referenceItems;
     }
 
     @Override
     public boolean requiresXmlDataType() {
-        HttpReceiverProperties props = (HttpReceiverProperties) getProperties();
-        return props.isXmlBody() || !props.isBodyOnly();
+        return ((HttpReceiverProperties) getProperties()).isXmlBody();
     }
 
     public void updateHttpUrl() {
@@ -351,8 +352,9 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         listenerAddressButtonGroup = new javax.swing.ButtonGroup();
         includeHeadersGroup = new javax.swing.ButtonGroup();
+        parseMultipartButtonGroup = new javax.swing.ButtonGroup();
+        includeMetadataButtonGroup = new javax.swing.ButtonGroup();
         messageContentPlainBodyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        messageContentHeadersQueryAndBodyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         messageContentLabel = new javax.swing.JLabel();
         responseContentTypeField = new com.mirth.connect.client.ui.components.MirthTextField();
         responseContentTypeLabel = new javax.swing.JLabel();
@@ -372,6 +374,12 @@ public class HttpListener extends ConnectorSettingsPanel {
         receiveTimeoutLabel1 = new javax.swing.JLabel();
         responseStatusCodeField = new com.mirth.connect.client.ui.components.MirthTextField();
         messageContentXmlBodyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        parseMultipartLabel = new javax.swing.JLabel();
+        parseMultipartYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        parseMultipartNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        includeMetadataLabel = new javax.swing.JLabel();
+        includeMetadataYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        includeMetadataNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -379,22 +387,11 @@ public class HttpListener extends ConnectorSettingsPanel {
         messageContentPlainBodyRadio.setBackground(new java.awt.Color(255, 255, 255));
         includeHeadersGroup.add(messageContentPlainBodyRadio);
         messageContentPlainBodyRadio.setText("Plain Body");
-        messageContentPlainBodyRadio.setToolTipText("<html>If selected, the request body will be sent to the channel as a raw string.<br/>Multipart messages will not be automatically parsed.</html>");
+        messageContentPlainBodyRadio.setToolTipText("<html>If selected, the request body will be sent to the channel as a raw string.</html>");
         messageContentPlainBodyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         messageContentPlainBodyRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 messageContentPlainBodyRadioActionPerformed(evt);
-            }
-        });
-
-        messageContentHeadersQueryAndBodyRadio.setBackground(new java.awt.Color(255, 255, 255));
-        includeHeadersGroup.add(messageContentHeadersQueryAndBodyRadio);
-        messageContentHeadersQueryAndBodyRadio.setText("Headers, Query, and Body as XML");
-        messageContentHeadersQueryAndBodyRadio.setToolTipText("<html>If selected, the message content will include the request headers,<br/>query parameters, and body as XML. Multipart messages will not<br/>be automatically parsed.</html>");
-        messageContentHeadersQueryAndBodyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        messageContentHeadersQueryAndBodyRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                messageContentHeadersQueryAndBodyRadioActionPerformed(evt);
             }
         });
 
@@ -460,7 +457,7 @@ public class HttpListener extends ConnectorSettingsPanel {
         messageContentXmlBodyRadio.setBackground(new java.awt.Color(255, 255, 255));
         includeHeadersGroup.add(messageContentXmlBodyRadio);
         messageContentXmlBodyRadio.setText("XML Body");
-        messageContentXmlBodyRadio.setToolTipText("<html>If selected, the request body will be sent to the channel as serialized XML.<br/>Multipart messages will be automatically parsed into separate XML nodes.</html>");
+        messageContentXmlBodyRadio.setToolTipText("<html>If selected, the request body will be sent to the channel as serialized XML.</html>");
         messageContentXmlBodyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         messageContentXmlBodyRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -468,40 +465,80 @@ public class HttpListener extends ConnectorSettingsPanel {
             }
         });
 
+        parseMultipartLabel.setText("Parse Multipart:");
+
+        parseMultipartYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        parseMultipartButtonGroup.add(parseMultipartYesRadio);
+        parseMultipartYesRadio.setText("Yes");
+        parseMultipartYesRadio.setToolTipText("<html>Select Yes to automatically parse multipart requests into separate XML nodes.<br/>Select No to always keep the request body as a single XML node.</html>");
+        parseMultipartYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        parseMultipartNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        parseMultipartButtonGroup.add(parseMultipartNoRadio);
+        parseMultipartNoRadio.setText("No");
+        parseMultipartNoRadio.setToolTipText("<html>Select Yes to automatically parse multipart requests into separate XML nodes.<br/>Select No to always keep the request body as a single XML node.</html>");
+        parseMultipartNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        includeMetadataLabel.setText("Include Metadata:");
+
+        includeMetadataYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        includeMetadataButtonGroup.add(includeMetadataYesRadio);
+        includeMetadataYesRadio.setText("Yes");
+        includeMetadataYesRadio.setToolTipText("<html>Select Yes to include request metadata (method, context path, headers,<br/>query parameters) in the XML content. Note that regardless of this<br/>setting, the same metadata is always available in the source map.</html>");
+        includeMetadataYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        includeMetadataNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        includeMetadataButtonGroup.add(includeMetadataNoRadio);
+        includeMetadataNoRadio.setText("No");
+        includeMetadataNoRadio.setToolTipText("<html>Select Yes to include request metadata (method, context path, headers,<br/>query parameters) in the XML content. Note that regardless of this<br/>setting, the same metadata is always available in the source map.</html>");
+        includeMetadataNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(headersLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(httpUrlLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(contextPathLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(charsetEncodingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(receiveTimeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(responseContentTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(receiveTimeoutLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(messageContentLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGap(20, 20, 20)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(contextPathLabel)
+                    .addComponent(receiveTimeoutLabel)
+                    .addComponent(messageContentLabel)
+                    .addComponent(parseMultipartLabel)
+                    .addComponent(includeMetadataLabel)
+                    .addComponent(httpUrlLabel)
+                    .addComponent(responseContentTypeLabel)
+                    .addComponent(charsetEncodingLabel)
+                    .addComponent(receiveTimeoutLabel1)
+                    .addComponent(headersLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(httpUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(contextPathField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(responseContentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(responseStatusCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(responseHeadersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(messageContentPlainBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(contextPathField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(messageContentPlainBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(messageContentXmlBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(parseMultipartYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(parseMultipartNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(includeMetadataYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(includeMetadataNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(httpUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(responseContentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(responseStatusCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(responseHeadersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(messageContentXmlBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(messageContentHeadersQueryAndBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(responseHeadersNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(responseHeadersDeleteButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(responseHeadersNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(responseHeadersDeleteButton))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -517,43 +554,57 @@ public class HttpListener extends ConnectorSettingsPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(messageContentLabel)
-                    .addComponent(messageContentHeadersQueryAndBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(messageContentPlainBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(messageContentXmlBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(httpUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(httpUrlLabel))
+                    .addComponent(parseMultipartLabel)
+                    .addComponent(parseMultipartYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(parseMultipartNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(responseContentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(responseContentTypeLabel))
+                    .addComponent(includeMetadataLabel)
+                    .addComponent(includeMetadataYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(includeMetadataNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(charsetEncodingLabel))
+                    .addComponent(httpUrlLabel)
+                    .addComponent(httpUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(responseStatusCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(receiveTimeoutLabel1))
-                .addGap(6, 6, 6)
+                    .addComponent(responseContentTypeLabel)
+                    .addComponent(responseContentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(charsetEncodingLabel)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(receiveTimeoutLabel1)
+                    .addComponent(responseStatusCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(headersLabel)
+                    .addComponent(responseHeadersPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(responseHeadersNewButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(responseHeadersDeleteButton))
-                    .addComponent(responseHeadersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 71, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(headersLabel)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(responseHeadersNewButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(responseHeadersDeleteButton)))
+                        .addGap(0, 32, Short.MAX_VALUE)))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void messageContentHeadersQueryAndBodyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageContentHeadersQueryAndBodyRadioActionPerformed
-        parent.channelEditPanel.checkAndSetXmlDataType();
-    }//GEN-LAST:event_messageContentHeadersQueryAndBodyRadioActionPerformed
-
     private void messageContentPlainBodyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageContentPlainBodyRadioActionPerformed
         parent.channelEditPanel.checkAndSetXmlDataType();
+        parseMultipartLabel.setEnabled(false);
+        parseMultipartYesRadio.setEnabled(false);
+        parseMultipartNoRadio.setEnabled(false);
+        includeMetadataLabel.setEnabled(false);
+        includeMetadataYesRadio.setEnabled(false);
+        includeMetadataNoRadio.setEnabled(false);
     }//GEN-LAST:event_messageContentPlainBodyRadioActionPerformed
 
     private void contextPathFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_contextPathFieldKeyReleased
@@ -587,6 +638,12 @@ public class HttpListener extends ConnectorSettingsPanel {
 
     private void messageContentXmlBodyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageContentXmlBodyRadioActionPerformed
         parent.channelEditPanel.checkAndSetXmlDataType();
+        parseMultipartLabel.setEnabled(true);
+        parseMultipartYesRadio.setEnabled(true);
+        parseMultipartNoRadio.setEnabled(true);
+        includeMetadataLabel.setEnabled(true);
+        includeMetadataYesRadio.setEnabled(true);
+        includeMetadataNoRadio.setEnabled(true);
     }//GEN-LAST:event_messageContentXmlBodyRadioActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -598,11 +655,18 @@ public class HttpListener extends ConnectorSettingsPanel {
     private javax.swing.JTextField httpUrlField;
     private javax.swing.JLabel httpUrlLabel;
     private javax.swing.ButtonGroup includeHeadersGroup;
+    private javax.swing.ButtonGroup includeMetadataButtonGroup;
+    private javax.swing.JLabel includeMetadataLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton includeMetadataNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton includeMetadataYesRadio;
     private javax.swing.ButtonGroup listenerAddressButtonGroup;
-    private com.mirth.connect.client.ui.components.MirthRadioButton messageContentHeadersQueryAndBodyRadio;
     private javax.swing.JLabel messageContentLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton messageContentPlainBodyRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton messageContentXmlBodyRadio;
+    private javax.swing.ButtonGroup parseMultipartButtonGroup;
+    private javax.swing.JLabel parseMultipartLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton parseMultipartNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton parseMultipartYesRadio;
     private com.mirth.connect.client.ui.components.MirthTextField receiveTimeoutField;
     private javax.swing.JLabel receiveTimeoutLabel;
     private javax.swing.JLabel receiveTimeoutLabel1;

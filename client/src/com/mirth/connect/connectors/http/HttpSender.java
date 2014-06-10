@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.http;
 
+import java.util.ArrayList;
 import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -40,7 +41,11 @@ import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class HttpSender extends ConnectorSettingsPanel {
@@ -83,6 +88,10 @@ public class HttpSender extends ConnectorSettingsPanel {
                 urlFieldChanged();
             }
         });
+
+        // This is required because of MIRTH-3305
+        Map<String, ArrayList<CodeTemplate>> references = ReferenceListFactory.getInstance().getReferences();
+        references.put(getConnectorName() + " Functions", getReferenceItems());
     }
 
     @Override
@@ -121,7 +130,9 @@ public class HttpSender extends ConnectorSettingsPanel {
         properties.setUsername(usernameField.getText());
         properties.setPassword(new String(passwordField.getPassword()));
 
-        properties.setIncludeHeadersInResponse(responseContentHeadersAndBodyButton.isSelected());
+        properties.setResponseXmlBody(responseContentXmlBodyRadio.isSelected());
+        properties.setResponseParseMultipart(parseMultipartYesRadio.isSelected());
+        properties.setResponseIncludeMetadata(includeMetadataYesRadio.isSelected());
 
         properties.setCharset(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
@@ -182,10 +193,24 @@ public class HttpSender extends ConnectorSettingsPanel {
         usernameField.setText(props.getUsername());
         passwordField.setText(props.getPassword());
 
-        if (props.isIncludeHeadersInResponse()) {
-            responseContentHeadersAndBodyButton.setSelected(true);
+        if (props.isResponseXmlBody()) {
+            responseContentXmlBodyRadio.setSelected(true);
+            responseContentXmlBodyRadioActionPerformed(null);
         } else {
-            responseContentBodyOnlyButton.setSelected(true);
+            responseContentPlainBodyRadio.setSelected(true);
+            responseContentPlainBodyRadioActionPerformed(null);
+        }
+        
+        if (props.isResponseParseMultipart()) {
+            parseMultipartYesRadio.setSelected(true);
+        } else {
+            parseMultipartNoRadio.setSelected(true);
+        }
+        
+        if (props.isResponseIncludeMetadata()) {
+            includeMetadataYesRadio.setSelected(true);
+        } else {
+            includeMetadataNoRadio.setSelected(true);
         }
 
         if (props.getParameters() != null) {
@@ -518,6 +543,16 @@ public class HttpSender extends ConnectorSettingsPanel {
         contentTypeField.setBackground(null);
         contentTextArea.setBackground(null);
     }
+    
+    @Override
+    public ArrayList<CodeTemplate> getReferenceItems() {
+        ArrayList<CodeTemplate> referenceItems = new ArrayList<CodeTemplate>();
+
+        referenceItems.add(new CodeTemplate("Get HTTP Response Status Line", "Retrieves the status line (e.g. \"HTTP/1.1 200 OK\") from an HTTP response, for use in the response transformer.", "$('responseStatusLine')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+        referenceItems.add(new CodeTemplate("Get HTTP Response Header", "Retrieves a header value from an HTTP response, for use in the response transformer.", "$('responseHeaders').get('Header-Name')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+
+        return referenceItems;
+    }
 
     @Override
     public ConnectorTypeDecoration getConnectorTypeDecoration() {
@@ -633,6 +668,8 @@ public class HttpSender extends ConnectorSettingsPanel {
         multipartButtonGroup = new javax.swing.ButtonGroup();
         authenticationButtonGroup = new javax.swing.ButtonGroup();
         authenticationTypeButtonGroup = new javax.swing.ButtonGroup();
+        parseMultipartButtonGroup = new javax.swing.ButtonGroup();
+        includeMetadataButtonGroup = new javax.swing.ButtonGroup();
         urlLabel = new javax.swing.JLabel();
         urlField = new com.mirth.connect.client.ui.components.MirthIconTextField();
         queryParametersNewButton = new javax.swing.JButton();
@@ -649,8 +686,8 @@ public class HttpSender extends ConnectorSettingsPanel {
         headersNewButton = new javax.swing.JButton();
         headersDeleteButton = new javax.swing.JButton();
         responseContentLabel = new javax.swing.JLabel();
-        responseContentHeadersAndBodyButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        responseContentBodyOnlyButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        responseContentXmlBodyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        responseContentPlainBodyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         putButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         deleteButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         testConnection = new javax.swing.JButton();
@@ -675,6 +712,12 @@ public class HttpSender extends ConnectorSettingsPanel {
         charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
         sendTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
         sendTimeoutLabel = new javax.swing.JLabel();
+        parseMultipartLabel = new javax.swing.JLabel();
+        parseMultipartYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        parseMultipartNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        includeMetadataLabel = new javax.swing.JLabel();
+        includeMetadataYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        includeMetadataNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -713,7 +756,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         methodLabel.setText("Method:");
 
         postButton.setBackground(new java.awt.Color(255, 255, 255));
-        postButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(postButton);
         postButton.setText("POST");
         postButton.setToolTipText("Selects the HTTP operation used to send each message.");
@@ -725,7 +767,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         });
 
         getButton.setBackground(new java.awt.Color(255, 255, 255));
-        getButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(getButton);
         getButton.setText("GET");
         getButton.setToolTipText("Selects the HTTP operation used to send each message.");
@@ -765,22 +806,29 @@ public class HttpSender extends ConnectorSettingsPanel {
 
         responseContentLabel.setText("Response Content:");
 
-        responseContentHeadersAndBodyButton.setBackground(new java.awt.Color(255, 255, 255));
-        responseContentHeadersAndBodyButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        responseContentButtonGroup.add(responseContentHeadersAndBodyButton);
-        responseContentHeadersAndBodyButton.setText("Headers and Body as XML");
-        responseContentHeadersAndBodyButton.setToolTipText("<html>If selected, the response content will include the HTTP headers and body as XML.</html>");
-        responseContentHeadersAndBodyButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        responseContentXmlBodyRadio.setBackground(new java.awt.Color(255, 255, 255));
+        responseContentButtonGroup.add(responseContentXmlBodyRadio);
+        responseContentXmlBodyRadio.setText("XML Body");
+        responseContentXmlBodyRadio.setToolTipText("<html>If selected, the response content will include the response body as serialized XML.</html>");
+        responseContentXmlBodyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        responseContentXmlBodyRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                responseContentXmlBodyRadioActionPerformed(evt);
+            }
+        });
 
-        responseContentBodyOnlyButton.setBackground(new java.awt.Color(255, 255, 255));
-        responseContentBodyOnlyButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        responseContentButtonGroup.add(responseContentBodyOnlyButton);
-        responseContentBodyOnlyButton.setText("Body Only");
-        responseContentBodyOnlyButton.setToolTipText("<html>If selected, the response content will only include the body as a string.</html>");
-        responseContentBodyOnlyButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        responseContentPlainBodyRadio.setBackground(new java.awt.Color(255, 255, 255));
+        responseContentButtonGroup.add(responseContentPlainBodyRadio);
+        responseContentPlainBodyRadio.setText("Plain Body");
+        responseContentPlainBodyRadio.setToolTipText("<html>If selected, the response content will only include the response body as a raw string.</html>");
+        responseContentPlainBodyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        responseContentPlainBodyRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                responseContentPlainBodyRadioActionPerformed(evt);
+            }
+        });
 
         putButton.setBackground(new java.awt.Color(255, 255, 255));
-        putButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(putButton);
         putButton.setText("PUT");
         putButton.setToolTipText("Selects the HTTP operation used to send each message.");
@@ -792,7 +840,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         });
 
         deleteButton.setBackground(new java.awt.Color(255, 255, 255));
-        deleteButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(deleteButton);
         deleteButton.setText("DELETE");
         deleteButton.setToolTipText("Selects the HTTP operation used to send each message.");
@@ -813,14 +860,12 @@ public class HttpSender extends ConnectorSettingsPanel {
         multipartLabel.setText("Multipart:");
 
         multipartYesButton.setBackground(new java.awt.Color(255, 255, 255));
-        multipartYesButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         multipartButtonGroup.add(multipartYesButton);
         multipartYesButton.setText("Yes");
         multipartYesButton.setToolTipText("Set to use multipart in the Content-Type header. Multipart can only be used with POST.");
         multipartYesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         multipartNoButton.setBackground(new java.awt.Color(255, 255, 255));
-        multipartNoButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         multipartButtonGroup.add(multipartNoButton);
         multipartNoButton.setText("No");
         multipartNoButton.setToolTipText("Set not to use multipart in the Content-Type header.");
@@ -838,7 +883,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         authenticationLabel.setText("Authentication:");
 
         authenticationYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        authenticationYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         authenticationButtonGroup.add(authenticationYesRadio);
         authenticationYesRadio.setText("Yes");
         authenticationYesRadio.setToolTipText("<html>Turning on authentication uses a username and password to communicate with the HTTP server.</html>");
@@ -850,7 +894,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         });
 
         authenticationNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        authenticationNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         authenticationButtonGroup.add(authenticationNoRadio);
         authenticationNoRadio.setText("No");
         authenticationNoRadio.setToolTipText("<html>Turning on authentication uses a username and password to communicate with the HTTP server.</html>");
@@ -870,14 +913,12 @@ public class HttpSender extends ConnectorSettingsPanel {
         passwordField.setToolTipText("The password used to connect to the HTTP server.");
 
         authenticationTypeDigestRadio.setBackground(new java.awt.Color(255, 255, 255));
-        authenticationTypeDigestRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         authenticationTypeButtonGroup.add(authenticationTypeDigestRadio);
         authenticationTypeDigestRadio.setText("Digest");
         authenticationTypeDigestRadio.setToolTipText("Use the digest authentication scheme.");
         authenticationTypeDigestRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         authenticationTypeBasicRadio.setBackground(new java.awt.Color(255, 255, 255));
-        authenticationTypeBasicRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         authenticationTypeButtonGroup.add(authenticationTypeBasicRadio);
         authenticationTypeBasicRadio.setText("Basic");
         authenticationTypeBasicRadio.setToolTipText("Use the basic authentication scheme.");
@@ -894,27 +935,57 @@ public class HttpSender extends ConnectorSettingsPanel {
 
         sendTimeoutLabel.setText("Send Timeout (ms):");
 
+        parseMultipartLabel.setText("Parse Multipart:");
+
+        parseMultipartYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        parseMultipartButtonGroup.add(parseMultipartYesRadio);
+        parseMultipartYesRadio.setText("Yes");
+        parseMultipartYesRadio.setToolTipText("<html>Select Yes to automatically parse multipart responses into separate XML nodes.<br/>Select No to always keep the response body as a single XML node.</html>");
+        parseMultipartYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        parseMultipartNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        parseMultipartButtonGroup.add(parseMultipartNoRadio);
+        parseMultipartNoRadio.setText("No");
+        parseMultipartNoRadio.setToolTipText("<html>Select Yes to automatically parse multipart responses into separate XML nodes.<br/>Select No to always keep the response body as a single XML node.</html>");
+        parseMultipartNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        includeMetadataLabel.setText("Include Metadata:");
+
+        includeMetadataYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        includeMetadataButtonGroup.add(includeMetadataYesRadio);
+        includeMetadataYesRadio.setText("Yes");
+        includeMetadataYesRadio.setToolTipText("<html>Select Yes to include response metadata (status<br/>line and headers) in the XML content. Note that<br/>regardless of this setting, the same metadata<br/>will be available in the connector map.</html>");
+        includeMetadataYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        includeMetadataNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        includeMetadataButtonGroup.add(includeMetadataNoRadio);
+        includeMetadataNoRadio.setText("No");
+        includeMetadataNoRadio.setToolTipText("<html>Select Yes to include response metadata (status<br/>line and headers) in the XML content. Note that<br/>regardless of this setting, the same metadata<br/>will be available in the connector map.</html>");
+        includeMetadataNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(sendTimeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(charsetEncodingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(authenticationTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(contentTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(authenticationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(contentLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(multipartLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(responseContentLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(methodLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(queryParametersLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(headersLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(urlLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(includeMetadataLabel)
+                    .addComponent(parseMultipartLabel)
+                    .addComponent(sendTimeoutLabel)
+                    .addComponent(charsetEncodingLabel)
+                    .addComponent(authenticationTypeLabel)
+                    .addComponent(contentTypeLabel)
+                    .addComponent(authenticationLabel)
+                    .addComponent(usernameLabel)
+                    .addComponent(passwordLabel)
+                    .addComponent(contentLabel)
+                    .addComponent(multipartLabel)
+                    .addComponent(responseContentLabel)
+                    .addComponent(methodLabel)
+                    .addComponent(queryParametersLabel)
+                    .addComponent(headersLabel)
+                    .addComponent(urlLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -936,17 +1007,9 @@ public class HttpSender extends ConnectorSettingsPanel {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(authenticationTypeBasicRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(responseContentPlainBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(authenticationTypeDigestRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(authenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(responseContentBodyOnlyButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(responseContentHeadersAndBodyButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(responseContentXmlBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
@@ -965,8 +1028,24 @@ public class HttpSender extends ConnectorSettingsPanel {
                                 .addComponent(multipartYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(multipartNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(38, 38, 38)))
+                            .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(parseMultipartYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(parseMultipartNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(includeMetadataYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(includeMetadataNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(authenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(authenticationTypeBasicRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(authenticationTypeDigestRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -997,40 +1076,49 @@ public class HttpSender extends ConnectorSettingsPanel {
                     .addComponent(sendTimeoutLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(responseContentHeadersAndBodyButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(responseContentXmlBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(responseContentLabel)
-                    .addComponent(responseContentBodyOnlyButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(responseContentPlainBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(parseMultipartLabel)
+                    .addComponent(parseMultipartYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(parseMultipartNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(includeMetadataLabel)
+                    .addComponent(includeMetadataYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(includeMetadataNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(authenticationLabel)
                     .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(authenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(authenticationLabel))
+                    .addComponent(authenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(authenticationTypeLabel)
                     .addComponent(authenticationTypeBasicRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(authenticationTypeDigestRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(authenticationTypeLabel))
+                    .addComponent(authenticationTypeDigestRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(usernameLabel))
+                    .addComponent(usernameLabel)
+                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(passwordLabel))
+                    .addComponent(passwordLabel)
+                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(charsetEncodingLabel))
+                    .addComponent(charsetEncodingLabel)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(queryParametersLabel)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(queryParametersLabel)
-                            .addComponent(queryParametersNewButton))
+                        .addComponent(queryParametersNewButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(queryParametersDeleteButton))
-                    .addComponent(queryParametersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE))
+                    .addComponent(queryParametersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 86, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(headersLabel)
@@ -1038,16 +1126,17 @@ public class HttpSender extends ConnectorSettingsPanel {
                         .addComponent(headersNewButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(headersDeleteButton))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(headersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 78, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(contentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(contentTypeLabel))))
+                    .addComponent(headersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 91, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(contentTypeLabel)
+                    .addComponent(contentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(contentLabel)
-                    .addComponent(contentTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(contentLabel)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(contentTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -1163,6 +1252,25 @@ public class HttpSender extends ConnectorSettingsPanel {
     private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authenticationNoRadioActionPerformed
         setAuthenticationEnabled(false);
     }//GEN-LAST:event_authenticationNoRadioActionPerformed
+
+    private void responseContentPlainBodyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_responseContentPlainBodyRadioActionPerformed
+        parseMultipartLabel.setEnabled(false);
+        parseMultipartYesRadio.setEnabled(false);
+        parseMultipartNoRadio.setEnabled(false);
+        includeMetadataLabel.setEnabled(false);
+        includeMetadataYesRadio.setEnabled(false);
+        includeMetadataNoRadio.setEnabled(false);
+    }//GEN-LAST:event_responseContentPlainBodyRadioActionPerformed
+
+    private void responseContentXmlBodyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_responseContentXmlBodyRadioActionPerformed
+        parseMultipartLabel.setEnabled(true);
+        parseMultipartYesRadio.setEnabled(true);
+        parseMultipartNoRadio.setEnabled(true);
+        includeMetadataLabel.setEnabled(true);
+        includeMetadataYesRadio.setEnabled(true);
+        includeMetadataNoRadio.setEnabled(true);
+    }//GEN-LAST:event_responseContentXmlBodyRadioActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup authenticationButtonGroup;
     private javax.swing.JLabel authenticationLabel;
@@ -1185,12 +1293,20 @@ public class HttpSender extends ConnectorSettingsPanel {
     private javax.swing.JButton headersNewButton;
     private javax.swing.JScrollPane headersPane;
     private com.mirth.connect.client.ui.components.MirthTable headersTable;
+    private javax.swing.ButtonGroup includeMetadataButtonGroup;
+    private javax.swing.JLabel includeMetadataLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton includeMetadataNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton includeMetadataYesRadio;
     private javax.swing.ButtonGroup methodButtonGroup;
     private javax.swing.JLabel methodLabel;
     private javax.swing.ButtonGroup multipartButtonGroup;
     private javax.swing.JLabel multipartLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton multipartNoButton;
     private com.mirth.connect.client.ui.components.MirthRadioButton multipartYesButton;
+    private javax.swing.ButtonGroup parseMultipartButtonGroup;
+    private javax.swing.JLabel parseMultipartLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton parseMultipartNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton parseMultipartYesRadio;
     private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton postButton;
@@ -1200,10 +1316,10 @@ public class HttpSender extends ConnectorSettingsPanel {
     private javax.swing.JButton queryParametersNewButton;
     private javax.swing.JScrollPane queryParametersPane;
     private com.mirth.connect.client.ui.components.MirthTable queryParametersTable;
-    private com.mirth.connect.client.ui.components.MirthRadioButton responseContentBodyOnlyButton;
     private javax.swing.ButtonGroup responseContentButtonGroup;
-    private com.mirth.connect.client.ui.components.MirthRadioButton responseContentHeadersAndBodyButton;
     private javax.swing.JLabel responseContentLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton responseContentPlainBodyRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton responseContentXmlBodyRadio;
     private com.mirth.connect.client.ui.components.MirthTextField sendTimeoutField;
     private javax.swing.JLabel sendTimeoutLabel;
     private javax.swing.JButton testConnection;
