@@ -23,30 +23,30 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 @XStreamAlias("pluginMetaData")
 public class PluginMetaData extends MetaData implements Serializable {
     @XStreamAlias("serverClasses")
-    private List<String> serverClasses;
-    
+    private List<PluginClass> serverClasses;
+
     @XStreamAlias("clientClasses")
-    private List<String> clientClasses;
-    
+    private List<PluginClass> clientClasses;
+
     private String migratorClass;
     private String sqlScript;
 
     @XStreamAlias("sqlMapConfigs")
     private Map<String, String> sqlMapConfigs;
 
-    public List<String> getServerClasses() {
+    public List<PluginClass> getServerClasses() {
         return serverClasses;
     }
 
-    public void setServerClasses(List<String> serverClasses) {
+    public void setServerClasses(List<PluginClass> serverClasses) {
         this.serverClasses = serverClasses;
     }
 
-    public List<String> getClientClasses() {
+    public List<PluginClass> getClientClasses() {
         return clientClasses;
     }
 
-    public void setClientClasses(List<String> clientClasses) {
+    public void setClientClasses(List<PluginClass> clientClasses) {
         this.clientClasses = clientClasses;
     }
 
@@ -81,7 +81,7 @@ public class PluginMetaData extends MetaData implements Serializable {
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
-    
+
     public static class MigratorClassInfo {
         @XStreamAsAttribute
         private String version;

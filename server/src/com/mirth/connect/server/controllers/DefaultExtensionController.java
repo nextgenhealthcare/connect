@@ -22,10 +22,13 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -57,6 +60,7 @@ import com.mirth.connect.connectors.ConnectorService;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.MetaData;
+import com.mirth.connect.model.PluginClass;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.AuthorizationPlugin;
@@ -82,10 +86,10 @@ public class DefaultExtensionController extends ExtensionController {
     // these are plugins for specific extension points, keyed by plugin name
     // (not path)
     private List<ServerPlugin> serverPlugins = new ArrayList<ServerPlugin>();
-    private Map<String, ServicePlugin> servicePlugins = new HashMap<String, ServicePlugin>();
-    private Map<String, ChannelPlugin> channelPlugins = new HashMap<String, ChannelPlugin>();
-    private Map<String, DataTypeServerPlugin> dataTypePlugins = new HashMap<String, DataTypeServerPlugin>();
-    private Map<String, ConnectorServicePlugin> connectorServicePlugins = new HashMap<String, ConnectorServicePlugin>();
+    private Map<String, ServicePlugin> servicePlugins = new LinkedHashMap<String, ServicePlugin>();
+    private Map<String, ChannelPlugin> channelPlugins = new LinkedHashMap<String, ChannelPlugin>();
+    private Map<String, DataTypeServerPlugin> dataTypePlugins = new LinkedHashMap<String, DataTypeServerPlugin>();
+    private Map<String, ConnectorServicePlugin> connectorServicePlugins = new LinkedHashMap<String, ConnectorServicePlugin>();
     private AuthorizationPlugin authorizationPlugin = null;
 
     private static PropertiesConfiguration extensionProperties = null;
@@ -232,84 +236,106 @@ public class DefaultExtensionController extends ExtensionController {
 
     @Override
     public void initPlugins() {
+        // Order all the plugins by their weight before loading any of them.
+        Map<String, String> pluginNameMap = new HashMap<String, String>();
+        NavigableMap<Integer, List<String>> weightedPlugins = new TreeMap<Integer, List<String>>();
         for (PluginMetaData pmd : pluginMetaDataMap.values()) {
             if (isExtensionEnabled(pmd.getName())) {
                 if (pmd.getServerClasses() != null) {
-                    for (String clazzName : pmd.getServerClasses()) {
-                        try {
-                            ServerPlugin serverPlugin = (ServerPlugin) Class.forName(clazzName).newInstance();
+                    for (PluginClass pluginClass : pmd.getServerClasses()) {
+                        String clazzName = pluginClass.getName();
+                        int weight = pluginClass.getWeight();
+                        pluginNameMap.put(clazzName, pmd.getName());
 
-                            if (serverPlugin instanceof ServicePlugin) {
-                                ServicePlugin servicePlugin = (ServicePlugin) serverPlugin;
-                                /*
-                                 * load any properties that may currently be in the database
-                                 */
-                                Properties currentProperties = getPluginProperties(pmd.getName());
-                                /* get the default properties for the plugin */
-                                Properties defaultProperties = servicePlugin.getDefaultProperties();
-
-                                /*
-                                 * if there are any properties that not currently set, set them to
-                                 * the the default
-                                 */
-                                for (Object key : defaultProperties.keySet()) {
-                                    if (!currentProperties.containsKey(key)) {
-                                        currentProperties.put(key, defaultProperties.get(key));
-                                    }
-                                }
-
-                                /* save the properties to the database */
-                                setPluginProperties(pmd.getName(), currentProperties);
-
-                                /*
-                                 * initialize the plugin with those properties and add it to the
-                                 * list of loaded plugins
-                                 */
-                                servicePlugin.init(currentProperties);
-                                servicePlugins.put(servicePlugin.getPluginPointName(), servicePlugin);
-                                serverPlugins.add(servicePlugin);
-                                logger.debug("sucessfully loaded server plugin: " + serverPlugin.getPluginPointName());
-                            }
-
-                            if (serverPlugin instanceof ChannelPlugin) {
-                                ChannelPlugin channelPlugin = (ChannelPlugin) serverPlugin;
-                                channelPlugins.put(channelPlugin.getPluginPointName(), channelPlugin);
-                                serverPlugins.add(channelPlugin);
-                                logger.debug("sucessfully loaded server channel plugin: " + serverPlugin.getPluginPointName());
-                            }
-
-                            if (serverPlugin instanceof DataTypeServerPlugin) {
-                                DataTypeServerPlugin dataTypePlugin = (DataTypeServerPlugin) serverPlugin;
-                                dataTypePlugins.put(dataTypePlugin.getPluginPointName(), dataTypePlugin);
-                                serverPlugins.add(dataTypePlugin);
-                                logger.debug("sucessfully loaded server data type plugin: " + serverPlugin.getPluginPointName());
-                            }
-
-                            if (serverPlugin instanceof ConnectorServicePlugin) {
-                                ConnectorServicePlugin connectorService = (ConnectorServicePlugin) serverPlugin;
-                                connectorServicePlugins.put(connectorService.getTransportName(), connectorService);
-                                serverPlugins.add(connectorService);
-                                logger.debug("sucessfully loaded connector service plugin: " + serverPlugin.getPluginPointName());
-                            }
-                            
-                            if (serverPlugin instanceof AuthorizationPlugin) {
-                                AuthorizationPlugin authorizationPlugin = (AuthorizationPlugin) serverPlugin;
-
-                                if (this.authorizationPlugin != null) {
-                                    throw new Exception("Multiple Authorization Plugins are not permitted.");
-                                }
-
-                                this.authorizationPlugin = authorizationPlugin;
-                                serverPlugins.add(authorizationPlugin);
-                                logger.debug("sucessfully loaded server authorization plugin: " + serverPlugin.getPluginPointName());
-                            }
-                        } catch (Exception e) {
-                            logger.error("Error instantiating plugin: " + pmd.getName(), e);
+                        List<String> classList = weightedPlugins.get(weight);
+                        if (classList == null) {
+                            classList = new ArrayList<String>();
+                            weightedPlugins.put(weight, classList);
                         }
+
+                        classList.add(clazzName);
                     }
                 }
             } else {
                 logger.warn("Plugin \"" + pmd.getName() + "\" is not enabled.");
+            }
+        }
+
+        // Load the plugins in order of their weight
+        for (List<String> classList : weightedPlugins.descendingMap().values()) {
+            for (String clazzName : classList) {
+                String pluginName = pluginNameMap.get(clazzName);
+
+                try {
+                    ServerPlugin serverPlugin = (ServerPlugin) Class.forName(clazzName).newInstance();
+
+                    if (serverPlugin instanceof ServicePlugin) {
+                        ServicePlugin servicePlugin = (ServicePlugin) serverPlugin;
+                        /*
+                         * load any properties that may currently be in the database
+                         */
+                        Properties currentProperties = getPluginProperties(pluginName);
+                        /* get the default properties for the plugin */
+                        Properties defaultProperties = servicePlugin.getDefaultProperties();
+
+                        /*
+                         * if there are any properties that not currently set, set them to the the
+                         * default
+                         */
+                        for (Object key : defaultProperties.keySet()) {
+                            if (!currentProperties.containsKey(key)) {
+                                currentProperties.put(key, defaultProperties.get(key));
+                            }
+                        }
+
+                        /* save the properties to the database */
+                        setPluginProperties(pluginName, currentProperties);
+
+                        /*
+                         * initialize the plugin with those properties and add it to the list of
+                         * loaded plugins
+                         */
+                        servicePlugin.init(currentProperties);
+                        servicePlugins.put(servicePlugin.getPluginPointName(), servicePlugin);
+                        serverPlugins.add(servicePlugin);
+                        logger.debug("sucessfully loaded server plugin: " + serverPlugin.getPluginPointName());
+                    }
+
+                    if (serverPlugin instanceof ChannelPlugin) {
+                        ChannelPlugin channelPlugin = (ChannelPlugin) serverPlugin;
+                        channelPlugins.put(channelPlugin.getPluginPointName(), channelPlugin);
+                        serverPlugins.add(channelPlugin);
+                        logger.debug("sucessfully loaded server channel plugin: " + serverPlugin.getPluginPointName());
+                    }
+
+                    if (serverPlugin instanceof DataTypeServerPlugin) {
+                        DataTypeServerPlugin dataTypePlugin = (DataTypeServerPlugin) serverPlugin;
+                        dataTypePlugins.put(dataTypePlugin.getPluginPointName(), dataTypePlugin);
+                        serverPlugins.add(dataTypePlugin);
+                        logger.debug("sucessfully loaded server data type plugin: " + serverPlugin.getPluginPointName());
+                    }
+
+                    if (serverPlugin instanceof ConnectorServicePlugin) {
+                        ConnectorServicePlugin connectorService = (ConnectorServicePlugin) serverPlugin;
+                        connectorServicePlugins.put(connectorService.getTransportName(), connectorService);
+                        serverPlugins.add(connectorService);
+                        logger.debug("sucessfully loaded connector service plugin: " + serverPlugin.getPluginPointName());
+                    }
+
+                    if (serverPlugin instanceof AuthorizationPlugin) {
+                        AuthorizationPlugin authorizationPlugin = (AuthorizationPlugin) serverPlugin;
+
+                        if (this.authorizationPlugin != null) {
+                            throw new Exception("Multiple Authorization Plugins are not permitted.");
+                        }
+
+                        this.authorizationPlugin = authorizationPlugin;
+                        serverPlugins.add(authorizationPlugin);
+                        logger.debug("sucessfully loaded server authorization plugin: " + serverPlugin.getPluginPointName());
+                    }
+                } catch (Exception e) {
+                    logger.error("Error instantiating plugin: " + pluginName, e);
+                }
             }
         }
     }
@@ -414,7 +440,7 @@ public class DefaultExtensionController extends ExtensionController {
 
         if (StringUtils.isNotBlank(connectorMetaData.getServiceClassName())) {
             ConnectorService connectorService = (ConnectorService) Class.forName(connectorMetaData.getServiceClassName()).newInstance();
-            
+
             if (connectorServicePlugins.containsKey(name)) {
                 return connectorServicePlugins.get(name).invoke(connectorService, channelId, method, object, sessionId);
             } else {
