@@ -316,10 +316,10 @@ public class HttpReceiver extends SourceConnector {
         }
 
         requestMessage.setContentType(contentType);
-        requestMessage.setRemoteAddress(request.getRemoteAddr());
-        requestMessage.setQueryString(request.getQueryString());
-        requestMessage.setRequestUrl(request.getRequestURL().toString());
-        requestMessage.setContextPath(new URL(requestMessage.getRequestUrl()).getPath());
+        requestMessage.setRemoteAddress(StringUtils.trimToEmpty(request.getRemoteAddr()));
+        requestMessage.setQueryString(StringUtils.trimToEmpty(request.getQueryString()));
+        requestMessage.setRequestUrl(StringUtils.trimToEmpty(request.getRequestURL().toString()));
+        requestMessage.setContextPath(StringUtils.trimToEmpty(new URL(requestMessage.getRequestUrl()).getPath()));
 
         String rawMessageContent;
 
@@ -334,11 +334,13 @@ public class HttpReceiver extends SourceConnector {
         Map<String, Object> sourceMap = new HashMap<String, Object>();
         sourceMap.put("remoteAddress", requestMessage.getRemoteAddress());
         sourceMap.put("remotePort", request.getRemotePort());
-        sourceMap.put("localAddress", request.getLocalAddr());
+        sourceMap.put("localAddress", StringUtils.trimToEmpty(request.getLocalAddr()));
         sourceMap.put("localPort", request.getLocalPort());
         sourceMap.put("method", requestMessage.getMethod());
         sourceMap.put("url", requestMessage.getRequestUrl());
-        sourceMap.put("query", StringUtils.trimToEmpty(requestMessage.getQueryString()));
+        sourceMap.put("uri", StringUtils.trimToEmpty(request.getUri().toString()));
+        sourceMap.put("protocol", StringUtils.trimToEmpty(request.getProtocol()));
+        sourceMap.put("query", requestMessage.getQueryString());
         sourceMap.put("contextPath", requestMessage.getContextPath());
         sourceMap.put("headers", Collections.unmodifiableMap(requestMessage.getCaseInsensitiveHeaders()));
         sourceMap.put("parameters", Collections.unmodifiableMap(requestMessage.getParameters()));
