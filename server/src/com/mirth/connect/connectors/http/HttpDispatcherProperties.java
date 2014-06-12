@@ -25,6 +25,9 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
     private QueueConnectorProperties queueConnectorProperties;
 
     private String host;
+    private boolean useProxyServer;
+    private String proxyAddress;
+    private String proxyPort;
     private String method;
     private Map<String, String> headers;
     private Map<String, String> parameters;
@@ -45,6 +48,9 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
         queueConnectorProperties = new QueueConnectorProperties();
 
         this.host = "";
+        this.useProxyServer = false;
+        this.proxyAddress = "";
+        this.proxyPort = "";
         this.method = "post";
         this.headers = new LinkedHashMap<String, String>();
         this.parameters = new LinkedHashMap<String, String>();
@@ -67,6 +73,9 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
 
         host = props.getHost();
+        useProxyServer = props.isUseProxyServer();
+        proxyAddress = props.getProxyAddress();
+        proxyPort = props.getProxyPort();
         method = props.getMethod();
         headers = new LinkedHashMap<String, String>(props.getHeaders());
         parameters = new LinkedHashMap<String, String>(props.getParameters());
@@ -90,6 +99,30 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public boolean isUseProxyServer() {
+        return useProxyServer;
+    }
+
+    public void setUseProxyServer(boolean useProxyServer) {
+        this.useProxyServer = useProxyServer;
+    }
+
+    public String getProxyAddress() {
+        return proxyAddress;
+    }
+
+    public void setProxyAddress(String proxyAddress) {
+        this.proxyAddress = proxyAddress;
+    }
+
+    public String getProxyPort() {
+        return proxyPort;
+    }
+
+    public void setProxyPort(String proxyPort) {
+        this.proxyPort = proxyPort;
     }
 
     public String getMethod() {

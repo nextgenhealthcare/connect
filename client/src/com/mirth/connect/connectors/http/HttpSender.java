@@ -9,12 +9,12 @@
 
 package com.mirth.connect.connectors.http;
 
-import java.util.ArrayList;
 import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -29,6 +29,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -104,6 +105,9 @@ public class HttpSender extends ConnectorSettingsPanel {
         HttpDispatcherProperties properties = new HttpDispatcherProperties();
 
         properties.setHost(urlField.getText());
+        properties.setUseProxyServer(useProxyServerYesRadio.isSelected());
+        properties.setProxyAddress(proxyAddressField.getText());
+        properties.setProxyPort(proxyPortField.getText());
 
         if (postButton.isSelected()) {
             properties.setMethod("post");
@@ -151,6 +155,17 @@ public class HttpSender extends ConnectorSettingsPanel {
 
         urlField.setText(props.getHost());
         urlFieldChanged();
+
+        if (props.isUseProxyServer()) {
+            useProxyServerYesRadio.setSelected(true);
+            useProxyServerYesRadioActionPerformed(null);
+        } else {
+            useProxyServerNoRadio.setSelected(true);
+            useProxyServerNoRadioActionPerformed(null);
+        }
+
+        proxyAddressField.setText(props.getProxyAddress());
+        proxyPortField.setText(props.getProxyPort());
 
         if (props.getMethod().equalsIgnoreCase("post")) {
             postButton.setSelected(true);
@@ -200,13 +215,13 @@ public class HttpSender extends ConnectorSettingsPanel {
             responseContentPlainBodyRadio.setSelected(true);
             responseContentPlainBodyRadioActionPerformed(null);
         }
-        
+
         if (props.isResponseParseMultipart()) {
             parseMultipartYesRadio.setSelected(true);
         } else {
             parseMultipartNoRadio.setSelected(true);
         }
-        
+
         if (props.isResponseIncludeMetadata()) {
             includeMetadataYesRadio.setSelected(true);
         } else {
@@ -509,6 +524,22 @@ public class HttpSender extends ConnectorSettingsPanel {
             }
         }
 
+        if (props.isUseProxyServer()) {
+            if (StringUtils.isBlank(props.getProxyAddress())) {
+                valid = false;
+                if (highlight) {
+                    proxyAddressField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
+
+            if (StringUtils.isBlank(props.getProxyPort())) {
+                valid = false;
+                if (highlight) {
+                    proxyPortField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
+        }
+
         if (props.getSocketTimeout().length() == 0) {
             valid = false;
             if (highlight) {
@@ -539,11 +570,13 @@ public class HttpSender extends ConnectorSettingsPanel {
     public void resetInvalidProperties() {
         urlField.setBackground(null);
         urlFieldChanged();
+        proxyAddressField.setBackground(null);
+        proxyPortField.setBackground(null);
         sendTimeoutField.setBackground(null);
         contentTypeField.setBackground(null);
         contentTextArea.setBackground(null);
     }
-    
+
     @Override
     public ArrayList<CodeTemplate> getReferenceItems() {
         ArrayList<CodeTemplate> referenceItems = new ArrayList<CodeTemplate>();
@@ -670,6 +703,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         authenticationTypeButtonGroup = new javax.swing.ButtonGroup();
         parseMultipartButtonGroup = new javax.swing.ButtonGroup();
         includeMetadataButtonGroup = new javax.swing.ButtonGroup();
+        proxyTypeButtonGroup = new javax.swing.ButtonGroup();
         urlLabel = new javax.swing.JLabel();
         urlField = new com.mirth.connect.client.ui.components.MirthIconTextField();
         queryParametersNewButton = new javax.swing.JButton();
@@ -718,6 +752,13 @@ public class HttpSender extends ConnectorSettingsPanel {
         includeMetadataLabel = new javax.swing.JLabel();
         includeMetadataYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         includeMetadataNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        useProxyServerLabel = new javax.swing.JLabel();
+        useProxyServerYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        useProxyServerNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        proxyAddressLabel = new javax.swing.JLabel();
+        proxyAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
+        proxyPortLabel = new javax.swing.JLabel();
+        proxyPortField = new com.mirth.connect.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -963,6 +1004,38 @@ public class HttpSender extends ConnectorSettingsPanel {
         includeMetadataNoRadio.setToolTipText("<html>Select Yes to include response metadata (status<br/>line and headers) in the XML content. Note that<br/>regardless of this setting, the same metadata<br/>will be available in the connector map.</html>");
         includeMetadataNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        useProxyServerLabel.setText("Use Proxy Server:");
+
+        useProxyServerYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        proxyTypeButtonGroup.add(useProxyServerYesRadio);
+        useProxyServerYesRadio.setText("Yes");
+        useProxyServerYesRadio.setToolTipText("<html>If enabled, requests will be forwarded to the proxy<br/>server specified in the address/port fields below.</html>");
+        useProxyServerYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        useProxyServerYesRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                useProxyServerYesRadioActionPerformed(evt);
+            }
+        });
+
+        useProxyServerNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        proxyTypeButtonGroup.add(useProxyServerNoRadio);
+        useProxyServerNoRadio.setText("No");
+        useProxyServerNoRadio.setToolTipText("<html>If enabled, requests will be forwarded to the proxy<br/>server specified in the address/port fields below.</html>");
+        useProxyServerNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        useProxyServerNoRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                useProxyServerNoRadioActionPerformed(evt);
+            }
+        });
+
+        proxyAddressLabel.setText("Proxy Address:");
+
+        proxyAddressField.setToolTipText("The domain name or IP address of the proxy server to connect to.");
+
+        proxyPortLabel.setText("Proxy Port:");
+
+        proxyPortField.setToolTipText("The port on which to connect to the proxy server.");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -970,6 +1043,9 @@ public class HttpSender extends ConnectorSettingsPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(proxyPortLabel)
+                    .addComponent(proxyAddressLabel)
+                    .addComponent(useProxyServerLabel)
                     .addComponent(includeMetadataLabel)
                     .addComponent(parseMultipartLabel)
                     .addComponent(sendTimeoutLabel)
@@ -1044,7 +1120,13 @@ public class HttpSender extends ConnectorSettingsPanel {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(authenticationTypeBasicRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(authenticationTypeDigestRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(authenticationTypeDigestRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(useProxyServerYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(useProxyServerNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(proxyAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 202, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(proxyPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -1060,6 +1142,19 @@ public class HttpSender extends ConnectorSettingsPanel {
                     .addComponent(testConnection))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(useProxyServerLabel)
+                    .addComponent(useProxyServerYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(useProxyServerNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(proxyAddressLabel)
+                    .addComponent(proxyAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(proxyPortLabel)
+                    .addComponent(proxyPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(methodLabel)
                     .addComponent(postButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(getButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1072,12 +1167,12 @@ public class HttpSender extends ConnectorSettingsPanel {
                     .addComponent(multipartNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sendTimeoutLabel))
+                    .addComponent(sendTimeoutLabel)
+                    .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(responseContentXmlBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(responseContentLabel)
+                    .addComponent(responseContentXmlBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(responseContentPlainBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -1118,7 +1213,7 @@ public class HttpSender extends ConnectorSettingsPanel {
                         .addComponent(queryParametersNewButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(queryParametersDeleteButton))
-                    .addComponent(queryParametersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 86, Short.MAX_VALUE))
+                    .addComponent(queryParametersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(headersLabel)
@@ -1126,18 +1221,16 @@ public class HttpSender extends ConnectorSettingsPanel {
                         .addComponent(headersNewButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(headersDeleteButton))
-                    .addComponent(headersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 91, Short.MAX_VALUE))
+                    .addComponent(headersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(contentTypeLabel)
                     .addComponent(contentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(contentLabel)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(contentTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE))
-                .addContainerGap())
+                    .addComponent(contentLabel)
+                    .addComponent(contentTextArea, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1271,6 +1364,20 @@ public class HttpSender extends ConnectorSettingsPanel {
         includeMetadataNoRadio.setEnabled(true);
     }//GEN-LAST:event_responseContentXmlBodyRadioActionPerformed
 
+    private void useProxyServerYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useProxyServerYesRadioActionPerformed
+        proxyAddressLabel.setEnabled(true);
+        proxyAddressField.setEnabled(true);
+        proxyPortLabel.setEnabled(true);
+        proxyPortField.setEnabled(true);
+    }//GEN-LAST:event_useProxyServerYesRadioActionPerformed
+
+    private void useProxyServerNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useProxyServerNoRadioActionPerformed
+        proxyAddressLabel.setEnabled(false);
+        proxyAddressField.setEnabled(false);
+        proxyPortLabel.setEnabled(false);
+        proxyPortField.setEnabled(false);
+    }//GEN-LAST:event_useProxyServerNoRadioActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup authenticationButtonGroup;
     private javax.swing.JLabel authenticationLabel;
@@ -1310,6 +1417,11 @@ public class HttpSender extends ConnectorSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton postButton;
+    private com.mirth.connect.client.ui.components.MirthTextField proxyAddressField;
+    private javax.swing.JLabel proxyAddressLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField proxyPortField;
+    private javax.swing.JLabel proxyPortLabel;
+    private javax.swing.ButtonGroup proxyTypeButtonGroup;
     private com.mirth.connect.client.ui.components.MirthRadioButton putButton;
     private javax.swing.JButton queryParametersDeleteButton;
     private javax.swing.JLabel queryParametersLabel;
@@ -1326,6 +1438,9 @@ public class HttpSender extends ConnectorSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthIconTextField urlField;
     private javax.swing.JLabel urlLabel;
     private javax.swing.ButtonGroup usePersistantQueuesButtonGroup;
+    private javax.swing.JLabel useProxyServerLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton useProxyServerNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton useProxyServerYesRadio;
     private com.mirth.connect.client.ui.components.MirthTextField usernameField;
     private javax.swing.JLabel usernameLabel;
     // End of variables declaration//GEN-END:variables

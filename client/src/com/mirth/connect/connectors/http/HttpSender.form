@@ -18,6 +18,8 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="includeMetadataButtonGroup">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="proxyTypeButtonGroup">
+    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -47,6 +49,9 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="proxyPortLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="proxyAddressLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="useProxyServerLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="includeMetadataLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="parseMultipartLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="sendTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -136,6 +141,13 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="authenticationTypeDigestRadio" min="-2" max="-2" attributes="0"/>
                           </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="useProxyServerYesRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="useProxyServerNoRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="proxyAddressField" alignment="0" min="-2" pref="202" max="-2" attributes="0"/>
+                          <Component id="proxyPortField" alignment="0" min="-2" pref="56" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
@@ -154,6 +166,22 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="useProxyServerLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="useProxyServerYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="useProxyServerNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="proxyAddressLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="proxyAddressField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="proxyPortLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="proxyPortField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="methodLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="postButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="getButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -168,13 +196,13 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="sendTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="sendTimeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="sendTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="responseContentXmlBodyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="responseContentLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseContentXmlBodyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="responseContentPlainBodyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -224,7 +252,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="queryParametersDeleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="queryParametersPane" pref="86" max="32767" attributes="0"/>
+                  <Component id="queryParametersPane" pref="81" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -234,7 +262,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="headersDeleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="headersPane" pref="91" max="32767" attributes="0"/>
+                  <Component id="headersPane" pref="85" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -243,13 +271,10 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <Component id="contentLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                  </Group>
-                  <Component id="contentTextArea" pref="124" max="32767" attributes="0"/>
+                  <Component id="contentLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentTextArea" min="-2" pref="132" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -731,6 +756,67 @@
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="useProxyServerLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Use Proxy Server:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useProxyServerYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="proxyTypeButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If enabled, requests will be forwarded to the proxy&lt;br/&gt;server specified in the address/port fields below.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useProxyServerYesRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useProxyServerNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="proxyTypeButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If enabled, requests will be forwarded to the proxy&lt;br/&gt;server specified in the address/port fields below.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useProxyServerNoRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="proxyAddressLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Proxy Address:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="proxyAddressField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The domain name or IP address of the proxy server to connect to."/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="proxyPortLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Proxy Port:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="proxyPortField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The port on which to connect to the proxy server."/>
       </Properties>
     </Component>
   </SubComponents>

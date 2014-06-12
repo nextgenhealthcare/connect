@@ -31,7 +31,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
@@ -56,6 +58,8 @@ import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
@@ -68,10 +72,12 @@ import org.apache.http.impl.auth.DigestSchemeFactory;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -95,6 +101,9 @@ import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class HttpDispatcher extends DestinationConnector {
+
+    private static final String PROXY_CONTEXT_KEY = "dispatcherProxy";
+
     private Logger logger = Logger.getLogger(this.getClass());
     private HttpDispatcherProperties connectorProperties;
 
@@ -160,6 +169,8 @@ public class HttpDispatcher extends DestinationConnector {
 
         // Replace all values in connector properties
         httpDispatcherProperties.setHost(replacer.replaceValues(httpDispatcherProperties.getHost(), connectorMessage));
+        httpDispatcherProperties.setProxyAddress(replacer.replaceValues(httpDispatcherProperties.getProxyAddress(), connectorMessage));
+        httpDispatcherProperties.setProxyPort(replacer.replaceValues(httpDispatcherProperties.getProxyPort(), connectorMessage));
         httpDispatcherProperties.setHeaders(replacer.replaceValuesInMap(httpDispatcherProperties.getHeaders(), connectorMessage));
         httpDispatcherProperties.setParameters(replacer.replaceValuesInMap(httpDispatcherProperties.getParameters(), connectorMessage));
         httpDispatcherProperties.setUsername(replacer.replaceValues(httpDispatcherProperties.getUsername(), connectorMessage));
@@ -193,7 +204,13 @@ public class HttpDispatcher extends DestinationConnector {
             if (client == null) {
                 BasicHttpClientConnectionManager httpClientConnectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry.build());
                 httpClientConnectionManager.setSocketConfig(SocketConfig.custom().setSoTimeout(socketTimeout).build());
-                client = HttpClients.custom().setConnectionManager(httpClientConnectionManager).build();
+                HttpClientBuilder clientBuilder = HttpClients.custom().setConnectionManager(httpClientConnectionManager);
+
+                if (httpDispatcherProperties.isUseProxyServer()) {
+                    clientBuilder.setRoutePlanner(new DynamicProxyRoutePlanner());
+                }
+
+                client = clientBuilder.build();
                 clients.put(dispatcherId, client);
             }
 
@@ -254,6 +271,11 @@ public class HttpDispatcher extends DestinationConnector {
 
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(socketTimeout).setSocketTimeout(socketTimeout).build();
             context.setRequestConfig(requestConfig);
+
+            // Set proxy information
+            if (httpDispatcherProperties.isUseProxyServer()) {
+                context.setAttribute(PROXY_CONTEXT_KEY, new HttpHost(httpDispatcherProperties.getProxyAddress(), Integer.parseInt(httpDispatcherProperties.getProxyPort())));
+            }
 
             // execute the method
             logger.debug("executing method: type=" + httpMethod.getMethod() + ", uri=" + httpMethod.getURI().toString());
@@ -404,6 +426,21 @@ public class HttpDispatcher extends DestinationConnector {
     private void setQueryString(URIBuilder uriBuilder, List<NameValuePair> queryParameters) {
         if (queryParameters.size() > 0) {
             uriBuilder.setParameters(queryParameters);
+        }
+    }
+
+    private class DynamicProxyRoutePlanner implements HttpRoutePlanner {
+        @Override
+        public HttpRoute determineRoute(final HttpHost target, final HttpRequest request, final HttpContext context) throws HttpException {
+            HttpHost proxy = (HttpHost) context.getAttribute(PROXY_CONTEXT_KEY);
+            boolean secure = target.getSchemeName().equals("https");
+
+            if (proxy != null) {
+                logger.debug("Using proxy: " + proxy.toString());
+                return new HttpRoute(target, null, proxy, secure);
+            }
+
+            return new HttpRoute(target, null, secure);
         }
     }
 }
