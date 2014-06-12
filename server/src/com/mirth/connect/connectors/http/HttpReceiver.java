@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +42,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.util.URIUtil;
 
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
@@ -318,7 +320,7 @@ public class HttpReceiver extends SourceConnector {
         requestMessage.setContentType(contentType);
         requestMessage.setRemoteAddress(StringUtils.trimToEmpty(request.getRemoteAddr()));
         requestMessage.setQueryString(StringUtils.trimToEmpty(request.getQueryString()));
-        requestMessage.setRequestUrl(StringUtils.trimToEmpty(request.getRequestURL().toString()));
+        requestMessage.setRequestUrl(StringUtils.trimToEmpty(getRequestURL(request)));
         requestMessage.setContextPath(StringUtils.trimToEmpty(new URL(requestMessage.getRequestUrl()).getPath()));
 
         String rawMessageContent;
@@ -377,5 +379,33 @@ public class HttpReceiver extends SourceConnector {
 
     public int getTimeout() {
         return timeout;
+    }
+
+    private String getRequestURL(Request request) {
+        String requestURL = request.getRequestURL().toString();
+
+        try {
+            // Verify whether the URL is valid
+            new URL(requestURL);
+        } catch (MalformedURLException e) {
+            // The request URL returned by Jetty is invalid, so build it up without the URI instead
+            StringBuilder builder = new StringBuilder();
+            String scheme = request.getScheme();
+            int port = request.getServerPort();
+
+            builder.append(scheme);
+            builder.append("://");
+            builder.append(request.getServerName());
+
+            // Don't include port 80 if HTTP, or port 443 if HTTPS
+            if ((scheme.equalsIgnoreCase(URIUtil.HTTP) && port != 80) || (scheme.equalsIgnoreCase(URIUtil.HTTPS) && port != 443)) {
+                builder.append(':');
+                builder.append(port);
+            }
+
+            requestURL = builder.toString();
+        }
+
+        return requestURL;
     }
 }
