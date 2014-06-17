@@ -9,7 +9,7 @@
 		<string>com.mirth.connect.plugins.globalmapviewer.GlobalMapProvider</string>
 	</serverClasses>
 	<clientClasses>
-		<string>com.mirth.connect.plugins.globalmapviewer.GlobalMapClient</string>
+		<string weight="100">com.mirth.connect.plugins.globalmapviewer.GlobalMapClient</string>
 	</clientClasses>
 	<library type="CLIENT" path="globalmapviewer-client.jar" />
 	<library type="SERVER" path="globalmapviewer-server.jar" />

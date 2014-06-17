@@ -9,7 +9,7 @@
 		<string>com.mirth.connect.plugins.serverlog.ServerLogProvider</string>
 	</serverClasses>
 	<clientClasses>
-		<string>com.mirth.connect.plugins.serverlog.ServerLogClient</string>
+		<string weight="120">com.mirth.connect.plugins.serverlog.ServerLogClient</string>
 	</clientClasses>
 	<library type="CLIENT" path="serverlog-client.jar" />
 	<library type="SERVER" path="serverlog-server.jar" />

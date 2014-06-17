@@ -10,7 +10,7 @@
 	</serverClasses>
 	<clientClasses>
 		<string>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusColumn</string>
-		<string>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusClient</string>
+		<string weight="110">com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusClient</string>
 	</clientClasses>
 	<library type="SERVER" path="dashboardstatus-server.jar" />
 </pluginMetaData>
