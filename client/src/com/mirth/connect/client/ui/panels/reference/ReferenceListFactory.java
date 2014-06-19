@@ -255,6 +255,7 @@ public class ReferenceListFactory {
     private ArrayList<CodeTemplate> setupMapItems() {
         ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
         variablelistItems.add(new CodeTemplate("Lookup Value in All Maps", "Returns the value of the key if it exists in any map.", "$('key')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Configuration Variable Map", "The variable map containing server specific settings.", "configurationMap.get('key')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Get Global Variable Map", "The variable map that persists values between channels.", "globalMap.get('key')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Put Global Variable Map", "The variable map that persists values between channels.", "globalMap.put('key','value')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Get Global Channel Variable Map", "The variable map that persists values between messages in a single channel.", "globalChannelMap.get('key')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
