@@ -188,12 +188,16 @@
 		<jar destfile="${connectors.http}/http-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/connectors/http/HttpReceiverProperties.class" />
 			<include name="com/mirth/connect/connectors/http/HttpDispatcherProperties.class" />
+			<include name="com/mirth/connect/connectors/http/HttpStaticResource.class" />
+			<include name="com/mirth/connect/connectors/http/HttpStaticResource$ResourceType.class" />
 		</jar>
 		<jar destfile="${connectors.http}/http-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/http/**" />
 				<exclude name="com/mirth/connect/connectors/http/HttpReceiverProperties.class" />
 				<exclude name="com/mirth/connect/connectors/http/HttpDispatcherProperties.class" />
+				<exclude name="com/mirth/connect/connectors/http/HttpStaticResource.class" />
+				<exclude name="com/mirth/connect/connectors/http/HttpStaticResource$ResourceType.class" />
 			</fileset>
 		</jar>
 

@@ -9,31 +9,63 @@
 
 package com.mirth.connect.connectors.http;
 
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 
+import net.miginfocom.swing.MigLayout;
+
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.entity.ContentType;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
+import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.panels.connectors.ListenerSettingsPanel;
 import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
+import com.mirth.connect.connectors.http.HttpStaticResource.ResourceType;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
@@ -46,12 +78,44 @@ public class HttpListener extends ConnectorSettingsPanel {
     private final String NAME_COLUMN_NAME = "Name";
     private final String VALUE_COLUMN_NAME = "Value";
     private int responseHeadersLastIndex = -1;
+    private int staticResourcesLastIndex = -1;
+
+    private enum StaticResourcesColumn {
+        CONTEXT_PATH(0, "Context Path"), RESOURCE_TYPE(1, "Resource Type"), VALUE(2, "Value"), CONTENT_TYPE(
+                3, "Content Type");
+
+        private int index;
+        private String name;
+
+        private StaticResourcesColumn(int index, String name) {
+            this.index = index;
+            this.name = name;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public static String[] getNames() {
+            StaticResourcesColumn[] values = values();
+            String[] names = new String[values.length];
+            for (int i = 0; i < values.length; i++) {
+                names[i] = values[i].getName();
+            }
+            return names;
+        }
+    }
 
     private Frame parent;
 
     public HttpListener() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        initComponentsManual();
         httpUrlField.setEditable(false);
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
 
@@ -79,6 +143,7 @@ public class HttpListener extends ConnectorSettingsPanel {
         properties.setResponseStatusCode(responseStatusCodeField.getText());
 
         properties.setResponseHeaders(getResponseHeaders());
+        properties.setStaticResources(getStaticResources());
 
         return properties;
     }
@@ -122,6 +187,12 @@ public class HttpListener extends ConnectorSettingsPanel {
             setResponseHeaders(props.getResponseHeaders());
         } else {
             setResponseHeaders(new LinkedHashMap<String, String>());
+        }
+
+        if (props.getStaticResources() != null) {
+            setStaticResources(props.getStaticResources());
+        } else {
+            setStaticResources(new ArrayList<HttpStaticResource>(0));
         }
     }
 
@@ -341,6 +412,371 @@ public class HttpListener extends ConnectorSettingsPanel {
         }
     }
 
+    private List<HttpStaticResource> getStaticResources() {
+        List<HttpStaticResource> staticResources = new ArrayList<HttpStaticResource>();
+
+        for (int i = 0; i < staticResourcesTable.getRowCount(); i++) {
+            String contextPath = (String) staticResourcesTable.getValueAt(i, StaticResourcesColumn.CONTEXT_PATH.getIndex());
+            ResourceType resourceType = ResourceType.fromString((String) staticResourcesTable.getValueAt(i, StaticResourcesColumn.RESOURCE_TYPE.getIndex()));
+            String value = (String) staticResourcesTable.getValueAt(i, StaticResourcesColumn.VALUE.getIndex());
+            String contentType = (String) staticResourcesTable.getValueAt(i, StaticResourcesColumn.CONTENT_TYPE.getIndex());
+            staticResources.add(new HttpStaticResource(contextPath, resourceType, value, contentType));
+        }
+
+        return staticResources;
+    }
+
+    private void setStaticResources(List<HttpStaticResource> staticResources) {
+        Object[][] tableData = new Object[staticResources.size()][4];
+
+        for (int i = 0; i < staticResources.size(); i++) {
+            HttpStaticResource staticResource = staticResources.get(i);
+            tableData[i][0] = staticResource.getContextPath();
+            tableData[i][1] = staticResource.getResourceType().toString();
+            tableData[i][2] = staticResource.getValue();
+            tableData[i][3] = staticResource.getContentType();
+        }
+
+        ((RefreshTableModel) staticResourcesTable.getModel()).refreshDataVector(tableData);
+    }
+
+    private String getBaseContextPath() {
+        String contextPath = StringUtils.trimToEmpty(contextPathField.getText());
+        if (!contextPath.startsWith("/")) {
+            contextPath = "/" + contextPath;
+        }
+        while (contextPath.endsWith("/")) {
+            contextPath = contextPath.substring(0, contextPath.length() - 1).trim();
+        }
+        return contextPath;
+    }
+
+    private String fixContentPath(String contextPath) {
+        contextPath = StringUtils.trimToEmpty(contextPath);
+        if (!contextPath.startsWith("/")) {
+            contextPath = "/" + contextPath;
+        }
+        while (contextPath.endsWith("/") && contextPath.length() > 1) {
+            contextPath = contextPath.substring(0, contextPath.length() - 1).trim();
+        }
+        return contextPath;
+    }
+
+    private void initComponentsManual() {
+        staticResourcesTable.setModel(new RefreshTableModel(StaticResourcesColumn.getNames(), 0) {
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return true;
+            }
+        });
+
+        staticResourcesTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        staticResourcesTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        staticResourcesTable.setFocusable(true);
+        staticResourcesTable.setSortable(false);
+        staticResourcesTable.setOpaque(true);
+        staticResourcesTable.setDragEnabled(false);
+        staticResourcesTable.getTableHeader().setReorderingAllowed(false);
+        staticResourcesTable.setShowGrid(true, true);
+        staticResourcesTable.setAutoCreateColumnsFromModel(false);
+        staticResourcesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        staticResourcesTable.setRowSelectionAllowed(true);
+        staticResourcesTable.setCustomEditorControls(true);
+
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            staticResourcesTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
+        }
+
+        class ContextPathCellEditor extends TextFieldCellEditor {
+            public ContextPathCellEditor() {
+                getTextField().setDocument(new MirthFieldConstraints("^\\S*$"));
+            }
+
+            @Override
+            protected boolean valueChanged(String value) {
+                if (StringUtils.isEmpty(value) || value.equals("/")) {
+                    return false;
+                }
+
+                if (value.equals(getOriginalValue())) {
+                    return false;
+                }
+
+                for (int i = 0; i < staticResourcesTable.getRowCount(); i++) {
+                    if (value.equals(fixContentPath((String) staticResourcesTable.getValueAt(i, StaticResourcesColumn.CONTEXT_PATH.getIndex())))) {
+                        return false;
+                    }
+                }
+
+                parent.setSaveEnabled(true);
+                return true;
+            }
+
+            @Override
+            public Object getCellEditorValue() {
+                String value = fixContentPath((String) super.getCellEditorValue());
+                String baseContextPath = getBaseContextPath();
+                if (value.equals(baseContextPath)) {
+                    return null;
+                } else {
+                    return fixContentPath(StringUtils.removeStartIgnoreCase(value, baseContextPath + "/"));
+                }
+            }
+
+            @Override
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+                String resourceContextPath = fixContentPath((String) value);
+                setOriginalValue(resourceContextPath);
+                getTextField().setText(getBaseContextPath() + resourceContextPath);
+                return getTextField();
+            }
+        }
+        ;
+
+        staticResourcesTable.getColumnExt(StaticResourcesColumn.CONTEXT_PATH.getIndex()).setCellEditor(new ContextPathCellEditor());
+        staticResourcesTable.getColumnExt(StaticResourcesColumn.CONTEXT_PATH.getIndex()).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            protected void setValue(Object value) {
+                super.setValue(getBaseContextPath() + fixContentPath((String) value));
+            }
+        });
+
+        class ResourceTypeCellEditor extends MirthComboBoxTableCellEditor implements ActionListener {
+            private Object originalValue;
+
+            public ResourceTypeCellEditor(JTable table, Object[] items, int clickCount, boolean focusable) {
+                super(table, items, clickCount, focusable, null);
+                for (ActionListener actionListener : comboBox.getActionListeners()) {
+                    comboBox.removeActionListener(actionListener);
+                }
+                comboBox.addActionListener(this);
+            }
+
+            @Override
+            public boolean stopCellEditing() {
+                if (ObjectUtils.equals(getCellEditorValue(), originalValue)) {
+                    cancelCellEditing();
+                } else {
+                    parent.setSaveEnabled(true);
+                }
+                return super.stopCellEditing();
+            }
+
+            @Override
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+                originalValue = value;
+                return super.getTableCellEditorComponent(table, value, isSelected, row, column);
+            }
+
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                ((AbstractTableModel) staticResourcesTable.getModel()).fireTableCellUpdated(staticResourcesTable.getSelectedRow(), StaticResourcesColumn.VALUE.getIndex());
+                stopCellEditing();
+                fireEditingStopped();
+            }
+        }
+
+        String[] resourceTypes = ResourceType.stringValues();
+        staticResourcesTable.getColumnExt(StaticResourcesColumn.RESOURCE_TYPE.getIndex()).setMinWidth(100);
+        staticResourcesTable.getColumnExt(StaticResourcesColumn.RESOURCE_TYPE.getIndex()).setMaxWidth(100);
+        staticResourcesTable.getColumnExt(StaticResourcesColumn.RESOURCE_TYPE.getIndex()).setCellEditor(new ResourceTypeCellEditor(staticResourcesTable, resourceTypes, 1, false));
+        staticResourcesTable.getColumnExt(StaticResourcesColumn.RESOURCE_TYPE.getIndex()).setCellRenderer(new MirthComboBoxTableCellRenderer(resourceTypes));
+
+        class ValueCellEditor extends AbstractCellEditor implements TableCellEditor {
+
+            private JPanel panel;
+            private JLabel label;
+            private JTextField textField;
+            private String text;
+            private String originalValue;
+
+            public ValueCellEditor() {
+                panel = new JPanel(new MigLayout("insets 0 1 0 0, novisualpadding, hidemode 3"));
+                panel.setBackground(UIConstants.BACKGROUND_COLOR);
+
+                label = new JLabel();
+                label.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseReleased(MouseEvent evt) {
+                        new ValueDialog();
+                        stopCellEditing();
+                    }
+                });
+                panel.add(label, "grow, pushx, h 19!");
+
+                textField = new JTextField();
+                panel.add(textField, "grow, pushx, h 19!");
+            }
+
+            @Override
+            public boolean isCellEditable(EventObject evt) {
+                if (evt == null) {
+                    return false;
+                }
+                if (evt instanceof MouseEvent) {
+                    return ((MouseEvent) evt).getClickCount() >= 2;
+                }
+                return true;
+            }
+
+            @Override
+            public Object getCellEditorValue() {
+                if (label.isVisible()) {
+                    return text;
+                } else {
+                    return textField.getText();
+                }
+            }
+
+            @Override
+            public boolean stopCellEditing() {
+                if (ObjectUtils.equals(getCellEditorValue(), originalValue)) {
+                    cancelCellEditing();
+                } else {
+                    parent.setSaveEnabled(true);
+                }
+                return super.stopCellEditing();
+            }
+
+            @Override
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+                boolean custom = table.getValueAt(row, StaticResourcesColumn.RESOURCE_TYPE.getIndex()).equals(ResourceType.CUSTOM.toString());
+                label.setVisible(custom);
+                textField.setVisible(!custom);
+
+                panel.setBackground(table.getSelectionBackground());
+                label.setBackground(panel.getBackground());
+                label.setMaximumSize(new Dimension(table.getColumnModel().getColumn(column).getWidth(), 19));
+
+                String text = (String) value;
+                this.text = text;
+                originalValue = text;
+                label.setText(text);
+                textField.setText(text);
+
+                return panel;
+            }
+
+            class ValueDialog extends MirthDialog {
+
+                public ValueDialog() {
+                    super(parent, true);
+                    setTitle("Custom Value");
+                    setPreferredSize(new Dimension(600, 500));
+                    setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill", "", "[grow]7[]"));
+                    setBackground(UIConstants.BACKGROUND_COLOR);
+                    getContentPane().setBackground(getBackground());
+
+                    final MirthSyntaxTextArea textArea = new MirthSyntaxTextArea();
+                    textArea.setSaveEnabled(false);
+                    textArea.setText(text);
+                    textArea.setBorder(BorderFactory.createEtchedBorder());
+                    add(textArea, "grow");
+
+                    add(new JSeparator(), "newline, grow");
+
+                    JPanel buttonPanel = new JPanel(new MigLayout("insets 0, novisualpadding, hidemode 3"));
+                    buttonPanel.setBackground(getBackground());
+
+                    JButton openFileButton = new JButton("Open File...");
+                    openFileButton.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent evt) {
+                            String content = parent.browseForFileString(null);
+                            if (content != null) {
+                                textArea.setText(content);
+                            }
+                        }
+                    });
+                    buttonPanel.add(openFileButton);
+
+                    JButton okButton = new JButton("OK");
+                    okButton.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent evt) {
+                            text = textArea.getText();
+                            label.setText(text);
+                            textField.setText(text);
+                            staticResourcesTable.getModel().setValueAt(text, staticResourcesTable.getSelectedRow(), StaticResourcesColumn.VALUE.getIndex());
+                            parent.setSaveEnabled(true);
+                            dispose();
+                        }
+                    });
+                    buttonPanel.add(okButton);
+
+                    JButton cancelButton = new JButton("Cancel");
+                    cancelButton.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent evt) {
+                            dispose();
+                        }
+                    });
+                    buttonPanel.add(cancelButton);
+
+                    add(buttonPanel, "newline, right");
+
+                    pack();
+                    setLocationRelativeTo(parent);
+                    setVisible(true);
+                }
+            }
+        }
+        ;
+
+        staticResourcesTable.getColumnExt(StaticResourcesColumn.VALUE.getIndex()).setCellEditor(new ValueCellEditor());
+
+        staticResourcesTable.getColumnExt(StaticResourcesColumn.CONTENT_TYPE.getIndex()).setMinWidth(100);
+        staticResourcesTable.getColumnExt(StaticResourcesColumn.CONTENT_TYPE.getIndex()).setMaxWidth(150);
+        staticResourcesTable.getColumnExt(StaticResourcesColumn.CONTENT_TYPE.getIndex()).setCellEditor(new TextFieldCellEditor() {
+            @Override
+            protected boolean valueChanged(String value) {
+                if (value.equals(getOriginalValue())) {
+                    return false;
+                }
+                parent.setSaveEnabled(true);
+                return true;
+            }
+        });
+
+        staticResourcesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent evt) {
+                if (getSelectedRow(staticResourcesTable) != -1) {
+                    staticResourcesLastIndex = getSelectedRow(staticResourcesTable);
+                    staticResourcesDeleteButton.setEnabled(true);
+                } else {
+                    staticResourcesDeleteButton.setEnabled(false);
+                }
+            }
+        });
+
+        contextPathField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent evt) {
+                changedUpdate(evt);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent evt) {
+                changedUpdate(evt);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent evt) {
+                ((AbstractTableModel) staticResourcesTable.getModel()).fireTableDataChanged();
+            }
+        });
+    }
+
+    private boolean checkStaticResourceContextPath(String contextPath) {
+        for (int i = 0; i < staticResourcesTable.getRowCount(); i++) {
+            if (contextPath.equals(staticResourcesTable.getValueAt(i, StaticResourcesColumn.CONTEXT_PATH.getIndex()))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -380,6 +816,11 @@ public class HttpListener extends ConnectorSettingsPanel {
         includeMetadataLabel = new javax.swing.JLabel();
         includeMetadataYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         includeMetadataNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        staticResourcesLabel = new javax.swing.JLabel();
+        staticResourcesDeleteButton = new javax.swing.JButton();
+        staticResourcesNewButton = new javax.swing.JButton();
+        responseHeadersPane1 = new javax.swing.JScrollPane();
+        staticResourcesTable = new com.mirth.connect.client.ui.components.MirthTable();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -406,7 +847,7 @@ public class HttpListener extends ConnectorSettingsPanel {
 
         charsetEncodingLabel.setText("Charset Encoding:");
 
-        contextPathLabel.setText("Context Path:");
+        contextPathLabel.setText("Base Context Path:");
 
         contextPathField.setToolTipText("The context path for the HTTP Listener URL.");
         contextPathField.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -493,6 +934,33 @@ public class HttpListener extends ConnectorSettingsPanel {
         includeMetadataNoRadio.setToolTipText("<html>Select Yes to include request metadata (method, context path, headers,<br/>query parameters) in the XML content. Note that regardless of this<br/>setting, the same metadata is always available in the source map.</html>");
         includeMetadataNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        staticResourcesLabel.setText("Static Resources:");
+
+        staticResourcesDeleteButton.setText("Delete");
+        staticResourcesDeleteButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                staticResourcesDeleteButtonActionPerformed(evt);
+            }
+        });
+
+        staticResourcesNewButton.setText("New");
+        staticResourcesNewButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                staticResourcesNewButtonActionPerformed(evt);
+            }
+        });
+
+        staticResourcesTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        staticResourcesTable.setToolTipText("<html>Values in this table are automatically sent back to any request<br/>with the matching context path. There are three resource types:<br/> - <b>File</b>: The value field specifies the path of the file to return.<br/> - <b>Directory</b>: Any file within the directory given by the value<br/>&nbsp;&nbsp;&nbsp;field may be requested, but subdirectories are not included.<br/> - <b>Custom</b>: The value field itself is returned as the response.<br/></html>");
+        responseHeadersPane1.setViewportView(staticResourcesTable);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -500,6 +968,7 @@ public class HttpListener extends ConnectorSettingsPanel {
             .addGroup(layout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(staticResourcesLabel)
                     .addComponent(contextPathLabel)
                     .addComponent(receiveTimeoutLabel)
                     .addComponent(messageContentLabel)
@@ -538,7 +1007,13 @@ public class HttpListener extends ConnectorSettingsPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(responseHeadersNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(responseHeadersDeleteButton))))
+                            .addComponent(responseHeadersDeleteButton)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(responseHeadersPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(staticResourcesNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(staticResourcesDeleteButton))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -584,15 +1059,20 @@ public class HttpListener extends ConnectorSettingsPanel {
                     .addComponent(responseStatusCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(responseHeadersPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(headersLabel)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(headersLabel)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(responseHeadersNewButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(responseHeadersDeleteButton)))
-                        .addGap(0, 32, Short.MAX_VALUE)))
+                        .addComponent(responseHeadersNewButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(responseHeadersDeleteButton))
+                    .addComponent(responseHeadersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(staticResourcesLabel)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(staticResourcesNewButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(staticResourcesDeleteButton))
+                    .addComponent(responseHeadersPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -646,6 +1126,40 @@ public class HttpListener extends ConnectorSettingsPanel {
         includeMetadataNoRadio.setEnabled(true);
     }//GEN-LAST:event_messageContentXmlBodyRadioActionPerformed
 
+    private void staticResourcesDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_staticResourcesDeleteButtonActionPerformed
+        int selectedRow = getSelectedRow(staticResourcesTable);
+
+        if (selectedRow != -1 && !staticResourcesTable.isEditing()) {
+            ((DefaultTableModel) staticResourcesTable.getModel()).removeRow(selectedRow);
+
+            if (staticResourcesTable.getRowCount() != 0) {
+                if (staticResourcesLastIndex == 0) {
+                    staticResourcesTable.setRowSelectionInterval(0, 0);
+                } else if (staticResourcesLastIndex == staticResourcesTable.getRowCount()) {
+                    staticResourcesTable.setRowSelectionInterval(staticResourcesLastIndex - 1, staticResourcesLastIndex - 1);
+                } else {
+                    staticResourcesTable.setRowSelectionInterval(staticResourcesLastIndex, staticResourcesLastIndex);
+                }
+            }
+
+            parent.setSaveEnabled(true);
+        }
+    }//GEN-LAST:event_staticResourcesDeleteButtonActionPerformed
+
+    private void staticResourcesNewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_staticResourcesNewButtonActionPerformed
+        int contextPathNumber = 1;
+        String contextPath = "path" + contextPathNumber;
+        while (!checkStaticResourceContextPath(contextPath)) {
+            contextPath = "path" + (++contextPathNumber);
+        }
+
+        Object[] rowData = new Object[] { contextPath, ResourceType.FILE.toString(), "",
+                ContentType.TEXT_PLAIN.getMimeType() };
+        ((DefaultTableModel) staticResourcesTable.getModel()).addRow(rowData);
+        staticResourcesTable.setRowSelectionInterval(staticResourcesTable.getRowCount() - 1, staticResourcesTable.getRowCount() - 1);
+        parent.setSaveEnabled(true);
+    }//GEN-LAST:event_staticResourcesNewButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private javax.swing.JLabel charsetEncodingLabel;
@@ -675,7 +1189,12 @@ public class HttpListener extends ConnectorSettingsPanel {
     private javax.swing.JButton responseHeadersDeleteButton;
     private javax.swing.JButton responseHeadersNewButton;
     private javax.swing.JScrollPane responseHeadersPane;
+    private javax.swing.JScrollPane responseHeadersPane1;
     private com.mirth.connect.client.ui.components.MirthTable responseHeadersTable;
     private com.mirth.connect.client.ui.components.MirthTextField responseStatusCodeField;
+    private javax.swing.JButton staticResourcesDeleteButton;
+    private javax.swing.JLabel staticResourcesLabel;
+    private javax.swing.JButton staticResourcesNewButton;
+    private com.mirth.connect.client.ui.components.MirthTable staticResourcesTable;
     // End of variables declaration//GEN-END:variables
 }

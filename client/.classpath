@@ -17,6 +17,8 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileAction"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpReceiverProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpDispatcherProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpStaticResource"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpStaticResource$ResourceType"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/DatabaseReceiverProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/DatabaseDispatcherProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/DatabaseConnectionInfo"/>

@@ -9,7 +9,9 @@
 
 package com.mirth.connect.connectors.http;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -34,6 +36,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     private String charset;
     private String contextPath;
     private String timeout;
+    private List<HttpStaticResource> staticResources;
 
     public HttpReceiverProperties() {
         listenerConnectorProperties = new ListenerConnectorProperties("80");
@@ -48,6 +51,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         this.charset = "UTF-8";
         this.contextPath = "";
         this.timeout = "0";
+        this.staticResources = new ArrayList<HttpStaticResource>();
     }
 
     public boolean isXmlBody() {
@@ -120,6 +124,14 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
 
     public void setTimeout(String timeout) {
         this.timeout = timeout;
+    }
+
+    public List<HttpStaticResource> getStaticResources() {
+        return staticResources;
+    }
+
+    public void setStaticResources(List<HttpStaticResource> staticResources) {
+        this.staticResources = staticResources;
     }
 
     @Override

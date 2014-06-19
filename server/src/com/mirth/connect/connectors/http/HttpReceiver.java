@@ -9,15 +9,21 @@
 
 package com.mirth.connect.connectors.http;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -42,8 +48,10 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.util.URIUtil;
 
+import com.mirth.connect.connectors.http.HttpStaticResource.ResourceType;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -131,11 +139,45 @@ public class HttpReceiver extends SourceConnector {
             server = new Server();
             configuration.configureReceiver(this);
 
-            // add the request handler
+            HandlerCollection handlers = new HandlerCollection();
+
+            // Add handlers for each static resource
+            if (connectorProperties.getStaticResources() != null) {
+                NavigableMap<String, HttpStaticResource> staticResourcesMap = new TreeMap<String, HttpStaticResource>();
+
+                // Add each static resource to a map first to allow sorting and deduplication
+                for (HttpStaticResource staticResource : connectorProperties.getStaticResources()) {
+                    String resourceContextPath = replacer.replaceValues(staticResource.getContextPath(), getChannelId());
+
+                    // We always want to append resources starting with "/" to the base context path
+                    if (resourceContextPath.endsWith("/")) {
+                        resourceContextPath = resourceContextPath.substring(0, resourceContextPath.length() - 1);
+                    }
+                    if (!resourceContextPath.startsWith("/")) {
+                        resourceContextPath = "/" + resourceContextPath;
+                    }
+                    resourceContextPath = contextPath + resourceContextPath;
+
+                    staticResourcesMap.put(resourceContextPath, new HttpStaticResource(resourceContextPath, staticResource.getResourceType(), staticResource.getValue(), staticResource.getContentType()));
+                }
+
+                // Iterate through each static resource in reverse so that more specific contexts take precedence
+                for (HttpStaticResource staticResource : staticResourcesMap.descendingMap().values()) {
+                    logger.debug("Adding static resource handler for context path: " + staticResource.getContextPath());
+                    ContextHandler resourceContextHandler = new ContextHandler();
+                    resourceContextHandler.setContextPath(staticResource.getContextPath());
+                    resourceContextHandler.setHandler(new StaticResourceHandler(staticResource));
+                    handlers.addHandler(resourceContextHandler);
+                }
+            }
+
+            // Add the main request handler
             ContextHandler contextHandler = new ContextHandler();
             contextHandler.setContextPath(contextPath);
             contextHandler.setHandler(new RequestHandler());
-            server.setHandler(contextHandler);
+            handlers.addHandler(contextHandler);
+
+            server.setHandler(handlers);
 
             logger.debug("starting HTTP server with address: " + host + ":" + port);
             server.start();
@@ -348,6 +390,117 @@ public class HttpReceiver extends SourceConnector {
         sourceMap.put("parameters", Collections.unmodifiableMap(requestMessage.getParameters()));
 
         return dispatchRawMessage(new RawMessage(rawMessageContent, null, sourceMap));
+    }
+
+    private class StaticResourceHandler extends AbstractHandler {
+
+        private HttpStaticResource staticResource;
+
+        public StaticResourceHandler(HttpStaticResource staticResource) {
+            this.staticResource = staticResource;
+        }
+
+        @Override
+        public void handle(String target, Request baseRequest, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException {
+            try {
+                String contextPath = URLDecoder.decode(new URL(getRequestURL(baseRequest)).getPath(), "US-ASCII");
+                if (contextPath.endsWith("/")) {
+                    contextPath = contextPath.substring(0, contextPath.length() - 1);
+                }
+                logger.debug("Received static resource request at: " + contextPath);
+
+                String value = replacer.replaceValues(staticResource.getValue(), getChannelId());
+                String contentTypeString = replacer.replaceValues(staticResource.getContentType(), getChannelId());
+
+                // If we're not reading from a directory and the context path doesn't match, pass to the next request handler
+                if (staticResource.getResourceType() != ResourceType.DIRECTORY && !staticResource.getContextPath().equalsIgnoreCase(contextPath)) {
+                    return;
+                }
+
+                ContentType contentType;
+                try {
+                    contentType = ContentType.parse(contentTypeString);
+                } catch (Exception e) {
+                    contentType = ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), connectorProperties.getCharset());
+                }
+
+                Charset charset = contentType.getCharset();
+                if (charset == null) {
+                    charset = Charset.forName(connectorProperties.getCharset());
+                }
+
+                servletResponse.setContentType(contentType.toString());
+
+                OutputStream responseOutputStream = servletResponse.getOutputStream();
+
+                // If the client accepts GZIP compression, compress the content
+                String acceptEncoding = baseRequest.getHeader("Accept-Encoding");
+                if (acceptEncoding != null && acceptEncoding.contains("gzip")) {
+                    servletResponse.setHeader(HTTP.CONTENT_ENCODING, "gzip");
+                    responseOutputStream = new GZIPOutputStream(responseOutputStream);
+                }
+
+                if (staticResource.getResourceType() == ResourceType.FILE) {
+                    // Just stream the file itself back to the client
+                    IOUtils.copy(new FileInputStream(value), responseOutputStream);
+                } else if (staticResource.getResourceType() == ResourceType.DIRECTORY) {
+                    File file = new File(value);
+
+                    if (file.isDirectory()) {
+                        // Use the trailing path as the child path for the actual resource directory
+                        String childPath = StringUtils.removeStartIgnoreCase(contextPath, staticResource.getContextPath());
+                        if (childPath.startsWith("/")) {
+                            childPath = childPath.substring(1);
+                        }
+
+                        if (!childPath.contains("/")) {
+                            file = new File(file, childPath);
+                        } else {
+                            // If a subdirectory is specified, pass to the next request handler
+                            servletResponse.reset();
+                            return;
+                        }
+                    } else {
+                        throw new Exception("File \"" + file.toString() + "\" does not exist or is not a directory.");
+                    }
+
+                    if (file.exists()) {
+                        if (file.isDirectory()) {
+                            // The directory itself was requested, instead of a specific file
+                            servletResponse.reset();
+                            return;
+                        }
+
+                        // A valid file was found; stream it back to the client
+                        IOUtils.copy(new FileInputStream(file), responseOutputStream);
+                    } else {
+                        // File does not exist, pass to the next request handler
+                        servletResponse.reset();
+                        return;
+                    }
+                } else {
+                    // Stream the value string back to the client
+                    IOUtils.write(value, responseOutputStream, charset);
+                }
+
+                // If we gzipped, we need to finish the stream now
+                if (responseOutputStream instanceof GZIPOutputStream) {
+                    ((GZIPOutputStream) responseOutputStream).finish();
+                }
+
+                servletResponse.setStatus(HttpStatus.SC_OK);
+            } catch (Throwable t) {
+                logger.error("Error handling static HTTP resource request (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
+                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error handling static HTTP resource request", t));
+
+                servletResponse.reset();
+                servletResponse.setContentType(ContentType.TEXT_PLAIN.toString());
+                servletResponse.getOutputStream().write(ExceptionUtils.getStackTrace(t).getBytes());
+                servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            }
+
+            baseRequest.setHandled(true);
+        }
     }
 
     private String replaceValues(String template, DispatchResult dispatchResult) {
