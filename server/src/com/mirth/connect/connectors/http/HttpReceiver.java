@@ -44,6 +44,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.protocol.HTTP;
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.http.HttpMethods;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -402,6 +403,11 @@ public class HttpReceiver extends SourceConnector {
 
         @Override
         public void handle(String target, Request baseRequest, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException {
+            // Only allow GET requests, otherwise pass to the next request handler
+            if (!baseRequest.getMethod().equalsIgnoreCase(HttpMethods.GET)) {
+                return;
+            }
+
             try {
                 String contextPath = URLDecoder.decode(new URL(getRequestURL(baseRequest)).getPath(), "US-ASCII");
                 if (contextPath.endsWith("/")) {
