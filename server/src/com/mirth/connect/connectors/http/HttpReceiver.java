@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +40,12 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.protocol.HTTP;
 import org.apache.log4j.Logger;
@@ -149,6 +154,28 @@ public class HttpReceiver extends SourceConnector {
                 // Add each static resource to a map first to allow sorting and deduplication
                 for (HttpStaticResource staticResource : connectorProperties.getStaticResources()) {
                     String resourceContextPath = replacer.replaceValues(staticResource.getContextPath(), getChannelId());
+                    Map<String, Object> queryParameters = new HashMap<String, Object>();
+
+                    // If query parameters were specified, extract them here
+                    int queryIndex = resourceContextPath.indexOf('?');
+                    if (queryIndex >= 0) {
+                        String query = resourceContextPath.substring(queryIndex + 1);
+                        resourceContextPath = resourceContextPath.substring(0, queryIndex);
+
+                        for (NameValuePair param : URLEncodedUtils.parse(query, Charset.defaultCharset())) {
+                            Object currentValue = queryParameters.get(param.getName());
+                            String value = StringUtils.defaultString(param.getValue());
+
+                            if (currentValue == null) {
+                                queryParameters.put(param.getName(), value);
+                            } else if (currentValue instanceof String[]) {
+                                queryParameters.put(param.getName(), ArrayUtils.add((String[]) currentValue, value));
+                            } else {
+                                queryParameters.put(param.getName(), new String[] {
+                                        (String) currentValue, value });
+                            }
+                        }
+                    }
 
                     // We always want to append resources starting with "/" to the base context path
                     if (resourceContextPath.endsWith("/")) {
@@ -159,7 +186,7 @@ public class HttpReceiver extends SourceConnector {
                     }
                     resourceContextPath = contextPath + resourceContextPath;
 
-                    staticResourcesMap.put(resourceContextPath, new HttpStaticResource(resourceContextPath, staticResource.getResourceType(), staticResource.getValue(), staticResource.getContentType()));
+                    staticResourcesMap.put(resourceContextPath, new HttpStaticResource(resourceContextPath, staticResource.getResourceType(), staticResource.getValue(), staticResource.getContentType(), queryParameters));
                 }
 
                 // Iterate through each static resource in reverse so that more specific contexts take precedence
@@ -167,6 +194,8 @@ public class HttpReceiver extends SourceConnector {
                     logger.debug("Adding static resource handler for context path: " + staticResource.getContextPath());
                     ContextHandler resourceContextHandler = new ContextHandler();
                     resourceContextHandler.setContextPath(staticResource.getContextPath());
+                    // This allows resources to be requested without a relative context path (e.g. "/")
+                    resourceContextHandler.setAllowNullPathInfo(true);
                     resourceContextHandler.setHandler(new StaticResourceHandler(staticResource));
                     handlers.addHandler(resourceContextHandler);
                 }
@@ -314,29 +343,7 @@ public class HttpReceiver extends SourceConnector {
         HttpRequestMessage requestMessage = new HttpRequestMessage();
         requestMessage.setMethod(request.getMethod());
         requestMessage.setHeaders(HttpMessageConverter.convertFieldEnumerationToMap(request));
-
-        /*
-         * XXX: extractParameters must be called before the parameters are accessed, otherwise the
-         * map will be null.
-         */
-        request.extractParameters();
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
-
-        for (Entry<String, Object> entry : request.getParameters().entrySet()) {
-            if (entry.getValue() instanceof List<?>) {
-                String name = entry.getKey();
-                int index = name.indexOf("[]");
-                if (index >= 0) {
-                    name = name.substring(0, index);
-                }
-                List<String> list = (List<String>) entry.getValue();
-                parameterMap.put(name, list.toArray(new String[list.size()]));
-            } else {
-                parameterMap.put(entry.getKey(), entry.getValue().toString());
-            }
-        }
-
-        requestMessage.setParameters(parameterMap);
+        requestMessage.setParameters(extractParameters(request));
 
         InputStream requestInputStream = request.getInputStream();
 
@@ -420,6 +427,11 @@ public class HttpReceiver extends SourceConnector {
 
                 // If we're not reading from a directory and the context path doesn't match, pass to the next request handler
                 if (staticResource.getResourceType() != ResourceType.DIRECTORY && !staticResource.getContextPath().equalsIgnoreCase(contextPath)) {
+                    return;
+                }
+
+                // If the query parameters do not match, pass to the next request handler
+                if (!parametersEqual(staticResource.getQueryParameters(), extractParameters(baseRequest))) {
                     return;
                 }
 
@@ -538,6 +550,54 @@ public class HttpReceiver extends SourceConnector {
 
     public int getTimeout() {
         return timeout;
+    }
+
+    private Map<String, Object> extractParameters(Request request) {
+        /*
+         * XXX: extractParameters must be called before the parameters are accessed, otherwise the
+         * map will be null.
+         */
+        request.extractParameters();
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+
+        for (Entry<String, Object> entry : request.getParameters().entrySet()) {
+            if (entry.getValue() instanceof List<?>) {
+                String name = entry.getKey();
+                int index = name.indexOf("[]");
+                if (index >= 0) {
+                    name = name.substring(0, index);
+                }
+                List<String> list = (List<String>) entry.getValue();
+                parameterMap.put(name, list.toArray(new String[list.size()]));
+            } else {
+                parameterMap.put(entry.getKey(), entry.getValue().toString());
+            }
+        }
+
+        return parameterMap;
+    }
+
+    private boolean parametersEqual(Map<String, Object> params1, Map<String, Object> params2) {
+        if (!params1.keySet().equals(params2.keySet())) {
+            return false;
+        }
+
+        for (Entry<String, Object> entry : params1.entrySet()) {
+            Object value1 = entry.getValue();
+            Object value2 = params2.get(entry.getKey());
+
+            if (value1 != null && value1 instanceof String[] && value2 != null && value2 instanceof String[]) {
+                if (!Arrays.equals((String[]) value1, (String[]) value2)) {
+                    return false;
+                }
+            } else {
+                if (!ObjectUtils.equals(value1, value2)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     private String getRequestURL(Request request) {
