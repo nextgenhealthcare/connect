@@ -131,6 +131,8 @@ public class HttpSender extends ConnectorSettingsPanel {
             properties.setAuthenticationType("Digest");
         }
 
+        properties.setUsePreemptiveAuthentication(authenticationPreemptiveCheckBox.isSelected());
+
         properties.setUsername(usernameField.getText());
         properties.setPassword(new String(passwordField.getPassword()));
 
@@ -204,6 +206,8 @@ public class HttpSender extends ConnectorSettingsPanel {
         } else if (props.getAuthenticationType().equalsIgnoreCase("Digest")) {
             authenticationTypeDigestRadio.setSelected(true);
         }
+
+        authenticationPreemptiveCheckBox.setSelected(props.isUsePreemptiveAuthentication());
 
         usernameField.setText(props.getUsername());
         passwordField.setText(props.getPassword());
@@ -670,6 +674,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         authenticationTypeLabel.setEnabled(enabled);
         authenticationTypeBasicRadio.setEnabled(enabled);
         authenticationTypeDigestRadio.setEnabled(enabled);
+        authenticationPreemptiveCheckBox.setEnabled(enabled);
 
         usernameLabel.setEnabled(enabled);
         usernameField.setEnabled(enabled);
@@ -759,6 +764,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         proxyAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
         proxyPortLabel = new javax.swing.JLabel();
         proxyPortField = new com.mirth.connect.client.ui.components.MirthTextField();
+        authenticationPreemptiveCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -1036,6 +1042,10 @@ public class HttpSender extends ConnectorSettingsPanel {
 
         proxyPortField.setToolTipText("The port on which to connect to the proxy server.");
 
+        authenticationPreemptiveCheckBox.setBackground(com.mirth.connect.client.ui.UIConstants.BACKGROUND_COLOR);
+        authenticationPreemptiveCheckBox.setText("Preemptive");
+        authenticationPreemptiveCheckBox.setToolTipText("<html>If checked, the authorization header will be sent to the server with the initial<br/>request. Otherwise, the header will only be sent when the server requests it.<br/>When using digest authentication, an Authorization header containing the<br/>realm/nonce/algorithm/qop values must be included in the Headers table.</html>");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -1120,7 +1130,9 @@ public class HttpSender extends ConnectorSettingsPanel {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(authenticationTypeBasicRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(authenticationTypeDigestRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(authenticationTypeDigestRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(authenticationPreemptiveCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(useProxyServerYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1193,7 +1205,8 @@ public class HttpSender extends ConnectorSettingsPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(authenticationTypeLabel)
                     .addComponent(authenticationTypeBasicRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(authenticationTypeDigestRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(authenticationTypeDigestRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(authenticationPreemptiveCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(usernameLabel)
@@ -1221,7 +1234,7 @@ public class HttpSender extends ConnectorSettingsPanel {
                         .addComponent(headersNewButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(headersDeleteButton))
-                    .addComponent(headersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE))
+                    .addComponent(headersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(contentTypeLabel)
@@ -1382,6 +1395,7 @@ public class HttpSender extends ConnectorSettingsPanel {
     private javax.swing.ButtonGroup authenticationButtonGroup;
     private javax.swing.JLabel authenticationLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton authenticationNoRadio;
+    private com.mirth.connect.client.ui.components.MirthCheckBox authenticationPreemptiveCheckBox;
     private com.mirth.connect.client.ui.components.MirthRadioButton authenticationTypeBasicRadio;
     private javax.swing.ButtonGroup authenticationTypeButtonGroup;
     private com.mirth.connect.client.ui.components.MirthRadioButton authenticationTypeDigestRadio;

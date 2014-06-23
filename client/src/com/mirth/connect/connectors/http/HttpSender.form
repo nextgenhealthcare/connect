@@ -140,6 +140,8 @@
                               <Component id="authenticationTypeBasicRadio" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="authenticationTypeDigestRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="authenticationPreemptiveCheckBox" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
                               <Component id="useProxyServerYesRadio" min="-2" max="-2" attributes="0"/>
@@ -228,6 +230,7 @@
                   <Component id="authenticationTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationTypeBasicRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationTypeDigestRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationPreemptiveCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -262,7 +265,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="headersDeleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="headersPane" pref="85" max="32767" attributes="0"/>
+                  <Component id="headersPane" pref="84" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -817,6 +820,15 @@
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="proxyPortField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The port on which to connect to the proxy server."/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="authenticationPreemptiveCheckBox">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="com.mirth.connect.client.ui.UIConstants.BACKGROUND_COLOR" type="code"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Preemptive"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the authorization header will be sent to the server with the initial&lt;br/&gt;request. Otherwise, the header will only be sent when the server requests it.&lt;br/&gt;When using digest authentication, an Authorization header containing the&lt;br/&gt;realm/nonce/algorithm/qop values must be included in the Headers table.&lt;/html&gt;"/>
       </Properties>
     </Component>
   </SubComponents>

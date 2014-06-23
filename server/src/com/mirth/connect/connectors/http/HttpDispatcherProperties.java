@@ -37,6 +37,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
     private boolean multipart;
     private boolean useAuthentication;
     private String authenticationType;
+    private boolean usePreemptiveAuthentication;
     private String username;
     private String password;
     private String content;
@@ -60,6 +61,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
         this.multipart = false;
         this.useAuthentication = false;
         this.authenticationType = "Basic";
+        this.usePreemptiveAuthentication = false;
         this.username = "";
         this.password = "";
         this.content = "";
@@ -85,6 +87,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
         multipart = props.isMultipart();
         useAuthentication = props.isUseAuthentication();
         authenticationType = props.getAuthenticationType();
+        usePreemptiveAuthentication = props.isUsePreemptiveAuthentication();
         username = props.getUsername();
         password = props.getPassword();
         content = props.getContent();
@@ -195,6 +198,14 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
 
     public void setAuthenticationType(String authenticationType) {
         this.authenticationType = authenticationType;
+    }
+
+    public boolean isUsePreemptiveAuthentication() {
+        return usePreemptiveAuthentication;
+    }
+
+    public void setUsePreemptiveAuthentication(boolean usePreemptiveAuthentication) {
+        this.usePreemptiveAuthentication = usePreemptiveAuthentication;
     }
 
     public String getUsername() {

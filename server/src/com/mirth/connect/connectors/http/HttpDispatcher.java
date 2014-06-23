@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
@@ -28,6 +30,7 @@ import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -39,10 +42,12 @@ import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthSchemeProvider;
 import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.AuthenticationException;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.GzipCompressingEntity;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -68,6 +73,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.auth.BasicSchemeFactory;
+import org.apache.http.impl.auth.DigestScheme;
 import org.apache.http.impl.auth.DigestSchemeFactory;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
@@ -103,6 +109,7 @@ import com.mirth.connect.util.ErrorMessageBuilder;
 public class HttpDispatcher extends DestinationConnector {
 
     private static final String PROXY_CONTEXT_KEY = "dispatcherProxy";
+    private static final Pattern AUTH_HEADER_PATTERN = Pattern.compile("(\\S+)\\s*=\\s*([^=,;\"\\s]+|\"([^\"]|\\\\[\\s\\S])*(?<!\\\\)\")");
 
     private Logger logger = Logger.getLogger(this.getClass());
     private HttpDispatcherProperties connectorProperties;
@@ -251,15 +258,20 @@ public class HttpDispatcher extends DestinationConnector {
                 AuthCache authCache = new BasicAuthCache();
                 RegistryBuilder<AuthSchemeProvider> registryBuilder = RegistryBuilder.<AuthSchemeProvider> create();
 
-                if ("Digest".equalsIgnoreCase(httpDispatcherProperties.getAuthenticationType())) {
+                if (AuthSchemes.DIGEST.equalsIgnoreCase(httpDispatcherProperties.getAuthenticationType())) {
                     logger.debug("using Digest authentication");
-                    // TODO: Cannot preemptively authenticate without realm/nonce values
-                    //authCache.put(target, new DigestScheme());
-                    registryBuilder.register("digest", new DigestSchemeFactory(charset));
+                    registryBuilder.register(AuthSchemes.DIGEST, new DigestSchemeFactory(charset));
+
+                    if (httpDispatcherProperties.isUsePreemptiveAuthentication()) {
+                        processDigestChallenge(authCache, target, credentials, httpMethod, context);
+                    }
                 } else {
                     logger.debug("using Basic authentication");
-                    registryBuilder.register("basic", new BasicSchemeFactory(charset));
-                    authCache.put(target, new BasicScheme());
+                    registryBuilder.register(AuthSchemes.BASIC, new BasicSchemeFactory(charset));
+
+                    if (httpDispatcherProperties.isUsePreemptiveAuthentication()) {
+                        authCache.put(target, new BasicScheme());
+                    }
                 }
 
                 context.setCredentialsProvider(credsProvider);
@@ -441,6 +453,52 @@ public class HttpDispatcher extends DestinationConnector {
             }
 
             return new HttpRoute(target, null, secure);
+        }
+    }
+
+    private void processDigestChallenge(AuthCache authCache, HttpHost target, Credentials credentials, HttpRequest request, HttpContext context) throws AuthenticationException {
+        Header authHeader = request.getFirstHeader("Authorization");
+        /*
+         * Since we're going to be replacing the header, we remove it here. If the header is invalid
+         * or the challenge fails, we still want to remove the header, because otherwise it will
+         * interfere with reactive authentication.
+         */
+        request.removeHeaders("Authorization");
+
+        if (authHeader != null) {
+            String authValue = authHeader.getValue();
+
+            // The Authorization header value will be in the form: Digest param1="value1", param2="value2"
+            if (StringUtils.startsWithIgnoreCase(authValue, AuthSchemes.DIGEST)) {
+                DigestScheme digestScheme = new DigestScheme();
+
+                // Get the actual parameters by stripping off the "Digest"
+                authValue = StringUtils.removeStartIgnoreCase(authValue, AuthSchemes.DIGEST).trim();
+                Matcher matcher = AUTH_HEADER_PATTERN.matcher(authValue);
+
+                while (matcher.find()) {
+                    // We found a param="value" group
+                    String group = matcher.group();
+                    int index = group.indexOf('=');
+                    String name = group.substring(0, index).trim();
+                    String value = group.substring(index + 1).trim();
+
+                    // Strip off any quotes in the value
+                    if (value.startsWith("\"")) {
+                        value = value.substring(1);
+                    }
+                    if (value.endsWith("\"")) {
+                        value = value.substring(0, value.length() - 1);
+                    }
+
+                    logger.debug("Overriding Digest Parameter: " + name + "=\"" + value + "\"");
+                    digestScheme.overrideParamter(name, value);
+                }
+
+                // Since this is preemptive, we need to actually process the challenge beforehand
+                request.addHeader(digestScheme.authenticate(credentials, request, context));
+                authCache.put(target, digestScheme);
+            }
         }
     }
 }
