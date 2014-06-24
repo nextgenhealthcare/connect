@@ -28,7 +28,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -116,7 +115,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     private Set<Thread> haltThreads = new LinkedHashSet<Thread>();
 
     private boolean stopSourceQueue = false;
-    private Semaphore processLock;
+    private ChannelProcessLock processLock = new DefaultChannelProcessLock();
     private ChannelLock lock = ChannelLock.UNLOCKED;
 
     private MessageController messageController = MessageController.getInstance();
@@ -302,6 +301,26 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     public void unlock() {
         this.lock = ChannelLock.UNLOCKED;
+    }
+
+    public ChannelProcessLock getProcessLock() {
+        return processLock;
+    }
+
+    public void setProcessLock(ChannelProcessLock processLock) {
+        this.processLock = processLock;
+    }
+
+    public void addDispatchThread(Thread thread) {
+        synchronized (dispatchThreads) {
+            dispatchThreads.add(thread);
+        }
+    }
+    
+    public void removeDispatchThread(Thread thread) {
+        synchronized (dispatchThreads) {
+            dispatchThreads.remove(thread);
+        }
     }
 
     public boolean isActive() {
@@ -1506,7 +1525,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     /**
      * Process all unfinished messages found in storage
      */
-    protected void processUnfinishedMessages() throws Exception {
+    public void processUnfinishedMessages() throws Exception {
         channelExecutor.submit(new RecoveryTask(this)).get();
     }
 
@@ -1879,10 +1898,11 @@ public class Channel implements Startable, Stoppable, Runnable {
                     updateCurrentState(DeployedState.STARTING);
 
                     /*
-                     * We can't guarantee the state of the semaphore when the channel was stopped /
-                     * halted, so we just create a new one instead.
+                     * We can't guarantee the state of the process lock when the channel was stopped
+                     * / halted, so we just reset it.
                      */
-                    processLock = new Semaphore(1, true);
+                    // TODO if we convert to use reentrant lock, think about what we should do with it here
+                    processLock.reset();
                     dispatchThreads.clear();
                     shuttingDown = false;
                     stopSourceQueue = false;
