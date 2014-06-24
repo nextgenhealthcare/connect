@@ -36,6 +36,8 @@ public interface EngineController {
 
     public void redeployAllChannels() throws StopException, StartException, InterruptedException;
 
+    public void startupDeploy() throws StartException, StopException, InterruptedException;
+
     public boolean isDeployed(String channelId);
 
     public Channel getDeployedChannel(String channelId);

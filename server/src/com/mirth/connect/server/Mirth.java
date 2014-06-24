@@ -267,7 +267,7 @@ public class Mirth extends Thread {
             alertController.initAlerts();
 
             configurationController.setStatus(ConfigurationController.STATUS_INITIAL_DEPLOY);
-            engineController.redeployAllChannels();
+            engineController.startupDeploy();
         } catch (Exception e) {
             logger.error(e);
         }
