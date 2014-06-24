@@ -25,7 +25,15 @@ public class ChannelController {
     public static ChannelController getInstance() {
         synchronized (ChannelController.class) {
             if (instance == null) {
-                instance = new ChannelController();
+                try {
+                    /*
+                     * Eventually, plugins will be able to specify controller classes to override,
+                     * see MIRTH-3351
+                     */
+                    instance = (ChannelController) Class.forName("com.mirth.connect.plugins.clustering.server.jdbc.ClusterDonkeyChannelController").newInstance();
+                } catch (Exception e) {
+                    instance = new ChannelController();
+                }
             }
 
             return instance;
@@ -36,7 +44,7 @@ public class ChannelController {
     private Statistics totalStats;
     private Donkey donkey = Donkey.getInstance();
 
-    private ChannelController() {}
+    protected ChannelController() {}
 
     public void removeChannel(String channelId) {
         DonkeyDao dao = donkey.getDaoFactory().getDao();

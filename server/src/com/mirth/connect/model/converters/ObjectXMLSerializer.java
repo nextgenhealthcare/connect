@@ -126,6 +126,8 @@ public class ObjectXMLSerializer extends XStreamSerializer {
     private ObjectXMLSerializer() {
         super(new InvalidChannelWrapper());
         processAnnotations(annotatedClasses);
+        getXStream().registerConverter(new MapContentConverter(getXStream().getMapper()));
+        getXStream().registerConverter(new PluginMetaDataConverter(getXStream().getMapper()));
     }
 
     public void processAnnotations(Class<?>[] classes) {
@@ -137,8 +139,6 @@ public class ObjectXMLSerializer extends XStreamSerializer {
             normalizedVersion = MigrationUtil.normalizeVersion(currentVersion, 3);
             getXStream().registerConverter(new MigratableConverter(normalizedVersion, getXStream().getMapper()));
             getXStream().registerConverter(new ChannelConverter(normalizedVersion, getXStream().getMapper()));
-            getXStream().registerConverter(new MapContentConverter(getXStream().getMapper()));
-            getXStream().registerConverter(new PluginMetaDataConverter(getXStream().getMapper()));
             getXStream().registerLocalConverter(ConnectorProperties.class, "pluginProperties", new PluginPropertiesConverter(normalizedVersion, getXStream().getMapper()));
         } else {
             throw new Exception("Serializer has already been initialized.");

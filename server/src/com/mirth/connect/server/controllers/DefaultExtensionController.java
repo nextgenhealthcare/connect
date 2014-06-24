@@ -91,6 +91,7 @@ public class DefaultExtensionController extends ExtensionController {
     private Map<String, DataTypeServerPlugin> dataTypePlugins = new LinkedHashMap<String, DataTypeServerPlugin>();
     private Map<String, ConnectorServicePlugin> connectorServicePlugins = new LinkedHashMap<String, ConnectorServicePlugin>();
     private AuthorizationPlugin authorizationPlugin = null;
+    private boolean loadedExtensions = false;
 
     private static PropertiesConfiguration extensionProperties = null;
 
@@ -147,47 +148,51 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     @Override
-    public void loadExtensions() {
-        try {
-            // match all of the file names for the extension
-            IOFileFilter nameFileFilter = new NameFileFilter(new String[] { "plugin.xml",
-                    "source.xml", "destination.xml" });
-            // this is probably not needed, but we dont want to pick up directories,
-            // so we AND the two filters
-            IOFileFilter andFileFilter = new AndFileFilter(nameFileFilter, FileFilterUtils.fileFileFilter());
-            // this is directory where extensions are located
-            File extensionPath = new File(ExtensionController.getExtensionsPath());
-            // do a recursive scan for extension files
-            Collection<File> extensionFiles = FileUtils.listFiles(extensionPath, andFileFilter, FileFilterUtils.trueFileFilter());
-
-            for (File extensionFile : extensionFiles) {
-                try {
-                    MetaData metaData = (MetaData) serializer.deserialize(FileUtils.readFileToString(extensionFile), MetaData.class);
-
-                    if (isExtensionCompatible(metaData)) {
-                        if (metaData instanceof ConnectorMetaData) {
-                            ConnectorMetaData connectorMetaData = (ConnectorMetaData) metaData;
-                            connectorMetaDataMap.put(connectorMetaData.getName(), connectorMetaData);
-
-                            if (StringUtils.contains(connectorMetaData.getProtocol(), ":")) {
-                                for (String protocol : connectorMetaData.getProtocol().split(":")) {
-                                    connectorProtocolsMap.put(protocol, connectorMetaData);
+    public synchronized void loadExtensions() {
+        if (!loadedExtensions) {
+            try {
+                // match all of the file names for the extension
+                IOFileFilter nameFileFilter = new NameFileFilter(new String[] { "plugin.xml",
+                        "source.xml", "destination.xml" });
+                // this is probably not needed, but we dont want to pick up directories,
+                // so we AND the two filters
+                IOFileFilter andFileFilter = new AndFileFilter(nameFileFilter, FileFilterUtils.fileFileFilter());
+                // this is directory where extensions are located
+                File extensionPath = new File(ExtensionController.getExtensionsPath());
+                // do a recursive scan for extension files
+                Collection<File> extensionFiles = FileUtils.listFiles(extensionPath, andFileFilter, FileFilterUtils.trueFileFilter());
+    
+                for (File extensionFile : extensionFiles) {
+                    try {
+                        MetaData metaData = (MetaData) serializer.deserialize(FileUtils.readFileToString(extensionFile), MetaData.class);
+    
+                        if (isExtensionCompatible(metaData)) {
+                            if (metaData instanceof ConnectorMetaData) {
+                                ConnectorMetaData connectorMetaData = (ConnectorMetaData) metaData;
+                                connectorMetaDataMap.put(connectorMetaData.getName(), connectorMetaData);
+    
+                                if (StringUtils.contains(connectorMetaData.getProtocol(), ":")) {
+                                    for (String protocol : connectorMetaData.getProtocol().split(":")) {
+                                        connectorProtocolsMap.put(protocol, connectorMetaData);
+                                    }
+                                } else {
+                                    connectorProtocolsMap.put(connectorMetaData.getProtocol(), connectorMetaData);
                                 }
-                            } else {
-                                connectorProtocolsMap.put(connectorMetaData.getProtocol(), connectorMetaData);
+                            } else if (metaData instanceof PluginMetaData) {
+                                pluginMetaDataMap.put(metaData.getName(), (PluginMetaData) metaData);
                             }
-                        } else if (metaData instanceof PluginMetaData) {
-                            pluginMetaDataMap.put(metaData.getName(), (PluginMetaData) metaData);
+                        } else {
+                            logger.error("Extension \"" + metaData.getName() + "\" is not compatible with this version of Mirth Connect and was not loaded. Please install a compatible version.");
                         }
-                    } else {
-                        logger.error("Extension \"" + metaData.getName() + "\" is not compatible with this version of Mirth Connect and was not loaded. Please install a compatible version.");
+                    } catch (Exception e) {
+                        logger.error("Error reading or parsing extension metadata file: " + extensionFile.getName(), e);
                     }
-                } catch (Exception e) {
-                    logger.error("Error reading or parsing extension metadata file: " + extensionFile.getName(), e);
                 }
+
+                loadedExtensions = true;
+            } catch (Exception e) {
+                logger.error("Error loading extension metadata.", e);
             }
-        } catch (Exception e) {
-            logger.error("Error loading extension metadata.", e);
         }
     }
 

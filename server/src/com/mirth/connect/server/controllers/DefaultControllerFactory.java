@@ -14,10 +14,13 @@ import org.apache.log4j.Logger;
 public class DefaultControllerFactory extends ControllerFactory {
     private Logger logger = Logger.getLogger(this.getClass());
     private AuthorizationController authorizationController = null;
+    private EngineController engineController = null;
 
-    public AuthorizationController createAuthorizationController() {
+    public synchronized AuthorizationController createAuthorizationController() {
         if (authorizationController == null) {
             ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+            extensionController.loadExtensions();
+
             if (extensionController.getPluginMetaData().containsKey("User Authorization")) {
                 try {
                     String serverAuthorizationController = "com.mirth.connect.plugins.auth.server.SecureAuthorizationController";
@@ -53,8 +56,31 @@ public class DefaultControllerFactory extends ControllerFactory {
         return DefaultConfigurationController.create();
     }
 
-    public EngineController createEngineController() {
-        return DonkeyEngineController.getInstance();
+    public synchronized EngineController createEngineController() {
+        /*
+         * Eventually, plugins will be able to specify controller classes to override,
+         * see MIRTH-3351
+         */
+        if (engineController == null) {
+            ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+            extensionController.loadExtensions();
+
+            if (extensionController.getPluginMetaData().containsKey("Clustering")) {
+                try {
+                    String clusterEngineController = "com.mirth.connect.plugins.clustering.server.ClusterEngineController";
+                    engineController = (EngineController) Class.forName(clusterEngineController).newInstance();
+                    logger.debug("using engine controller: " + clusterEngineController);
+                } catch (Exception e) {
+                }
+            }
+
+            if (engineController == null) {
+                engineController = DonkeyEngineController.getInstance();
+                logger.debug("using default engine controller");
+            }
+        }
+
+        return engineController;
     }
 
     public EventController createEventController() {
