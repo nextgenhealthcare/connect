@@ -21,9 +21,9 @@ import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.DashboardStatus;
-import com.mirth.connect.plugins.DashboardPanelPlugin;
+import com.mirth.connect.plugins.DashboardTabPlugin;
 
-public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
+public class DashboardConnectorStatusClient extends DashboardTabPlugin {
     private static final String DASHBOARD_SERVICE_PLUGINPOINT = "Dashboard Connector Service";
     private DashboardConnectorStatusPanel dcsp;
     private static final String REMOVE_SESSIONID = "removeSessionId";
@@ -185,7 +185,7 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
     }
 
     @Override
-    public JComponent getComponent() {
+    public JComponent getTabComponent() {
         return dcsp;
     }
 

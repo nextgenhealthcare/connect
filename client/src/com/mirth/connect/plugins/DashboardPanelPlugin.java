@@ -11,8 +11,6 @@ package com.mirth.connect.plugins;
 
 import java.util.List;
 
-import javax.swing.JComponent;
-
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.model.DashboardStatus;
 
@@ -21,8 +19,6 @@ public abstract class DashboardPanelPlugin extends ClientPlugin {
     public DashboardPanelPlugin(String name) {
         super(name);
     }
-
-    public abstract JComponent getComponent();
 
     public void prepareData() throws ClientException {};
 

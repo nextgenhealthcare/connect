@@ -12,7 +12,7 @@ package com.mirth.connect.donkey.model.channel;
 import org.apache.commons.lang3.text.WordUtils;
 
 public enum DeployedState {
-    STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED;
+    STARTING, STARTED, PAUSING, PAUSED, STOPPING, STOPPED, UNKNOWN;
 
     @Override
     public String toString() {

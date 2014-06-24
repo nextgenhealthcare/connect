@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.prefs.Preferences;
 
+import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
@@ -34,6 +35,8 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -52,6 +55,8 @@ import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
+import com.mirth.connect.plugins.DashboardTabPlugin;
+import com.mirth.connect.plugins.DashboardTablePlugin;
 
 public class DashboardPanel extends javax.swing.JPanel {
 
@@ -80,27 +85,31 @@ public class DashboardPanel extends javax.swing.JPanel {
         split.setBottomComponent(null);
         split.setDividerSize(0);
         split.setOneTouchExpandable(true);
-        loadPanelPlugins();
+        loadTabPlugins();
         ChangeListener changeListener = new ChangeListener() {
 
             public void stateChanged(ChangeEvent changeEvent) {
                 JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
                 int index = sourceTabbedPane.getSelectedIndex();
-                loadPanelPlugin(sourceTabbedPane.getTitleAt(index));
+
+                if (LoadedExtensions.getInstance().getDashboardTabPlugins().size() > 0) {
+                    loadPanelPlugin(LoadedExtensions.getInstance().getDashboardTabPlugins().get(sourceTabbedPane.getTitleAt(index)));
+                }
             }
         };
         tabs.addChangeListener(changeListener);
 
         makeStatusTable();
+        loadTablePlugins();
 
         this.setDoubleBuffered(true);
     }
 
-    public void loadPanelPlugins() {
-        if (LoadedExtensions.getInstance().getDashboardPanelPlugins().size() > 0) {
-            for (DashboardPanelPlugin plugin : LoadedExtensions.getInstance().getDashboardPanelPlugins().values()) {
-                if (plugin.getComponent() != null) {
-                    tabs.addTab(plugin.getPluginPointName(), plugin.getComponent());
+    public void loadTabPlugins() {
+        if (LoadedExtensions.getInstance().getDashboardTabPlugins().size() > 0) {
+            for (DashboardTabPlugin plugin : LoadedExtensions.getInstance().getDashboardTabPlugins().values()) {
+                if (plugin.getTabComponent() != null) {
+                    tabs.addTab(plugin.getPluginPointName(), plugin.getTabComponent());
                 }
             }
 
@@ -111,50 +120,55 @@ public class DashboardPanel extends javax.swing.JPanel {
         }
     }
 
-    private DashboardPanelPlugin getPanelPlugin(String pluginName) {
-        if (LoadedExtensions.getInstance().getDashboardPanelPlugins().size() > 0) {
-            return LoadedExtensions.getInstance().getDashboardPanelPlugins().get(pluginName);
+    private void loadTablePlugins() {
+        pluginContainerPanel.setLayout(new MigLayout("fillx, insets 0 0 0 0", "[grow,fill]", "[grow,fill]"));
+
+        for (DashboardTablePlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
+            for (JComponent component : plugin.getToolbarComponents(statusTable)) {
+                pluginContainerPanel.add(component, "grow");
+            }
         }
-        return null;
+
+        for (DashboardTablePlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
+            plugin.onDashboardInit(statusTable);
+        }
+
+        repaint();
     }
 
-    private String getCurrentPanelPluginName() {
-        return tabs.getTitleAt(tabs.getSelectedIndex());
-    }
+    private void loadPanelPlugin(final DashboardPanelPlugin plugin) {
+        final List<DashboardStatus> selectedStatuses = getSelectedStatuses();
 
-    private void loadPanelPlugin(final String pluginName) {
-        final DashboardPanelPlugin plugin = getPanelPlugin(pluginName);
-
-        if (plugin != null) {
-            final List<DashboardStatus> selectedStatuses = getSelectedStatuses();
-
-            QueuingSwingWorkerTask<Void, Void> task = new QueuingSwingWorkerTask<Void, Void>(pluginName, "Updating " + pluginName + " dashboard panel plugin...") {
-                @Override
-                public Void doInBackground() {
-                    try {
-                        if (selectedStatuses.size() != 0) {
-                            plugin.prepareData(selectedStatuses);
-                        } else {
-                            plugin.prepareData();
-                        }
-                    } catch (ClientException e) {
-                        parent.alertException(parent, e.getStackTrace(), e.getMessage());
-                    }
-                    return null;
-                }
-
-                @Override
-                public void done() {
+        QueuingSwingWorkerTask<Void, Void> task = new QueuingSwingWorkerTask<Void, Void>(plugin.getPluginPointName(), "Updating " + plugin.getPluginPointName() + " dashboard plugin...") {
+            @Override
+            public Void doInBackground() {
+                try {
                     if (selectedStatuses.size() != 0) {
-                        plugin.update(selectedStatuses);
+                        plugin.prepareData(selectedStatuses);
                     } else {
-                        plugin.update();
+                        plugin.prepareData();
                     }
+                } catch (ClientException e) {
+                    parent.alertException(parent, e.getStackTrace(), e.getMessage());
                 }
-            };
+                return null;
+            }
 
-            new QueuingSwingWorker<Void, Void>(task, true).executeDelegate();
-        }
+            @Override
+            public void done() {
+                if (selectedStatuses.size() != 0) {
+                    plugin.update(selectedStatuses);
+                } else {
+                    plugin.update();
+                }
+            }
+        };
+
+        new QueuingSwingWorker<Void, Void>(task, true).executeDelegate();
+    }
+
+    private DashboardTabPlugin getCurrentTabPlugin() {
+        return LoadedExtensions.getInstance().getDashboardTabPlugins().get(tabs.getTitleAt(tabs.getSelectedIndex()));
     }
 
     /**
@@ -179,8 +193,20 @@ public class DashboardPanel extends javax.swing.JPanel {
 
         DashboardTreeTableModel model = new DashboardTreeTableModel();
         model.setColumnIdentifiers(columns);
+        model.setNodeFactory(new DefaultDashboardTableNodeFactory());
 
-        statusTable = new MirthTreeTable();
+        for (DashboardTablePlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
+            statusTable = plugin.getTable();
+            
+            if (statusTable != null) {
+                break;
+            }
+        }
+
+        if (statusTable == null) {
+            statusTable = new MirthTreeTable();
+        }
+
         statusTable.setColumnFactory(new DashboardTableColumnFactory());
         statusTable.setTreeTableModel(model);
         statusTable.setLeafIcon(UIConstants.ICON_CONNECTOR);
@@ -346,8 +372,8 @@ public class DashboardPanel extends javax.swing.JPanel {
         // Stores all channel ids that have their channel node selected.
         Set<String> selectedChannelNodes = new HashSet<String>();
 
-        List<DashboardTableNode> selectedNodes = statusTable.getSelectedNodes();
-        for (DashboardTableNode node : selectedNodes) {
+        List<AbstractDashboardTableNode> selectedNodes = statusTable.getSelectedNodes();
+        for (AbstractDashboardTableNode node : selectedNodes) {
 
             selectedChannelIds.add(node.getChannelId());
             if (node.getStatus().getStatusType() == StatusType.CHANNEL) {
@@ -361,7 +387,7 @@ public class DashboardPanel extends javax.swing.JPanel {
             }
         }
 
-        for (DashboardTableNode node : selectedNodes) {
+        for (AbstractDashboardTableNode node : selectedNodes) {
             DashboardStatus status = node.getStatus();
             StatusType statusType = status.getStatusType();
 
@@ -401,7 +427,7 @@ public class DashboardPanel extends javax.swing.JPanel {
                     }
                 }
             } else if (selectedChannelNodes.size() == 0) {
-                DashboardTableNode channelNode = (DashboardTableNode) node.getParent();
+                AbstractDashboardTableNode channelNode = (AbstractDashboardTableNode) node.getParent();
                 if (channelNode.getStatus().getState() != DeployedState.STARTED && channelNode.getStatus().getState() != DeployedState.PAUSED) {
                     parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 10, 11, false);
                     break;
@@ -425,7 +451,11 @@ public class DashboardPanel extends javax.swing.JPanel {
         }
 
         if (loadPanelPlugin) {
-            loadPanelPlugin(getCurrentPanelPluginName());
+            loadPanelPlugin(getCurrentTabPlugin());
+
+            for (DashboardPanelPlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
+                loadPanelPlugin(plugin);
+            }
         }
     }
 
@@ -435,7 +465,7 @@ public class DashboardPanel extends javax.swing.JPanel {
      * @param node
      * @return
      */
-    private boolean isHaltable(DashboardTableNode node) {
+    private boolean isHaltable(AbstractDashboardTableNode node) {
         DeployedState nodeState = node.getStatus().getState();
 
         boolean haltable = (nodeState == DeployedState.STARTING || nodeState == DeployedState.STOPPING || nodeState == DeployedState.PAUSING);
@@ -444,7 +474,7 @@ public class DashboardPanel extends javax.swing.JPanel {
             return true;
         } else {
             for (int i = 0; i < node.getChildCount(); i++) {
-                if (isHaltable((DashboardTableNode) node.getChildAt(i))) {
+                if (isHaltable((AbstractDashboardTableNode) node.getChildAt(i))) {
                     return true;
                 }
             }
@@ -574,9 +604,9 @@ public class DashboardPanel extends javax.swing.JPanel {
      */
     public synchronized List<DashboardStatus> getSelectedStatuses() {
         List<DashboardStatus> selectedStatuses = new ArrayList<DashboardStatus>();
-        List<DashboardTableNode> selectedNodes = statusTable.getSelectedNodes();
+        List<AbstractDashboardTableNode> selectedNodes = statusTable.getSelectedNodes();
 
-        for (DashboardTableNode node : selectedNodes) {
+        for (AbstractDashboardTableNode node : selectedNodes) {
             selectedStatuses.add(node.getStatus());
         }
 
@@ -585,11 +615,11 @@ public class DashboardPanel extends javax.swing.JPanel {
 
     public synchronized Set<DashboardStatus> getSelectedChannelStatuses() {
         Set<DashboardStatus> selectedStatuses = new HashSet<DashboardStatus>();
-        List<DashboardTableNode> selectedNodes = statusTable.getSelectedNodes();
+        List<AbstractDashboardTableNode> selectedNodes = statusTable.getSelectedNodes();
 
         for (TreeTableNode treeNode : selectedNodes) {
-            while (treeNode != null && treeNode instanceof DashboardTableNode) {
-                DashboardTableNode node = (DashboardTableNode) treeNode;
+            while (treeNode != null && treeNode instanceof AbstractDashboardTableNode) {
+                AbstractDashboardTableNode node = (AbstractDashboardTableNode) treeNode;
                 if (node.getStatus().getStatusType() == StatusType.CHANNEL) {
                     if (!selectedStatuses.contains(node.getStatus())) {
                         selectedStatuses.add(node.getStatus());
@@ -607,9 +637,9 @@ public class DashboardPanel extends javax.swing.JPanel {
 
     public synchronized List<DashboardStatus> getSelectedStatusesRecursive() {
         List<DashboardStatus> selectedStatuses = new ArrayList<DashboardStatus>();
-        List<DashboardTableNode> selectedNodes = statusTable.getSelectedNodes();
+        List<AbstractDashboardTableNode> selectedNodes = statusTable.getSelectedNodes();
 
-        for (DashboardTableNode node : selectedNodes) {
+        for (AbstractDashboardTableNode node : selectedNodes) {
             selectedStatuses.add(node.getStatus());
             selectedStatuses.addAll(getAllChildStatuses(node.getStatus()));
         }
@@ -638,13 +668,13 @@ public class DashboardPanel extends javax.swing.JPanel {
         int channelCount = model.getChildCount(root);
 
         for (int i = 0; i < channelCount; i++) {
-            DashboardTableNode channelNode = (DashboardTableNode) root.getChildAt(i);
+            AbstractDashboardTableNode channelNode = (AbstractDashboardTableNode) root.getChildAt(i);
 
             if (channelNode.getStatus().getChannelId() == channelId) {
                 int connectorCount = channelNode.getChildCount();
 
                 for (int j = 0; j < connectorCount; j++) {
-                    DashboardTableNode connectorNode = (DashboardTableNode) channelNode.getChildAt(j);
+                    AbstractDashboardTableNode connectorNode = (AbstractDashboardTableNode) channelNode.getChildAt(j);
                     DashboardStatus status = connectorNode.getStatus();
                     Integer metaDataId = status.getMetaDataId();
 
@@ -663,7 +693,11 @@ public class DashboardPanel extends javax.swing.JPanel {
         parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, -1, false);
 
         if (loadPanelPlugin) {
-            loadPanelPlugin(getCurrentPanelPluginName());
+            loadPanelPlugin(getCurrentTabPlugin());
+            
+            for (DashboardPanelPlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
+                loadPanelPlugin(plugin);
+            }
         }
     }
 
@@ -671,10 +705,16 @@ public class DashboardPanel extends javax.swing.JPanel {
         return defaultColumns.length;
     }
 
+    private static class DefaultDashboardTableNodeFactory implements DashboardTableNodeFactory {
+        @Override
+        public AbstractDashboardTableNode createNode(String channelId, DashboardStatus status) {
+            return new DashboardTableNode(channelId, status);
+        }
+    }
+
     /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
+     * This method is called from within the constructor to initialize the form. WARNING: Do NOT
+     * modify this code. The content of this method is always regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -691,6 +731,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         showLabel = new javax.swing.JLabel();
         tagsLabel = new javax.swing.JLabel();
         tagFilterButton = new com.mirth.connect.client.ui.components.IconButton();
+        pluginContainerPanel = new javax.swing.JPanel();
         tabs = new javax.swing.JTabbedPane();
 
         split.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -698,7 +739,6 @@ public class DashboardPanel extends javax.swing.JPanel {
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
-        statusPane.setBackground(new java.awt.Color(255, 255, 255));
         statusPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         statusPane.setViewportView(statusTable);
 
@@ -734,60 +774,25 @@ public class DashboardPanel extends javax.swing.JPanel {
             }
         });
 
+        pluginContainerPanel.setLayout(null);
+
         javax.swing.GroupLayout controlPanelLayout = new javax.swing.GroupLayout(controlPanel);
         controlPanel.setLayout(controlPanelLayout);
-        controlPanelLayout.setHorizontalGroup(
-            controlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(controlPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(tagFilterButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tagsLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(showLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(showCurrentStatsButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(showLifetimeStatsButton)
-                .addContainerGap())
-        );
-        controlPanelLayout.setVerticalGroup(
-            controlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tagsLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(showLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(showCurrentStatsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(showLifetimeStatsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(tagFilterButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
+        controlPanelLayout.setHorizontalGroup(controlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(controlPanelLayout.createSequentialGroup().addContainerGap().addComponent(tagFilterButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(tagsLabel).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(showLabel).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(showCurrentStatsButton).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(showLifetimeStatsButton).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(pluginContainerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)));
+        controlPanelLayout.setVerticalGroup(controlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(tagsLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(tagFilterButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(pluginContainerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, controlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(showLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(showCurrentStatsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(showLifetimeStatsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(statusPane, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
-            .addComponent(controlPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addComponent(statusPane, javax.swing.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(controlPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
+        jPanel1Layout.setHorizontalGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(statusPane, javax.swing.GroupLayout.DEFAULT_SIZE, 758, Short.MAX_VALUE).addComponent(controlPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 758, Short.MAX_VALUE));
+        jPanel1Layout.setVerticalGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup().addComponent(statusPane, javax.swing.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(controlPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)));
 
         split.setTopComponent(jPanel1);
         split.setRightComponent(tabs);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(split)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(split, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
-        );
+        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(split));
+        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(split, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE));
     }// </editor-fold>//GEN-END:initComponents
 
     private void showCurrentStatsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showCurrentStatsButtonActionPerformed
@@ -832,6 +837,7 @@ public class DashboardPanel extends javax.swing.JPanel {
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JPanel controlPanel;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel pluginContainerPanel;
     private javax.swing.JRadioButton showCurrentStatsButton;
     private javax.swing.JLabel showLabel;
     private javax.swing.JRadioButton showLifetimeStatsButton;

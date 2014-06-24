@@ -17,7 +17,7 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 
-public class DashboardTableNode extends AbstractSortableTreeTableNode {
+public class DashboardTableNode extends AbstractDashboardTableNode {
     private String channelId;
     private Object[] row;
     private DashboardStatus status;
@@ -32,14 +32,17 @@ public class DashboardTableNode extends AbstractSortableTreeTableNode {
         setStatus(status);
     }
 
+    @Override
     public String getChannelId() {
         return channelId;
     }
 
+    @Override
     public DashboardStatus getStatus() {
         return status;
     }
 
+    @Override
     public void setStatus(DashboardStatus status) {
         if (!status.getChannelId().equals(channelId)) {
             throw new RuntimeException("Supplied status is for the wrong channel, this node is associated with channel ID " + channelId);
@@ -98,11 +101,9 @@ public class DashboardTableNode extends AbstractSortableTreeTableNode {
                     row[colOffset] = new CellData(UIConstants.ICON_BULLET_YELLOW, "Paused");
                     break;
                     
-                //TODO Uncomment this after fixing Mac OSX compile issue
-//                case UNKNOWN:
-//                    //TODO add new color bullet for unknown
-//                    row[colOffset] = new CellData(UIConstants.ICON_BULLET_RED, "Unknown");
-//                    break;
+                case UNKNOWN:
+                    row[colOffset] = new CellData(UIConstants.ICON_BULLET_BLACK, "Unknown");
+                    break;
             }
         }
 
@@ -135,6 +136,7 @@ public class DashboardTableNode extends AbstractSortableTreeTableNode {
         return showLifetimeStats;
     }
 
+    @Override
     public void setShowLifetimeStats(boolean showLifetimeStats) {
         this.showLifetimeStats = showLifetimeStats;
         int colOffset = 0;
@@ -168,5 +170,9 @@ public class DashboardTableNode extends AbstractSortableTreeTableNode {
     @Override
     public Object getValueAt(int i) {
         return row[i];
+    }
+
+    public void setValueAt(int i, Object value) {
+        row[i] = value; 
     }
 }

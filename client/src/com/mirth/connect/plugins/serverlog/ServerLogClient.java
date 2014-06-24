@@ -18,9 +18,9 @@ import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.DashboardStatus;
-import com.mirth.connect.plugins.DashboardPanelPlugin;
+import com.mirth.connect.plugins.DashboardTabPlugin;
 
-public class ServerLogClient extends DashboardPanelPlugin {
+public class ServerLogClient extends DashboardTabPlugin {
     private static final String SERVER_LOG_SERVICE_PLUGINPOINT = "Server Log";
     private ServerLogPanel serverLogPanel;
     private LinkedList<String[]> serverLogs;
@@ -124,7 +124,7 @@ public class ServerLogClient extends DashboardPanelPlugin {
     }
 
     @Override
-    public JComponent getComponent() {
+    public JComponent getTabComponent() {
         return serverLogPanel;
     }
 

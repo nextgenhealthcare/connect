@@ -22,7 +22,7 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
-import com.mirth.connect.client.ui.DashboardTableNode;
+import com.mirth.connect.client.ui.AbstractDashboardTableNode;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.SortableTreeTable;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
@@ -137,14 +137,14 @@ public class MirthTreeTable extends SortableTreeTable {
         return views;
     }
 
-    public List<DashboardTableNode> getSelectedNodes() {
-        List<DashboardTableNode> nodes = new ArrayList<DashboardTableNode>();
+    public List<AbstractDashboardTableNode> getSelectedNodes() {
+        List<AbstractDashboardTableNode> nodes = new ArrayList<AbstractDashboardTableNode>();
       
        int[] selectedRows = this.getSelectedModelRows();
       
        for (int i = 0; i < selectedRows.length; i++)
        {
-           nodes.add((DashboardTableNode) this.getPathForRow(selectedRows[i]).getLastPathComponent());
+           nodes.add((AbstractDashboardTableNode) this.getPathForRow(selectedRows[i]).getLastPathComponent());
        }
       
        return nodes;

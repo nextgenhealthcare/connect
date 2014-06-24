@@ -31,7 +31,8 @@ import com.mirth.connect.plugins.ClientPlugin;
 import com.mirth.connect.plugins.CodeTemplatePlugin;
 import com.mirth.connect.plugins.ConnectorPropertiesPlugin;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
-import com.mirth.connect.plugins.DashboardPanelPlugin;
+import com.mirth.connect.plugins.DashboardTabPlugin;
+import com.mirth.connect.plugins.DashboardTablePlugin;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 import com.mirth.connect.plugins.FilterRulePlugin;
 import com.mirth.connect.plugins.SettingsPanelPlugin;
@@ -43,7 +44,8 @@ public class LoadedExtensions {
     private List<ClientPlugin> clientPlugins = new ArrayList<ClientPlugin>();
     private Map<String, SettingsPanelPlugin> settingsPanelPlugins = new LinkedHashMap<String, SettingsPanelPlugin>();
     private Map<String, ChannelPanelPlugin> channelPanelPlugins = new LinkedHashMap<String, ChannelPanelPlugin>();
-    private Map<String, DashboardPanelPlugin> dashboardPanelPlugins = new LinkedHashMap<String, DashboardPanelPlugin>();
+    private Map<String, DashboardTabPlugin> dashboardTabPlugins = new LinkedHashMap<String, DashboardTabPlugin>();
+    private Map<String, DashboardTablePlugin> dashboardTablePlugins = new LinkedHashMap<String, DashboardTablePlugin>();
     private Map<String, ChannelWizardPlugin> channelWizardPlugins = new LinkedHashMap<String, ChannelWizardPlugin>();
     private Map<String, ChannelColumnPlugin> channelColumnPlugins = new LinkedHashMap<String, ChannelColumnPlugin>();
     private Map<String, DashboardColumnPlugin> dashboardColumnPlugins = new LinkedHashMap<String, DashboardColumnPlugin>();
@@ -183,8 +185,12 @@ public class LoadedExtensions {
             settingsPanelPlugins.put(plugin.getPluginPointName(), (SettingsPanelPlugin) plugin);
         }
 
-        if (plugin instanceof DashboardPanelPlugin) {
-            dashboardPanelPlugins.put(plugin.getPluginPointName(), (DashboardPanelPlugin) plugin);
+        if (plugin instanceof DashboardTabPlugin) {
+            dashboardTabPlugins.put(plugin.getPluginPointName(), (DashboardTabPlugin) plugin);
+        }
+
+        if (plugin instanceof DashboardTablePlugin) {
+            dashboardTablePlugins.put(plugin.getPluginPointName(), (DashboardTablePlugin) plugin);
         }
 
         if (plugin instanceof ChannelPanelPlugin) {
@@ -236,7 +242,8 @@ public class LoadedExtensions {
         clientPlugins.clear();
 
         settingsPanelPlugins.clear();
-        dashboardPanelPlugins.clear();
+        dashboardTabPlugins.clear();
+        dashboardTablePlugins.clear();
         channelPanelPlugins.clear();
         channelWizardPlugins.clear();
         dashboardColumnPlugins.clear();
@@ -262,8 +269,12 @@ public class LoadedExtensions {
         return settingsPanelPlugins;
     }
 
-    public Map<String, DashboardPanelPlugin> getDashboardPanelPlugins() {
-        return dashboardPanelPlugins;
+    public Map<String, DashboardTabPlugin> getDashboardTabPlugins() {
+        return dashboardTabPlugins;
+    }
+
+    public Map<String, DashboardTablePlugin> getDashboardTablePlugins() {
+        return dashboardTablePlugins;
     }
 
     public Map<String, ChannelPanelPlugin> getChannelPanelPlugins() {

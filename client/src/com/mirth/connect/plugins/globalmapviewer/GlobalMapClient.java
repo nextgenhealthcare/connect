@@ -28,9 +28,9 @@ import com.mirth.connect.donkey.util.MapUtil;
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.plugins.DashboardPanelPlugin;
+import com.mirth.connect.plugins.DashboardTabPlugin;
 
-public class GlobalMapClient extends DashboardPanelPlugin {
+public class GlobalMapClient extends DashboardTabPlugin {
 
     public static final String PLUGINPOINT = "Global Maps";
     private static final String GET_GLOBAL_MAPS = "getGlobalMaps";
@@ -44,7 +44,7 @@ public class GlobalMapClient extends DashboardPanelPlugin {
     }
 
     @Override
-    public JComponent getComponent() {
+    public JComponent getTabComponent() {
         return globalMapPanel;
     }
 

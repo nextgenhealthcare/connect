@@ -24,6 +24,12 @@ import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 
 public class DashboardTreeTableModel extends SortableTreeTableModel {
+    private DashboardTableNodeFactory nodeFactory;
+
+    public void setNodeFactory(DashboardTableNodeFactory nodeFactory) {
+        this.nodeFactory = nodeFactory;
+    }
+
     @Override
     public int getHierarchicalColumn() {
         return 1;
@@ -56,7 +62,7 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
 
     private void setShowLifetimeStats(boolean showLifetimeStats, MutableTreeTableNode parent) {
         for (int i = 0; i < parent.getChildCount(); i++) {
-            DashboardTableNode node = (DashboardTableNode) parent.getChildAt(i);
+            AbstractDashboardTableNode node = (AbstractDashboardTableNode) parent.getChildAt(i);
             node.setShowLifetimeStats(showLifetimeStats);
             setShowLifetimeStats(showLifetimeStats, node);
         }
@@ -93,6 +99,14 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
         }
     }
 
+    public void refresh() {
+        MutableTreeTableNode root = (MutableTreeTableNode) getRoot();
+
+        if (root != null) {
+            modelSupport.firePathChanged(new TreePath(root));
+        }
+    }
+
     /**
      * Should be called at the end with the final list of dashboard statuses.
      * 
@@ -119,7 +133,7 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
 
         // add each status as a new child node of parent
         for (DashboardStatus status : statuses) {
-            MutableTreeTableNode newNode = new DashboardTableNode(status.getChannelId(), status);
+            MutableTreeTableNode newNode = nodeFactory.createNode(status.getChannelId(), status);
             insertNodeInto(newNode, parent, index++);
 
             // recursively add the children of this status entry as child nodes of the newly created node
@@ -139,7 +153,7 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
         }
 
         for (int i = 0; i < root.getChildCount(); i++) {
-            DashboardTableNode node = (DashboardTableNode) root.getChildAt(i);
+            AbstractDashboardTableNode node = (AbstractDashboardTableNode) root.getChildAt(i);
 
             if (statusMap.containsKey(node.getStatus().getKey())) {
                 // Remove channels that do exist from the list of statuses so they will not be added again later.
@@ -170,7 +184,7 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
         }
 
         for (int i = 0; i < root.getChildCount(); i++) {
-            DashboardTableNode node = (DashboardTableNode) root.getChildAt(i);
+            AbstractDashboardTableNode node = (AbstractDashboardTableNode) root.getChildAt(i);
 
             if (!statusMap.containsKey(node.getStatus().getKey())) {
                 // Remove channels that no longer exist
@@ -180,14 +194,14 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
         }
     }
 
-    private void updateConnector(Map<String, DashboardStatus> statusMap, DashboardTableNode channelNode) {
-        Map<String, DashboardTableNode> nodeMap = new HashMap<String, DashboardTableNode>();
+    private void updateConnector(Map<String, DashboardStatus> statusMap, AbstractDashboardTableNode channelNode) {
+        Map<String, AbstractDashboardTableNode> nodeMap = new HashMap<String, AbstractDashboardTableNode>();
 
         DashboardStatus channelStatus = statusMap.get(channelNode.getStatus().getKey());
 
         // Remove connectors that no longer exist
         for (int i = 0; i < channelNode.getChildCount(); i++) {
-            DashboardTableNode node = (DashboardTableNode) channelNode.getChildAt(i);
+            AbstractDashboardTableNode node = (AbstractDashboardTableNode) channelNode.getChildAt(i);
 
             if (!statusMap.containsKey(node.getStatus().getKey())) {
                 removeNodeFromParent(node);
@@ -203,10 +217,10 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
             // The new connector status at the current pointer
             DashboardStatus newConnectorStatus = channelStatus.getChildStatuses().get(i);
             // The node containing the old status
-            DashboardTableNode oldConnectorNode = null;
+            AbstractDashboardTableNode oldConnectorNode = null;
 
             if (i < channelNode.getChildCount()) {
-                oldConnectorNode = (DashboardTableNode) channelNode.getChildAt(i);
+                oldConnectorNode = (AbstractDashboardTableNode) channelNode.getChildAt(i);
             }
 
             // If the new connector key is equal to the old one, then update the node's status
@@ -214,7 +228,7 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
                 oldConnectorNode.setStatus(newConnectorStatus);
                 modelSupport.firePathChanged(new TreePath(getPathToRoot(oldConnectorNode)));
             } else {
-                DashboardTableNode node;
+                AbstractDashboardTableNode node;
 
                 if (nodeMap.containsKey(newConnectorStatus.getKey())) {
                     // If the key is already in the table, remove it because it is out of order.
@@ -225,7 +239,7 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
                     node.setStatus(newConnectorStatus);
                 } else {
                     // If the key is not in the table yet, create a node for it.
-                    node = new DashboardTableNode(newConnectorStatus.getChannelId(), newConnectorStatus);
+                    node = nodeFactory.createNode(newConnectorStatus.getChannelId(), newConnectorStatus);
                 }
 
                 // Insert the node
