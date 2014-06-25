@@ -46,8 +46,9 @@ public abstract class AuthorizationController {
          * name of the extension
          */
         if (StringUtils.contains(operationName, "#")) {
-            operation = Operations.getOperation(StringUtils.split(operationName)[0]);
-            extensionName = StringUtils.split(operationName)[1];
+            String[] parts = StringUtils.split(operationName, '#');
+            extensionName = parts[0];
+            operation = Operations.getOperation(parts[1]);
         } else {
             operation = Operations.getOperation(operationName);
         }
