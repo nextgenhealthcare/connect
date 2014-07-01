@@ -13,9 +13,7 @@ public class WebServiceConnectorServiceMethods {
 
     public static final String CACHE_WSDL_FROM_URL = "cacheWsdlFromUrl";
     public static final String IS_WSDL_CACHED = "isWsdlCached";
-    public static final String GET_OPERATIONS = "getOperations";
-    public static final String GET_SERVICE = "getService";
-    public static final String GET_PORT = "getPort";
+    public static final String GET_DEFINITION = "getDefinition";
     public static final String GENERATE_ENVELOPE = "generateEnvelope";
     public static final String GET_SOAP_ACTION = "getSoapAction";
 }

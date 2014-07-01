@@ -10,7 +10,9 @@
 package com.mirth.connect.connectors.ws;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -38,8 +40,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     private List<String> attachmentContents;
     private List<String> attachmentTypes;
     private String soapAction;
-    private String wsdlCacheId;
-    private List<String> wsdlOperations;
+    private Map<String, Map<String, List<String>>> wsdlDefinitionMap;
 
     public static final String WEBSERVICE_DEFAULT_DROPDOWN = "Press Get Operations";
 
@@ -47,13 +48,8 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         queueConnectorProperties = new QueueConnectorProperties();
 
         this.wsdlUrl = "";
-        this.wsdlCacheId = "";
         this.operation = WEBSERVICE_DEFAULT_DROPDOWN;
-
-        List<String> defaultOperations = new ArrayList<String>();
-        defaultOperations.add(WEBSERVICE_DEFAULT_DROPDOWN);
-        this.wsdlOperations = defaultOperations;
-
+        this.wsdlDefinitionMap = new HashMap<String, Map<String, List<String>>>();
         this.service = "";
         this.port = "";
         this.useAuthentication = false;
@@ -73,11 +69,8 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
 
         wsdlUrl = props.getWsdlUrl();
-        wsdlCacheId = props.getWsdlCacheId();
         operation = props.getOperation();
-
-        wsdlOperations = props.getWsdlOperations();
-
+        wsdlDefinitionMap = props.getWsdlDefinitionMap();
         service = props.getService();
         port = props.getPort();
         useAuthentication = props.isUseAuthentication();
@@ -204,20 +197,12 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         this.soapAction = soapAction;
     }
 
-    public String getWsdlCacheId() {
-        return wsdlCacheId;
+    public Map<String, Map<String, List<String>>> getWsdlDefinitionMap() {
+        return wsdlDefinitionMap;
     }
 
-    public void setWsdlCacheId(String wsdlCacheId) {
-        this.wsdlCacheId = wsdlCacheId;
-    }
-
-    public List<String> getWsdlOperations() {
-        return wsdlOperations;
-    }
-
-    public void setWsdlOperations(List<String> wsdlOperations) {
-        this.wsdlOperations = wsdlOperations;
+    public void setWsdlDefinitionMap(Map<String, Map<String, List<String>>> wsdlDefinitionMap) {
+        this.wsdlDefinitionMap = wsdlDefinitionMap;
     }
 
     @Override
@@ -236,7 +221,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         String newLine = "\n";
 
         builder.append("URL: ");
-        builder.append(wsdlUrl + ":" + port);
+        builder.append(wsdlUrl);
         builder.append(newLine);
 
         if (StringUtils.isNotBlank(username)) {
@@ -248,6 +233,12 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         if (StringUtils.isNotBlank(service)) {
             builder.append("SERVICE: ");
             builder.append(service);
+            builder.append(newLine);
+        }
+
+        if (StringUtils.isNotBlank(port)) {
+            builder.append("PORT / ENDPOINT: ");
+            builder.append(port);
             builder.append(newLine);
         }
 

@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.prefs.Preferences;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.SwingWorker;
@@ -37,6 +38,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -69,6 +72,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     private final String MIME_TYPE_COLUMN_NAME = "MIME Type";
     ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private Frame parent;
+    private Map<String, Map<String, List<String>>> currentServiceMap;
 
     public WebServiceSender() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -97,8 +101,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         WebServiceDispatcherProperties properties = new WebServiceDispatcherProperties();
 
         properties.setWsdlUrl(wsdlUrlField.getText());
-        properties.setService(serviceField.getText());
-        properties.setPort(portField.getText());
+        properties.setService(StringUtils.trimToEmpty((String) serviceComboBox.getSelectedItem()));
+        properties.setPort(StringUtils.trimToEmpty((String) portComboBox.getSelectedItem()));
         properties.setSoapAction(soapActionField.getText());
 
         properties.setOneWay(invocationOneWayRadio.isSelected());
@@ -119,7 +123,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             operations.add((String) operationComboBox.getModel().getElementAt(i));
         }
 
-        properties.setWsdlOperations(operations);
+        properties.setWsdlDefinitionMap(currentServiceMap);
 
         properties.setUseMtom(useMtomYesRadio.isSelected());
 
@@ -136,8 +140,6 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         WebServiceDispatcherProperties props = (WebServiceDispatcherProperties) properties;
 
         wsdlUrlField.setText(props.getWsdlUrl());
-        serviceField.setText(props.getService());
-        portField.setText(props.getPort());
         soapActionField.setText(props.getSoapAction());
         urlFieldChanged();
 
@@ -162,12 +164,13 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
         boolean enabled = parent.isSaveEnabled();
 
-        List<String> operations = props.getWsdlOperations();
+        currentServiceMap = props.getWsdlDefinitionMap();
+        loadServiceMap();
 
-        operationComboBox.setModel(new javax.swing.DefaultComboBoxModel(operations.toArray()));
-        generateEnvelope.setEnabled(!isDefaultOperations());
-
+        serviceComboBox.setSelectedItem(props.getService());
+        portComboBox.setSelectedItem(props.getPort());
         operationComboBox.setSelectedItem(props.getOperation());
+        generateEnvelope.setEnabled(!isDefaultOperations());
 
         parent.setSaveEnabled(enabled);
 
@@ -209,14 +212,14 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         if (props.getService().length() == 0) {
             valid = false;
             if (highlight) {
-                serviceField.setBackground(UIConstants.INVALID_COLOR);
+                serviceComboBox.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
         if (props.getPort().length() == 0) {
             valid = false;
             if (highlight) {
-                portField.setBackground(UIConstants.INVALID_COLOR);
+                portComboBox.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
@@ -234,8 +237,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     public void resetInvalidProperties() {
         wsdlUrlField.setBackground(null);
         urlFieldChanged();
-        serviceField.setBackground(new java.awt.Color(222, 222, 222));
-        portField.setBackground(new java.awt.Color(222, 222, 222));
+        serviceComboBox.setBackground(new Color(0xDEDEDE));
+        portComboBox.setBackground(new Color(0xDEDEDE));
         soapEnvelope.setBackground(null);
     }
 
@@ -265,30 +268,26 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     @Override
     public void handleConnectorServiceResponse(String method, Object response) {
         if (response != null) {
-            GetOperationsResult getOperationsResult = (GetOperationsResult) response;
+            currentServiceMap = (Map<String, Map<String, List<String>>>) response;
+            loadServiceMap();
 
-            if (getOperationsResult.getLoadedMethods() != null) {
-                String[] methodNames = new String[getOperationsResult.getLoadedMethods().size()];
-                getOperationsResult.getLoadedMethods().toArray(methodNames);
-
-                operationComboBox.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
-                generateEnvelope.setEnabled(!isDefaultOperations());
-
-                if (methodNames.length > 0) {
-                    operationComboBox.setSelectedIndex(0);
-                }
-            }
-
-            if (getOperationsResult.getServiceName() != null) {
-                serviceField.setText(getOperationsResult.getServiceName());
-            }
-
-            if (getOperationsResult.getPortName() != null) {
-                portField.setText(getOperationsResult.getPortName());
+            if (MapUtils.isNotEmpty(currentServiceMap)) {
+                serviceComboBox.setSelectedItem(currentServiceMap.keySet().iterator().next());
             }
         }
 
         parent.setSaveEnabled(true);
+    }
+
+    private void loadServiceMap() {
+        // First reset the service/port/operation
+        serviceComboBox.setModel(new DefaultComboBoxModel());
+        portComboBox.setModel(new DefaultComboBoxModel());
+        operationComboBox.setModel(new DefaultComboBoxModel(new String[] { WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN }));
+
+        if (MapUtils.isNotEmpty(currentServiceMap)) {
+            serviceComboBox.setModel(new DefaultComboBoxModel(currentServiceMap.keySet().toArray()));
+        }
     }
 
     private boolean isUsingHttps(String url) {
@@ -327,9 +326,9 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         boolean isWsdlCached = false;
 
         try {
-            isWsdlCached = (Boolean) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), IS_WSDL_CACHED, wsdlUrl);
+            isWsdlCached = (Boolean) invokeConnectorService(IS_WSDL_CACHED);
         } catch (ClientException e) {
-            parent.alertError(parent, "Error checking if the wsdl is cached.");
+            parent.alertError(parent, "Error checking if the wsdl is cached.\n\n" + e.getMessage());
         }
 
         return isWsdlCached;
@@ -357,46 +356,13 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         }
     }
 
-    private Object invokeConnectorService(String method) {
-        return invokeConnectorService(method, null, null);
-    }
-
-    private Object invokeConnectorService(String method, String paramName, String paramValue) {
-        String wsdlUrl = wsdlUrlField.getText().trim();
-        Object returnObject = null;
-        Object params = null;
-
-        if (paramName == null) {
-            params = wsdlUrl;
-        } else {
-            Map<String, String> paramMap = new HashMap<String, String>();
-            paramMap.put("id", wsdlUrl);
-            paramMap.put(paramName, paramValue);
-
-            params = paramMap;
-        }
-
-        try {
-            returnObject = parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), method, params);
-        } catch (ClientException e) {
-            if (method.equals(GENERATE_ENVELOPE)) {
-                parent.alertError(parent, "There was an error generating the envelope.");
-            } else {
-                parent.alertError(parent, "Error calling " + method + " with parameter: " + params.toString());
-            }
-        }
-
-        return returnObject;
-    }
-
-    private String buildHost() {
-        if (wsdlUrlField.getText().startsWith("http://") || wsdlUrlField.getText().startsWith("file://")) {
-            return wsdlUrlField.getText().substring(7);
-        } else if (wsdlUrlField.getText().startsWith("https://")) {
-            return wsdlUrlField.getText().substring(8);
-        } else {
-            return wsdlUrlField.getText();
-        }
+    private Object invokeConnectorService(String method) throws ClientException {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("wsdlUrl", wsdlUrlField.getText().trim());
+        params.put("service", StringUtils.trimToEmpty((String) serviceComboBox.getSelectedItem()));
+        params.put("port", StringUtils.trimToEmpty((String) portComboBox.getSelectedItem()));
+        params.put("operation", (String) operationComboBox.getSelectedItem());
+        return parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), method, params);
     }
 
     private void setAttachments(List<List<String>> attachments) {
@@ -596,7 +562,6 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        userPersistentQueuesButtonGroup = new javax.swing.ButtonGroup();
         authenticationButtonGroup = new javax.swing.ButtonGroup();
         invocationButtonGroup = new javax.swing.ButtonGroup();
         useMtomButtonGroup = new javax.swing.ButtonGroup();
@@ -606,10 +571,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         operationComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
         jLabel1 = new javax.swing.JLabel();
         serviceLabel = new javax.swing.JLabel();
-        portField = new com.mirth.connect.client.ui.components.MirthTextField();
         soapEnvelope = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);
         portLabel = new javax.swing.JLabel();
-        serviceField = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel4 = new javax.swing.JLabel();
         generateEnvelope = new javax.swing.JButton();
         attachmentsLabel = new javax.swing.JLabel();
@@ -632,6 +595,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         useMtomNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         soapActionField = new com.mirth.connect.client.ui.components.MirthIconTextField();
         soapActionLabel = new javax.swing.JLabel();
+        serviceComboBox = new com.mirth.connect.client.ui.components.MirthEditableComboBox();
+        portComboBox = new com.mirth.connect.client.ui.components.MirthEditableComboBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -654,15 +619,9 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
         serviceLabel.setText("Service:");
 
-        portField.setBackground(new java.awt.Color(222, 222, 222));
-        portField.setToolTipText("<html>The port name for the WSDL defined above.<br>This field is filled in automatically when the Get Operations button is clicked and does not need to be changed.</html>");
-
         soapEnvelope.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        portLabel.setText("Port:");
-
-        serviceField.setBackground(new java.awt.Color(222, 222, 222));
-        serviceField.setToolTipText("<html>The service name for the WSDL defined above.<br>This field is filled in automatically when the Get Operations button is clicked and does not need to be changed.</html>");
+        portLabel.setText("Port / Endpoint:");
 
         jLabel4.setText("SOAP Envelope:");
 
@@ -712,7 +671,6 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         authenticationLabel.setText("Authentication:");
 
         authenticationYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        authenticationYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         authenticationButtonGroup.add(authenticationYesRadio);
         authenticationYesRadio.setText("Yes");
         authenticationYesRadio.setToolTipText("<html>Turning on authentication uses a username and password to get the WSDL, if necessary,<br>and uses the username and password binding provider properties when calling the web service.</html>");
@@ -724,7 +682,6 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         });
 
         authenticationNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        authenticationNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         authenticationButtonGroup.add(authenticationNoRadio);
         authenticationNoRadio.setText("No");
         authenticationNoRadio.setToolTipText("<html>Turning on authentication uses a username and password to get the WSDL, if necessary,<br>and uses the username and password binding provider properties when calling the web service.</html>");
@@ -746,14 +703,12 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         invocationTypeLabel.setText("Invocation Type:");
 
         invocationTwoWayRadio.setBackground(new java.awt.Color(255, 255, 255));
-        invocationTwoWayRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         invocationButtonGroup.add(invocationTwoWayRadio);
         invocationTwoWayRadio.setText("Two-Way");
         invocationTwoWayRadio.setToolTipText("<html>Invoke the operation using the standard two-way invocation function.<br>This will wait for some response or acknowledgement to be returned.</html>");
         invocationTwoWayRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         invocationOneWayRadio.setBackground(new java.awt.Color(255, 255, 255));
-        invocationOneWayRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         invocationButtonGroup.add(invocationOneWayRadio);
         invocationOneWayRadio.setText("One-Way");
         invocationOneWayRadio.setToolTipText("<html>Invoke the operation using the one-way invocation function.<br>This will not wait for any response, and should only be used if the<br>operation is defined as a one-way operation.</html>");
@@ -762,7 +717,6 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         useMtomLabel.setText("Use MTOM:");
 
         useMtomYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        useMtomYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         useMtomButtonGroup.add(useMtomYesRadio);
         useMtomYesRadio.setText("Yes");
         useMtomYesRadio.setToolTipText("<html>Enables MTOM on the SOAP Binding. If MTOM is enabled,<br>attachments can be added to the table below and dropped into the envelope.</html>");
@@ -774,7 +728,6 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         });
 
         useMtomNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        useMtomNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         useMtomButtonGroup.add(useMtomNoRadio);
         useMtomNoRadio.setSelected(true);
         useMtomNoRadio.setText("No");
@@ -790,6 +743,22 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         soapActionField.setToolTipText("<html>The SOAPAction HTTP request header field can be used to indicate the intent of the SOAP HTTP request.<br>This field is optional for most web services, and will be auto-populated when you select an operation.</html>");
 
         soapActionLabel.setText("SOAP Action:");
+
+        serviceComboBox.setBackground(new java.awt.Color(222, 222, 222));
+        serviceComboBox.setToolTipText("<html>The service name for the WSDL defined above. This field<br/>is filled in automatically when the Get Operations button<br/>is clicked and does not usually need to be changed,<br/>unless multiple services are defined in the WSDL.</html>");
+        serviceComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                serviceComboBoxActionPerformed(evt);
+            }
+        });
+
+        portComboBox.setBackground(new java.awt.Color(222, 222, 222));
+        portComboBox.setToolTipText("<html>The port / endpoint name for the service defined above.<br/>This field is filled in automatically when the Get Operations<br/>button is clicked and does not usually need to be changed,<br/>unless multiple endpoints are defined for the currently<br/>selected service in the WSDL.</html>");
+        portComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                portComboBoxActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -817,15 +786,14 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(getOperationsButton))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(attachmentsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 323, Short.MAX_VALUE)
+                        .addComponent(attachmentsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 335, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(newButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(deleteButton)))
-                    .addComponent(serviceField, javax.swing.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
-                    .addComponent(portField, javax.swing.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
-                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
-                    .addComponent(soapActionField, javax.swing.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
+                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
+                    .addComponent(soapActionField, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
+                    .addComponent(serviceComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -843,7 +811,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(useMtomYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(useMtomNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(useMtomNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(portComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -856,12 +825,12 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(serviceLabel)
-                    .addComponent(serviceField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(8, 8, 8)
+                    .addComponent(serviceComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(portLabel)
-                    .addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(portComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(authenticationLabel)
                     .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -891,7 +860,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4)
-                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE))
+                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(useMtomLabel)
@@ -944,31 +913,32 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     }//GEN-LAST:event_deleteButtonActionPerformed
 
     private void getOperationsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getOperationsButtonActionPerformed
-        if (serviceField.getText().length() > 0 || portField.getText().length() > 0 || !isDefaultOperations()) {
+        if (StringUtils.isNotBlank((String) serviceComboBox.getSelectedItem()) || StringUtils.isNotBlank((String) portComboBox.getSelectedItem()) || !isDefaultOperations()) {
             if (!parent.alertOkCancel(parent, "This will replace your current service, port, and operation list. Press OK to continue.")) {
                 return;
             }
         }
 
         // Reset all of the fields
-        serviceField.setText("");
-        portField.setText("");
-        operationComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN }));
+        serviceComboBox.setModel(new DefaultComboBoxModel());
+        portComboBox.setModel(new DefaultComboBoxModel());
+        operationComboBox.setModel(new DefaultComboBoxModel(new String[] { WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN }));
         operationComboBox.setSelectedIndex(0);
         generateEnvelope.setEnabled(false);
 
         // Get the new operations
         final String workingId = parent.startWorking("Getting operations...");
 
-        SwingWorker worker = new SwingWorker<GetOperationsResult, Void>() {
+        SwingWorker worker = new SwingWorker<Map<String, Map<String, List<String>>>, Void>() {
 
             @Override
-            public GetOperationsResult doInBackground() {
+            public Map<String, Map<String, List<String>>> doInBackground() {
                 if (cacheWsdl()) {
-                    List<String> loadedMethods = (List<String>) invokeConnectorService(GET_OPERATIONS);
-                    String serviceName = (String) invokeConnectorService(GET_SERVICE);
-                    String portName = (String) invokeConnectorService(GET_PORT);
-                    return new GetOperationsResult(loadedMethods, serviceName, portName);
+                    try {
+                        return (Map<String, Map<String, List<String>>>) invokeConnectorService(GET_DEFINITION);
+                    } catch (ClientException e) {
+                        parent.alertException(parent, e.getStackTrace(), "There was an error retriving the cached WSDL definition map.\n\n" + e.getMessage());
+                    }
                 }
 
                 return null;
@@ -1054,8 +1024,17 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                 if (!isWsdlCached()) {
                     parent.alertInformation(parent, "The WSDL is no longer cached on the server. Press \"Get Operations\" to fetch the latest WSDL.");
                 } else {
-                    generatedEnvelope = (String) invokeConnectorService(GENERATE_ENVELOPE, "operation", (String) operationComboBox.getSelectedItem());
-                    soapAction = (String) invokeConnectorService(GET_SOAP_ACTION, "operation", (String) operationComboBox.getSelectedItem());
+                    try {
+                        generatedEnvelope = (String) invokeConnectorService(GENERATE_ENVELOPE);
+                    } catch (ClientException e) {
+                        parent.alertException(parent, e.getStackTrace(), "There was an error generating the envelope.\n\n" + e.getMessage());
+                    }
+
+                    try {
+                        soapAction = (String) invokeConnectorService(GET_SOAP_ACTION);
+                    } catch (ClientException e) {
+                        parent.alertException(parent, e.getStackTrace(), "There was an error retrieving the soap action.\n\n" + e.getMessage());
+                    }
                 }
 
                 return null;
@@ -1079,6 +1058,52 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         };
         worker.execute();
     }//GEN-LAST:event_generateEnvelopeActionPerformed
+
+    private void serviceComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_serviceComboBoxActionPerformed
+        String selectedPort = (String) portComboBox.getSelectedItem();
+
+        if (currentServiceMap != null) {
+            Map<String, List<String>> portMap = currentServiceMap.get((String) serviceComboBox.getSelectedItem());
+
+            if (MapUtils.isNotEmpty(portMap)) {
+                portComboBox.setModel(new DefaultComboBoxModel(portMap.keySet().toArray()));
+            } else {
+                portComboBox.setModel(new DefaultComboBoxModel());
+            }
+        }
+
+        if (StringUtils.isNotBlank(selectedPort)) {
+            portComboBox.setSelectedItem(selectedPort);
+        } else if (portComboBox.getModel().getSize() > 0) {
+            portComboBox.setSelectedIndex(0);
+        }
+    }//GEN-LAST:event_serviceComboBoxActionPerformed
+
+    private void portComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_portComboBoxActionPerformed
+        if (currentServiceMap != null) {
+            Map<String, List<String>> portMap = currentServiceMap.get((String) serviceComboBox.getSelectedItem());
+
+            if (MapUtils.isNotEmpty(portMap)) {
+                List<String> operationList = portMap.get((String) portComboBox.getSelectedItem());
+                String selectedOperation = (String) operationComboBox.getSelectedItem();
+
+                if (CollectionUtils.isNotEmpty(operationList)) {
+                    operationComboBox.setModel(new DefaultComboBoxModel(operationList.toArray()));
+
+                    if (operationList.contains(selectedOperation)) {
+                        operationComboBox.setSelectedItem(selectedOperation);
+                    } else {
+                        operationComboBox.setSelectedIndex(0);
+                    }
+
+                    generateEnvelope.setEnabled(!isDefaultOperations());
+                } else {
+                    operationComboBox.setModel(new DefaultComboBoxModel());
+                }
+            }
+        }
+    }//GEN-LAST:event_portComboBoxActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel attachmentsLabel;
     private javax.swing.JScrollPane attachmentsPane;
@@ -1100,9 +1125,9 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthComboBox operationComboBox;
     private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField portField;
+    private com.mirth.connect.client.ui.components.MirthEditableComboBox portComboBox;
     private javax.swing.JLabel portLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField serviceField;
+    private com.mirth.connect.client.ui.components.MirthEditableComboBox serviceComboBox;
     private javax.swing.JLabel serviceLabel;
     private com.mirth.connect.client.ui.components.MirthIconTextField soapActionField;
     private javax.swing.JLabel soapActionLabel;
@@ -1111,7 +1136,6 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     private javax.swing.JLabel useMtomLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton useMtomNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton useMtomYesRadio;
-    private javax.swing.ButtonGroup userPersistentQueuesButtonGroup;
     private com.mirth.connect.client.ui.components.MirthTextField usernameField;
     private javax.swing.JLabel usernameLabel;
     private com.mirth.connect.client.ui.components.MirthIconTextField wsdlUrlField;

@@ -2,8 +2,6 @@
 
 <Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
-    <Component class="javax.swing.ButtonGroup" name="userPersistentQueuesButtonGroup">
-    </Component>
     <Component class="javax.swing.ButtonGroup" name="authenticationButtonGroup">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="invocationButtonGroup">
@@ -60,17 +58,16 @@
                       <Component id="getOperationsButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="attachmentsPane" pref="323" max="32767" attributes="0"/>
+                      <Component id="attachmentsPane" pref="335" max="32767" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" max="-2" attributes="0">
                           <Component id="newButton" alignment="1" max="32767" attributes="1"/>
                           <Component id="deleteButton" alignment="1" min="-2" max="-2" attributes="1"/>
                       </Group>
                   </Group>
-                  <Component id="serviceField" alignment="0" pref="392" max="32767" attributes="2"/>
-                  <Component id="portField" alignment="0" pref="392" max="32767" attributes="2"/>
-                  <Component id="soapEnvelope" pref="392" max="32767" attributes="2"/>
-                  <Component id="soapActionField" alignment="0" pref="392" max="32767" attributes="2"/>
+                  <Component id="soapEnvelope" pref="425" max="32767" attributes="2"/>
+                  <Component id="soapActionField" alignment="0" pref="425" max="32767" attributes="2"/>
+                  <Component id="serviceComboBox" alignment="0" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="authenticationYesRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -93,8 +90,9 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="useMtomNoRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="portComboBox" alignment="0" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -109,14 +107,14 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="serviceLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="serviceField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="serviceComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="portLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="portField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="portComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="authenticationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -152,7 +150,7 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-                  <Component id="soapEnvelope" pref="115" max="32767" attributes="0"/>
+                  <Component id="soapEnvelope" pref="119" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -213,14 +211,6 @@
         <Property name="text" type="java.lang.String" value="Service:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="portField">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="de" green="de" red="de" type="rgb"/>
-        </Property>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The port name for the WSDL defined above.&lt;br&gt;This field is filled in automatically when the Get Operations button is clicked and does not need to be changed.&lt;/html&gt;"/>
-      </Properties>
-    </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="soapEnvelope">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
@@ -235,15 +225,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="portLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Port:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="serviceField">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="de" green="de" red="de" type="rgb"/>
-        </Property>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The service name for the WSDL defined above.&lt;br&gt;This field is filled in automatically when the Get Operations button is clicked and does not need to be changed.&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="Port / Endpoint:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel4">
@@ -312,11 +294,6 @@
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="authenticationButtonGroup"/>
         </Property>
@@ -334,11 +311,6 @@
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
         </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="authenticationButtonGroup"/>
@@ -383,11 +355,6 @@
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="invocationButtonGroup"/>
         </Property>
@@ -402,11 +369,6 @@
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
         </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="invocationButtonGroup"/>
@@ -428,11 +390,6 @@
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="useMtomButtonGroup"/>
         </Property>
@@ -450,11 +407,6 @@
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
         </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="useMtomButtonGroup"/>
@@ -482,6 +434,28 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="SOAP Action:"/>
       </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthEditableComboBox" name="serviceComboBox">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="de" green="de" red="de" type="rgb"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The service name for the WSDL defined above. This field&lt;br/&gt;is filled in automatically when the Get Operations button&lt;br/&gt;is clicked and does not usually need to be changed,&lt;br/&gt;unless multiple services are defined in the WSDL.&lt;/html&gt;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="serviceComboBoxActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthEditableComboBox" name="portComboBox">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="de" green="de" red="de" type="rgb"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The port / endpoint name for the service defined above.&lt;br/&gt;This field is filled in automatically when the Get Operations&lt;br/&gt;button is clicked and does not usually need to be changed,&lt;br/&gt;unless multiple endpoints are defined for the currently&lt;br/&gt;selected service in the WSDL.&lt;/html&gt;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="portComboBoxActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>
