@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -149,7 +150,7 @@ public class HttpReceiver extends SourceConnector {
 
             // Add handlers for each static resource
             if (connectorProperties.getStaticResources() != null) {
-                NavigableMap<String, HttpStaticResource> staticResourcesMap = new TreeMap<String, HttpStaticResource>();
+                NavigableMap<String, List<HttpStaticResource>> staticResourcesMap = new TreeMap<String, List<HttpStaticResource>>();
 
                 // Add each static resource to a map first to allow sorting and deduplication
                 for (HttpStaticResource staticResource : connectorProperties.getStaticResources()) {
@@ -186,18 +187,25 @@ public class HttpReceiver extends SourceConnector {
                     }
                     resourceContextPath = contextPath + resourceContextPath;
 
-                    staticResourcesMap.put(resourceContextPath, new HttpStaticResource(resourceContextPath, staticResource.getResourceType(), staticResource.getValue(), staticResource.getContentType(), queryParameters));
+                    List<HttpStaticResource> staticResourcesList = staticResourcesMap.get(resourceContextPath);
+                    if (staticResourcesList == null) {
+                        staticResourcesList = new ArrayList<HttpStaticResource>();
+                        staticResourcesMap.put(resourceContextPath, staticResourcesList);
+                    }
+                    staticResourcesList.add(new HttpStaticResource(resourceContextPath, staticResource.getResourceType(), staticResource.getValue(), staticResource.getContentType(), queryParameters));
                 }
 
-                // Iterate through each static resource in reverse so that more specific contexts take precedence
-                for (HttpStaticResource staticResource : staticResourcesMap.descendingMap().values()) {
-                    logger.debug("Adding static resource handler for context path: " + staticResource.getContextPath());
-                    ContextHandler resourceContextHandler = new ContextHandler();
-                    resourceContextHandler.setContextPath(staticResource.getContextPath());
-                    // This allows resources to be requested without a relative context path (e.g. "/")
-                    resourceContextHandler.setAllowNullPathInfo(true);
-                    resourceContextHandler.setHandler(new StaticResourceHandler(staticResource));
-                    handlers.addHandler(resourceContextHandler);
+                // Iterate through each context path in reverse so that more specific contexts take precedence
+                for (List<HttpStaticResource> staticResourcesList : staticResourcesMap.descendingMap().values()) {
+                    for (HttpStaticResource staticResource : staticResourcesList) {
+                        logger.debug("Adding static resource handler for context path: " + staticResource.getContextPath());
+                        ContextHandler resourceContextHandler = new ContextHandler();
+                        resourceContextHandler.setContextPath(staticResource.getContextPath());
+                        // This allows resources to be requested without a relative context path (e.g. "/")
+                        resourceContextHandler.setAllowNullPathInfo(true);
+                        resourceContextHandler.setHandler(new StaticResourceHandler(staticResource));
+                        handlers.addHandler(resourceContextHandler);
+                    }
                 }
             }
 
