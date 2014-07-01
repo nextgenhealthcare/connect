@@ -30,7 +30,7 @@ public class ChannelController {
                      * Eventually, plugins will be able to specify controller classes to override,
                      * see MIRTH-3351
                      */
-                    instance = (ChannelController) Class.forName("com.mirth.connect.plugins.clustering.server.jdbc.ClusterDonkeyChannelController").newInstance();
+                    instance = (ChannelController) Class.forName("com.mirth.connect.plugins.clustering.server.ClusterDonkeyChannelController").newInstance();
                 } catch (Exception e) {
                     instance = new ChannelController();
                 }
