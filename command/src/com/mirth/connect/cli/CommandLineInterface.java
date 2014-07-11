@@ -906,32 +906,39 @@ public class CommandLineInterface {
         int messageCount = 0;
 
         try {
-            out.println("Exporting messages to file: " + fXml.getPath());
+            filter.setMaxMessageId(client.getMaxMessageId(channelId));
 
-            PaginatedMessageList messageList = new PaginatedMessageList();
-            messageList.setChannelId(channelId);
-            messageList.setClient(client);
-            messageList.setIncludeContent(true);
-            messageList.setMessageFilter(filter);
-            messageList.setPageSize(pageSize);
+            try {
+                out.println("Exporting messages to file: " + fXml.getPath());
 
-            MessageWriterOptions writerOptions = new MessageWriterOptions();
-            writerOptions.setBaseFolder(new File(".").getPath());
-            writerOptions.setContentType(contentType);
-            writerOptions.setDestinationContent(false);
-            writerOptions.setEncrypt(false);
-            writerOptions.setRootFolder(FilenameUtils.getFullPath(fXml.getAbsolutePath()));
-            writerOptions.setFilePattern(FilenameUtils.getName(fXml.getAbsolutePath()));
-            writerOptions.setArchiveFormat(null);
-            writerOptions.setCompressFormat(null);
+                PaginatedMessageList messageList = new PaginatedMessageList();
+                messageList.setChannelId(channelId);
+                messageList.setClient(client);
+                messageList.setIncludeContent(true);
+                messageList.setMessageFilter(filter);
+                messageList.setPageSize(pageSize);
 
-            MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, client.getEncryptor());
+                MessageWriterOptions writerOptions = new MessageWriterOptions();
+                writerOptions.setBaseFolder(new File(".").getPath());
+                writerOptions.setContentType(contentType);
+                writerOptions.setDestinationContent(false);
+                writerOptions.setEncrypt(false);
+                writerOptions.setRootFolder(FilenameUtils.getFullPath(fXml.getAbsolutePath()));
+                writerOptions.setFilePattern(FilenameUtils.getName(fXml.getAbsolutePath()));
+                writerOptions.setArchiveFormat(null);
+                writerOptions.setCompressFormat(null);
 
-            messageCount = new MessageExporter().exportMessages(messageList, messageWriter);
-            messageWriter.close();
+                MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, client.getEncryptor());
+
+                messageCount = new MessageExporter().exportMessages(messageList, messageWriter);
+                messageWriter.close();
+            } catch (Exception e) {
+                Throwable cause = ExceptionUtils.getRootCause(e);
+                error("unable to write file " + path + ": " + cause, cause);
+            }
         } catch (Exception e) {
             Throwable cause = ExceptionUtils.getRootCause(e);
-            error("unable to write file " + path + ": " + cause, cause);
+            error("Unable to retrieve max message ID: " + cause, cause);
         }
 
         out.println("Messages Export Complete. " + messageCount + " Messages Exported.");
@@ -1145,8 +1152,7 @@ public class CommandLineInterface {
     }
 
     /**
-     * Checks to see if the passed in channel name already exists and is
-     * formatted correctly
+     * Checks to see if the passed in channel name already exists and is formatted correctly
      */
     public boolean checkChannelName(String name, String id) throws ClientException {
         if (StringUtils.isEmpty(name)) {
