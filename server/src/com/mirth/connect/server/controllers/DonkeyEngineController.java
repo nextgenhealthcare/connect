@@ -64,6 +64,7 @@ import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.message.DataType;
+import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
@@ -77,6 +78,9 @@ import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
+import com.mirth.connect.model.datatype.BatchProperties;
+import com.mirth.connect.model.datatype.DataTypeProperties;
+import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.attachments.JavaScriptAttachmentHandler;
@@ -530,8 +534,9 @@ public class DonkeyEngineController implements EngineController {
 
         try {
             dispatchResult = sourceConnector.dispatchRawMessage(rawMessage, force);
+            dispatchResult.setAttemptedResponse(true);
         } finally {
-            sourceConnector.finishDispatch(dispatchResult, true, null);
+            sourceConnector.finishDispatch(dispatchResult);
         }
 
         return dispatchResult;
@@ -749,6 +754,15 @@ public class DonkeyEngineController implements EngineController {
 
         setCommonConnectorProperties(donkeyChannel.getChannelId(), sourceConnector, model, destinationNameMap);
 
+        DataTypeServerPlugin dataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(model.getTransformer().getInboundDataType());
+        DataTypeProperties dataTypeProperties = model.getTransformer().getInboundProperties();
+        SerializerProperties serializerProperties = dataTypeProperties.getSerializerProperties();
+        BatchProperties batchProperties = serializerProperties.getBatchProperties();
+
+        if (batchProperties != null && batchProperties.isBatchEnabled()) {
+            BatchAdaptorFactory batchAdaptorFactory = dataTypePlugin.getBatchAdaptorFactory(sourceConnector, serializerProperties);
+            sourceConnector.setBatchAdaptorFactory(batchAdaptorFactory);
+        }
         sourceConnector.setMetaDataReplacer(createMetaDataReplacer(model));
         sourceConnector.setChannel(donkeyChannel);
 

@@ -7,26 +7,24 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.model.transmission;
+package com.mirth.connect.donkey.server.message;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.mirth.connect.model.transmission.batch.BatchStreamReader;
+import com.mirth.connect.donkey.server.message.batch.BatchStreamReader;
 
 public abstract class StreamHandler {
 
     protected InputStream inputStream;
     protected OutputStream outputStream;
     protected BatchStreamReader batchStreamReader;
-    protected TransmissionModeProperties transmissionModeProperties;
 
-    public StreamHandler(InputStream inputStream, OutputStream outputStream, BatchStreamReader batchStreamReader, TransmissionModeProperties transmissionModeProperties) {
+    public StreamHandler(InputStream inputStream, OutputStream outputStream, BatchStreamReader batchStreamReader) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         this.batchStreamReader = batchStreamReader;
-        this.transmissionModeProperties = transmissionModeProperties;
     }
 
     public InputStream getInputStream() {
@@ -53,25 +51,17 @@ public abstract class StreamHandler {
         this.batchStreamReader = batchStreamReader;
     }
 
-    public TransmissionModeProperties getTransmissionModeProperties() {
-        return transmissionModeProperties;
-    }
-
-    public void setTransmissionModeProperties(TransmissionModeProperties transmissionModeProperties) {
-        this.transmissionModeProperties = transmissionModeProperties;
-    }
-
     /**
-     * Returns the next message from the underlying input stream, or null if all
-     * messages have been read already.
+     * Returns the next message from the underlying input stream, or null if all messages have been
+     * read already.
      * 
      * @throws IOException
      */
     public abstract byte[] read() throws IOException;
 
     /**
-     * Notifies the handler whether or not the engine was able to commit the
-     * bytes of the previous read to memory.
+     * Notifies the handler whether or not the engine was able to commit the bytes of the previous
+     * read to memory.
      * 
      * @param success
      *            - Determines whether the commit was successful or not.

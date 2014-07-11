@@ -85,12 +85,13 @@ public class SourceConnectorTests {
 
             try {
                 dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
+                dispatchResult.setAttemptedResponse(true);
                 
                 if (dispatchResult.getSelectedResponse() != null) {
                     dispatchResult.getSelectedResponse().setMessage("response");
                 }
             } finally {
-                sourceConnector.finishDispatch(dispatchResult, true, null);
+                sourceConnector.finishDispatch(dispatchResult);
             }
 
             if (dispatchResult != null) {
@@ -195,12 +196,13 @@ public class SourceConnectorTests {
 
             try {
                 dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
+                dispatchResult.setAttemptedResponse(true);
                 
                 if (dispatchResult.getSelectedResponse() != null) {
                     dispatchResult.getSelectedResponse().setMessage("response");
                 }
             } finally {
-                sourceConnector.finishDispatch(dispatchResult, true, null);
+                sourceConnector.finishDispatch(dispatchResult);
             }
 
             if (dispatchResult != null) {

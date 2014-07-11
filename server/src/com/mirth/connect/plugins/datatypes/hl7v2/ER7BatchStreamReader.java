@@ -7,13 +7,14 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.model.transmission.batch;
+package com.mirth.connect.plugins.datatypes.hl7v2;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import com.mirth.connect.donkey.server.message.batch.BatchStreamReader;
 import com.mirth.connect.model.transmission.EOFCheckInputStream;
 
 public class ER7BatchStreamReader extends BatchStreamReader {

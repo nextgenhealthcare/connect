@@ -74,7 +74,6 @@
                   <Component id="sortFilesByLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="fileTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="processBatchFilesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -164,11 +163,6 @@
                       <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="charsetEncodingCombobox" min="-2" pref="125" max="-2" attributes="1"/>
-                  <Group type="102" attributes="0">
-                      <Component id="processBatchFilesYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="processBatchFilesNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
               </Group>
               <EmptySpace pref="62" max="32767" attributes="0"/>
           </Group>
@@ -326,13 +320,7 @@
                   <Component id="encodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="processBatchFilesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="processBatchFilesYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="processBatchFilesNo" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace pref="20" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -527,58 +515,6 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Encoding:"/>
       </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="processBatchFilesLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Process Batch Files:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="processBatchFilesYes">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup8"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select Yes to process all messages in each file."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="processBatchFilesYesActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="processBatchFilesNo">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup8"/>
-        </Property>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select No to process the entire contents of the file as a single message."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="processBatchFilesNoActionPerformed"/>
-      </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="fileTypeASCII">
       <Properties>

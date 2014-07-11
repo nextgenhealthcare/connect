@@ -43,7 +43,7 @@ public class TestUtils {
         Transformer sourceTransformer = new Transformer();
         sourceTransformer.setInboundDataType("HL7");
         sourceTransformer.setOutboundDataType("HL7");
-        
+
         Connector sourceConnector = new Connector();
         sourceConnector.setEnabled(true);
         sourceConnector.setMetaDataId(0);
@@ -52,11 +52,11 @@ public class TestUtils {
         sourceConnector.setTransformer(sourceTransformer);
         sourceConnector.setTransportName("Channel Reader");
         sourceConnector.setProperties(new VmReceiverProperties());
-        
+
         Transformer destinationTransformer = new Transformer();
         destinationTransformer.setInboundDataType("HL7");
         destinationTransformer.setOutboundDataType("HL7");
-        
+
         Connector destinationConnector = new Connector();
         destinationConnector.setEnabled(true);
         destinationConnector.setMetaDataId(1);
@@ -65,7 +65,7 @@ public class TestUtils {
         destinationConnector.setTransformer(destinationTransformer);
         destinationConnector.setTransportName("Channel Writer");
         destinationConnector.setProperties(new VmDispatcherProperties());
-        
+
         Channel channel = new Channel();
         channel.setId(channelId);
         channel.setEnabled(true);
@@ -74,27 +74,27 @@ public class TestUtils {
         channel.setSourceConnector(sourceConnector);
         channel.addDestination(destinationConnector);
         channel.setLastModified(Calendar.getInstance());
-        
+
         return channel;
     }
-    
+
     public static DashboardStatus getDashboardStatus(Client client, String channelId) throws Exception {
         List<DashboardStatus> statuses = client.getChannelStatusList();
         DashboardStatus channelStatus = null;
-        
+
         for (DashboardStatus status : statuses) {
             if (status.getChannelId() == channelId) {
                 channelStatus = status;
             }
         }
-        
+
         return channelStatus;
     }
-    
+
     public static Message createTestProcessedMessage() {
         return createTestProcessedMessage("testchannelid", "testserverid", 1, com.mirth.connect.server.controllers.tests.TestUtils.TEST_HL7_MESSAGE);
     }
-    
+
     public static Message createTestProcessedMessage(String channelId, String serverId, long messageId, String content) {
         Calendar receivedDate = Calendar.getInstance();
 
@@ -113,10 +113,10 @@ public class TestUtils {
 
         sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, content, null, false));
         destinationMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 1, ContentType.RAW, content, null, false));
-        
+
         return message;
     }
-    
+
     public static boolean tableExists(Connection connection, String tableName) throws SQLException {
         ResultSet resultSet = null;
 
@@ -134,7 +134,7 @@ public class TestUtils {
             resultSet.close();
         }
     }
-    
+
     public static class DummyChannel extends com.mirth.connect.donkey.server.channel.Channel {
         private List<RawMessage> rawMessages = new ArrayList<RawMessage>();
         private long messageIdSequence = 1;
@@ -147,7 +147,7 @@ public class TestUtils {
         }
 
         @Override
-        protected DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
+        protected DispatchResult dispatchRawMessage(RawMessage rawMessage, boolean batch) throws ChannelException {
             rawMessages.add(rawMessage);
             long messageId = messageIdSequence++;
 

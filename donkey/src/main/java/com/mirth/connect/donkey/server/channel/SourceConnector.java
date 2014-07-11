@@ -9,7 +9,9 @@
 
 package com.mirth.connect.donkey.server.channel;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -18,12 +20,14 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.DeployedStateEventType;
+import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
@@ -31,6 +35,11 @@ import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.DeployedStateEvent;
+import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
+import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
+import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
+import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
 
 /**
  * The base class for all source connectors.
@@ -39,6 +48,7 @@ public abstract class SourceConnector extends Connector {
     private Channel channel;
     private boolean respondAfterProcessing = true;
     private MetaDataReplacer metaDataReplacer;
+    private BatchAdaptorFactory batchAdaptorFactory;
     private String sourceName = "Source";
 
     private Logger logger = Logger.getLogger(getClass());
@@ -63,6 +73,14 @@ public abstract class SourceConnector extends Connector {
         this.metaDataReplacer = metaDataReplacer;
     }
 
+    public BatchAdaptorFactory getBatchAdaptorFactory() {
+        return batchAdaptorFactory;
+    }
+
+    public void setBatchAdaptorFactory(BatchAdaptorFactory batchAdaptorFactory) {
+        this.batchAdaptorFactory = batchAdaptorFactory;
+    }
+
     public String getSourceName() {
         return sourceName;
     }
@@ -76,6 +94,10 @@ public abstract class SourceConnector extends Connector {
         channel.getEventDispatcher().dispatchEvent(new DeployedStateEvent(getChannelId(), channel.getName(), getMetaDataId(), sourceName, DeployedStateEventType.getTypeFromDeployedState(currentState)));
     }
 
+    public boolean isProcessBatch() {
+        return batchAdaptorFactory != null;
+    }
+
     /**
      * Start the connector
      */
@@ -83,6 +105,9 @@ public abstract class SourceConnector extends Connector {
     public void start() throws StartException {
         updateCurrentState(DeployedState.STARTING);
 
+        if (isProcessBatch()) {
+            batchAdaptorFactory.start();
+        }
         onStart();
 
         updateCurrentState(DeployedState.STARTED);
@@ -98,6 +123,9 @@ public abstract class SourceConnector extends Connector {
 
         try {
             onStop();
+            if (isProcessBatch()) {
+                batchAdaptorFactory.stop();
+            }
             updateCurrentState(DeployedState.STOPPED);
         } catch (Throwable t) {
             Throwable cause = t;
@@ -144,8 +172,7 @@ public abstract class SourceConnector extends Connector {
      * 
      * @param rawMessage
      *            A raw message
-     * @return The MessageResponse, containing the message id and a response if
-     *         one was received
+     * @return The MessageResponse, containing the message id and a response if one was received
      * @throws ChannelException
      */
     public DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
@@ -161,8 +188,7 @@ public abstract class SourceConnector extends Connector {
      * @param force
      *            If true, dispatch the message to the channel even if the source connector is
      *            stopped
-     * @return The MessageResponse, containing the message id and a response if
-     *         one was received
+     * @return The MessageResponse, containing the message id and a response if one was received
      * @throws ChannelException
      */
     public DispatchResult dispatchRawMessage(RawMessage rawMessage, boolean force) throws ChannelException {
@@ -172,12 +198,93 @@ public abstract class SourceConnector extends Connector {
             throw e;
         }
 
-        return channel.dispatchRawMessage(rawMessage);
+        return channel.dispatchRawMessage(rawMessage, false);
     }
 
- /**
-     * Handles a response generated for a message that was recovered by the
-     * channel
+    public void dispatchBatchMessage(BatchRawMessage batchRawMessage, ResponseHandler responseHandler) throws BatchMessageException {
+        // Prevent new batches from starting if the connector is stopping
+        if (getCurrentState() == DeployedState.STOPPING) {
+            return;
+        }
+
+        // Throw an error if a new batch arrives when the connector is stopped
+        if (getCurrentState() == DeployedState.STOPPED) {
+            BatchMessageException e = new BatchMessageException();
+            logger.error("Source connector is currently stopped. Channel Id: " + channel.getChannelId(), e);
+            throw e;
+        }
+
+        // Use an empty response handler if one is not provided
+        if (responseHandler == null) {
+            responseHandler = new SimpleResponseHandler();
+        }
+
+        BatchAdaptor batchAdaptor = null;
+        // Attempt to start the batch. It will not start if the batch adaptor factory is in the process of being stopped
+        if (batchAdaptorFactory.startBatch()) {
+            try {
+                // Create a new adaptor for this batch
+                batchAdaptor = batchAdaptorFactory.createBatchAdaptor(batchRawMessage.getBatchMessageSource());
+
+                Long batchSet = null;
+                String message;
+                // Get the next message for this batch
+                while ((message = batchAdaptor.getMessage()) != null) {
+                    // Create a copy of the source map for this message
+                    Map<String, Object> sourceMap = new HashMap<String, Object>(batchRawMessage.getSourceMap());
+
+                    // Add the batchId to identify the message's position in the batch
+                    sourceMap.put(Constants.BATCH_SEQUENCE_ID_KEY, batchAdaptor.getBatchId());
+
+                    // Add the message Id of the first message in the batch
+                    if (batchSet != null) {
+                        sourceMap.put(Constants.BATCH_ID_KEY, batchSet);
+                    }
+
+                    // Create a new RawMessage to be dispatched
+                    RawMessage rawMessage = new RawMessage(message, null, sourceMap);
+
+                    DispatchResult dispatchResult = null;
+                    try {
+                        // Dispatch the message
+                        dispatchResult = channel.dispatchRawMessage(rawMessage, true);
+                        // Set the dispatch result for this message into the response handler
+                        responseHandler.setDispatchResult(dispatchResult);
+
+                        // If this was the first message in the batch, keep track of the message Id
+                        if (batchAdaptor.getBatchId() == 1) {
+                            batchSet = dispatchResult.getMessageId();
+                        }
+
+                        try {
+                            // Allow the response handler to process the result
+                            responseHandler.responseProcess();
+                        } catch (Exception e) {
+                            // Stop the entire batch if an exceptions occurs processing a response
+                            throw new BatchMessageException("Failed to process response for batch message at message " + batchAdaptor.getBatchId(), e);
+                        }
+                    } catch (ChannelException e) {
+                        // Call back to the response handler if a channel exception occurred. The message should not have been persisted
+                        responseHandler.responseError(e);
+                        throw new BatchMessageException("Failed to process batch message at message " + batchAdaptor.getBatchId(), e);
+                    } finally {
+                        finishDispatch(dispatchResult);
+                    }
+                }
+            } finally {
+                try {
+                    // Cleanup any resources used by the batch adaptor
+                    batchAdaptor.cleanup();
+                } finally {
+                    // Finish the batch
+                    batchAdaptorFactory.finishBatch();
+                }
+            }
+        }
+    }
+
+    /**
+     * Handles a response generated for a message that was recovered by the channel
      * 
      * @throws ChannelException
      */
@@ -188,28 +295,19 @@ public abstract class SourceConnector extends Connector {
      * 
      * @param dispatchResult
      *            The DispatchResult returned by dispatchRawMessage()
-     */
-    public void finishDispatch(DispatchResult dispatchResult) {
-        finishDispatch(dispatchResult, false, null);
-    }
-
-    /**
-     * Finish a message dispatch
-     * 
-     * @param dispatchResult
-     *            The DispatchResult returned by dispatchRawMessage()
      * @param attemptedResponse
      *            True if an attempt to send a response was made, false if not
      * @param responseError
-     *            An error message if an error occurred when attempting to send
-     *            a response
+     *            An error message if an error occurred when attempting to send a response
      */
-    public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String responseError) {
+    public void finishDispatch(DispatchResult dispatchResult) {
         if (dispatchResult == null) {
             return;
         }
 
         try {
+            boolean attemptedResponse = dispatchResult.isAttemptedResponse();
+            String responseError = dispatchResult.getResponseError();
             Response selectedResponse = dispatchResult.getSelectedResponse();
 
             DonkeyDaoFactory daoFactory = channel.getDaoFactory();

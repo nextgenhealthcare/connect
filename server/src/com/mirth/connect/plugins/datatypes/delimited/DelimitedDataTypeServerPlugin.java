@@ -9,7 +9,8 @@
 
 package com.mirth.connect.plugins.datatypes.delimited;
 
-import com.mirth.connect.donkey.server.message.BatchAdaptor;
+import com.mirth.connect.donkey.server.channel.SourceConnector;
+import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
@@ -29,18 +30,12 @@ public class DelimitedDataTypeServerPlugin extends DataTypeServerPlugin {
     public void stop() {}
 
     @Override
-    public BatchAdaptor getBatchAdaptor(SerializerProperties properties) {
-        return new DelimitedBatchAdaptor(properties);
+    public BatchAdaptorFactory getBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties properties) {
+        return new DelimitedBatchAdaptorFactory(sourceConnector, properties);
     }
 
     @Override
     protected DataTypeDelegate getDataTypeDelegate() {
         return dataTypeDelegate;
-    }
-
-    @Override
-    public String getBatchScript(BatchAdaptor batchAdaptor) {
-        DelimitedBatchAdaptor delimitedBatchAdaptor = (DelimitedBatchAdaptor) batchAdaptor;
-        return delimitedBatchAdaptor.getBatchScript();
     }
 }

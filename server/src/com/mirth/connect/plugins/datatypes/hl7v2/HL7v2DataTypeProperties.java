@@ -17,6 +17,7 @@ public class HL7v2DataTypeProperties extends DataTypeProperties {
     public HL7v2DataTypeProperties() {
         serializationProperties = new HL7v2SerializationProperties();
         deserializationProperties = new HL7v2DeserializationProperties();
+        batchProperties = new HL7v2BatchProperties();
         responseGenerationProperties = new HL7v2ResponseGenerationProperties();
         responseValidationProperties = new HL7v2ResponseValidationProperties();
     }

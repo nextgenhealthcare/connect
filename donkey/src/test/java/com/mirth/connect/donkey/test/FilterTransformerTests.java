@@ -124,7 +124,7 @@ public class FilterTransformerTests {
 
         class FailingTestDataType extends DataType {
             public FailingTestDataType() {
-                super("HL7V2", new FailingTestSerializer(), null, new TestAutoResponder(), new TestResponseValidator());
+                super("HL7V2", new FailingTestSerializer(), new TestAutoResponder(), new TestResponseValidator());
             }
         }
 

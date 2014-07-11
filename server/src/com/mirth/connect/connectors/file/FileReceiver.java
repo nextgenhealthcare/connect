@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.UUID;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -38,6 +37,7 @@ import com.mirth.connect.connectors.file.filesystems.FileInfo;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
+import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
@@ -46,24 +46,17 @@ import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
-import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
-import com.mirth.connect.donkey.server.message.BatchAdaptor;
-import com.mirth.connect.donkey.server.message.BatchMessageProcessor;
-import com.mirth.connect.donkey.server.message.BatchMessageProcessorException;
-import com.mirth.connect.donkey.server.message.DataType;
-import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.util.CharsetUtils;
 
-public class FileReceiver extends PollConnector implements BatchMessageProcessor {
+public class FileReceiver extends PollConnector {
     protected transient Log logger = LogFactory.getLog(getClass());
 
     private String readDir = null;
@@ -81,7 +74,6 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
 
     private FileReceiverProperties connectorProperties;
     private String charsetEncoding;
-    private String batchScriptId;
     private URI uri;
 
     private long fileSizeMinimum;
@@ -114,22 +106,6 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
 
         this.filenamePattern = replacer.replaceValues(connectorProperties.getFileFilter(), getChannelId());
 
-        DataType dataType = getInboundDataType();
-        String batchScript = ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).getBatchScript(dataType.getBatchAdaptor());
-
-        if (StringUtils.isNotEmpty(batchScript)) {
-
-            try {
-                String batchScriptId = UUID.randomUUID().toString();
-
-                JavaScriptUtil.compileAndAddScript(batchScriptId, batchScript.toString(), ContextType.CHANNEL_CONTEXT);
-
-                this.batchScriptId = batchScriptId;
-            } catch (Exception e) {
-                throw new DeployException("Error compiling " + connectorProperties.getName() + " script " + batchScriptId + ".", e);
-            }
-        }
-
         fileSizeMinimum = NumberUtils.toLong(connectorProperties.getFileSizeMinimum(), 0);
         fileSizeMaximum = NumberUtils.toLong(connectorProperties.getFileSizeMaximum(), 0);
 
@@ -137,11 +113,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {
-        if (batchScriptId != null) {
-            JavaScriptUtil.removeScriptFromCache(batchScriptId);
-        }
-    }
+    public void onUndeploy() throws UndeployException {}
 
     @Override
     public void onStart() throws StartException {
@@ -307,8 +279,22 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                     Response response = null;
 
                     // ast: use the user-selected encoding
-                    if (connectorProperties.isProcessBatch()) {
-                        processBatch(file);
+                    if (isProcessBatch()) {
+                        FileSystemConnection con = fileConnector.getConnection(uri, null, connectorProperties);
+                        Reader in = null;
+                        try {
+                            in = new InputStreamReader(con.readFile(file.getName(), file.getParent()), charsetEncoding);
+                            BatchRawMessage rawMessage = new BatchRawMessage(new BatchMessageReader(in));
+                            rawMessage.setSourceMap(sourceMap);
+
+                            dispatchBatchMessage(rawMessage, null);
+                        } finally {
+                            if (in != null) {
+                                in.close();
+                            }
+                            con.closeReadFile();
+                            fileConnector.releaseConnection(uri, con, null, connectorProperties);
+                        }
                     } else {
                         RawMessage rawMessage;
                         if (connectorProperties.isBinary()) {
@@ -430,29 +416,6 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         }
     }
 
-    /** Process a single file as a batched message source */
-    private void processBatch(FileInfo file) throws Exception {
-        DataType dataType = getInboundDataType();
-
-        if (dataType.getBatchAdaptor() != null) {
-            BatchAdaptor batchAdaptor = dataType.getBatchAdaptor();
-            FileSystemConnection con = fileConnector.getConnection(uri, null, connectorProperties);
-            Reader in = null;
-            try {
-                in = new InputStreamReader(con.readFile(file.getName(), file.getParent()), charsetEncoding);
-                batchAdaptor.processBatch(in, this);
-            } finally {
-                if (in != null) {
-                    in.close();
-                }
-                con.closeReadFile();
-                fileConnector.releaseConnection(uri, con, null, connectorProperties);
-            }
-        } else {
-            throw new Exception("Data type " + dataType.getType() + " does not support batch processing.");
-        }
-    }
-
     /** Delete a file */
     private boolean deleteFile(String name, String dir, boolean mayNotExist) throws Exception {
         FileSystemConnection con = fileConnector.getConnection(uri, null, connectorProperties);
@@ -559,35 +522,6 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         } finally {
             fileConnector.releaseConnection(uri, con, null, connectorProperties);
         }
-    }
-
-    @Override
-    public boolean processBatchMessage(String message) throws BatchMessageProcessorException {
-        if (isTerminated()) {
-            return false;
-        }
-
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
-        sourceMap.put("originalFilename", originalFilename);
-
-        RawMessage rawMessage = new RawMessage(message);
-        rawMessage.setSourceMap(sourceMap);
-        DispatchResult dispatchResult = null;
-
-        try {
-            dispatchResult = dispatchRawMessage(rawMessage);
-        } catch (ChannelException e) {
-            throw new BatchMessageProcessorException(e);
-        } finally {
-            finishDispatch(dispatchResult);
-        }
-
-        return true;
-    }
-
-    @Override
-    public String getBatchScriptId() {
-        return batchScriptId;
     }
 
     @Override

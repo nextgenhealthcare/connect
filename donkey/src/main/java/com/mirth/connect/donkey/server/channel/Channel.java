@@ -71,6 +71,7 @@ import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.event.DeployedStateEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
+import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
 import com.mirth.connect.donkey.util.Base64Util;
@@ -316,7 +317,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             dispatchThreads.add(thread);
         }
     }
-    
+
     public void removeDispatchThread(Thread thread) {
         synchronized (dispatchThreads) {
             dispatchThreads.remove(thread);
@@ -481,6 +482,10 @@ public class Channel implements Startable, Stoppable, Runnable {
         try {
             if (metaDataId == 0) {
                 if (sourceConnector != null) {
+                    BatchAdaptorFactory batchAdaptorFactory = sourceConnector.getBatchAdaptorFactory();
+                    if (batchAdaptorFactory != null) {
+                        batchAdaptorFactory.onUndeploy();
+                    }
                     sourceConnector.onUndeploy();
                 }
             } else {
@@ -926,8 +931,9 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
     }
 
-    protected DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
-        if (currentState == DeployedState.STOPPING || currentState == DeployedState.STOPPED) {
+    protected DispatchResult dispatchRawMessage(RawMessage rawMessage, boolean batch) throws ChannelException {
+        // Allow messages to continue processing while the channel is stopping if they are part of an existing batch
+        if ((currentState == DeployedState.STOPPING && !batch) || currentState == DeployedState.STOPPED) {
             throw new ChannelException(true);
         }
 
@@ -956,10 +962,8 @@ public class Channel implements Startable, Stoppable, Runnable {
                 lockAcquired = true;
 
                 /*
-                 * TRANSACTION: Create Raw Message
-                 * - create a source connector message from the raw message and set the status as
-                 * RECEIVED
-                 * - store attachments
+                 * TRANSACTION: Create Raw Message - create a source connector message from the raw
+                 * message and set the status as RECEIVED - store attachments
                  */
                 dao = daoFactory.getDao();
                 ConnectorMessage sourceMessage = createAndStoreSourceMessage(dao, rawMessage);
@@ -1124,9 +1128,18 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         sourceMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, null, sourceConnector.getInboundDataType().getType(), false));
 
-        if (rawMessage.getSourceMap() != null) {
+        Map<String, Object> sourceMap = rawMessage.getSourceMap();
+        if (sourceMap != null) {
+            // If this is a batch message, see if this is the first message in the batch
+            if (sourceMap.containsKey(Constants.BATCH_SEQUENCE_ID_KEY)) {
+                Object batchIdObject = sourceMap.get(Constants.BATCH_SEQUENCE_ID_KEY);
+                if (batchIdObject instanceof Integer && (Integer) batchIdObject == 1) {
+                    // If so then add the message Id as the batch message Id
+                    sourceMap.put(Constants.BATCH_ID_KEY, messageId);
+                }
+            }
             // We don't create a new map here because the source map is read-only and thus won't ever be changed
-            sourceMessage.setSourceMap(Collections.unmodifiableMap(rawMessage.getSourceMap()));
+            sourceMessage.setSourceMap(Collections.unmodifiableMap(sourceMap));
         }
 
         if (attachmentHandler != null && attachmentHandler.canExtractAttachments()) {
@@ -1249,13 +1262,9 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
 
         /*
-         * TRANSACTION: Process Source
-         * - store processed raw content
-         * - update the source status
-         * - store transformed content
-         * - store encoded content
-         * - update source maps
-         * - create connector messages for each destination chain with RECEIVED status and maps
+         * TRANSACTION: Process Source - store processed raw content - update the source status -
+         * store transformed content - store encoded content - update source maps - create connector
+         * messages for each destination chain with RECEIVED status and maps
          */
         ThreadUtils.checkInterruptedStatus();
         DonkeyDao dao = daoFactory.getDao();
@@ -1579,9 +1588,8 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
 
         /*
-         * TRANSACTION: Post Process and Complete
-         * - store the merged response map as the source connector's response map
-         * - mark the message as processed
+         * TRANSACTION: Post Process and Complete - store the merged response map as the source
+         * connector's response map - mark the message as processed
          */
         ThreadUtils.checkInterruptedStatus();
         DonkeyDao dao = null;
@@ -1768,6 +1776,9 @@ public class Channel implements Startable, Stoppable, Runnable {
 
                 deployedMetaDataIds.add(0);
                 sourceConnector.onDeploy();
+                if (sourceConnector.getBatchAdaptorFactory() != null) {
+                    sourceConnector.getBatchAdaptorFactory().onDeploy();
+                }
 
                 for (DestinationChain chain : destinationChains) {
                     chain.setDaoFactory(daoFactory);

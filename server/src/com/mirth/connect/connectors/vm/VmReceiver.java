@@ -58,10 +58,4 @@ public class VmReceiver extends SourceConnector {
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));
         return super.dispatchRawMessage(rawMessage);
     }
-
-    @Override
-    public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String errorMessage) {
-        super.finishDispatch(dispatchResult, attemptedResponse, errorMessage);
-        eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
-    }
 }

@@ -90,7 +90,6 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         properties.setBufferSize(bufferSizeField.getText());
         properties.setMaxConnections(maxConnectionsField.getText());
         properties.setKeepConnectionOpen(keepConnectionOpenYesRadio.isSelected());
-        properties.setProcessBatch(processBatchYesRadio.isSelected());
         properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
         properties.setDataTypeBinary(dataTypeBinaryRadio.isSelected());
 
@@ -152,12 +151,6 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
             keepConnectionOpenYesRadio.setSelected(true);
         } else {
             keepConnectionOpenNoRadio.setSelected(true);
-        }
-
-        if (props.isProcessBatch()) {
-            processBatchYesRadio.setSelected(true);
-        } else {
-            processBatchNoRadio.setSelected(true);
         }
 
         if (props.isDataTypeBinary()) {
@@ -306,7 +299,6 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         dataTypeButtonGroup = new javax.swing.ButtonGroup();
         respondOnNewConnectionButtonGroup = new javax.swing.ButtonGroup();
         modeButtonGroup = new javax.swing.ButtonGroup();
-        processBatchButtonGroup = new javax.swing.ButtonGroup();
         overrideLocalBindingButtonGroup = new javax.swing.ButtonGroup();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -335,9 +327,6 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         reconnectIntervalField = new com.mirth.connect.client.ui.components.MirthTextField();
         maxConnectionsLabel = new javax.swing.JLabel();
         maxConnectionsField = new com.mirth.connect.client.ui.components.MirthTextField();
-        processBatchLabel = new javax.swing.JLabel();
-        processBatchYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        processBatchNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         transmissionModeComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
         transmissionModeLabel = new javax.swing.JLabel();
         sampleLabel = new javax.swing.JLabel();
@@ -491,28 +480,6 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
 
         maxConnectionsField.setToolTipText("<html>The maximum number of client connections to accept.<br/>After this number has been reached, subsequent socket requests will result in a rejection.</html>");
 
-        processBatchLabel.setText("Process Batch:");
-
-        processBatchYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        processBatchYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        processBatchButtonGroup.add(processBatchYesRadio);
-        processBatchYesRadio.setText("Yes");
-        processBatchYesRadio.setToolTipText("<html>Select Yes to allow Mirth to automatically split batched HL7 v2.x messages into discrete messages.<br/>This can be used with batch files containing FHS/BHS/BTS/FTS segments, or it can be used on batch files that just have multiple MSH segments.<br/>The location of each MSH segment signifies the start of a new message to be processed.</html>");
-        processBatchYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        processBatchNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        processBatchNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        processBatchButtonGroup.add(processBatchNoRadio);
-        processBatchNoRadio.setSelected(true);
-        processBatchNoRadio.setText("No");
-        processBatchNoRadio.setToolTipText("<html>Select Yes to allow Mirth to automatically split batched HL7 v2.x messages into discrete messages.<br/>This can be used with batch files containing FHS/BHS/BTS/FTS segments, or it can be used on batch files that just have multiple MSH segments.<br/>The location of each MSH segment signifies the start of a new message to be processed.</html>");
-        processBatchNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        processBatchNoRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                processBatchNoRadioActionPerformed(evt);
-            }
-        });
-
         transmissionModeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP Frame Encoded", "Custom Frame Encoded" }));
         transmissionModeComboBox.setToolTipText("<html>Select the transmission mode to use for sending and receiving data.<br/></html>");
         transmissionModeComboBox.addActionListener(new java.awt.event.ActionListener() {
@@ -562,25 +529,24 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(sampleLabel)
-                    .addComponent(jLabel5)
-                    .addComponent(transmissionModeLabel)
-                    .addComponent(remoteAddressLabel)
-                    .addComponent(remotePortLabel)
-                    .addComponent(overrideLocalBindingLabel)
-                    .addComponent(reconnectIntervalLabel)
-                    .addComponent(maxConnectionsLabel)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel4)
-                    .addComponent(keepConnectionOpenLabel)
-                    .addComponent(processBatchLabel)
-                    .addComponent(dataTypeLabel)
-                    .addComponent(encodingLabel)
-                    .addComponent(ackOnNewConnectionLabel)
-                    .addComponent(ackIPLabel)
-                    .addComponent(ackPortLabel))
+                .addGap(12, 12, 12)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(dataTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(remoteAddressLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(overrideLocalBindingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(ackIPLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(ackPortLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(remotePortLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(keepConnectionOpenLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(reconnectIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(maxConnectionsLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(sampleLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(transmissionModeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(ackOnNewConnectionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(encodingLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(sampleValue)
@@ -608,10 +574,6 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
                                 .addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(processBatchYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(processBatchNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -680,11 +642,6 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
                     .addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(processBatchLabel)
-                    .addComponent(processBatchYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(processBatchNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dataTypeLabel)
                     .addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dataTypeASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -739,9 +696,6 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         maxConnectionsLabel.setEnabled(false);
         maxConnectionsField.setEnabled(false);
     }//GEN-LAST:event_modeClientRadioActionPerformed
-
-    private void processBatchNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processBatchNoRadioActionPerformed
-    }//GEN-LAST:event_processBatchNoRadioActionPerformed
 
     private void modeServerRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modeServerRadioActionPerformed
         remoteAddressLabel.setEnabled(false);
@@ -838,10 +792,6 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
     private javax.swing.JLabel overrideLocalBindingLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton overrideLocalBindingNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton overrideLocalBindingYesRadio;
-    private javax.swing.ButtonGroup processBatchButtonGroup;
-    private javax.swing.JLabel processBatchLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton processBatchNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton processBatchYesRadio;
     private com.mirth.connect.client.ui.components.MirthTextField receiveTimeoutField;
     private com.mirth.connect.client.ui.components.MirthTextField reconnectIntervalField;
     private javax.swing.JLabel reconnectIntervalLabel;

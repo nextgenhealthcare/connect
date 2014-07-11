@@ -7,18 +7,23 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.donkey.server.message;
+package com.mirth.connect.donkey.server.message.batch;
 
-public class BatchMessageProcessorException extends Exception {
-    public BatchMessageProcessorException(String message) {
+public class BatchMessageException extends Exception {
+
+    public BatchMessageException() {
+        super();
+    }
+
+    public BatchMessageException(String message) {
         super(message);
     }
-    
-    public BatchMessageProcessorException(Throwable cause) {
+
+    public BatchMessageException(Throwable cause) {
         super(cause);
     }
-    
-    public BatchMessageProcessorException(String message, Throwable cause) {
+
+    public BatchMessageException(String message, Throwable cause) {
         super(message, cause);
     }
 }

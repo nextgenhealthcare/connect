@@ -24,15 +24,15 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.mirth.connect.model.transmission.StreamHandler;
+import com.mirth.connect.donkey.server.message.StreamHandler;
+import com.mirth.connect.donkey.server.message.batch.BatchStreamReader;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
-import com.mirth.connect.model.transmission.batch.BatchStreamReader;
 import com.mirth.connect.model.transmission.batch.DefaultBatchStreamReader;
 import com.mirth.connect.model.transmission.batch.DelimiterBatchStreamReader;
-import com.mirth.connect.model.transmission.batch.ER7BatchStreamReader;
 import com.mirth.connect.model.transmission.batch.RegexBatchStreamReader;
 import com.mirth.connect.model.transmission.framemode.FrameModeProperties;
 import com.mirth.connect.model.transmission.framemode.FrameStreamHandler;
+import com.mirth.connect.plugins.datatypes.hl7v2.ER7BatchStreamReader;
 import com.mirth.connect.util.TcpUtil;
 
 public class StreamHandlerTests {

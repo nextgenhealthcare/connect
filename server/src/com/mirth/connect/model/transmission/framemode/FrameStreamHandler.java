@@ -21,9 +21,9 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.model.transmission.StreamHandler;
+import com.mirth.connect.donkey.server.message.StreamHandler;
+import com.mirth.connect.donkey.server.message.batch.BatchStreamReader;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
-import com.mirth.connect.model.transmission.batch.BatchStreamReader;
 import com.mirth.connect.util.TcpUtil;
 
 public class FrameStreamHandler extends StreamHandler {
@@ -43,7 +43,7 @@ public class FrameStreamHandler extends StreamHandler {
     private int currentByte;
 
     public FrameStreamHandler(InputStream inputStream, OutputStream outputStream, BatchStreamReader batchStreamReader, TransmissionModeProperties transmissionModeProperties) {
-        super(inputStream, outputStream, batchStreamReader, transmissionModeProperties);
+        super(inputStream, outputStream, batchStreamReader);
         FrameModeProperties frameModeProperties = (FrameModeProperties) transmissionModeProperties;
         this.startOfMessageBytes = TcpUtil.stringToByteArray(frameModeProperties.getStartOfMessageBytes());
         this.endOfMessageBytes = TcpUtil.stringToByteArray(frameModeProperties.getEndOfMessageBytes());

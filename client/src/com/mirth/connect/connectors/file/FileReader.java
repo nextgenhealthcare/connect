@@ -107,7 +107,6 @@ public class FileReader extends ConnectorSettingsPanel {
         properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
         properties.setFileFilter(fileNameFilter.getText());
         properties.setRegex(filenameFilterRegexCheckBox.isSelected());
-        properties.setProcessBatch(processBatchFilesYes.isSelected());
         properties.setBinary(fileTypeBinary.isSelected());
 
         logger.debug("getProperties: properties=" + properties);
@@ -285,14 +284,6 @@ public class FileReader extends ConnectorSettingsPanel {
             fileTypeASCII.setSelected(true);
             fileTypeASCIIActionPerformed(null);
         }
-
-        if (props.isProcessBatch()) {
-            processBatchFilesYes.setSelected(true);
-            processBatchFilesYesActionPerformed(null);
-        } else {
-            processBatchFilesNo.setSelected(true);
-            processBatchFilesNoActionPerformed(null);
-        }
     }
 
     @Override
@@ -424,9 +415,6 @@ public class FileReader extends ConnectorSettingsPanel {
         sortBy = new com.mirth.connect.client.ui.components.MirthComboBox();
         charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
         encodingLabel = new javax.swing.JLabel();
-        processBatchFilesLabel = new javax.swing.JLabel();
-        processBatchFilesYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        processBatchFilesNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         fileTypeASCII = new com.mirth.connect.client.ui.components.MirthRadioButton();
         fileTypeBinary = new com.mirth.connect.client.ui.components.MirthRadioButton();
         fileTypeLabel = new javax.swing.JLabel();
@@ -557,33 +545,6 @@ public class FileReader extends ConnectorSettingsPanel {
         });
 
         encodingLabel.setText("Encoding:");
-
-        processBatchFilesLabel.setText("Process Batch Files:");
-
-        processBatchFilesYes.setBackground(new java.awt.Color(255, 255, 255));
-        processBatchFilesYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup8.add(processBatchFilesYes);
-        processBatchFilesYes.setText("Yes");
-        processBatchFilesYes.setToolTipText("Select Yes to process all messages in each file.");
-        processBatchFilesYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        processBatchFilesYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                processBatchFilesYesActionPerformed(evt);
-            }
-        });
-
-        processBatchFilesNo.setBackground(new java.awt.Color(255, 255, 255));
-        processBatchFilesNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup8.add(processBatchFilesNo);
-        processBatchFilesNo.setSelected(true);
-        processBatchFilesNo.setText("No");
-        processBatchFilesNo.setToolTipText("Select No to process the entire contents of the file as a single message.");
-        processBatchFilesNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        processBatchFilesNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                processBatchFilesNoActionPerformed(evt);
-            }
-        });
 
         fileTypeASCII.setBackground(new java.awt.Color(255, 255, 255));
         fileTypeASCII.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -857,8 +818,7 @@ public class FileReader extends ConnectorSettingsPanel {
                     .addComponent(fileSizeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(sortFilesByLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(fileTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(encodingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(processBatchFilesLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addComponent(encodingLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -932,11 +892,7 @@ public class FileReader extends ConnectorSettingsPanel {
                         .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(processBatchFilesYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(processBatchFilesNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(62, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -1063,12 +1019,7 @@ public class FileReader extends ConnectorSettingsPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(encodingLabel)
                     .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(processBatchFilesLabel)
-                    .addComponent(processBatchFilesYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(processBatchFilesNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1201,10 +1152,6 @@ public class FileReader extends ConnectorSettingsPanel {
     {//GEN-HEADEREND:event_fileTypeASCIIActionPerformed
         encodingLabel.setEnabled(true);
         charsetEncodingCombobox.setEnabled(true);
-
-        processBatchFilesLabel.setEnabled(true);
-        processBatchFilesNo.setEnabled(true);
-        processBatchFilesYes.setEnabled(true);
     }//GEN-LAST:event_fileTypeASCIIActionPerformed
 
     private void fileTypeBinaryActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_fileTypeBinaryActionPerformed
@@ -1212,11 +1159,6 @@ public class FileReader extends ConnectorSettingsPanel {
         encodingLabel.setEnabled(false);
         charsetEncodingCombobox.setEnabled(false);
         charsetEncodingCombobox.setSelectedIndex(0);
-
-        processBatchFilesLabel.setEnabled(false);
-        processBatchFilesNo.setSelected(true);
-        processBatchFilesNo.setEnabled(false);
-        processBatchFilesYes.setEnabled(false);
     }//GEN-LAST:event_fileTypeBinaryActionPerformed
 
     private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
@@ -1279,13 +1221,6 @@ public class FileReader extends ConnectorSettingsPanel {
     private void errorResponseActionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_errorResponseActionComboBoxActionPerformed
         updateErrorFields();
     }//GEN-LAST:event_errorResponseActionComboBoxActionPerformed
-
-    private void processBatchFilesYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processBatchFilesYesActionPerformed
-        errorResponseActionComboBox.setSelectedItem(FileAction.AFTER_PROCESSING);
-        errorResponseActionComboBox.setEnabled(false);
-        errorResponseActionLabel.setEnabled(false);
-        updateErrorFields();
-    }//GEN-LAST:event_processBatchFilesYesActionPerformed
 
     private void directoryRecursionYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_directoryRecursionYesRadioActionPerformed
         if (!parent.alertOption(parent, "<html>Including all subdirectories recursively is not recommended, especially if you are<br/>moving or deleting files.&nbsp;&nbsp;Are you sure you want to enable directory recursion?</html>")) {
@@ -1392,9 +1327,6 @@ public class FileReader extends ConnectorSettingsPanel {
     private javax.swing.JLabel passwordLabel;
     private com.mirth.connect.client.ui.components.MirthTextField pathField;
     private javax.swing.JLabel pathLabel;
-    private javax.swing.JLabel processBatchFilesLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton processBatchFilesNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton processBatchFilesYes;
     private com.mirth.connect.client.ui.components.MirthComboBox schemeComboBox;
     private javax.swing.JLabel schemeLabel;
     private javax.swing.JLabel secureModeLabel;

@@ -630,6 +630,7 @@ public class JavaScriptUtil {
         removeScriptFromCache(ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId));
         removeScriptFromCache(ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channelId));
         removeScriptFromCache(ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channelId));
+        removeScriptFromCache(ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, channelId));
     }
 
     /**

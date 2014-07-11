@@ -11,10 +11,19 @@ package com.mirth.connect.donkey.server;
 
 public class Constants {
     /**
-     * Reserved channel map key for the destination metadata ids that a message is being sent
-     * through
+     * Reserved source map key for the destination metadata ids that a message is being sent through
      */
     public static final String DESTINATION_META_DATA_IDS_KEY = "mirth_destinations";
+
+    /**
+     * Reserved source map key for the first message id of a batch
+     */
+    public static final String BATCH_ID_KEY = "batchId";
+
+    /**
+     * Reserve source map key for the sequence number of a batch
+     */
+    public static final String BATCH_SEQUENCE_ID_KEY = "batchSequenceId";
 
     /**
      * The number of milliseconds to wait for incoming messages on the source queue before timing

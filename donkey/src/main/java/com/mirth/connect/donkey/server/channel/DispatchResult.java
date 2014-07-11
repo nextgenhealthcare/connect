@@ -24,6 +24,8 @@ public class DispatchResult {
     private Response selectedResponse;
     private ChannelException channelException;
     private Calendar responseDate;
+    private boolean attemptedResponse;
+    private String responseError;
 
     protected DispatchResult(long messageId, Message processedMessage, Response selectedResponse, boolean markAsProcessed, boolean removeContent, boolean removeAttachments, boolean lockAcquired) {
         this(messageId, processedMessage, selectedResponse, markAsProcessed, removeContent, removeAttachments, lockAcquired, null);
@@ -79,5 +81,21 @@ public class DispatchResult {
 
     public Calendar getResponseDate() {
         return responseDate;
+    }
+
+    public boolean isAttemptedResponse() {
+        return attemptedResponse;
+    }
+
+    public void setAttemptedResponse(boolean attemptedResponse) {
+        this.attemptedResponse = attemptedResponse;
+    }
+
+    public String getResponseError() {
+        return responseError;
+    }
+
+    public void setResponseError(String responseError) {
+        this.responseError = responseError;
     }
 }

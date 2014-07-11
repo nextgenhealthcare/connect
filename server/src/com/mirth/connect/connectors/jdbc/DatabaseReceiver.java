@@ -196,8 +196,6 @@ public class DatabaseReceiver extends PollConnector {
 
         try {
             dispatchResult = dispatchRawMessage(new RawMessage(resultMapToXml(resultMap)));
-        } catch (InterruptedException e) {
-            throw e;
         } catch (Exception e) {
             String errorMessage = "Failed to process row retrieved from the database in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\"";
             logger.error(errorMessage, e);

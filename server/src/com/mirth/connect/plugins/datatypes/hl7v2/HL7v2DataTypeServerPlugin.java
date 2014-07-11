@@ -9,15 +9,22 @@
 
 package com.mirth.connect.plugins.datatypes.hl7v2;
 
+import java.io.InputStream;
+
+import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.message.AutoResponder;
-import com.mirth.connect.donkey.server.message.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.ResponseValidator;
+import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
+import com.mirth.connect.donkey.server.message.batch.BatchStreamReader;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
 import com.mirth.connect.model.datatype.ResponseGenerationProperties;
 import com.mirth.connect.model.datatype.ResponseValidationProperties;
 import com.mirth.connect.model.datatype.SerializationProperties;
 import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.model.transmission.TransmissionModeProperties;
+import com.mirth.connect.model.transmission.framemode.FrameModeProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
+import com.mirth.connect.util.TcpUtil;
 
 public class HL7v2DataTypeServerPlugin extends DataTypeServerPlugin {
     private DataTypeDelegate dataTypeDelegate = new HL7v2DataTypeDelegate();
@@ -44,8 +51,19 @@ public class HL7v2DataTypeServerPlugin extends DataTypeServerPlugin {
     }
 
     @Override
-    public BatchAdaptor getBatchAdaptor(SerializerProperties properties) {
-        return new ER7BatchAdaptor(properties);
+    public BatchAdaptorFactory getBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties properties) {
+        return new ER7BatchAdaptorFactory(sourceConnector, properties);
+    }
+    
+    @Override
+    public BatchStreamReader getBatchStreamReader(InputStream inputStream, TransmissionModeProperties properties) {
+        BatchStreamReader batchStreamReader = null;
+        if (properties instanceof FrameModeProperties) {
+            batchStreamReader = new ER7BatchStreamReader(inputStream, TcpUtil.stringToByteArray(((FrameModeProperties) properties).getEndOfMessageBytes()));
+        } else {
+            batchStreamReader = new ER7BatchStreamReader(inputStream);
+        }
+        return batchStreamReader;
     }
 
     @Override

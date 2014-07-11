@@ -125,8 +125,6 @@ public class JmsReceiver extends SourceConnector {
         public void onMessage(Message message) {
             RawMessage rawMessage = null;
             DispatchResult dispatchResult = null;
-            boolean attemptedResponse = false;
-            String responseError = null;
 
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));
 
@@ -139,18 +137,18 @@ public class JmsReceiver extends SourceConnector {
 
             try {
                 dispatchResult = dispatchRawMessage(rawMessage);
-                attemptedResponse = true;
+                dispatchResult.setAttemptedResponse(true);
 
                 try {
                     message.acknowledge();
                 } catch (JMSException e) {
                     reportError("Failed to acknowledge JMS message", e);
-                    responseError = "Failed to acknowledge message: " + e.getMessage();
+                    dispatchResult.setResponseError("Failed to acknowledge message: " + e.getMessage());
                 }
             } catch (ChannelException e) {
                 reportError("Failed to process message", e);
             } finally {
-                finishDispatch(dispatchResult, attemptedResponse, responseError);
+                finishDispatch(dispatchResult);
                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
             }
         }

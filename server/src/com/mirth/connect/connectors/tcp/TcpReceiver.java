@@ -11,6 +11,7 @@ package com.mirth.connect.connectors.tcp;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.BindException;
 import java.net.InetAddress;
@@ -41,6 +42,7 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
+import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.HaltException;
@@ -53,17 +55,20 @@ import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ConnectorCountEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.server.message.StreamHandler;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
+import com.mirth.connect.donkey.server.message.batch.BatchStreamReader;
+import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
 import com.mirth.connect.donkey.util.ThreadUtils;
-import com.mirth.connect.model.transmission.StreamHandler;
 import com.mirth.connect.model.transmission.StreamHandlerException;
-import com.mirth.connect.model.transmission.batch.BatchStreamReader;
 import com.mirth.connect.model.transmission.batch.DefaultBatchStreamReader;
-import com.mirth.connect.model.transmission.batch.ER7BatchStreamReader;
-import com.mirth.connect.model.transmission.framemode.FrameModeProperties;
 import com.mirth.connect.plugins.BasicModeProvider;
+import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.TransmissionModeProvider;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorMessageBuilder;
@@ -91,7 +96,8 @@ public class TcpReceiver extends SourceConnector {
     private int timeout;
     private int bufferSize;
     private int reconnectInterval;
-    TransmissionModeProvider transmissionModeProvider;
+    private TransmissionModeProvider transmissionModeProvider;
+    private DataTypeServerPlugin dataTypeServerPlugin;
 
     @Override
     public void onDeploy() throws DeployException {
@@ -101,15 +107,23 @@ public class TcpReceiver extends SourceConnector {
         bufferSize = NumberUtils.toInt(connectorProperties.getBufferSize());
         reconnectInterval = NumberUtils.toInt(connectorProperties.getReconnectInterval());
 
+        ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+
         String pluginPointName = (String) connectorProperties.getTransmissionModeProperties().getPluginPointName();
         if (pluginPointName.equals("Basic")) {
             transmissionModeProvider = new BasicModeProvider();
         } else {
-            transmissionModeProvider = (TransmissionModeProvider) ControllerFactory.getFactory().createExtensionController().getServicePlugins().get(pluginPointName);
+            transmissionModeProvider = (TransmissionModeProvider) extensionController.getServicePlugins().get(pluginPointName);
         }
 
         if (transmissionModeProvider == null) {
             throw new DeployException("Unable to find transmission mode plugin: " + pluginPointName);
+        }
+
+        dataTypeServerPlugin = extensionController.getDataTypePlugins().get(getInboundDataType().getType());
+
+        if (dataTypeServerPlugin == null) {
+            throw new DeployException("Unable to find data type plugin: " + getInboundDataType().getType());
         }
 
         disposing = new AtomicBoolean(false);
@@ -430,8 +444,6 @@ public class TcpReceiver extends SourceConnector {
 
     @Override
     public void handleRecoveredResponse(DispatchResult dispatchResult) {
-        boolean attemptedResponse = false;
-        String errorMessage = null;
         try {
             if (dispatchResult.getSelectedResponse() != null) {
                 // Only if we're responding on a new connection can we handle recovered responses
@@ -440,30 +452,32 @@ public class TcpReceiver extends SourceConnector {
                     StreamHandler streamHandler = transmissionModeProvider.getStreamHandler(null, null, batchStreamReader, connectorProperties.getTransmissionModeProperties());
 
                     try {
-                        attemptedResponse = true;
+                        dispatchResult.setAttemptedResponse(true);
                         recoveryResponseSocket = createResponseSocket();
                         connectResponseSocket(recoveryResponseSocket, streamHandler);
                         sendResponse(dispatchResult.getSelectedResponse().getMessage(), recoveryResponseSocket, streamHandler, true);
                     } catch (IOException e) {
-                        errorMessage = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error sending response.", e);
+                        dispatchResult.setResponseError(ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error sending response.", e));
                     } finally {
                         closeSocketQuietly(recoveryResponseSocket);
                         recoveryResponseSocket = null;
                     }
                 } else {
-                    errorMessage = "Cannot respond on original connection during message recovery. In order to send a response, enable \"Respond on New Connection\" in Tcp Listener settings.";
+                    dispatchResult.setResponseError("Cannot respond on original connection during message recovery. In order to send a response, enable \"Respond on New Connection\" in Tcp Listener settings.");
                 }
             }
         } finally {
-            finishDispatch(dispatchResult, attemptedResponse, errorMessage);
+            finishDispatch(dispatchResult);
         }
     }
 
-    protected class TcpReader implements Callable<Throwable> {
+    protected class TcpReader extends ResponseHandler implements Callable<Throwable>, BatchMessageReceiver {
         private StateAwareSocket socket = null;
         private StateAwareSocket responseSocket = null;
         private AtomicBoolean reading = null;
         private AtomicBoolean canRead = null;
+        private StreamHandler streamHandler = null;
+        private boolean firstMessage;
 
         public TcpReader(StateAwareSocket socket) throws SocketException {
             this.socket = socket;
@@ -498,68 +512,78 @@ public class TcpReceiver extends SourceConnector {
             try {
                 while (!done && getCurrentState() == DeployedState.STARTED) {
                     ThreadUtils.checkInterruptedStatus();
-                    StreamHandler streamHandler = null;
+                    streamHandler = null;
 
                     try {
-                        boolean streamDone = false;
-                        boolean firstMessage = true;
-
-                        // TODO: Put this on the DataType object; let it decide based on the properties which stream handler to use
-                        BatchStreamReader batchStreamReader = null;
-                        if (connectorProperties.isProcessBatch() && getInboundDataType().getType().equals("HL7V2")) {
-                            if (connectorProperties.getTransmissionModeProperties() instanceof FrameModeProperties) {
-                                batchStreamReader = new ER7BatchStreamReader(socket.getInputStream(), TcpUtil.stringToByteArray(((FrameModeProperties) connectorProperties.getTransmissionModeProperties()).getEndOfMessageBytes()));
-                            } else {
-                                batchStreamReader = new ER7BatchStreamReader(socket.getInputStream());
-                            }
-                        } else {
-                            batchStreamReader = new DefaultBatchStreamReader(socket.getInputStream());
+                        // Add the socket information to the channelMap
+                        Map<String, Object> sourceMap = new HashMap<String, Object>();
+                        sourceMap.put("localAddress", socket.getLocalAddress().getHostAddress());
+                        sourceMap.put("localPort", socket.getLocalPort());
+                        if (socket.getRemoteSocketAddress() instanceof InetSocketAddress) {
+                            sourceMap.put("remoteAddress", ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress());
+                            sourceMap.put("remotePort", ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort());
                         }
-                        streamHandler = transmissionModeProvider.getStreamHandler(socket.getInputStream(), socket.getOutputStream(), batchStreamReader, connectorProperties.getTransmissionModeProperties());
+
+                        firstMessage = true;
+                        OutputStream outputStream = null;
 
                         if (connectorProperties.getRespondOnNewConnection() != TcpReceiverProperties.NEW_CONNECTION) {
                             // If we're not responding on a new connection, then write to the output stream of the same socket
                             responseSocket = socket;
-                            BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), bufferSize);
-                            streamHandler.setOutputStream(bos);
+                            outputStream = new BufferedOutputStream(responseSocket.getOutputStream(), bufferSize);
+                        } else {
+                            outputStream = socket.getOutputStream();
                         }
 
-                        while (!streamDone && !done) {
-                            ThreadUtils.checkInterruptedStatus();
+                        boolean canStreamBatch = true;
+                        BatchStreamReader batchStreamReader = null;
+                        // If batch is enabled, attempt to get the batch stream reader from the data type
+                        if (isProcessBatch()) {
+                            batchStreamReader = dataTypeServerPlugin.getBatchStreamReader(socket.getInputStream(), connectorProperties.getTransmissionModeProperties());
+                        }
 
-                            /*
-                             * We need to keep track of whether the worker thread is currently
-                             * trying to read from the input stream because the read() method is not
-                             * interruptible. To do this we store two booleans, canRead and reading.
-                             * The canRead boolean is checked internally here and set externally
-                             * (e.g. by the onStop() or onHalt() methods). The reading boolean is
-                             * set in here when the thread is about to attempt to read from the
-                             * stream. After the read() method returns (or throws an exception),
-                             * reading is set to false.
-                             */
-                            synchronized (this) {
-                                if (canRead.get()) {
-                                    reading.set(true);
+                        // If the data type does not support batch streaming then use the default reader
+                        if (batchStreamReader == null) {
+                            canStreamBatch = false;
+                            batchStreamReader = new DefaultBatchStreamReader(socket.getInputStream());
+                        }
+
+                        streamHandler = transmissionModeProvider.getStreamHandler(socket.getInputStream(), outputStream, batchStreamReader, connectorProperties.getTransmissionModeProperties());
+
+                        if (canStreamBatch) {
+                            BatchRawMessage rawMessage = new BatchRawMessage(this);
+
+                            rawMessage.setSourceMap(sourceMap);
+
+                            // Send the message to the source connector
+                            try {
+                                dispatchBatchMessage(rawMessage, this);
+                            } catch (BatchMessageException e) {
+                                Throwable cause = e.getCause();
+                                if (cause instanceof IOException) {
+                                    throw (IOException) cause;
                                 }
+
+                                if (cause instanceof InterruptedException) {
+                                    throw (InterruptedException) cause;
+                                }
+
+                                done = true;
+                                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error processing batch message", e));
+
+                                logger.error("Error processing batch message", e);
                             }
+                        } else if (!done) {
+                            ThreadUtils.checkInterruptedStatus();
 
                             byte[] bytes = null;
 
-                            if (reading.get()) {
+                            if (canRead()) {
                                 logger.debug("Reading from socket input stream (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")...");
                                 try {
-                                    /*
-                                     * Read from the socket's input stream. If we're keeping the
-                                     * connection open, then bytes will be read until the socket
-                                     * timeout is reached, or until an EOF marker or the ending
-                                     * bytes are encountered. If we're not keeping the connection
-                                     * open, then a socket timeout will not be silently caught, and
-                                     * instead will be thrown from here and cause the worker thread
-                                     * to abort.
-                                     */
-                                    bytes = streamHandler.read();
+                                    bytes = readBytes();
                                 } finally {
-                                    reading.set(false);
+                                    readCompleted();
                                 }
                             }
 
@@ -574,73 +598,49 @@ public class TcpReceiver extends SourceConnector {
                                     rawMessage = new RawMessage(bytes);
                                 } else {
                                     // Encode the bytes using the charset encoding property and store the string in the RawMessage object
-                                    rawMessage = new RawMessage(new String(bytes, CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding())));
+                                    rawMessage = new RawMessage(getStringFromBytes(bytes));
                                 }
 
-                                // Add the socket information to the channelMap
-                                Map<String, Object> sourceMap = new HashMap<String, Object>();
-                                sourceMap.put("localAddress", socket.getLocalAddress().getHostAddress());
-                                sourceMap.put("localPort", socket.getLocalPort());
-                                if (socket.getRemoteSocketAddress() instanceof InetSocketAddress) {
-                                    sourceMap.put("remoteAddress", ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress());
-                                    sourceMap.put("remotePort", ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort());
-                                }
                                 rawMessage.setSourceMap(sourceMap);
 
                                 DispatchResult dispatchResult = null;
 
-                                // Keep attempting while the channel is still started
-                                while (dispatchResult == null && getCurrentState() == DeployedState.STARTED) {
-                                    ThreadUtils.checkInterruptedStatus();
+                                ThreadUtils.checkInterruptedStatus();
 
-                                    boolean attemptedResponse = false;
-                                    String errorMessage = null;
+                                // Send the message to the source connector
+                                try {
+                                    dispatchResult = dispatchRawMessage(rawMessage);
 
-                                    // Send the message to the source connector
-                                    try {
-                                        dispatchResult = dispatchRawMessage(rawMessage);
+                                    streamHandler.commit(true);
 
-                                        // Only send a response for the first message
-                                        if (firstMessage) {
-                                            streamHandler.commit(true);
+                                    // Check to see if we have a response to send
+                                    if (dispatchResult.getSelectedResponse() != null) {
+                                        // Send the response
+                                        dispatchResult.setAttemptedResponse(true);
 
-                                            // Check to see if we have a response to send
-                                            if (dispatchResult.getSelectedResponse() != null) {
-                                                // Send the response
-                                                attemptedResponse = true;
+                                        try {
+                                            // If the response socket hasn't been initialized, do that now
+                                            if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
+                                                responseSocket = createResponseSocket();
+                                                connectResponseSocket(responseSocket, streamHandler);
+                                            }
 
-                                                try {
-                                                    // If the response socket hasn't been initialized, do that now
-                                                    if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
-                                                        responseSocket = createResponseSocket();
-                                                        connectResponseSocket(responseSocket, streamHandler);
-                                                    }
-
-                                                    sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION);
-                                                } catch (IOException e) {
-                                                    errorMessage = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error sending response.", e);
-                                                } finally {
-                                                    if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
-                                                        closeSocketQuietly(responseSocket);
-                                                    }
-                                                }
+                                            sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION);
+                                        } catch (IOException e) {
+                                            dispatchResult.setResponseError(ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error sending response.", e));
+                                        } finally {
+                                            if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
+                                                closeSocketQuietly(responseSocket);
                                             }
                                         }
-                                    } catch (ChannelException e) {
-                                        if (firstMessage) {
-                                            streamHandler.commit(false);
-                                        }
-                                    } finally {
-                                        firstMessage = false;
-                                        finishDispatch(dispatchResult, attemptedResponse, errorMessage);
                                     }
+                                } catch (ChannelException e) {
+                                    streamHandler.commit(false);
+                                } finally {
+                                    finishDispatch(dispatchResult);
                                 }
 
                                 eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), (Boolean) null));
-                            } else {
-                                // If no bytes were returned, then assume we have finished processing all possible messages from the input stream.
-                                logger.debug("Stream reader returned null (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-                                streamDone = true;
                             }
                         }
 
@@ -709,6 +709,90 @@ public class TcpReceiver extends SourceConnector {
             }
 
             return t;
+        }
+
+        @Override
+        public boolean canRead() {
+            /*
+             * We need to keep track of whether the worker thread is currently trying to read from
+             * the input stream because the read() method is not interruptible. To do this we store
+             * two booleans, canRead and reading. The canRead boolean is checked internally here and
+             * set externally (e.g. by the onStop() or onHalt() methods). The reading boolean is set
+             * in here when the thread is about to attempt to read from the stream. After the read()
+             * method returns (or throws an exception), reading is set to false.
+             */
+            synchronized (this) {
+                if (canRead.get()) {
+                    reading.set(true);
+                }
+            }
+
+            return reading.get();
+        }
+
+        @Override
+        public byte[] readBytes() throws IOException {
+            /*
+             * Read from the socket's input stream. If we're keeping the connection open, then bytes
+             * will be read until the socket timeout is reached, or until an EOF marker or the
+             * ending bytes are encountered. If we're not keeping the connection open, then a socket
+             * timeout will not be silently caught, and instead will be thrown from here and cause
+             * the worker thread to abort.
+             */
+            return streamHandler.read();
+        }
+
+        @Override
+        public void readCompleted() {
+            reading.set(false);
+        }
+
+        @Override
+        public String getStringFromBytes(byte[] bytes) throws IOException {
+            return new String(bytes, CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding()));
+        }
+
+        @Override
+        public void responseProcess() throws IOException {
+            // Only send a response for the first message
+            if (firstMessage) {
+                firstMessage = false;
+                streamHandler.commit(true);
+
+                // Check to see if we have a response to send
+                if (dispatchResult.getSelectedResponse() != null) {
+                    // Send the response
+                    dispatchResult.setAttemptedResponse(true);
+
+                    try {
+                        // If the response socket hasn't been initialized, do that now
+                        if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
+                            responseSocket = createResponseSocket();
+                            connectResponseSocket(responseSocket, streamHandler);
+                        }
+
+                        sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION);
+                    } catch (IOException e) {
+                        dispatchResult.setResponseError(ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error sending response.", e));
+                    } finally {
+                        if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
+                            closeSocketQuietly(responseSocket);
+                        }
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void responseError(ChannelException e) {
+            if (firstMessage) {
+                firstMessage = false;
+                try {
+                    streamHandler.commit(false);
+                } catch (Throwable t) {
+                    logger.warn("Error commiting ACK or NACK bytes", t);
+                }
+            }
         }
     }
 

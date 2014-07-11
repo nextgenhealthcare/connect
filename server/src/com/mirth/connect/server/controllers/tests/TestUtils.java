@@ -197,7 +197,7 @@ public class TestUtils {
         channel.setPreProcessor(new TestPreProcessor());
         channel.setPostProcessor(new TestPostProcessor());
 
-        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()));
+        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator()));
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
         channel.setSourceFilterTransformer(filterTransformer);
 
@@ -205,13 +205,13 @@ public class TestUtils {
         sourceConnector.setChannel(channel);
 
         DestinationChain chain = new DestinationChain();
-        filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()));
+        filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator()));
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
         chain.addDestination(1, filterTransformer, destinationConnector);
         channel.getDestinationChains().add(chain);
         destinationConnector.setChannelId(channelId);
 
-        ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder(), new TestResponseValidator()));
+        ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator()));
         responseTransformerExecutor.setResponseTransformer(new TestResponseTransformer());
         destinationConnector.setResponseTransformerExecutor(responseTransformerExecutor);
 
@@ -233,7 +233,7 @@ public class TestUtils {
         channel.setPreProcessor(new TestPreProcessor());
         channel.setPostProcessor(new TestPostProcessor());
 
-        DataType dataType = new DataType("HL7V2", new TestSerializer(), null, new TestAutoResponder(), new HL7v2ResponseValidator(new HL7v2SerializationProperties(), new HL7v2ResponseValidationProperties()));
+        DataType dataType = new DataType("HL7V2", new TestSerializer(), new TestAutoResponder(), new HL7v2ResponseValidator(new HL7v2SerializationProperties(), new HL7v2ResponseValidationProperties()));
 
         FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(dataType, dataType);
         filterTransformer.setFilterTransformer(new TestFilterTransformer());

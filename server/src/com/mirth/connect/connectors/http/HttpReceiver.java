@@ -252,8 +252,6 @@ public class HttpReceiver extends SourceConnector {
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.CONNECTED));
             DispatchResult dispatchResult = null;
             String sentResponse = null;
-            boolean attemptedResponse = false;
-            String responseError = null;
 
             try {
                 dispatchResult = processData(baseRequest);
@@ -275,7 +273,7 @@ public class HttpReceiver extends SourceConnector {
                  * drop-down)
                  */
                 if (selectedResponse != null) {
-                    attemptedResponse = true;
+                    dispatchResult.setAttemptedResponse(true);
                     String message = selectedResponse.getMessage();
 
                     if (message != null) {
@@ -323,12 +321,14 @@ public class HttpReceiver extends SourceConnector {
                     }
                 }
             } catch (Throwable t) {
-                responseError = ExceptionUtils.getStackTrace(t);
+                String responseError = ExceptionUtils.getStackTrace(t);
                 logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
                 eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error receiving message", t));
 
                 // TODO decide if we still want to send back the exception content or something else?
-                attemptedResponse = true;
+                dispatchResult.setAttemptedResponse(true);
+                dispatchResult.setResponseError(responseError);
+
                 servletResponse.setContentType("text/plain");
                 servletResponse.getOutputStream().write(responseError.getBytes());
                 servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
@@ -337,7 +337,7 @@ public class HttpReceiver extends SourceConnector {
                 dispatchResult.getSelectedResponse().setMessage(responseError);
             } finally {
                 try {
-                    finishDispatch(dispatchResult, attemptedResponse, responseError);
+                    finishDispatch(dispatchResult);
                 } finally {
                     eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
                 }

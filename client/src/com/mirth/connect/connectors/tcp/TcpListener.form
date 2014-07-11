@@ -10,8 +10,6 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="modeButtonGroup">
     </Component>
-    <Component class="javax.swing.ButtonGroup" name="processBatchButtonGroup">
-    </Component>
     <Component class="javax.swing.ButtonGroup" name="overrideLocalBindingButtonGroup">
     </Component>
   </NonVisualComponents>
@@ -40,25 +38,24 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="sampleLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="transmissionModeLabel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="dataTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="remoteAddressLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="remotePortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="overrideLocalBindingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="ackIPLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="ackPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="remotePortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="keepConnectionOpenLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="maxConnectionsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="sampleLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="transmissionModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="keepConnectionOpenLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="processBatchLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="dataTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="ackOnNewConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="ackIPLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="ackPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -91,12 +88,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="keepConnectionOpenNoRadio" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" attributes="0">
-                              <Component id="processBatchYesRadio" min="-2" max="-2" attributes="1"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="processBatchNoRadio" min="-2" max="-2" attributes="1"/>
-                          </Group>
-                          <Group type="102" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
                               <Component id="dataTypeBinaryRadio" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="dataTypeASCIIRadio" min="-2" max="-2" attributes="0"/>
@@ -179,12 +171,6 @@
                   <Component id="keepConnectionOpenLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="keepConnectionOpenYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="keepConnectionOpenNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="processBatchLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="processBatchYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="processBatchNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -523,55 +509,6 @@
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The maximum number of client connections to accept.&lt;br/&gt;After this number has been reached, subsequent socket requests will result in a rejection.&lt;/html&gt;"/>
       </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="processBatchLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Process Batch:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="processBatchYesRadio">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="processBatchButtonGroup"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to allow Mirth to automatically split batched HL7 v2.x messages into discrete messages.&lt;br/&gt;This can be used with batch files containing FHS/BHS/BTS/FTS segments, or it can be used on batch files that just have multiple MSH segments.&lt;br/&gt;The location of each MSH segment signifies the start of a new message to be processed.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="processBatchNoRadio">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="processBatchButtonGroup"/>
-        </Property>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to allow Mirth to automatically split batched HL7 v2.x messages into discrete messages.&lt;br/&gt;This can be used with batch files containing FHS/BHS/BTS/FTS segments, or it can be used on batch files that just have multiple MSH segments.&lt;br/&gt;The location of each MSH segment signifies the start of a new message to be processed.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="processBatchNoRadioActionPerformed"/>
-      </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="transmissionModeComboBox">
       <Properties>

@@ -12,74 +12,319 @@ package com.mirth.connect.plugins.datatypes.delimited;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.Scriptable;
 
-import com.mirth.connect.donkey.server.message.BatchAdaptor;
-import com.mirth.connect.donkey.server.message.BatchMessageProcessor;
-import com.mirth.connect.donkey.server.message.BatchMessageProcessorException;
-import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.donkey.server.channel.SourceConnector;
+import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageSource;
+import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.util.CompiledScriptCache;
+import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
+import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
+import com.mirth.connect.server.util.javascript.JavaScriptTask;
+import com.mirth.connect.server.util.javascript.JavaScriptUtil;
+import com.mirth.connect.util.StringUtil;
 
-public class DelimitedBatchAdaptor implements BatchAdaptor {
-	private Logger logger = Logger.getLogger(this.getClass());
-	private DelimitedBatchReader delimitedBatchReader = null;
-	private DelimitedSerializationProperties serializationProperties;
+public class DelimitedBatchAdaptor extends BatchAdaptor {
+    private Logger logger = Logger.getLogger(this.getClass());
+    private DelimitedSerializationProperties serializationProperties;
     private DelimitedBatchProperties batchProperties;
-	
-	public DelimitedBatchAdaptor(SerializerProperties properties) {
-		serializationProperties = (DelimitedSerializationProperties) properties.getSerializationProperties();
-        batchProperties = (DelimitedBatchProperties) properties.getBatchProperties();
-	}
+    private DelimitedReader delimitedReader = null;
+    private BufferedReader bufferedReader;
+    private boolean skipHeader;
+    private Integer groupingColumnIndex;
+    private String batchMessageDelimiter = null;
 
-	/**
+    public DelimitedBatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
+        super(sourceConnector, batchMessageSource);
+    }
+
+    public DelimitedSerializationProperties getSerializationProperties() {
+        return serializationProperties;
+    }
+
+    public void setSerializationProperties(DelimitedSerializationProperties serializationProperties) {
+        this.serializationProperties = serializationProperties;
+    }
+
+    public DelimitedBatchProperties getBatchProperties() {
+        return batchProperties;
+    }
+
+    public void setBatchProperties(DelimitedBatchProperties batchProperties) {
+        this.batchProperties = batchProperties;
+    }
+
+    public DelimitedReader getDelimitedReader() {
+        return delimitedReader;
+    }
+
+    public void setDelimitedReader(DelimitedReader delimitedReader) {
+        this.delimitedReader = delimitedReader;
+    }
+
+    @Override
+    public void cleanup() throws BatchMessageException {}
+
+    @Override
+    protected String getNextMessage(int batchId) throws Exception {
+        if (batchMessageSource instanceof BatchMessageReader) {
+            if (batchId == 1) {
+                BatchMessageReader batchMessageReader = (BatchMessageReader) batchMessageSource;
+                bufferedReader = new BufferedReader(batchMessageReader.getReader());
+                skipHeader = true;
+            }
+            return getMessageFromReader();
+        } else if (batchMessageSource instanceof BatchMessageReceiver) {
+            return getMessageFromReceiver();
+        }
+
+        return null;
+    }
+
+    private String getMessageFromReader() throws Exception {
+        String message = getMessage(bufferedReader, skipHeader);
+        skipHeader = false;
+        return message;
+    }
+
+    private String getMessageFromReceiver() throws Exception {
+        return null;
+    }
+
+    /**
      * Finds the next message in the input stream and returns it.
      * 
      * @param in
-     *            The input stream (it's a BufferedReader, because operations on
-     *            it require in.mark()).
+     *            The input stream (it's a BufferedReader, because operations on it require
+     *            in.mark()).
      * @param skipHeader
-     *            Pass true to skip the configured number of header rows,
-     *            otherwise false.
+     *            Pass true to skip the configured number of header rows, otherwise false.
      * @return The next message, or null if there are no more messages.
      * @throws IOException
-     * @throws InterruptedException 
+     * @throws InterruptedException
      */
-    public String getMessage(BufferedReader in, boolean skipHeader, String batchScriptId) throws IOException, InterruptedException {
+    private String getMessage(final BufferedReader in, final boolean skipHeader) throws IOException, InterruptedException {
+        char recDelim = delimitedReader.getRecordDelimiter().charAt(0);
+        int ch;
 
-        // Allocate a batch reader if not already allocated
-        if (delimitedBatchReader == null) {
-            delimitedBatchReader = new DelimitedBatchReader(serializationProperties, batchProperties);
-        }
-        return delimitedBatchReader.getMessage(in, skipHeader, batchScriptId);
-    }
-	
-	@Override
-    public void processBatch(Reader src, BatchMessageProcessor dest) throws Exception {
-        BufferedReader in = new BufferedReader(src);
-        String message;
-        boolean skipHeader = true;
-        boolean errored = false;
-        
-        while ((message = getMessage(in, skipHeader, dest.getBatchScriptId())) != null) {
-            try {
-                if (!dest.processBatchMessage(message)) {
-                    logger.warn("Batch processing stopped.");
-                    return;
+        // If skipping the header, and the option is configured
+        if (skipHeader && batchProperties.getBatchSkipRecords() > 0) {
+
+            for (int i = 0; i < batchProperties.getBatchSkipRecords(); i++) {
+                while ((ch = in.read()) != -1 && ((char) ch) != recDelim) {
                 }
-            } catch (BatchMessageProcessorException e) {
-                errored = true;
-                logger.error("Error processing message in batch.", e);
             }
-            
-            skipHeader = false;
         }
-        
-        if (errored) {
-            throw new BatchMessageProcessorException("Error processing message in batch.");
+
+        StringBuilder message = new StringBuilder();
+
+        if (batchProperties.isBatchSplitByRecord()) {
+            // Each record is treated as a message
+            delimitedReader.getRecord(in, message);
+        } else if (StringUtils.isNotEmpty(batchProperties.getBatchMessageDelimiter())) {
+            if (batchMessageDelimiter == null) {
+                batchMessageDelimiter = StringUtil.unescape(batchProperties.getBatchMessageDelimiter());
+            }
+            // All records until the message delimiter (or end of input) is a
+            // message.
+            for (;;) {
+                // Get the next record
+                ArrayList<String> record = delimitedReader.getRecord(in, message);
+
+                if (record == null) {
+                    break;
+                }
+
+                // If the next sequence of characters is the message delimiter
+                String lookAhead = delimitedReader.peekChars(in, batchMessageDelimiter.length());
+                if (lookAhead.equals(batchMessageDelimiter)) {
+
+                    // Consume it.
+                    for (int i = 0; i < batchMessageDelimiter.length(); i++) {
+                        ch = delimitedReader.getChar(in, null);
+                    }
+
+                    // Append it if it is being included
+                    if (batchProperties.isBatchMessageDelimiterIncluded()) {
+                        message.append(batchMessageDelimiter);
+                    }
+
+                    break;
+                }
+            }
+        } else if (StringUtils.isNotEmpty(batchProperties.getBatchGroupingColumn())) {
+            // Each message is a collection of records with the same value in
+            // the specified column.
+            // The end of the current message occurs when a transition in the
+            // value of the specified
+            // column occurs.
+
+            // Prime the pump: get the first record, and save the grouping
+            // column.
+            ArrayList<String> record = delimitedReader.getRecord(in, message);
+
+            if (record != null) {
+
+                if (groupingColumnIndex == null) {
+                    updateGroupingColumnIndex(batchProperties.getBatchGroupingColumn(), serializationProperties.getColumnNames());
+                }
+
+                String lastColumnValue = record.get(groupingColumnIndex);
+
+                // Read records until the value in the grouping column changes
+                // or there are no more records
+                for (;;) {
+
+                    StringBuilder recordText = new StringBuilder();
+                    record = delimitedReader.getRecord(in, recordText);
+
+                    if (record == null) {
+                        break;
+                    }
+
+                    if (!record.get(groupingColumnIndex).equals(lastColumnValue)) {
+                        delimitedReader.ungetRecord(record, recordText.toString());
+                        break;
+                    }
+
+                    message.append(recordText.toString());
+                }
+            }
+        } else if (StringUtils.isNotEmpty(batchProperties.getBatchScript())) {
+            try {
+                final int batchSkipRecords = batchProperties.getBatchSkipRecords();
+                String result = JavaScriptUtil.execute(new JavaScriptTask<String>() {
+                    @Override
+                    public String call() throws Exception {
+                        String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
+                        Script compiledScript = CompiledScriptCache.getInstance().getCompiledScript(batchScriptId);
+
+                        if (compiledScript == null) {
+                            logger.error("Batch script could not be found in cache");
+                            return null;
+                        } else {
+                            Logger scriptLogger = Logger.getLogger(ScriptController.BATCH_SCRIPT_KEY.toLowerCase());
+
+                            try {
+                                Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(scriptLogger, batchScriptId, getScopeObjects(in, serializationProperties, skipHeader, batchSkipRecords));
+                                return Context.toString(executeScript(compiledScript, scope));
+                            } finally {
+                                Context.exit();
+                            }
+                        }
+                    }
+                });
+
+                if (result != null) {
+                    message.append(result);
+                }
+            } catch (InterruptedException e) {
+                throw e;
+            } catch (JavaScriptExecutorException e) {
+                logger.error(e.getCause());
+            } catch (Throwable e) {
+                logger.error(e);
+            }
+        } else {
+            // There is no batching method configured. Treat the entire input
+            // stream as the message.
+            logger.warn("No batch splitting method configured (processing entire input as one message)");
+            while ((ch = in.read()) != -1) {
+                message.append((char) ch);
+            }
+        }
+
+        String result = message.toString();
+        if (result.length() == 0) {
+            return null;
+        } else {
+            return result;
         }
     }
-	
-	public String getBatchScript() {
-        return batchProperties.getBatchScript();
+
+    private Map<String, Object> getScopeObjects(Reader in, DelimitedSerializationProperties props, Boolean skipHeader, Integer batchSkipRecords) {
+        Map<String, Object> scopeObjects = new HashMap<String, Object>();
+
+        // Provide the reader in the scope
+        scopeObjects.put("reader", in);
+
+        // Provide the data type properties in the scope (the ones that
+        // affect parsing from delimited to XML)
+        scopeObjects.put("columnDelimiter", delimitedReader.getColumnDelimiter());
+        scopeObjects.put("recordDelimiter", delimitedReader.getRecordDelimiter());
+        scopeObjects.put("columnWidths", props.getColumnWidths());
+        scopeObjects.put("quoteChar", delimitedReader.getQuoteChar());
+        scopeObjects.put("escapeWithDoubleQuote", props.isEscapeWithDoubleQuote());
+        scopeObjects.put("quoteEscapeChar", delimitedReader.getQuoteEscapeChar());
+        scopeObjects.put("ignoreCR", props.isIgnoreCR());
+        if (skipHeader) {
+            scopeObjects.put("skipRecords", batchSkipRecords);
+        } else {
+            scopeObjects.put("skipRecords", 0);
+        }
+
+        return scopeObjects;
+    }
+
+    private void updateGroupingColumnIndex(String batchGroupingColumn, String[] columnNames) {
+        if (groupingColumnIndex == null) {
+            // Default
+            groupingColumnIndex = -1;
+
+            // If there is a batch grouping column name
+            if (StringUtils.isNotEmpty(batchGroupingColumn)) {
+
+                // If we can't resolve the grouping column name, it'll default to the first column (index=0)
+                groupingColumnIndex = 0;
+
+                // If there are no user specified column names
+                if (columnNames == null) {
+
+                    // Try to parse the index from the end of a default column name
+                    // e.g. "column24" => index = 23
+                    int index = batchGroupingColumn.length() - 1;
+                    int len = 0;
+                    while (index >= 0 && Character.isDigit(batchGroupingColumn.charAt(index))) {
+                        index--;
+                        len++;
+                    }
+                    if (len > 0) {
+                        try {
+                            groupingColumnIndex = Integer.valueOf(batchGroupingColumn.substring(batchGroupingColumn.length() - len, batchGroupingColumn.length())) - 1;
+                        } catch (NumberFormatException e) {
+                            logger.warn("Invalid number format in Split Batch by Grouping Column (defaulting to first column): " + batchGroupingColumn.substring(batchGroupingColumn.length() - len, batchGroupingColumn.length()));
+                        }
+                    } else {
+                        logger.warn("Unknown batch grouping column (defaulting to first column): " + batchGroupingColumn);
+                    }
+                } else {
+
+                    // Try to find the grouping column name in the user specified column names
+                    int i;
+                    for (i = 0; i < columnNames.length; i++) {
+                        if (columnNames[i].equals(batchGroupingColumn)) {
+                            groupingColumnIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (i == columnNames.length) {
+                        logger.warn("Unknown batch grouping column (defaulting to first column): " + batchGroupingColumn);
+                    }
+                }
+            }
+        }
     }
 }
