@@ -22,6 +22,7 @@ import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterfa
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
 public class HttpReceiverProperties extends ConnectorProperties implements ListenerConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
     private ListenerConnectorProperties listenerConnectorProperties;
@@ -169,4 +170,15 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("responseConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        purgedProperties.put("responseContentType", responseContentType);
+        purgedProperties.put("responseHeaderChars", responseHeaders.size());
+        purgedProperties.put("charset", charset);
+        purgedProperties.put("timeout", PurgeUtil.getNumericValue(timeout));
+        return purgedProperties;
+    }
 }

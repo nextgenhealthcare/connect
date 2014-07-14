@@ -15,8 +15,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.purge.Purgable;
 
-public abstract class DataTypePropertiesGroup implements Serializable, Migratable {
+public abstract class DataTypePropertiesGroup implements Serializable, Migratable, Purgable {
 
     public abstract Map<String, DataTypePropertyDescriptor> getPropertyDescriptors();
 

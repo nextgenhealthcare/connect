@@ -44,5 +44,7 @@ public abstract class ControllerFactory {
 
     public abstract ScriptController createScriptController();
 
+    public abstract UsageController createUsageController();
+
     public abstract UserController createUserController();
 }

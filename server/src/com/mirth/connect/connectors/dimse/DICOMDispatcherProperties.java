@@ -9,12 +9,15 @@
 
 package com.mirth.connect.connectors.dimse;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
 public class DICOMDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
 
@@ -478,4 +481,34 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Di
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        purgedProperties.put("templateLines", PurgeUtil.countLines(template));
+        purgedProperties.put("acceptTo", PurgeUtil.getNumericValue(acceptTo));
+        purgedProperties.put("async", PurgeUtil.getNumericValue(async));
+        purgedProperties.put("bufSize", PurgeUtil.getNumericValue(bufSize));
+        purgedProperties.put("connectTo", PurgeUtil.getNumericValue(connectTo));
+        purgedProperties.put("priority", priority);
+        purgedProperties.put("pdv1", pdv1);
+        purgedProperties.put("rcvpdulen", PurgeUtil.getNumericValue(rcvpdulen));
+        purgedProperties.put("reaper", PurgeUtil.getNumericValue(reaper));
+        purgedProperties.put("releaseTo", PurgeUtil.getNumericValue(releaseTo));
+        purgedProperties.put("rspTo", PurgeUtil.getNumericValue(rspTo));
+        purgedProperties.put("shutdownDelay", PurgeUtil.getNumericValue(shutdownDelay));
+        purgedProperties.put("sndpdulen", PurgeUtil.getNumericValue(sndpdulen));
+        purgedProperties.put("soCloseDelay", PurgeUtil.getNumericValue(soCloseDelay));
+        purgedProperties.put("sorcvbuf", PurgeUtil.getNumericValue(sorcvbuf));
+        purgedProperties.put("sosndbuf", PurgeUtil.getNumericValue(sosndbuf));
+        purgedProperties.put("stgcmt", stgcmt);
+        purgedProperties.put("tcpDelay", tcpDelay);
+        purgedProperties.put("ts1", ts1);
+        purgedProperties.put("uidnegrsp", uidnegrsp);
+        purgedProperties.put("noClientAuth", noClientAuth);
+        purgedProperties.put("nossl2", nossl2);
+        purgedProperties.put("tls", tls);
+        return purgedProperties;
+    }
 }

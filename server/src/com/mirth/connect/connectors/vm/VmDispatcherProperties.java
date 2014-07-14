@@ -9,12 +9,15 @@
 
 package com.mirth.connect.connectors.vm;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
 public class VmDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
     private QueueConnectorProperties queueConnectorProperties;
@@ -98,4 +101,13 @@ public class VmDispatcherProperties extends ConnectorProperties implements Dispa
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        purgedProperties.put("channelId", channelId);
+        purgedProperties.put("channelTemplateLines", PurgeUtil.countLines(channelTemplate));
+        return purgedProperties;
+    }
 }

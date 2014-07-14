@@ -9,9 +9,12 @@
 
 package com.mirth.connect.connectors.jms;
 
+import java.util.Map;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
 public class JmsDispatcherProperties extends JmsConnectorProperties implements DispatcherConnectorPropertiesInterface {
     private static final String NAME = "JMS Sender";
@@ -63,5 +66,13 @@ public class JmsDispatcherProperties extends JmsConnectorProperties implements D
     @Override
     public ConnectorProperties clone() {
         return new JmsDispatcherProperties(this);
+    }
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("templateLines", PurgeUtil.countLines(template));
+        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        return purgedProperties;
     }
 }

@@ -10,11 +10,15 @@
 package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.purge.Purgable;
 
-public abstract class ConnectorProperties implements Serializable, Migratable {
+public abstract class ConnectorProperties implements Serializable, Migratable, Purgable {
 
     private Set<ConnectorPluginProperties> pluginProperties;
 
@@ -48,4 +52,15 @@ public abstract class ConnectorProperties implements Serializable, Migratable {
      */
     @Override
     public abstract boolean equals(Object obj);
+    
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        Set<Map<String, Object>> purgedPluginProperties = new HashSet<Map<String, Object>>();
+        for (ConnectorPluginProperties cpp : pluginProperties) {
+            purgedPluginProperties.add(cpp.getPurgedProperties());
+        }
+        purgedProperties.put("connectorPluginProperties", purgedPluginProperties);
+        return purgedProperties;
+    }
 }

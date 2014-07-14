@@ -14,8 +14,9 @@ import java.io.Serializable;
 import org.apache.commons.lang3.SerializationUtils;
 
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.purge.Purgable;
 
-public abstract class DataTypeProperties implements Serializable, Migratable {
+public abstract class DataTypeProperties implements Serializable, Migratable, Purgable {
 	
 	protected SerializationProperties serializationProperties;
 	protected DeserializationProperties deserializationProperties;

@@ -11,12 +11,16 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.ObjectUtils;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.purge.Purgable;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.donkey.util.xstream.Base64StringConverter;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -29,7 +33,7 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
  */
 
 @XStreamAlias("transformer")
-public class Transformer implements Serializable, Migratable {
+public class Transformer implements Serializable, Migratable, Purgable {
     private List<Step> steps;
 
     @XStreamConverter(Base64StringConverter.class)
@@ -125,4 +129,17 @@ public class Transformer implements Serializable, Migratable {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("inboundTemplateChars", PurgeUtil.countChars(inboundTemplate));
+        purgedProperties.put("outboundTemplateChars", PurgeUtil.countChars(outboundTemplate));
+        purgedProperties.put("inboundDataType", inboundDataType);
+        purgedProperties.put("outboundDataType", outboundDataType);
+        purgedProperties.put("inboundProperties", inboundProperties.getPurgedProperties());
+        purgedProperties.put("outboundProperties", outboundProperties.getPurgedProperties());
+        purgedProperties.put("steps", PurgeUtil.purgeList(steps));
+        return purgedProperties;
+    }
 }

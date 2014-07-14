@@ -161,16 +161,16 @@ public class DefaultExtensionController extends ExtensionController {
                 File extensionPath = new File(ExtensionController.getExtensionsPath());
                 // do a recursive scan for extension files
                 Collection<File> extensionFiles = FileUtils.listFiles(extensionPath, andFileFilter, FileFilterUtils.trueFileFilter());
-    
+
                 for (File extensionFile : extensionFiles) {
                     try {
                         MetaData metaData = (MetaData) serializer.deserialize(FileUtils.readFileToString(extensionFile), MetaData.class);
-    
+
                         if (isExtensionCompatible(metaData)) {
                             if (metaData instanceof ConnectorMetaData) {
                                 ConnectorMetaData connectorMetaData = (ConnectorMetaData) metaData;
                                 connectorMetaDataMap.put(connectorMetaData.getName(), connectorMetaData);
-    
+
                                 if (StringUtils.contains(connectorMetaData.getProtocol(), ":")) {
                                     for (String protocol : connectorMetaData.getProtocol().split(":")) {
                                         connectorProtocolsMap.put(protocol, connectorMetaData);
@@ -758,5 +758,9 @@ public class DefaultExtensionController extends ExtensionController {
         }
 
         return clientLibFilenames;
+    }
+
+    public List<ServerPlugin> getServerPlugins() {
+        return serverPlugins;
     }
 }

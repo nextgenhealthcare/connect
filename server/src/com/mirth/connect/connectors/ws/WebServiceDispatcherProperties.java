@@ -21,6 +21,7 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
 public class WebServiceDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
 
@@ -286,4 +287,18 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        purgedProperties.put("useAuthentication", useAuthentication);
+        purgedProperties.put("envelopeLines", PurgeUtil.countLines(envelope));
+        purgedProperties.put("oneWay", oneWay);
+        purgedProperties.put("useMtom", useMtom);
+        purgedProperties.put("attachmentNamesCount", attachmentNames.size());
+        purgedProperties.put("attachmentContentCount", attachmentContents.size());
+        purgedProperties.put("wsdlDefinitionMapCount", wsdlDefinitionMap.size());
+        return purgedProperties;
+    }
 }

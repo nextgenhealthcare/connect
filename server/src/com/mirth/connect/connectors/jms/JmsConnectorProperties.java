@@ -17,6 +17,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
 public class JmsConnectorProperties extends ConnectorProperties {
     private boolean useJndi;
@@ -209,4 +210,13 @@ public class JmsConnectorProperties extends ConnectorProperties {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("useJndi", useJndi);
+        purgedProperties.put("connectionPropertyChars", connectionProperties.size());
+        purgedProperties.put("topic", topic);
+        return purgedProperties;
+    }
 }

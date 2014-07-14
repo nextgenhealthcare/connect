@@ -10,14 +10,18 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.ObjectUtils;
 
+import com.mirth.connect.donkey.util.purge.Purgable;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("step")
-public class Step implements Serializable {
+public class Step implements Serializable, Purgable {
 	private int sequenceNumber;
 	private String name;
 	private String script;
@@ -93,4 +97,25 @@ public class Step implements Serializable {
 		builder.append("]");
 		return builder.toString();
 	}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        // The original values for "isGlobal" and "DefaultValue" are not to be purged.
+        String defaultValue = "DefaultValue";
+        String isGlobal = "isGlobal";
+        Map<String, Object> purgedData = (Map<String, Object>) PurgeUtil.getPurgedMap(data);
+        if (data.containsKey(defaultValue)) {
+            purgedData.put("defaultValueUsed", !data.get(defaultValue).toString().isEmpty());
+        }
+        if (data.containsKey(isGlobal)) {
+            purgedData.put(isGlobal, data.get(isGlobal));
+        }
+        
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("sequenceNumber", sequenceNumber);
+        purgedProperties.put("scriptLines", PurgeUtil.countLines(script));
+        purgedProperties.put("type", type);
+        purgedProperties.put("data", purgedData);
+        return purgedProperties;
+    }
 }

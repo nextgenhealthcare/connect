@@ -9,12 +9,15 @@
 
 package com.mirth.connect.connectors.tcp;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.model.transmission.framemode.FrameModeProperties;
 import com.mirth.connect.util.CharsetUtils;
@@ -273,4 +276,22 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        purgedProperties.put("transmissionModeProperties", transmissionModeProperties.getPurgedProperties());
+        purgedProperties.put("overrideLocalBinding", overrideLocalBinding);
+        purgedProperties.put("sendTimeout", PurgeUtil.getNumericValue(sendTimeout));
+        purgedProperties.put("bufferSize", PurgeUtil.getNumericValue(bufferSize));
+        purgedProperties.put("keepConnectionOpen", keepConnectionOpen);
+        purgedProperties.put("responseTimeout", PurgeUtil.getNumericValue(responseTimeout));
+        purgedProperties.put("ignoreResponse", ignoreResponse);
+        purgedProperties.put("queueOnResponseTimeout", queueOnResponseTimeout);
+        purgedProperties.put("processHL7ACK", processHL7ACK);
+        purgedProperties.put("charsetEncoding", charsetEncoding);
+        purgedProperties.put("templateLines", PurgeUtil.countLines(template));
+        return purgedProperties;
+    }
 }

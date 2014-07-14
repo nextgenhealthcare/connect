@@ -10,16 +10,19 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import com.mirth.connect.donkey.util.purge.Purgable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("updateSettings")
-public class UpdateSettings extends AbstractSettings implements Serializable, Auditable {
+public class UpdateSettings extends AbstractSettings implements Serializable, Auditable, Purgable {
 
     private static final String FIRST_LOGIN = "firstlogin";
     private static final String UPDATES_ENABLED = "update.enabled";
@@ -116,4 +119,14 @@ public class UpdateSettings extends AbstractSettings implements Serializable, Au
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
     }
 
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("firstLogin", firstLogin);
+        purgedProperties.put("updatesEnabled", updatesEnabled);
+        purgedProperties.put("statsEnabled", statsEnabled);
+        purgedProperties.put("updateUrl", updateUrl);
+        purgedProperties.put("lastStatsTime", lastStatsTime);
+        return purgedProperties;
+    }
 }

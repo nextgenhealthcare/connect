@@ -10,13 +10,16 @@
 package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.purge.Purgable;
 
-public class QueueConnectorProperties implements Serializable, Migratable {
+public class QueueConnectorProperties implements Serializable, Migratable, Purgable {
     private boolean queueEnabled;
     private boolean sendFirst;
     private int retryIntervalMillis;
@@ -111,4 +114,17 @@ public class QueueConnectorProperties implements Serializable, Migratable {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("queueEnabled", queueEnabled);
+        purgedProperties.put("sendFirst", sendFirst);
+        purgedProperties.put("retryIntervalMillis", retryIntervalMillis);
+        purgedProperties.put("regenerateTemplate", regenerateTemplate);
+        purgedProperties.put("retryCount", retryCount);
+        purgedProperties.put("rotate", rotate);
+        purgedProperties.put("threadCount", threadCount);
+        return purgedProperties;
+    }
 }

@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.tcp;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -17,6 +19,7 @@ import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterfa
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.model.transmission.framemode.FrameModeProperties;
 import com.mirth.connect.util.CharsetUtils;
@@ -267,5 +270,23 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
         element.addChildElement("remoteAddress", remoteAddress);
         element.addChildElement("remotePort", remotePort);
         element.addChildElement("overrideLocalBinding", "false");
+    }
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("responseConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        purgedProperties.put("transmissionModeProperties", transmissionModeProperties.getPurgedProperties());
+        purgedProperties.put("serverMode", serverMode);
+        purgedProperties.put("overrideLocalBinding", overrideLocalBinding);
+        purgedProperties.put("reconnectInterval", PurgeUtil.getNumericValue(reconnectInterval));
+        purgedProperties.put("receiveTimeout", PurgeUtil.getNumericValue(receiveTimeout));
+        purgedProperties.put("bufferSize", PurgeUtil.getNumericValue(bufferSize));
+        purgedProperties.put("maxConnections", PurgeUtil.getNumericValue(maxConnections));
+        purgedProperties.put("keepConnectionOpen", keepConnectionOpen);
+        purgedProperties.put("dataTypeBinary", dataTypeBinary);
+        purgedProperties.put("charsetEncoding", charsetEncoding);
+        purgedProperties.put("respondOnNewConnection", respondOnNewConnection);
+        return purgedProperties;
     }
 }

@@ -17,10 +17,11 @@ import java.util.Set;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.purge.Purgable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("alertChannels")
-public class AlertChannels implements Migratable {
+public class AlertChannels implements Migratable, Purgable {
 
     private boolean newChannelSource = false;
     private boolean newChannelDestination = false;
@@ -112,4 +113,15 @@ public class AlertChannels implements Migratable {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("newChannelSource", newChannelSource);
+        purgedProperties.put("newChannelDestination", newChannelDestination);
+        purgedProperties.put("enabledChannelsCount", enabledChannels.size());
+        purgedProperties.put("disabledChannelsCount", disabledChannels.size());
+        purgedProperties.put("partialChannelsCount", partialChannels.size());
+        return purgedProperties;
+    }
 }

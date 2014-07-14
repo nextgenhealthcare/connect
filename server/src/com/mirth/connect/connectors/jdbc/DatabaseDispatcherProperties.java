@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.jdbc;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
@@ -16,6 +18,7 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
 public class DatabaseDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
     public static final String NAME = "Database Writer";
@@ -171,4 +174,13 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+    
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("driver", driver);
+        purgedProperties.put("queryLines", PurgeUtil.countLines(query));
+        purgedProperties.put("useScript", useScript);
+        return purgedProperties;
+    }
 }

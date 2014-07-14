@@ -13,8 +13,9 @@ import java.io.Serializable;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.purge.Purgable;
 
-public abstract class ConnectorPluginProperties implements Serializable, Migratable {
+public abstract class ConnectorPluginProperties implements Serializable, Migratable, Purgable {
 
     public abstract String getName();
 

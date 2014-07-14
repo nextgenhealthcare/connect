@@ -125,5 +125,8 @@
 	<classpathentry kind="lib" path="lib/jetty/jetty-webapp-7.6.7.v20120910.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-xml-7.6.7.v20120910.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.4.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

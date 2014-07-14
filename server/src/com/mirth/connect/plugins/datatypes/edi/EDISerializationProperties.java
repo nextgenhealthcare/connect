@@ -9,6 +9,7 @@
 
 package com.mirth.connect.plugins.datatypes.edi;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -101,4 +102,11 @@ public class EDISerializationProperties extends SerializationProperties {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("inferX12Delimiters", inferX12Delimiters);
+        return purgedProperties;
+    }
 }

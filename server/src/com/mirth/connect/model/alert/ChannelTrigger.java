@@ -9,7 +9,12 @@
 
 package com.mirth.connect.model.alert;
 
-public abstract class ChannelTrigger {
+import java.util.HashMap;
+import java.util.Map;
+
+import com.mirth.connect.donkey.util.purge.Purgable;
+
+public abstract class ChannelTrigger implements Purgable {
 
     private AlertChannels alertChannels = new AlertChannels();
 
@@ -21,4 +26,10 @@ public abstract class ChannelTrigger {
         this.alertChannels = channels;
     }
 
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("alertChannels", alertChannels.getPurgedProperties());
+        return purgedProperties;
+    }
 }

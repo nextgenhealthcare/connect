@@ -9,6 +9,7 @@
 
 package com.mirth.connect.plugins.datatypes.delimited;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class DelimitedDeserializationProperties extends DeserializationPropertie
     private String quoteChar = "\"";
     private boolean escapeWithDoubleQuote = true;
     private String quoteEscapeChar = "\\";
-
+   
     @Override
     public Map<String, DataTypePropertyDescriptor> getPropertyDescriptors() {
         Map<String, DataTypePropertyDescriptor> properties = new LinkedHashMap<String, DataTypePropertyDescriptor>();
@@ -176,4 +177,12 @@ public class DelimitedDeserializationProperties extends DeserializationPropertie
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("columnWidths", columnWidths);
+        purgedProperties.put("escapeWithDoubleQuote", escapeWithDoubleQuote);
+        return purgedProperties;
+    }
 }

@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.vm;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -53,4 +55,11 @@ public class VmReceiverProperties extends ConnectorProperties implements Respons
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("responseConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        return purgedProperties;
+    }
 }

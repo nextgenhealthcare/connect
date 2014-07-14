@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.js;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -17,6 +19,7 @@ import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
 public class JavaScriptReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
     public static final String NAME = "JavaScript Reader";
@@ -75,4 +78,13 @@ public class JavaScriptReceiverProperties extends ConnectorProperties implements
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("pollConnectorProperties", pollConnectorProperties.getPurgedProperties());
+        purgedProperties.put("responseConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        purgedProperties.put("script", PurgeUtil.countLines(script));
+        return purgedProperties;
+    }
 }

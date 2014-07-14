@@ -10,14 +10,19 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import com.mirth.connect.donkey.util.purge.Purgable;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("rule")
-public class Rule implements Serializable {
+public class Rule implements Serializable, Purgable {
 	public enum Operator {
 		AND, OR, NONE
 	}
@@ -108,4 +113,22 @@ public class Rule implements Serializable {
 		builder.append("]");
 		return builder.toString();
 	}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        // The original value for the "Equals" is not to be purged.
+        Map<String, Object> purgedData = (Map<String, Object>) PurgeUtil.getPurgedMap(data);
+        String equals = "Equals";
+        if (data.containsKey(equals)) {
+            purgedData.put(StringUtils.uncapitalize(equals), data.get(equals));
+        }
+        
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("sequenceNumber", sequenceNumber);
+        purgedProperties.put("data", purgedData);
+        purgedProperties.put("type", type);
+        purgedProperties.put("scriptLines", PurgeUtil.countLines(script));
+        purgedProperties.put("operator", operator);
+        return purgedProperties;
+    }
 }

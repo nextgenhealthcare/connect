@@ -10,14 +10,17 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import com.mirth.connect.donkey.util.purge.Purgable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("connectorMetaData")
-public class ConnectorMetaData extends MetaData implements Serializable {
+public class ConnectorMetaData extends MetaData implements Serializable, Purgable {
     public enum Type {
         SOURCE, DESTINATION
     }
@@ -94,4 +97,16 @@ public class ConnectorMetaData extends MetaData implements Serializable {
         return ToStringBuilder.reflectionToString(this, CalendarToStringStyle.instance());
     }
 
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("serverClassName", serverClassName);
+        purgedProperties.put("sharedClassName", sharedClassName);
+        purgedProperties.put("clientClassName", clientClassName);
+        purgedProperties.put("serviceClassName", serviceClassName);
+        purgedProperties.put("transformers", transformers);
+        purgedProperties.put("protocol", protocol);
+        purgedProperties.put("type", type);
+        return purgedProperties;
+    }
 }

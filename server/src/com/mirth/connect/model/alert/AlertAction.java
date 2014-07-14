@@ -9,12 +9,16 @@
 
 package com.mirth.connect.model.alert;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.purge.Purgable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("alertAction")
-public class AlertAction implements Migratable {
+public class AlertAction implements Migratable, Purgable {
 
     private AlertActionProtocol protocol;
     private String recipient;
@@ -45,4 +49,11 @@ public class AlertAction implements Migratable {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("protocol", protocol);
+        return purgedProperties;
+    }
 }

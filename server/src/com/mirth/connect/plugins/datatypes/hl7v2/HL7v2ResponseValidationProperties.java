@@ -9,6 +9,7 @@
 
 package com.mirth.connect.plugins.datatypes.hl7v2;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -85,4 +86,9 @@ public class HL7v2ResponseValidationProperties extends ResponseValidationPropert
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        return null;
+    }
 }

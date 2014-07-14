@@ -9,6 +9,9 @@
 
 package com.mirth.connect.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
@@ -61,5 +64,12 @@ public class InvalidConnectorPluginProperties extends ConnectorPluginProperties 
             return propertiesXml.equals(((InvalidConnectorPluginProperties) obj).getPropertiesXml());
         }
         return false;
+    }
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("name", name);
+        return purgedProperties;
     }
 }

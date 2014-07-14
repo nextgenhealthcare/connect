@@ -9,9 +9,11 @@
 
 package com.mirth.connect.plugins.datatypes.delimited;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -269,4 +271,15 @@ public class DelimitedSerializationProperties extends SerializationProperties {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("columnWidths", columnWidths);
+        purgedProperties.put("escapeWithDoubleQuote", escapeWithDoubleQuote);
+        purgedProperties.put("columnNameCount", ArrayUtils.getLength(columnNames));
+        purgedProperties.put("numberedRows", numberedRows);
+        purgedProperties.put("ignoreCR", ignoreCR);
+        return purgedProperties;
+    }
 }

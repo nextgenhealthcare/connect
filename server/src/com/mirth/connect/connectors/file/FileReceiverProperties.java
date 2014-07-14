@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.file;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -17,6 +19,7 @@ import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.util.CharsetUtils;
 
 public class FileReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
@@ -362,4 +365,30 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("pollConnectorProperties", pollConnectorProperties.getPurgedProperties());
+        purgedProperties.put("resposeConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        purgedProperties.put("scheme", scheme);
+        purgedProperties.put("regex", regex);
+        purgedProperties.put("directoryRecursion", directoryRecursion);
+        purgedProperties.put("ignoreDot", ignoreDot);
+        purgedProperties.put("anonymous", anonymous);
+        purgedProperties.put("timeout", PurgeUtil.getNumericValue(timeout));
+        purgedProperties.put("secure", secure);
+        purgedProperties.put("passive", passive);
+        purgedProperties.put("validateConnection", validateConnection);
+        purgedProperties.put("afterProcessingAction", afterProcessingAction);
+        purgedProperties.put("errorReadingAction", errorReadingAction);
+        purgedProperties.put("checkFileAge", checkFileAge);
+        purgedProperties.put("fileAge", PurgeUtil.getNumericValue(fileAge));
+        purgedProperties.put("fileSizeMinimum", PurgeUtil.getNumericValue(fileSizeMinimum));
+        purgedProperties.put("fileSizeMaximum", PurgeUtil.getNumericValue(fileSizeMaximum));
+        purgedProperties.put("ignoreFileSizeMaximum", ignoreFileSizeMaximum);
+        purgedProperties.put("sortBy", sortBy);
+        purgedProperties.put("processBatch", processBatch);
+        return purgedProperties;
+    }
 }

@@ -9,12 +9,15 @@
 
 package com.mirth.connect.connectors.file;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.util.CharsetUtils;
 
 public class FileDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
@@ -290,4 +293,22 @@ public class FileDispatcherProperties extends ConnectorProperties implements Dis
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        purgedProperties.put("scheme", scheme);
+        purgedProperties.put("timeout", PurgeUtil.getNumericValue(timeout));
+        purgedProperties.put("secure", secure);
+        purgedProperties.put("passive", passive);
+        purgedProperties.put("validateConnection", validateConnection);
+        purgedProperties.put("outputAppend", outputAppend);
+        purgedProperties.put("errorOnExists", errorOnExists);
+        purgedProperties.put("temporary", temporary);
+        purgedProperties.put("binary", binary);
+        purgedProperties.put("charsetEncoding", charsetEncoding);
+        purgedProperties.put("templateLines", PurgeUtil.countLines(template));
+        return purgedProperties;
+    }
 }

@@ -58,8 +58,8 @@ public class DefaultControllerFactory extends ControllerFactory {
 
     public synchronized EngineController createEngineController() {
         /*
-         * Eventually, plugins will be able to specify controller classes to override,
-         * see MIRTH-3351
+         * Eventually, plugins will be able to specify controller classes to override, see
+         * MIRTH-3351
          */
         if (engineController == null) {
             ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
@@ -110,8 +110,11 @@ public class DefaultControllerFactory extends ControllerFactory {
         return DefaultScriptController.create();
     }
 
+    public UsageController createUsageController() {
+        return DefaultUsageController.create();
+    }
+
     public UserController createUserController() {
         return DefaultUserController.create();
     }
-
 }

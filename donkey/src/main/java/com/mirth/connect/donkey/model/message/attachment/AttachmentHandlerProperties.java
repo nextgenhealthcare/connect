@@ -13,7 +13,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AttachmentHandlerProperties implements Serializable {
+import com.mirth.connect.donkey.util.purge.Purgable;
+
+public class AttachmentHandlerProperties implements Serializable, Purgable {
 
     private String className;
     private String type;
@@ -62,5 +64,12 @@ public class AttachmentHandlerProperties implements Serializable {
         }
 
         return false;
+    }
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("type", type);
+        return purgedProperties;
     }
 }

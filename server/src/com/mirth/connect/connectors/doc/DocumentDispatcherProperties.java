@@ -9,12 +9,15 @@
 
 package com.mirth.connect.connectors.doc;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
 public class DocumentDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
 
@@ -164,4 +167,13 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("documentType", documentType);
+        purgedProperties.put("encrypt", encrypt);
+        purgedProperties.put("templateLines", PurgeUtil.countLines(template));
+        return purgedProperties;
+    }
 }

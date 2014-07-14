@@ -9,12 +9,15 @@
 
 package com.mirth.connect.connectors.js;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
 public class JavaScriptDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
     public static final String NAME = "JavaScript Writer";
@@ -78,4 +81,12 @@ public class JavaScriptDispatcherProperties extends ConnectorProperties implemen
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        purgedProperties.put("script", PurgeUtil.countLines(script));
+        return purgedProperties;
+    }
 }

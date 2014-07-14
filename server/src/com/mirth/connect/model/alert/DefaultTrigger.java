@@ -9,16 +9,19 @@
 
 package com.mirth.connect.model.alert;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.purge.Purgable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("defaultTrigger")
-public class DefaultTrigger extends ChannelTrigger implements AlertTrigger, Migratable {
+public class DefaultTrigger extends ChannelTrigger implements AlertTrigger, Migratable, Purgable {
 
     private Set<ErrorEventType> errorEventTypes;
     private String regex;
@@ -53,4 +56,11 @@ public class DefaultTrigger extends ChannelTrigger implements AlertTrigger, Migr
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("errorEventTypes", errorEventTypes);
+        return purgedProperties;
+    }
 }

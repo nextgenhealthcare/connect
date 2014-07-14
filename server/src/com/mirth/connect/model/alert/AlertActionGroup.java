@@ -10,14 +10,18 @@
 package com.mirth.connect.model.alert;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.purge.Purgable;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("alertActionGroup")
-public class AlertActionGroup implements Migratable {
+public class AlertActionGroup implements Migratable, Purgable {
 
     protected List<AlertAction> actions;
     protected String subject;
@@ -56,4 +60,12 @@ public class AlertActionGroup implements Migratable {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("actions", PurgeUtil.purgeList(actions));
+        purgedProperties.put("templateLines", PurgeUtil.countLines(template));
+        return purgedProperties;
+    }
 }

@@ -9,6 +9,7 @@
 
 package com.mirth.connect.plugins.datatypes.ncpdp;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -80,4 +81,9 @@ public class NCPDPSerializationProperties extends SerializationProperties {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        return null;
+    }
 }

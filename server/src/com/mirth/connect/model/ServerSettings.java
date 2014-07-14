@@ -10,7 +10,9 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -18,12 +20,14 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.util.purge.Purgable;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.DefaultMetaData;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("serverSettings")
-public class ServerSettings extends AbstractSettings implements Serializable, Auditable {
+public class ServerSettings extends AbstractSettings implements Serializable, Auditable, Purgable {
 
     private static final String CLEAR_GLOBAL_MAP = "server.resetglobalvariables";
     private static final String QUEUE_BUFFER_SIZE = "server.queuebuffersize";
@@ -207,4 +211,15 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
     }
 
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("clearGlobalMap", clearGlobalMap);
+        purgedProperties.put("queueBufferSize", queueBufferSize);
+        purgedProperties.put("defaultMetaDataColumns", PurgeUtil.purgeList(defaultMetaDataColumns));
+        purgedProperties.put("smtpTimeout", PurgeUtil.getNumericValue(smtpTimeout));
+        purgedProperties.put("smtpSecure", smtpSecure);
+        purgedProperties.put("smtpAuth", smtpAuth);
+        return purgedProperties;
+    }
 }

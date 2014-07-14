@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.jdbc;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -17,6 +19,7 @@ import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
 public class DatabaseReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
     public static final String NAME = "Database Reader";
@@ -198,4 +201,22 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("pollConnectorProperties", pollConnectorProperties.getPurgedProperties());
+        purgedProperties.put("responseConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        purgedProperties.put("driver", driver);
+        purgedProperties.put("selectLines", PurgeUtil.countLines(select));
+        purgedProperties.put("updateLines", PurgeUtil.countLines(update));
+        purgedProperties.put("useScript", useScript);
+        purgedProperties.put("cacheResults", cacheResults);
+        purgedProperties.put("keepConnectionOpen", keepConnectionOpen);
+        purgedProperties.put("updateMode", updateMode);
+        purgedProperties.put("retryCount", PurgeUtil.getNumericValue(retryCount));
+        purgedProperties.put("retryInterval", PurgeUtil.getNumericValue(retryInterval));
+        purgedProperties.put("fetchSize", PurgeUtil.getNumericValue(fetchSize));
+        return purgedProperties;
+    }
 }

@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.dimse;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -17,6 +19,7 @@ import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterfa
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
 public class DICOMReceiverProperties extends ConnectorProperties implements ListenerConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
     private ListenerConnectorProperties listenerConnectorProperties;
@@ -375,4 +378,30 @@ public class DICOMReceiverProperties extends ConnectorProperties implements List
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("responseConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        purgedProperties.put("soCloseDelay", PurgeUtil.getNumericValue(soCloseDelay));
+        purgedProperties.put("releaseTo", PurgeUtil.getNumericValue(releaseTo));
+        purgedProperties.put("requestTo", PurgeUtil.getNumericValue(requestTo));
+        purgedProperties.put("idleTo", PurgeUtil.getNumericValue(idleTo));
+        purgedProperties.put("reaper", PurgeUtil.getNumericValue(reaper));
+        purgedProperties.put("rspDelay", PurgeUtil.getNumericValue(rspDelay));
+        purgedProperties.put("pdv1", pdv1);
+        purgedProperties.put("sndpdulen", PurgeUtil.getNumericValue(sndpdulen));
+        purgedProperties.put("rcvpdulen", PurgeUtil.getNumericValue(rcvpdulen));
+        purgedProperties.put("async", PurgeUtil.getNumericValue(async));
+        purgedProperties.put("bigEndian", bigEndian);
+        purgedProperties.put("defts", defts);
+        purgedProperties.put("nativeData", nativeData);
+        purgedProperties.put("sorcvbuf", PurgeUtil.getNumericValue(sorcvbuf));
+        purgedProperties.put("sosndbuf", PurgeUtil.getNumericValue(sosndbuf));
+        purgedProperties.put("tcpDelay", tcpDelay);
+        purgedProperties.put("noClientAuth", noClientAuth);
+        purgedProperties.put("nossl2", nossl2);
+        purgedProperties.put("tls", tls);
+        return purgedProperties;
+    }
 }

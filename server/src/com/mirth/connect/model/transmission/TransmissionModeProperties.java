@@ -10,8 +10,12 @@
 package com.mirth.connect.model.transmission;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
-public class TransmissionModeProperties implements Serializable {
+import com.mirth.connect.donkey.util.purge.Purgable;
+
+public class TransmissionModeProperties implements Serializable, Purgable {
 
     private String pluginPointName;
 
@@ -35,5 +39,12 @@ public class TransmissionModeProperties implements Serializable {
             }
         }
         return false;
+    }
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("pluginPointName", pluginPointName);
+        return purgedProperties;
     }
 }

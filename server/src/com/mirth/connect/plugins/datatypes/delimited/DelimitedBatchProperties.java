@@ -9,12 +9,14 @@
 
 package com.mirth.connect.plugins.datatypes.delimited;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.datatype.BatchProperties;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
@@ -144,4 +146,14 @@ public class DelimitedBatchProperties extends BatchProperties {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("batchSkipRecords", batchSkipRecords);
+        purgedProperties.put("batchSplitByRecord", batchSplitByRecord);
+        purgedProperties.put("batchMessageDelimiterIncluded", batchMessageDelimiterIncluded);
+        purgedProperties.put("batchScriptLines", PurgeUtil.countLines(batchScript));
+        return purgedProperties;
+    }
 }

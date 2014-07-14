@@ -9,8 +9,11 @@
 
 package com.mirth.connect.connectors.jms;
 
+import java.util.Map;
+
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
 public class JmsReceiverProperties extends JmsConnectorProperties implements ResponseConnectorPropertiesInterface {
     private ResponseConnectorProperties responseConnectorProperties;
@@ -74,5 +77,14 @@ public class JmsReceiverProperties extends JmsConnectorProperties implements Res
 
     public void setDurableTopic(boolean durableTopic) {
         this.durableTopic = durableTopic;
+    }
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("responseConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        purgedProperties.put("reconnectIntervalMillis", PurgeUtil.getNumericValue(reconnectIntervalMillis));
+        purgedProperties.put("durableTopic", durableTopic);
+        return purgedProperties;
     }
 }

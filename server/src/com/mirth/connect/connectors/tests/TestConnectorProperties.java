@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.tests;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -45,4 +47,9 @@ public class TestConnectorProperties extends ConnectorProperties {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        return null;
+    }
 }

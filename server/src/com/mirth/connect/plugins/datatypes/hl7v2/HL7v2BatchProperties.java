@@ -38,4 +38,9 @@ public class HL7v2BatchProperties extends BatchProperties {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        return null;
+    }
 }

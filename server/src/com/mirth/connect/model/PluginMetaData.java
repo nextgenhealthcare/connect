@@ -10,6 +10,7 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,11 +18,12 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import com.mirth.connect.donkey.util.purge.Purgable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
 @XStreamAlias("pluginMetaData")
-public class PluginMetaData extends MetaData implements Serializable {
+public class PluginMetaData extends MetaData implements Serializable, Purgable {
     @XStreamAlias("serverClasses")
     private List<PluginClass> serverClasses;
 
@@ -103,5 +105,13 @@ public class PluginMetaData extends MetaData implements Serializable {
         public void setClassName(String className) {
             this.name = className;
         }
+    }
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("serverClasses", serverClasses);
+        purgedProperties.put("clientClasses", clientClasses);
+        return purgedProperties;
     }
 }

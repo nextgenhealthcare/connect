@@ -11,8 +11,10 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -22,11 +24,13 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.purge.Purgable;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("channelProperties")
-public class ChannelProperties implements Serializable, Migratable {
+public class ChannelProperties implements Serializable, Migratable, Purgable {
     private boolean clearGlobalChannelMap;
     private MessageStorageMode messageStorageMode;
     private boolean encryptData;
@@ -166,4 +170,23 @@ public class ChannelProperties implements Serializable, Migratable {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("clearGlobalChannelMap", clearGlobalChannelMap);
+        purgedProperties.put("messageStorageMode", messageStorageMode);
+        purgedProperties.put("encryptData", encryptData);
+        purgedProperties.put("removeContentOnCompletion", removeContentOnCompletion);
+        purgedProperties.put("removeAttachmentsOnCompletion", removeAttachmentsOnCompletion);
+        purgedProperties.put("initialState", initialState);
+        purgedProperties.put("storeAttachments", storeAttachments);
+        purgedProperties.put("tagCount", tags.size());
+        purgedProperties.put("metaDataColumns", PurgeUtil.purgeList(metaDataColumns));
+        purgedProperties.put("attachmentProperties", attachmentProperties.getPurgedProperties());
+        purgedProperties.put("pruneMetaDataDays", pruneMetaDataDays);
+        purgedProperties.put("pruneContentDays", pruneContentDays);
+        purgedProperties.put("archiveEnabled", archiveEnabled);
+        return purgedProperties;
+    }
 }

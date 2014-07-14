@@ -11,6 +11,7 @@ package com.mirth.connect.connectors.ws;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
@@ -107,4 +108,11 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("responseConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        return purgedProperties;
+    }
 }

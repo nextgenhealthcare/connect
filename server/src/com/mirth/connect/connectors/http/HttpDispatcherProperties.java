@@ -19,6 +19,7 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
 public class HttpDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
 
@@ -328,4 +329,19 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        purgedProperties.put("method", method);
+        purgedProperties.put("headerCount", headers.size());
+        purgedProperties.put("parameterCount", parameters.size());
+        purgedProperties.put("multipart", multipart);
+        purgedProperties.put("useAuthentication", useAuthentication);
+        purgedProperties.put("contentLines", PurgeUtil.countLines(content));
+        purgedProperties.put("charset", charset);
+        purgedProperties.put("socketTimeout", PurgeUtil.getNumericValue(socketTimeout));
+        return purgedProperties;
+    }
 }

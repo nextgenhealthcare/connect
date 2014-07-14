@@ -9,6 +9,9 @@
 
 package com.mirth.connect.plugins.datatypes.hl7v3;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
@@ -23,4 +26,11 @@ public class HL7V3DataTypeProperties extends DataTypeProperties {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("serializationProperties", serializationProperties.getPurgedProperties());
+        return purgedProperties;
+    }
 }

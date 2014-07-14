@@ -12,13 +12,17 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.purge.Purgable;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -28,7 +32,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  */
 
 @XStreamAlias("channel")
-public class Channel implements Serializable, Auditable, Migratable {
+public class Channel implements Serializable, Auditable, Migratable, Purgable {
     private String id;
     private Integer nextMetaDataId;
     private String name;
@@ -198,4 +202,32 @@ public class Channel implements Serializable, Auditable, Migratable {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("id", id);
+        purgedProperties.put("nextMetaDataId", nextMetaDataId);
+        purgedProperties.put("nameChars", PurgeUtil.countChars(name));
+        purgedProperties.put("descriptionChars", PurgeUtil.countChars(description));
+        purgedProperties.put("enabled", enabled);
+        purgedProperties.put("lastModified", lastModified);
+        Map<String, Object> sourceProperties = sourceConnector.getPurgedProperties();
+        sourceProperties.put("messageStatistics", PurgeUtil.getMessageStatistics(id, sourceConnector.getMetaDataId()));
+        purgedProperties.put("sourceConnector", sourceProperties);
+        List<Map<String, Object>> purgedDestinationConnectors = new ArrayList<Map<String, Object>>();
+        for (Connector connector : destinationConnectors) {
+            Map<String, Object> destinationProperties = connector.getPurgedProperties();
+            destinationProperties.put("messageStatistics", PurgeUtil.getMessageStatistics(id, connector.getMetaDataId()));
+            purgedDestinationConnectors.add(destinationProperties);
+        }
+        purgedProperties.put("destinationConnectors", purgedDestinationConnectors);
+        purgedProperties.put("preprocessingScriptLines", PurgeUtil.countLines(preprocessingScript));
+        purgedProperties.put("postprocessingScript", PurgeUtil.countLines(postprocessingScript));
+        purgedProperties.put("deployScriptLines", PurgeUtil.countLines(deployScript));
+        purgedProperties.put("shutdownScriptLines", PurgeUtil.countLines(shutdownScript));
+        purgedProperties.put("properties", properties.getPurgedProperties());
+        purgedProperties.put("messageStatistics", PurgeUtil.getMessageStatistics(id, null));
+        return purgedProperties;
+    }
 }

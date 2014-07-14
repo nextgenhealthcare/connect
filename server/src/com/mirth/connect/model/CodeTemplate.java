@@ -10,16 +10,20 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.ObjectUtils;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.purge.Purgable;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("codeTemplate")
-public class CodeTemplate implements Serializable, Migratable {
+public class CodeTemplate implements Serializable, Migratable, Purgable {
     public enum CodeSnippetType {
         CODE("Code"), VARIABLE("Variable"), FUNCTION("Function");
 
@@ -154,4 +158,16 @@ public class CodeTemplate implements Serializable, Migratable {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("id", id);
+        purgedProperties.put("nameChars", PurgeUtil.countChars(name));
+        purgedProperties.put("tooltipChars", PurgeUtil.countChars(tooltip));
+        purgedProperties.put("codeLines", PurgeUtil.countLines(code));
+        purgedProperties.put("type", type);
+        purgedProperties.put("scope", scope);
+        return purgedProperties;
+    }
 }

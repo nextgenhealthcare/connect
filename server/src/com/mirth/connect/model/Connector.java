@@ -10,6 +10,8 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -17,6 +19,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.purge.Purgable;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -28,7 +32,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  */
 
 @XStreamAlias("connector")
-public class Connector implements Serializable, Migratable {
+public class Connector implements Serializable, Migratable, Purgable {
     public enum Mode {
         SOURCE, DESTINATION
     }
@@ -143,4 +147,20 @@ public class Connector implements Serializable, Migratable {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("metaDataId", metaDataId);
+        purgedProperties.put("nameChars", PurgeUtil.countChars(name));
+        purgedProperties.put("properties", properties.getPurgedProperties());
+        purgedProperties.put("transformer", transformer.getPurgedProperties());
+        purgedProperties.put("responseTransformer", transformer.getPurgedProperties());
+        purgedProperties.put("filter", filter.getPurgedProperties());
+        purgedProperties.put("transportName", transportName);
+        purgedProperties.put("mode", mode);
+        purgedProperties.put("enabled", enabled);
+        purgedProperties.put("waitForPrevious", waitForPrevious);
+        return purgedProperties;
+    }
 }

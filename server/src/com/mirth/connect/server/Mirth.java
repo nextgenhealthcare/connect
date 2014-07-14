@@ -26,6 +26,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
@@ -49,17 +51,20 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.model.ServerEvent;
+import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.MigrationException;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.MigrationController;
 import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.controllers.UsageController;
 import com.mirth.connect.server.controllers.UserController;
 import com.mirth.connect.server.logging.JuliToLog4JService;
 import com.mirth.connect.server.logging.LogOutputStream;
@@ -73,11 +78,13 @@ import com.mirth.connect.server.servlets.EngineServlet;
 import com.mirth.connect.server.servlets.EventServlet;
 import com.mirth.connect.server.servlets.ExtensionServlet;
 import com.mirth.connect.server.servlets.MessageObjectServlet;
+import com.mirth.connect.server.servlets.UsageServlet;
 import com.mirth.connect.server.servlets.UserServlet;
 import com.mirth.connect.server.servlets.WebStartServlet;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.UsageUtil;
 
 /**
  * Instantiate a Mirth server that listens for commands from the CommandQueue.
@@ -99,6 +106,7 @@ public class Mirth extends Thread {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private UsageController usageController = ControllerFactory.getFactory().createUsageController();
 
     private static List<Thread> shutdownHooks = new ArrayList<Thread>();
 
@@ -248,7 +256,7 @@ public class Mirth extends Thread {
         migrationController.migrateSerializedData();
         userController.resetUserStatus();
         scriptController.compileGlobalScripts();
-
+        
         // disable the velocity logging
         Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
 
@@ -274,6 +282,10 @@ public class Mirth extends Thread {
 
         configurationController.setStatus(ConfigurationController.STATUS_OK);
         printSplashScreen();
+
+        // Send usage stats once a day.
+        Timer timer = new Timer();
+        timer.schedule(new UsageSenderTask(), 0, UsageUtil.MILLIS_PER_DAY);
     }
 
     /**
@@ -517,6 +529,7 @@ public class Mirth extends Thread {
             sslServletContextHandler.addServlet(new ServletHolder(new ExtensionServlet()), "/extensions");
             sslServletContextHandler.addServlet(new ServletHolder(new EventServlet()), "/events");
             sslServletContextHandler.addServlet(new ServletHolder(new UserServlet()), "/users");
+            sslServletContextHandler.addServlet(new ServletHolder(new UsageServlet()), "/usage");
             sslServletContextHandler.setConnectorNames(new String[] { "sslconnector" });
             handlers.addHandler(sslServletContextHandler);
 
@@ -687,5 +700,26 @@ public class Mirth extends Thread {
         System.setErr(new PrintStream(new LogOutputStream()));
         // Route all java.util.logging.Logger output to log4j
         JuliToLog4JService.getInstance().start();
+    }
+    
+    private class UsageSenderTask extends TimerTask {
+        private boolean firstTime = true;
+        @Override
+        public void run() {
+            try {
+                boolean isSent = UsageUtil.sendStatistics(configurationController.getServerVersion(), usageController.createUsageStats(firstTime));
+                if (isSent) {
+                    UpdateSettings settings = new UpdateSettings();
+                    settings.setLastStatsTime(System.currentTimeMillis());
+                    try {
+                        configurationController.setUpdateSettings(settings);
+                    } catch (ControllerException e) {
+                        
+                    }
+                }
+            } finally {
+                firstTime = false;
+            }
+        }
     }
 }

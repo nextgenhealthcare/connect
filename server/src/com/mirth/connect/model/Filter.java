@@ -11,12 +11,16 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.ObjectUtils;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.purge.Purgable;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -26,7 +30,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  */
 
 @XStreamAlias("filter")
-public class Filter implements Serializable, Migratable {
+public class Filter implements Serializable, Migratable, Purgable {
 	private List<Rule> rules;
 
 	public Filter() {
@@ -63,4 +67,11 @@ public class Filter implements Serializable, Migratable {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("rules", PurgeUtil.purgeList(rules));
+        return purgedProperties;
+    }
 }

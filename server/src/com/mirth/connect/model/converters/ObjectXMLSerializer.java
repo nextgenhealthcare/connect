@@ -49,7 +49,6 @@ import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.UpdateInfo;
 import com.mirth.connect.model.UpdateSettings;
-import com.mirth.connect.model.UsageData;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.alert.AlertAction;
 import com.mirth.connect.model.alert.AlertActionGroup;
@@ -106,7 +105,6 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         Transformer.class,
         UpdateInfo.class,
         UpdateSettings.class,
-        UsageData.class,
         User.class
     }; // @formatter:on
 

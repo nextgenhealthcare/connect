@@ -77,6 +77,7 @@ public class Client {
     public final static String TEMPLATE_SERVLET = "/codetemplates";
     public final static String EXTENSION_SERVLET = "/extensions";
     public final static String ENGINE_SERVLET = "/engine";
+    public final static String USAGE_SERVLET = "/usage";
 
     /**
      * Instantiates a new Mirth client with a connection to the specified server.
@@ -1208,5 +1209,16 @@ public class Client {
     public PasswordRequirements getPasswordRequirements() throws ClientException {
         NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_PASSWORD_REQUIREMENTS_GET.getName()) };
         return serializer.deserialize(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), PasswordRequirements.class);
+    }
+    
+    /**
+     * Returns the usage data of the Mirth server.
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public String getUsageData() throws ClientException {
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USAGE_DATA_GET.getName()) };
+        return serializer.deserialize(serverConnection.executePostMethodAsync(USAGE_SERVLET, params), String.class);
     }
 }

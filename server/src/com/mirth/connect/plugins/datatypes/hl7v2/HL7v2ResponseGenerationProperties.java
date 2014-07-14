@@ -9,10 +9,12 @@
 
 package com.mirth.connect.plugins.datatypes.hl7v2;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.ResponseGenerationProperties;
@@ -157,4 +159,14 @@ public class HL7v2ResponseGenerationProperties extends ResponseGenerationPropert
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public Map<String, Object> getPurgedProperties() {
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("successfulACKMessageChars", PurgeUtil.countChars(successfulACKMessage));
+        purgedProperties.put("errorACKMessageChars", PurgeUtil.countChars(errorACKMessage));
+        purgedProperties.put("rejectedACKMessageChars", PurgeUtil.countChars(rejectedACKMessage));
+        purgedProperties.put("msh15ACKAccept", msh15ACKAccept);
+        return purgedProperties;
+    }
 }

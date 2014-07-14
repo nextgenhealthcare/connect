@@ -11,52 +11,47 @@ package com.mirth.connect.client.core;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.SimpleHttpConnectionManager;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.utils.HttpClientUtils;
+import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 
-import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.ChannelStatistics;
-import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ConnectorMetaData;
-import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerInfo;
 import com.mirth.connect.model.UpdateInfo;
 import com.mirth.connect.model.UpdateSettings;
-import com.mirth.connect.model.UsageData;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.util.UsageUtil;
 
 public class UpdateClient {
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private final static String URL_REGISTRATION = "/RegistrationServlet";
     private final static String URL_UPDATES = "/UpdateServlet";
-    private final static String URL_USAGE_STATISTICS = "/UsageStatisticsServlet";
     private final static String USER_PREF_IGNORED_IDS = "ignoredcomponents";
     private final static String COMPONENT_PREFERENCE_SEPARATOR = ",";
-
-    private final static int KEY_DESTINATIONS = 1;
-    private final static int KEY_RECEIVED = 2;
-    private final static int KEY_FILTERED = 3;
-    private final static int KEY_SENT = 4;
-    private final static int KEY_ERRORED = 5;
-    private final static int KEY_INBOUND_TRANSPORT = 6;
-    private final static int KEY_INBOUND_DATA_TYPE = 7;
-    private final static int KEY_OUTBOUND_TRANSPORTS = 8;
-    private final static int KEY_OUTBOUND_DATA_TYPES = 9;
+    
+    private final static int TIMEOUT = 10000;
 
     private Client client;
     private User requestUser;
@@ -106,101 +101,85 @@ public class UpdateClient {
     }
 
     public void sendUsageStatistics() throws ClientException {
-        // Only send stats if they haven't been sent in the last 24 hours.
-        long now = System.currentTimeMillis();
-        Long lastUpdate = client.getUpdateSettings().getLastStatsTime();
-
-        if (lastUpdate != null) {
-            long last = lastUpdate;
-            // 86400 seconds in a day
-            if ((now - last) < (86400 * 1000)) {
-                return;
-            }
+        String usageData = client.getUsageData();
+        if (usageData == null) {
+            return;
         }
-
-        List<UsageData> usageData = null;
-
-        try {
-            usageData = getUsageData();
-        } catch (Exception e) {
-            throw new ClientException(e);
-        }
-
-        HttpClientParams httpClientParams = new HttpClientParams();
-        HttpConnectionManager httpConnectionManager = new SimpleHttpConnectionManager();
-        httpClientParams.setSoTimeout(10 * 1000);
-        httpConnectionManager.getParams().setConnectionTimeout(10 * 1000);
-        httpConnectionManager.getParams().setSoTimeout(10 * 1000);
-        HttpClient httpClient = new HttpClient(httpClientParams, httpConnectionManager);
-
-        PostMethod post = new PostMethod(client.getUpdateSettings().getUpdateUrl() + URL_USAGE_STATISTICS);
-        NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("version", client.getVersion()), new NameValuePair("data", serializer.serialize(usageData)) };
-        post.setRequestBody(params);
-
-        try {
-            int statusCode = httpClient.executeMethod(post);
-
-            if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
-                throw new Exception("Failed to connect to update server: " + post.getStatusLine());
-            }
-
-            // Save the sent time if sending was successful.
+        boolean isSent = UsageUtil.sendStatistics(client.getVersion(), usageData);
+        if (isSent) {
+            Long now = System.currentTimeMillis();
             UpdateSettings settings = new UpdateSettings();
             settings.setLastStatsTime(now);
             client.setUpdateSettings(settings);
-
-        } catch (Exception e) {
-            throw new ClientException(e);
-        } finally {
-            post.releaseConnection();
         }
     }
 
     public void registerUser(User user) throws ClientException {
-        HttpClientParams httpClientParams = new HttpClientParams();
-        HttpConnectionManager httpConnectionManager = new SimpleHttpConnectionManager();
-        httpClientParams.setSoTimeout(10 * 1000);
-        httpConnectionManager.getParams().setConnectionTimeout(10 * 1000);
-        httpConnectionManager.getParams().setSoTimeout(10 * 1000);
-        HttpClient httpClient = new HttpClient(httpClientParams, httpConnectionManager);
-
-        PostMethod post = new PostMethod(client.getUpdateSettings().getUpdateUrl() + URL_REGISTRATION);
-        NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("version", client.getVersion()), new NameValuePair("user", serializer.serialize(user)) };
-        post.setRequestBody(params);
-
+        CloseableHttpClient httpClient = null;
+        CloseableHttpResponse httpResponse = null;
+        NameValuePair[] params = { new BasicNameValuePair("serverId", client.getServerId()),
+                new BasicNameValuePair("version", client.getVersion()),
+                new BasicNameValuePair("user", serializer.serialize(user)) };
+        
+        HttpPost post = new HttpPost();
+        post.setURI(URI.create(client.getUpdateSettings().getUpdateUrl() + URL_REGISTRATION));
+        post.setEntity(new UrlEncodedFormEntity(Arrays.asList(params), Charset.forName("UTF-8")));
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(TIMEOUT).setConnectionRequestTimeout(TIMEOUT).setSocketTimeout(TIMEOUT).build();
+        
         try {
-            int statusCode = httpClient.executeMethod(post);
-
+            HttpClientContext postContext = HttpClientContext.create();
+            postContext.setRequestConfig(requestConfig);
+            httpClient = HttpClients.createDefault();
+            httpResponse = httpClient.execute(post, postContext);
+            StatusLine statusLine = httpResponse.getStatusLine();
+            int statusCode = statusLine.getStatusCode();
             if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
-                throw new Exception("Failed to connect to update server: " + post.getStatusLine());
+                throw new Exception("Failed to connect to update server: " + statusLine);
             }
         } catch (Exception e) {
             throw new ClientException(e);
         } finally {
-            post.releaseConnection();
+            HttpClientUtils.closeQuietly(httpResponse);
+            HttpClientUtils.closeQuietly(httpClient);
         }
     }
 
     private List<UpdateInfo> getUpdatesFromUri(ServerInfo serverInfo) throws Exception {
-        HttpClientParams httpClientParams = new HttpClientParams();
-        HttpConnectionManager httpConnectionManager = new SimpleHttpConnectionManager();
-        httpClientParams.setSoTimeout(10 * 1000);
-        httpConnectionManager.getParams().setConnectionTimeout(10 * 1000);
-        httpConnectionManager.getParams().setSoTimeout(10 * 1000);
-        HttpClient httpClient = new HttpClient(httpClientParams, httpConnectionManager);
-
-        PostMethod post = new PostMethod(client.getUpdateSettings().getUpdateUrl() + URL_UPDATES);
-        NameValuePair[] params = { new NameValuePair("serverInfo", serializer.serialize(serverInfo)) };
-        post.setRequestBody(params);
-
+        CloseableHttpClient httpClient = null;
+        CloseableHttpResponse httpResponse = null;
+        NameValuePair[] params = { new BasicNameValuePair("serverInfo", serializer.serialize(serverInfo)) };
+        
+        HttpPost post = new HttpPost();
+        post.setURI(URI.create(client.getUpdateSettings().getUpdateUrl() + URL_UPDATES));
+        post.setEntity(new UrlEncodedFormEntity(Arrays.asList(params), Charset.forName("UTF-8")));
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(TIMEOUT).setConnectionRequestTimeout(TIMEOUT).setSocketTimeout(TIMEOUT).build();
+        
         try {
-            int statusCode = httpClient.executeMethod(post);
+            HttpClientContext postContext = HttpClientContext.create();
+            postContext.setRequestConfig(requestConfig);
+            httpClient = HttpClients.createDefault();
+            httpResponse = httpClient.execute(post, postContext);
+            
+            StatusLine statusLine = httpResponse.getStatusLine();
+            int statusCode = statusLine.getStatusCode();
 
-            if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
-                throw new Exception("Failed to connect to update server: " + post.getStatusLine());
+            if (statusCode == HttpStatus.SC_FORBIDDEN) {
+                throw new InvalidLoginException(statusLine.toString());
+            } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
+                throw new UnauthorizedException(statusLine.toString());
+            } else if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
+                throw new ClientException("method failed: " + statusLine);
+            }
+            
+            HttpEntity responseEntity = httpResponse.getEntity();
+            Charset responseCharset = null;
+            try {
+                responseCharset = ContentType.getOrDefault(responseEntity).getCharset();
+            } catch (Exception e) {
+                responseCharset = ContentType.TEXT_PLAIN.getCharset();
             }
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(post.getResponseBodyAsStream(), post.getResponseCharSet()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(responseEntity.getContent(), responseCharset));
             StringBuilder result = new StringBuilder();
             String input = new String();
 
@@ -208,12 +187,12 @@ public class UpdateClient {
                 result.append(input);
                 result.append('\n');
             }
-
             return serializer.deserializeList(result.toString(), UpdateInfo.class);
         } catch (Exception e) {
-            throw e;
+            throw new ClientException(e);
         } finally {
-            post.releaseConnection();
+            HttpClientUtils.closeQuietly(httpResponse);
+            HttpClientUtils.closeQuietly(httpClient);
         }
     }
 
@@ -252,51 +231,4 @@ public class UpdateClient {
             }
         }
     }
-
-    private List<UsageData> getUsageData() throws Exception {
-        List<UsageData> usageData = new ArrayList<UsageData>();
-        List<Channel> channels = client.getChannels(null);
-
-        for (Channel channel : channels) {
-            if (!(channel instanceof InvalidChannel)) {
-                // number of destinations
-                usageData.add(new UsageData(channel.getId(), KEY_DESTINATIONS, String.valueOf(channel.getDestinationConnectors().size())));
-
-                // message counts
-                ChannelStatistics statistics = client.getStatistics(channel.getId());
-
-                if (statistics != null) {
-                    usageData.add(new UsageData(channel.getId(), KEY_RECEIVED, String.valueOf(statistics.getReceived())));
-                    usageData.add(new UsageData(channel.getId(), KEY_FILTERED, String.valueOf(statistics.getFiltered())));
-                    usageData.add(new UsageData(channel.getId(), KEY_SENT, String.valueOf(statistics.getSent())));
-                    usageData.add(new UsageData(channel.getId(), KEY_ERRORED, String.valueOf(statistics.getError())));
-                }
-
-                // connector transport and data type counts
-                usageData.add(new UsageData(channel.getId(), KEY_INBOUND_TRANSPORT, channel.getSourceConnector().getTransportName()));
-                usageData.add(new UsageData(channel.getId(), KEY_INBOUND_DATA_TYPE, channel.getSourceConnector().getTransformer().getInboundDataType()));
-
-                StringBuilder outboundTransports = new StringBuilder();
-                StringBuilder outboundDataTypes = new StringBuilder();
-
-                for (Iterator<Connector> iterator = channel.getDestinationConnectors().iterator(); iterator.hasNext();) {
-                    Connector connector = iterator.next();
-                    outboundTransports.append(connector.getTransportName());
-                    outboundDataTypes.append(connector.getTransformer().getOutboundDataType());
-                    // TODO add response transformer data types
-
-                    if (iterator.hasNext()) {
-                        outboundTransports.append(",");
-                        outboundDataTypes.append(",");
-                    }
-                }
-
-                usageData.add(new UsageData(channel.getId(), KEY_OUTBOUND_TRANSPORTS, outboundTransports.toString()));
-                usageData.add(new UsageData(channel.getId(), KEY_OUTBOUND_DATA_TYPES, outboundDataTypes.toString()));
-            }
-        }
-
-        return usageData;
-    }
-
 }
