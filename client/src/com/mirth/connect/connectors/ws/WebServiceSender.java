@@ -55,6 +55,7 @@ import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.connectors.http.SSLWarningPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
@@ -62,7 +63,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
     private static final ImageIcon ICON_LOCK_X = new ImageIcon(Frame.class.getResource("images/lock_x.png"));
     private static final Color COLOR_SSL_NOT_CONFIGURED = new Color(0xFFF099);
-    private static final String SSL_TOOL_TIP = "<html>SSL has not been configured for this destination.<br/>Messages dispatched via HTTPS will use the default<br/>Java truststore for validating server certificates, and<br/>client/two-way authentication will not be supported.</html>";
+    private static final String SSL_TOOL_TIP = "<html>The default system certificate store will be used for this connection.<br/>As a result, certain security options are not available and mutual<br/>authentication (two-way authentication) is not supported.</html>";
 
     private final int ID_COLUMN_NUMBER = 0;
     private final int CONTENT_COLUMN_NUMBER = 1;
@@ -73,6 +74,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private Frame parent;
     private Map<String, Map<String, List<String>>> currentServiceMap;
+    private SSLWarningPanel sslWarningPanel;
 
     public WebServiceSender() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -89,6 +91,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         };
         wsdlUrlField.addKeyListener(keyListener);
         soapActionField.addKeyListener(keyListener);
+
+        sslWarningPanel = new SSLWarningPanel();
     }
 
     @Override
@@ -245,7 +249,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     @Override
     public ConnectorTypeDecoration getConnectorTypeDecoration() {
         if (isUsingHttps(wsdlUrlField.getText()) || isUsingHttps(soapActionField.getText())) {
-            return new ConnectorTypeDecoration("(SSL Not Configured)", ICON_LOCK_X, SSL_TOOL_TIP, null, COLOR_SSL_NOT_CONFIGURED);
+            return new ConnectorTypeDecoration("(SSL Not Configured)", ICON_LOCK_X, SSL_TOOL_TIP, sslWarningPanel, COLOR_SSL_NOT_CONFIGURED);
         } else {
             return new ConnectorTypeDecoration();
         }

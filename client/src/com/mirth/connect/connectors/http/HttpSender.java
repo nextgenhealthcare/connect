@@ -53,7 +53,7 @@ public class HttpSender extends ConnectorSettingsPanel {
 
     private static final ImageIcon ICON_LOCK_X = new ImageIcon(Frame.class.getResource("images/lock_x.png"));
     private static final Color COLOR_SSL_NOT_CONFIGURED = new Color(0xFFF099);
-    private static final String SSL_TOOL_TIP = "<html>SSL has not been configured for this destination.<br/>Messages dispatched via HTTPS will use the default<br/>Java truststore for validating server certificates, and<br/>client/two-way authentication will not be supported.</html>";
+    private static final String SSL_TOOL_TIP = "<html>The default system certificate store will be used for this connection.<br/>As a result, certain security options are not available and mutual<br/>authentication (two-way authentication) is not supported.</html>";
 
     private final int NAME_COLUMN = 0;
     private final int VALUE_COLUMN = 1;
@@ -62,6 +62,7 @@ public class HttpSender extends ConnectorSettingsPanel {
     private int propertiesLastIndex = -1;
     private int headerLastIndex = -1;
     private Frame parent;
+    private SSLWarningPanel sslWarningPanel;
 
     public HttpSender() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -93,6 +94,8 @@ public class HttpSender extends ConnectorSettingsPanel {
         // This is required because of MIRTH-3305
         Map<String, ArrayList<CodeTemplate>> references = ReferenceListFactory.getInstance().getReferences();
         references.put(getConnectorName() + " Functions", getReferenceItems());
+
+        sslWarningPanel = new SSLWarningPanel();
     }
 
     @Override
@@ -608,7 +611,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         }
 
         if (usingHttps) {
-            return new ConnectorTypeDecoration("(SSL Not Configured)", ICON_LOCK_X, null, null, COLOR_SSL_NOT_CONFIGURED);
+            return new ConnectorTypeDecoration("(SSL Not Configured)", ICON_LOCK_X, SSL_TOOL_TIP, sslWarningPanel, COLOR_SSL_NOT_CONFIGURED);
         } else {
             return new ConnectorTypeDecoration();
         }

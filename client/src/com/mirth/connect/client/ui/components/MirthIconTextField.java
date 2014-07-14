@@ -51,18 +51,30 @@ public class MirthIconTextField extends MirthTextField {
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent evt) {
+                int cursorType = getCursor().getType();
+
                 if (isIconActive(evt)) {
                     if (StringUtils.isNotBlank(alternateToolTipText)) {
                         MirthIconTextField.super.setToolTipText(alternateToolTipText);
                     }
 
-                    setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+                    if (iconPopupMenuComponent != null) {
+                        if (cursorType != Cursor.HAND_CURSOR) {
+                            setCursor(new Cursor(Cursor.HAND_CURSOR));
+                        }
+                    } else {
+                        if (cursorType != Cursor.DEFAULT_CURSOR) {
+                            setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+                        }
+                    }
                 } else {
                     if (StringUtils.isNotBlank(alternateToolTipText)) {
                         MirthIconTextField.super.setToolTipText(originalToolTipText);
                     }
 
-                    setCursor(new Cursor(Cursor.TEXT_CURSOR));
+                    if (cursorType != Cursor.TEXT_CURSOR) {
+                        setCursor(new Cursor(Cursor.TEXT_CURSOR));
+                    }
                 }
             }
         });

@@ -9,9 +9,8 @@
 
 package com.mirth.connect.connectors.http;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
 import org.eclipse.jetty.server.bio.SocketConnector;
 
 import com.mirth.connect.donkey.server.channel.Connector;
@@ -21,7 +20,8 @@ public class DefaultHttpConfiguration implements HttpConfiguration {
     @Override
     public void configureConnectorDeploy(Connector connector) throws Exception {
         if (connector instanceof HttpDispatcher) {
-            checkHost(((HttpDispatcherProperties) connector.getConnectorProperties()).getHost());
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(SSLContexts.createDefault(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            ((HttpDispatcher) connector).getSocketFactoryRegistry().register("https", sslConnectionSocketFactory);
         }
     }
 
@@ -38,17 +38,5 @@ public class DefaultHttpConfiguration implements HttpConfiguration {
     }
 
     @Override
-    public void configureDispatcher(HttpDispatcher connector, HttpDispatcherProperties connectorProperties) throws Exception {
-        checkHost(connectorProperties.getHost());
-    }
-    
-    private void checkHost(String host) throws Exception {
-        try {
-            String scheme = new URI(host).getScheme();
-            if (scheme != null && scheme.equalsIgnoreCase("https")) {
-                throw new Exception("The HTTPS protocol is not supported for this connector.");
-            }
-        } catch (URISyntaxException e) {
-        }
-    }
+    public void configureDispatcher(HttpDispatcher connector, HttpDispatcherProperties connectorProperties) throws Exception {}
 }
