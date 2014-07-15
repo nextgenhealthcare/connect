@@ -36,7 +36,7 @@ public class DelimitedBatchAdaptorFactory extends BatchAdaptorFactory {
 
     @Override
     public BatchAdaptor createBatchAdaptor(BatchMessageSource batchMessageSource) {
-        DelimitedBatchAdaptor batchAdaptor = new DelimitedBatchAdaptor(sourceConnector, batchMessageSource);
+        DelimitedBatchAdaptor batchAdaptor = new DelimitedBatchAdaptor(sourceConnector, batchMessageSource, batchProperties.isLookAhead());
 
         batchAdaptor.setSerializationProperties(serializationProperties);
         batchAdaptor.setBatchProperties(batchProperties);

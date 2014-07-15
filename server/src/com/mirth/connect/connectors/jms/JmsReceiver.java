@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
+import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.HaltException;
@@ -36,6 +37,8 @@ import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -129,26 +132,53 @@ public class JmsReceiver extends SourceConnector {
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));
 
             try {
-                rawMessage = jmsMessageToRawMessage(message);
-            } catch (Exception e) {
-                reportError("Failed to read JMS message", e);
-                return;
-            }
-
-            try {
-                dispatchResult = dispatchRawMessage(rawMessage);
-                dispatchResult.setAttemptedResponse(true);
-
                 try {
-                    message.acknowledge();
-                } catch (JMSException e) {
-                    reportError("Failed to acknowledge JMS message", e);
-                    dispatchResult.setResponseError("Failed to acknowledge message: " + e.getMessage());
+                    rawMessage = jmsMessageToRawMessage(message);
+                } catch (Exception e) {
+                    reportError("Failed to read JMS message", e);
+                    return;
                 }
-            } catch (ChannelException e) {
-                reportError("Failed to process message", e);
+
+                if (isProcessBatch()) {
+                    if (rawMessage.isBinary()) {
+                        reportError("Batch processing is not supported for binary data.", new BatchMessageException("Batch processing is not supported for binary data."));
+                        return;
+                    }
+
+                    BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(rawMessage.getRawData()), rawMessage.getSourceMap());
+
+                    // Clean up the reference to the raw message so it doesn't hold the contents in memory
+                    rawMessage = null;
+
+                    try {
+                        dispatchBatchMessage(batchRawMessage, null);
+
+                        try {
+                            message.acknowledge();
+                        } catch (JMSException e) {
+                            reportError("Failed to acknowledge JMS message", e);
+                        }
+                    } catch (BatchMessageException e) {
+                        reportError("Failed to process batch message", e);
+                    }
+                } else {
+                    try {
+                        dispatchResult = dispatchRawMessage(rawMessage);
+                        dispatchResult.setAttemptedResponse(true);
+
+                        try {
+                            message.acknowledge();
+                        } catch (JMSException e) {
+                            reportError("Failed to acknowledge JMS message", e);
+                            dispatchResult.setResponseError("Failed to acknowledge message: " + e.getMessage());
+                        }
+                    } catch (ChannelException e) {
+                        reportError("Failed to process message", e);
+                    } finally {
+                        finishDispatch(dispatchResult);
+                    }
+                }
             } finally {
-                finishDispatch(dispatchResult);
                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
             }
         }

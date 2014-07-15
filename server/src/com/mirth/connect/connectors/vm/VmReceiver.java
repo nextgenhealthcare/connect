@@ -10,6 +10,7 @@
 package com.mirth.connect.connectors.vm;
 
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
+import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.HaltException;
@@ -20,6 +21,8 @@ import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
+import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 
@@ -56,6 +59,20 @@ public class VmReceiver extends SourceConnector {
     @Override
     public DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));
-        return super.dispatchRawMessage(rawMessage);
+        try {
+            return super.dispatchRawMessage(rawMessage);
+        } finally {
+            eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
+        }
+    }
+
+    @Override
+    public void dispatchBatchMessage(BatchRawMessage batchRawMessage, ResponseHandler responseHandler) throws BatchMessageException {
+        eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));
+        try {
+            super.dispatchBatchMessage(batchRawMessage, responseHandler);
+        } finally {
+            eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
+        }
     }
 }

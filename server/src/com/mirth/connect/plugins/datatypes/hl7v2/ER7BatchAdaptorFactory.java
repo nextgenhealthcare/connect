@@ -22,6 +22,7 @@ public class ER7BatchAdaptorFactory extends BatchAdaptorFactory {
 
     private Pattern lineBreakPattern;
     private String segmentDelimiter;
+    private boolean lookAhead;
 
     public ER7BatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
         super(sourceConnector);
@@ -41,11 +42,13 @@ public class ER7BatchAdaptorFactory extends BatchAdaptorFactory {
         }
 
         lineBreakPattern = Pattern.compile(pattern);
+
+        lookAhead = serializerProperties.getBatchProperties().isLookAhead();
     }
 
     @Override
     public BatchAdaptor createBatchAdaptor(BatchMessageSource batchMessageSource) {
-        ER7BatchAdaptor batchAdaptor = new ER7BatchAdaptor(sourceConnector, batchMessageSource);
+        ER7BatchAdaptor batchAdaptor = new ER7BatchAdaptor(sourceConnector, batchMessageSource, lookAhead);
 
         batchAdaptor.setSegmentDelimiter(segmentDelimiter);
         batchAdaptor.setLineBreakPattern(lineBreakPattern);

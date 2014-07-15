@@ -223,6 +223,9 @@ public abstract class SourceConnector extends Connector {
         // Attempt to start the batch. It will not start if the batch adaptor factory is in the process of being stopped
         if (batchAdaptorFactory.startBatch()) {
             try {
+                // Tell the response handler which response to store
+                responseHandler.setUseFirstResponse(batchAdaptorFactory.isUseFirstReponse());
+
                 // Create a new adaptor for this batch
                 batchAdaptor = batchAdaptorFactory.createBatchAdaptor(batchRawMessage.getBatchMessageSource());
 
@@ -234,11 +237,15 @@ public abstract class SourceConnector extends Connector {
                     Map<String, Object> sourceMap = new HashMap<String, Object>(batchRawMessage.getSourceMap());
 
                     // Add the batchId to identify the message's position in the batch
-                    sourceMap.put(Constants.BATCH_SEQUENCE_ID_KEY, batchAdaptor.getBatchId());
+                    sourceMap.put(Constants.BATCH_SEQUENCE_ID_KEY, batchAdaptor.getBatchSequenceId());
 
                     // Add the message Id of the first message in the batch
                     if (batchSet != null) {
                         sourceMap.put(Constants.BATCH_ID_KEY, batchSet);
+                    }
+
+                    if (batchAdaptor.isLookAhead()) {
+                        sourceMap.put(Constants.BATCH_COMPLETE_KEY, batchAdaptor.isBatchComplete());
                     }
 
                     // Create a new RawMessage to be dispatched
@@ -252,7 +259,7 @@ public abstract class SourceConnector extends Connector {
                         responseHandler.setDispatchResult(dispatchResult);
 
                         // If this was the first message in the batch, keep track of the message Id
-                        if (batchAdaptor.getBatchId() == 1) {
+                        if (batchAdaptor.getBatchSequenceId() == 1) {
                             batchSet = dispatchResult.getMessageId();
                         }
 
@@ -261,12 +268,12 @@ public abstract class SourceConnector extends Connector {
                             responseHandler.responseProcess();
                         } catch (Exception e) {
                             // Stop the entire batch if an exceptions occurs processing a response
-                            throw new BatchMessageException("Failed to process response for batch message at message " + batchAdaptor.getBatchId(), e);
+                            throw new BatchMessageException("Failed to process response for batch message at message " + batchAdaptor.getBatchSequenceId(), e);
                         }
                     } catch (ChannelException e) {
                         // Call back to the response handler if a channel exception occurred. The message should not have been persisted
                         responseHandler.responseError(e);
-                        throw new BatchMessageException("Failed to process batch message at message " + batchAdaptor.getBatchId(), e);
+                        throw new BatchMessageException("Failed to process batch message at message " + batchAdaptor.getBatchSequenceId(), e);
                     } finally {
                         finishDispatch(dispatchResult);
                     }

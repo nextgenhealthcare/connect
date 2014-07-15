@@ -31,16 +31,20 @@ import org.w3c.dom.Element;
 
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
+import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
+import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -192,25 +196,33 @@ public class DatabaseReceiver extends PollConnector {
      * run the post-process if applicable.
      */
     private void processRecord(Map<String, Object> resultMap) throws InterruptedException, DatabaseReceiverException {
-        DispatchResult dispatchResult = null;
-
         try {
-            dispatchResult = dispatchRawMessage(new RawMessage(resultMapToXml(resultMap)));
+            if (isProcessBatch()) {
+                BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(resultMapToXml(resultMap)));
+
+                dispatchBatchMessage(batchRawMessage, new DatabaseResponseHandler(resultMap));
+            } else {
+                DispatchResult dispatchResult = null;
+
+                try {
+                    dispatchResult = dispatchRawMessage(new RawMessage(resultMapToXml(resultMap)));
+                } finally {
+                    finishDispatch(dispatchResult);
+                }
+
+                // if the message was persisted (dispatchResult != null), then run the on-update SQL
+                if (dispatchResult != null) {
+                    if (dispatchResult.getProcessedMessage() != null) {
+                        delegate.runPostProcess(resultMap, dispatchResult.getProcessedMessage().getMergedConnectorMessage());
+                    } else {
+                        delegate.runPostProcess(resultMap, null);
+                    }
+                }
+            }
         } catch (Exception e) {
             String errorMessage = "Failed to process row retrieved from the database in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\"";
             logger.error(errorMessage, e);
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), errorMessage, e));
-        } finally {
-            finishDispatch(dispatchResult);
-        }
-
-        // if the message was persisted (dispatchResult != null), then run the on-update SQL
-        if (dispatchResult != null) {
-            if (dispatchResult.getProcessedMessage() != null) {
-                delegate.runPostProcess(resultMap, dispatchResult.getProcessedMessage().getMergedConnectorMessage());
-            } else {
-                delegate.runPostProcess(resultMap, null);
-            }
         }
     }
 
@@ -275,5 +287,27 @@ public class DatabaseReceiver extends PollConnector {
             IOUtils.closeQuietly(bufferedReader);
             IOUtils.closeQuietly(reader);
         }
+    }
+
+    public class DatabaseResponseHandler extends ResponseHandler {
+
+        private Map<String, Object> resultMap;
+
+        public DatabaseResponseHandler(Map<String, Object> resultMap) {
+            this.resultMap = resultMap;
+        }
+
+        @Override
+        public void responseProcess() throws Exception {
+            if (dispatchResult.getProcessedMessage() != null) {
+                delegate.runPostProcess(resultMap, dispatchResult.getProcessedMessage().getMergedConnectorMessage());
+            } else {
+                delegate.runPostProcess(resultMap, null);
+            }
+        }
+
+        @Override
+        public void responseError(ChannelException e) {}
+
     }
 }

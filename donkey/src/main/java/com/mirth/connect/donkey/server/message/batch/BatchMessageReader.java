@@ -10,6 +10,7 @@
 package com.mirth.connect.donkey.server.message.batch;
 
 import java.io.Reader;
+import java.io.StringReader;
 
 public class BatchMessageReader implements BatchMessageSource {
 
@@ -17,6 +18,10 @@ public class BatchMessageReader implements BatchMessageSource {
 
     public BatchMessageReader(Reader reader) {
         this.setReader(reader);
+    }
+
+    public BatchMessageReader(String message) {
+        reader = new StringReader(message);
     }
 
     public Reader getReader() {

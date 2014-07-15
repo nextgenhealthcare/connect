@@ -525,7 +525,7 @@ public class DonkeyMessageController extends MessageController {
                         // Set the destination metadata ID list here to overwrite anything that was previously stored 
                         rawMessage.setDestinationMetaDataIds(reprocessMetaDataIds);
 
-                        engineController.dispatchRawMessage(channelId, rawMessage, true);
+                        engineController.dispatchRawMessage(channelId, rawMessage, true, false);
                     } catch (SerializerException e) {
                         logger.error("Could not reprocess message " + messageId + " for channel " + channelId + " because the source map content is invalid.", e);
                     } catch (ChannelException e) {

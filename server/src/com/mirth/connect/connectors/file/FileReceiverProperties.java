@@ -57,7 +57,6 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
     private String sortBy;
     private boolean binary;
     private String charsetEncoding;
-    private boolean processBatch;
 
     public static final String SORT_BY_NAME = "name";
     public static final String SORT_BY_SIZE = "size";
@@ -95,7 +94,6 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
         sortBy = SORT_BY_DATE;
         binary = false;
         charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
-        processBatch = false;
     }
 
     public FileScheme getScheme() {
@@ -322,14 +320,6 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
         this.charsetEncoding = charsetEncoding;
     }
 
-    public boolean isProcessBatch() {
-        return processBatch;
-    }
-
-    public void setProcessBatch(boolean processBatch) {
-        this.processBatch = processBatch;
-    }
-
     @Override
     public String getProtocol() {
         return "File";
@@ -388,7 +378,6 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
         purgedProperties.put("fileSizeMaximum", PurgeUtil.getNumericValue(fileSizeMaximum));
         purgedProperties.put("ignoreFileSizeMaximum", ignoreFileSizeMaximum);
         purgedProperties.put("sortBy", sortBy);
-        purgedProperties.put("processBatch", processBatch);
         return purgedProperties;
     }
 }

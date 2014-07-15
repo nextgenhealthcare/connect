@@ -61,6 +61,7 @@ import org.eclipse.jetty.util.URIUtil;
 import com.mirth.connect.connectors.http.HttpStaticResource.ResourceType;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
+import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
@@ -75,6 +76,9 @@ import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
+import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
+import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -98,6 +102,10 @@ public class HttpReceiver extends SourceConnector {
     @Override
     public void onDeploy() throws DeployException {
         this.connectorProperties = (HttpReceiverProperties) getConnectorProperties();
+
+        if (connectorProperties.isXmlBody() && isProcessBatch()) {
+            throw new DeployException("Batch processing is not supported for Xml Body.");
+        }
 
         // load the default configuration
         String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "httpConfigurationClass");
@@ -251,103 +259,134 @@ public class HttpReceiver extends SourceConnector {
             logger.debug("received HTTP request");
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.CONNECTED));
             DispatchResult dispatchResult = null;
-            String sentResponse = null;
 
             try {
-                dispatchResult = processData(baseRequest);
+                Map<String, Object> sourceMap = new HashMap<String, Object>();
+                String messageContent = null;
 
-                servletResponse.setContentType(replacer.replaceValues(connectorProperties.getResponseContentType(), getChannelId()));
-
-                // set the response headers
-                for (Entry<String, String> entry : connectorProperties.getResponseHeaders().entrySet()) {
-                    servletResponse.setHeader(entry.getKey(), replaceValues(entry.getValue(), dispatchResult));
-                }
-
-                // set the status code
-                int statusCode = NumberUtils.toInt(replaceValues(connectorProperties.getResponseStatusCode(), dispatchResult), -1);
-
-                Response selectedResponse = dispatchResult.getSelectedResponse();
-
-                /*
-                 * set the response body and status code (if we choose a response from the
-                 * drop-down)
-                 */
-                if (selectedResponse != null) {
-                    dispatchResult.setAttemptedResponse(true);
-                    String message = selectedResponse.getMessage();
-
-                    if (message != null) {
-                        OutputStream responseOutputStream = servletResponse.getOutputStream();
-                        byte[] responseBytes = message.getBytes(connectorProperties.getCharset());
-
-                        // If the client accepts GZIP compression, compress the content
-                        String acceptEncoding = baseRequest.getHeader("Accept-Encoding");
-                        if (acceptEncoding != null && acceptEncoding.contains("gzip")) {
-                            servletResponse.setHeader(HTTP.CONTENT_ENCODING, "gzip");
-                            GZIPOutputStream gzipOutputStream = new GZIPOutputStream(responseOutputStream);
-                            gzipOutputStream.write(responseBytes);
-                            gzipOutputStream.finish();
-                        } else {
-                            responseOutputStream.write(responseBytes);
-                        }
-
-                        // TODO include full HTTP payload in sentResponse
-                        sentResponse = message;
-                    }
-
-                    Status newMessageStatus = selectedResponse.getStatus();
-
-                    /*
-                     * If the status code is custom, use the entered/replaced string If is is not a
-                     * variable, use the status of the destination's response (success = 200,
-                     * failure = 500) Otherwise, return 200
-                     */
-                    if (statusCode != -1) {
-                        servletResponse.setStatus(statusCode);
-                    } else if (newMessageStatus != null && newMessageStatus.equals(Status.ERROR)) {
-                        servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-                    } else {
-                        servletResponse.setStatus(HttpStatus.SC_OK);
-                    }
-                } else {
-                    /*
-                     * If the status code is custom, use the entered/replaced string Otherwise,
-                     * return 200
-                     */
-                    if (statusCode != -1) {
-                        servletResponse.setStatus(statusCode);
-                    } else {
-                        servletResponse.setStatus(HttpStatus.SC_OK);
-                    }
-                }
-            } catch (Throwable t) {
-                String responseError = ExceptionUtils.getStackTrace(t);
-                logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
-                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error receiving message", t));
-
-                // TODO decide if we still want to send back the exception content or something else?
-                dispatchResult.setAttemptedResponse(true);
-                dispatchResult.setResponseError(responseError);
-
-                servletResponse.setContentType("text/plain");
-                servletResponse.getOutputStream().write(responseError.getBytes());
-                servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-
-                // TODO get full HTTP payload with error message
-                dispatchResult.getSelectedResponse().setMessage(responseError);
-            } finally {
                 try {
-                    finishDispatch(dispatchResult);
-                } finally {
-                    eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
+                    messageContent = getMessage(baseRequest, sourceMap);
+                } catch (Throwable t) {
+                    sendErrorResponse(servletResponse, dispatchResult, t);
                 }
-            }
 
+                if (messageContent != null) {
+                    if (isProcessBatch()) {
+                        try {
+                            BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(messageContent), sourceMap);
+                            ResponseHandler responseHandler = new SimpleResponseHandler();
+
+                            dispatchBatchMessage(batchRawMessage, responseHandler);
+
+                            dispatchResult = responseHandler.getResultForResponse();
+                            sendResponse(baseRequest, servletResponse, dispatchResult);
+                        } catch (Throwable t) {
+                            sendErrorResponse(servletResponse, dispatchResult, t);
+                        }
+                    } else {
+                        try {
+                            dispatchResult = dispatchRawMessage(new RawMessage(messageContent, null, sourceMap));
+
+                            sendResponse(baseRequest, servletResponse, dispatchResult);
+                        } catch (Throwable t) {
+                            sendErrorResponse(servletResponse, dispatchResult, t);
+                        } finally {
+                            finishDispatch(dispatchResult);
+                        }
+                    }
+                }
+            } finally {
+                eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
+            }
             baseRequest.setHandled(true);
         }
-    };
+    }
 
-    private DispatchResult processData(Request request) throws IOException, ChannelException, MessagingException, DonkeyElementException, ParserConfigurationException {
+    private void sendResponse(Request baseRequest, HttpServletResponse servletResponse, DispatchResult dispatchResult) throws Exception {
+        servletResponse.setContentType(replacer.replaceValues(connectorProperties.getResponseContentType(), getChannelId()));
+
+        // set the response headers
+        for (Entry<String, String> entry : connectorProperties.getResponseHeaders().entrySet()) {
+            servletResponse.setHeader(entry.getKey(), replaceValues(entry.getValue(), dispatchResult));
+        }
+
+        // set the status code
+        int statusCode = NumberUtils.toInt(replaceValues(connectorProperties.getResponseStatusCode(), dispatchResult), -1);
+
+        Response selectedResponse = dispatchResult.getSelectedResponse();
+
+        /*
+         * set the response body and status code (if we choose a response from the drop-down)
+         */
+        if (selectedResponse != null) {
+            dispatchResult.setAttemptedResponse(true);
+            String message = selectedResponse.getMessage();
+
+            if (message != null) {
+                OutputStream responseOutputStream = servletResponse.getOutputStream();
+                byte[] responseBytes = message.getBytes(connectorProperties.getCharset());
+
+                // If the client accepts GZIP compression, compress the content
+                String acceptEncoding = baseRequest.getHeader("Accept-Encoding");
+                if (acceptEncoding != null && acceptEncoding.contains("gzip")) {
+                    servletResponse.setHeader(HTTP.CONTENT_ENCODING, "gzip");
+                    GZIPOutputStream gzipOutputStream = new GZIPOutputStream(responseOutputStream);
+                    gzipOutputStream.write(responseBytes);
+                    gzipOutputStream.finish();
+                } else {
+                    responseOutputStream.write(responseBytes);
+                }
+
+                // TODO include full HTTP payload in sentResponse
+            }
+
+            Status newMessageStatus = selectedResponse.getStatus();
+
+            /*
+             * If the status code is custom, use the entered/replaced string If is is not a
+             * variable, use the status of the destination's response (success = 200, failure = 500)
+             * Otherwise, return 200
+             */
+            if (statusCode != -1) {
+                servletResponse.setStatus(statusCode);
+            } else if (newMessageStatus != null && newMessageStatus.equals(Status.ERROR)) {
+                servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            } else {
+                servletResponse.setStatus(HttpStatus.SC_OK);
+            }
+        } else {
+            /*
+             * If the status code is custom, use the entered/replaced string Otherwise, return 200
+             */
+            if (statusCode != -1) {
+                servletResponse.setStatus(statusCode);
+            } else {
+                servletResponse.setStatus(HttpStatus.SC_OK);
+            }
+        }
+    }
+
+    private void sendErrorResponse(HttpServletResponse servletResponse, DispatchResult dispatchResult, Throwable t) throws IOException {
+        String responseError = ExceptionUtils.getStackTrace(t);
+        logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
+        eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error receiving message", t));
+
+        if (dispatchResult != null) {
+            // TODO decide if we still want to send back the exception content or something else?
+            dispatchResult.setAttemptedResponse(true);
+            dispatchResult.setResponseError(responseError);
+            // TODO get full HTTP payload with error message
+            if (dispatchResult.getSelectedResponse() != null) {
+                dispatchResult.getSelectedResponse().setMessage(responseError);
+            }
+        }
+
+        servletResponse.setContentType("text/plain");
+        servletResponse.getOutputStream().write(responseError.getBytes());
+        servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+    }
+
+    private String getMessage(Request request, Map<String, Object> sourceMap) throws IOException, ChannelException, MessagingException, DonkeyElementException, ParserConfigurationException {
         HttpRequestMessage requestMessage = new HttpRequestMessage();
         requestMessage.setMethod(request.getMethod());
         requestMessage.setHeaders(HttpMessageConverter.convertFieldEnumerationToMap(request));
@@ -391,7 +430,6 @@ public class HttpReceiver extends SourceConnector {
 
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));
 
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
         sourceMap.put("remoteAddress", requestMessage.getRemoteAddress());
         sourceMap.put("remotePort", request.getRemotePort());
         sourceMap.put("localAddress", StringUtils.trimToEmpty(request.getLocalAddr()));
@@ -405,7 +443,7 @@ public class HttpReceiver extends SourceConnector {
         sourceMap.put("headers", Collections.unmodifiableMap(requestMessage.getCaseInsensitiveHeaders()));
         sourceMap.put("parameters", Collections.unmodifiableMap(requestMessage.getParameters()));
 
-        return dispatchRawMessage(new RawMessage(rawMessageContent, null, sourceMap));
+        return rawMessageContent;
     }
 
     private class StaticResourceHandler extends AbstractHandler {

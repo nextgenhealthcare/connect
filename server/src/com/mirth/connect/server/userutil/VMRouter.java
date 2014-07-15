@@ -151,7 +151,7 @@ public class VMRouter {
      */
     public Response routeMessageByChannelId(String channelId, RawMessage rawMessage) {
         try {
-            com.mirth.connect.donkey.model.message.Response response = engineController.dispatchRawMessage(channelId, convertRawMessage(rawMessage), false).getSelectedResponse();
+            com.mirth.connect.donkey.model.message.Response response = engineController.dispatchRawMessage(channelId, convertRawMessage(rawMessage), false, true).getSelectedResponse();
             return response != null ? new Response(response) : null;
         } catch (Throwable e) {
             String message = "Error routing message to channel id: " + channelId;

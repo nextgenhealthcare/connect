@@ -46,7 +46,6 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
     private String bufferSize;
     private String maxConnections;
     private boolean keepConnectionOpen;
-    private boolean processBatch;
     private boolean dataTypeBinary;
     private String charsetEncoding;
     private int respondOnNewConnection;
@@ -71,7 +70,6 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
         this.bufferSize = "65536";
         this.maxConnections = "10";
         this.keepConnectionOpen = true;
-        this.processBatch = false;
         this.dataTypeBinary = false;
         this.charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
         this.respondOnNewConnection = SAME_CONNECTION;
@@ -167,14 +165,6 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
 
     public void setKeepConnectionOpen(boolean keepConnectionOpen) {
         this.keepConnectionOpen = keepConnectionOpen;
-    }
-
-    public boolean isProcessBatch() {
-        return processBatch;
-    }
-
-    public void setProcessBatch(boolean processBatch) {
-        this.processBatch = processBatch;
     }
 
     public boolean isDataTypeBinary() {

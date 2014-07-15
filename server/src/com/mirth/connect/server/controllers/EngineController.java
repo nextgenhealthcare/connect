@@ -20,6 +20,7 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.ServerEventContext;
 
@@ -42,7 +43,7 @@ public interface EngineController {
 
     public Channel getDeployedChannel(String channelId);
 
-    public DispatchResult dispatchRawMessage(String channelId, RawMessage rawMessage, boolean force) throws ChannelException;
+    public DispatchResult dispatchRawMessage(String channelId, RawMessage rawMessage, boolean force, boolean canBatch) throws ChannelException, BatchMessageException;
 
     public void startChannel(String channelId) throws StartException, StopException;
 

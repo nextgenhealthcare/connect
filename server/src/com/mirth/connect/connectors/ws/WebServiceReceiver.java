@@ -24,6 +24,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
+import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.HaltException;
@@ -34,6 +36,11 @@ import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
+import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
+import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -193,29 +200,48 @@ public class WebServiceReceiver extends SourceConnector {
     }
 
     public String processData(String message) {
+        String response = null;
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));
 
-        RawMessage rawMessage = new RawMessage(message);
-        DispatchResult dispatchResult = null;
-        String response = null;
-
         try {
-            dispatchResult = dispatchRawMessage(rawMessage);
-            dispatchResult.setAttemptedResponse(true);
+            if (isProcessBatch()) {
+                BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(message));
 
-            if (dispatchResult.getSelectedResponse() != null) {
-                response = dispatchResult.getSelectedResponse().getMessage();
+                try {
+                    ResponseHandler responseHandler = new SimpleResponseHandler();
+                    dispatchBatchMessage(batchRawMessage, responseHandler);
+
+                    DispatchResult dispatchResult = responseHandler.getResultForResponse();
+                    if (dispatchResult != null && dispatchResult.getSelectedResponse() != null) {
+                        response = responseHandler.getResultForResponse().getSelectedResponse().getMessage();
+                    }
+                } catch (BatchMessageException e) {
+                    logger.error("Error processing batch message", e);
+                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error processing batch message", e));
+                }
+            } else {
+                RawMessage rawMessage = new RawMessage(message);
+                DispatchResult dispatchResult = null;
+
+                try {
+                    dispatchResult = dispatchRawMessage(rawMessage);
+                    dispatchResult.setAttemptedResponse(true);
+
+                    if (dispatchResult.getSelectedResponse() != null) {
+                        response = dispatchResult.getSelectedResponse().getMessage();
+                    }
+                } catch (ChannelException e) {
+                    // TODO auto-generate an error response?
+                } finally {
+                    // TODO: response should be returned before it is marked as finished
+                    // TODO: figure out how to get the error message if an error occurred in sending the response back
+                    finishDispatch(dispatchResult);
+                }
             }
-        } catch (ChannelException e) {
-            // TODO auto-generate an error response?
         } finally {
-            // TODO: response should be returned before it is marked as finished
-            // TODO: figure out how to get the error message if an error occurred in sending the response back
-            finishDispatch(dispatchResult);
+            // TODO find a way to call this after the response was sent
+            eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
         }
-
-        // TODO find a way to call this after the response was sent
-        eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
         return response;
     }
 

@@ -46,8 +46,8 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
     private Integer groupingColumnIndex;
     private String batchMessageDelimiter = null;
 
-    public DelimitedBatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
-        super(sourceConnector, batchMessageSource);
+    public DelimitedBatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource, boolean lookAhead) {
+        super(sourceConnector, batchMessageSource, lookAhead);
     }
 
     public DelimitedSerializationProperties getSerializationProperties() {
@@ -78,9 +78,9 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
     public void cleanup() throws BatchMessageException {}
 
     @Override
-    protected String getNextMessage(int batchId) throws Exception {
+    protected String getNextMessage(int batchSequenceId) throws Exception {
         if (batchMessageSource instanceof BatchMessageReader) {
-            if (batchId == 1) {
+            if (batchSequenceId == 1) {
                 BatchMessageReader batchMessageReader = (BatchMessageReader) batchMessageSource;
                 bufferedReader = new BufferedReader(batchMessageReader.getReader());
                 skipHeader = true;

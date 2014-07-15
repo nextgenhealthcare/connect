@@ -83,6 +83,10 @@ public class FileReceiver extends PollConnector {
     public void onDeploy() throws DeployException {
         this.connectorProperties = (FileReceiverProperties) SerializationUtils.clone(getConnectorProperties());
 
+        if (connectorProperties.isBinary() && isProcessBatch()) {
+            throw new DeployException("Batch processing is not supported for binary data.");
+        }
+
         this.charsetEncoding = CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding(), System.getProperty("ca.uhn.hl7v2.llp.charset"));
 
         // Replace variables in the readDir, username, and password now, all others will be done every message
@@ -284,10 +288,9 @@ public class FileReceiver extends PollConnector {
                         Reader in = null;
                         try {
                             in = new InputStreamReader(con.readFile(file.getName(), file.getParent()), charsetEncoding);
-                            BatchRawMessage rawMessage = new BatchRawMessage(new BatchMessageReader(in));
-                            rawMessage.setSourceMap(sourceMap);
+                            BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(in), sourceMap);
 
-                            dispatchBatchMessage(rawMessage, null);
+                            dispatchBatchMessage(batchRawMessage, null);
                         } finally {
                             if (in != null) {
                                 in.close();

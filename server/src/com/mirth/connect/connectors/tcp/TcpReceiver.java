@@ -102,6 +102,11 @@ public class TcpReceiver extends SourceConnector {
     @Override
     public void onDeploy() throws DeployException {
         connectorProperties = (TcpReceiverProperties) getConnectorProperties();
+
+        if (connectorProperties.isDataTypeBinary() && isProcessBatch()) {
+            throw new DeployException("Batch processing is not supported for binary data.");
+        }
+
         maxConnections = NumberUtils.toInt(connectorProperties.getMaxConnections());
         timeout = NumberUtils.toInt(connectorProperties.getReceiveTimeout());
         bufferSize = NumberUtils.toInt(connectorProperties.getBufferSize());
@@ -551,9 +556,7 @@ public class TcpReceiver extends SourceConnector {
                         streamHandler = transmissionModeProvider.getStreamHandler(socket.getInputStream(), outputStream, batchStreamReader, connectorProperties.getTransmissionModeProperties());
 
                         if (canStreamBatch) {
-                            BatchRawMessage rawMessage = new BatchRawMessage(this);
-
-                            rawMessage.setSourceMap(sourceMap);
+                            BatchRawMessage rawMessage = new BatchRawMessage(this, sourceMap);
 
                             // Send the message to the source connector
                             try {
@@ -569,9 +572,8 @@ public class TcpReceiver extends SourceConnector {
                                 }
 
                                 done = true;
-                                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error processing batch message", e));
-
                                 logger.error("Error processing batch message", e);
+                                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error processing batch message", e));
                             }
                         } else if (!done) {
                             ThreadUtils.checkInterruptedStatus();

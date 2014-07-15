@@ -22,6 +22,11 @@ public class BatchRawMessage {
         this.batchMessageSource = batchMessageSource;
     }
 
+    public BatchRawMessage(BatchMessageSource batchMessageSource, Map<String, Object> sourceMap) {
+        this.batchMessageSource = batchMessageSource;
+        this.sourceMap = sourceMap;
+    }
+
     public BatchMessageSource getBatchMessageSource() {
         return batchMessageSource;
     }

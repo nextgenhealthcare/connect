@@ -220,7 +220,7 @@ public class DataPrunerTest {
 
                 for (int i = 0; i < 100000; i++) {
                     logger.info("sending message #" + i);
-                    engineController.dispatchRawMessage(readerChannelId, new RawMessage(TestUtils.TEST_HL7_MESSAGE), false);
+                    engineController.dispatchRawMessage(readerChannelId, new RawMessage(TestUtils.TEST_HL7_MESSAGE), false, true);
                 }
 
                 logger.info("Finished sending messages");

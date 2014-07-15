@@ -21,6 +21,11 @@ public class Constants {
     public static final String BATCH_ID_KEY = "batchId";
 
     /**
+     * Reserved source map key for the last message in a batch
+     */
+    public static final String BATCH_COMPLETE_KEY = "batchComplete";
+
+    /**
      * Reserve source map key for the sequence number of a batch
      */
     public static final String BATCH_SEQUENCE_ID_KEY = "batchSequenceId";

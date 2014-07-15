@@ -21,6 +21,8 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
+import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.HaltException;
@@ -31,6 +33,9 @@ import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -87,23 +92,44 @@ public class JavaScriptReceiver extends PollConnector {
 
         try {
             result = JavaScriptUtil.execute(new JavaScriptReceiverTask());
-        } catch (JavaScriptExecutorException e) {
-            logger.error("Error executing " + connectorProperties.getName() + " script " + scriptId + ".", e);
-        }
 
-        for (RawMessage rawMessage : convertJavaScriptResult(result)) {
-            DispatchResult dispatchResult = null;
+            for (RawMessage rawMessage : convertJavaScriptResult(result)) {
+                if (isProcessBatch()) {
+                    if (rawMessage.isBinary()) {
+                        throw new BatchMessageException("Batch processing is not supported for binary data in channel " + getChannelId());
+                    } else {
+                        BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(rawMessage.getRawData()), rawMessage.getSourceMap());
 
-            try {
-                dispatchResult = dispatchRawMessage(rawMessage);
-            } catch (ChannelException e) {
-                // Do nothing. An error should have been logged.
-            } finally {
-                finishDispatch(dispatchResult);
+                        // Clean up the reference to the raw message so it doesn't hold the contents in memory
+                        rawMessage = null;
+
+                        dispatchBatchMessage(batchRawMessage, null);
+                    }
+                } else {
+                    DispatchResult dispatchResult = null;
+
+                    try {
+                        dispatchResult = dispatchRawMessage(rawMessage);
+                    } catch (ChannelException e) {
+                        // Do nothing. An error should have been logged.
+                    } finally {
+                        finishDispatch(dispatchResult);
+                    }
+                }
             }
-        }
 
-        eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
+        } catch (JavaScriptExecutorException e) {
+            String errorMessage = "Error executing " + connectorProperties.getName() + " script " + scriptId + ".";
+            logger.error(errorMessage, e);
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), errorMessage, e));
+        } catch (InterruptedException e) {
+            throw e;
+        } catch (BatchMessageException e) {
+            logger.error(e.getMessage(), e);
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error processing batch message", e));
+        } finally {
+            eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
+        }
     }
 
     private class JavaScriptReceiverTask extends JavaScriptTask<Object> {

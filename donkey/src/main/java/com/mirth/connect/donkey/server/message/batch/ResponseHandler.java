@@ -15,13 +15,28 @@ import com.mirth.connect.donkey.server.channel.DispatchResult;
 public abstract class ResponseHandler {
 
     protected DispatchResult dispatchResult;
+    private DispatchResult resultForResponse;
+    private boolean useFirstResponse;
 
-    public void setDispatchResult(DispatchResult dispatchResult) {
-        this.dispatchResult = dispatchResult;
-    }
+    public ResponseHandler() {}
 
     public DispatchResult getDispatchResult() {
         return dispatchResult;
+    }
+
+    public void setDispatchResult(DispatchResult dispatchResult) {
+        this.dispatchResult = dispatchResult;
+        if (!useFirstResponse || resultForResponse == null) {
+            resultForResponse = dispatchResult;
+        }
+    }
+
+    public DispatchResult getResultForResponse() {
+        return resultForResponse;
+    }
+
+    public void setUseFirstResponse(boolean useFirstResponse) {
+        this.useFirstResponse = useFirstResponse;
     }
 
     public abstract void responseProcess() throws Exception;

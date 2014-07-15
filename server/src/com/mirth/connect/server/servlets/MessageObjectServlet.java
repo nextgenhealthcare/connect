@@ -32,6 +32,7 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelException;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -190,9 +191,11 @@ public class MessageObjectServlet extends MirthServlet {
                             @Override
                             public void run() {
                                 try {
-                                    ControllerFactory.getFactory().createEngineController().dispatchRawMessage(channelId, rawMessage, true);
+                                    ControllerFactory.getFactory().createEngineController().dispatchRawMessage(channelId, rawMessage, true, true);
                                 } catch (ChannelException e) {
                                     // Do nothing. An error should have been logged.
+                                } catch (BatchMessageException e) {
+                                    logger.error("Error processing batch message", e);
                                 }
                             }
                         };

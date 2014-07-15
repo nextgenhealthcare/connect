@@ -30,6 +30,7 @@ import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.event.Event;
+import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
@@ -65,6 +66,10 @@ import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
+import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
+import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
@@ -522,7 +527,7 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public DispatchResult dispatchRawMessage(String channelId, RawMessage rawMessage, boolean force) throws ChannelException {
+    public DispatchResult dispatchRawMessage(String channelId, RawMessage rawMessage, boolean force, boolean canBatch) throws ChannelException, BatchMessageException {
         if (!isDeployed(channelId)) {
             ChannelException e = new ChannelException(true);
             logger.error("Could not find channel to route to: " + channelId, e);
@@ -530,16 +535,30 @@ public class DonkeyEngineController implements EngineController {
         }
 
         SourceConnector sourceConnector = donkey.getDeployedChannels().get(channelId).getSourceConnector();
-        DispatchResult dispatchResult = null;
 
-        try {
-            dispatchResult = sourceConnector.dispatchRawMessage(rawMessage, force);
-            dispatchResult.setAttemptedResponse(true);
-        } finally {
-            sourceConnector.finishDispatch(dispatchResult);
+        if (canBatch && sourceConnector.isProcessBatch()) {
+            if (rawMessage.isBinary()) {
+                throw new BatchMessageException("Batch processing is not supported for binary data.");
+            } else {
+                BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(rawMessage.getRawData()), rawMessage.getSourceMap());
+
+                ResponseHandler responseHandler = new SimpleResponseHandler();
+                sourceConnector.dispatchBatchMessage(batchRawMessage, responseHandler);
+
+                return responseHandler.getDispatchResult();
+            }
+        } else {
+            DispatchResult dispatchResult = null;
+
+            try {
+                dispatchResult = sourceConnector.dispatchRawMessage(rawMessage, force);
+                dispatchResult.setAttemptedResponse(true);
+            } finally {
+                sourceConnector.finishDispatch(dispatchResult);
+            }
+
+            return dispatchResult;
         }
-
-        return dispatchResult;
     }
 
     protected com.mirth.connect.donkey.server.channel.Channel convertToDonkeyChannel(Channel model) throws Exception {
@@ -761,6 +780,7 @@ public class DonkeyEngineController implements EngineController {
 
         if (batchProperties != null && batchProperties.isBatchEnabled()) {
             BatchAdaptorFactory batchAdaptorFactory = dataTypePlugin.getBatchAdaptorFactory(sourceConnector, serializerProperties);
+            batchAdaptorFactory.setUseFirstReponse(batchProperties.isUseFirstResponse());
             sourceConnector.setBatchAdaptorFactory(batchAdaptorFactory);
         }
         sourceConnector.setMetaDataReplacer(createMetaDataReplacer(model));

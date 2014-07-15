@@ -14,26 +14,52 @@ import com.mirth.connect.donkey.server.channel.SourceConnector;
 public abstract class BatchAdaptor {
     protected SourceConnector sourceConnector;
     protected BatchMessageSource batchMessageSource;
-    private int batchId;
+    private int batchSequenceId;
+    private boolean lookAhead = false;
+    private String nextMessage = null;
 
-    public BatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
+    public BatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource, boolean lookAhead) {
         this.sourceConnector = sourceConnector;
         this.batchMessageSource = batchMessageSource;
+        this.lookAhead = lookAhead;
     }
 
     public String getMessage() throws BatchMessageException {
         try {
-            return getNextMessage(++batchId);
+            if (lookAhead) {
+                String message = null;
+                batchSequenceId++;
+                if (batchSequenceId == 1) {
+                    message = getNextMessage(batchSequenceId);
+                } else {
+                    message = nextMessage;
+                }
+
+                if (message != null) {
+                    nextMessage = getNextMessage(batchSequenceId + 1);
+                }
+                return message;
+            } else {
+                return getNextMessage(++batchSequenceId);
+            }
         } catch (Exception e) {
-            throw new BatchMessageException("Failed to retrieve batch message at sequence number " + batchId, e);
+            throw new BatchMessageException("Failed to retrieve batch message at sequence number " + batchSequenceId, e);
         }
     }
 
-    public int getBatchId() {
-        return batchId;
+    public boolean isLookAhead() {
+        return lookAhead;
     }
 
-    protected abstract String getNextMessage(int batchId) throws Exception;
+    public boolean isBatchComplete() {
+        return lookAhead && nextMessage == null;
+    }
+
+    public int getBatchSequenceId() {
+        return batchSequenceId;
+    }
+
+    protected abstract String getNextMessage(int batchSequenceId) throws Exception;
 
     public abstract void cleanup() throws BatchMessageException;
 }

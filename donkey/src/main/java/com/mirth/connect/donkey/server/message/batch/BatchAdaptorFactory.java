@@ -22,6 +22,7 @@ public abstract class BatchAdaptorFactory {
     protected SourceConnector sourceConnector;
     private AtomicInteger batches = new AtomicInteger();
     private AtomicBoolean finished = new AtomicBoolean();
+    private boolean useFirstReponse = false;
 
     public BatchAdaptorFactory(SourceConnector sourceConnector) {
         this.sourceConnector = sourceConnector;
@@ -62,6 +63,14 @@ public abstract class BatchAdaptorFactory {
                 throw new StopException(e);
             }
         }
+    }
+
+    public boolean isUseFirstReponse() {
+        return useFirstReponse;
+    }
+
+    public void setUseFirstReponse(boolean useFirstReponse) {
+        this.useFirstReponse = useFirstReponse;
     }
 
     public abstract BatchAdaptor createBatchAdaptor(BatchMessageSource batchMessageSource);
