@@ -50,6 +50,7 @@ import org.apache.http.entity.ContentType;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
+import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.MirthDialog;
@@ -79,6 +80,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     private final String VALUE_COLUMN_NAME = "Value";
     private int responseHeadersLastIndex = -1;
     private int staticResourcesLastIndex = -1;
+    private boolean usingHttps = false;
 
     private enum StaticResourcesColumn {
         CONTEXT_PATH(0, "Context Path"), RESOURCE_TYPE(1, "Resource Type"), VALUE(2, "Value"), CONTENT_TYPE(
@@ -246,6 +248,12 @@ public class HttpListener extends ConnectorSettingsPanel {
     }
 
     @Override
+    public void doLocalDecoration(ConnectorTypeDecoration connectorTypeDecoration) {
+        usingHttps = connectorTypeDecoration != null;
+        updateHttpUrl();
+    }
+
+    @Override
     public boolean requiresXmlDataType() {
         return ((HttpReceiverProperties) getProperties()).isXmlBody();
     }
@@ -258,8 +266,10 @@ public class HttpListener extends ConnectorSettingsPanel {
             // ignore exceptions getting the server ip
         }
 
+        httpUrlLabel.setText(usingHttps ? "HTTPS URL:" : "HTTP URL:");
+
         // Display: http://server:port/contextpath/
-        httpUrlField.setText("http://" + server + ":" + ((HttpReceiverProperties) getFilledProperties()).getListenerConnectorProperties().getPort() + (contextPathField.getText().startsWith("/") ? "" : "/") + contextPathField.getText() + ((StringUtils.isBlank(contextPathField.getText()) || contextPathField.getText().endsWith("/")) ? "" : "/"));
+        httpUrlField.setText("http" + (usingHttps ? "s" : "") + "://" + server + ":" + ((HttpReceiverProperties) getFilledProperties()).getListenerConnectorProperties().getPort() + (contextPathField.getText().startsWith("/") ? "" : "/") + contextPathField.getText() + ((StringUtils.isBlank(contextPathField.getText()) || contextPathField.getText().endsWith("/")) ? "" : "/"));
     }
 
     public void setResponseHeaders(Map<String, String> responseHeaders) {
