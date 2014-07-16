@@ -46,8 +46,8 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
     private Integer groupingColumnIndex;
     private String batchMessageDelimiter = null;
 
-    public DelimitedBatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource, boolean lookAhead) {
-        super(sourceConnector, batchMessageSource, lookAhead);
+    public DelimitedBatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
+        super(sourceConnector, batchMessageSource);
     }
 
     public DelimitedSerializationProperties getSerializationProperties() {

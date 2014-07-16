@@ -15,17 +15,19 @@ public abstract class BatchAdaptor {
     protected SourceConnector sourceConnector;
     protected BatchMessageSource batchMessageSource;
     private int batchSequenceId;
-    private boolean lookAhead = false;
+    private boolean lookAhead = true;
     private String nextMessage = null;
 
-    public BatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource, boolean lookAhead) {
+    public BatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
         this.sourceConnector = sourceConnector;
         this.batchMessageSource = batchMessageSource;
-        this.lookAhead = lookAhead;
     }
 
     public String getMessage() throws BatchMessageException {
         try {
+            /*
+             * Currently, we always perform the lookahead
+             */
             if (lookAhead) {
                 String message = null;
                 batchSequenceId++;

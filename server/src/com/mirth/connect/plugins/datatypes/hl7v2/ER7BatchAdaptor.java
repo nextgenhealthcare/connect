@@ -31,8 +31,8 @@ public class ER7BatchAdaptor extends BatchAdaptor {
     private Scanner scanner;
     private String previousLine;
 
-    public ER7BatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource, boolean lookAhead) {
-        super(sourceConnector, batchMessageSource, lookAhead);
+    public ER7BatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
+        super(sourceConnector, batchMessageSource);
     }
 
     public Pattern getLineBreakPattern() {
@@ -51,6 +51,7 @@ public class ER7BatchAdaptor extends BatchAdaptor {
         this.segmentDelimiter = segmentDelimiter;
     }
 
+    @Override
     public void cleanup() throws BatchMessageException {
         if (scanner != null) {
             scanner.close();
