@@ -1748,7 +1748,7 @@ public class Frame extends JXFrame {
     public void goToMirth() {
         BareBonesBrowserLaunch.openURL("http://www.mirthcorp.com/");
     }
-    
+
     public void goToUserAPI() {
         BareBonesBrowserLaunch.openURL(PlatformUI.SERVER_NAME + UIConstants.USER_API_LOCATION);
     }
@@ -2476,7 +2476,9 @@ public class Frame extends JXFrame {
                 }
 
                 try {
-                    mirthClient.stopChannels(channelIds);
+                    if (!channelIds.isEmpty()) {
+                        mirthClient.stopChannels(channelIds);
+                    }
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
@@ -2511,7 +2513,9 @@ public class Frame extends JXFrame {
                 }
 
                 try {
-                    mirthClient.haltChannels(channelIds);
+                    if (!channelIds.isEmpty()) {
+                        mirthClient.haltChannels(channelIds);
+                    }
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
@@ -2546,7 +2550,9 @@ public class Frame extends JXFrame {
                 }
 
                 try {
-                    mirthClient.pauseChannels(channelIds);
+                    if (!channelIds.isEmpty()) {
+                        mirthClient.pauseChannels(channelIds);
+                    }
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
@@ -2588,7 +2594,9 @@ public class Frame extends JXFrame {
                 }
 
                 try {
-                    mirthClient.startConnectors(connectorInfo);
+                    if (!connectorInfo.isEmpty()) {
+                        mirthClient.startConnectors(connectorInfo);
+                    }
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
@@ -2640,7 +2648,9 @@ public class Frame extends JXFrame {
                 }
 
                 try {
-                    mirthClient.stopConnectors(connectorInfo);
+                    if (!connectorInfo.isEmpty()) {
+                        mirthClient.stopConnectors(connectorInfo);
+                    }
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
