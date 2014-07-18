@@ -179,6 +179,9 @@ public class DelimitedDeserializationProperties extends DeserializationPropertie
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
+    public void migrate3_1_0(DonkeyElement element) {}
+
+    @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("columnWidths", columnWidths);

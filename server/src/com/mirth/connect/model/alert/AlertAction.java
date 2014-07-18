@@ -22,7 +22,7 @@ public class AlertAction implements Migratable, Purgable {
 
     private AlertActionProtocol protocol;
     private String recipient;
-    
+
     public AlertAction(AlertActionProtocol protocol, String recipient) {
         this.protocol = protocol;
         this.recipient = recipient;
@@ -49,6 +49,9 @@ public class AlertAction implements Migratable, Purgable {
 
     @Override
     public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_1_0(DonkeyElement element) {}
 
     @Override
     public Map<String, Object> getPurgedProperties() {

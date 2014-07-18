@@ -2,7 +2,7 @@
 	<name>JMS Sender</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.0.3</mirthVersion>
+	<mirthVersion>3.1.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to write messages to a JMS queue.</description>
 	<clientClassName>com.mirth.connect.connectors.jms.JmsSender</clientClassName>

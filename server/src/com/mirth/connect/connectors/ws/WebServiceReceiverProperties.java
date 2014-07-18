@@ -110,6 +110,9 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
+    public void migrate3_1_0(DonkeyElement element) {}
+
+    @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("responseConnectorProperties", responseConnectorProperties.getPurgedProperties());

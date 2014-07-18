@@ -2,7 +2,7 @@
 	<name>PDF Viewer</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.0.3</mirthVersion>
+	<mirthVersion>3.1.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides PDF attachment viewing capability in message browser.</description>
 	<clientClasses>

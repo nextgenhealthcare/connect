@@ -2,7 +2,7 @@
 	<name>HL7v3 Data Type</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.0.3</mirthVersion>
+	<mirthVersion>3.1.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides support for the HL7v3 data type</description>
 	<serverClasses>
