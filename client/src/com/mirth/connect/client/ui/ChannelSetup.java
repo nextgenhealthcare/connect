@@ -752,7 +752,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
 
     public void decorateConnectorType(ConnectorTypeDecoration connectorTypeDecoration) {
-        if (connectorTypeDecoration != null && destinationTable.getSelectedRow() >= 0) {
+        if (connectorTypeDecoration != null && channelView.getSelectedComponent() == destination && destinationTable.getSelectedRow() >= 0) {
             ConnectorTypeData connectorTypeData = (ConnectorTypeData) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME));
             connectorTypeData.setDecoration(connectorTypeDecoration);
             destinationTable.getModel().setValueAt(connectorTypeData, destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME));
