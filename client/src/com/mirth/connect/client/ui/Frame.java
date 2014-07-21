@@ -2911,6 +2911,10 @@ public class Frame extends JXFrame {
     }
 
     public void doRedeployAll() {
+        if (!alertOption(this, "Are you sure you want to redeploy all channels?")) {
+            return;
+        }
+
         final String workingId = startWorking("Deploying channels...");
         dashboardPanel.deselectRows(false);
         doShowDashboard();
