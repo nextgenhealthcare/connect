@@ -24,13 +24,16 @@ import com.mirth.connect.server.controllers.ControllerFactory;
  * plugin is disabled or uninstalled.
  */
 public class ACKGenerator {
-    private final String DEFAULTDATEFORMAT = "yyyyMMddHHmmss";
-    private Logger logger = Logger.getLogger(getClass());
+    private static final String DEFAULTDATEFORMAT = "yyyyMMddHHmmss";
+    private static Logger logger = Logger.getLogger(ACKGenerator.class);
 
     /**
      * Instantiates a new ACKGenerator object.
      */
-    public ACKGenerator() {}
+    @Deprecated
+    public ACKGenerator() {
+        logger.error("The ACKGenerator constructor is now deprecated and will soon be removed. Please call ACKGenerator methods statically (e.g. ACKGenerator.generateAckResponse(message, ackCode, textMessage)).");
+    }
 
     /**
      * Generates an HL7 v2.x acknowledgment. Assumes that the inbound message is proper ER7, and
@@ -45,7 +48,7 @@ public class ACKGenerator {
      * @return The generated HL7 v2.x acknowledgment.
      * @throws Exception
      */
-    public String generateAckResponse(String message, String acknowledgementCode, String textMessage) throws Exception {
+    public static String generateAckResponse(String message, String acknowledgementCode, String textMessage) throws Exception {
         return generateAckResponse(message, false, acknowledgementCode, textMessage, DEFAULTDATEFORMAT, "");
     }
 
@@ -75,7 +78,7 @@ public class ACKGenerator {
      *             errorMessage) instead.
      */
     // TODO: Remove in 3.1
-    public String generateAckResponse(String message, String dataType, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
+    public static String generateAckResponse(String message, String dataType, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
         logger.error("This generateAckResponse(message, dataType, acknowledgementCode, textMessage, dateFormat, errorMessage) method is deprecated and will soon be removed. Please use generateAckResponse(message, isXML, acknowledgementCode, textMessage, dateFormat, errorMessage) instead.");
         return generateAckResponse(message, dataType.equals("XML"), acknowledgementCode, textMessage, dateFormat, errorMessage);
     }
@@ -101,7 +104,7 @@ public class ACKGenerator {
      * @return The generated HL7 v2.x acknowledgment.
      * @throws Exception
      */
-    public String generateAckResponse(String message, boolean isXML, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
+    public static String generateAckResponse(String message, boolean isXML, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
         DataTypeServerPlugin plugin = ControllerFactory.getFactory().createExtensionController().getDataTypePlugins().get("HL7V2");
         if (plugin != null) {
             Map<String, Object> properties = new HashMap<String, Object>();
