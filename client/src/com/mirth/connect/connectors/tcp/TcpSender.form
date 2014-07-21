@@ -12,6 +12,8 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="queueOnResponseTimeoutButtonGroup">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="checkRemoteHostButtonGroup">
+    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -37,25 +39,26 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="13" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="sampleLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="transmissionModeLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel18" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel17" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="keepConnectionOpenLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="localAddressLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="localPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="keepConnectionOpenLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="sendTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel15" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="queueOnResponseTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="processHL7ACKLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="dataTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="keepConnectionOpenLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="queueOnResponseTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="dataTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel15" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="keepConnectionOpenLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="sendTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel17" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel18" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="checkRemoteHostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="processHL7ACKLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="transmissionModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="sampleLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="localAddressLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="localPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -65,6 +68,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="settingsPlaceHolderLabel" max="32767" attributes="0"/>
                   </Group>
+                  <Component id="templateTextArea" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
@@ -110,10 +114,14 @@
                               <Component id="dataTypeASCIIRadio" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Component id="charsetEncodingCombobox" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="checkRemoteHostYesRadio" min="-2" max="-2" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="checkRemoteHostNoRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="templateTextArea" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -167,6 +175,12 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="checkRemoteHostLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="checkRemoteHostYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="checkRemoteHostNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="sendTimeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="sendTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -210,7 +224,7 @@
                       <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="templateTextArea" pref="81" max="32767" attributes="0"/>
+                  <Component id="templateTextArea" pref="89" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -631,6 +645,51 @@
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If enabled, the message is queued when a timeout occurs while waiting for a response.&lt;br/&gt;Otherwise, the message is set to errored when a timeout occurs while waiting for a response.&lt;br/&gt;This setting has no effect unless queuing is enabled for the connector.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="checkRemoteHostLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Check Remote Host:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="checkRemoteHostYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="checkRemoteHostButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to check if the remote host has closed the connection before each message.&lt;br&gt;Select No to assume the remote host has not closed the connection.&lt;br&gt;Checking the remote host will decrease throughput but will prevent the message from&lt;br&gt;erroring if the remote side closed the connection and queueing is disabled.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="checkRemoteHostNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="checkRemoteHostButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to check if the remote host has closed the connection before each message.&lt;br&gt;Select No to assume the remote host has not closed the connection.&lt;br&gt;Checking the remote host will decrease throughput but will prevent the message from&lt;br&gt;erroring if the remote side closed the connection and queueing is disabled.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

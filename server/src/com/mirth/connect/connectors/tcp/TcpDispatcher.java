@@ -194,7 +194,7 @@ public class TcpDispatcher extends DestinationConnector {
             }
 
             // Initialize a new socket if our current one is invalid, the remote side has closed, or keep connection open is false
-            if (socket == null || socket.isClosed() || socket.remoteSideHasClosed() || !tcpDispatcherProperties.isKeepConnectionOpen()) {
+            if (!tcpDispatcherProperties.isKeepConnectionOpen() || socket == null || socket.isClosed() || (tcpDispatcherProperties.isCheckRemoteHost() && socket.remoteSideHasClosed())) {
                 closeSocketQuietly(socketKey);
 
                 logger.debug("Creating new socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");

@@ -40,6 +40,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
     private String sendTimeout;
     private String bufferSize;
     private boolean keepConnectionOpen;
+    private boolean checkRemoteHost;
     private String responseTimeout;
     private boolean ignoreResponse;
     private boolean queueOnResponseTimeout;
@@ -64,6 +65,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
         this.sendTimeout = "5000";
         this.bufferSize = "65536";
         this.keepConnectionOpen = false;
+        this.checkRemoteHost = false;
         this.responseTimeout = "5000";
         this.ignoreResponse = false;
         this.queueOnResponseTimeout = true;
@@ -87,6 +89,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
         sendTimeout = props.getSendTimeout();
         bufferSize = props.getBufferSize();
         keepConnectionOpen = props.isKeepConnectionOpen();
+        checkRemoteHost = props.isCheckRemoteHost();
         responseTimeout = props.getResponseTimeout();
         ignoreResponse = props.isIgnoreResponse();
         queueOnResponseTimeout = props.isQueueOnResponseTimeout();
@@ -166,6 +169,14 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
 
     public void setKeepConnectionOpen(boolean keepConnectionOpen) {
         this.keepConnectionOpen = keepConnectionOpen;
+    }
+
+    public boolean isCheckRemoteHost() {
+        return checkRemoteHost;
+    }
+
+    public void setCheckRemoteHost(boolean checkRemoteHost) {
+        this.checkRemoteHost = checkRemoteHost;
     }
 
     public String getResponseTimeout() {
@@ -278,7 +289,9 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        element.addChildElement("checkRemoteHost", "true");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
@@ -289,6 +302,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
         purgedProperties.put("sendTimeout", PurgeUtil.getNumericValue(sendTimeout));
         purgedProperties.put("bufferSize", PurgeUtil.getNumericValue(bufferSize));
         purgedProperties.put("keepConnectionOpen", keepConnectionOpen);
+        purgedProperties.put("checkRemoteHost", checkRemoteHost);
         purgedProperties.put("responseTimeout", PurgeUtil.getNumericValue(responseTimeout));
         purgedProperties.put("ignoreResponse", ignoreResponse);
         purgedProperties.put("queueOnResponseTimeout", queueOnResponseTimeout);
