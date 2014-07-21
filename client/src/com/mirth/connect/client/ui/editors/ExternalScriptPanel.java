@@ -93,7 +93,7 @@ public class ExternalScriptPanel extends BasePanel {
 
         jLabel1.setText("Script Path:");
 
-        jLabel2.setText("Enter the path of an external JavaScript file accessible from the Mirth server.");
+        jLabel2.setText("Enter the path of an external JavaScript file accessible from the Mirth Connect server.");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

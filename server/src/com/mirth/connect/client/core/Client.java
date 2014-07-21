@@ -114,7 +114,7 @@ public class Client {
     }
 
     /**
-     * Logs a user in to the Mirth server using the specified name and password.
+     * Logs a user in to the Mirth Connect server using the specified name and password.
      * 
      * @param username
      * @param password
@@ -163,7 +163,7 @@ public class Client {
     }
 
     /**
-     * Returns a ServerConfiguration object which contains all of the channels, users, alerts and properties stored on the Mirth server.
+     * Returns a ServerConfiguration object which contains all of the channels, users, alerts and properties stored on the Mirth Connect server.
      * 
      * @return
      * @throws ClientException
@@ -175,7 +175,7 @@ public class Client {
     }
 
     /**
-     * Sets a ServerConfiguration object which sets all of the channels, alerts and properties stored on the Mirth server.
+     * Sets a ServerConfiguration object which sets all of the channels, alerts and properties stored on the Mirth Connect server.
      * 
      * @return
      * @throws ClientException
@@ -1119,7 +1119,7 @@ public class Client {
     }
 
     /**
-     * Returns the version of the Mirth server.
+     * Returns the version of the Mirth Connect server.
      * 
      * @return
      * @throws ClientException
@@ -1131,7 +1131,7 @@ public class Client {
     }
 
     /**
-     * Returns the status of the Mirth server.
+     * Returns the status of the Mirth Connect server.
      * 
      * @return
      * @throws ClientException
@@ -1143,7 +1143,7 @@ public class Client {
     }
 
     /**
-     * Returns the build date of the Mirth server.
+     * Returns the build date of the Mirth Connect server.
      * 
      * @return
      * @throws ClientException
@@ -1212,7 +1212,7 @@ public class Client {
     }
     
     /**
-     * Returns the usage data of the Mirth server.
+     * Returns the usage data of the Mirth Connect server.
      * 
      * @return
      * @throws ClientException

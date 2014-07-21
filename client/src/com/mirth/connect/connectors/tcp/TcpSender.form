@@ -332,7 +332,7 @@
             <StringItem index="6" value="US-ASCII"/>
           </StringArray>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The character set encoding to use when converting the outbound message to a byte stream if Data Type Text is selected.&lt;br&gt;Select Default to use the default character set encoding for the JVM running the Mirth server.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The character set encoding to use when converting the outbound message to a byte stream if Data Type Text is selected.&lt;br&gt;Select Default to use the default character set encoding for the JVM running the Mirth Connect server.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="charsetEncodingComboboxActionPerformed"/>

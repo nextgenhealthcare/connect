@@ -1170,7 +1170,7 @@ public class Frame extends JXFrame {
                 connectionError = true;
                 statusUpdaterExecutor.shutdownNow();
 
-                alertWarning(parentComponent, "The Mirth server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and login again.");
+                alertWarning(parentComponent, "The Mirth Connect server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and log in again.");
                 if (!exportChannelOnError()) {
                     return;
                 }

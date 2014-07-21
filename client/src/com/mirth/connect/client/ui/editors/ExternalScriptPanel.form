@@ -60,7 +60,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Enter the path of an external JavaScript file accessible from the Mirth server."/>
+        <Property name="text" type="java.lang.String" value="Enter the path of an external JavaScript file accessible from the Mirth Connect server."/>
       </Properties>
     </Component>
   </SubComponents>
