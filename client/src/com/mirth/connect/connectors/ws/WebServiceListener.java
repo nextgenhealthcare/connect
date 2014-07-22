@@ -23,6 +23,7 @@ import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
+import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -40,6 +41,7 @@ public class WebServiceListener extends ConnectorSettingsPanel {
     private final String USERNAME_COLUMN_NAME = "Username";
     private final String PASSWORD_COLUMN_NAME = "Password";
     private Frame parent;
+    private boolean usingHttps = false;
 
     public WebServiceListener() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -106,7 +108,7 @@ public class WebServiceListener extends ConnectorSettingsPanel {
             // ignore exceptions getting the server ip
         }
 
-        wsdlURLField.setText("http://" + server + ":" + ((WebServiceReceiverProperties) getFilledProperties()).getListenerConnectorProperties().getPort() + "/services/" + serviceNameField.getText() + "?wsdl");
+        wsdlURLField.setText("http" + (usingHttps ? "s" : "") + "://" + server + ":" + ((WebServiceReceiverProperties) getFilledProperties()).getListenerConnectorProperties().getPort() + "/services/" + serviceNameField.getText() + "?wsdl");
     }
 
     @Override
@@ -138,6 +140,12 @@ public class WebServiceListener extends ConnectorSettingsPanel {
         serviceNameField.setBackground(null);
     }
 
+    @Override
+    public void doLocalDecoration(ConnectorTypeDecoration connectorTypeDecoration) {
+        usingHttps = connectorTypeDecoration != null;
+        updateWSDL();
+    }
+
     private void setCredentials(List<List<String>> credentials) {
 
         List<String> usernames = credentials.get(0);
@@ -152,9 +160,10 @@ public class WebServiceListener extends ConnectorSettingsPanel {
             tableData[i][PASSWORD_COLUMN_NUMBER] = passwords.get(i);
         }
 
-        credentialsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{USERNAME_COLUMN_NAME, PASSWORD_COLUMN_NAME}) {
+        credentialsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
+                USERNAME_COLUMN_NAME, PASSWORD_COLUMN_NAME }) {
 
-            boolean[] canEdit = new boolean[]{true, true};
+            boolean[] canEdit = new boolean[] { true, true };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit[columnIndex];
@@ -491,7 +500,8 @@ public class WebServiceListener extends ConnectorSettingsPanel {
 
     private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
         stopCellEditing();
-        ((DefaultTableModel) credentialsTable.getModel()).addRow(new Object[]{getNewUsername(credentialsTable.getModel().getRowCount() + 1), ""});
+        ((DefaultTableModel) credentialsTable.getModel()).addRow(new Object[] {
+                getNewUsername(credentialsTable.getModel().getRowCount() + 1), "" });
         int newViewIndex = credentialsTable.convertRowIndexToView(credentialsTable.getModel().getRowCount() - 1);
         credentialsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
 
@@ -521,6 +531,7 @@ public class WebServiceListener extends ConnectorSettingsPanel {
 
         parent.setSaveEnabled(true);
     }//GEN-LAST:event_deleteButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL;
     private javax.swing.JLabel URL1;
