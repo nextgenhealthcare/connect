@@ -17,6 +17,7 @@ import java.io.Writer;
 import java.net.ConnectException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,14 +38,32 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
+import org.apache.http.auth.AuthSchemeProvider;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.AuthSchemes;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.utils.HttpClientUtils;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.entity.ContentType;
+import org.apache.http.impl.auth.BasicSchemeFactory;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -75,6 +94,7 @@ public class WebServiceDispatcher extends DestinationConnector {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private WebServiceConfiguration configuration;
+    private RegistryBuilder<ConnectionSocketFactory> socketFactoryRegistry;
 
     /*
      * Dispatch object used for pooling the soap connection, and the current properties used to
@@ -97,6 +117,7 @@ public class WebServiceDispatcher extends DestinationConnector {
         }
 
         try {
+            socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("http", PlainConnectionSocketFactory.getSocketFactory());
             configuration.configureConnectorDeploy(this);
         } catch (Exception e) {
             throw new DeployException(e);
@@ -177,23 +198,54 @@ public class WebServiceDispatcher extends DestinationConnector {
 
         // If the URL points to file, just return it
         if (!uri.getScheme().equalsIgnoreCase("file")) {
-            HttpClient client = new HttpClient();
-            HttpMethod method = new GetMethod(wsdlUrl);
+            BasicHttpClientConnectionManager httpClientConnectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry.build());
+            CloseableHttpClient client = HttpClients.custom().setConnectionManager(httpClientConnectionManager).build();
 
-            int status = client.executeMethod(method);
-            if ((status == HttpStatus.SC_UNAUTHORIZED) && (username != null) && (password != null)) {
-                client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-                status = client.executeMethod(method);
+            try {
+                HttpRequestBase method = new HttpGet(wsdlUrl);
+                HttpClientContext context = HttpClientContext.create();
 
-                if (status == HttpStatus.SC_OK) {
-                    String wsdl = method.getResponseBodyAsString();
-                    File tempFile = File.createTempFile("WebServiceSender", ".wsdl");
-                    tempFile.deleteOnExit();
+                if (username != null && password != null) {
+                    CredentialsProvider credsProvider = new BasicCredentialsProvider();
+                    AuthScope authScope = new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM);
+                    Credentials credentials = new UsernamePasswordCredentials(username, password);
+                    credsProvider.setCredentials(authScope, credentials);
+                    AuthCache authCache = new BasicAuthCache();
+                    RegistryBuilder<AuthSchemeProvider> registryBuilder = RegistryBuilder.<AuthSchemeProvider> create();
+                    registryBuilder.register(AuthSchemes.BASIC, new BasicSchemeFactory());
 
-                    FileUtils.writeStringToFile(tempFile, wsdl);
-
-                    return tempFile.toURI().toURL();
+                    context.setCredentialsProvider(credsProvider);
+                    context.setAuthSchemeRegistry(registryBuilder.build());
+                    context.setAuthCache(authCache);
                 }
+
+                CloseableHttpResponse response = client.execute(method, context);
+
+                try {
+                    if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                        ContentType responseContentType = ContentType.get(response.getEntity());
+                        if (responseContentType == null) {
+                            responseContentType = ContentType.TEXT_XML;
+                        }
+
+                        Charset responseCharset = responseContentType.getCharset();
+                        if (responseContentType.getCharset() == null) {
+                            responseCharset = ContentType.TEXT_XML.getCharset();
+                        }
+
+                        String wsdl = IOUtils.toString(response.getEntity().getContent(), responseCharset);
+                        File tempFile = File.createTempFile("WebServiceSender", ".wsdl");
+                        tempFile.deleteOnExit();
+
+                        FileUtils.writeStringToFile(tempFile, wsdl);
+
+                        return tempFile.toURI().toURL();
+                    }
+                } finally {
+                    HttpClientUtils.closeQuietly(response);
+                }
+            } finally {
+                HttpClientUtils.closeQuietly(client);
             }
         }
 
@@ -325,7 +377,6 @@ public class WebServiceDispatcher extends DestinationConnector {
                     eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error invoking web service.", e));
                 }
             }
-
         } catch (Exception e) {
             // Set the response status to ERROR if it failed to create the dispatch
             responseStatus = Status.ERROR;
@@ -398,5 +449,9 @@ public class WebServiceDispatcher extends DestinationConnector {
         public void setCurrentPortName(String currentPortName) {
             this.currentPortName = currentPortName;
         }
+    }
+
+    public RegistryBuilder<ConnectionSocketFactory> getSocketFactoryRegistry() {
+        return socketFactoryRegistry;
     }
 }
