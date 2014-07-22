@@ -66,9 +66,12 @@ public class WebServiceConnectorService implements ConnectorService {
     public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
         WebServiceDispatcherProperties props = (WebServiceDispatcherProperties) object;
         String wsdlUrl = replacer.replaceValues(props.getWsdlUrl(), channelId);
+        String username = replacer.replaceValues(props.getUsername(), channelId);
+        String password = replacer.replaceValues(props.getPassword(), channelId);
+        wsdlUrl = getURIWithCredentials(new URI(wsdlUrl), username, password).toURL().toString();
 
         if (method.equals(CACHE_WSDL_FROM_URL)) {
-            cacheWsdlInterfaces(wsdlUrl, getWsdlInterfaces(new URI(wsdlUrl), props, channelId));
+            cacheWsdlInterfaces(wsdlUrl, getWsdlInterfaces(wsdlUrl, props, channelId));
         } else if (method.equals(IS_WSDL_CACHED)) {
             return definitionCache.get(wsdlUrl) != null;
         } else if (method.equals(GET_DEFINITION)) {
@@ -130,21 +133,17 @@ public class WebServiceConnectorService implements ConnectorService {
      * Future to execute the request in the background and timeout after 30 seconds if the server
      * could not be contacted.
      */
-    private WsdlInterface[] getWsdlInterfaces(URI wsdlUrl, WebServiceDispatcherProperties props, String channelId) throws Exception {
-        String username = replacer.replaceValues(props.getUsername(), channelId);
-        String password = replacer.replaceValues(props.getPassword(), channelId);
-
-        wsdlUrl = getURIWithCredentials(wsdlUrl, username, password);
+    private WsdlInterface[] getWsdlInterfaces(String wsdlUrl, WebServiceDispatcherProperties props, String channelId) throws Exception {
         WsdlProject wsdlProject = new WsdlProjectFactory().createNew();
-        WsdlLoader wsdlLoader = new UrlWsdlLoader(wsdlUrl.toURL().toString());
+        WsdlLoader wsdlLoader = new UrlWsdlLoader(wsdlUrl);
         return importWsdlInterfaces(wsdlProject, wsdlUrl, wsdlLoader);
     }
 
-    public WsdlInterface[] importWsdlInterfaces(final WsdlProject wsdlProject, final URI wsdlUrl, final WsdlLoader wsdlLoader) throws Exception {
+    public WsdlInterface[] importWsdlInterfaces(final WsdlProject wsdlProject, final String wsdlUrl, final WsdlLoader wsdlLoader) throws Exception {
         try {
             Future<WsdlInterface[]> future = executor.submit(new Callable<WsdlInterface[]>() {
                 public WsdlInterface[] call() throws Exception {
-                    return WsdlInterfaceFactory.importWsdl(wsdlProject, wsdlUrl.toURL().toString(), false, wsdlLoader);
+                    return WsdlInterfaceFactory.importWsdl(wsdlProject, wsdlUrl, false, wsdlLoader);
                 }
             });
             return future.get(30, TimeUnit.SECONDS);
