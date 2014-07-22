@@ -19,12 +19,10 @@ import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -33,7 +31,6 @@ import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
@@ -1302,31 +1299,7 @@ public class HttpSender extends ConnectorSettingsPanel {
     }//GEN-LAST:event_deleteButtonActionPerformed
 
     private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
-        final String workingId = parent.startWorking("Testing connection...");
-
-        SwingWorker worker = new SwingWorker<Object, Void>() {
-            @Override
-            public Object doInBackground() throws ClientException {
-                return parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), "testConnection", connectorPanel.getProperties());
-            }
-
-            @Override
-            public void done() {
-                try {
-                    handlePluginConnectorServiceResponse("testConnection", get());
-                } catch (Exception e) {
-                    Throwable cause = e;
-                    if (e instanceof ExecutionException && e.getCause() != null) {
-                        cause = e.getCause();
-                    }
-                    parent.alertError(parent, cause.getMessage());
-                }
-
-                parent.stopWorking(workingId);
-            }
-        };
-
-        worker.execute();
+        invokeConnectorService("testConnection", "Testing connection...", "Error testing HTTP connection: ");
     }//GEN-LAST:event_testConnectionActionPerformed
 
     private void queryParametersDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queryParametersDeleteButtonActionPerformed

@@ -11,10 +11,14 @@ package com.mirth.connect.client.ui.panels.connectors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JPanel;
+import javax.swing.SwingWorker;
 
+import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.ConnectorTypeDecoration;
+import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.CodeTemplate;
@@ -141,14 +145,45 @@ public abstract class ConnectorSettingsPanel extends JPanel {
     public void doLocalDecoration(ConnectorTypeDecoration connectorTypeDecoration) {}
 
     /**
-     * Allows the overall connector panel to take care of actions after a connector service has been
-     * invoked.
+     * Invokes a method on a connector service in an asynchronous worker, which passes the returned
+     * object to the handlePluginConnectorServiceResponse method.
      * 
      * @param method
-     * @param response
+     *            The connector service method to invoke
+     * @param workerDisplayText
+     *            The progress text to display while the worker is running
+     * @param errorText
+     *            A custom error message to display if an exception occurs during connector service
+     *            invocation
      */
-    protected final void handlePluginConnectorServiceResponse(String method, Object response) {
-        connectorPanel.handlePluginConnectorServiceResponse(method, response);
+    public final void invokeConnectorService(final String method, String workerDisplayText, final String errorText) {
+        final ConnectorProperties connectorProperties = connectorPanel.getProperties();
+        final String workingId = PlatformUI.MIRTH_FRAME.startWorking(workerDisplayText);
+
+        SwingWorker<?, ?> worker = new SwingWorker<Object, Void>() {
+            @Override
+            public Object doInBackground() throws ClientException {
+                return PlatformUI.MIRTH_FRAME.mirthClient.invokeConnectorService(PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getId(), getConnectorName(), method, connectorProperties);
+            }
+
+            @Override
+            public void done() {
+                try {
+                    connectorPanel.handlePluginConnectorServiceResponse(method, get());
+                } catch (Exception e) {
+                    Throwable cause = e;
+                    if (e instanceof ExecutionException && e.getCause() != null) {
+                        cause = e.getCause();
+                    }
+
+                    PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), errorText + cause.getMessage());
+                } finally {
+                    PlatformUI.MIRTH_FRAME.stopWorking(workingId);
+                }
+            }
+        };
+
+        worker.execute();
     }
 
     /**

@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.ws;
 import static com.mirth.connect.connectors.ws.WebServiceConnectorServiceMethods.*;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -58,65 +59,16 @@ public class WebServiceConnectorService implements ConnectorService {
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private Logger logger = Logger.getLogger(getClass());
 
+    static {
+        SoapUI.setSoapUICore(new EmbeddedSoapUICore());
+    }
+
     public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
-        Map<String, Object> params = (Map<String, Object>) object;
-        String wsdlUrl = replacer.replaceValues((String) params.get("wsdlUrl"), channelId);
+        WebServiceDispatcherProperties props = (WebServiceDispatcherProperties) object;
+        String wsdlUrl = replacer.replaceValues(props.getWsdlUrl(), channelId);
 
         if (method.equals(CACHE_WSDL_FROM_URL)) {
-            String username = replacer.replaceValues((String) params.get("username"), channelId);
-            String password = replacer.replaceValues((String) params.get("password"), channelId);
-
-            WsdlInterface[] wsdlInterfaces = getWsdlInterfaces(new URI(wsdlUrl), username, password);
-
-            if (ArrayUtils.isNotEmpty(wsdlInterfaces)) {
-                Definition definition = wsdlInterfaces[0].getWsdlContext().getDefinition();
-                Map<String, Map<String, List<String>>> definitionServiceMap = new LinkedHashMap<String, Map<String, List<String>>>();
-                Map<String, Map<String, WsdlInterface>> wsdlInterfaceServiceMap = new LinkedHashMap<String, Map<String, WsdlInterface>>();
-
-                if (MapUtils.isNotEmpty(definition.getServices())) {
-                    for (Object serviceObject : definition.getServices().values()) {
-                        Service service = (Service) serviceObject;
-                        logger.debug("Service: " + service.getQName().toString());
-                        Map<String, List<String>> definitionPortMap = new LinkedHashMap<String, List<String>>();
-                        Map<String, WsdlInterface> wsdlInterfacePortMap = new LinkedHashMap<String, WsdlInterface>();
-
-                        if (MapUtils.isNotEmpty(service.getPorts())) {
-                            for (Object portObject : service.getPorts().values()) {
-                                Port port = (Port) portObject;
-                                String portQName = new QName(service.getQName().getNamespaceURI(), port.getName()).toString();
-                                logger.debug("    Port: " + portQName);
-
-                                List<String> operations = new ArrayList<String>();
-                                for (Object bindingOperation : port.getBinding().getBindingOperations()) {
-                                    String operationName = ((BindingOperation) bindingOperation).getName();
-                                    logger.debug("        Operation: " + operationName);
-                                    operations.add(operationName);
-                                }
-
-                                WsdlInterface bindingInterface = null;
-                                for (WsdlInterface wsdlInterface : wsdlInterfaces) {
-                                    if (wsdlInterface.getBindingName().equals(port.getBinding().getQName())) {
-                                        bindingInterface = wsdlInterface;
-                                    }
-                                }
-                                logger.debug("        Interface: " + bindingInterface);
-                                if (bindingInterface != null) {
-                                    definitionPortMap.put(portQName, operations);
-                                    wsdlInterfacePortMap.put(portQName, bindingInterface);
-                                }
-                            }
-                        }
-
-                        definitionServiceMap.put(service.getQName().toString(), definitionPortMap);
-                        wsdlInterfaceServiceMap.put(service.getQName().toString(), wsdlInterfacePortMap);
-                    }
-                }
-
-                definitionCache.put(wsdlUrl, definitionServiceMap);
-                wsdlInterfaceCache.put(wsdlUrl, wsdlInterfaceServiceMap);
-            } else {
-                throw new Exception("Could not find any definitions in " + wsdlUrl);
-            }
+            cacheWsdlInterfaces(wsdlUrl, getWsdlInterfaces(new URI(wsdlUrl), props, channelId));
         } else if (method.equals(IS_WSDL_CACHED)) {
             return definitionCache.get(wsdlUrl) != null;
         } else if (method.equals(GET_DEFINITION)) {
@@ -126,18 +78,18 @@ public class WebServiceConnectorService implements ConnectorService {
             }
             return definition;
         } else if (method.equals(GENERATE_ENVELOPE)) {
-            return buildEnvelope(getCachedWsdlInterface(wsdlUrl, params, channelId), (String) params.get("operation"));
+            return buildEnvelope(getCachedWsdlInterface(wsdlUrl, props, channelId), props.getOperation());
         } else if (method.equals(GET_SOAP_ACTION)) {
-            WsdlInterface wsdlInterface = getCachedWsdlInterface(wsdlUrl, params, channelId);
-            return wsdlInterface.getOperationByName((String) params.get("operation")).getAction();
+            WsdlInterface wsdlInterface = getCachedWsdlInterface(wsdlUrl, props, channelId);
+            return wsdlInterface.getOperationByName(props.getOperation()).getAction();
         }
 
         return null;
     }
 
-    private WsdlInterface getCachedWsdlInterface(String wsdlUrl, Map<String, Object> params, String channelId) throws Exception {
-        String service = replacer.replaceValues((String) params.get("service"), channelId);
-        String port = replacer.replaceValues((String) params.get("port"), channelId);
+    private WsdlInterface getCachedWsdlInterface(String wsdlUrl, WebServiceDispatcherProperties props, String channelId) throws Exception {
+        String service = replacer.replaceValues(props.getService(), channelId);
+        String port = replacer.replaceValues(props.getPort(), channelId);
 
         Map<String, Map<String, WsdlInterface>> serviceMap = wsdlInterfaceCache.get(wsdlUrl);
         if (serviceMap == null) {
@@ -160,12 +112,7 @@ public class WebServiceConnectorService implements ConnectorService {
         }
     }
 
-    /*
-     * Retrieves the WSDL interface from the specified URL (with optional credentials). Uses a
-     * Future to execute the request in the background and timeout after 30 seconds if the server
-     * could not be contacted.
-     */
-    private WsdlInterface[] getWsdlInterfaces(URI wsdlUrl, String username, String password) throws Exception {
+    public URI getURIWithCredentials(URI wsdlUrl, String username, String password) throws URISyntaxException {
         /* add the username:password to the URL if using authentication */
         if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
             String hostWithCredentials = username + ":" + password + "@" + wsdlUrl.getHost();
@@ -175,16 +122,87 @@ public class WebServiceConnectorService implements ConnectorService {
             wsdlUrl = new URI(wsdlUrl.getScheme(), hostWithCredentials, wsdlUrl.getPath(), wsdlUrl.getQuery(), wsdlUrl.getFragment());
         }
 
-        SoapUI.setSoapUICore(new EmbeddedSoapUICore());
+        return wsdlUrl;
+    }
+
+    /*
+     * Retrieves the WSDL interface from the specified URL (with optional credentials). Uses a
+     * Future to execute the request in the background and timeout after 30 seconds if the server
+     * could not be contacted.
+     */
+    private WsdlInterface[] getWsdlInterfaces(URI wsdlUrl, WebServiceDispatcherProperties props, String channelId) throws Exception {
+        String username = replacer.replaceValues(props.getUsername(), channelId);
+        String password = replacer.replaceValues(props.getPassword(), channelId);
+
+        wsdlUrl = getURIWithCredentials(wsdlUrl, username, password);
         WsdlProject wsdlProject = new WsdlProjectFactory().createNew();
         WsdlLoader wsdlLoader = new UrlWsdlLoader(wsdlUrl.toURL().toString());
+        return importWsdlInterfaces(wsdlProject, wsdlUrl, wsdlLoader);
+    }
 
+    public WsdlInterface[] importWsdlInterfaces(final WsdlProject wsdlProject, final URI wsdlUrl, final WsdlLoader wsdlLoader) throws Exception {
         try {
-            Future<WsdlInterface[]> future = importWsdlInterface(wsdlProject, wsdlUrl, wsdlLoader);
+            Future<WsdlInterface[]> future = executor.submit(new Callable<WsdlInterface[]>() {
+                public WsdlInterface[] call() throws Exception {
+                    return WsdlInterfaceFactory.importWsdl(wsdlProject, wsdlUrl.toURL().toString(), false, wsdlLoader);
+                }
+            });
             return future.get(30, TimeUnit.SECONDS);
         } catch (Exception e) {
             wsdlLoader.abort();
             throw e;
+        }
+    }
+
+    public void cacheWsdlInterfaces(String wsdlUrl, WsdlInterface[] wsdlInterfaces) throws Exception {
+        if (ArrayUtils.isNotEmpty(wsdlInterfaces)) {
+            Definition definition = wsdlInterfaces[0].getWsdlContext().getDefinition();
+            Map<String, Map<String, List<String>>> definitionServiceMap = new LinkedHashMap<String, Map<String, List<String>>>();
+            Map<String, Map<String, WsdlInterface>> wsdlInterfaceServiceMap = new LinkedHashMap<String, Map<String, WsdlInterface>>();
+
+            if (MapUtils.isNotEmpty(definition.getServices())) {
+                for (Object serviceObject : definition.getServices().values()) {
+                    Service service = (Service) serviceObject;
+                    logger.debug("Service: " + service.getQName().toString());
+                    Map<String, List<String>> definitionPortMap = new LinkedHashMap<String, List<String>>();
+                    Map<String, WsdlInterface> wsdlInterfacePortMap = new LinkedHashMap<String, WsdlInterface>();
+
+                    if (MapUtils.isNotEmpty(service.getPorts())) {
+                        for (Object portObject : service.getPorts().values()) {
+                            Port port = (Port) portObject;
+                            String portQName = new QName(service.getQName().getNamespaceURI(), port.getName()).toString();
+                            logger.debug("    Port: " + portQName);
+
+                            List<String> operations = new ArrayList<String>();
+                            for (Object bindingOperation : port.getBinding().getBindingOperations()) {
+                                String operationName = ((BindingOperation) bindingOperation).getName();
+                                logger.debug("        Operation: " + operationName);
+                                operations.add(operationName);
+                            }
+
+                            WsdlInterface bindingInterface = null;
+                            for (WsdlInterface wsdlInterface : wsdlInterfaces) {
+                                if (wsdlInterface.getBindingName().equals(port.getBinding().getQName())) {
+                                    bindingInterface = wsdlInterface;
+                                }
+                            }
+                            logger.debug("        Interface: " + bindingInterface);
+                            if (bindingInterface != null) {
+                                definitionPortMap.put(portQName, operations);
+                                wsdlInterfacePortMap.put(portQName, bindingInterface);
+                            }
+                        }
+                    }
+
+                    definitionServiceMap.put(service.getQName().toString(), definitionPortMap);
+                    wsdlInterfaceServiceMap.put(service.getQName().toString(), wsdlInterfacePortMap);
+                }
+            }
+
+            definitionCache.put(wsdlUrl, definitionServiceMap);
+            wsdlInterfaceCache.put(wsdlUrl, wsdlInterfaceServiceMap);
+        } else {
+            throw new Exception("Could not find any definitions in " + wsdlUrl);
         }
     }
 
@@ -194,18 +212,10 @@ public class WebServiceConnectorService implements ConnectorService {
         return messageBuilder.buildSoapMessageFromInput(bindingOperation, true);
     }
 
-    private Future<WsdlInterface[]> importWsdlInterface(final WsdlProject wsdlProject, final URI newWsdlUrl, final WsdlLoader wsdlLoader) {
-        return executor.submit(new Callable<WsdlInterface[]>() {
-            public WsdlInterface[] call() throws Exception {
-                return WsdlInterfaceFactory.importWsdl(wsdlProject, newWsdlUrl.toURL().toString(), false, wsdlLoader);
-            }
-        });
-    }
-
     /*
      * This is needed to prevent soapUI from disabling logging for the entire application.
      */
-    private class EmbeddedSoapUICore extends DefaultSoapUICore {
+    private static class EmbeddedSoapUICore extends DefaultSoapUICore {
         @Override
         protected void initLog() {
             log = Logger.getLogger(DefaultSoapUICore.class);

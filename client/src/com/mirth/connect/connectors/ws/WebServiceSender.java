@@ -23,16 +23,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.EventObject;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.prefs.Preferences;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.SwingWorker;
 import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -46,7 +43,6 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
-import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
@@ -271,16 +267,43 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
     @Override
     public void handleConnectorServiceResponse(String method, Object response) {
-        if (response != null) {
-            currentServiceMap = (Map<String, Map<String, List<String>>>) response;
-            loadServiceMap();
+        if (method.equals(CACHE_WSDL_FROM_URL)) {
+            invokeConnectorService(GET_DEFINITION, "Retrieving cached WSDL definition map...", "There was an error retriving the cached WSDL definition map.\n\n");
+        } else if (method.equals(GET_DEFINITION)) {
+            if (response != null) {
+                currentServiceMap = (Map<String, Map<String, List<String>>>) response;
+                loadServiceMap();
 
-            if (MapUtils.isNotEmpty(currentServiceMap)) {
-                serviceComboBox.setSelectedItem(currentServiceMap.keySet().iterator().next());
+                if (MapUtils.isNotEmpty(currentServiceMap)) {
+                    serviceComboBox.setSelectedItem(currentServiceMap.keySet().iterator().next());
+                }
+
+                parent.setSaveEnabled(true);
+            }
+        } else if (method.equals(IS_WSDL_CACHED)) {
+            if (response != null) {
+                if ((Boolean) response) {
+                    invokeConnectorService(GENERATE_ENVELOPE, "Generating envelope...", "There was an error generating the envelope.\n\n");
+                } else {
+                    parent.alertInformation(parent, "The WSDL is no longer cached on the server. Press \"Get Operations\" to fetch the latest WSDL.");
+                }
+            }
+        } else if (method.equals(GENERATE_ENVELOPE)) {
+            String generatedEnvelope = (String) response;
+            if (generatedEnvelope != null) {
+                soapEnvelope.setText(generatedEnvelope);
+                parent.setSaveEnabled(true);
+            }
+
+            invokeConnectorService(GET_SOAP_ACTION, "Retrieving SOAP action...", "There was an error retrieving the SOAP action.\n\n");
+        } else if (method.equals(GET_SOAP_ACTION)) {
+            String soapAction = (String) response;
+            if (soapAction != null) {
+                soapActionField.setText(soapAction);
+                parent.setSaveEnabled(true);
+                urlFieldChanged();
             }
         }
-
-        parent.setSaveEnabled(true);
     }
 
     private void loadServiceMap() {
@@ -318,55 +341,6 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
     private boolean isDefaultOperations() {
         return (operationComboBox.getItemCount() == 1 && operationComboBox.getItemAt(0).equals(WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN));
-    }
-
-    private boolean isWsdlCached() {
-        String wsdlUrl = wsdlUrlField.getText().trim();
-
-        if (wsdlUrl.equals("")) {
-            return false;
-        }
-
-        boolean isWsdlCached = false;
-
-        try {
-            isWsdlCached = (Boolean) invokeConnectorService(IS_WSDL_CACHED);
-        } catch (ClientException e) {
-            parent.alertError(parent, "Error checking if the wsdl is cached.\n\n" + e.getMessage());
-        }
-
-        return isWsdlCached;
-    }
-
-    private boolean cacheWsdl() {
-        try {
-            String wsdlUrl = wsdlUrlField.getText().trim();
-            Map<String, Object> cacheWsdlMap = new HashMap<String, Object>();
-
-            cacheWsdlMap.put("wsdlUrl", wsdlUrl);
-            cacheWsdlMap.put("properties", connectorPanel.getProperties());
-
-            if (authenticationYesRadio.isSelected()) {
-                cacheWsdlMap.put("username", usernameField.getText());
-                cacheWsdlMap.put("password", new String(passwordField.getPassword()));
-            }
-
-            parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), CACHE_WSDL_FROM_URL, cacheWsdlMap);
-
-            return true;
-        } catch (ClientException e) {
-            parent.alertException(parent, e.getStackTrace(), "Error caching WSDL. Please check the WSDL URL and authentication settings.\n\n" + e.getMessage());
-            return false;
-        }
-    }
-
-    private Object invokeConnectorService(String method) throws ClientException {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("wsdlUrl", wsdlUrlField.getText().trim());
-        params.put("service", StringUtils.trimToEmpty((String) serviceComboBox.getSelectedItem()));
-        params.put("port", StringUtils.trimToEmpty((String) portComboBox.getSelectedItem()));
-        params.put("operation", (String) operationComboBox.getSelectedItem());
-        return parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), method, params);
     }
 
     private void setAttachments(List<List<String>> attachments) {
@@ -930,40 +904,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         operationComboBox.setSelectedIndex(0);
         generateEnvelope.setEnabled(false);
 
-        // Get the new operations
-        final String workingId = parent.startWorking("Getting operations...");
-
-        SwingWorker worker = new SwingWorker<Map<String, Map<String, List<String>>>, Void>() {
-
-            @Override
-            public Map<String, Map<String, List<String>>> doInBackground() {
-                if (cacheWsdl()) {
-                    try {
-                        return (Map<String, Map<String, List<String>>>) invokeConnectorService(GET_DEFINITION);
-                    } catch (ClientException e) {
-                        parent.alertException(parent, e.getStackTrace(), "There was an error retriving the cached WSDL definition map.\n\n" + e.getMessage());
-                    }
-                }
-
-                return null;
-            }
-
-            @Override
-            public void done() {
-                try {
-                    handlePluginConnectorServiceResponse(CACHE_WSDL_FROM_URL, get());
-                } catch (Exception e) {
-                    Throwable cause = e;
-                    if (e instanceof ExecutionException && e.getCause() != null) {
-                        cause = e.getCause();
-                    }
-                    parent.alertError(parent, cause.getMessage());
-                }
-
-                parent.stopWorking(workingId);
-            }
-        };
-        worker.execute();
+        invokeConnectorService(CACHE_WSDL_FROM_URL, "Getting operations...", "Error caching WSDL. Please check the WSDL URL and authentication settings.\n\n");
     }//GEN-LAST:event_getOperationsButtonActionPerformed
 
     private void authenticationYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authenticationYesRadioActionPerformed
@@ -1017,50 +958,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             }
         }
 
-        final String workingId = parent.startWorking("Generating envelope...");
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            private String soapAction = null;
-            private String generatedEnvelope = null;
-
-            public Void doInBackground() {
-                if (!isWsdlCached()) {
-                    parent.alertInformation(parent, "The WSDL is no longer cached on the server. Press \"Get Operations\" to fetch the latest WSDL.");
-                } else {
-                    try {
-                        generatedEnvelope = (String) invokeConnectorService(GENERATE_ENVELOPE);
-                    } catch (ClientException e) {
-                        parent.alertException(parent, e.getStackTrace(), "There was an error generating the envelope.\n\n" + e.getMessage());
-                    }
-
-                    try {
-                        soapAction = (String) invokeConnectorService(GET_SOAP_ACTION);
-                    } catch (ClientException e) {
-                        parent.alertException(parent, e.getStackTrace(), "There was an error retrieving the soap action.\n\n" + e.getMessage());
-                    }
-                }
-
-                return null;
-            }
-
-            public void done() {
-                if (generatedEnvelope != null) {
-                    soapEnvelope.setText(generatedEnvelope);
-                    parent.setSaveEnabled(true);
-                }
-
-                if (soapAction != null) {
-                    soapActionField.setText(soapAction);
-                    parent.setSaveEnabled(true);
-                }
-
-                urlFieldChanged();
-
-                parent.stopWorking(workingId);
-            }
-        };
-        worker.execute();
+        invokeConnectorService(IS_WSDL_CACHED, "Checking if WSDL is cached...", "Error checking if the wsdl is cached: ");
     }//GEN-LAST:event_generateEnvelopeActionPerformed
 
     private void serviceComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_serviceComboBoxActionPerformed
