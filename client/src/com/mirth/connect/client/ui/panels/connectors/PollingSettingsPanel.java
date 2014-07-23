@@ -21,6 +21,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
+import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
 
 public class PollingSettingsPanel extends javax.swing.JPanel {
 
@@ -30,7 +31,9 @@ public class PollingSettingsPanel extends javax.swing.JPanel {
         pollingFrequencyField.setDocument(new MirthFieldConstraints(0, false, false, true));
     }
 
-    public void setProperties(PollConnectorProperties properties) {
+    public void setProperties(PollConnectorPropertiesInterface propertiesInterface) {
+        PollConnectorProperties properties = propertiesInterface.getPollConnectorProperties();
+
         if (properties.getPollingType().equals(PollConnectorProperties.POLLING_TYPE_INTERVAL)) {
             pollingIntervalButton.setSelected(true);
             pollingIntervalButtonActionPerformed(null);
@@ -47,14 +50,15 @@ public class PollingSettingsPanel extends javax.swing.JPanel {
         }
     }
 
-    public void fillProperties(PollConnectorProperties properties) {
+    public void fillProperties(PollConnectorPropertiesInterface propertiesInterface) {
+        PollConnectorProperties properties = propertiesInterface.getPollConnectorProperties();
+
         // TODO: Polling properties - extract and fix defaults
         if (pollingIntervalButton.isSelected()) {
             properties.setPollingType(PollConnectorProperties.POLLING_TYPE_INTERVAL);
             properties.setPollingFrequency(NumberUtils.toInt(pollingFrequencyField.getText(), -1));
         } else {
             properties.setPollingType(PollConnectorProperties.POLLING_TYPE_TIME);
-
 
             try {
                 SimpleDateFormat timeDateFormat = new SimpleDateFormat("hh:mm aa");
@@ -71,7 +75,8 @@ public class PollingSettingsPanel extends javax.swing.JPanel {
         }
     }
 
-    public boolean checkProperties(PollConnectorProperties properties, boolean highlight) {
+    public boolean checkProperties(PollConnectorPropertiesInterface propertiesInterface, boolean highlight) {
+        PollConnectorProperties properties = propertiesInterface.getPollConnectorProperties();
         boolean valid = true;
 
         // TODO: Polling properties checks don't work properly with ints

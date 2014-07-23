@@ -14,14 +14,14 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
-public class DocumentDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
+public class DocumentDispatcherProperties extends ConnectorProperties implements DestinationConnectorPropertiesInterface {
 
-    private QueueConnectorProperties queueConnectorProperties;
+    private DestinationConnectorProperties destinationConnectorProperties;
 
     private String host;
     private String outputPattern;
@@ -34,7 +34,7 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
     public static final String DOCUMENT_TYPE_RTF = "rtf";
 
     public DocumentDispatcherProperties() {
-        queueConnectorProperties = new QueueConnectorProperties();
+        destinationConnectorProperties = new DestinationConnectorProperties();
 
         this.host = "";
         this.outputPattern = "";
@@ -46,7 +46,7 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
 
     public DocumentDispatcherProperties(DocumentDispatcherProperties props) {
         super(props);
-        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+        destinationConnectorProperties = new DestinationConnectorProperties(props.getDestinationConnectorProperties());
 
         host = props.getHost();
         outputPattern = props.getOutputPattern();
@@ -148,13 +148,18 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
     }
 
     @Override
-    public QueueConnectorProperties getQueueConnectorProperties() {
-        return queueConnectorProperties;
+    public DestinationConnectorProperties getDestinationConnectorProperties() {
+        return destinationConnectorProperties;
     }
 
     @Override
     public ConnectorProperties clone() {
         return new DocumentDispatcherProperties(this);
+    }
+
+    @Override
+    public boolean canValidateResponse() {
+        return false;
     }
 
     @Override

@@ -458,8 +458,8 @@ public class QueueTests {
 
         TestDispatcherProperties connectorProperties = new TestDispatcherProperties();
         connectorProperties.setTemplate(testMessage);
-        connectorProperties.getQueueConnectorProperties().setQueueEnabled(true);
-        connectorProperties.getQueueConnectorProperties().setRegenerateTemplate(true);
+        connectorProperties.getDestinationConnectorProperties().setQueueEnabled(true);
+        connectorProperties.getDestinationConnectorProperties().setRegenerateTemplate(true);
 
         TestUtils.initDefaultDestinationConnector(destinationConnector, connectorProperties);
         destinationConnector.setChannelId(channelId);

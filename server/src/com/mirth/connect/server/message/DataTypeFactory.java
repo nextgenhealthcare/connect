@@ -13,7 +13,6 @@ import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.server.message.AutoResponder;
 import com.mirth.connect.donkey.server.message.DataType;
-import com.mirth.connect.donkey.server.message.ResponseValidator;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
@@ -35,16 +34,10 @@ public class DataTypeFactory {
             autoResponder = new DefaultAutoResponder();
         }
 
-        // Create the response validator
-        ResponseValidator responseValidator = dataTypePlugin.getResponseValidator(serializerProperties.getSerializationProperties(), dataTypeProperties.getResponseValidationProperties());
-        if (responseValidator == null) {
-            responseValidator = new DefaultResponseValidator();
-        }
-
         // Get the serialization type
         SerializationType serializationType = dataTypePlugin.getSerializationType();
 
         // Return the data type
-        return new DataType(dataType, serializer, autoResponder, responseValidator, serializationType);
+        return new DataType(dataType, serializer, autoResponder, serializationType);
     }
 }

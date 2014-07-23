@@ -22,8 +22,8 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DeployedState;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.DeployedStateEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -41,6 +41,7 @@ import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.DeployedStateEvent;
+import com.mirth.connect.donkey.server.message.ResponseValidator;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.donkey.util.ThreadUtils;
@@ -51,11 +52,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private Channel channel;
     private Integer orderId;
     private Map<Long, Thread> queueThreads = new HashMap<Long, Thread>();
-    private QueueConnectorProperties queueProperties;
+    private DestinationConnectorProperties destinationConnectorProperties;
     private ConnectorMessageQueue queue = new ConnectorMessageQueue();
     private String destinationName;
     private boolean enabled;
     private AtomicBoolean forceQueue = new AtomicBoolean(false);
+    private ResponseValidator responseValidator;
     private ResponseTransformerExecutor responseTransformerExecutor;
     private StorageSettings storageSettings = new StorageSettings();
     private DonkeyDaoFactory daoFactory;
@@ -128,9 +130,17 @@ public abstract class DestinationConnector extends Connector implements Runnable
     public void setConnectorProperties(ConnectorProperties connectorProperties) {
         super.setConnectorProperties(connectorProperties);
 
-        if (connectorProperties instanceof DispatcherConnectorPropertiesInterface) {
-            this.queueProperties = ((DispatcherConnectorPropertiesInterface) connectorProperties).getQueueConnectorProperties();
+        if (connectorProperties instanceof DestinationConnectorPropertiesInterface) {
+            this.destinationConnectorProperties = ((DestinationConnectorPropertiesInterface) connectorProperties).getDestinationConnectorProperties();
         }
+    }
+
+    public ResponseValidator getResponseValidator() {
+        return responseValidator;
+    }
+
+    public void setResponseValidator(ResponseValidator responseValidator) {
+        this.responseValidator = responseValidator;
     }
 
     public ResponseTransformerExecutor getResponseTransformerExecutor() {
@@ -153,14 +163,14 @@ public abstract class DestinationConnector extends Connector implements Runnable
      * Tells whether or not queueing is enabled
      */
     public boolean isQueueEnabled() {
-        return (queueProperties != null && queueProperties.isQueueEnabled());
+        return (destinationConnectorProperties != null && destinationConnectorProperties.isQueueEnabled());
     }
 
     /**
      * Tells whether or not queue rotation is enabled
      */
     public boolean isQueueRotate() {
-        return (queueProperties != null && queueProperties.isRotate());
+        return (destinationConnectorProperties != null && destinationConnectorProperties.isRotate());
     }
 
     protected AttachmentHandler getAttachmentHandler() {
@@ -180,7 +190,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
             // Remove any items in the queue's buffer because they may be outdated and refresh the queue size
             queue.invalidate(true, true);
 
-            for (int i = 0; i < queueProperties.getThreadCount(); i++) {
+            for (int i = 0; i < destinationConnectorProperties.getThreadCount(); i++) {
                 Thread thread = new Thread(this);
                 thread.start();
                 queueThreads.put(thread.getId(), thread);
@@ -296,12 +306,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
      */
     public void process(DonkeyDao dao, ConnectorMessage message, Status previousStatus) throws InterruptedException {
         ConnectorProperties connectorProperties = null;
-        boolean attemptSend = !isQueueEnabled() || (queueProperties.isSendFirst() && queue.size() == 0 && !isForceQueue());
+        boolean attemptSend = !isQueueEnabled() || (destinationConnectorProperties.isSendFirst() && queue.size() == 0 && !isForceQueue());
 
         ThreadUtils.checkInterruptedStatus();
 
         // have the connector generate the connector envelope and store it in the message
-        connectorProperties = ((DispatcherConnectorPropertiesInterface) getConnectorProperties()).clone();
+        connectorProperties = ((DestinationConnectorPropertiesInterface) getConnectorProperties()).clone();
         replaceConnectorProperties(connectorProperties, message);
 
         if (storageSettings.isStoreSent()) {
@@ -318,7 +328,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
         // we need to get the connector envelope if we will be attempting to send the message     
         if (attemptSend) {
-            int retryCount = (queueProperties == null) ? 0 : queueProperties.getRetryCount();
+            int retryCount = (destinationConnectorProperties == null) ? 0 : destinationConnectorProperties.getRetryCount();
             int sendAttempts = 0;
             Response response = null;
             Status responseStatus = null;
@@ -329,7 +339,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
                 // pause for the given retry interval if this is not the first send attempt
                 if (sendAttempts > 0) {
-                    Thread.sleep(queueProperties.getRetryIntervalMillis());
+                    Thread.sleep(destinationConnectorProperties.getRetryIntervalMillis());
                 }
 
                 // have the connector send the message and return a response
@@ -421,7 +431,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
         try {
             Serializer serializer = channel.getSerializer();
             ConnectorMessage connectorMessage = null;
-            int retryIntervalMillis = queueProperties.getRetryIntervalMillis();
+            int retryIntervalMillis = destinationConnectorProperties.getRetryIntervalMillis();
             Long lastMessageId = null;
             boolean canAcquire = true;
 
@@ -459,9 +469,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
                         ConnectorProperties connectorProperties = null;
 
                         // Generate the template if necessary
-                        if (queueProperties.isRegenerateTemplate()) {
+                        if (destinationConnectorProperties.isRegenerateTemplate()) {
                             ThreadUtils.checkInterruptedStatus();
-                            connectorProperties = ((DispatcherConnectorPropertiesInterface) getConnectorProperties()).clone();
+                            connectorProperties = ((DestinationConnectorPropertiesInterface) getConnectorProperties()).clone();
 
                             serializedPropertiesClass = serializer.getClass(connectorMessage.getSent().getContent());
 
@@ -564,7 +574,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                         } else if (connectorMessage.getStatus() != Status.QUEUED) {
                             canAcquire = true;
                             queue.release(connectorMessage, true);
-                        } else if (queueProperties.isRotate()) {
+                        } else if (destinationConnectorProperties.isRotate()) {
                             canAcquire = true;
                             queue.release(connectorMessage, false);
                         } else {
@@ -597,6 +607,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private Response handleSend(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException {
         message.setSendDate(Calendar.getInstance());
         Response response = send(connectorProperties, message);
+        if (response.isValidate()) {
+            response = responseValidator.validate(response, message);
+        }
         message.setResponseDate(Calendar.getInstance());
 
         return response;

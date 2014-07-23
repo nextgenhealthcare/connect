@@ -14,26 +14,26 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
-public class JavaScriptDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
+public class JavaScriptDispatcherProperties extends ConnectorProperties implements DestinationConnectorPropertiesInterface {
     public static final String NAME = "JavaScript Writer";
 
-    private QueueConnectorProperties queueConnectorProperties;
+    private DestinationConnectorProperties destinationConnectorProperties;
     private String script;
 
     public JavaScriptDispatcherProperties() {
-        queueConnectorProperties = new QueueConnectorProperties();
+        destinationConnectorProperties = new DestinationConnectorProperties(false);
 
         script = "";
     }
 
     public JavaScriptDispatcherProperties(JavaScriptDispatcherProperties props) {
         super(props);
-        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+        destinationConnectorProperties = new DestinationConnectorProperties(props.getDestinationConnectorProperties());
 
         script = props.getScript();
     }
@@ -62,13 +62,18 @@ public class JavaScriptDispatcherProperties extends ConnectorProperties implemen
     }
 
     @Override
-    public QueueConnectorProperties getQueueConnectorProperties() {
-        return queueConnectorProperties;
+    public DestinationConnectorProperties getDestinationConnectorProperties() {
+        return destinationConnectorProperties;
     }
 
     @Override
     public ConnectorProperties clone() {
         return new JavaScriptDispatcherProperties(this);
+    }
+
+    @Override
+    public boolean canValidateResponse() {
+        return true;
     }
 
     @Override
@@ -88,7 +93,7 @@ public class JavaScriptDispatcherProperties extends ConnectorProperties implemen
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
-        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());
         purgedProperties.put("script", PurgeUtil.countLines(script));
         return purgedProperties;
     }

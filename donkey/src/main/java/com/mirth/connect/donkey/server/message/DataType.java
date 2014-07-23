@@ -17,18 +17,16 @@ public class DataType {
     private String type;
     private XmlSerializer serializer;
     private AutoResponder autoResponder;
-    private ResponseValidator responseValidator;
     private SerializationType serializationType;
 
-    public DataType(String type, XmlSerializer serializer, AutoResponder autoResponder, ResponseValidator responseValidator) {
-        this(type, serializer, autoResponder, responseValidator, SerializationType.XML);
+    public DataType(String type, XmlSerializer serializer, AutoResponder autoResponder) {
+        this(type, serializer, autoResponder, SerializationType.XML);
     }
 
-    public DataType(String type, XmlSerializer serializer, AutoResponder autoResponder, ResponseValidator responseValidator, SerializationType serializationType) {
+    public DataType(String type, XmlSerializer serializer, AutoResponder autoResponder, SerializationType serializationType) {
         this.type = type;
         this.serializer = serializer;
         this.autoResponder = autoResponder;
-        this.responseValidator = responseValidator;
         this.serializationType = serializationType;
     }
 
@@ -42,10 +40,6 @@ public class DataType {
 
     public AutoResponder getAutoResponder() {
         return autoResponder;
-    }
-
-    public ResponseValidator getResponseValidator() {
-        return responseValidator;
     }
 
     public SerializationType getSerializationType() {

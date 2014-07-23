@@ -196,6 +196,7 @@ public class HttpDispatcher extends DestinationConnector {
         String responseError = null;
         String responseStatusMessage = null;
         Status responseStatus = Status.QUEUED;
+        boolean validateResponse = false;
 
         CloseableHttpClient client = null;
         HttpRequestBase httpMethod = null;
@@ -328,6 +329,7 @@ public class HttpDispatcher extends DestinationConnector {
             } else {
                 responseData = (String) responseBody;
             }
+            validateResponse = httpDispatcherProperties.getDestinationConnectorProperties().isValidateResponse();
 
             if (statusCode < HttpStatus.SC_BAD_REQUEST) {
                 responseStatus = Status.SENT;
@@ -354,7 +356,7 @@ public class HttpDispatcher extends DestinationConnector {
             }
         }
 
-        return new Response(responseStatus, responseData, responseStatusMessage, responseError);
+        return new Response(responseStatus, responseData, responseStatusMessage, responseError, validateResponse);
     }
 
     public RegistryBuilder<ConnectionSocketFactory> getSocketFactoryRegistry() {

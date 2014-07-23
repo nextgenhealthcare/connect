@@ -16,14 +16,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
-public class HttpDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
+public class HttpDispatcherProperties extends ConnectorProperties implements DestinationConnectorPropertiesInterface {
 
-    private QueueConnectorProperties queueConnectorProperties;
+    private DestinationConnectorProperties destinationConnectorProperties;
 
     private String host;
     private boolean useProxyServer;
@@ -47,7 +47,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
     private String socketTimeout;
 
     public HttpDispatcherProperties() {
-        queueConnectorProperties = new QueueConnectorProperties();
+        destinationConnectorProperties = new DestinationConnectorProperties(false);
 
         this.host = "";
         this.useProxyServer = false;
@@ -73,7 +73,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
 
     public HttpDispatcherProperties(HttpDispatcherProperties props) {
         super(props);
-        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+        destinationConnectorProperties = new DestinationConnectorProperties(props.getDestinationConnectorProperties());
 
         host = props.getHost();
         useProxyServer = props.isUseProxyServer();
@@ -310,13 +310,18 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
     }
 
     @Override
-    public QueueConnectorProperties getQueueConnectorProperties() {
-        return queueConnectorProperties;
+    public DestinationConnectorProperties getDestinationConnectorProperties() {
+        return destinationConnectorProperties;
     }
 
     @Override
     public ConnectorProperties clone() {
         return new HttpDispatcherProperties(this);
+    }
+
+    @Override
+    public boolean canValidateResponse() {
+        return true;
     }
 
     @Override
@@ -336,7 +341,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Dis
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
-        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());
         purgedProperties.put("method", method);
         purgedProperties.put("headerCount", headers.size());
         purgedProperties.put("parameterCount", parameters.size());

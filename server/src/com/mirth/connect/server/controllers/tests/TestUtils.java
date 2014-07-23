@@ -35,7 +35,6 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.connectors.tests.TestAutoResponder;
 import com.mirth.connect.connectors.tests.TestDestinationConnector;
 import com.mirth.connect.connectors.tests.TestResponseTransformer;
-import com.mirth.connect.connectors.tests.TestResponseValidator;
 import com.mirth.connect.connectors.tests.TestSerializer;
 import com.mirth.connect.connectors.tests.TestSourceConnector;
 import com.mirth.connect.connectors.vm.VmDispatcherProperties;
@@ -197,7 +196,7 @@ public class TestUtils {
         channel.setPreProcessor(new TestPreProcessor());
         channel.setPostProcessor(new TestPostProcessor());
 
-        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator()));
+        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder()), new DataType("XML", new TestSerializer(), new TestAutoResponder()));
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
         channel.setSourceFilterTransformer(filterTransformer);
 
@@ -205,13 +204,13 @@ public class TestUtils {
         sourceConnector.setChannel(channel);
 
         DestinationChain chain = new DestinationChain();
-        filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator()));
+        filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder()), new DataType("XML", new TestSerializer(), new TestAutoResponder()));
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
         chain.addDestination(1, filterTransformer, destinationConnector);
         channel.getDestinationChains().add(chain);
         destinationConnector.setChannelId(channelId);
 
-        ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator()));
+        ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder()), new DataType("XML", new TestSerializer(), new TestAutoResponder()));
         responseTransformerExecutor.setResponseTransformer(new TestResponseTransformer());
         destinationConnector.setResponseTransformerExecutor(responseTransformerExecutor);
 
@@ -233,7 +232,7 @@ public class TestUtils {
         channel.setPreProcessor(new TestPreProcessor());
         channel.setPostProcessor(new TestPostProcessor());
 
-        DataType dataType = new DataType("HL7V2", new TestSerializer(), new TestAutoResponder(), new HL7v2ResponseValidator(new HL7v2SerializationProperties(), new HL7v2ResponseValidationProperties()));
+        DataType dataType = new DataType("HL7V2", new TestSerializer(), new TestAutoResponder());
 
         FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(dataType, dataType);
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
@@ -270,6 +269,7 @@ public class TestUtils {
                 testDestinationConnector.setDestinationName("destination" + metaDataId);
                 testDestinationConnector.setEnabled(true);
                 testDestinationConnector.setQueue(queue);
+                testDestinationConnector.setResponseValidator(new HL7v2ResponseValidator(new HL7v2SerializationProperties(), new HL7v2ResponseValidationProperties()));
 
                 ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(dataType, dataType);
                 responseTransformerExecutor.setResponseTransformer(new TestResponseTransformer());

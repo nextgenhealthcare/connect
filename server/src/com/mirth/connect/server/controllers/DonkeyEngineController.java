@@ -65,6 +65,7 @@ import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.message.DataType;
+import com.mirth.connect.donkey.server.message.ResponseValidator;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
@@ -94,6 +95,7 @@ import com.mirth.connect.server.attachments.PassthruAttachmentHandler;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.channel.MirthMetaDataReplacer;
 import com.mirth.connect.server.message.DataTypeFactory;
+import com.mirth.connect.server.message.DefaultResponseValidator;
 import com.mirth.connect.server.transformers.JavaScriptFilterTransformer;
 import com.mirth.connect.server.transformers.JavaScriptPostprocessor;
 import com.mirth.connect.server.transformers.JavaScriptPreprocessor;
@@ -929,6 +931,16 @@ public class DonkeyEngineController implements EngineController {
         destinationConnector.setChannel(donkeyChannel);
 
         destinationConnector.setDestinationName(model.getName());
+
+        // Create the response validator
+        DataTypeServerPlugin dataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(model.getResponseTransformer().getInboundDataType());
+        DataTypeProperties dataTypeProperties = model.getResponseTransformer().getInboundProperties();
+        SerializerProperties serializerProperties = dataTypeProperties.getSerializerProperties();
+        ResponseValidator responseValidator = dataTypePlugin.getResponseValidator(serializerProperties.getSerializationProperties(), dataTypeProperties.getResponseValidationProperties());
+        if (responseValidator == null) {
+            responseValidator = new DefaultResponseValidator();
+        }
+        destinationConnector.setResponseValidator(responseValidator);
         destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(donkeyChannel.getChannelId(), model, destinationNameMap));
 
         ConnectorMessageQueue queue = new ConnectorMessageQueue();

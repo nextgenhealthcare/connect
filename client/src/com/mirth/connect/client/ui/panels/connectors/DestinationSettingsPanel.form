@@ -4,6 +4,8 @@
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="queueButtonGroup">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="validateResponseButtonGroup">
+    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -11,7 +13,7 @@
     </Property>
     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
       <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-        <TitledBorder title="Queue/Retry Settings">
+        <TitledBorder title="Destination Settings">
           <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
             <MatteColorBorder bottom="0" left="0" right="0" top="1">
               <Color PropertyName="color" blue="cc" green="cc" red="cc" type="rgb"/>
@@ -40,6 +42,7 @@
           <Group type="102" attributes="0">
               <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="validateResponseLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="queueThreadsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="retryIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="retryCountLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -66,6 +69,11 @@
                       <Component id="regenerateTemplateCheckbox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="rotateCheckbox" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="validateResponseYesRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="validateResponseNoRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace pref="30" max="32767" attributes="0"/>
@@ -105,6 +113,12 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="queueThreadsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="queueThreadsField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="2" attributes="0">
+                  <Component id="validateResponseNoRadio" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="validateResponseYesRadio" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="validateResponseLabel" alignment="2" min="-2" max="-2" attributes="0"/>
               </Group>
           </Group>
       </Group>
@@ -187,7 +201,6 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="queueButtonGroup"/>
         </Property>
-        <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="Attempt First"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Attempt to send the message first before queueing it. This will allow subsequent&lt;br/&gt;&#xa;destinations and the Postprocessor to use the response from this destination if it&lt;br/&gt;&#xa;successfully sends before queueing.&#xa;&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
@@ -248,6 +261,53 @@
       <Properties>
         <Property name="horizontalAlignment" type="int" value="4"/>
         <Property name="text" type="java.lang.String" value="Queue Threads:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="validateResponseLabel">
+      <Properties>
+        <Property name="horizontalAlignment" type="int" value="4"/>
+        <Property name="text" type="java.lang.String" value="Validate Response:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="validateResponseYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="validateResponseButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to validate the response. Responses can only be validated if the&lt;br&gt;response transformer&apos;s inbound properties contains a &lt;b&gt;Response Validation&lt;/b&gt;&lt;br&gt;section. If validation fails, the message will be marked as queued or errored. &lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="validateResponseNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="validateResponseButtonGroup"/>
+        </Property>
+        <Property name="selected" type="boolean" value="true"/>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to validate the response. Responses can only be validated if the&lt;br&gt;response transformer&apos;s inbound properties contains a &lt;b&gt;Response Validation&lt;/b&gt;&lt;br&gt;section. If validation fails, the message will be marked as queued or errored. &lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
       </Properties>
     </Component>
   </SubComponents>

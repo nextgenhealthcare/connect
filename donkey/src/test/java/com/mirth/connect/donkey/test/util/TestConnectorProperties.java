@@ -14,13 +14,13 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
 
 @SuppressWarnings("serial")
-public class TestConnectorProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
-    private QueueConnectorProperties queueConnectorProperties = new QueueConnectorProperties();
+public class TestConnectorProperties extends ConnectorProperties implements DestinationConnectorPropertiesInterface {
+    private DestinationConnectorProperties destinationConnectorProperties = new DestinationConnectorProperties();
 
     @Override
     public String toFormattedString() {
@@ -38,13 +38,18 @@ public class TestConnectorProperties extends ConnectorProperties implements Disp
     }
 
     @Override
-    public QueueConnectorProperties getQueueConnectorProperties() {
-        return queueConnectorProperties;
+    public DestinationConnectorProperties getDestinationConnectorProperties() {
+        return destinationConnectorProperties;
     }
     
     @Override
     public ConnectorProperties clone() {
         return this;
+    }
+    
+    @Override
+    public boolean canValidateResponse() {
+        return false;
     }
 
     @Override

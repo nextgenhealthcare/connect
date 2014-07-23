@@ -32,7 +32,7 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
@@ -48,7 +48,7 @@ public class ConnectorPanel extends JPanel {
     private ListenerSettingsPanel listenerSettingsPanel;
     private PollingSettingsPanel pollingSettingsPanel;
     private ResponseSettingsPanel responseSettingsPanel;
-    private QueueSettingsPanel queueSettingsPanel;
+    private DestinationSettingsPanel destinationSettingsPanel;
     private Map<String, AbstractConnectorPropertiesPanel> connectorPropertiesPanels = new HashMap<String, AbstractConnectorPropertiesPanel>();
 
     public ConnectorPanel() {
@@ -63,7 +63,7 @@ public class ConnectorPanel extends JPanel {
 
     public void setChannelSetup(ChannelSetup channelSetup) {
         this.channelSetup = channelSetup;
-        queueSettingsPanel.setChannelSetup(channelSetup);
+        destinationSettingsPanel.setChannelSetup(channelSetup);
         responseSettingsPanel.setChannelSetup(channelSetup);
     }
 
@@ -83,7 +83,7 @@ public class ConnectorPanel extends JPanel {
         pollingSettingsPanel.setVisible(connectorProperties instanceof PollConnectorPropertiesInterface);
         listenerSettingsPanel.setVisible(connectorProperties instanceof ListenerConnectorPropertiesInterface);
         responseSettingsPanel.setVisible(connectorProperties instanceof ResponseConnectorPropertiesInterface);
-        queueSettingsPanel.setVisible(connectorProperties instanceof DispatcherConnectorPropertiesInterface);
+        destinationSettingsPanel.setVisible(connectorProperties instanceof DestinationConnectorPropertiesInterface);
 
         for (ConnectorPropertiesPlugin connectorPropertiesPlugin : LoadedExtensions.getInstance().getConnectorPropertiesPlugins().values()) {
             connectorPropertiesPanels.get(connectorPropertiesPlugin.getPluginPointName()).setVisible(connectorPropertiesPlugin.isSupported(connectorProperties.getName()));
@@ -110,19 +110,19 @@ public class ConnectorPanel extends JPanel {
         ConnectorProperties connectorProperties = connectorSettingsPanel.getProperties();
 
         if (connectorProperties instanceof PollConnectorPropertiesInterface) {
-            pollingSettingsPanel.fillProperties(((PollConnectorPropertiesInterface) connectorProperties).getPollConnectorProperties());
+            pollingSettingsPanel.fillProperties((PollConnectorPropertiesInterface) connectorProperties);
         }
 
         if (connectorProperties instanceof ListenerConnectorPropertiesInterface) {
-            listenerSettingsPanel.fillProperties(((ListenerConnectorPropertiesInterface) connectorProperties).getListenerConnectorProperties());
+            listenerSettingsPanel.fillProperties((ListenerConnectorPropertiesInterface) connectorProperties);
         }
 
         if (connectorProperties instanceof ResponseConnectorPropertiesInterface) {
-            responseSettingsPanel.fillProperties(((ResponseConnectorPropertiesInterface) connectorProperties).getResponseConnectorProperties());
+            responseSettingsPanel.fillProperties((ResponseConnectorPropertiesInterface) connectorProperties);
         }
 
-        if (connectorProperties instanceof DispatcherConnectorPropertiesInterface) {
-            queueSettingsPanel.fillProperties(((DispatcherConnectorPropertiesInterface) connectorProperties).getQueueConnectorProperties());
+        if (connectorProperties instanceof DestinationConnectorPropertiesInterface) {
+            destinationSettingsPanel.fillProperties((DestinationConnectorPropertiesInterface) connectorProperties);
         }
 
         if (connectorProperties != null) {
@@ -145,23 +145,23 @@ public class ConnectorPanel extends JPanel {
 
         if (properties instanceof PollConnectorPropertiesInterface) {
             pollingSettingsPanel.resetInvalidProperties();
-            pollingSettingsPanel.setProperties(((PollConnectorPropertiesInterface) properties).getPollConnectorProperties());
+            pollingSettingsPanel.setProperties((PollConnectorPropertiesInterface) properties);
         }
 
         if (properties instanceof ListenerConnectorPropertiesInterface) {
             listenerSettingsPanel.resetInvalidProperties();
-            listenerSettingsPanel.setProperties(((ListenerConnectorPropertiesInterface) properties).getListenerConnectorProperties());
+            listenerSettingsPanel.setProperties((ListenerConnectorPropertiesInterface) properties);
         }
 
         if (properties instanceof ResponseConnectorPropertiesInterface) {
             responseSettingsPanel.resetInvalidProperties();
-            responseSettingsPanel.setProperties(((ResponseConnectorPropertiesInterface) properties).getResponseConnectorProperties());
+            responseSettingsPanel.setProperties((ResponseConnectorPropertiesInterface) properties);
         }
 
-        if (properties instanceof DispatcherConnectorPropertiesInterface) {
+        if (properties instanceof DestinationConnectorPropertiesInterface) {
             mode = Mode.DESTINATION;
-            queueSettingsPanel.resetInvalidProperties();
-            queueSettingsPanel.setProperties(((DispatcherConnectorPropertiesInterface) properties).getQueueConnectorProperties());
+            destinationSettingsPanel.resetInvalidProperties();
+            destinationSettingsPanel.setProperties((DestinationConnectorPropertiesInterface) properties);
         }
 
         Set<String> addedPluginProperties = new HashSet<String>();
@@ -206,29 +206,29 @@ public class ConnectorPanel extends JPanel {
 
         if (properties instanceof PollConnectorPropertiesInterface) {
             pollingSettingsPanel.resetInvalidProperties();
-            polling = pollingSettingsPanel.checkProperties(((PollConnectorPropertiesInterface) properties).getPollConnectorProperties(), highlight);
+            polling = pollingSettingsPanel.checkProperties((PollConnectorPropertiesInterface) properties, highlight);
         }
 
         boolean listener = true;
 
         if (properties instanceof ListenerConnectorPropertiesInterface) {
             listenerSettingsPanel.resetInvalidProperties();
-            listener = listenerSettingsPanel.checkProperties(((ListenerConnectorPropertiesInterface) properties).getListenerConnectorProperties(), highlight);
+            listener = listenerSettingsPanel.checkProperties((ListenerConnectorPropertiesInterface) properties, highlight);
         }
 
         boolean response = true;
 
         if (properties instanceof ResponseConnectorPropertiesInterface) {
             responseSettingsPanel.resetInvalidProperties();
-            listener = responseSettingsPanel.checkProperties(((ResponseConnectorPropertiesInterface) properties).getResponseConnectorProperties(), highlight);
+            listener = responseSettingsPanel.checkProperties((ResponseConnectorPropertiesInterface) properties, highlight);
         }
 
-        boolean queue = true;
+        boolean destination = true;
 
-        if (properties instanceof DispatcherConnectorPropertiesInterface) {
+        if (properties instanceof DestinationConnectorPropertiesInterface) {
             mode = Mode.DESTINATION;
-            queueSettingsPanel.resetInvalidProperties();
-            queue = queueSettingsPanel.checkProperties(((DispatcherConnectorPropertiesInterface) properties).getQueueConnectorProperties(), highlight);
+            destinationSettingsPanel.resetInvalidProperties();
+            destination = destinationSettingsPanel.checkProperties((DestinationConnectorPropertiesInterface) properties, highlight);
         }
 
         boolean pluginProperties = true;
@@ -251,7 +251,7 @@ public class ConnectorPanel extends JPanel {
         connectorSettingsPanel.resetInvalidProperties();
         boolean connector = connectorSettingsPanel.checkProperties(properties, highlight);
 
-        return (connector && polling && listener && response && queue && pluginProperties);
+        return (connector && polling && listener && response && destination && pluginProperties);
     }
 
     public String doValidate(ConnectorProperties properties, boolean highlight) {
@@ -280,7 +280,7 @@ public class ConnectorPanel extends JPanel {
 
     public void updateResponseDropDown() {
         if (getConnectorSettingsPanel().getProperties() instanceof ResponseConnectorPropertiesInterface) {
-            responseSettingsPanel.updateResponseDropDown(((ResponseConnectorPropertiesInterface) getConnectorSettingsPanel().getProperties()).getResponseConnectorProperties(), false);
+            responseSettingsPanel.updateResponseDropDown((ResponseConnectorPropertiesInterface) getConnectorSettingsPanel().getProperties(), false);
         }
     }
 
@@ -313,7 +313,7 @@ public class ConnectorPanel extends JPanel {
     }
 
     public void updateQueueWarning(MessageStorageMode messageStorageMode) {
-        queueSettingsPanel.updateQueueWarning(messageStorageMode);
+        destinationSettingsPanel.updateQueueWarning(messageStorageMode);
         responseSettingsPanel.updateQueueWarning(messageStorageMode);
     }
 
@@ -366,8 +366,8 @@ public class ConnectorPanel extends JPanel {
         responseSettingsPanel = new ResponseSettingsPanel();
         add(responseSettingsPanel, "growx, wrap");
 
-        queueSettingsPanel = new QueueSettingsPanel();
-        add(queueSettingsPanel, "growx, wrap");
+        destinationSettingsPanel = new DestinationSettingsPanel();
+        add(destinationSettingsPanel, "growx, wrap");
 
         for (ConnectorPropertiesPlugin connectorPropertiesPlugin : LoadedExtensions.getInstance().getConnectorPropertiesPlugins().values()) {
             AbstractConnectorPropertiesPanel connectorPropertiesPanel = connectorPropertiesPlugin.getConnectorPropertiesPanel();

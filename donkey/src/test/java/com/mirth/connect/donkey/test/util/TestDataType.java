@@ -13,6 +13,6 @@ import com.mirth.connect.donkey.server.message.DataType;
 
 public class TestDataType extends DataType {
     public TestDataType() {
-        super("HL7V2", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator());
+        super("HL7V2", new TestSerializer(), new TestAutoResponder());
     }
 }

@@ -283,6 +283,7 @@ public class WebServiceDispatcher extends DestinationConnector {
         String responseError = null;
         String responseStatusMessage = null;
         Status responseStatus = Status.QUEUED;
+        boolean validateResponse = false;
 
         try {
             long dispatcherId = getDispatcherId();
@@ -360,6 +361,7 @@ public class WebServiceDispatcher extends DestinationConnector {
                     SOAPMessage result = dispatch.invoke(message);
                     responseData = sourceToXmlString(result.getSOAPPart().getContent());
                     responseStatusMessage = "Invoked two way operation successfully.";
+                    validateResponse = webServiceDispatcherProperties.getDestinationConnectorProperties().isValidateResponse();
                 }
                 logger.debug("Finished invoking web service, got result.");
 
@@ -387,7 +389,7 @@ public class WebServiceDispatcher extends DestinationConnector {
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
         }
 
-        return new Response(responseStatus, responseData, responseStatusMessage, responseError);
+        return new Response(responseStatus, responseData, responseStatusMessage, responseError, validateResponse);
     }
 
     private class DispatchContainer {

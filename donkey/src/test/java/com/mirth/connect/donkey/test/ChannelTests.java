@@ -25,11 +25,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.mirth.connect.donkey.model.channel.DeployedState;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnException;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
@@ -619,9 +619,9 @@ public class ChannelTests {
         channel.getStorageSettings().setRemoveContentOnCompletion(removeContentOnCompletion);
 
         if (useQueue) {
-            QueueConnectorProperties queueConnectorProperties = ((DispatcherConnectorPropertiesInterface) channel.getDestinationConnector(1).getConnectorProperties()).getQueueConnectorProperties();
-            queueConnectorProperties.setQueueEnabled(true);
-            queueConnectorProperties.setSendFirst(false);
+            DestinationConnectorProperties destinationConnectorProperties = ((DestinationConnectorPropertiesInterface) channel.getDestinationConnector(1).getConnectorProperties()).getDestinationConnectorProperties();
+            destinationConnectorProperties.setQueueEnabled(true);
+            destinationConnectorProperties.setSendFirst(false);
         }
 
         SourceConnector sourceConnector = channel.getSourceConnector();

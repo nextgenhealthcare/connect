@@ -14,8 +14,8 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
@@ -24,9 +24,9 @@ import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.TcpUtil;
 
 @SuppressWarnings("serial")
-public class TcpDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
+public class TcpDispatcherProperties extends ConnectorProperties implements DestinationConnectorPropertiesInterface {
 
-    private QueueConnectorProperties queueConnectorProperties;
+    private DestinationConnectorProperties destinationConnectorProperties;
 
     public static final String PROTOCOL = "TCP";
     public static final String NAME = "TCP Sender";
@@ -44,13 +44,12 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
     private String responseTimeout;
     private boolean ignoreResponse;
     private boolean queueOnResponseTimeout;
-    private boolean processHL7ACK;
     private boolean dataTypeBinary;
     private String charsetEncoding;
     private String template;
 
     public TcpDispatcherProperties() {
-        queueConnectorProperties = new QueueConnectorProperties();
+        destinationConnectorProperties = new DestinationConnectorProperties(true);
 
         FrameModeProperties frameModeProperties = new FrameModeProperties("MLLP");
         frameModeProperties.setStartOfMessageBytes(TcpUtil.DEFAULT_LLP_START_BYTES);
@@ -69,7 +68,6 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
         this.responseTimeout = "5000";
         this.ignoreResponse = false;
         this.queueOnResponseTimeout = true;
-        this.processHL7ACK = true;
         this.dataTypeBinary = false;
         this.charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
         this.template = "${message.encodedData}";
@@ -77,7 +75,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
 
     public TcpDispatcherProperties(TcpDispatcherProperties props) {
         super(props);
-        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+        destinationConnectorProperties = new DestinationConnectorProperties(props.getDestinationConnectorProperties());
 
         transmissionModeProperties = props.getTransmissionModeProperties();
 
@@ -93,7 +91,6 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
         responseTimeout = props.getResponseTimeout();
         ignoreResponse = props.isIgnoreResponse();
         queueOnResponseTimeout = props.isQueueOnResponseTimeout();
-        processHL7ACK = props.isProcessHL7ACK();
         dataTypeBinary = props.isDataTypeBinary();
         charsetEncoding = props.getCharsetEncoding();
         template = props.getTemplate();
@@ -203,14 +200,6 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
         this.queueOnResponseTimeout = queueOnResponseTimeout;
     }
 
-    public boolean isProcessHL7ACK() {
-        return processHL7ACK;
-    }
-
-    public void setProcessHL7ACK(boolean processHL7ACK) {
-        this.processHL7ACK = processHL7ACK;
-    }
-
     public boolean isDataTypeBinary() {
         return dataTypeBinary;
     }
@@ -268,13 +257,18 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
     }
 
     @Override
-    public QueueConnectorProperties getQueueConnectorProperties() {
-        return queueConnectorProperties;
+    public DestinationConnectorProperties getDestinationConnectorProperties() {
+        return destinationConnectorProperties;
     }
 
     @Override
     public ConnectorProperties clone() {
         return new TcpDispatcherProperties(this);
+    }
+
+    @Override
+    public boolean canValidateResponse() {
+        return true;
     }
 
     @Override
@@ -291,12 +285,18 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
     @Override
     public void migrate3_1_0(DonkeyElement element) {
         element.addChildElement("checkRemoteHost", "true");
+
+        String processHL7ACK = element.removeChild("processHL7ACK").getTextContent();
+        DonkeyElement destinationPropertiesElement = element.getChildElement("destinationConnectorProperties");
+        if (destinationPropertiesElement != null) {
+            destinationPropertiesElement.addChildElement("validateResponse", processHL7ACK);
+        }
     }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
-        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());
         purgedProperties.put("transmissionModeProperties", transmissionModeProperties.getPurgedProperties());
         purgedProperties.put("overrideLocalBinding", overrideLocalBinding);
         purgedProperties.put("sendTimeout", PurgeUtil.getNumericValue(sendTimeout));
@@ -306,7 +306,6 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Disp
         purgedProperties.put("responseTimeout", PurgeUtil.getNumericValue(responseTimeout));
         purgedProperties.put("ignoreResponse", ignoreResponse);
         purgedProperties.put("queueOnResponseTimeout", queueOnResponseTimeout);
-        purgedProperties.put("processHL7ACK", processHL7ACK);
         purgedProperties.put("charsetEncoding", charsetEncoding);
         purgedProperties.put("templateLines", PurgeUtil.countLines(template));
         return purgedProperties;

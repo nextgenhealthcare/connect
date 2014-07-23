@@ -14,16 +14,16 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
 
-public class TestDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
-    private QueueConnectorProperties queueConnectorProperties;
+public class TestDispatcherProperties extends ConnectorProperties implements DestinationConnectorPropertiesInterface {
+    private DestinationConnectorProperties destinationConnectorProperties;
     private String template;
 
     public TestDispatcherProperties() {
-        this.queueConnectorProperties = new QueueConnectorProperties();
+        this.destinationConnectorProperties = new DestinationConnectorProperties();
     }
 
     public String getTemplate() {
@@ -35,13 +35,18 @@ public class TestDispatcherProperties extends ConnectorProperties implements Dis
     }
 
     @Override
-    public QueueConnectorProperties getQueueConnectorProperties() {
-        return queueConnectorProperties;
+    public DestinationConnectorProperties getDestinationConnectorProperties() {
+        return destinationConnectorProperties;
     }
     
     @Override
     public ConnectorProperties clone() {
         return this;
+    }
+    
+    @Override
+    public boolean canValidateResponse() {
+        return false;
     }
 
     @Override

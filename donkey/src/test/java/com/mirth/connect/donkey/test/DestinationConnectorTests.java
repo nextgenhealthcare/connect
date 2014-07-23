@@ -25,8 +25,8 @@ import org.junit.Test;
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DeployedState;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
@@ -103,7 +103,7 @@ public class DestinationConnectorTests {
 
         TestDispatcher destinationConnector = new TestDispatcher();
         TestDispatcherProperties connectorProperties = new TestDispatcherProperties();
-        connectorProperties.getQueueConnectorProperties().setQueueEnabled(true);
+        connectorProperties.getDestinationConnectorProperties().setQueueEnabled(true);
         TestUtils.initDefaultDestinationConnector(destinationConnector, connectorProperties);
         destinationConnector.setChannelId(channelId);
 
@@ -174,7 +174,7 @@ public class DestinationConnectorTests {
 
         TestDispatcher destinationConnector = new TestDispatcher();
         TestDispatcherProperties connectorProperties = new TestDispatcherProperties();
-        connectorProperties.getQueueConnectorProperties().setQueueEnabled(true);
+        connectorProperties.getDestinationConnectorProperties().setQueueEnabled(true);
         TestUtils.initDefaultDestinationConnector(destinationConnector, connectorProperties);
         destinationConnector.setChannelId(channelId);
 
@@ -289,7 +289,7 @@ public class DestinationConnectorTests {
 
         DestinationConnector destinationConnector = null;
         ConnectorProperties connectorProperties = null;
-        QueueConnectorProperties queueConnectorProperties = null;
+        DestinationConnectorProperties dispatcherConnectorProperties = null;
 
         if (queueNull) {
             destinationConnector = new TestDestinationConnector();
@@ -298,14 +298,14 @@ public class DestinationConnectorTests {
             destinationConnector = new TestDispatcher();
             connectorProperties = new TestDispatcherProperties();
 
-            queueConnectorProperties = ((TestDispatcherProperties) connectorProperties).getQueueConnectorProperties();
-            queueConnectorProperties.setQueueEnabled(queueEnabled);
-            queueConnectorProperties.setSendFirst(queueSendFirst);
-            queueConnectorProperties.setRegenerateTemplate(queueRegenerate);
-            queueConnectorProperties.setRetryIntervalMillis(100);
+            dispatcherConnectorProperties = ((TestDispatcherProperties) connectorProperties).getDestinationConnectorProperties();
+            dispatcherConnectorProperties.setQueueEnabled(queueEnabled);
+            dispatcherConnectorProperties.setSendFirst(queueSendFirst);
+            dispatcherConnectorProperties.setRegenerateTemplate(queueRegenerate);
+            dispatcherConnectorProperties.setRetryIntervalMillis(100);
 
             if (retryCount > 0) {
-                queueConnectorProperties.setRetryCount(retryCount);
+                dispatcherConnectorProperties.setRetryCount(retryCount);
                 ((TestDispatcher) destinationConnector).setReturnStatus(Status.QUEUED);
             }
         }
@@ -337,7 +337,7 @@ public class DestinationConnectorTests {
                 
                 if (retryCount > 0) {
                     // assert that the connector attempted to send the message the correct number of times
-                    assertEquals(new Integer(queueConnectorProperties.getRetryCount() + 1), TestUtils.getSendAttempts(channel.getChannelId(), dispatchResult.getMessageId()));
+                    assertEquals(new Integer(dispatcherConnectorProperties.getRetryCount() + 1), TestUtils.getSendAttempts(channel.getChannelId(), dispatchResult.getMessageId()));
                 } else {
                     if (queueNull || !queueEnabled || queueSendFirst) {
                         // Assert that the sent content was stored
@@ -404,9 +404,9 @@ public class DestinationConnectorTests {
         channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
 
         final ConnectorProperties connectorProperties = new TestDispatcherProperties();
-        ((TestDispatcherProperties) connectorProperties).getQueueConnectorProperties().setQueueEnabled(true);
-        ((TestDispatcherProperties) connectorProperties).getQueueConnectorProperties().setSendFirst(true);
-        ((TestDispatcherProperties) connectorProperties).getQueueConnectorProperties().setRegenerateTemplate(true);
+        ((TestDispatcherProperties) connectorProperties).getDestinationConnectorProperties().setQueueEnabled(true);
+        ((TestDispatcherProperties) connectorProperties).getDestinationConnectorProperties().setSendFirst(true);
+        ((TestDispatcherProperties) connectorProperties).getDestinationConnectorProperties().setRegenerateTemplate(true);
 
         final DestinationConnector destinationConnector = new TestDispatcher();
         TestUtils.initDefaultDestinationConnector(destinationConnector, connectorProperties);
@@ -554,10 +554,10 @@ public class DestinationConnectorTests {
         if (finalResponse.getStatus() != Status.ERROR && finalResponse.getStatus() != Status.SENT && finalResponse.getStatus() != Status.QUEUED) {
             // If the response is invalid for a final destination finalResponse.getStatus(), change the status to ERROR
             finalResponse.setStatus(Status.ERROR);
-        } else if (channel.getDestinationConnector(1).getConnectorProperties() instanceof DispatcherConnectorPropertiesInterface) {
+        } else if (channel.getDestinationConnector(1).getConnectorProperties() instanceof DestinationConnectorPropertiesInterface) {
             // If the destination connector isn't queuing, and the response status is QUEUED, then it should have changed to ERROR
-            QueueConnectorProperties queueProperties = ((DispatcherConnectorPropertiesInterface) channel.getDestinationConnector(1).getConnectorProperties()).getQueueConnectorProperties();
-            if ((queueProperties == null || !queueProperties.isQueueEnabled()) && finalResponse.getStatus() == Status.QUEUED) {
+            DestinationConnectorProperties destinationConnectorProperties = ((DestinationConnectorPropertiesInterface) channel.getDestinationConnector(1).getConnectorProperties()).getDestinationConnectorProperties();
+            if ((destinationConnectorProperties == null || !destinationConnectorProperties.isQueueEnabled()) && finalResponse.getStatus() == Status.QUEUED) {
                 finalResponse.setStatus(Status.ERROR);
             }
         } else if (finalResponse.getStatus() == Status.QUEUED) {

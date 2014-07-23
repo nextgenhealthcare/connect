@@ -229,7 +229,7 @@ public class JmsDispatcherTests {
             setMetaDataId(metaDataId);
             setConnectorProperties(properties);
 
-            if (properties.getQueueConnectorProperties().isQueueEnabled()) {
+            if (properties.getDestinationConnectorProperties().isQueueEnabled()) {
                 getQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, serverId, metaDataId, Status.QUEUED, isQueueRotate(), new PassthruDaoFactory()));
                 getQueue().updateSize();
             }

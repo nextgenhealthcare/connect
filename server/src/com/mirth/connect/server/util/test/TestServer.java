@@ -64,7 +64,7 @@ public class TestServer {
 
         JavaScriptDispatcherProperties dispatcherProperties = new JavaScriptDispatcherProperties();
         dispatcherProperties.setScript("");
-        dispatcherProperties.getQueueConnectorProperties().setSendFirst(true);
+        dispatcherProperties.getDestinationConnectorProperties().setSendFirst(true);
 
         Transformer destinationTransformer = new Transformer();
         destinationTransformer.setOutboundDataType("HL7V2");

@@ -15,15 +15,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
-public class DatabaseDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
+public class DatabaseDispatcherProperties extends ConnectorProperties implements DestinationConnectorPropertiesInterface {
     public static final String NAME = "Database Writer";
 
-    private QueueConnectorProperties queueConnectorProperties;
+    private DestinationConnectorProperties destinationConnectorProperties;
 
     private String driver;
     private String url;
@@ -36,7 +36,7 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
     public static final String DRIVER_DEFAULT = "Please Select One";
 
     public DatabaseDispatcherProperties() {
-        queueConnectorProperties = new QueueConnectorProperties();
+        destinationConnectorProperties = new DestinationConnectorProperties(false);
 
         this.driver = DRIVER_DEFAULT;
         this.url = "";
@@ -48,7 +48,7 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
 
     public DatabaseDispatcherProperties(DatabaseDispatcherProperties props) {
         super(props);
-        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+        destinationConnectorProperties = new DestinationConnectorProperties(props.getDestinationConnectorProperties());
 
         this.driver = props.getDriver();
         this.url = props.getUrl();
@@ -99,8 +99,8 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
     }
 
     @Override
-    public QueueConnectorProperties getQueueConnectorProperties() {
-        return queueConnectorProperties;
+    public DestinationConnectorProperties getDestinationConnectorProperties() {
+        return destinationConnectorProperties;
     }
 
     public String getDriver() {
@@ -165,6 +165,11 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
     }
 
     @Override
+    public boolean canValidateResponse() {
+        return true;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
@@ -177,7 +182,7 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {}
-    
+
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();

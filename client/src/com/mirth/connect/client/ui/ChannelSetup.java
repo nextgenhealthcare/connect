@@ -60,10 +60,10 @@ import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DeployedState;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
@@ -914,12 +914,12 @@ public class ChannelSetup extends javax.swing.JPanel {
         boolean destinationQueueEnabled = false;
 
         for (Connector connector : currentChannel.getDestinationConnectors()) {
-            ConnectorProperties destinationConnectorProperties = connector.getProperties();
+            ConnectorProperties connectorProperties = connector.getProperties();
 
-            if (destinationConnectorProperties instanceof DispatcherConnectorPropertiesInterface) {
-                QueueConnectorProperties queueConnectorProperties = ((DispatcherConnectorPropertiesInterface) destinationConnectorProperties).getQueueConnectorProperties();
+            if (connectorProperties instanceof DestinationConnectorPropertiesInterface) {
+                DestinationConnectorProperties destinationConnectorProperties = ((DestinationConnectorPropertiesInterface) connectorProperties).getDestinationConnectorProperties();
 
-                if (queueConnectorProperties.isQueueEnabled()) {
+                if (destinationConnectorProperties.isQueueEnabled()) {
                     destinationQueueEnabled = true;
                     break;
                 }

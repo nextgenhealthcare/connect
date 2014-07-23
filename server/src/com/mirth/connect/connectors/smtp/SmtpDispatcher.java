@@ -179,7 +179,7 @@ public class SmtpDispatcher extends DestinationConnector {
 
             email.setFrom(smtpDispatcherProperties.getFrom());
             email.setSubject(smtpDispatcherProperties.getSubject());
-            
+
             AttachmentHandler attachmentHandler = getAttachmentHandler();
 
             String body = attachmentHandler.reAttachMessage(smtpDispatcherProperties.getBody(), connectorMessage);

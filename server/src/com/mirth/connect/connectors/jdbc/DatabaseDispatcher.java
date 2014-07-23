@@ -104,7 +104,9 @@ public class DatabaseDispatcher extends DestinationConnector {
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.READING, info));
 
         try {
-            return delegate.send(databaseDispatcherProperties, message);
+            Response response = delegate.send(databaseDispatcherProperties, message);
+            response.setValidate(databaseDispatcherProperties.getDestinationConnectorProperties().isValidateResponse());
+            return response;
         } catch (InterruptedException e) {
             throw e;
         } catch (DatabaseDispatcherException e) {

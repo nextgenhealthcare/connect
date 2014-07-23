@@ -14,16 +14,16 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.util.CharsetUtils;
 
-public class FileDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
+public class FileDispatcherProperties extends ConnectorProperties implements DestinationConnectorPropertiesInterface {
     public static final String NAME = "File Writer";
 
-    private QueueConnectorProperties queueConnectorProperties;
+    private DestinationConnectorProperties destinationConnectorProperties;
 
     private FileScheme scheme;
     private String host;
@@ -43,7 +43,7 @@ public class FileDispatcherProperties extends ConnectorProperties implements Dis
     private String template;
 
     public FileDispatcherProperties() {
-        queueConnectorProperties = new QueueConnectorProperties();
+        destinationConnectorProperties = new DestinationConnectorProperties();
 
         scheme = FileScheme.FILE;
         host = "";
@@ -65,7 +65,7 @@ public class FileDispatcherProperties extends ConnectorProperties implements Dis
 
     public FileDispatcherProperties(FileDispatcherProperties props) {
         super(props);
-        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+        destinationConnectorProperties = new DestinationConnectorProperties(props.getDestinationConnectorProperties());
 
         scheme = props.getScheme();
         host = props.getHost();
@@ -214,8 +214,8 @@ public class FileDispatcherProperties extends ConnectorProperties implements Dis
     }
 
     @Override
-    public QueueConnectorProperties getQueueConnectorProperties() {
-        return queueConnectorProperties;
+    public DestinationConnectorProperties getDestinationConnectorProperties() {
+        return destinationConnectorProperties;
     }
 
     @Override
@@ -284,6 +284,11 @@ public class FileDispatcherProperties extends ConnectorProperties implements Dis
     }
 
     @Override
+    public boolean canValidateResponse() {
+        return false;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
@@ -300,7 +305,7 @@ public class FileDispatcherProperties extends ConnectorProperties implements Dis
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
-        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());
         purgedProperties.put("scheme", scheme);
         purgedProperties.put("timeout", PurgeUtil.getNumericValue(timeout));
         purgedProperties.put("secure", secure);

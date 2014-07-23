@@ -208,10 +208,10 @@ public class StatisticsTests {
 
             TestDispatcherProperties connectorProperties = new TestDispatcherProperties();
             if (i == 3) {
-                connectorProperties.getQueueConnectorProperties().setQueueEnabled(true);
-                connectorProperties.getQueueConnectorProperties().setSendFirst(false);
+                connectorProperties.getDestinationConnectorProperties().setQueueEnabled(true);
+                connectorProperties.getDestinationConnectorProperties().setSendFirst(false);
             } else {
-                connectorProperties.getQueueConnectorProperties().setQueueEnabled(false);
+                connectorProperties.getDestinationConnectorProperties().setQueueEnabled(false);
             }
 
             destinationConnector.setConnectorProperties(connectorProperties);
@@ -358,8 +358,8 @@ public class StatisticsTests {
         destinationConnector.setChannelId(channel.getChannelId());
 
         TestDispatcherProperties connectorProperties = new TestDispatcherProperties();
-        connectorProperties.getQueueConnectorProperties().setQueueEnabled(true);
-        connectorProperties.getQueueConnectorProperties().setSendFirst(false);
+        connectorProperties.getDestinationConnectorProperties().setQueueEnabled(true);
+        connectorProperties.getDestinationConnectorProperties().setSendFirst(false);
 
         destinationConnector.setConnectorProperties(connectorProperties);
         destinationConnector.setDestinationName(TestUtils.DEFAULT_DESTINATION_NAME);

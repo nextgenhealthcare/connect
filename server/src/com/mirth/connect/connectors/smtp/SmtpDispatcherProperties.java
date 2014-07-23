@@ -18,15 +18,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.util.CharsetUtils;
 
-public class SmtpDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
+public class SmtpDispatcherProperties extends ConnectorProperties implements DestinationConnectorPropertiesInterface {
 
-    private QueueConnectorProperties queueConnectorProperties;
+    private DestinationConnectorProperties destinationConnectorProperties;
 
     private String smtpHost;
     private String smtpPort;
@@ -48,7 +48,7 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Dis
     private List<Attachment> attachments;
 
     public SmtpDispatcherProperties() {
-        queueConnectorProperties = new QueueConnectorProperties();
+        destinationConnectorProperties = new DestinationConnectorProperties();
 
         this.smtpHost = "";
         this.smtpPort = "25";
@@ -69,10 +69,10 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Dis
         this.body = "";
         this.attachments = new ArrayList<Attachment>();
     }
-    
+
     public SmtpDispatcherProperties(SmtpDispatcherProperties props) {
         super(props);
-        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+        destinationConnectorProperties = new DestinationConnectorProperties(props.getDestinationConnectorProperties());
 
         smtpHost = props.getSmtpHost();
         smtpPort = props.getSmtpPort();
@@ -91,7 +91,7 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Dis
         charsetEncoding = props.getCharsetEncoding();
         html = props.isHtml();
         body = props.getBody();
-        
+
         attachments = new ArrayList<Attachment>();
         for (Attachment attachment : props.getAttachments()) {
             attachments.add(new Attachment(attachment));
@@ -310,13 +310,18 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Dis
     }
 
     @Override
-    public QueueConnectorProperties getQueueConnectorProperties() {
-        return queueConnectorProperties;
+    public DestinationConnectorProperties getDestinationConnectorProperties() {
+        return destinationConnectorProperties;
     }
 
     @Override
     public ConnectorProperties clone() {
         return new SmtpDispatcherProperties(this);
+    }
+
+    @Override
+    public boolean canValidateResponse() {
+        return false;
     }
 
     @Override
@@ -336,7 +341,7 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Dis
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
-        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());
         purgedProperties.put("timeout", PurgeUtil.getNumericValue(timeout));
         purgedProperties.put("encryption", encryption);
         purgedProperties.put("authentication", authentication);

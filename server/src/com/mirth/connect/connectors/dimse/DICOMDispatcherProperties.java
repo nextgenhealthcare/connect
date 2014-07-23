@@ -14,14 +14,14 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
-public class DICOMDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
+public class DICOMDispatcherProperties extends ConnectorProperties implements DestinationConnectorPropertiesInterface {
 
-    private QueueConnectorProperties queueConnectorProperties;
+    private DestinationConnectorProperties destinationConnectorProperties;
 
     private String host;
     private String port;
@@ -62,7 +62,7 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Di
     private String trustStorePW;
 
     public DICOMDispatcherProperties() {
-        queueConnectorProperties = new QueueConnectorProperties();
+        destinationConnectorProperties = new DestinationConnectorProperties();
 
         host = "127.0.0.1";
         port = "104";
@@ -106,7 +106,7 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Di
 
     public DICOMDispatcherProperties(DICOMDispatcherProperties props) {
         super(props);
-        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+        destinationConnectorProperties = new DestinationConnectorProperties(props.getDestinationConnectorProperties());
 
         host = props.getHost();
         port = props.getPort();
@@ -437,8 +437,8 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Di
     }
 
     @Override
-    public QueueConnectorProperties getQueueConnectorProperties() {
-        return queueConnectorProperties;
+    public DestinationConnectorProperties getDestinationConnectorProperties() {
+        return destinationConnectorProperties;
     }
 
     @Override
@@ -472,6 +472,11 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Di
     }
 
     @Override
+    public boolean canValidateResponse() {
+        return false;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
@@ -488,7 +493,7 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Di
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
-        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());
         purgedProperties.put("templateLines", PurgeUtil.countLines(template));
         purgedProperties.put("acceptTo", PurgeUtil.getNumericValue(acceptTo));
         purgedProperties.put("async", PurgeUtil.getNumericValue(async));

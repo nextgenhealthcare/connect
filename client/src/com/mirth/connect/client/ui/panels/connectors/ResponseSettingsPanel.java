@@ -32,6 +32,7 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
+import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.MessageStorageMode;
@@ -71,8 +72,10 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
         this.channelSetup = channelSetup;
     }
 
-    public void setProperties(ResponseConnectorProperties properties) {
-        updateResponseDropDown(properties, true);
+    public void setProperties(ResponseConnectorPropertiesInterface propertiesInterface) {
+        ResponseConnectorProperties properties = propertiesInterface.getResponseConnectorProperties();
+
+        updateResponseDropDown(propertiesInterface, true);
 
         // Set the source queue combo box
         if (properties.isRespondAfterProcessing()) {
@@ -82,7 +85,9 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
         }
     }
 
-    public void updateResponseDropDown(ResponseConnectorProperties properties, boolean channelLoad) {
+    public void updateResponseDropDown(ResponseConnectorPropertiesInterface propertiesInterface, boolean channelLoad) {
+        ResponseConnectorProperties properties = propertiesInterface.getResponseConnectorProperties();
+
         boolean enabled = parent.isSaveEnabled();
         Channel channel = parent.channelEditPanel.currentChannel;
 
@@ -195,7 +200,9 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
         updateQueueWarning(messageStorageMode);
     }
 
-    public void fillProperties(ResponseConnectorProperties properties) {
+    public void fillProperties(ResponseConnectorPropertiesInterface propertiesInterface) {
+        ResponseConnectorProperties properties = propertiesInterface.getResponseConnectorProperties();
+
         if (responseComboBox.getSelectedItem() instanceof Entry) {
             properties.setResponseVariable(((Entry<String, String>) responseComboBox.getSelectedItem()).getKey());
         } else {
@@ -204,7 +211,9 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
         properties.setRespondAfterProcessing(sourceQueueComboBox.getSelectedIndex() == 0);
     }
 
-    public boolean checkProperties(ResponseConnectorProperties properties, boolean highlight) {
+    public boolean checkProperties(ResponseConnectorPropertiesInterface propertiesInterface, boolean highlight) {
+        ResponseConnectorProperties properties = propertiesInterface.getResponseConnectorProperties();
+
         boolean valid = true;
 
         return valid;

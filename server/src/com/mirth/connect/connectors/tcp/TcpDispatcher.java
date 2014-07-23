@@ -250,7 +250,7 @@ public class TcpDispatcher extends DestinationConnector {
                     responseStatus = Status.SENT;
 
                     // We only want to validate the response if we were able to retrieve it successfully
-                    validateResponse = tcpDispatcherProperties.isProcessHL7ACK();
+                    validateResponse = tcpDispatcherProperties.getDestinationConnectorProperties().isValidateResponse();
                 } catch (IOException e) {
                     // An exception occurred while retrieving the response
                     if (e instanceof SocketTimeoutException || e.getCause() != null && e.getCause() instanceof SocketTimeoutException) {
@@ -322,11 +322,7 @@ public class TcpDispatcher extends DestinationConnector {
             eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), (Boolean) null));
         }
 
-        Response response = new Response(responseStatus, responseData, responseStatusMessage, responseError);
-        if (validateResponse) {
-            return getResponseTransformerExecutor().getInbound().getResponseValidator().validate(response, message);
-        }
-        return response;
+        return new Response(responseStatus, responseData, responseStatusMessage, responseError, validateResponse);
     }
 
     private void closeSocketQuietly(String socketKey) {

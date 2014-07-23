@@ -88,9 +88,15 @@ public class JavaScriptDispatcher extends DestinationConnector {
 
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException {
+        JavaScriptDispatcherProperties javaScriptDispatcherProperties = (JavaScriptDispatcherProperties) connectorProperties;
+
         try {
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.SENDING));
-            return JavaScriptUtil.execute(new JavaScriptDispatcherTask(message));
+
+            Response response = JavaScriptUtil.execute(new JavaScriptDispatcherTask(message));
+            response.setValidate(javaScriptDispatcherProperties.getDestinationConnectorProperties().isValidateResponse());
+
+            return response;
         } catch (JavaScriptExecutorException e) {
             logger.error("Error executing script (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error executing script", e));

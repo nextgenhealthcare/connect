@@ -94,6 +94,7 @@ public class VmDispatcher extends DestinationConnector {
         String responseError = null;
         String responseStatusMessage = null;
         Status responseStatus = Status.QUEUED; // Always set the status to QUEUED
+        boolean validateResponse = false;
 
         try {
             if (!targetChannelId.equals("none")) {
@@ -143,6 +144,8 @@ public class VmDispatcher extends DestinationConnector {
                     // If a response was returned from the channel then use that message
                     responseData = dispatchResult.getSelectedResponse().getMessage();
                 }
+
+                validateResponse = vmDispatcherProperties.getDestinationConnectorProperties().isValidateResponse();
             }
 
             responseStatus = Status.SENT;
@@ -155,7 +158,7 @@ public class VmDispatcher extends DestinationConnector {
             eventController.dispatchEvent(new ConnectionStatusEvent(currentChannelId, getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
         }
 
-        return new Response(responseStatus, responseData, responseStatusMessage, responseError);
+        return new Response(responseStatus, responseData, responseStatusMessage, responseError, validateResponse);
     }
 
     private List<String> getSourceChannelIds(Map<String, Object> map) {

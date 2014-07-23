@@ -19,7 +19,7 @@ import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.purge.Purgable;
 
-public class QueueConnectorProperties implements Serializable, Migratable, Purgable {
+public class DestinationConnectorProperties implements Serializable, Migratable, Purgable {
     private boolean queueEnabled;
     private boolean sendFirst;
     private int retryIntervalMillis;
@@ -27,8 +27,13 @@ public class QueueConnectorProperties implements Serializable, Migratable, Purga
     private int retryCount;
     private boolean rotate;
     private int threadCount;
+    private boolean validateResponse;
 
-    public QueueConnectorProperties() {
+    public DestinationConnectorProperties() {
+        this(false);
+    }
+
+    public DestinationConnectorProperties(boolean validateResponse) {
         queueEnabled = false;
         sendFirst = false;
         retryIntervalMillis = 10000;
@@ -36,9 +41,10 @@ public class QueueConnectorProperties implements Serializable, Migratable, Purga
         retryCount = 0;
         rotate = false;
         threadCount = 1;
+        this.validateResponse = validateResponse;
     }
-    
-    public QueueConnectorProperties(QueueConnectorProperties props) {
+
+    public DestinationConnectorProperties(DestinationConnectorProperties props) {
         queueEnabled = props.isQueueEnabled();
         sendFirst = props.isSendFirst();
         retryIntervalMillis = props.getRetryIntervalMillis();
@@ -46,6 +52,7 @@ public class QueueConnectorProperties implements Serializable, Migratable, Purga
         retryCount = props.getRetryCount();
         rotate = props.isRotate();
         threadCount = props.getThreadCount();
+        validateResponse = props.isValidateResponse();
     }
 
     public boolean isQueueEnabled() {
@@ -104,6 +111,14 @@ public class QueueConnectorProperties implements Serializable, Migratable, Purga
         this.threadCount = threadCount;
     }
 
+    public boolean isValidateResponse() {
+        return validateResponse;
+    }
+
+    public void setValidateResponse(boolean validateResponse) {
+        this.validateResponse = validateResponse;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
@@ -116,7 +131,11 @@ public class QueueConnectorProperties implements Serializable, Migratable, Purga
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        if (element.getChildElement("validateResponse") == null) {
+            element.addChildElement("validateResponse", "false");
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
@@ -128,6 +147,7 @@ public class QueueConnectorProperties implements Serializable, Migratable, Purga
         purgedProperties.put("retryCount", retryCount);
         purgedProperties.put("rotate", rotate);
         purgedProperties.put("threadCount", threadCount);
+        purgedProperties.put("validateResponse", validateResponse);
         return purgedProperties;
     }
 }

@@ -16,8 +16,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
- * This class represents a channel or destination response and is used to
- * retrieve details such as the response data, message status, and errors.
+ * This class represents a channel or destination response and is used to retrieve details such as
+ * the response data, message status, and errors.
  */
 @XStreamAlias("response")
 public class Response implements Serializable {
@@ -26,6 +26,7 @@ public class Response implements Serializable {
     private String message = new String();
     private String error = new String();
     private String statusMessage = new String();
+    private transient boolean validate = false;
 
     /**
      * Instantiates a new Response object.
@@ -83,10 +84,27 @@ public class Response implements Serializable {
      *            The error string associated with this response, if applicable.
      */
     public Response(Status status, String message, String statusMessage, String error) {
+        this(status, message, statusMessage, error, false);
+    }
+
+    /**
+     * Instantiates a new Response object.
+     * 
+     * @param status
+     *            The status (e.g. SENT, ERROR) of the response.
+     * @param message
+     *            The actual response data.
+     * @param statusMessage
+     *            A brief message explaining the reason for the current status.
+     * @param error
+     *            The error string associated with this response, if applicable.
+     */
+    public Response(Status status, String message, String statusMessage, String error, boolean validate) {
         this.status = status;
         setMessage(message);
         setStatusMessage(statusMessage);
         setError(error);
+        setValidate(validate);
     }
 
     /**
@@ -104,10 +122,9 @@ public class Response implements Serializable {
      */
     public void setMessage(String message) {
         /*
-         * Message is not allowed to be null because it is stored in the
-         * database as a string and would cause a null pointer exception in the
-         * serializer. This setter must be used to set the message, even in the
-         * constructors.
+         * Message is not allowed to be null because it is stored in the database as a string and
+         * would cause a null pointer exception in the serializer. This setter must be used to set
+         * the message, even in the constructors.
          */
         this.message = message == null ? "" : message;
     }
@@ -163,6 +180,14 @@ public class Response implements Serializable {
         this.statusMessage = statusMessage;
     }
 
+    public boolean isValidate() {
+        return validate;
+    }
+
+    public void setValidate(boolean validate) {
+        this.validate = validate;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (other instanceof Response) {
@@ -189,12 +214,12 @@ public class Response implements Serializable {
     }
 
     /**
-     * If necessary, modifies the status of this response in accordance with the
-     * messaging engine and returns a string explaining why the change was made.
+     * If necessary, modifies the status of this response in accordance with the messaging engine
+     * and returns a string explaining why the change was made.
      * 
      * @param queueEnabled
-     *            If false, the QUEUED status is considered invalid for this
-     *            response, and should be modified.
+     *            If false, the QUEUED status is considered invalid for this response, and should be
+     *            modified.
      * @return A reason string if the status was changed, otherwise null.
      */
     public String fixStatus(boolean queueEnabled) {

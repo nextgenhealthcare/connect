@@ -6,8 +6,6 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="dataTypeButtonGroup">
     </Component>
-    <Component class="javax.swing.ButtonGroup" name="processHL7ACKButtonGroup">
-    </Component>
     <Component class="javax.swing.ButtonGroup" name="overrideLocalBindingButtonGroup">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="queueOnResponseTimeoutButtonGroup">
@@ -54,7 +52,6 @@
                   <Component id="jLabel17" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel18" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="checkRemoteHostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="processHL7ACKLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="transmissionModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="sampleLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="localAddressLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -102,11 +99,6 @@
                               <Component id="queueOnResponseTimeoutYesRadio" min="-2" max="-2" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="queueOnResponseTimeoutNoRadio" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <Component id="processHL7ACKYesRadio" min="-2" max="-2" attributes="1"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="processHL7ACKNoRadio" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
                               <Component id="dataTypeBinaryRadio" min="-2" max="-2" attributes="0"/>
@@ -203,12 +195,6 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="processHL7ACKLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="processHL7ACKYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="processHL7ACKNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="dataTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="dataTypeBinaryRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="dataTypeASCIIRadio" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -224,7 +210,7 @@
                       <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="templateTextArea" pref="89" max="32767" attributes="0"/>
+                  <Component id="templateTextArea" pref="95" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -450,51 +436,6 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="testConnectionActionPerformed"/>
       </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="processHL7ACKLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Process HL7 ACK:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="processHL7ACKYesRadio">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="processHL7ACKButtonGroup"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as sent.&lt;br/&gt;If disabled, the response will not be parsed and the message will always be marked as sent.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="processHL7ACKNoRadio">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="processHL7ACKButtonGroup"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as sent.&lt;br/&gt;If disabled, the response will not be parsed and the message will always be marked as sent.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="transmissionModeComboBox">
       <Properties>

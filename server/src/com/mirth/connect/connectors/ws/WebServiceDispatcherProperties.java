@@ -18,14 +18,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
-public class WebServiceDispatcherProperties extends ConnectorProperties implements DispatcherConnectorPropertiesInterface {
+public class WebServiceDispatcherProperties extends ConnectorProperties implements DestinationConnectorPropertiesInterface {
 
-    private QueueConnectorProperties queueConnectorProperties;
+    private DestinationConnectorProperties destinationConnectorProperties;
 
     private String wsdlUrl;
     private String service;
@@ -46,7 +46,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     public static final String WEBSERVICE_DEFAULT_DROPDOWN = "Press Get Operations";
 
     public WebServiceDispatcherProperties() {
-        queueConnectorProperties = new QueueConnectorProperties();
+        destinationConnectorProperties = new DestinationConnectorProperties(false);
 
         this.wsdlUrl = "";
         this.operation = WEBSERVICE_DEFAULT_DROPDOWN;
@@ -67,7 +67,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
 
     public WebServiceDispatcherProperties(WebServiceDispatcherProperties props) {
         super(props);
-        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+        destinationConnectorProperties = new DestinationConnectorProperties(props.getDestinationConnectorProperties());
 
         wsdlUrl = props.getWsdlUrl();
         operation = props.getOperation();
@@ -268,13 +268,18 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     }
 
     @Override
-    public QueueConnectorProperties getQueueConnectorProperties() {
-        return queueConnectorProperties;
+    public DestinationConnectorProperties getDestinationConnectorProperties() {
+        return destinationConnectorProperties;
     }
 
     @Override
     public ConnectorProperties clone() {
         return new WebServiceDispatcherProperties(this);
+    }
+
+    @Override
+    public boolean canValidateResponse() {
+        return true;
     }
 
     @Override
@@ -294,7 +299,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
-        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());
         purgedProperties.put("useAuthentication", useAuthentication);
         purgedProperties.put("envelopeLines", PurgeUtil.countLines(envelope));
         purgedProperties.put("oneWay", oneWay);

@@ -12,27 +12,27 @@ package com.mirth.connect.connectors.jms;
 import java.util.Map;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.DispatcherConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
-public class JmsDispatcherProperties extends JmsConnectorProperties implements DispatcherConnectorPropertiesInterface {
+public class JmsDispatcherProperties extends JmsConnectorProperties implements DestinationConnectorPropertiesInterface {
     private static final String NAME = "JMS Sender";
     private static final String PROTOCOL = "JMS";
 
     private String template;
-    private QueueConnectorProperties queueConnectorProperties;
+    private DestinationConnectorProperties destinationConnectorProperties;
 
     public JmsDispatcherProperties() {
         super();
         template = "${message.encodedData}";
-        queueConnectorProperties = new QueueConnectorProperties();
+        destinationConnectorProperties = new DestinationConnectorProperties();
     }
-    
+
     public JmsDispatcherProperties(JmsDispatcherProperties props) {
         super(props);
         template = props.getTemplate();
-        queueConnectorProperties = new QueueConnectorProperties(props.getQueueConnectorProperties());
+        destinationConnectorProperties = new DestinationConnectorProperties(props.getDestinationConnectorProperties());
     }
 
     @Override
@@ -59,8 +59,8 @@ public class JmsDispatcherProperties extends JmsConnectorProperties implements D
     }
 
     @Override
-    public QueueConnectorProperties getQueueConnectorProperties() {
-        return queueConnectorProperties;
+    public DestinationConnectorProperties getDestinationConnectorProperties() {
+        return destinationConnectorProperties;
     }
 
     @Override
@@ -69,10 +69,15 @@ public class JmsDispatcherProperties extends JmsConnectorProperties implements D
     }
 
     @Override
+    public boolean canValidateResponse() {
+        return false;
+    }
+
+    @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("templateLines", PurgeUtil.countLines(template));
-        purgedProperties.put("queueConnectorProperties", queueConnectorProperties.getPurgedProperties());
+        purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());
         return purgedProperties;
     }
 }

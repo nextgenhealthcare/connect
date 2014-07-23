@@ -53,11 +53,11 @@ public class DummyChannel extends Channel {
         if (destinationConnector != null) {
             destinationConnector.setChannelId(channelId);
 
-            ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator()));
+            ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder()), new DataType("XML", new TestSerializer(), new TestAutoResponder()));
             responseTransformerExecutor.setResponseTransformer(new TestResponseTransformer());
             destinationConnector.setResponseTransformerExecutor(responseTransformerExecutor);
             DestinationChain chain = new DestinationChain();
-            chain.addDestination(1, new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator()), new DataType("XML", new TestSerializer(), new TestAutoResponder(), new TestResponseValidator())), destinationConnector);
+            chain.addDestination(1, new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder()), new DataType("XML", new TestSerializer(), new TestAutoResponder())), destinationConnector);
             getDestinationChains().add(chain);
         }
     }

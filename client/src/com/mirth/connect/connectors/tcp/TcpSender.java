@@ -93,7 +93,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         properties.setResponseTimeout(responseTimeoutField.getText());
         properties.setIgnoreResponse(ignoreResponseCheckBox.isSelected());
         properties.setQueueOnResponseTimeout(queueOnResponseTimeoutYesRadio.isSelected());
-        properties.setProcessHL7ACK(processHL7ACKYesRadio.isSelected());
         properties.setDataTypeBinary(dataTypeBinaryRadio.isSelected());
         properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
         properties.setTemplate(templateTextArea.getText());
@@ -162,12 +161,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
             queueOnResponseTimeoutYesRadio.setSelected(true);
         } else {
             queueOnResponseTimeoutNoRadio.setSelected(true);
-        }
-
-        if (props.isProcessHL7ACK()) {
-            processHL7ACKYesRadio.setSelected(true);
-        } else {
-            processHL7ACKNoRadio.setSelected(true);
         }
 
         if (props.isDataTypeBinary()) {
@@ -297,7 +290,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
         keepConnectionOpenGroup = new javax.swing.ButtonGroup();
         dataTypeButtonGroup = new javax.swing.ButtonGroup();
-        processHL7ACKButtonGroup = new javax.swing.ButtonGroup();
         overrideLocalBindingButtonGroup = new javax.swing.ButtonGroup();
         queueOnResponseTimeoutButtonGroup = new javax.swing.ButtonGroup();
         checkRemoteHostButtonGroup = new javax.swing.ButtonGroup();
@@ -323,9 +315,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         dataTypeBinaryRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         dataTypeLabel = new javax.swing.JLabel();
         testConnection = new javax.swing.JButton();
-        processHL7ACKLabel = new javax.swing.JLabel();
-        processHL7ACKYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        processHL7ACKNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         transmissionModeComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
         transmissionModeLabel = new javax.swing.JLabel();
         sampleLabel = new javax.swing.JLabel();
@@ -453,22 +442,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
             }
         });
 
-        processHL7ACKLabel.setText("Process HL7 ACK:");
-
-        processHL7ACKYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        processHL7ACKYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        processHL7ACKButtonGroup.add(processHL7ACKYesRadio);
-        processHL7ACKYesRadio.setText("Yes");
-        processHL7ACKYesRadio.setToolTipText("<html>If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as sent.<br/>If disabled, the response will not be parsed and the message will always be marked as sent.</html>");
-        processHL7ACKYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        processHL7ACKNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        processHL7ACKNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        processHL7ACKButtonGroup.add(processHL7ACKNoRadio);
-        processHL7ACKNoRadio.setText("No");
-        processHL7ACKNoRadio.setToolTipText("<html>If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as sent.<br/>If disabled, the response will not be parsed and the message will always be marked as sent.</html>");
-        processHL7ACKNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
         transmissionModeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP" }));
         transmissionModeComboBox.setToolTipText("<html>Select the transmission mode to use for sending and receiving data.<br/></html>");
         transmissionModeComboBox.addActionListener(new java.awt.event.ActionListener() {
@@ -573,7 +546,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                     .addComponent(jLabel17, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel18, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(checkRemoteHostLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(processHL7ACKLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(transmissionModeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(sampleLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(localAddressLabel, javax.swing.GroupLayout.Alignment.TRAILING)
@@ -614,10 +586,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                                 .addComponent(queueOnResponseTimeoutYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(queueOnResponseTimeoutNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(processHL7ACKYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(processHL7ACKNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -693,11 +661,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                     .addComponent(queueOnResponseTimeoutNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(processHL7ACKLabel)
-                    .addComponent(processHL7ACKYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(processHL7ACKNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dataTypeLabel)
                     .addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dataTypeASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -710,7 +673,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel7)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE))
+                    .addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -734,12 +697,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
     private void ignoreResponseCheckBoxActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_ignoreResponseCheckBoxActionPerformed
     {//GEN-HEADEREND:event_ignoreResponseCheckBoxActionPerformed
         boolean selected = ignoreResponseCheckBox.isSelected();
-        processHL7ACKLabel.setEnabled(!selected);
-        processHL7ACKYesRadio.setEnabled(!selected);
-        processHL7ACKNoRadio.setEnabled(!selected);
-        if (selected) {
-            processHL7ACKNoRadio.setSelected(true);
-        }
         queueOnResponseTimeoutLabel.setEnabled(!selected);
         queueOnResponseTimeoutYesRadio.setEnabled(!selected);
         queueOnResponseTimeoutNoRadio.setEnabled(!selected);
@@ -871,10 +828,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
     private javax.swing.ButtonGroup overrideLocalBindingButtonGroup;
     private com.mirth.connect.client.ui.components.MirthRadioButton overrideLocalBindingNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton overrideLocalBindingYesRadio;
-    private javax.swing.ButtonGroup processHL7ACKButtonGroup;
-    private javax.swing.JLabel processHL7ACKLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton processHL7ACKNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton processHL7ACKYesRadio;
     private javax.swing.ButtonGroup queueOnResponseTimeoutButtonGroup;
     private javax.swing.JLabel queueOnResponseTimeoutLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton queueOnResponseTimeoutNoRadio;

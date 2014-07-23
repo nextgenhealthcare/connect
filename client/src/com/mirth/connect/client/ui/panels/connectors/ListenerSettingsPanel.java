@@ -11,6 +11,7 @@ package com.mirth.connect.client.ui.panels.connectors;
 
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorProperties;
+import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
 
 public class ListenerSettingsPanel extends javax.swing.JPanel {
 
@@ -20,19 +21,25 @@ public class ListenerSettingsPanel extends javax.swing.JPanel {
         initComponents();
     }
 
-    public void setProperties(ListenerConnectorProperties properties) {
+    public void setProperties(ListenerConnectorPropertiesInterface propertiesInterface) {
+        ListenerConnectorProperties properties = propertiesInterface.getListenerConnectorProperties();
+
         addressField.setText(properties.getHost());
         updateAddressRadio();
 
         portField.setText(properties.getPort());
     }
 
-    public void fillProperties(ListenerConnectorProperties properties) {
+    public void fillProperties(ListenerConnectorPropertiesInterface propertiesInterface) {
+        ListenerConnectorProperties properties = propertiesInterface.getListenerConnectorProperties();
+
         properties.setHost(addressField.getText());
         properties.setPort(portField.getText());
     }
 
-    public boolean checkProperties(ListenerConnectorProperties properties, boolean highlight) {
+    public boolean checkProperties(ListenerConnectorPropertiesInterface propertiesInterface, boolean highlight) {
+        ListenerConnectorProperties properties = propertiesInterface.getListenerConnectorProperties();
+
         boolean valid = true;
 
         if (properties.getHost().length() == 0) {
