@@ -51,6 +51,7 @@ import com.mirth.connect.donkey.server.channel.PollConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
@@ -67,7 +68,9 @@ public class FileReceiver extends PollConnector {
     private String filenamePattern = null;
 
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    private FileConfiguration configuration = null;
     private FileConnector fileConnector = null;
 
     private String originalFilename = null;
@@ -94,7 +97,21 @@ public class FileReceiver extends PollConnector {
         connectorProperties.setUsername(replacer.replaceValues(connectorProperties.getUsername(), getChannelId()));
         connectorProperties.setPassword(replacer.replaceValues(connectorProperties.getPassword(), getChannelId()));
 
-        this.fileConnector = new FileConnector(getChannelId(), connectorProperties);
+        // Load the default configuration
+        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "fileConfigurationClass");
+
+        try {
+            configuration = (FileConfiguration) Class.forName(configurationClass).newInstance();
+        } catch (Exception e) {
+            logger.trace("could not find custom configuration class, using default");
+            configuration = new DefaultFileConfiguration();
+        }
+
+        try {
+            configuration.configureConnectorDeploy(this, connectorProperties);
+        } catch (Exception e) {
+            throw new DeployException(e);
+        }
 
         try {
             uri = fileConnector.getEndpointURI(connectorProperties.getHost());
@@ -531,5 +548,9 @@ public class FileReceiver extends PollConnector {
     public void handleRecoveredResponse(DispatchResult dispatchResult) {
         //TODO add cleanup code
         finishDispatch(dispatchResult);
+    }
+
+    public void setFileConnector(FileConnector fileConnector) {
+        this.fileConnector = fileConnector;
     }
 }

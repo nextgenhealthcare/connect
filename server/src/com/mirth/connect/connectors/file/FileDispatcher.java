@@ -33,6 +33,7 @@ import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.util.ThreadUtils;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
@@ -46,12 +47,29 @@ public class FileDispatcher extends DestinationConnector {
     private String charsetEncoding;
 
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    private FileConfiguration configuration = null;
 
     @Override
     public void onDeploy() throws DeployException {
         this.connectorProperties = (FileDispatcherProperties) getConnectorProperties();
-        this.fileConnector = new FileConnector(getChannelId(), connectorProperties);
+
+        // Load the default configuration
+        String configurationClass = configurationController.getProperty(connectorProperties.getProtocol(), "fileConfigurationClass");
+
+        try {
+            configuration = (FileConfiguration) Class.forName(configurationClass).newInstance();
+        } catch (Exception e) {
+            logger.trace("could not find custom configuration class, using default");
+            configuration = new DefaultFileConfiguration();
+        }
+
+        try {
+            configuration.configureConnectorDeploy(this, connectorProperties);
+        } catch (Exception e) {
+            throw new DeployException(e);
+        }
 
         this.charsetEncoding = CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding(), System.getProperty("ca.uhn.hl7v2.llp.charset"));
 
@@ -172,5 +190,9 @@ public class FileDispatcher extends DestinationConnector {
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);
+    }
+
+    public void setFileConnector(FileConnector fileConnector) {
+        this.fileConnector = fileConnector;
     }
 }
