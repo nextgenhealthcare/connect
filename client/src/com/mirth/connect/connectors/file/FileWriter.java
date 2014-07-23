@@ -14,6 +14,7 @@ import javax.swing.SwingWorker;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
@@ -296,6 +297,18 @@ public class FileWriter extends ConnectorSettingsPanel {
         usernameField.setBackground(null);
         passwordField.setBackground(null);
         timeoutField.setBackground(null);
+    }
+
+    @Override
+    public ConnectorTypeDecoration getConnectorTypeDecoration() {
+        return new ConnectorTypeDecoration();
+    }
+
+    @Override
+    public void doLocalDecoration(ConnectorTypeDecoration connectorTypeDecoration) {
+        if (FileScheme.FTP.getDisplayName().equalsIgnoreCase((String) schemeComboBox.getSelectedItem())) {
+            hostLabel.setText("ftp" + (connectorTypeDecoration != null && connectorTypeDecoration.getHighlightColor() != null ? "s" : "") + "://");
+        }
     }
 
     /**
@@ -873,6 +886,8 @@ public class FileWriter extends ConnectorSettingsPanel {
                 hostLabel.setText("http://");
             }
         }
+
+        decorateConnectorType();
     }//GEN-LAST:event_schemeComboBoxActionPerformed
 
     private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed

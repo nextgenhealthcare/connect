@@ -15,6 +15,7 @@ import javax.swing.SwingWorker;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
@@ -115,18 +116,16 @@ public class FileReader extends ConnectorSettingsPanel {
     }
 
     /**
-     * Parses the scheme and URL to determine the values for the directory, host
-     * and path fields, optionally storing them to the fields, highlighting
-     * field errors, or just testing for valid values.
+     * Parses the scheme and URL to determine the values for the directory, host and path fields,
+     * optionally storing them to the fields, highlighting field errors, or just testing for valid
+     * values.
      * 
      * @param props
      *            The connector properties from which to take the values.
      * @param store
-     *            If true, the parsed values are stored to the corresponding
-     *            form controls.
+     *            If true, the parsed values are stored to the corresponding form controls.
      * @param highlight
-     *            If true, fields for which the parsed values are invalid
-     *            are highlighted.
+     *            If true, fields for which the parsed values are invalid are highlighted.
      */
     private boolean setDirHostPath(FileReceiverProperties props, boolean store, boolean highlight) {
 
@@ -371,6 +370,13 @@ public class FileReader extends ConnectorSettingsPanel {
         usernameField.setBackground(null);
         passwordField.setBackground(null);
         timeoutField.setBackground(null);
+    }
+
+    @Override
+    public void doLocalDecoration(ConnectorTypeDecoration connectorTypeDecoration) {
+        if (FileScheme.FTP.getDisplayName().equalsIgnoreCase((String) schemeComboBox.getSelectedItem())) {
+            hostLabel.setText("ftp" + (connectorTypeDecoration != null ? "s" : "") + "://");
+        }
     }
 
     /**
@@ -1146,6 +1152,8 @@ public class FileReader extends ConnectorSettingsPanel {
                 hostLabel.setText("http://");
             }
         }
+
+        decorateConnectorType();
     }//GEN-LAST:event_schemeComboBoxActionPerformed
 
     private void fileTypeASCIIActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_fileTypeASCIIActionPerformed
@@ -1263,6 +1271,7 @@ public class FileReader extends ConnectorSettingsPanel {
         fileAgeLabel.setEnabled(true);
         fileAge.setEnabled(true);
     }// GEN-LAST:event_checkFileAgeYesActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthComboBox afterProcessingActionComboBox;
     private javax.swing.JLabel afterProcessingActionLabel;
