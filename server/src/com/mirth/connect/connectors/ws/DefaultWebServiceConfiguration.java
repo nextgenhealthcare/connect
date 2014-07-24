@@ -11,13 +11,21 @@ package com.mirth.connect.connectors.ws;
 
 import java.util.Map;
 
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
+
 import com.mirth.connect.donkey.server.channel.Connector;
 import com.sun.net.httpserver.HttpServer;
 
 public class DefaultWebServiceConfiguration implements WebServiceConfiguration {
 
     @Override
-    public void configureConnectorDeploy(Connector connector) throws Exception {}
+    public void configureConnectorDeploy(Connector connector) throws Exception {
+        if (connector instanceof WebServiceDispatcher) {
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(SSLContexts.createDefault(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            ((WebServiceDispatcher) connector).getSocketFactoryRegistry().register("https", sslConnectionSocketFactory);
+        }
+    }
 
     @Override
     public void configureConnectorUndeploy(Connector connector) {}
