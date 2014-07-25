@@ -16,8 +16,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
+import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
@@ -26,9 +26,9 @@ import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.TcpUtil;
 
 @SuppressWarnings("serial")
-public class TcpReceiverProperties extends ConnectorProperties implements ListenerConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
+public class TcpReceiverProperties extends ConnectorProperties implements ListenerConnectorPropertiesInterface, SourceConnectorPropertiesInterface {
     private ListenerConnectorProperties listenerConnectorProperties;
-    private ResponseConnectorProperties responseConnectorProperties;
+    private SourceConnectorProperties sourceConnectorProperties;
 
     public static final String PROTOCOL = "TCP";
     public static final String NAME = "TCP Listener";
@@ -54,7 +54,8 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
 
     public TcpReceiverProperties() {
         listenerConnectorProperties = new ListenerConnectorProperties("6661");
-        responseConnectorProperties = new ResponseConnectorProperties(ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
+        sourceConnectorProperties = new SourceConnectorProperties(SourceConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
+        sourceConnectorProperties.setFirstResponse(true);
 
         FrameModeProperties frameModeProperties = new FrameModeProperties("MLLP");
         frameModeProperties.setStartOfMessageBytes(TcpUtil.DEFAULT_LLP_START_BYTES);
@@ -78,8 +79,8 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
     }
 
     @Override
-    public ResponseConnectorProperties getResponseConnectorProperties() {
-        return responseConnectorProperties;
+    public SourceConnectorProperties getSourceConnectorProperties() {
+        return sourceConnectorProperties;
     }
 
     @Override
@@ -207,14 +208,6 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
         this.responsePort = responsePort;
     }
 
-    public void setListenerConnectorProperties(ListenerConnectorProperties listenerConnectorProperties) {
-        this.listenerConnectorProperties = listenerConnectorProperties;
-    }
-
-    public void setResponseConnectorProperties(ResponseConnectorProperties responseConnectorProperties) {
-        this.responseConnectorProperties = responseConnectorProperties;
-    }
-
     @Override
     public String getProtocol() {
         return PROTOCOL;
@@ -228,6 +221,11 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
     @Override
     public String toFormattedString() {
         return null;
+    }
+
+    @Override
+    public boolean canBatch() {
+        return true;
     }
 
     @Override
@@ -263,12 +261,19 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
     }
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        String processBatch = element.removeChild("processBatch").getTextContent();
+        DonkeyElement sourcePropertiesElement = element.getChildElement("sourceConnectorProperties");
+        if (sourcePropertiesElement != null) {
+            sourcePropertiesElement.addChildElement("processBatch", processBatch);
+            sourcePropertiesElement.addChildElement("firstResponse", "true");
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
-        purgedProperties.put("responseConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        purgedProperties.put("sourceConnectorProperties", sourceConnectorProperties.getPurgedProperties());
         purgedProperties.put("transmissionModeProperties", transmissionModeProperties.getPurgedProperties());
         purgedProperties.put("serverMode", serverMode);
         purgedProperties.put("overrideLocalBinding", overrideLocalBinding);

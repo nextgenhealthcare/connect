@@ -46,7 +46,7 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnException;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
+import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
 import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
@@ -91,7 +91,7 @@ public class TestUtils {
 
     final public static String DEFAULT_CHANNEL_ID = "testchannel";
     final public static String DEFAULT_SERVER_ID = "testserver";
-    final public static String DEFAULT_RESPOND_FROM_NAME = ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED;
+    final public static String DEFAULT_RESPOND_FROM_NAME = SourceConnectorProperties.RESPONSE_SOURCE_TRANSFORMED;
     final public static String DEFAULT_DESTINATION_NAME = "testdestination";
     final public static String DEFAULT_OUTBOUND_TEMPLATE = null;
 

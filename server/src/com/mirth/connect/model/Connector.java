@@ -24,9 +24,9 @@ import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
- * A Connector represents a connection to either a source or destination. Each
- * Connector has an associated Filter and Transformer. A connector is also of a
- * specific Transport type (TCP, HTTP, etc.).
+ * A Connector represents a connection to either a source or destination. Each Connector has an
+ * associated Filter and Transformer. A connector is also of a specific Transport type (TCP, HTTP,
+ * etc.).
  * 
  * 
  */
@@ -149,7 +149,19 @@ public class Connector implements Serializable, Migratable, Purgable {
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        DonkeyElement properties = element.getChildElement("properties");
+
+        DonkeyElement responseProperties = properties.getChildElement("responseConnectorProperties");
+        if (responseProperties != null) {
+            responseProperties.setNodeName("sourceConnectorProperties");
+        }
+
+        DonkeyElement queueProperties = properties.getChildElement("queueConnectorProperties");
+        if (queueProperties != null) {
+            queueProperties.setNodeName("destinationConnectorProperties");
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {

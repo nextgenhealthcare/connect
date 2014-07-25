@@ -54,7 +54,7 @@ public class DataTypePropertiesTableNode extends AbstractMutableTreeTableNode {
     public Object getValueAt(int column) {
         switch (column) {
             case 0:
-                if (groupName != null) {
+                if (isGroupHeader()) {
                     // Return the group name for the name column if it is a group node
                     return groupName;
                 } else {
@@ -69,7 +69,7 @@ public class DataTypePropertiesTableNode extends AbstractMutableTreeTableNode {
                 }
 
             case 1:
-                if (groupName != null) {
+                if (isGroupHeader()) {
                     // Return null for the description column if it is a group node
                     return null;
                 } else {
@@ -108,12 +108,16 @@ public class DataTypePropertiesTableNode extends AbstractMutableTreeTableNode {
         }
     }
 
+    public boolean isGroupHeader() {
+        return groupName != null;
+    }
+
     public DataTypePropertyDescriptor getPropertyDescriptor() {
         return defaultPropertiesGroup.getPropertyDescriptors().get(propertyName);
     }
 
     public String getName() {
-        if (groupName != null) {
+        if (isGroupHeader()) {
             return groupName;
         } else {
             return defaultPropertiesGroup.getPropertyDescriptors().get(propertyName).getDisplayName();
@@ -121,7 +125,7 @@ public class DataTypePropertiesTableNode extends AbstractMutableTreeTableNode {
     }
 
     public String getDescription() {
-        if (groupName != null) {
+        if (isGroupHeader()) {
             return groupDescription;
         } else {
             return defaultPropertiesGroup.getPropertyDescriptors().get(propertyName).getDescription();

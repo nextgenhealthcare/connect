@@ -18,13 +18,13 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
+import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
 
-public class WebServiceReceiverProperties extends ConnectorProperties implements ListenerConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
+public class WebServiceReceiverProperties extends ConnectorProperties implements ListenerConnectorPropertiesInterface, SourceConnectorPropertiesInterface {
     private ListenerConnectorProperties listenerConnectorProperties;
-    private ResponseConnectorProperties responseConnectorProperties;
+    private SourceConnectorProperties sourceConnectorProperties;
 
     private String className;
     private String serviceName;
@@ -33,7 +33,7 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
 
     public WebServiceReceiverProperties() {
         listenerConnectorProperties = new ListenerConnectorProperties("8081");
-        responseConnectorProperties = new ResponseConnectorProperties();
+        sourceConnectorProperties = new SourceConnectorProperties();
 
         this.className = "com.mirth.connect.connectors.ws.DefaultAcceptMessage";
         this.serviceName = "Mirth";
@@ -94,8 +94,13 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
     }
 
     @Override
-    public ResponseConnectorProperties getResponseConnectorProperties() {
-        return responseConnectorProperties;
+    public SourceConnectorProperties getSourceConnectorProperties() {
+        return sourceConnectorProperties;
+    }
+
+    @Override
+    public boolean canBatch() {
+        return true;
     }
 
     @Override
@@ -115,7 +120,7 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
-        purgedProperties.put("responseConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        purgedProperties.put("sourceConnectorProperties", sourceConnectorProperties.getPurgedProperties());
         return purgedProperties;
     }
 }

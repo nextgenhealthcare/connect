@@ -9,6 +9,8 @@
 
 package com.mirth.connect.donkey.model.channel;
 
-public interface ResponseConnectorPropertiesInterface {
-    public ResponseConnectorProperties getResponseConnectorProperties();
+public interface SourceConnectorPropertiesInterface {
+    public SourceConnectorProperties getSourceConnectorProperties();
+
+    public boolean canBatch();
 }

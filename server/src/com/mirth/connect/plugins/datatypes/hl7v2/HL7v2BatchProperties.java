@@ -9,6 +9,7 @@
 
 package com.mirth.connect.plugins.datatypes.hl7v2;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
@@ -19,15 +20,13 @@ public class HL7v2BatchProperties extends BatchProperties {
 
     @Override
     public Map<String, DataTypePropertyDescriptor> getPropertyDescriptors() {
-        Map<String, DataTypePropertyDescriptor> properties = super.getPropertyDescriptors();
+        Map<String, DataTypePropertyDescriptor> properties = new LinkedHashMap<String, DataTypePropertyDescriptor>();
 
         return properties;
     }
 
     @Override
     public void setProperties(Map<String, Object> properties) {
-        super.setProperties(properties);
-
         if (properties != null) {
 
         }

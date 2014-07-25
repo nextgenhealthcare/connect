@@ -11,27 +11,27 @@ package com.mirth.connect.connectors.jms;
 
 import java.util.Map;
 
-import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
+import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
-public class JmsReceiverProperties extends JmsConnectorProperties implements ResponseConnectorPropertiesInterface {
-    private ResponseConnectorProperties responseConnectorProperties;
+public class JmsReceiverProperties extends JmsConnectorProperties implements SourceConnectorPropertiesInterface {
+    private SourceConnectorProperties sourceConnectorProperties;
     private String selector;
     private String reconnectIntervalMillis;
     private boolean durableTopic;
 
     public JmsReceiverProperties() {
         super();
-        responseConnectorProperties = new ResponseConnectorProperties();
+        sourceConnectorProperties = new SourceConnectorProperties();
         selector = "";
         reconnectIntervalMillis = "10000";
         durableTopic = false;
     }
 
     @Override
-    public ResponseConnectorProperties getResponseConnectorProperties() {
-        return responseConnectorProperties;
+    public SourceConnectorProperties getSourceConnectorProperties() {
+        return sourceConnectorProperties;
     }
 
     @Override
@@ -80,9 +80,14 @@ public class JmsReceiverProperties extends JmsConnectorProperties implements Res
     }
 
     @Override
+    public boolean canBatch() {
+        return true;
+    }
+
+    @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
-        purgedProperties.put("responseConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        purgedProperties.put("sourceConnectorProperties", sourceConnectorProperties.getPurgedProperties());
         purgedProperties.put("reconnectIntervalMillis", PurgeUtil.getNumericValue(reconnectIntervalMillis));
         purgedProperties.put("durableTopic", durableTopic);
         return purgedProperties;

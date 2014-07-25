@@ -85,27 +85,27 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
         propertiesTreeTable.setTableHeader(null);
         propertiesTreeTable.setEditable(true);
         propertiesTreeTable.setShowsRootHandles(false);
-        
+
         // This renderer bolds adds a space and bolds the property group names
         propertiesTreeTable.setTreeCellRenderer(new TreeCellRenderer() {
-            
+
             private JLabel label = new JLabel();
-            
+
             @Override
             public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
                 if (value instanceof DataTypePropertiesTableNode) {
-                    
-                    if (!leaf) {
+                    DataTypePropertiesTableNode node = (DataTypePropertiesTableNode) value;
+                    if (node.isGroupHeader()) {
                         label.setFont(label.getFont().deriveFont(Font.BOLD));
-                        label.setText(" " + ((DataTypePropertiesTableNode)value).getValueAt(0));
+                        label.setText(" " + ((DataTypePropertiesTableNode) value).getValueAt(0));
                     } else {
                         label.setFont(label.getFont().deriveFont(Font.PLAIN));
-                        label.setText((String) ((DataTypePropertiesTableNode)value).getValueAt(0));
+                        label.setText((String) ((DataTypePropertiesTableNode) value).getValueAt(0));
                     }
                 }
                 return label;
             }
-            
+
         });
         
         // This listener updates the property description pane.

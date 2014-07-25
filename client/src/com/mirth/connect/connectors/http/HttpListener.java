@@ -215,7 +215,7 @@ public class HttpListener extends ConnectorSettingsPanel {
                 receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (!props.getResponseConnectorProperties().getResponseVariable().equalsIgnoreCase("None")) {
+        if (!props.getSourceConnectorProperties().getResponseVariable().equalsIgnoreCase("None")) {
             if (props.getResponseContentType().length() == 0) {
                 valid = false;
                 if (highlight) {

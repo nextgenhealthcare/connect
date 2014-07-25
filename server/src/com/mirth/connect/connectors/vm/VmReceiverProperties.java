@@ -14,15 +14,15 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
+import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
 
-public class VmReceiverProperties extends ConnectorProperties implements ResponseConnectorPropertiesInterface {
-    private ResponseConnectorProperties responseConnectorProperties;
+public class VmReceiverProperties extends ConnectorProperties implements SourceConnectorPropertiesInterface {
+    private SourceConnectorProperties sourceConnectorProperties;
 
     public VmReceiverProperties() {
-        responseConnectorProperties = new ResponseConnectorProperties();
+        sourceConnectorProperties = new SourceConnectorProperties();
     }
 
     @Override
@@ -41,8 +41,13 @@ public class VmReceiverProperties extends ConnectorProperties implements Respons
     }
 
     @Override
-    public ResponseConnectorProperties getResponseConnectorProperties() {
-        return responseConnectorProperties;
+    public SourceConnectorProperties getSourceConnectorProperties() {
+        return sourceConnectorProperties;
+    }
+
+    @Override
+    public boolean canBatch() {
+        return true;
     }
 
     @Override
@@ -62,7 +67,7 @@ public class VmReceiverProperties extends ConnectorProperties implements Respons
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
-        purgedProperties.put("responseConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        purgedProperties.put("sourceConnectorProperties", sourceConnectorProperties.getPurgedProperties());
         return purgedProperties;
     }
 }

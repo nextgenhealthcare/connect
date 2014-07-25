@@ -26,8 +26,8 @@ import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
+import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.event.Event;
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
@@ -592,9 +592,9 @@ public class DonkeyEngineController implements EngineController {
         sourceQueue.setBufferCapacity(queueBufferSize);
         channel.setSourceQueue(sourceQueue);
 
-        if (model.getSourceConnector().getProperties() instanceof ResponseConnectorPropertiesInterface) {
-            ResponseConnectorProperties responseConnectorProperties = ((ResponseConnectorPropertiesInterface) model.getSourceConnector().getProperties()).getResponseConnectorProperties();
-            channel.getResponseSelector().setRespondFromName(responseConnectorProperties.getResponseVariable());
+        if (model.getSourceConnector().getProperties() instanceof SourceConnectorPropertiesInterface) {
+            SourceConnectorProperties sourceConnectorProperties = ((SourceConnectorPropertiesInterface) model.getSourceConnector().getProperties()).getSourceConnectorProperties();
+            channel.getResponseSelector().setRespondFromName(sourceConnectorProperties.getResponseVariable());
         }
 
         if (storageSettings.isEnabled()) {
@@ -775,22 +775,23 @@ public class DonkeyEngineController implements EngineController {
 
         setCommonConnectorProperties(donkeyChannel.getChannelId(), sourceConnector, model, destinationNameMap);
 
-        DataTypeServerPlugin dataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(model.getTransformer().getInboundDataType());
-        DataTypeProperties dataTypeProperties = model.getTransformer().getInboundProperties();
-        SerializerProperties serializerProperties = dataTypeProperties.getSerializerProperties();
-        BatchProperties batchProperties = serializerProperties.getBatchProperties();
-
-        if (batchProperties != null && batchProperties.isBatchEnabled()) {
-            BatchAdaptorFactory batchAdaptorFactory = dataTypePlugin.getBatchAdaptorFactory(sourceConnector, serializerProperties);
-            batchAdaptorFactory.setUseFirstReponse(batchProperties.isUseFirstResponse());
-            sourceConnector.setBatchAdaptorFactory(batchAdaptorFactory);
-        }
         sourceConnector.setMetaDataReplacer(createMetaDataReplacer(model));
         sourceConnector.setChannel(donkeyChannel);
 
-        if (connectorProperties instanceof ResponseConnectorPropertiesInterface) {
-            ResponseConnectorProperties responseConnectorProperties = ((ResponseConnectorPropertiesInterface) connectorProperties).getResponseConnectorProperties();
-            sourceConnector.setRespondAfterProcessing(responseConnectorProperties.isRespondAfterProcessing());
+        if (connectorProperties instanceof SourceConnectorPropertiesInterface) {
+            SourceConnectorProperties sourceConnectorProperties = ((SourceConnectorPropertiesInterface) connectorProperties).getSourceConnectorProperties();
+            sourceConnector.setRespondAfterProcessing(sourceConnectorProperties.isRespondAfterProcessing());
+            
+            DataTypeServerPlugin dataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(model.getTransformer().getInboundDataType());
+            DataTypeProperties dataTypeProperties = model.getTransformer().getInboundProperties();
+            SerializerProperties serializerProperties = dataTypeProperties.getSerializerProperties();
+            BatchProperties batchProperties = serializerProperties.getBatchProperties();
+
+            if (batchProperties != null && sourceConnectorProperties.isProcessBatch()) {
+                BatchAdaptorFactory batchAdaptorFactory = dataTypePlugin.getBatchAdaptorFactory(sourceConnector, serializerProperties);
+                batchAdaptorFactory.setUseFirstReponse(sourceConnectorProperties.isFirstResponse());
+                sourceConnector.setBatchAdaptorFactory(batchAdaptorFactory);
+            }
         } else {
             sourceConnector.setRespondAfterProcessing(true);
         }

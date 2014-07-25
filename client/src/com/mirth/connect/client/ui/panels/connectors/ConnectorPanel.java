@@ -35,7 +35,7 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.InvalidConnectorPluginProperties;
 import com.mirth.connect.model.MessageStorageMode;
@@ -47,7 +47,7 @@ public class ConnectorPanel extends JPanel {
     private JPanel connectorSettingsContainer;
     private ListenerSettingsPanel listenerSettingsPanel;
     private PollingSettingsPanel pollingSettingsPanel;
-    private ResponseSettingsPanel responseSettingsPanel;
+    private SourceSettingsPanel sourceSettingsPanel;
     private DestinationSettingsPanel destinationSettingsPanel;
     private Map<String, AbstractConnectorPropertiesPanel> connectorPropertiesPanels = new HashMap<String, AbstractConnectorPropertiesPanel>();
 
@@ -64,7 +64,7 @@ public class ConnectorPanel extends JPanel {
     public void setChannelSetup(ChannelSetup channelSetup) {
         this.channelSetup = channelSetup;
         destinationSettingsPanel.setChannelSetup(channelSetup);
-        responseSettingsPanel.setChannelSetup(channelSetup);
+        sourceSettingsPanel.setChannelSetup(channelSetup);
     }
 
     public void setConnectorSettingsPanel(ConnectorSettingsPanel panel) {
@@ -82,7 +82,7 @@ public class ConnectorPanel extends JPanel {
         ConnectorProperties connectorProperties = getConnectorSettingsPanel().getDefaults();
         pollingSettingsPanel.setVisible(connectorProperties instanceof PollConnectorPropertiesInterface);
         listenerSettingsPanel.setVisible(connectorProperties instanceof ListenerConnectorPropertiesInterface);
-        responseSettingsPanel.setVisible(connectorProperties instanceof ResponseConnectorPropertiesInterface);
+        sourceSettingsPanel.setVisible(connectorProperties instanceof SourceConnectorPropertiesInterface);
         destinationSettingsPanel.setVisible(connectorProperties instanceof DestinationConnectorPropertiesInterface);
 
         for (ConnectorPropertiesPlugin connectorPropertiesPlugin : LoadedExtensions.getInstance().getConnectorPropertiesPlugins().values()) {
@@ -117,8 +117,8 @@ public class ConnectorPanel extends JPanel {
             listenerSettingsPanel.fillProperties((ListenerConnectorPropertiesInterface) connectorProperties);
         }
 
-        if (connectorProperties instanceof ResponseConnectorPropertiesInterface) {
-            responseSettingsPanel.fillProperties((ResponseConnectorPropertiesInterface) connectorProperties);
+        if (connectorProperties instanceof SourceConnectorPropertiesInterface) {
+            sourceSettingsPanel.fillProperties((SourceConnectorPropertiesInterface) connectorProperties);
         }
 
         if (connectorProperties instanceof DestinationConnectorPropertiesInterface) {
@@ -153,9 +153,9 @@ public class ConnectorPanel extends JPanel {
             listenerSettingsPanel.setProperties((ListenerConnectorPropertiesInterface) properties);
         }
 
-        if (properties instanceof ResponseConnectorPropertiesInterface) {
-            responseSettingsPanel.resetInvalidProperties();
-            responseSettingsPanel.setProperties((ResponseConnectorPropertiesInterface) properties);
+        if (properties instanceof SourceConnectorPropertiesInterface) {
+            sourceSettingsPanel.resetInvalidProperties();
+            sourceSettingsPanel.setProperties((SourceConnectorPropertiesInterface) properties);
         }
 
         if (properties instanceof DestinationConnectorPropertiesInterface) {
@@ -218,9 +218,9 @@ public class ConnectorPanel extends JPanel {
 
         boolean response = true;
 
-        if (properties instanceof ResponseConnectorPropertiesInterface) {
-            responseSettingsPanel.resetInvalidProperties();
-            listener = responseSettingsPanel.checkProperties((ResponseConnectorPropertiesInterface) properties, highlight);
+        if (properties instanceof SourceConnectorPropertiesInterface) {
+            sourceSettingsPanel.resetInvalidProperties();
+            listener = sourceSettingsPanel.checkProperties((SourceConnectorPropertiesInterface) properties, highlight);
         }
 
         boolean destination = true;
@@ -279,8 +279,8 @@ public class ConnectorPanel extends JPanel {
     }
 
     public void updateResponseDropDown() {
-        if (getConnectorSettingsPanel().getProperties() instanceof ResponseConnectorPropertiesInterface) {
-            responseSettingsPanel.updateResponseDropDown((ResponseConnectorPropertiesInterface) getConnectorSettingsPanel().getProperties(), false);
+        if (getConnectorSettingsPanel().getProperties() instanceof SourceConnectorPropertiesInterface) {
+            sourceSettingsPanel.updateResponseDropDown((SourceConnectorPropertiesInterface) getConnectorSettingsPanel().getProperties(), false);
         }
     }
 
@@ -314,7 +314,7 @@ public class ConnectorPanel extends JPanel {
 
     public void updateQueueWarning(MessageStorageMode messageStorageMode) {
         destinationSettingsPanel.updateQueueWarning(messageStorageMode);
-        responseSettingsPanel.updateQueueWarning(messageStorageMode);
+        sourceSettingsPanel.updateQueueWarning(messageStorageMode);
     }
 
     public void decorateConnectorType() {
@@ -363,8 +363,8 @@ public class ConnectorPanel extends JPanel {
         pollingSettingsPanel = new PollingSettingsPanel();
         add(pollingSettingsPanel, "growx, wrap");
 
-        responseSettingsPanel = new ResponseSettingsPanel();
-        add(responseSettingsPanel, "growx, wrap");
+        sourceSettingsPanel = new SourceSettingsPanel();
+        add(sourceSettingsPanel, "growx, wrap");
 
         destinationSettingsPanel = new DestinationSettingsPanel();
         add(destinationSettingsPanel, "growx, wrap");

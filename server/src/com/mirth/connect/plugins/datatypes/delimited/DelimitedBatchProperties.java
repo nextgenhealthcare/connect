@@ -10,6 +10,7 @@
 package com.mirth.connect.plugins.datatypes.delimited;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +35,7 @@ public class DelimitedBatchProperties extends BatchProperties {
 
     @Override
     public Map<String, DataTypePropertyDescriptor> getPropertyDescriptors() {
-        Map<String, DataTypePropertyDescriptor> properties = super.getPropertyDescriptors();
+        Map<String, DataTypePropertyDescriptor> properties = new LinkedHashMap<String, DataTypePropertyDescriptor>();
 
         properties.put("batchSkipRecords", new DataTypePropertyDescriptor(Integer.toString(batchSkipRecords), "Number of Header Records", "For batch processing, enter the number of header records to skip.  By default, no header records are skipped.  This option has no effect unless Process Batch Files is enabled in the connector.", PropertyEditorType.STRING));
         properties.put("batchSplitByRecord", new DataTypePropertyDescriptor(batchSplitByRecord, "Split Batch by Record", "For batch processing, treat each record as a message.  Records are separated by the record delimiter.  This option has no effect unless Process Batch Files is enabled in the connector.", PropertyEditorType.BOOLEAN));
@@ -48,8 +49,6 @@ public class DelimitedBatchProperties extends BatchProperties {
 
     @Override
     public void setProperties(Map<String, Object> properties) {
-        super.setProperties(properties);
-
         if (properties != null) {
             if (StringUtils.isNotEmpty((String) properties.get("batchSkipRecords"))) {
                 // Store an int

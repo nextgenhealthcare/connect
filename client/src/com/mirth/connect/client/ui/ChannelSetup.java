@@ -64,8 +64,8 @@ import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInte
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
+import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
@@ -904,17 +904,17 @@ public class ChannelSetup extends javax.swing.JPanel {
         StringBuilder stringBuilder = new StringBuilder();
 
         boolean sourceQueueEnabled = false;
-        ConnectorProperties sourceConnectorProperties = sourceConnectorPanel.getProperties();
+        ConnectorProperties connectorProperties = sourceConnectorPanel.getProperties();
 
-        if (sourceConnectorProperties != null && sourceConnectorProperties instanceof ResponseConnectorPropertiesInterface) {
-            ResponseConnectorProperties responseConnectorProperties = ((ResponseConnectorPropertiesInterface) sourceConnectorProperties).getResponseConnectorProperties();
-            sourceQueueEnabled = !responseConnectorProperties.isRespondAfterProcessing();
+        if (connectorProperties != null && connectorProperties instanceof SourceConnectorPropertiesInterface) {
+            SourceConnectorProperties sourceConnectorProperties = ((SourceConnectorPropertiesInterface) connectorProperties).getSourceConnectorProperties();
+            sourceQueueEnabled = !sourceConnectorProperties.isRespondAfterProcessing();
         }
 
         boolean destinationQueueEnabled = false;
 
         for (Connector connector : currentChannel.getDestinationConnectors()) {
-            ConnectorProperties connectorProperties = connector.getProperties();
+            connectorProperties = connector.getProperties();
 
             if (connectorProperties instanceof DestinationConnectorPropertiesInterface) {
                 DestinationConnectorProperties destinationConnectorProperties = ((DestinationConnectorPropertiesInterface) connectorProperties).getDestinationConnectorProperties();

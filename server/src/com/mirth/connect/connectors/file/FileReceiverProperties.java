@@ -16,18 +16,18 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
+import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.util.CharsetUtils;
 
-public class FileReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
+public class FileReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface, SourceConnectorPropertiesInterface {
 
     public static final String NAME = "File Reader";
 
     private PollConnectorProperties pollConnectorProperties;
-    private ResponseConnectorProperties responseConnectorProperties;
+    private SourceConnectorProperties sourceConnectorProperties;
 
     private FileScheme scheme;
     private String host;
@@ -64,7 +64,7 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
 
     public FileReceiverProperties() {
         pollConnectorProperties = new PollConnectorProperties();
-        responseConnectorProperties = new ResponseConnectorProperties();
+        sourceConnectorProperties = new SourceConnectorProperties();
 
         scheme = FileScheme.FILE;
         host = "";
@@ -341,8 +341,13 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
     }
 
     @Override
-    public ResponseConnectorProperties getResponseConnectorProperties() {
-        return responseConnectorProperties;
+    public SourceConnectorProperties getSourceConnectorProperties() {
+        return sourceConnectorProperties;
+    }
+
+    @Override
+    public boolean canBatch() {
+        return true;
     }
 
     @Override
@@ -357,13 +362,19 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        String processBatch = element.removeChild("processBatch").getTextContent();
+        DonkeyElement sourcePropertiesElement = element.getChildElement("sourceConnectorProperties");
+        if (sourcePropertiesElement != null) {
+            sourcePropertiesElement.addChildElement("processBatch", processBatch);
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("pollConnectorProperties", pollConnectorProperties.getPurgedProperties());
-        purgedProperties.put("resposeConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        purgedProperties.put("resposeConnectorProperties", sourceConnectorProperties.getPurgedProperties());
         purgedProperties.put("scheme", scheme);
         purgedProperties.put("regex", regex);
         purgedProperties.put("directoryRecursion", directoryRecursion);

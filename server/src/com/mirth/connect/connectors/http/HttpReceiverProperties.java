@@ -19,14 +19,14 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
+import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
-public class HttpReceiverProperties extends ConnectorProperties implements ListenerConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
+public class HttpReceiverProperties extends ConnectorProperties implements ListenerConnectorPropertiesInterface, SourceConnectorPropertiesInterface {
     private ListenerConnectorProperties listenerConnectorProperties;
-    private ResponseConnectorProperties responseConnectorProperties;
+    private SourceConnectorProperties sourceConnectorProperties;
 
     private boolean xmlBody;
     private boolean parseMultipart;
@@ -41,7 +41,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
 
     public HttpReceiverProperties() {
         listenerConnectorProperties = new ListenerConnectorProperties("80");
-        responseConnectorProperties = new ResponseConnectorProperties();
+        sourceConnectorProperties = new SourceConnectorProperties();
 
         this.xmlBody = false;
         this.parseMultipart = true;
@@ -156,8 +156,13 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     }
 
     @Override
-    public ResponseConnectorProperties getResponseConnectorProperties() {
-        return responseConnectorProperties;
+    public SourceConnectorProperties getSourceConnectorProperties() {
+        return sourceConnectorProperties;
+    }
+
+    @Override
+    public boolean canBatch() {
+        return true;
     }
 
     @Override
@@ -177,7 +182,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
-        purgedProperties.put("responseConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        purgedProperties.put("sourceConnectorProperties", sourceConnectorProperties.getPurgedProperties());
         purgedProperties.put("responseContentType", responseContentType);
         purgedProperties.put("responseHeaderChars", responseHeaders.size());
         purgedProperties.put("charset", charset);

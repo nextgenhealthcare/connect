@@ -16,14 +16,14 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
-import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
+import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
-public class DICOMReceiverProperties extends ConnectorProperties implements ListenerConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
+public class DICOMReceiverProperties extends ConnectorProperties implements ListenerConnectorPropertiesInterface, SourceConnectorPropertiesInterface {
     private ListenerConnectorProperties listenerConnectorProperties;
-    private ResponseConnectorProperties responseConnectorProperties;
+    private SourceConnectorProperties sourceConnectorProperties;
 
     private String applicationEntity;
     private String localHost;
@@ -59,7 +59,7 @@ public class DICOMReceiverProperties extends ConnectorProperties implements List
 
     public DICOMReceiverProperties() {
         listenerConnectorProperties = new ListenerConnectorProperties("104");
-        responseConnectorProperties = new ResponseConnectorProperties();
+        sourceConnectorProperties = new SourceConnectorProperties();
 
         soCloseDelay = "50";
         releaseTo = "5";
@@ -116,8 +116,8 @@ public class DICOMReceiverProperties extends ConnectorProperties implements List
     }
 
     @Override
-    public ResponseConnectorProperties getResponseConnectorProperties() {
-        return responseConnectorProperties;
+    public SourceConnectorProperties getSourceConnectorProperties() {
+        return sourceConnectorProperties;
     }
 
     public String getApplicationEntity() {
@@ -360,12 +360,9 @@ public class DICOMReceiverProperties extends ConnectorProperties implements List
         this.trustStorePW = trustStorePW;
     }
 
-    public void setListenerConnectorProperties(ListenerConnectorProperties listenerConnectorProperties) {
-        this.listenerConnectorProperties = listenerConnectorProperties;
-    }
-
-    public void setResponseConnectorProperties(ResponseConnectorProperties responseConnectorProperties) {
-        this.responseConnectorProperties = responseConnectorProperties;
+    @Override
+    public boolean canBatch() {
+        return false;
     }
 
     @Override
@@ -385,7 +382,7 @@ public class DICOMReceiverProperties extends ConnectorProperties implements List
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
-        purgedProperties.put("responseConnectorProperties", responseConnectorProperties.getPurgedProperties());
+        purgedProperties.put("sourceConnectorProperties", sourceConnectorProperties.getPurgedProperties());
         purgedProperties.put("soCloseDelay", PurgeUtil.getNumericValue(soCloseDelay));
         purgedProperties.put("releaseTo", PurgeUtil.getNumericValue(releaseTo));
         purgedProperties.put("requestTo", PurgeUtil.getNumericValue(requestTo));

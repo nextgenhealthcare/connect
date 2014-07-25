@@ -18,7 +18,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
+import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
@@ -70,7 +70,7 @@ public class SourceConnectorTests {
         TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId);
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
         sourceConnector.setRespondAfterProcessing(true);
-        channel.getResponseSelector().setRespondFromName(ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
+        channel.getResponseSelector().setRespondFromName(SourceConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
 
         channel.deploy();
         channel.start();
@@ -185,7 +185,7 @@ public class SourceConnectorTests {
 
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
         sourceConnector.setRespondAfterProcessing(true);
-        channel.getResponseSelector().setRespondFromName(ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
+        channel.getResponseSelector().setRespondFromName(SourceConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
 
         channel.deploy();
         channel.start();
@@ -264,7 +264,7 @@ public class SourceConnectorTests {
         channel.deploy();
         channel.start();
 
-        channel.getResponseSelector().setRespondFromName(ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
+        channel.getResponseSelector().setRespondFromName(SourceConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
 
         for (int i = 0; i < TEST_SIZE; i++) {
             response = sourceConnector.readTestMessage(testMessage).getSelectedResponse();
@@ -273,7 +273,7 @@ public class SourceConnectorTests {
 
         assertEquals(TEST_SIZE, channel.getNumMessages());
 
-        channel.getResponseSelector().setRespondFromName(ResponseConnectorProperties.RESPONSE_DESTINATIONS_COMPLETED);
+        channel.getResponseSelector().setRespondFromName(SourceConnectorProperties.RESPONSE_DESTINATIONS_COMPLETED);
 
         for (int i = 0; i < TEST_SIZE; i++) {
             response = sourceConnector.readTestMessage(testMessage).getSelectedResponse();

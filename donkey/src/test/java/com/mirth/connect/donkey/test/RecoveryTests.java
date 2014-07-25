@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
+import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
@@ -176,7 +176,7 @@ public class RecoveryTests {
         // channel should have two chains with metaDataIds 1, 2 and 3, 4
         TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId, true, 2, 2);
         ResponseSelector responseSelector = new ResponseSelector(new TestDataType());
-        responseSelector.setRespondFromName(ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
+        responseSelector.setRespondFromName(SourceConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
         channel.setResponseSelector(responseSelector);
         
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channel.getChannelId());
