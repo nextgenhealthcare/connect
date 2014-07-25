@@ -36,11 +36,15 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
+import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.soap.SOAPBinding;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthSchemeProvider;
 import org.apache.http.auth.AuthScope;
@@ -88,6 +92,10 @@ import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class WebServiceDispatcher extends DestinationConnector {
+
+    // The system property actually ends up being the maximum request count
+    private static final int MAX_REDIRECTS = NumberUtils.toInt(System.getProperty("http.maxRedirects"), 20);
+
     private Logger logger = Logger.getLogger(this.getClass());
     protected WebServiceDispatcherProperties connectorProperties;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
@@ -350,35 +358,64 @@ public class WebServiceDispatcher extends DestinationConnector {
 
             message.saveChanges();
 
-            try {
-                // Make the call
-                if (webServiceDispatcherProperties.isOneWay()) {
-                    logger.debug("Invoking one way service...");
-                    dispatch.invokeOneWay(message);
-                    responseStatusMessage = "Invoked one way operation successfully.";
-                } else {
-                    logger.debug("Invoking web service...");
-                    SOAPMessage result = dispatch.invoke(message);
-                    responseData = sourceToXmlString(result.getSOAPPart().getContent());
-                    responseStatusMessage = "Invoked two way operation successfully.";
-                    validateResponse = webServiceDispatcherProperties.getDestinationConnectorProperties().isValidateResponse();
-                }
-                logger.debug("Finished invoking web service, got result.");
+            boolean redirect = false;
+            int tryCount = 0;
 
-                // Automatically accept message; leave it up to the response transformer to find SOAP faults
-                responseStatus = Status.SENT;
-            } catch (Exception e) {
-                // Leave the response status as QUEUED for ConnectException, otherwise ERROR
-                if ((e.getClass() == ConnectException.class) || ((e.getCause() != null) && (e.getCause().getClass() == ConnectException.class))) {
-                    responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Connection refused.", e);
-                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Connection refused.", e));
-                } else {
-                    responseStatus = Status.ERROR;
-                    responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error invoking web service", e);
-                    responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error invoking web service", e);
-                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error invoking web service.", e));
+            /*
+             * Attempt the invocation until we hit the maximum allowed redirects. The redirections
+             * we handle are when the scheme changes (i.e. from HTTP to HTTPS).
+             */
+            do {
+                redirect = false;
+                tryCount++;
+
+                try {
+                    // Make the call
+                    if (webServiceDispatcherProperties.isOneWay()) {
+                        logger.debug("Invoking one way service...");
+                        dispatch.invokeOneWay(message);
+                        responseStatusMessage = "Invoked one way operation successfully.";
+                    } else {
+                        logger.debug("Invoking web service...");
+                        SOAPMessage result = dispatch.invoke(message);
+                        responseData = sourceToXmlString(result.getSOAPPart().getContent());
+                        responseStatusMessage = "Invoked two way operation successfully.";
+                    }
+                    logger.debug("Finished invoking web service, got result.");
+
+                    // Automatically accept message; leave it up to the response transformer to find SOAP faults
+                    responseStatus = Status.SENT;
+                } catch (Exception e) {
+                    Integer responseCode = (Integer) dispatch.getResponseContext().get(MessageContext.HTTP_RESPONSE_CODE);
+
+                    String location = null;
+                    Map<String, List<String>> headers = (Map<String, List<String>>) dispatch.getResponseContext().get(MessageContext.HTTP_RESPONSE_HEADERS);
+                    if (MapUtils.isNotEmpty(headers)) {
+                        List<String> locations = headers.get("Location");
+                        if (CollectionUtils.isNotEmpty(locations)) {
+                            location = locations.get(0);
+                        }
+                    }
+
+                    if (tryCount < MAX_REDIRECTS && responseCode != null && responseCode >= 300 && responseCode < 400 && StringUtils.isNotBlank(location)) {
+                        redirect = true;
+
+                        // Replace the endpoint with the redirected URL
+                        dispatch.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, location);
+                    } else {
+                        // Leave the response status as QUEUED for ConnectException, otherwise ERROR
+                        if ((e.getClass() == ConnectException.class) || ((e.getCause() != null) && (e.getCause().getClass() == ConnectException.class))) {
+                            responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Connection refused.", e);
+                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Connection refused.", e));
+                        } else {
+                            responseStatus = Status.ERROR;
+                            responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error invoking web service", e);
+                            responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error invoking web service", e);
+                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error invoking web service.", e));
+                        }
+                    }
                 }
-            }
+            } while (redirect && tryCount < MAX_REDIRECTS);
         } catch (Exception e) {
             // Set the response status to ERROR if it failed to create the dispatch
             responseStatus = Status.ERROR;
