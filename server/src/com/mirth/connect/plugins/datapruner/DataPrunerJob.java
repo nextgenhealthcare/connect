@@ -16,6 +16,10 @@ import org.quartz.JobExecutionException;
 public class DataPrunerJob implements Job {
     @Override
     public void execute(JobExecutionContext arg0) throws JobExecutionException {
-        DataPrunerService.pruner.start();
+        try {
+            DataPrunerController.getInstance().startPruner();
+        } catch (DataPrunerException e) {
+            throw new JobExecutionException(e);
+        }
     }
 }
