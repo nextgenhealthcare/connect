@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
@@ -121,7 +122,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 break;
 
             case MessageBrowser.ORIGINAL_ID_COLUMN: // Original ID:
-                renderer = new MessageBrowserNumberCellRenderer();
+                renderer = new MessageBrowserTextCellRenderer(SwingConstants.RIGHT);
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
                 column.setPreferredWidth(90);
@@ -129,7 +130,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 break;
 
             case MessageBrowser.IMPORT_ID_COLUMN: // Import ID:
-                renderer = new MessageBrowserNumberCellRenderer();
+                renderer = new MessageBrowserTextCellRenderer(SwingConstants.RIGHT);
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
                 column.setPreferredWidth(90);
@@ -185,9 +186,18 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
 
         column.setCellRenderer(new MessageBrowserItalicCellRenderer(renderer));
     }
-    
+
     private class MessageBrowserNumberCellRenderer extends NumberCellRenderer {
-        
+        private int alignment;
+
+        public MessageBrowserNumberCellRenderer() {
+            this(RIGHT);
+        }
+
+        public MessageBrowserNumberCellRenderer(int alignment) {
+            this.alignment = alignment;
+        }
+
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -196,14 +206,24 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 label.setHorizontalAlignment(CENTER);
                 label.setText("--");
             } else {
-                label.setHorizontalAlignment(RIGHT);
+                label.setHorizontalAlignment(alignment);
             }
 
             return label;
         }
     }
-    
+
     private class MessageBrowserTextCellRenderer extends DefaultTableCellRenderer {
+        private int alignment;
+
+        public MessageBrowserTextCellRenderer() {
+            this(LEFT);
+        }
+
+        public MessageBrowserTextCellRenderer(int alignment) {
+            this.alignment = alignment;
+        }
+
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -212,7 +232,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 label.setHorizontalAlignment(CENTER);
                 label.setText("--");
             } else {
-                label.setHorizontalAlignment(LEFT);
+                label.setHorizontalAlignment(alignment);
             }
 
             return label;
