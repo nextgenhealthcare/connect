@@ -94,6 +94,10 @@ public class JavaScriptReceiver extends PollConnector {
             result = JavaScriptUtil.execute(new JavaScriptReceiverTask());
 
             for (RawMessage rawMessage : convertJavaScriptResult(result)) {
+                if (isTerminated()) {
+                    return;
+                }
+
                 if (isProcessBatch()) {
                     if (rawMessage.isBinary()) {
                         throw new BatchMessageException("Batch processing is not supported for binary data in channel " + getChannelId());
