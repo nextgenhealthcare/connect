@@ -28,6 +28,10 @@ import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
+import javax.wsdl.extensions.http.HTTPAddress;
+import javax.wsdl.extensions.http.HTTPOperation;
+import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.extensions.soap12.SOAP12Address;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.collections.MapUtils;
@@ -46,6 +50,8 @@ import com.eviware.soapui.impl.wsdl.support.wsdl.UrlWsdlLoader;
 import com.eviware.soapui.impl.wsdl.support.wsdl.WsdlLoader;
 import com.eviware.soapui.model.settings.Settings;
 import com.mirth.connect.connectors.ConnectorService;
+import com.mirth.connect.connectors.ws.DefinitionServiceMap.DefinitionPortMap;
+import com.mirth.connect.connectors.ws.DefinitionServiceMap.PortInformation;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class WebServiceConnectorService implements ConnectorService {
@@ -53,7 +59,7 @@ public class WebServiceConnectorService implements ConnectorService {
      * These nested maps fan out from the WSDL URL, to the service QName, to the port QName, to
      * either a list of operation names or a WsdlInterface object.
      */
-    private static Map<String, Map<String, Map<String, List<String>>>> definitionCache = new HashMap<String, Map<String, Map<String, List<String>>>>();
+    private static Map<String, DefinitionServiceMap> definitionCache = new HashMap<String, DefinitionServiceMap>();
     private static Map<String, Map<String, Map<String, WsdlInterface>>> wsdlInterfaceCache = new HashMap<String, Map<String, Map<String, WsdlInterface>>>();
     private static ExecutorService executor = Executors.newCachedThreadPool();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
@@ -75,7 +81,7 @@ public class WebServiceConnectorService implements ConnectorService {
         } else if (method.equals(IS_WSDL_CACHED)) {
             return definitionCache.get(wsdlUrl) != null;
         } else if (method.equals(GET_DEFINITION)) {
-            Map<String, Map<String, List<String>>> definition = definitionCache.get(wsdlUrl);
+            DefinitionServiceMap definition = definitionCache.get(wsdlUrl);
             if (definition == null) {
                 throw new Exception("WSDL not cached for URL: " + wsdlUrl);
             }
@@ -156,14 +162,14 @@ public class WebServiceConnectorService implements ConnectorService {
     public void cacheWsdlInterfaces(String wsdlUrl, WsdlInterface[] wsdlInterfaces) throws Exception {
         if (ArrayUtils.isNotEmpty(wsdlInterfaces)) {
             Definition definition = wsdlInterfaces[0].getWsdlContext().getDefinition();
-            Map<String, Map<String, List<String>>> definitionServiceMap = new LinkedHashMap<String, Map<String, List<String>>>();
+            DefinitionServiceMap definitionServiceMap = new DefinitionServiceMap();
             Map<String, Map<String, WsdlInterface>> wsdlInterfaceServiceMap = new LinkedHashMap<String, Map<String, WsdlInterface>>();
 
             if (MapUtils.isNotEmpty(definition.getServices())) {
                 for (Object serviceObject : definition.getServices().values()) {
                     Service service = (Service) serviceObject;
                     logger.debug("Service: " + service.getQName().toString());
-                    Map<String, List<String>> definitionPortMap = new LinkedHashMap<String, List<String>>();
+                    DefinitionPortMap definitionPortMap = new DefinitionPortMap();
                     Map<String, WsdlInterface> wsdlInterfacePortMap = new LinkedHashMap<String, WsdlInterface>();
 
                     if (MapUtils.isNotEmpty(service.getPorts())) {
@@ -171,6 +177,19 @@ public class WebServiceConnectorService implements ConnectorService {
                             Port port = (Port) portObject;
                             String portQName = new QName(service.getQName().getNamespaceURI(), port.getName()).toString();
                             logger.debug("    Port: " + portQName);
+
+                            String locationURI = null;
+                            for (Object element : port.getExtensibilityElements()) {
+                                if (element instanceof SOAPAddress) {
+                                    locationURI = ((SOAPAddress) element).getLocationURI();
+                                } else if (element instanceof SOAP12Address) {
+                                    locationURI = ((SOAP12Address) element).getLocationURI();
+                                } else if (element instanceof HTTPAddress) {
+                                    locationURI = ((HTTPAddress) element).getLocationURI();
+                                } else if (element instanceof HTTPOperation) {
+                                    locationURI = ((HTTPOperation) element).getLocationURI();
+                                }
+                            }
 
                             List<String> operations = new ArrayList<String>();
                             for (Object bindingOperation : port.getBinding().getBindingOperations()) {
@@ -187,13 +206,13 @@ public class WebServiceConnectorService implements ConnectorService {
                             }
                             logger.debug("        Interface: " + bindingInterface);
                             if (bindingInterface != null) {
-                                definitionPortMap.put(portQName, operations);
+                                definitionPortMap.getMap().put(portQName, new PortInformation(operations, locationURI));
                                 wsdlInterfacePortMap.put(portQName, bindingInterface);
                             }
                         }
                     }
 
-                    definitionServiceMap.put(service.getQName().toString(), definitionPortMap);
+                    definitionServiceMap.getMap().put(service.getQName().toString(), definitionPortMap);
                     wsdlInterfaceServiceMap.put(service.getQName().toString(), wsdlInterfacePortMap);
                 }
             }

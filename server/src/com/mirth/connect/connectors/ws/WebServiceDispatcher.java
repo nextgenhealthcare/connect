@@ -270,6 +270,7 @@ public class WebServiceDispatcher extends DestinationConnector {
         webServiceDispatcherProperties.setPassword(replacer.replaceValues(webServiceDispatcherProperties.getPassword(), connectorMessage));
         webServiceDispatcherProperties.setService(replacer.replaceValues(webServiceDispatcherProperties.getService(), connectorMessage));
         webServiceDispatcherProperties.setPort(replacer.replaceValues(webServiceDispatcherProperties.getPort(), connectorMessage));
+        webServiceDispatcherProperties.setLocationURI(replacer.replaceValues(webServiceDispatcherProperties.getLocationURI(), connectorMessage));
 
         webServiceDispatcherProperties.setSoapAction(replacer.replaceValues(webServiceDispatcherProperties.getSoapAction(), connectorMessage));
         webServiceDispatcherProperties.setEnvelope(replacer.replaceValues(webServiceDispatcherProperties.getEnvelope(), connectorMessage));
@@ -357,6 +358,10 @@ public class WebServiceDispatcher extends DestinationConnector {
             }
 
             message.saveChanges();
+
+            if (StringUtils.isNotBlank(webServiceDispatcherProperties.getLocationURI())) {
+                dispatch.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, webServiceDispatcherProperties.getLocationURI());
+            }
 
             boolean redirect = false;
             int tryCount = 0;

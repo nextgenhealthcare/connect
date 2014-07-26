@@ -35,8 +35,9 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="locationURILabel" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="soapActionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -68,29 +69,35 @@
                   <Component id="soapEnvelope" pref="425" max="32767" attributes="2"/>
                   <Component id="soapActionField" alignment="0" pref="425" max="32767" attributes="2"/>
                   <Component id="serviceComboBox" alignment="0" max="32767" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="authenticationYesRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="authenticationNoRadio" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
-                  <Component id="passwordField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="operationComboBox" min="-2" pref="186" max="-2" attributes="1"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="generateEnvelope" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="invocationTwoWayRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="invocationOneWayRadio" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="useMtomYesRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="useMtomNoRadio" min="-2" max="-2" attributes="0"/>
-                  </Group>
                   <Component id="portComboBox" alignment="0" max="32767" attributes="0"/>
+                  <Component id="locationURIComboBox" alignment="0" pref="425" max="32767" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
+                          <Component id="passwordField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="authenticationYesRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="authenticationNoRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="invocationTwoWayRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="invocationOneWayRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="operationComboBox" min="-2" pref="186" max="-2" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="generateEnvelope" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="useMtomYesRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="useMtomNoRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -109,12 +116,17 @@
                   <Component id="serviceLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="serviceComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="portLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="portComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="locationURILabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="locationURIComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="authenticationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -122,13 +134,13 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="usernameField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="usernameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -144,13 +156,13 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="soapActionField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="soapActionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="soapActionField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-                  <Component id="soapEnvelope" pref="119" max="32767" attributes="0"/>
+                  <Component id="soapEnvelope" pref="35" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -160,13 +172,13 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="attachmentsLabel" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <Component id="newButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="attachmentsPane" alignment="0" min="-2" pref="90" max="-2" attributes="0"/>
+                  <Component id="attachmentsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="attachmentsPane" min="-2" pref="92" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
@@ -456,6 +468,19 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="portComboBoxActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="locationURILabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Location URI:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthEditableComboBox" name="locationURIComboBox">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="de" green="de" red="de" type="rgb"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The dispatch location for the port / endpoint defined above.&lt;br/&gt;This field is filled in automatically when the Get Operations&lt;br/&gt;button is clicked and does not usually need to be changed.&lt;/html&gt;"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

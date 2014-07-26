@@ -10,18 +10,22 @@
 package com.mirth.connect.connectors.ws;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
+import com.mirth.connect.connectors.ws.DefinitionServiceMap.DefinitionPortMap;
+import com.mirth.connect.connectors.ws.DefinitionServiceMap.PortInformation;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
+import com.mirth.connect.donkey.util.xstream.SerializerException;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class WebServiceDispatcherProperties extends ConnectorProperties implements DestinationConnectorPropertiesInterface {
 
@@ -31,6 +35,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     private String service;
     private String port;
     private String operation;
+    private String locationURI;
     private boolean useAuthentication;
     private String username;
     private String password;
@@ -41,7 +46,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     private List<String> attachmentContents;
     private List<String> attachmentTypes;
     private String soapAction;
-    private Map<String, Map<String, List<String>>> wsdlDefinitionMap;
+    private DefinitionServiceMap wsdlDefinitionMap;
 
     public static final String WEBSERVICE_DEFAULT_DROPDOWN = "Press Get Operations";
 
@@ -50,9 +55,10 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
 
         this.wsdlUrl = "";
         this.operation = WEBSERVICE_DEFAULT_DROPDOWN;
-        this.wsdlDefinitionMap = new HashMap<String, Map<String, List<String>>>();
+        this.wsdlDefinitionMap = new DefinitionServiceMap();
         this.service = "";
         this.port = "";
+        this.locationURI = "";
         this.useAuthentication = false;
         this.username = "";
         this.password = "";
@@ -74,6 +80,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         wsdlDefinitionMap = props.getWsdlDefinitionMap();
         service = props.getService();
         port = props.getPort();
+        locationURI = props.getLocationURI();
         useAuthentication = props.isUseAuthentication();
         username = props.getUsername();
         password = props.getPassword();
@@ -108,6 +115,14 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
 
     public void setPort(String port) {
         this.port = port;
+    }
+
+    public String getLocationURI() {
+        return locationURI;
+    }
+
+    public void setLocationURI(String locationURI) {
+        this.locationURI = locationURI;
     }
 
     public String getOperation() {
@@ -198,11 +213,11 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         this.soapAction = soapAction;
     }
 
-    public Map<String, Map<String, List<String>>> getWsdlDefinitionMap() {
+    public DefinitionServiceMap getWsdlDefinitionMap() {
         return wsdlDefinitionMap;
     }
 
-    public void setWsdlDefinitionMap(Map<String, Map<String, List<String>>> wsdlDefinitionMap) {
+    public void setWsdlDefinitionMap(DefinitionServiceMap wsdlDefinitionMap) {
         this.wsdlDefinitionMap = wsdlDefinitionMap;
     }
 
@@ -221,7 +236,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         StringBuilder builder = new StringBuilder();
         String newLine = "\n";
 
-        builder.append("URL: ");
+        builder.append("WSDL URL: ");
         builder.append(wsdlUrl);
         builder.append(newLine);
 
@@ -240,6 +255,12 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         if (StringUtils.isNotBlank(port)) {
             builder.append("PORT / ENDPOINT: ");
             builder.append(port);
+            builder.append(newLine);
+        }
+
+        if (StringUtils.isNotBlank(locationURI)) {
+            builder.append("LOCATION URI: ");
+            builder.append(locationURI);
             builder.append(newLine);
         }
 
@@ -294,7 +315,34 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        element.removeChild("wsdlCacheId");
+        element.addChildElement("locationURI", "");
+
+        DonkeyElement operations = element.removeChild("wsdlOperations");
+        String service = element.getChildElement("service").getTextContent();
+        String port = element.getChildElement("port").getTextContent();
+
+        if (StringUtils.isNotBlank(service) && StringUtils.isNotBlank(port)) {
+            DefinitionServiceMap wsdlDefinitionMap = new DefinitionServiceMap();
+            DefinitionPortMap portMap = new DefinitionPortMap();
+            List<String> operationList = new ArrayList<String>();
+
+            for (DonkeyElement operation : operations.getChildElements()) {
+                operationList.add(operation.getTextContent());
+            }
+
+            portMap.getMap().put(port, new PortInformation(operationList));
+            wsdlDefinitionMap.getMap().put(service, portMap);
+
+            try {
+                DonkeyElement definitionMapElement = element.addChildElementFromXml(ObjectXMLSerializer.getInstance().serialize(wsdlDefinitionMap));
+                definitionMapElement.setNodeName("wsdlDefinitionMap");
+            } catch (DonkeyElementException e) {
+                throw new SerializerException("Failed to migrate Web Service Sender operation list.");
+            }
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
@@ -306,7 +354,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         purgedProperties.put("useMtom", useMtom);
         purgedProperties.put("attachmentNamesCount", attachmentNames.size());
         purgedProperties.put("attachmentContentCount", attachmentContents.size());
-        purgedProperties.put("wsdlDefinitionMapCount", wsdlDefinitionMap.size());
+        purgedProperties.put("wsdlDefinitionMapCount", wsdlDefinitionMap != null ? wsdlDefinitionMap.getMap().size() : 0);
         return purgedProperties;
     }
 }

@@ -355,6 +355,9 @@
 			<include name="com/mirth/connect/connectors/ws/WebServiceReceiverProperties.class" />
 			<include name="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties.class" />
 			<include name="com/mirth/connect/connectors/ws/WebServiceConnectorServiceMethods.class" />
+			<include name="com/mirth/connect/connectors/ws/DefinitionServiceMap.class" />
+			<include name="com/mirth/connect/connectors/ws/DefinitionServiceMap$DefinitionPortMap.class" />
+			<include name="com/mirth/connect/connectors/ws/DefinitionServiceMap$PortInformation.class" />
 		</jar>
 		<jar destfile="${connectors.ws}/ws-server.jar">
 			<fileset dir="${classes}">
@@ -362,6 +365,9 @@
 				<exclude name="com/mirth/connect/connectors/ws/WebServiceReceiverProperties.class" />
 				<exclude name="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties.class" />
 				<exclude name="com/mirth/connect/connectors/ws/WebServiceConnectorServiceMethods.class" />
+				<exclude name="com/mirth/connect/connectors/ws/DefinitionServiceMap.class" />
+				<exclude name="com/mirth/connect/connectors/ws/DefinitionServiceMap$DefinitionPortMap.class" />
+				<exclude name="com/mirth/connect/connectors/ws/DefinitionServiceMap$PortInformation.class" />
 			</fileset>
 		</jar>
 

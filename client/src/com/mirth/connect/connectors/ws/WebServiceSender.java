@@ -24,7 +24,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
-import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javax.swing.DefaultComboBoxModel;
@@ -36,7 +35,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -52,6 +50,8 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.connectors.http.SSLWarningPanel;
+import com.mirth.connect.connectors.ws.DefinitionServiceMap.DefinitionPortMap;
+import com.mirth.connect.connectors.ws.DefinitionServiceMap.PortInformation;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
@@ -69,7 +69,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     private final String MIME_TYPE_COLUMN_NAME = "MIME Type";
     ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private Frame parent;
-    private Map<String, Map<String, List<String>>> currentServiceMap;
+    private DefinitionServiceMap currentServiceMap;
     private SSLWarningPanel sslWarningPanel;
 
     public WebServiceSender() {
@@ -103,6 +103,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         properties.setWsdlUrl(wsdlUrlField.getText());
         properties.setService(StringUtils.trimToEmpty((String) serviceComboBox.getSelectedItem()));
         properties.setPort(StringUtils.trimToEmpty((String) portComboBox.getSelectedItem()));
+        properties.setLocationURI(StringUtils.trimToEmpty((String) locationURIComboBox.getSelectedItem()));
         properties.setSoapAction(soapActionField.getText());
 
         properties.setOneWay(invocationOneWayRadio.isSelected());
@@ -169,6 +170,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
         serviceComboBox.setSelectedItem(props.getService());
         portComboBox.setSelectedItem(props.getPort());
+        locationURIComboBox.setSelectedItem(props.getLocationURI());
         operationComboBox.setSelectedItem(props.getOperation());
         generateEnvelope.setEnabled(!isDefaultOperations());
 
@@ -271,11 +273,11 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             invokeConnectorService(GET_DEFINITION, "Retrieving cached WSDL definition map...", "There was an error retriving the cached WSDL definition map.\n\n");
         } else if (method.equals(GET_DEFINITION)) {
             if (response != null) {
-                currentServiceMap = (Map<String, Map<String, List<String>>>) response;
+                currentServiceMap = (DefinitionServiceMap) response;
                 loadServiceMap();
 
-                if (MapUtils.isNotEmpty(currentServiceMap)) {
-                    serviceComboBox.setSelectedItem(currentServiceMap.keySet().iterator().next());
+                if (currentServiceMap != null) {
+                    serviceComboBox.setSelectedItem(currentServiceMap.getMap().keySet().iterator().next());
                 }
 
                 parent.setSaveEnabled(true);
@@ -310,10 +312,11 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         // First reset the service/port/operation
         serviceComboBox.setModel(new DefaultComboBoxModel());
         portComboBox.setModel(new DefaultComboBoxModel());
+        locationURIComboBox.setModel(new DefaultComboBoxModel());
         operationComboBox.setModel(new DefaultComboBoxModel(new String[] { WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN }));
 
-        if (MapUtils.isNotEmpty(currentServiceMap)) {
-            serviceComboBox.setModel(new DefaultComboBoxModel(currentServiceMap.keySet().toArray()));
+        if (currentServiceMap != null) {
+            serviceComboBox.setModel(new DefaultComboBoxModel(currentServiceMap.getMap().keySet().toArray()));
         }
     }
 
@@ -575,6 +578,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         soapActionLabel = new javax.swing.JLabel();
         serviceComboBox = new com.mirth.connect.client.ui.components.MirthEditableComboBox();
         portComboBox = new com.mirth.connect.client.ui.components.MirthEditableComboBox();
+        locationURILabel = new javax.swing.JLabel();
+        locationURIComboBox = new com.mirth.connect.client.ui.components.MirthEditableComboBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -738,25 +743,31 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             }
         });
 
+        locationURILabel.setText("Location URI:");
+
+        locationURIComboBox.setBackground(new java.awt.Color(222, 222, 222));
+        locationURIComboBox.setToolTipText("<html>The dispatch location for the port / endpoint defined above.<br/>This field is filled in automatically when the Get Operations<br/>button is clicked and does not usually need to be changed.</html>");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(authenticationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(soapActionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(attachmentsLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(useMtomLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(portLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(serviceLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(invocationTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(wsdlUrlLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(locationURILabel)
+                    .addComponent(authenticationLabel)
+                    .addComponent(soapActionLabel)
+                    .addComponent(attachmentsLabel)
+                    .addComponent(jLabel4)
+                    .addComponent(useMtomLabel)
+                    .addComponent(portLabel)
+                    .addComponent(usernameLabel)
+                    .addComponent(jLabel1)
+                    .addComponent(serviceLabel)
+                    .addComponent(passwordLabel)
+                    .addComponent(invocationTypeLabel)
+                    .addComponent(wsdlUrlLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -772,25 +783,29 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                     .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
                     .addComponent(soapActionField, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
                     .addComponent(serviceComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(portComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(locationURIComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(authenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(operationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(generateEnvelope))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(invocationTwoWayRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(invocationOneWayRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(useMtomYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(useMtomNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(portComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(authenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(invocationTwoWayRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(invocationOneWayRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(operationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(generateEnvelope))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(useMtomYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(useMtomNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -808,19 +823,23 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(portLabel)
                     .addComponent(portComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(6, 6, 6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(locationURILabel)
+                    .addComponent(locationURIComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(authenticationLabel)
                     .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(authenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(usernameLabel))
+                    .addComponent(usernameLabel)
+                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(passwordLabel))
+                    .addComponent(passwordLabel)
+                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(invocationTypeLabel)
@@ -833,12 +852,12 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                     .addComponent(generateEnvelope))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(soapActionField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(soapActionLabel))
+                    .addComponent(soapActionLabel)
+                    .addComponent(soapActionField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4)
-                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE))
+                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(useMtomLabel)
@@ -846,12 +865,12 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                     .addComponent(useMtomNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(attachmentsLabel)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(newButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(deleteButton))
-                    .addComponent(attachmentsPane, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(attachmentsLabel)
+                    .addComponent(attachmentsPane, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -898,6 +917,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         }
 
         // Reset all of the fields
+        currentServiceMap = null;
         serviceComboBox.setModel(new DefaultComboBoxModel());
         portComboBox.setModel(new DefaultComboBoxModel());
         operationComboBox.setModel(new DefaultComboBoxModel(new String[] { WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN }));
@@ -965,10 +985,10 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         String selectedPort = (String) portComboBox.getSelectedItem();
 
         if (currentServiceMap != null) {
-            Map<String, List<String>> portMap = currentServiceMap.get((String) serviceComboBox.getSelectedItem());
+            DefinitionPortMap portMap = currentServiceMap.getMap().get((String) serviceComboBox.getSelectedItem());
 
-            if (MapUtils.isNotEmpty(portMap)) {
-                portComboBox.setModel(new DefaultComboBoxModel(portMap.keySet().toArray()));
+            if (portMap != null) {
+                portComboBox.setModel(new DefaultComboBoxModel(portMap.getMap().keySet().toArray()));
             } else {
                 portComboBox.setModel(new DefaultComboBoxModel());
             }
@@ -983,24 +1003,42 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
     private void portComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_portComboBoxActionPerformed
         if (currentServiceMap != null) {
-            Map<String, List<String>> portMap = currentServiceMap.get((String) serviceComboBox.getSelectedItem());
+            DefinitionPortMap portMap = currentServiceMap.getMap().get((String) serviceComboBox.getSelectedItem());
 
-            if (MapUtils.isNotEmpty(portMap)) {
-                List<String> operationList = portMap.get((String) portComboBox.getSelectedItem());
-                String selectedOperation = (String) operationComboBox.getSelectedItem();
+            if (portMap != null) {
+                PortInformation portInformation = portMap.getMap().get((String) portComboBox.getSelectedItem());
+                String selectedLocationURI = (String) locationURIComboBox.getSelectedItem();
 
-                if (CollectionUtils.isNotEmpty(operationList)) {
-                    operationComboBox.setModel(new DefaultComboBoxModel(operationList.toArray()));
+                if (portInformation != null) {
+                    List<String> operationList = portInformation.getOperations();
 
-                    if (operationList.contains(selectedOperation)) {
-                        operationComboBox.setSelectedItem(selectedOperation);
+                    if (CollectionUtils.isNotEmpty(operationList)) {
+                        String selectedOperation = (String) operationComboBox.getSelectedItem();
+                        operationComboBox.setModel(new DefaultComboBoxModel(operationList.toArray()));
+
+                        if (operationList.contains(selectedOperation)) {
+                            operationComboBox.setSelectedItem(selectedOperation);
+                        } else {
+                            operationComboBox.setSelectedIndex(0);
+                        }
+
+                        generateEnvelope.setEnabled(!isDefaultOperations());
                     } else {
-                        operationComboBox.setSelectedIndex(0);
+                        operationComboBox.setModel(new DefaultComboBoxModel());
                     }
 
-                    generateEnvelope.setEnabled(!isDefaultOperations());
+                    if (StringUtils.isNotBlank(portInformation.getLocationURI())) {
+                        locationURIComboBox.setModel(new DefaultComboBoxModel(new String[] { portInformation.getLocationURI() }));
+                    } else {
+                        locationURIComboBox.setModel(new DefaultComboBoxModel());
+                    }
                 } else {
+                    locationURIComboBox.setModel(new DefaultComboBoxModel());
                     operationComboBox.setModel(new DefaultComboBoxModel());
+                }
+
+                if (StringUtils.isNotBlank(selectedLocationURI)) {
+                    locationURIComboBox.setSelectedItem(selectedLocationURI);
                 }
             }
         }
@@ -1023,6 +1061,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     private javax.swing.JLabel invocationTypeLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
+    private com.mirth.connect.client.ui.components.MirthEditableComboBox locationURIComboBox;
+    private javax.swing.JLabel locationURILabel;
     private javax.swing.JButton newButton;
     private com.mirth.connect.client.ui.components.MirthComboBox operationComboBox;
     private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
