@@ -14,12 +14,18 @@ public class ConnectionTestResponse {
         SUCCESS, TIME_OUT, FAILURE
     }
 
-    private String message;
     private Type type;
+    private String message;
+    private String connectionInfo;
 
     public ConnectionTestResponse(Type type, String message) {
+        this(type, message, null);
+    }
+
+    public ConnectionTestResponse(Type type, String message, String connectionInfo) {
         this.type = type;
         this.message = message;
+        this.connectionInfo = connectionInfo;
     }
 
     public Type getType() {
@@ -38,4 +44,11 @@ public class ConnectionTestResponse {
         this.message = message;
     }
 
+    public String getConnectionInfo() {
+        return connectionInfo;
+    }
+
+    public void setConnectionInfo(String connectionInfo) {
+        this.connectionInfo = connectionInfo;
+    }
 }

@@ -61,7 +61,8 @@ public class ConnectorUtil {
             }
 
             socket.connect(address, timeout);
-            return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to host: " + socket.getLocalAddress().getHostAddress() + ":" + socket.getLocalPort() + " -> " + address.getAddress().getHostAddress() + ":" + address.getPort());
+            String connectionInfo = socket.getLocalAddress().getHostAddress() + ":" + socket.getLocalPort() + " -> " + address.getAddress().getHostAddress() + ":" + address.getPort();
+            return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to host: " + connectionInfo, connectionInfo);
         } catch (SocketTimeoutException ste) {
             return new ConnectionTestResponse(ConnectionTestResponse.Type.TIME_OUT, "Timed out connecting to host: " + address.getAddress().getHostAddress() + ":" + address.getPort());
         } catch (Exception e) {
