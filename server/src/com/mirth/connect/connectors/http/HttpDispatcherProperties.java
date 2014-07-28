@@ -16,8 +16,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
@@ -336,7 +336,19 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        boolean responseXmlBody = Boolean.parseBoolean(element.removeChild("includeHeadersInResponse").getTextContent());
+        element.addChildElement("responseXmlBody", Boolean.toString(responseXmlBody));
+        element.addChildElement("responseParseMultipart", Boolean.toString(!responseXmlBody));
+        element.addChildElement("responseIncludeMetadata", Boolean.toString(responseXmlBody));
+
+        element.addChildElement("useProxyServer", "false");
+        element.addChildElement("proxyAddress", "");
+        element.addChildElement("proxyPort", "");
+
+        boolean useAuthentication = Boolean.parseBoolean(element.getChildElement("useAuthentication").getTextContent());
+        element.addChildElement("usePreemptiveAuthentication", Boolean.toString(useAuthentication));
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {

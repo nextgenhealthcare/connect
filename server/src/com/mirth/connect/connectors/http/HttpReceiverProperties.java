@@ -177,7 +177,14 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        boolean xmlBody = !Boolean.parseBoolean(element.removeChild("bodyOnly").getTextContent());
+        element.addChildElement("xmlBody", Boolean.toString(xmlBody));
+        element.addChildElement("parseMultipart", Boolean.toString(!xmlBody));
+        element.addChildElement("includeMetadata", Boolean.toString(xmlBody));
+
+        element.addChildElement("staticResources");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
