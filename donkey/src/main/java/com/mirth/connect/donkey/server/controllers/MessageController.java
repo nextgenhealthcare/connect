@@ -76,15 +76,14 @@ public class MessageController {
     }
 
     public boolean isMessageCompleted(Map<Integer, ConnectorMessage> connectorMessages) {
-        if (connectorMessages.size() == 0 || (connectorMessages.size() == 1 && connectorMessages.containsKey(0))) {
+        if (connectorMessages.size() == 0) {
             return false;
         }
 
         for (Entry<Integer, ConnectorMessage> connectorMessageEntry : connectorMessages.entrySet()) {
-            Integer metaDataId = connectorMessageEntry.getKey();
             ConnectorMessage connectorMessage = connectorMessageEntry.getValue();
 
-            if (metaDataId != 0 && !connectorMessage.getStatus().isCompleted()) {
+            if (!connectorMessage.getStatus().isCompleted()) {
                 return false;
             }
         }

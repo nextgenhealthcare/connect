@@ -36,7 +36,7 @@ public enum Status {
      * whether to remove content upon completion of a message.
      */
     public boolean isCompleted() {
-        return (status == SENT.getStatusCode() || status == FILTERED.getStatusCode());
+        return (status == SENT.getStatusCode() || status == FILTERED.getStatusCode() || status == TRANSFORMED.getStatusCode());
     }
 
     /**
