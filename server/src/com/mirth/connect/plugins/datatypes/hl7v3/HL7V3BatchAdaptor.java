@@ -7,14 +7,12 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.plugins.datatypes.hl7v2;
+package com.mirth.connect.plugins.datatypes.hl7v3;
 
 import java.io.BufferedReader;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -28,7 +26,7 @@ import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageSource;
-import com.mirth.connect.plugins.datatypes.hl7v2.HL7v2BatchProperties.SplitType;
+import com.mirth.connect.plugins.datatypes.hl7v3.HL7V3BatchProperties.SplitType;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
@@ -36,53 +34,26 @@ import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 
-public class ER7BatchAdaptor extends BatchAdaptor {
+public class HL7V3BatchAdaptor extends BatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());
 
-    private HL7v2BatchProperties batchProperties;
-    private Pattern lineBreakPattern;
-    private String segmentDelimiter;
+    private HL7V3BatchProperties batchProperties;
     private BufferedReader bufferedReader;
 
-    private Scanner scanner;
-    private String previousLine;
-
-    public ER7BatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
+    public HL7V3BatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
         super(sourceConnector, batchMessageSource);
     }
 
-    public HL7v2BatchProperties getBatchProperties() {
+    public HL7V3BatchProperties getBatchProperties() {
         return batchProperties;
     }
 
-    public void setBatchProperties(HL7v2BatchProperties batchProperties) {
+    public void setBatchProperties(HL7V3BatchProperties batchProperties) {
         this.batchProperties = batchProperties;
     }
 
-    public Pattern getLineBreakPattern() {
-        return lineBreakPattern;
-    }
-
-    public void setLineBreakPattern(Pattern lineBreakPattern) {
-        this.lineBreakPattern = lineBreakPattern;
-    }
-
-    public String getSegmentDelimiter() {
-        return segmentDelimiter;
-    }
-
-    public void setSegmentDelimiter(String segmentDelimiter) {
-        this.segmentDelimiter = segmentDelimiter;
-    }
-
     @Override
-    public void cleanup() throws BatchMessageException {
-        if (scanner != null) {
-            scanner.close();
-        }
-
-        previousLine = null;
-    }
+    public void cleanup() throws BatchMessageException {}
 
     @Override
     protected String getNextMessage(int batchSequenceId) throws Exception {
@@ -90,9 +61,6 @@ public class ER7BatchAdaptor extends BatchAdaptor {
             if (batchSequenceId == 1) {
                 BatchMessageReader batchMessageReader = (BatchMessageReader) batchMessageSource;
                 bufferedReader = new BufferedReader(batchMessageReader.getReader());
-                scanner = new Scanner(batchMessageReader.getReader());
-                scanner.useDelimiter(lineBreakPattern);
-                previousLine = null;
             }
             return getMessageFromReader();
         } else if (batchMessageSource instanceof BatchMessageReceiver) {
@@ -121,56 +89,7 @@ public class ER7BatchAdaptor extends BatchAdaptor {
 
     private String getMessageFromReader() throws Exception {
         SplitType splitType = batchProperties.getSplitType();
-
-        if (splitType == SplitType.MSH_Segment) {
-            // TODO: The values of these parameters should come from the protocol
-            // properties passed to processBatch
-            // TODO: src is a character stream, not a byte stream
-            byte startOfMessage = (byte) 0x0B;
-            byte endOfMessage = (byte) 0x1C;
-
-            StringBuilder message = new StringBuilder();
-            if (StringUtils.isNotBlank(previousLine)) {
-                message.append(previousLine);
-                message.append(segmentDelimiter);
-            }
-
-            while (scanner.hasNext()) {
-                String line = StringUtils.remove(StringUtils.remove(scanner.next(), (char) startOfMessage), (char) endOfMessage).trim();
-
-                if ((line.length() == 0) || line.equals((char) endOfMessage) || line.startsWith("MSH")) {
-                    if (message.length() > 0) {
-                        previousLine = line;
-                        return message.toString();
-                    }
-
-                    while ((line.length() == 0) && scanner.hasNext()) {
-                        line = scanner.next();
-                    }
-
-                    if (line.length() > 0) {
-                        message.append(line);
-                        message.append(segmentDelimiter);
-                    }
-                } else if (line.startsWith("FHS") || line.startsWith("BHS") || line.startsWith("BTS") || line.startsWith("FTS")) {
-                    // ignore batch headers
-                } else {
-                    message.append(line);
-                    message.append(segmentDelimiter);
-                }
-            }
-
-            /*
-             * MIRTH-2058: Now that the file has been completely read, make sure to process anything
-             * remaining in the message buffer. There could have been lines read in that were not
-             * closed with an EOM.
-             */
-            if (message.length() > 0) {
-                previousLine = null;
-                return message.toString();
-            }
-
-        } else if (splitType == SplitType.JavaScript) {
+        if (splitType == SplitType.JavaScript) {
             try {
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>() {
                     @Override
@@ -199,15 +118,13 @@ public class ER7BatchAdaptor extends BatchAdaptor {
                 } else {
                     return result;
                 }
-            } catch (InterruptedException e) {
-                throw e;
             } catch (JavaScriptExecutorException e) {
                 logger.error(e.getCause());
             } catch (Throwable e) {
                 logger.error(e);
             }
         } else {
-            throw new BatchMessageException("No valid batch splitting method detected");
+            throw new BatchMessageException("No valid batch splitting method configured");
         }
 
         return null;

@@ -45,6 +45,10 @@ public abstract class BatchAdaptor {
                 return getNextMessage(++batchSequenceId);
             }
         } catch (Exception e) {
+            if (e instanceof BatchMessageException) {
+                throw (BatchMessageException) e;
+            }
+
             throw new BatchMessageException("Failed to retrieve batch message at sequence number " + batchSequenceId, e);
         }
     }

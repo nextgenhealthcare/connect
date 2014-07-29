@@ -7,20 +7,32 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.plugins.datatypes.hl7v2;
+package com.mirth.connect.plugins.datatypes.xml;
 
 import java.io.BufferedReader;
 import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.regex.Pattern;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
@@ -28,7 +40,7 @@ import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageSource;
-import com.mirth.connect.plugins.datatypes.hl7v2.HL7v2BatchProperties.SplitType;
+import com.mirth.connect.plugins.datatypes.xml.XMLBatchProperties.SplitType;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
@@ -36,53 +48,29 @@ import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 
-public class ER7BatchAdaptor extends BatchAdaptor {
+public class XMLBatchAdaptor extends BatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());
 
-    private HL7v2BatchProperties batchProperties;
-    private Pattern lineBreakPattern;
-    private String segmentDelimiter;
     private BufferedReader bufferedReader;
+    private XPathFactory factory = XPathFactory.newInstance();
+    private XMLBatchProperties batchProperties;
+    private NodeList nodeList;
+    private int currentNode = 0;
 
-    private Scanner scanner;
-    private String previousLine;
-
-    public ER7BatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
+    public XMLBatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
         super(sourceConnector, batchMessageSource);
     }
 
-    public HL7v2BatchProperties getBatchProperties() {
+    public XMLBatchProperties getBatchProperties() {
         return batchProperties;
     }
 
-    public void setBatchProperties(HL7v2BatchProperties batchProperties) {
+    public void setBatchProperties(XMLBatchProperties batchProperties) {
         this.batchProperties = batchProperties;
     }
 
-    public Pattern getLineBreakPattern() {
-        return lineBreakPattern;
-    }
-
-    public void setLineBreakPattern(Pattern lineBreakPattern) {
-        this.lineBreakPattern = lineBreakPattern;
-    }
-
-    public String getSegmentDelimiter() {
-        return segmentDelimiter;
-    }
-
-    public void setSegmentDelimiter(String segmentDelimiter) {
-        this.segmentDelimiter = segmentDelimiter;
-    }
-
     @Override
-    public void cleanup() throws BatchMessageException {
-        if (scanner != null) {
-            scanner.close();
-        }
-
-        previousLine = null;
-    }
+    public void cleanup() throws BatchMessageException {}
 
     @Override
     protected String getNextMessage(int batchSequenceId) throws Exception {
@@ -90,9 +78,6 @@ public class ER7BatchAdaptor extends BatchAdaptor {
             if (batchSequenceId == 1) {
                 BatchMessageReader batchMessageReader = (BatchMessageReader) batchMessageSource;
                 bufferedReader = new BufferedReader(batchMessageReader.getReader());
-                scanner = new Scanner(batchMessageReader.getReader());
-                scanner.useDelimiter(lineBreakPattern);
-                previousLine = null;
             }
             return getMessageFromReader();
         } else if (batchMessageSource instanceof BatchMessageReceiver) {
@@ -122,54 +107,35 @@ public class ER7BatchAdaptor extends BatchAdaptor {
     private String getMessageFromReader() throws Exception {
         SplitType splitType = batchProperties.getSplitType();
 
-        if (splitType == SplitType.MSH_Segment) {
-            // TODO: The values of these parameters should come from the protocol
-            // properties passed to processBatch
-            // TODO: src is a character stream, not a byte stream
-            byte startOfMessage = (byte) 0x0B;
-            byte endOfMessage = (byte) 0x1C;
+        if (splitType == SplitType.Element_Name || splitType == SplitType.Level || splitType == SplitType.XPath_Query) {
+            if (nodeList == null) {
+                StringBuilder query = new StringBuilder();
+                if (splitType == SplitType.Element_Name) {
+                    query.append("//*[local-name()='");
+                    query.append(batchProperties.getElementName());
+                    query.append("']");
+                } else if (splitType == SplitType.Level) {
+                    query.append("/*");
 
-            StringBuilder message = new StringBuilder();
-            if (StringUtils.isNotBlank(previousLine)) {
-                message.append(previousLine);
-                message.append(segmentDelimiter);
+                    for (int i = 0; i < batchProperties.getLevel(); i++) {
+                        query.append("/*");
+                    }
+                } else if (splitType == SplitType.XPath_Query) {
+                    query.append(batchProperties.getQuery());
+                }
+
+                XPath xpath = factory.newXPath();
+
+                nodeList = (NodeList) xpath.evaluate(query.toString(), new InputSource(bufferedReader), XPathConstants.NODESET);
             }
 
-            while (scanner.hasNext()) {
-                String line = StringUtils.remove(StringUtils.remove(scanner.next(), (char) startOfMessage), (char) endOfMessage).trim();
+            if (currentNode < nodeList.getLength()) {
+                Node node = nodeList.item(currentNode++);
 
-                if ((line.length() == 0) || line.equals((char) endOfMessage) || line.startsWith("MSH")) {
-                    if (message.length() > 0) {
-                        previousLine = line;
-                        return message.toString();
-                    }
-
-                    while ((line.length() == 0) && scanner.hasNext()) {
-                        line = scanner.next();
-                    }
-
-                    if (line.length() > 0) {
-                        message.append(line);
-                        message.append(segmentDelimiter);
-                    }
-                } else if (line.startsWith("FHS") || line.startsWith("BHS") || line.startsWith("BTS") || line.startsWith("FTS")) {
-                    // ignore batch headers
-                } else {
-                    message.append(line);
-                    message.append(segmentDelimiter);
+                if (node != null) {
+                    return toXML(node);
                 }
             }
-
-            /*
-             * MIRTH-2058: Now that the file has been completely read, make sure to process anything
-             * remaining in the message buffer. There could have been lines read in that were not
-             * closed with an EOM.
-             */
-            if (message.length() > 0) {
-                previousLine = null;
-                return message.toString();
-            }
-
         } else if (splitType == SplitType.JavaScript) {
             try {
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>() {
@@ -199,18 +165,28 @@ public class ER7BatchAdaptor extends BatchAdaptor {
                 } else {
                     return result;
                 }
-            } catch (InterruptedException e) {
-                throw e;
             } catch (JavaScriptExecutorException e) {
                 logger.error(e.getCause());
             } catch (Throwable e) {
                 logger.error(e);
             }
         } else {
-            throw new BatchMessageException("No valid batch splitting method detected");
+            throw new BatchMessageException("No valid batch splitting method configured");
         }
 
         return null;
+    }
+
+    private String toXML(Node node) throws Exception {
+        Writer writer = new StringWriter();
+
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        transformer.transform(new DOMSource(node), new StreamResult(writer));
+
+        return writer.toString();
     }
 
     private Map<String, Object> getScopeObjects(Reader in) {

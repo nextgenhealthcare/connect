@@ -28,6 +28,7 @@ import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageSource;
+import com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties.SplitType;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
@@ -115,7 +116,7 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
      * @throws IOException
      * @throws InterruptedException
      */
-    private String getMessage(final BufferedReader in, final boolean skipHeader) throws IOException, InterruptedException {
+    private String getMessage(final BufferedReader in, final boolean skipHeader) throws Exception {
         char recDelim = delimitedReader.getRecordDelimiter().charAt(0);
         int ch;
 
@@ -129,11 +130,16 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
         }
 
         StringBuilder message = new StringBuilder();
+        SplitType splitOption = batchProperties.getSplitType();
 
-        if (batchProperties.isBatchSplitByRecord()) {
+        if (splitOption == SplitType.Record) {
             // Each record is treated as a message
             delimitedReader.getRecord(in, message);
-        } else if (StringUtils.isNotEmpty(batchProperties.getBatchMessageDelimiter())) {
+        } else if (splitOption == SplitType.Delimiter) {
+            if (StringUtils.isEmpty(batchProperties.getBatchMessageDelimiter())) {
+                throw new BatchMessageException("No batch message delimiter was set.");
+            }
+
             if (batchMessageDelimiter == null) {
                 batchMessageDelimiter = StringUtil.unescape(batchProperties.getBatchMessageDelimiter());
             }
@@ -164,7 +170,11 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
                     break;
                 }
             }
-        } else if (StringUtils.isNotEmpty(batchProperties.getBatchGroupingColumn())) {
+        } else if (splitOption == SplitType.Grouping_Column) {
+            if (StringUtils.isEmpty(batchProperties.getBatchGroupingColumn())) {
+                throw new BatchMessageException("No batch grouping column was set.");
+            }
+
             // Each message is a collection of records with the same value in
             // the specified column.
             // The end of the current message occurs when a transition in the
@@ -202,7 +212,11 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
                     message.append(recordText.toString());
                 }
             }
-        } else if (StringUtils.isNotEmpty(batchProperties.getBatchScript())) {
+        } else if (splitOption == SplitType.JavaScript) {
+            if (StringUtils.isEmpty(batchProperties.getBatchGroupingColumn())) {
+                throw new BatchMessageException("No batch script was set.");
+            }
+
             try {
                 final int batchSkipRecords = batchProperties.getBatchSkipRecords();
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>() {
@@ -219,7 +233,7 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
 
                             try {
                                 Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(scriptLogger, batchScriptId, getScopeObjects(in, serializationProperties, skipHeader, batchSkipRecords));
-                                return Context.toString(executeScript(compiledScript, scope));
+                                return (String) Context.jsToJava(executeScript(compiledScript, scope), String.class);
                             } finally {
                                 Context.exit();
                             }
@@ -238,12 +252,7 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
                 logger.error(e);
             }
         } else {
-            // There is no batching method configured. Treat the entire input
-            // stream as the message.
-            logger.warn("No batch splitting method configured (processing entire input as one message)");
-            while ((ch = in.read()) != -1) {
-                message.append((char) ch);
-            }
+            throw new BatchMessageException("No valid batch splitting method configured");
         }
 
         String result = message.toString();

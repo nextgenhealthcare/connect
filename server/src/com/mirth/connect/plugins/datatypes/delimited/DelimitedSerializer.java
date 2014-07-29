@@ -32,12 +32,10 @@ public class DelimitedSerializer implements IXMLSerializer {
 
     private DelimitedSerializationProperties serializationProperties;
     private DelimitedDeserializationProperties deserializationProperties;
-    private DelimitedBatchProperties batchProperties;
 
     public DelimitedSerializer(SerializerProperties properties) {
         serializationProperties = (DelimitedSerializationProperties) properties.getSerializationProperties();
         deserializationProperties = (DelimitedDeserializationProperties) properties.getDeserializationProperties();
-        batchProperties = (DelimitedBatchProperties) properties.getBatchProperties();
     }
 
     @Override
@@ -46,7 +44,7 @@ public class DelimitedSerializer implements IXMLSerializer {
 
         //TODO Optimize which properties require serialization and which can be done via transformWithoutSerializing
         if (toXml) {
-            if (!serializationProperties.getColumnDelimiter().equals(",") || !serializationProperties.getRecordDelimiter().equals("\\n") || serializationProperties.getColumnWidths() != null || !serializationProperties.getQuoteChar().equals("\"") || !serializationProperties.isEscapeWithDoubleQuote() || !serializationProperties.getQuoteEscapeChar().equals("\\") || serializationProperties.getColumnNames() != null || serializationProperties.isNumberedRows() || !serializationProperties.isIgnoreCR() || batchProperties.getBatchSkipRecords() != 0 || !batchProperties.isBatchSplitByRecord() || !batchProperties.getBatchMessageDelimiter().equals("") || batchProperties.isBatchMessageDelimiterIncluded() || !batchProperties.getBatchGroupingColumn().equals("") || !batchProperties.getBatchScript().equals("")) {
+            if (!serializationProperties.getColumnDelimiter().equals(",") || !serializationProperties.getRecordDelimiter().equals("\\n") || serializationProperties.getColumnWidths() != null || !serializationProperties.getQuoteChar().equals("\"") || !serializationProperties.isEscapeWithDoubleQuote() || !serializationProperties.getQuoteEscapeChar().equals("\\") || serializationProperties.getColumnNames() != null || serializationProperties.isNumberedRows() || !serializationProperties.isIgnoreCR()) {
                 serializationRequired = true;
             }
         } else {

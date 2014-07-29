@@ -16,37 +16,47 @@ import com.mirth.connect.model.datatype.PropertyEditorType;
  */
 public class DataTypeNodeDescriptor {
 
-	private Object value;
+    private Object value;
     private PropertyEditorType editorType;
     private boolean multipleValues;
-    
-    public DataTypeNodeDescriptor(Object value, PropertyEditorType editorType, boolean multipleValues) {
+    private Object[] options;
+
+    public DataTypeNodeDescriptor(Object value, PropertyEditorType editorType, boolean multipleValues, Object[] options) {
         this.value = value;
         this.editorType = editorType;
         this.multipleValues = multipleValues;
+        this.options = options;
     }
 
-	public Object getValue() {
-		return value;
-	}
+    public Object getValue() {
+        return value;
+    }
 
-	public void setValue(Object value) {
-		this.value = value;
-	}
+    public void setValue(Object value) {
+        this.value = value;
+    }
 
-	public PropertyEditorType getEditorType() {
-		return editorType;
-	}
+    public PropertyEditorType getEditorType() {
+        return editorType;
+    }
 
-	public void setEditorType(PropertyEditorType editorType) {
-		this.editorType = editorType;
-	}
+    public void setEditorType(PropertyEditorType editorType) {
+        this.editorType = editorType;
+    }
 
-	public boolean isMultipleValues() {
-		return multipleValues;
-	}
+    public boolean isMultipleValues() {
+        return multipleValues;
+    }
 
-	public void setMultipleValues(boolean multipleValues) {
-		this.multipleValues = multipleValues;
-	}
+    public void setMultipleValues(boolean multipleValues) {
+        this.multipleValues = multipleValues;
+    }
+
+    public Object[] getOptions() {
+        return options;
+    }
+
+    public void setOptions(Object[] options) {
+        this.options = options;
+    }
 }

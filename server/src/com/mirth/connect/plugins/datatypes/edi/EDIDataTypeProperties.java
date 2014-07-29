@@ -19,6 +19,7 @@ public class EDIDataTypeProperties extends DataTypeProperties {
 
     public EDIDataTypeProperties() {
         serializationProperties = new EDISerializationProperties();
+        batchProperties = new EDIBatchProperties();
     }
 
     @Override
@@ -28,12 +29,20 @@ public class EDIDataTypeProperties extends DataTypeProperties {
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        DonkeyElement batchElement = element.addChildElement("batchProperties");
+
+        batchElement.setAttribute("class", "com.mirth.connect.plugins.datatypes.edi.EDIBatchProperties");
+        batchElement.setAttribute("version", element.getAttribute("version"));
+        batchElement.addChildElement("splitType", "JavaScript");
+        batchElement.addChildElement("batchScript");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("serializationProperties", serializationProperties.getPurgedProperties());
+        purgedProperties.put("batchProperties", batchProperties.getPurgedProperties());
         return purgedProperties;
     }
 }

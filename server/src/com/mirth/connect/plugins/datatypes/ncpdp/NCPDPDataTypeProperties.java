@@ -16,10 +16,11 @@ import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class NCPDPDataTypeProperties extends DataTypeProperties {
-    
+
     public NCPDPDataTypeProperties() {
         serializationProperties = new NCPDPSerializationProperties();
         deserializationProperties = new NCPDPDeserializationProperties();
+        batchProperties = new NCPDPBatchProperties();
     }
 
     @Override
@@ -29,13 +30,21 @@ public class NCPDPDataTypeProperties extends DataTypeProperties {
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        DonkeyElement batchElement = element.addChildElement("batchProperties");
+
+        batchElement.setAttribute("class", "com.mirth.connect.plugins.datatypes.ncpdp.NCPDPBatchProperties");
+        batchElement.setAttribute("version", element.getAttribute("version"));
+        batchElement.addChildElement("splitType", "JavaScript");
+        batchElement.addChildElement("batchScript");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("serializationProperties", serializationProperties.getPurgedProperties());
         purgedProperties.put("deserializationProperties", deserializationProperties.getPurgedProperties());
+        purgedProperties.put("batchProperties", batchProperties.getPurgedProperties());
         return purgedProperties;
     }
 }

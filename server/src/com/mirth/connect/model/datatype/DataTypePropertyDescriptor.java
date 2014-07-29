@@ -15,14 +15,20 @@ public class DataTypePropertyDescriptor {
     private String displayName;
     private String description;
     private PropertyEditorType editorType;
-    
+    private Object[] options;
+
     public DataTypePropertyDescriptor(Object value, String displayName, String description, PropertyEditorType editorType) {
+        this(value, displayName, description, editorType, null);
+    }
+
+    public DataTypePropertyDescriptor(Object value, String displayName, String description, PropertyEditorType editorType, Object[] options) {
         this.value = value;
         this.displayName = displayName;
         this.description = description;
         this.editorType = editorType;
+        this.setOptions(options);
     }
-    
+
     public Object getValue() {
         return value;
     }
@@ -42,6 +48,7 @@ public class DataTypePropertyDescriptor {
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }
@@ -53,18 +60,26 @@ public class DataTypePropertyDescriptor {
     public void setEditorType(PropertyEditorType editorType) {
         this.editorType = editorType;
     }
-    
+
+    public Object[] getOptions() {
+        return options;
+    }
+
+    public void setOptions(Object[] options) {
+        this.options = options;
+    }
+
     @Override
     public boolean equals(Object object) {
-    	if (object instanceof DataTypePropertyDescriptor) {
-    		DataTypePropertyDescriptor descriptor = (DataTypePropertyDescriptor) object;
-    		
-    		if (value.equals(descriptor.getValue()) && displayName.equals(descriptor.getDisplayName()) && description.equals(descriptor.getDescription()) && editorType.equals(descriptor.getEditorType())) {
-    			return true;
-    		}
-    	}
-    	
-    	return false;
+        if (object instanceof DataTypePropertyDescriptor) {
+            DataTypePropertyDescriptor descriptor = (DataTypePropertyDescriptor) object;
+
+            if (value.equals(descriptor.getValue()) && displayName.equals(descriptor.getDisplayName()) && description.equals(descriptor.getDescription()) && editorType.equals(descriptor.getEditorType())) {
+                return true;
+            }
+        }
+
+        return false;
     }
-    
+
 }

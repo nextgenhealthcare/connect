@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.plugins.datatypes.hl7v2;
+package com.mirth.connect.plugins.datatypes.ncpdp;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -19,10 +19,10 @@ import com.mirth.connect.model.datatype.BatchProperties;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 
-public class HL7v2BatchProperties extends BatchProperties {
+public class NCPDPBatchProperties extends BatchProperties {
 
     public enum SplitType {
-        MSH_Segment, JavaScript;
+        JavaScript;
 
         @Override
         public String toString() {
@@ -37,7 +37,7 @@ public class HL7v2BatchProperties extends BatchProperties {
     public Map<String, DataTypePropertyDescriptor> getPropertyDescriptors() {
         Map<String, DataTypePropertyDescriptor> properties = new LinkedHashMap<String, DataTypePropertyDescriptor>();
 
-        properties.put("splitType", new DataTypePropertyDescriptor(splitType, "Split Batch By", "Select the method for splitting the batch message.  This option has no effect unless Process Batch Files is enabled in the connector.\n\nMSH Segment: Each MSH Segment indicates the start of a new message in the batch.\n\nJavaScript: Use JavaScript to split messages.", PropertyEditorType.OPTION, SplitType.values()));
+        properties.put("splitType", new DataTypePropertyDescriptor(splitType, "Split Batch By", "Select the method for splitting the batch message.  This option has no effect unless Process Batch Files is enabled in the connector.\n\nJavaScript: Use JavaScript to split messages.", PropertyEditorType.OPTION, SplitType.values()));
         properties.put("batchScript", new DataTypePropertyDescriptor(batchScript, "JavaScript", "Enter JavaScript that splits the batch, and returns the next message.  This script has access to 'reader', a Java BufferedReader, to read the incoming data stream.  The script must return a string containing the next message, or a null/empty string to indicate end of input.  This option has no effect unless Process Batch is enabled in the connector.", PropertyEditorType.JAVASCRIPT));
 
         return properties;

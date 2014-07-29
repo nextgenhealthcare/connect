@@ -9,7 +9,10 @@
 
 package com.mirth.connect.plugins.datatypes.raw;
 
+import com.mirth.connect.donkey.server.channel.SourceConnector;
+import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 
 public class RawDataTypeServerPlugin extends DataTypeServerPlugin {
@@ -25,6 +28,11 @@ public class RawDataTypeServerPlugin extends DataTypeServerPlugin {
 
     @Override
     public void stop() {}
+
+    @Override
+    public BatchAdaptorFactory getBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties properties) {
+        return new RawBatchAdaptorFactory(sourceConnector, properties);
+    }
 
     @Override
     protected DataTypeDelegate getDataTypeDelegate() {

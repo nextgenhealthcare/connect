@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -155,6 +156,37 @@ public class Connector implements Serializable, Migratable, Purgable {
         DonkeyElement responseProperties = properties.getChildElement("responseConnectorProperties");
         if (responseProperties != null) {
             responseProperties.setNodeName("sourceConnectorProperties");
+
+            DonkeyElement transformer = element.getChildElement("transformer");
+            if (transformer != null) {
+                /*
+                 * If the connector is a file reader that is processing batch messages for the
+                 * delimited data type and there is no method of batch splitting specified, then
+                 * disable batch processing because pre 3.1.0 the entire message would have been
+                 * processed. Post 3.1.0 a method of batch splitting is always explicitly specified.
+                 */
+                if (StringUtils.equals(properties.getAttribute("class"), "com.mirth.connect.connectors.file.FileReceiverProperties")) {
+                    DonkeyElement processBatchElement = properties.getChildElement("processBatch");
+                    boolean processBatch = StringUtils.equals(processBatchElement.getTextContent(), "true");
+
+                    DonkeyElement inboundProperties = transformer.getChildElement("inboundProperties");
+                    boolean delimitedDataType = StringUtils.equals(inboundProperties.getAttribute("class"), "com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties");
+
+                    if (delimitedDataType && processBatch) {
+                        DonkeyElement batchProperties = inboundProperties.getChildElement("batchProperties");
+
+                        boolean splitByRecord = StringUtils.equalsIgnoreCase(batchProperties.getChildElement("batchSplitByRecord").getTextContent(), "true");
+                        boolean splitByDelimiter = StringUtils.isNotEmpty(batchProperties.getChildElement("batchMessageDelimiter").getTextContent());
+                        boolean splitByGroupingColumn = StringUtils.isNotEmpty(batchProperties.getChildElement("batchGroupingColumn").getTextContent());
+                        boolean splitByJavaScript = StringUtils.isNotEmpty(batchProperties.getChildElement("batchScript").getTextContent());
+
+                        // If no split method is set then disable batch processing
+                        if (!splitByRecord && !splitByDelimiter && !splitByGroupingColumn && !splitByJavaScript) {
+                            processBatchElement.setTextContent("false");
+                        }
+                    }
+                }
+            }
         }
 
         DonkeyElement queueProperties = properties.getChildElement("queueConnectorProperties");

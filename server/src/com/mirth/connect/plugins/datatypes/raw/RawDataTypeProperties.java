@@ -9,6 +9,7 @@
 
 package com.mirth.connect.plugins.datatypes.raw;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
@@ -16,7 +17,9 @@ import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class RawDataTypeProperties extends DataTypeProperties {
 
-    public RawDataTypeProperties() {}
+    public RawDataTypeProperties() {
+        batchProperties = new RawBatchProperties();
+    }
 
     @Override
     public void migrate3_0_1(DonkeyElement element) {}
@@ -25,10 +28,19 @@ public class RawDataTypeProperties extends DataTypeProperties {
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        DonkeyElement batchElement = element.addChildElement("batchProperties");
+
+        batchElement.setAttribute("class", "com.mirth.connect.plugins.datatypes.raw.RawBatchProperties");
+        batchElement.setAttribute("version", element.getAttribute("version"));
+        batchElement.addChildElement("splitType", "JavaScript");
+        batchElement.addChildElement("batchScript");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
-        return null;
+        Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("batchProperties", batchProperties.getPurgedProperties());
+        return purgedProperties;
     }
 }

@@ -7,9 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.plugins.datatypes.hl7v2;
-
-import java.util.regex.Pattern;
+package com.mirth.connect.plugins.datatypes.hl7v3;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,42 +21,22 @@ import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
-import com.mirth.connect.util.StringUtil;
 
-public class ER7BatchAdaptorFactory extends BatchAdaptorFactory {
+public class HL7V3BatchAdaptorFactory extends BatchAdaptorFactory {
 
-    private HL7v2BatchProperties batchProperties;
-    private Pattern lineBreakPattern;
-    private String segmentDelimiter;
+    private HL7V3BatchProperties batchProperties;
 
-    public ER7BatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
+    public HL7V3BatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
         super(sourceConnector);
 
-        HL7v2SerializationProperties serializationProperties = (HL7v2SerializationProperties) serializerProperties.getSerializationProperties();
-        batchProperties = (HL7v2BatchProperties) serializerProperties.getBatchProperties();
-        segmentDelimiter = StringUtil.unescape(serializationProperties.getSegmentDelimiter());
-
-        String pattern;
-        if (serializationProperties.isConvertLineBreaks()) {
-            pattern = "\r\n|\r|\n";
-
-            if (!(segmentDelimiter.equals("\r") || segmentDelimiter.equals("\n") || segmentDelimiter.equals("\r\n"))) {
-                pattern += "|" + Pattern.quote(segmentDelimiter);
-            }
-        } else {
-            pattern = Pattern.quote(segmentDelimiter);
-        }
-
-        lineBreakPattern = Pattern.compile(pattern);
+        batchProperties = (HL7V3BatchProperties) serializerProperties.getBatchProperties();
     }
 
     @Override
     public BatchAdaptor createBatchAdaptor(BatchMessageSource batchMessageSource) {
-        ER7BatchAdaptor batchAdaptor = new ER7BatchAdaptor(sourceConnector, batchMessageSource);
-
+        HL7V3BatchAdaptor batchAdaptor = new HL7V3BatchAdaptor(sourceConnector, batchMessageSource);
+        
         batchAdaptor.setBatchProperties(batchProperties);
-        batchAdaptor.setSegmentDelimiter(segmentDelimiter);
-        batchAdaptor.setLineBreakPattern(lineBreakPattern);
 
         return batchAdaptor;
     }

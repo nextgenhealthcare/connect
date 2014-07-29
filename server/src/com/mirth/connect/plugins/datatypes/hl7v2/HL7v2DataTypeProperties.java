@@ -16,7 +16,7 @@ import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class HL7v2DataTypeProperties extends DataTypeProperties {
-    
+
     public HL7v2DataTypeProperties() {
         serializationProperties = new HL7v2SerializationProperties();
         deserializationProperties = new HL7v2DeserializationProperties();
@@ -32,13 +32,21 @@ public class HL7v2DataTypeProperties extends DataTypeProperties {
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        DonkeyElement batchElement = element.addChildElement("batchProperties");
+
+        batchElement.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v2.HL7v2BatchProperties");
+        batchElement.setAttribute("version", element.getAttribute("version"));
+        batchElement.addChildElement("splitType", "MSH_Segment");
+        batchElement.addChildElement("batchScript");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("serializationProperties", serializationProperties.getPurgedProperties());
         purgedProperties.put("deserializationProperties", deserializationProperties.getPurgedProperties());
+        purgedProperties.put("batchProperties", batchProperties.getPurgedProperties());
         purgedProperties.put("responseGenerationProperties", responseGenerationProperties.getPurgedProperties());
         purgedProperties.put("responseValidationProperties", responseValidationProperties.getPurgedProperties());
         return purgedProperties;

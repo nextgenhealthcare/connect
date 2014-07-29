@@ -9,7 +9,10 @@
 
 package com.mirth.connect.plugins.datatypes.xml;
 
+import com.mirth.connect.donkey.server.channel.SourceConnector;
+import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 
 public class XMLDataTypeServerPlugin extends DataTypeServerPlugin {
@@ -25,6 +28,11 @@ public class XMLDataTypeServerPlugin extends DataTypeServerPlugin {
 
     @Override
     public void stop() {}
+
+    @Override
+    public BatchAdaptorFactory getBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties properties) {
+        return new XMLBatchAdaptorFactory(sourceConnector, properties);
+    }
 
     @Override
     protected DataTypeDelegate getDataTypeDelegate() {

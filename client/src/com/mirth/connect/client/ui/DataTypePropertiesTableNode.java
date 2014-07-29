@@ -80,7 +80,7 @@ public class DataTypePropertiesTableNode extends AbstractMutableTreeTableNode {
 
                         if (descriptor == null) {
                             // Populate the node descriptor with the data from the first node
-                            descriptor = new DataTypeNodeDescriptor(currentDescriptor.getValue(), currentDescriptor.getEditorType(), false);
+                            descriptor = new DataTypeNodeDescriptor(currentDescriptor.getValue(), currentDescriptor.getEditorType(), false, currentDescriptor.getOptions());
                         } else {
                             // If the values in the list of properties are not all the same, indicate that there are multiple values
                             if (!descriptor.getValue().equals(currentDescriptor.getValue())) {

@@ -19,6 +19,7 @@ public class XMLDataTypeProperties extends DataTypeProperties {
 
     public XMLDataTypeProperties() {
         serializationProperties = new XMLSerializationProperties();
+        batchProperties = new XMLBatchProperties();
     }
 
     @Override
@@ -28,12 +29,23 @@ public class XMLDataTypeProperties extends DataTypeProperties {
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        DonkeyElement batchElement = element.addChildElement("batchProperties");
+
+        batchElement.setAttribute("class", "com.mirth.connect.plugins.datatypes.xml.XMLBatchProperties");
+        batchElement.setAttribute("version", element.getAttribute("version"));
+        batchElement.addChildElement("splitType", "Element_Name");
+        batchElement.addChildElement("elementName");
+        batchElement.addChildElement("level", "0");
+        batchElement.addChildElement("query");
+        batchElement.addChildElement("batchScript");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("serializationProperties", serializationProperties.getPurgedProperties());
+        purgedProperties.put("batchProperties", batchProperties.getPurgedProperties());
         return purgedProperties;
     }
 }

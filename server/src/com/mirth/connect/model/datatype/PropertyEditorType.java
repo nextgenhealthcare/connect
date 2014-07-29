@@ -10,5 +10,5 @@
 package com.mirth.connect.model.datatype;
 
 public enum PropertyEditorType {
-    STRING, BOOLEAN, JAVASCRIPT
+    STRING, BOOLEAN, JAVASCRIPT, OPTION
 }

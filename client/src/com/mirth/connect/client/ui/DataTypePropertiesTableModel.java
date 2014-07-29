@@ -115,7 +115,7 @@ public class DataTypePropertiesTableModel extends SortableTreeTableModel {
 
             // Show batch if inbound
             if (!batchProperties.isEmpty() && inbound) {
-                createAndInsertNode("Batch", "These properties are used when reading in batch files.", batchProperties, defaultProperties.getBatchProperties());
+                createAndInsertNode("Batch", "These properties are used when reading in batch files and have no effect unless Process Batch is enabled in the source connector.", batchProperties, defaultProperties.getBatchProperties());
             }
 
             // Show response generation if inbound
@@ -125,7 +125,7 @@ public class DataTypePropertiesTableModel extends SortableTreeTableModel {
 
             // Show response validation if outbound
             if (!responseValidationProperties.isEmpty() && inbound) {
-                createAndInsertNode("Response Validation", "These properties are used to validate the response received by a destination connector. They are not used by the source connector.", responseValidationProperties, defaultProperties.getResponseValidationProperties());
+                createAndInsertNode("Response Validation", "These properties are used to validate the response received by a destination connector and have no effect unless Validate Response is enabled in the destination connector.", responseValidationProperties, defaultProperties.getResponseValidationProperties());
             }
 
             // If no properties have been added, indicate that the data type has no properties
