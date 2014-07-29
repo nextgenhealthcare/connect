@@ -22,10 +22,11 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DeployedState;
-import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.DeployedStateEventType;
+import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
@@ -41,6 +42,7 @@ import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.DeployedStateEvent;
+import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.message.ResponseValidator;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.util.Serializer;
@@ -607,8 +609,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private Response handleSend(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException {
         message.setSendDate(Calendar.getInstance());
         Response response = send(connectorProperties, message);
-        if (response.isValidate()) {
+        if (response.isValidate() && response.getStatus() == Status.SENT) {
             response = responseValidator.validate(response, message);
+
+            if (response.getStatus() != Status.SENT) {
+                channel.getEventDispatcher().dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.RESPONSE_VALIDATION, getDestinationName(), connectorProperties.getName(), response.getStatusMessage(), null));
+            }
         }
         message.setResponseDate(Calendar.getInstance());
 
