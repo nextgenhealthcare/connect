@@ -9,7 +9,11 @@
 
 package com.mirth.connect.connectors.ws;
 
-import static com.mirth.connect.connectors.ws.WebServiceConnectorServiceMethods.*;
+import static com.mirth.connect.connectors.ws.WebServiceConnectorServiceMethods.CACHE_WSDL_FROM_URL;
+import static com.mirth.connect.connectors.ws.WebServiceConnectorServiceMethods.GENERATE_ENVELOPE;
+import static com.mirth.connect.connectors.ws.WebServiceConnectorServiceMethods.GET_DEFINITION;
+import static com.mirth.connect.connectors.ws.WebServiceConnectorServiceMethods.GET_SOAP_ACTION;
+import static com.mirth.connect.connectors.ws.WebServiceConnectorServiceMethods.IS_WSDL_CACHED;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,6 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
@@ -37,6 +42,7 @@ import javax.xml.namespace.QName;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.eviware.soapui.DefaultSoapUICore;
@@ -55,6 +61,9 @@ import com.mirth.connect.connectors.ws.DefinitionServiceMap.PortInformation;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class WebServiceConnectorService implements ConnectorService {
+
+    private static final int MAX_TIMEOUT = 300000;
+
     /**
      * These nested maps fan out from the WSDL URL, to the service QName, to the port QName, to
      * either a list of operation names or a WsdlInterface object.
@@ -69,7 +78,7 @@ public class WebServiceConnectorService implements ConnectorService {
         SoapUI.setSoapUICore(new EmbeddedSoapUICore());
     }
 
-    public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
+    public Object invoke(String channelId, String method, Object object, String sessionId) throws Exception {
         WebServiceDispatcherProperties props = (WebServiceDispatcherProperties) object;
         String wsdlUrl = replacer.replaceValues(props.getWsdlUrl(), channelId);
         String username = replacer.replaceValues(props.getUsername(), channelId);
@@ -142,19 +151,29 @@ public class WebServiceConnectorService implements ConnectorService {
     private WsdlInterface[] getWsdlInterfaces(String wsdlUrl, WebServiceDispatcherProperties props, String channelId) throws Exception {
         WsdlProject wsdlProject = new WsdlProjectFactory().createNew();
         WsdlLoader wsdlLoader = new UrlWsdlLoader(wsdlUrl);
-        return importWsdlInterfaces(wsdlProject, wsdlUrl, wsdlLoader);
+        int timeout = NumberUtils.toInt(props.getSocketTimeout());
+        return importWsdlInterfaces(wsdlProject, wsdlUrl, wsdlLoader, timeout);
     }
 
-    public WsdlInterface[] importWsdlInterfaces(final WsdlProject wsdlProject, final String wsdlUrl, final WsdlLoader wsdlLoader) throws Exception {
+    public WsdlInterface[] importWsdlInterfaces(final WsdlProject wsdlProject, final String wsdlUrl, final WsdlLoader wsdlLoader, int timeout) throws Exception {
         try {
             Future<WsdlInterface[]> future = executor.submit(new Callable<WsdlInterface[]>() {
                 public WsdlInterface[] call() throws Exception {
                     return WsdlInterfaceFactory.importWsdl(wsdlProject, wsdlUrl, false, wsdlLoader);
                 }
             });
-            return future.get(30, TimeUnit.SECONDS);
+
+            if (timeout > 0) {
+                timeout = Math.min(timeout, MAX_TIMEOUT);
+            } else {
+                timeout = MAX_TIMEOUT;
+            }
+            return future.get(timeout, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             wsdlLoader.abort();
+            if (e instanceof TimeoutException) {
+                e = new Exception("WSDL import operation timed out");
+            }
             throw e;
         }
     }

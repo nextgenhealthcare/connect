@@ -187,7 +187,17 @@ public class WebServiceDispatcher extends DestinationConnector {
             logger.debug("Creating web service: url=" + endpointUrl.toString() + ", service=" + serviceQName + ", port=" + portQName);
             Service service = Service.create(endpointUrl, serviceQName);
 
-            dispatchContainer.setDispatch(service.createDispatch(portQName, SOAPMessage.class, Service.Mode.MESSAGE));
+            Dispatch<SOAPMessage> dispatch = service.createDispatch(portQName, SOAPMessage.class, Service.Mode.MESSAGE);
+
+            int timeout = NumberUtils.toInt(webServiceDispatcherProperties.getSocketTimeout());
+            if (timeout > 0) {
+                dispatch.getRequestContext().put("com.sun.xml.internal.ws.connect.timeout", timeout);
+                dispatch.getRequestContext().put("com.sun.xml.internal.ws.request.timeout", timeout);
+                dispatch.getRequestContext().put("com.sun.xml.ws.connect.timeout", timeout);
+                dispatch.getRequestContext().put("com.sun.xml.ws.request.timeout", timeout);
+            }
+
+            dispatchContainer.setDispatch(dispatch);
         }
     }
 

@@ -36,6 +36,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     private String port;
     private String operation;
     private String locationURI;
+    private String socketTimeout;
     private boolean useAuthentication;
     private String username;
     private String password;
@@ -59,6 +60,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         this.service = "";
         this.port = "";
         this.locationURI = "";
+        this.socketTimeout = "30000"; 
         this.useAuthentication = false;
         this.username = "";
         this.password = "";
@@ -81,6 +83,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         service = props.getService();
         port = props.getPort();
         locationURI = props.getLocationURI();
+        socketTimeout = props.getSocketTimeout();
         useAuthentication = props.isUseAuthentication();
         username = props.getUsername();
         password = props.getPassword();
@@ -123,6 +126,14 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
 
     public void setLocationURI(String locationURI) {
         this.locationURI = locationURI;
+    }
+
+    public String getSocketTimeout() {
+        return socketTimeout;
+    }
+
+    public void setSocketTimeout(String socketTimeout) {
+        this.socketTimeout = socketTimeout;
     }
 
     public String getOperation() {
@@ -342,6 +353,8 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
                 throw new SerializerException("Failed to migrate Web Service Sender operation list.");
             }
         }
+        
+        element.addChildElement("socketTimeout", "0");
     }
 
     @Override
@@ -355,6 +368,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         purgedProperties.put("attachmentNamesCount", attachmentNames.size());
         purgedProperties.put("attachmentContentCount", attachmentContents.size());
         purgedProperties.put("wsdlDefinitionMapCount", wsdlDefinitionMap != null ? wsdlDefinitionMap.getMap().size() : 0);
+        purgedProperties.put("socketTimeout", PurgeUtil.getNumericValue(socketTimeout));
         return purgedProperties;
     }
 }

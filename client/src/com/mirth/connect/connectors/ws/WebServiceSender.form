@@ -37,6 +37,7 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="socketTimeoutLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="locationURILabel" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="soapActionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -51,26 +52,26 @@
                   <Component id="invocationTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="wsdlUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="wsdlUrlField" pref="281" max="32767" attributes="2"/>
+                      <Component id="wsdlUrlField" pref="252" max="32767" attributes="2"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Component id="getOperationsButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="attachmentsPane" pref="335" max="32767" attributes="0"/>
+                      <Component id="attachmentsPane" pref="306" max="32767" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" max="-2" attributes="0">
                           <Component id="newButton" alignment="1" max="32767" attributes="1"/>
                           <Component id="deleteButton" alignment="1" min="-2" max="-2" attributes="1"/>
                       </Group>
                   </Group>
-                  <Component id="soapEnvelope" pref="425" max="32767" attributes="2"/>
-                  <Component id="soapActionField" alignment="0" pref="425" max="32767" attributes="2"/>
+                  <Component id="soapEnvelope" pref="396" max="32767" attributes="2"/>
+                  <Component id="soapActionField" alignment="0" pref="396" max="32767" attributes="2"/>
                   <Component id="serviceComboBox" alignment="0" max="32767" attributes="0"/>
                   <Component id="portComboBox" alignment="0" max="32767" attributes="0"/>
-                  <Component id="locationURIComboBox" alignment="0" pref="425" max="32767" attributes="0"/>
+                  <Component id="locationURIComboBox" alignment="0" pref="396" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
@@ -95,6 +96,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="useMtomNoRadio" min="-2" max="-2" attributes="0"/>
                           </Group>
+                          <Component id="socketTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
@@ -125,6 +127,11 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="locationURILabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="locationURIComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="socketTimeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="socketTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -172,7 +179,7 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <Component id="newButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
@@ -483,6 +490,16 @@
           <Color blue="de" green="de" red="de" type="rgb"/>
         </Property>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The dispatch location for the port / endpoint defined above.&lt;br/&gt;This field is filled in automatically when the Get Operations&lt;br/&gt;button is clicked and does not usually need to be changed.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="socketTimeoutLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Socket Timeout (ms):"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="socketTimeoutField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Sets the connection and socket timeout (SO_TIMEOUT) in&lt;br/&gt;milliseconds to be used when invoking the web service.&lt;br/&gt;A timeout value of zero is interpreted as an infinite timeout.&lt;/html&gt;"/>
       </Properties>
     </Component>
   </SubComponents>

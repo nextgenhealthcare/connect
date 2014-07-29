@@ -104,6 +104,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         properties.setService(StringUtils.trimToEmpty((String) serviceComboBox.getSelectedItem()));
         properties.setPort(StringUtils.trimToEmpty((String) portComboBox.getSelectedItem()));
         properties.setLocationURI(StringUtils.trimToEmpty((String) locationURIComboBox.getSelectedItem()));
+        properties.setSocketTimeout(socketTimeoutField.getText());
         properties.setSoapAction(soapActionField.getText());
 
         properties.setOneWay(invocationOneWayRadio.isSelected());
@@ -145,6 +146,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         urlFieldChanged();
 
         soapEnvelope.setText(props.getEnvelope());
+        socketTimeoutField.setText(props.getSocketTimeout());
 
         if (props.isUseAuthentication()) {
             authenticationYesRadio.setSelected(true);
@@ -225,6 +227,13 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             }
         }
 
+        if (StringUtils.isBlank(props.getSocketTimeout())) {
+            valid = false;
+            if (highlight) {
+                socketTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+
         if (props.getEnvelope().length() == 0) {
             valid = false;
             if (highlight) {
@@ -241,6 +250,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         urlFieldChanged();
         serviceComboBox.setBackground(new Color(0xDEDEDE));
         portComboBox.setBackground(new Color(0xDEDEDE));
+        socketTimeoutField.setBackground(null);
         soapEnvelope.setBackground(null);
     }
 
@@ -580,6 +590,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         portComboBox = new com.mirth.connect.client.ui.components.MirthEditableComboBox();
         locationURILabel = new javax.swing.JLabel();
         locationURIComboBox = new com.mirth.connect.client.ui.components.MirthEditableComboBox();
+        socketTimeoutLabel = new javax.swing.JLabel();
+        socketTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -749,6 +761,10 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         locationURIComboBox.setBackground(new java.awt.Color(222, 222, 222));
         locationURIComboBox.setToolTipText("<html>The dispatch location for the port / endpoint defined above.<br/>This field is filled in automatically when the Get Operations<br/>button is clicked and does not usually need to be changed.</html>");
 
+        socketTimeoutLabel.setText("Socket Timeout (ms):");
+
+        socketTimeoutField.setToolTipText("<html>Sets the connection and socket timeout (SO_TIMEOUT) in<br/>milliseconds to be used when invoking the web service.<br/>A timeout value of zero is interpreted as an infinite timeout.</html>");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -756,6 +772,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(socketTimeoutLabel)
                     .addComponent(locationURILabel)
                     .addComponent(authenticationLabel)
                     .addComponent(soapActionLabel)
@@ -772,20 +789,20 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(wsdlUrlField, javax.swing.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)
+                        .addComponent(wsdlUrlField, javax.swing.GroupLayout.DEFAULT_SIZE, 252, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(getOperationsButton))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(attachmentsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 335, Short.MAX_VALUE)
+                        .addComponent(attachmentsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(newButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(deleteButton)))
-                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
-                    .addComponent(soapActionField, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
+                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE)
+                    .addComponent(soapActionField, javax.swing.GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE)
                     .addComponent(serviceComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(portComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(locationURIComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
+                    .addComponent(locationURIComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -805,7 +822,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(useMtomYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(useMtomNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(useMtomNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(socketTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -828,6 +846,10 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(locationURILabel)
                     .addComponent(locationURIComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(socketTimeoutLabel)
+                    .addComponent(socketTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(authenticationLabel)
@@ -911,8 +933,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     }//GEN-LAST:event_deleteButtonActionPerformed
 
     private void getOperationsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getOperationsButtonActionPerformed
-        if (StringUtils.isNotBlank((String) serviceComboBox.getSelectedItem()) || StringUtils.isNotBlank((String) portComboBox.getSelectedItem()) || !isDefaultOperations()) {
-            if (!parent.alertOkCancel(parent, "This will replace your current service, port, and operation list. Press OK to continue.")) {
+        if (StringUtils.isNotBlank((String) serviceComboBox.getSelectedItem()) || StringUtils.isNotBlank((String) portComboBox.getSelectedItem()) || StringUtils.isNotBlank((String) locationURIComboBox.getSelectedItem()) || !isDefaultOperations()) {
+            if (!parent.alertOkCancel(parent, "This will replace your current service, port, location URI, and operation list. Press OK to continue.")) {
                 return;
             }
         }
@@ -921,6 +943,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         currentServiceMap = null;
         serviceComboBox.setModel(new DefaultComboBoxModel());
         portComboBox.setModel(new DefaultComboBoxModel());
+        locationURIComboBox.setModel(new DefaultComboBoxModel());
         operationComboBox.setModel(new DefaultComboBoxModel(new String[] { WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN }));
         operationComboBox.setSelectedIndex(0);
         generateEnvelope.setEnabled(false);
@@ -1075,6 +1098,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthIconTextField soapActionField;
     private javax.swing.JLabel soapActionLabel;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea soapEnvelope;
+    private com.mirth.connect.client.ui.components.MirthTextField socketTimeoutField;
+    private javax.swing.JLabel socketTimeoutLabel;
     private javax.swing.ButtonGroup useMtomButtonGroup;
     private javax.swing.JLabel useMtomLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton useMtomNoRadio;
