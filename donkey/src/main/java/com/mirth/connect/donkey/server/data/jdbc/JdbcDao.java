@@ -156,15 +156,20 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
-    public void updateSourceResponse(ConnectorMessage connectorMessage) {
-        logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + ": updating source response");
+    public void updateSendAttempts(ConnectorMessage connectorMessage) {
+        logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + ": updating send attempts");
+
+        Calendar sendDate = connectorMessage.getSendDate();
+        Calendar responseDate = connectorMessage.getResponseDate();
 
         try {
-            PreparedStatement statement = prepareStatement("updateSourceResponse", connectorMessage.getChannelId());
+            PreparedStatement statement = prepareStatement("updateSendAttempts", connectorMessage.getChannelId());
             statement.setInt(1, connectorMessage.getSendAttempts());
-            statement.setTimestamp(2, new Timestamp(connectorMessage.getResponseDate().getTimeInMillis()));
-            statement.setLong(3, connectorMessage.getMessageId());
-            statement.setString(4, connectorMessage.getServerId());
+            statement.setTimestamp(2, sendDate == null ? null : new Timestamp(sendDate.getTimeInMillis()));
+            statement.setTimestamp(3, responseDate == null ? null : new Timestamp(responseDate.getTimeInMillis()));
+            statement.setInt(4, connectorMessage.getMetaDataId());
+            statement.setLong(5, connectorMessage.getMessageId());
+            statement.setString(6, connectorMessage.getServerId());
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -710,17 +715,11 @@ public class JdbcDao implements DonkeyDao {
 
             transactionStats.update(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), connectorMessage.getStatus(), previousStatus);
 
-            Calendar sendDate = connectorMessage.getSendDate();
-            Calendar responseDate = connectorMessage.getResponseDate();
-
             PreparedStatement statement = prepareStatement("updateStatus", connectorMessage.getChannelId());
             statement.setString(1, Character.toString(connectorMessage.getStatus().getStatusCode()));
-            statement.setInt(2, connectorMessage.getSendAttempts());
-            statement.setTimestamp(3, sendDate == null ? null : new Timestamp(sendDate.getTimeInMillis()));
-            statement.setTimestamp(4, responseDate == null ? null : new Timestamp(responseDate.getTimeInMillis()));
-            statement.setInt(5, connectorMessage.getMetaDataId());
-            statement.setLong(6, connectorMessage.getMessageId());
-            statement.setString(7, connectorMessage.getServerId());
+            statement.setInt(2, connectorMessage.getMetaDataId());
+            statement.setLong(3, connectorMessage.getMessageId());
+            statement.setString(4, connectorMessage.getServerId());
 
             if (statement.executeUpdate() == 0) {
                 throw new DonkeyDaoException("Failed to update connector message status, the connector message was removed from this server.");

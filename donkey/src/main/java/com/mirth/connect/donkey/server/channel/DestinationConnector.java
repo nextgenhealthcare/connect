@@ -624,6 +624,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private void afterSend(DonkeyDao dao, ConnectorMessage message, Response response, Status previousStatus) throws InterruptedException {
         Serializer serializer = channel.getSerializer();
 
+        dao.updateSendAttempts(message);
+
         if (storageSettings.isStoreResponse()) {
             String responseString = serializer.serialize(response);
             MessageContent responseContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RESPONSE, responseString, responseTransformerExecutor.getInbound().getType(), false);

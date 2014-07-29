@@ -103,7 +103,7 @@ public class BufferedDao implements DonkeyDao {
                     case STORE_META_DATA: dao.storeMetaData((ConnectorMessage) p[0], (List<MetaDataColumn>) p[1]); break;
                     case STORE_MESSAGE_CONTENT: dao.storeMessageContent((MessageContent) p[0]); break;
                     case STORE_CHANNEL_STATISTICS: dao.addChannelStatistics((Statistics) p[0]); break;
-                    case UPDATE_RESPONSE_ERROR: dao.updateSourceResponse((ConnectorMessage) p[0]); break;
+                    case UPDATE_SEND_ATTEMPTS: dao.updateSendAttempts((ConnectorMessage) p[0]); break;
                     case UPDATE_STATUS: dao.updateStatus((ConnectorMessage) p[0], (Status) p[1]); break;
                     case UPDATE_ERRORS: dao.updateErrors((ConnectorMessage) p[0]); break;
                     case UPDATE_MAPS: dao.updateMaps((ConnectorMessage) p[0]); break;
@@ -209,8 +209,8 @@ public class BufferedDao implements DonkeyDao {
     }
 
     @Override
-    public void updateSourceResponse(ConnectorMessage connectorMessage) {
-        tasks.add(new DaoTask(DaoTaskType.UPDATE_RESPONSE_ERROR, new Object[] { connectorMessage }));
+    public void updateSendAttempts(ConnectorMessage connectorMessage) {
+        tasks.add(new DaoTask(DaoTaskType.UPDATE_SEND_ATTEMPTS, new Object[] { connectorMessage }));
     }
 
     @Override

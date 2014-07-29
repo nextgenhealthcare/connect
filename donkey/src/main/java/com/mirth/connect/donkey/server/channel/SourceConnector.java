@@ -367,7 +367,7 @@ public abstract class SourceConnector extends Connector {
                     if (attemptedResponse) {
                         connectorMessage.setSendAttempts(1);
                         connectorMessage.setResponseDate(dispatchResult.getResponseDate());
-                        dao.updateSourceResponse(connectorMessage);
+                        dao.updateSendAttempts(connectorMessage);
                     }
 
                     if (responseError != null) {

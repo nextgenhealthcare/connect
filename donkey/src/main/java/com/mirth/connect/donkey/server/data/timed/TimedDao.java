@@ -194,11 +194,11 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public void updateSourceResponse(ConnectorMessage connectorMessage) {
+    public void updateSendAttempts(ConnectorMessage connectorMessage) {
         long startTime = System.currentTimeMillis();
 
         try {
-            dao.updateSourceResponse(connectorMessage);
+            dao.updateSendAttempts(connectorMessage);
         } finally {
             timer.log("updateResponseError", System.currentTimeMillis() - startTime);
         }

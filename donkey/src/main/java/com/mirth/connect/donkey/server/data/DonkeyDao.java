@@ -42,7 +42,7 @@ public interface DonkeyDao {
 
     public void addChannelStatistics(Statistics statistics);
 
-    public void updateSourceResponse(ConnectorMessage connectorMessage);
+    public void updateSendAttempts(ConnectorMessage connectorMessage);
 
     public void updateStatus(ConnectorMessage connectorMessage, Status previousStatus);
 

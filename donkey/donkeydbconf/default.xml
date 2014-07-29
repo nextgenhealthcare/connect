@@ -55,10 +55,10 @@
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</query>
 	
-	<query id="updateSourceResponse">
+	<query id="updateSendAttempts">
 		UPDATE D_MM${localChannelId}
-		SET SEND_ATTEMPTS = ?, RESPONSE_DATE = ?
-		WHERE ID = 0 AND MESSAGE_ID = ? AND SERVER_ID = ?
+		SET SEND_ATTEMPTS = ?, SEND_DATE = ?, RESPONSE_DATE = ?
+		WHERE ID = ? AND MESSAGE_ID = ? AND SERVER_ID = ?
 	</query>
 	
 	<query id="updateErrorCode">
@@ -68,7 +68,7 @@
 	</query>
 	
 	<query id="updateStatus">
-		UPDATE D_MM${localChannelId} SET STATUS = ?, SEND_ATTEMPTS = ?, SEND_DATE = ?, RESPONSE_DATE = ?
+		UPDATE D_MM${localChannelId} SET STATUS = ?
 		WHERE ID = ?
 		AND MESSAGE_ID = ?
 		AND SERVER_ID = ?
