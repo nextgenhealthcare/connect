@@ -443,6 +443,9 @@ public class HttpReceiver extends SourceConnector {
         sourceMap.put("headers", Collections.unmodifiableMap(requestMessage.getCaseInsensitiveHeaders()));
         sourceMap.put("parameters", Collections.unmodifiableMap(requestMessage.getParameters()));
 
+        // Add custom source map variables from the configuration interface
+        sourceMap.putAll(configuration.getRequestInformation(request));
+
         return rawMessageContent;
     }
 

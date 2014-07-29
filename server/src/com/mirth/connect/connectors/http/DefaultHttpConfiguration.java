@@ -9,8 +9,12 @@
 
 package com.mirth.connect.connectors.http;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.bio.SocketConnector;
 
 import com.mirth.connect.donkey.server.channel.Connector;
@@ -39,4 +43,9 @@ public class DefaultHttpConfiguration implements HttpConfiguration {
 
     @Override
     public void configureDispatcher(HttpDispatcher connector, HttpDispatcherProperties connectorProperties) throws Exception {}
+
+    @Override
+    public Map<String, Object> getRequestInformation(Request request) {
+        return new HashMap<String, Object>();
+    }
 }
