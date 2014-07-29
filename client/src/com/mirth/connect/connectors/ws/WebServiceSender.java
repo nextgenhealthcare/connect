@@ -603,6 +603,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         serviceLabel.setText("Service:");
 
         soapEnvelope.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        soapEnvelope.setMinimumSize(new java.awt.Dimension(26, 115));
 
         portLabel.setText("Port / Endpoint:");
 
@@ -857,7 +858,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4)
-                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE))
+                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(useMtomLabel)
