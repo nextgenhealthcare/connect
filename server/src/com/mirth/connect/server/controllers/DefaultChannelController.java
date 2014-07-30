@@ -27,6 +27,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelSummary;
@@ -44,6 +46,7 @@ public class DefaultChannelController extends ChannelController {
 
     private ChannelCache channelCache = new ChannelCache();
     private DeployedChannelCache deployedChannelCache = new DeployedChannelCache();
+    private Donkey donkey;
 
     private static DefaultChannelController instance = null;
 
@@ -113,6 +116,19 @@ public class DefaultChannelController extends ChannelController {
                 serverChannels.put(serverChannel.getId(), serverChannel);
             }
 
+            Map<String, Long> localChannelIds;
+            if (donkey == null) {
+                donkey = Donkey.getInstance();
+            }
+            
+            DonkeyDao dao = donkey.getDaoFactory().getDao();
+
+            try {
+                localChannelIds = dao.getLocalChannelIds();
+            } finally {
+                dao.close();
+            }
+
             /*
              * Iterate through the cached channel list and check if a channel with the id exists on
              * the server. If it does, and the revision numbers aren't equal, then add the channel
@@ -123,6 +139,9 @@ public class DefaultChannelController extends ChannelController {
             for (String cachedChannelId : clientChannels.keySet()) {
                 ChannelSummary summary = new ChannelSummary(cachedChannelId);
                 boolean addSummary = false;
+                if (localChannelIds != null) {
+                    summary.getChannelStatus().setLocalChannelId(localChannelIds.get(cachedChannelId));
+                }
 
                 if (serverChannels.containsKey(cachedChannelId)) {
                     ChannelHeader header = clientChannels.get(cachedChannelId);
@@ -171,6 +190,7 @@ public class DefaultChannelController extends ChannelController {
                 if (!clientChannels.containsKey(serverChannelId)) {
                     ChannelSummary summary = new ChannelSummary(serverChannelId);
                     summary.getChannelStatus().setChannel(serverChannels.get(serverChannelId));
+                    summary.getChannelStatus().setLocalChannelId(com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().getLocalChannelId(serverChannelId));
 
                     DeployedChannelInfo deployedChannelInfo = getDeployedChannelInfoById(serverChannelId);
                     boolean serverChannelDeployed = deployedChannelInfo != null;

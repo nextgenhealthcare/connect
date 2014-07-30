@@ -20,6 +20,7 @@ public class ChannelStatus implements Serializable {
     private Channel channel;
     private Calendar deployedDate;
     private Integer deployedRevisionDelta;
+    private Long localChannelId;
 
     public ChannelStatus() {}
 
@@ -49,5 +50,13 @@ public class ChannelStatus implements Serializable {
 
     public void setDeployedRevisionDelta(Integer deployedRevisionDelta) {
         this.deployedRevisionDelta = deployedRevisionDelta;
+    }
+
+    public void setLocalChannelId(Long localChannelId) {
+        this.localChannelId = localChannelId;
+    }
+    
+    public Long getLocalChannelId() {
+        return this.localChannelId;
     }
 }

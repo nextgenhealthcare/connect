@@ -2315,6 +2315,8 @@ public class Frame extends JXFrame {
                         channelStatus.setDeployedDate(channelSummary.getChannelStatus().getDeployedDate());
                         channelStatus.setDeployedRevisionDelta(channelSummary.getChannelStatus().getDeployedRevisionDelta());
                     }
+                    
+                    channelStatus.setLocalChannelId(channelSummary.getChannelStatus().getLocalChannelId());
                 }
             }
 

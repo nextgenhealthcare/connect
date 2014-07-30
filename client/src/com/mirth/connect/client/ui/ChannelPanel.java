@@ -12,8 +12,12 @@ package com.mirth.connect.client.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -22,13 +26,17 @@ import java.util.prefs.Preferences;
 
 import javax.swing.DropMode;
 import javax.swing.ImageIcon;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -38,6 +46,7 @@ import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.jdesktop.swingx.table.TableColumnExt;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.ChannelFilter.ChannelFilterSaveTask;
@@ -60,10 +69,13 @@ public class ChannelPanel extends javax.swing.JPanel {
     private final String LAST_DEPLOYED_COLUMN_NAME = "Last Deployed";
     private final String DEPLOYED_REVISION_DELTA_COLUMN_NAME = "Rev \u0394";
     private final String ENABLED_STATUS = "Enabled";
+    private final String LOCAL_CHANNEL_ID = "Local Id";
+    private final int LOCAL_CHANNEL_ID_COLUMN_NUMBER = 4;
+    private JMenuItem menuItem;
 
     private final String[] DEFAULT_COLUMNS = new String[] { STATUS_COLUMN_NAME,
-            DATA_TYPE_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME, DESCRIPTION_COLUMN_NAME,
-            DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME };
+            DATA_TYPE_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME, LOCAL_CHANNEL_ID,
+            DESCRIPTION_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME };
 
     private Frame parent;
 
@@ -197,6 +209,12 @@ public class ChannelPanel extends javax.swing.JPanel {
         channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setResizable(false);
         channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setToolTipText("<html><body>The time this channel was last deployed.<br>This value will be highlighted if it is within the last two minutes.</body></html>");
 
+        channelTable.getColumnExt(LOCAL_CHANNEL_ID).setMinWidth(60);
+        channelTable.getColumnExt(LOCAL_CHANNEL_ID).setMaxWidth(60);
+        channelTable.getColumnExt(LOCAL_CHANNEL_ID).setCellRenderer(new NumberCellRenderer(SwingConstants.CENTER, false));
+        channelTable.getColumnExt(LOCAL_CHANNEL_ID).setToolTipText("<html><body>The local id of this channel used in the database.</body></html>");
+        channelTable.getColumnExt(LOCAL_CHANNEL_ID).setVisible(Frame.userPreferences.getBoolean("enableLocalColumn", false));
+
         for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
             if (!plugin.isDisplayFirst()) {
                 String columnName = plugin.getColumnHeader();
@@ -270,6 +288,44 @@ public class ChannelPanel extends javax.swing.JPanel {
 
             public void keyTyped(KeyEvent e) {}
         });
+
+        JTableHeader header = channelTable.getTableHeader();
+
+        header.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    getColumnMenu().show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+        });
+    }
+
+    private JPopupMenu getColumnMenu() {
+        JPopupMenu columnMenu = new JPopupMenu();
+        TableColumnExt column = channelTable.getColumnExt(LOCAL_CHANNEL_ID);
+        Boolean visible = column.isVisible();
+
+        menuItem = new JMenuItem();
+        
+        if (visible) {
+            menuItem.setText("Hide Local Channel Id");
+        } else {
+            menuItem.setText("Show Local Channel Id");
+        }
+
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                TableColumnExt column = channelTable.getColumnExt(LOCAL_CHANNEL_ID);
+                
+                Boolean visible = !column.isVisible();
+                column.setVisible(visible);
+                Frame.userPreferences.putBoolean("enableLocalColumn", visible);
+            }
+        });
+
+        columnMenu.add(menuItem);
+        return columnMenu;
     }
 
     public void updateChannelTable(List<ChannelStatus> channelStatuses) {
@@ -330,6 +386,7 @@ public class ChannelPanel extends javax.swing.JPanel {
                 tableData[i][j++] = parent.dataTypeToDisplayName.get(channel.getSourceConnector().getTransformer().getInboundDataType());
                 tableData[i][j++] = channel.getName();
                 tableData[i][j++] = channel.getId();
+                tableData[i][j++] = channelStatus.getLocalChannelId();
                 tableData[i][j++] = channel.getDescription();
 
                 tableData[i][j++] = channelStatus.getDeployedRevisionDelta();
@@ -367,7 +424,17 @@ public class ChannelPanel extends javax.swing.JPanel {
             }
 
             channelTable.setModel(new RefreshTableModel(tableData, columns.toArray(new String[0])) {
-
+                
+                @Override
+                public Class<?> getColumnClass(int columnIndex) {
+                    if (columnIndex == LOCAL_CHANNEL_ID_COLUMN_NUMBER) {
+                        return Long.class;
+                    }
+                    
+                    return super.getColumnClass(columnIndex);
+                }
+                
+                @Override
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return false;
                 }
