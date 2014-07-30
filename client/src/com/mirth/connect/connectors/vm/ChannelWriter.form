@@ -40,8 +40,10 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="template" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
+                      <Component id="channelIdField" min="-2" pref="250" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="channelNames" min="-2" pref="250" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="13" max="32767" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -54,14 +56,15 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="URL" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="channelNames" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="channelIdField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="55" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="133" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="template" pref="70" max="32767" attributes="0"/>
+                  <Component id="template" pref="149" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -86,9 +89,6 @@
         </Property>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select the channel to which messages accepted by this destination&apos;s filter should be written,&lt;br&gt; or none to not write the message at all.&lt;/html&gt;"/>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="channelNamesActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel7">
       <Properties>
@@ -104,6 +104,8 @@
         </Property>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;A Velocity enabled template for the actual message to be written to the channel.&lt;br&gt;In many cases, the default value of &quot;${message.encodedData}&quot; is sufficient.&lt;/html&gt;"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="channelIdField">
     </Component>
   </SubComponents>
 </Form>
