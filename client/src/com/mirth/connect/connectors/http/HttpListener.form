@@ -2,13 +2,13 @@
 
 <Form version="1.5" maxVersion="1.5" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
-    <Component class="javax.swing.ButtonGroup" name="listenerAddressButtonGroup">
-    </Component>
     <Component class="javax.swing.ButtonGroup" name="includeHeadersGroup">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="parseMultipartButtonGroup">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="includeMetadataButtonGroup">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="responseDataTypeButtonGroup">
     </Component>
   </NonVisualComponents>
   <Properties>
@@ -38,62 +38,60 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="staticResourcesLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="contextPathLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="httpUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="receiveTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="contextPathLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseContentTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="messageContentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="parseMultipartLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="includeMetadataLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="httpUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseContentTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="charsetEncodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="staticResourcesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="receiveTimeoutLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseDataTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="includeMetadataLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="receiveTimeoutField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
-                          <Component id="contextPathField" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="messageContentPlainBodyRadio" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="messageContentXmlBodyRadio" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <Component id="parseMultipartYesRadio" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="parseMultipartNoRadio" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <Component id="includeMetadataYesRadio" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="includeMetadataNoRadio" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="httpUrlField" min="-2" pref="250" max="-2" attributes="1"/>
-                          <Component id="responseContentTypeField" min="-2" pref="125" max="-2" attributes="0"/>
-                          <Component id="charsetEncodingCombobox" min="-2" max="-2" attributes="0"/>
-                          <Component id="responseStatusCodeField" min="-2" pref="100" max="-2" attributes="1"/>
-                      </Group>
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  <Component id="responseHeadersPane" alignment="0" pref="423" max="32767" attributes="0"/>
+                  <Component id="contextPathField" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
+                  <Component id="httpUrlField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                  <Component id="receiveTimeoutField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
+                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseContentTypeField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="responseDataTypeBinaryRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="responseDataTypeTextRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" attributes="0">
-                      <Component id="responseHeadersPane" pref="423" max="32767" attributes="0"/>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="responseHeadersNewButton" max="32767" attributes="1"/>
-                          <Component id="responseHeadersDeleteButton" alignment="0" min="-2" max="-2" attributes="1"/>
-                      </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="messageContentPlainBodyRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="messageContentXmlBodyRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" attributes="0">
-                      <Component id="responseHeadersPane1" pref="423" max="32767" attributes="0"/>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="staticResourcesNewButton" alignment="0" max="32767" attributes="1"/>
-                          <Component id="staticResourcesDeleteButton" alignment="0" min="-2" max="-2" attributes="1"/>
-                      </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="parseMultipartYesRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="parseMultipartNoRadio" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="responseStatusCodeField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
+                  <Component id="responseHeadersPane1" alignment="0" pref="423" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="includeMetadataYesRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="includeMetadataNoRadio" min="-2" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="103" alignment="1" groupAlignment="0" max="-2" attributes="0">
+                      <Component id="responseHeadersNewButton" max="32767" attributes="1"/>
+                      <Component id="responseHeadersDeleteButton" alignment="0" min="-2" max="-2" attributes="1"/>
+                  </Group>
+                  <Group type="103" alignment="1" groupAlignment="0" max="-2" attributes="0">
+                      <Component id="staticResourcesNewButton" alignment="0" max="32767" attributes="1"/>
+                      <Component id="staticResourcesDeleteButton" alignment="0" min="-2" max="-2" attributes="1"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -139,6 +137,12 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="responseContentTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="responseContentTypeField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="responseDataTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseDataTypeBinaryRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseDataTypeTextRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -446,5 +450,46 @@
         </Component>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.JLabel" name="responseDataTypeLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Response Data Type:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="responseDataTypeBinaryRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="responseDataTypeButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Binary"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Binary is selected, responses will be decoded from Base64 into raw byte streams.&lt;br/&gt;If Text is selected, responses will be encoded with the specified character set encoding.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="responseDataTypeBinaryRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="responseDataTypeTextRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="responseDataTypeButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Text"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Binary is selected, responses will be decoded from Base64 into raw byte streams.&lt;br/&gt;If Text is selected, responses will be encoded with the specified character set encoding.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="responseDataTypeTextRadioActionPerformed"/>
+      </Events>
+    </Component>
   </SubComponents>
 </Form>

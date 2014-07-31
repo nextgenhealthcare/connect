@@ -43,6 +43,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
     private String password;
     private String content;
     private String contentType;
+    private boolean dataTypeBinary;
     private String charset;
     private String socketTimeout;
 
@@ -67,6 +68,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
         this.password = "";
         this.content = "";
         this.contentType = "text/plain";
+        this.dataTypeBinary = false;
         this.charset = "UTF-8";
         this.socketTimeout = "30000";
     }
@@ -93,6 +95,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
         password = props.getPassword();
         content = props.getContent();
         contentType = props.getContentType();
+        dataTypeBinary = props.isDataTypeBinary();
         charset = props.getCharset();
         socketTimeout = props.getSocketTimeout();
     }
@@ -241,6 +244,14 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
         this.contentType = contentType;
     }
 
+    public boolean isDataTypeBinary() {
+        return dataTypeBinary;
+    }
+
+    public void setDataTypeBinary(boolean dataTypeBinary) {
+        this.dataTypeBinary = dataTypeBinary;
+    }
+
     public String getCharset() {
         return charset;
     }
@@ -348,6 +359,8 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
 
         boolean useAuthentication = Boolean.parseBoolean(element.getChildElement("useAuthentication").getTextContent());
         element.addChildElement("usePreemptiveAuthentication", Boolean.toString(useAuthentication));
+
+        element.addChildElement("dataTypeBinary", "false");
     }
 
     @Override
@@ -360,6 +373,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
         purgedProperties.put("multipart", multipart);
         purgedProperties.put("useAuthentication", useAuthentication);
         purgedProperties.put("contentLines", PurgeUtil.countLines(content));
+        purgedProperties.put("dataTypeBinary", dataTypeBinary);
         purgedProperties.put("charset", charset);
         purgedProperties.put("socketTimeout", PurgeUtil.getNumericValue(socketTimeout));
         return purgedProperties;

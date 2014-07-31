@@ -23,13 +23,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 
@@ -124,16 +124,12 @@ public class HttpMessageConverter {
 
             if (content instanceof InputStream) {
                 contentElement.setAttribute("encoding", "Base64");
-                contentElement.setTextContent(new String(Base64.encodeBase64Chunked(IOUtils.toByteArray((InputStream) content)), "US-ASCII"));
+                contentElement.setTextContent(new String(Base64Util.encodeBase64(IOUtils.toByteArray((InputStream) content)), "US-ASCII"));
+            } else if (content instanceof byte[]) {
+                contentElement.setAttribute("encoding", "Base64");
+                contentElement.setTextContent(new String(Base64Util.encodeBase64((byte[]) content), "US-ASCII"));
             } else {
-                String stringContent = content != null ? content.toString() : "";
-
-                if (isBinaryContentType(contentType.getMimeType())) {
-                    contentElement.setAttribute("encoding", "Base64");
-                    contentElement.setTextContent(new String(Base64.encodeBase64Chunked(stringContent.getBytes(getDefaultHttpCharset(contentType.getCharset().name()))), "US-ASCII"));
-                } else {
-                    contentElement.setTextContent(stringContent);
-                }
+                contentElement.setTextContent(content != null ? content.toString() : "");
             }
         }
     }
@@ -185,7 +181,7 @@ public class HttpMessageConverter {
         return headers;
     }
 
-    private static boolean isBinaryContentType(String contentType) {
+    public static boolean isBinaryContentType(String contentType) {
         return StringUtils.startsWithAny(contentType, new String[] { "application/", "image/",
                 "video/", "audio/" });
     }

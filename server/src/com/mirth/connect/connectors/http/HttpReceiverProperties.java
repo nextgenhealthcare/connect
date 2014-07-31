@@ -32,6 +32,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     private boolean parseMultipart;
     private boolean includeMetadata;
     private String responseContentType;
+    private boolean responseDataTypeBinary;
     private String responseStatusCode;
     private Map<String, String> responseHeaders;
     private String charset;
@@ -47,6 +48,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         this.parseMultipart = true;
         this.includeMetadata = false;
         this.responseContentType = "text/plain";
+        this.responseDataTypeBinary = false;
         this.responseStatusCode = "";
         this.responseHeaders = new LinkedHashMap<String, String>();
         this.charset = "UTF-8";
@@ -85,6 +87,14 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
 
     public void setResponseContentType(String responseContentType) {
         this.responseContentType = responseContentType;
+    }
+
+    public boolean isResponseDataTypeBinary() {
+        return responseDataTypeBinary;
+    }
+
+    public void setResponseDataTypeBinary(boolean responseDataTypeBinary) {
+        this.responseDataTypeBinary = responseDataTypeBinary;
     }
 
     public String getResponseStatusCode() {
@@ -183,6 +193,8 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         element.addChildElement("parseMultipart", Boolean.toString(!xmlBody));
         element.addChildElement("includeMetadata", Boolean.toString(xmlBody));
 
+        element.addChildElement("responseDataTypeBinary", "false");
+
         element.addChildElement("staticResources");
     }
 
@@ -191,6 +203,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("sourceConnectorProperties", sourceConnectorProperties.getPurgedProperties());
         purgedProperties.put("responseContentType", responseContentType);
+        purgedProperties.put("responseDataTypeBinary", responseDataTypeBinary);
         purgedProperties.put("responseHeaderChars", responseHeaders.size());
         purgedProperties.put("charset", charset);
         purgedProperties.put("timeout", PurgeUtil.getNumericValue(timeout));

@@ -20,6 +20,8 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="proxyTypeButtonGroup">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="dataTypeButtonGroup">
+    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -48,26 +50,27 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="proxyPortLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="proxyAddressLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="useProxyServerLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="includeMetadataLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="parseMultipartLabel" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="includeMetadataLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="methodLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="queryParametersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="parseMultipartLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="sendTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="charsetEncodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="contentTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="authenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="contentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="multipartLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="responseContentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="methodLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="queryParametersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="dataTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="urlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="useProxyServerLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="proxyAddressLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="proxyPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -150,6 +153,11 @@
                           </Group>
                           <Component id="proxyAddressField" alignment="0" min="-2" pref="202" max="-2" attributes="0"/>
                           <Component id="proxyPortField" alignment="0" min="-2" pref="56" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="dataTypeBinaryRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="dataTypeTextRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
@@ -222,8 +230,8 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="authenticationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="authenticationYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -243,14 +251,9 @@
                   <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="charsetEncodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="queryParametersLabel" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <Component id="queryParametersNewButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="queryParametersDeleteButton" min="-2" max="-2" attributes="0"/>
@@ -273,11 +276,22 @@
                   <Component id="contentTypeField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="dataTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="dataTypeBinaryRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="dataTypeTextRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="charsetEncodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="contentLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="contentTextArea" min="-2" pref="132" max="-2" attributes="0"/>
+                  <Component id="contentTextArea" pref="132" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -569,22 +583,22 @@
         <Property name="text" type="java.lang.String" value="Authentication:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="authenticationYesRadio">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="dataTypeBinaryRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="authenticationButtonGroup"/>
+          <ComponentRef name="dataTypeButtonGroup"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Turning on authentication uses a username and password to communicate with the HTTP server.&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="Binary"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).&lt;br/&gt;Select Text if the outbound message is text (will be encoded with the specified character set encoding).&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="authenticationYesRadioActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dataTypeBinaryRadioActionPerformed"/>
       </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="authenticationNoRadio">
@@ -830,6 +844,47 @@
         <Property name="text" type="java.lang.String" value="Preemptive"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the authorization header will be sent to the server with the initial&lt;br/&gt;request. Otherwise, the header will only be sent when the server requests it.&lt;br/&gt;When using digest authentication, an Authorization header containing the&lt;br/&gt;realm/nonce/algorithm/qop values must be included in the Headers table.&lt;/html&gt;"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="dataTypeLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Data Type:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="authenticationYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="authenticationButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Turning on authentication uses a username and password to communicate with the HTTP server.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="authenticationYesRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="dataTypeTextRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="dataTypeButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Text"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).&lt;br/&gt;Select Text if the outbound message is text (will be encoded with the specified character set encoding).&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dataTypeTextRadioActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

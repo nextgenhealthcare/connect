@@ -67,6 +67,7 @@ import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -100,10 +101,12 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class HttpDispatcher extends DestinationConnector {
@@ -238,7 +241,7 @@ public class HttpDispatcher extends DestinationConnector {
             ContentType contentType = ContentType.parse(httpDispatcherProperties.getContentType());
             Charset charset = null;
             if (contentType.getCharset() == null) {
-                charset = Charset.forName(httpDispatcherProperties.getCharset());
+                charset = Charset.forName(CharsetUtils.getEncoding(httpDispatcherProperties.getCharset()));
                 contentType = contentType.withCharset(charset);
             } else {
                 charset = contentType.getCharset();
@@ -315,20 +318,36 @@ public class HttpDispatcher extends DestinationConnector {
                 responseCharset = responseContentType.getCharset();
             }
 
+            /*
+             * First parse out the body of the HTTP response. Depending on the connector settings,
+             * this could end up being a string encoded with the response charset, a byte array
+             * representing the raw response payload, or a MimeMultipart object.
+             */
             Object responseBody;
 
             // Only parse multipart if XML Body is selected and Parse Multipart is enabled
             if (httpDispatcherProperties.isResponseXmlBody() && httpDispatcherProperties.isResponseParseMultipart() && responseContentType.getMimeType().startsWith(FileUploadBase.MULTIPART)) {
                 responseBody = new MimeMultipart(new ByteArrayDataSource(httpResponse.getEntity().getContent(), responseContentType.toString()));
+            } else if (HttpMessageConverter.isBinaryContentType(responseContentType.getMimeType())) {
+                responseBody = IOUtils.toByteArray(httpResponse.getEntity().getContent());
             } else {
                 responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), responseCharset);
             }
 
+            /*
+             * Now that we have the response body, we need to create the actual Response message
+             * data. Depending on the connector settings this could be our custom serialized XML, a
+             * Base64 string encoded from the raw response payload, or a string encoded from the
+             * payload with the request charset.
+             */
             if (httpDispatcherProperties.isResponseXmlBody()) {
                 responseData = HttpMessageConverter.httpResponseToXml(statusLine.toString(), headers, responseBody, responseContentType, httpDispatcherProperties.isResponseParseMultipart(), httpDispatcherProperties.isResponseIncludeMetadata());
+            } else if (responseBody instanceof byte[]) {
+                responseData = new String(Base64Util.encodeBase64((byte[]) responseBody), "US-ASCII");
             } else {
                 responseData = (String) responseBody;
             }
+
             validateResponse = httpDispatcherProperties.getDestinationConnectorProperties().isValidateResponse();
 
             if (statusCode < HttpStatus.SC_BAD_REQUEST) {
@@ -365,10 +384,16 @@ public class HttpDispatcher extends DestinationConnector {
 
     private HttpRequestBase buildHttpRequest(URI hostURI, HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage, File tempFile, ContentType contentType) throws Exception {
         String method = httpDispatcherProperties.getMethod();
-        String content = getAttachmentHandler().reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage);
         boolean isMultipart = httpDispatcherProperties.isMultipart();
         Map<String, String> headers = httpDispatcherProperties.getHeaders();
         Map<String, String> parameters = httpDispatcherProperties.getParameters();
+
+        Object content = null;
+        if (httpDispatcherProperties.isDataTypeBinary()) {
+            content = getAttachmentHandler().reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage, null, true);
+        } else {
+            content = getAttachmentHandler().reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage);
+        }
 
         // populate the query parameters
         List<NameValuePair> queryParameters = new ArrayList<NameValuePair>(parameters.size());
@@ -395,6 +420,8 @@ public class HttpDispatcher extends DestinationConnector {
 
                 if (content instanceof String) {
                     FileUtils.writeStringToFile(tempFile, (String) content, contentType.getCharset(), false);
+                } else {
+                    FileUtils.writeByteArrayToFile(tempFile, (byte[]) content, false);
                 }
 
                 MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
@@ -406,12 +433,22 @@ public class HttpDispatcher extends DestinationConnector {
             } else {
                 setQueryString(uriBuilder, queryParameters);
                 httpMethod = new HttpPost(uriBuilder.build());
-                httpEntity = new StringEntity(content, contentType);
+
+                if (content instanceof String) {
+                    httpEntity = new StringEntity((String) content, contentType);
+                } else {
+                    httpEntity = new ByteArrayEntity((byte[]) content);
+                }
             }
         } else if ("PUT".equalsIgnoreCase(method)) {
             setQueryString(uriBuilder, queryParameters);
             httpMethod = new HttpPut(uriBuilder.build());
-            httpEntity = new StringEntity(content, contentType);
+
+            if (content instanceof String) {
+                httpEntity = new StringEntity((String) content, contentType);
+            } else {
+                httpEntity = new ByteArrayEntity((byte[]) content);
+            }
         } else if ("DELETE".equalsIgnoreCase(method)) {
             setQueryString(uriBuilder, queryParameters);
             httpMethod = new HttpDelete(uriBuilder.build());

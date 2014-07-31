@@ -140,6 +140,7 @@ public class HttpListener extends ConnectorSettingsPanel {
         properties.setParseMultipart(parseMultipartYesRadio.isSelected());
         properties.setIncludeMetadata(includeMetadataYesRadio.isSelected());
         properties.setResponseContentType(responseContentTypeField.getText());
+        properties.setResponseDataTypeBinary(responseDataTypeBinaryRadio.isSelected());
         properties.setCharset(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
         properties.setResponseStatusCode(responseStatusCodeField.getText());
@@ -180,6 +181,14 @@ public class HttpListener extends ConnectorSettingsPanel {
         }
 
         responseContentTypeField.setText(props.getResponseContentType());
+
+        if (props.isResponseDataTypeBinary()) {
+            responseDataTypeBinaryRadio.setSelected(true);
+            responseDataTypeBinaryRadioActionPerformed(null);
+        } else {
+            responseDataTypeTextRadio.setSelected(true);
+            responseDataTypeTextRadioActionPerformed(null);
+        }
 
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, props.getCharset());
 
@@ -796,10 +805,10 @@ public class HttpListener extends ConnectorSettingsPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        listenerAddressButtonGroup = new javax.swing.ButtonGroup();
         includeHeadersGroup = new javax.swing.ButtonGroup();
         parseMultipartButtonGroup = new javax.swing.ButtonGroup();
         includeMetadataButtonGroup = new javax.swing.ButtonGroup();
+        responseDataTypeButtonGroup = new javax.swing.ButtonGroup();
         messageContentPlainBodyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         messageContentLabel = new javax.swing.JLabel();
         responseContentTypeField = new com.mirth.connect.client.ui.components.MirthTextField();
@@ -831,6 +840,9 @@ public class HttpListener extends ConnectorSettingsPanel {
         staticResourcesNewButton = new javax.swing.JButton();
         responseHeadersPane1 = new javax.swing.JScrollPane();
         staticResourcesTable = new com.mirth.connect.client.ui.components.MirthTable();
+        responseDataTypeLabel = new javax.swing.JLabel();
+        responseDataTypeBinaryRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        responseDataTypeTextRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -971,59 +983,83 @@ public class HttpListener extends ConnectorSettingsPanel {
         staticResourcesTable.setToolTipText("<html>Values in this table are automatically sent back to any request<br/>with the matching context path. There are three resource types:<br/> - <b>File</b>: The value field specifies the path of the file to return.<br/> - <b>Directory</b>: Any file within the directory given by the value<br/>&nbsp;&nbsp;&nbsp;field may be requested, but subdirectories are not included.<br/> - <b>Custom</b>: The value field itself is returned as the response.<br/></html>");
         responseHeadersPane1.setViewportView(staticResourcesTable);
 
+        responseDataTypeLabel.setText("Response Data Type:");
+
+        responseDataTypeBinaryRadio.setBackground(new java.awt.Color(255, 255, 255));
+        responseDataTypeButtonGroup.add(responseDataTypeBinaryRadio);
+        responseDataTypeBinaryRadio.setText("Binary");
+        responseDataTypeBinaryRadio.setToolTipText("<html>If Binary is selected, responses will be decoded from Base64 into raw byte streams.<br/>If Text is selected, responses will be encoded with the specified character set encoding.</html>");
+        responseDataTypeBinaryRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        responseDataTypeBinaryRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                responseDataTypeBinaryRadioActionPerformed(evt);
+            }
+        });
+
+        responseDataTypeTextRadio.setBackground(new java.awt.Color(255, 255, 255));
+        responseDataTypeButtonGroup.add(responseDataTypeTextRadio);
+        responseDataTypeTextRadio.setText("Text");
+        responseDataTypeTextRadio.setToolTipText("<html>If Binary is selected, responses will be decoded from Base64 into raw byte streams.<br/>If Text is selected, responses will be encoded with the specified character set encoding.</html>");
+        responseDataTypeTextRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        responseDataTypeTextRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                responseDataTypeTextRadioActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(20, 20, 20)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(staticResourcesLabel)
-                    .addComponent(contextPathLabel)
-                    .addComponent(receiveTimeoutLabel)
-                    .addComponent(messageContentLabel)
-                    .addComponent(parseMultipartLabel)
-                    .addComponent(includeMetadataLabel)
-                    .addComponent(httpUrlLabel)
-                    .addComponent(responseContentTypeLabel)
-                    .addComponent(charsetEncodingLabel)
-                    .addComponent(receiveTimeoutLabel1)
-                    .addComponent(headersLabel))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(headersLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(httpUrlLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(receiveTimeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(contextPathLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(charsetEncodingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(responseContentTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(messageContentLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(parseMultipartLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(staticResourcesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(receiveTimeoutLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(responseDataTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(includeMetadataLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(responseHeadersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)
+                    .addComponent(contextPathField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(httpUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(responseContentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(contextPathField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(messageContentPlainBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(messageContentXmlBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(parseMultipartYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(parseMultipartNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(includeMetadataYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(includeMetadataNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(httpUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(responseContentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(responseStatusCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(responseHeadersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)
+                        .addComponent(responseDataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(responseHeadersNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(responseHeadersDeleteButton)))
+                        .addComponent(responseDataTypeTextRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(responseHeadersPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)
+                        .addComponent(messageContentPlainBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(staticResourcesNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(staticResourcesDeleteButton))))
+                        .addComponent(messageContentXmlBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(parseMultipartYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(parseMultipartNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(responseStatusCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(responseHeadersPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(includeMetadataYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(includeMetadataNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(responseHeadersNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(responseHeadersDeleteButton))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(staticResourcesNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(staticResourcesDeleteButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -1059,6 +1095,11 @@ public class HttpListener extends ConnectorSettingsPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(responseContentTypeLabel)
                     .addComponent(responseContentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(responseDataTypeLabel)
+                    .addComponent(responseDataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(responseDataTypeTextRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(charsetEncodingLabel)
@@ -1170,6 +1211,17 @@ public class HttpListener extends ConnectorSettingsPanel {
         parent.setSaveEnabled(true);
     }//GEN-LAST:event_staticResourcesNewButtonActionPerformed
 
+    private void responseDataTypeBinaryRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_responseDataTypeBinaryRadioActionPerformed
+        charsetEncodingLabel.setEnabled(false);
+        charsetEncodingCombobox.setEnabled(false);
+        charsetEncodingCombobox.setSelectedIndex(0);
+    }//GEN-LAST:event_responseDataTypeBinaryRadioActionPerformed
+
+    private void responseDataTypeTextRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_responseDataTypeTextRadioActionPerformed
+        charsetEncodingLabel.setEnabled(true);
+        charsetEncodingCombobox.setEnabled(true);
+    }//GEN-LAST:event_responseDataTypeTextRadioActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private javax.swing.JLabel charsetEncodingLabel;
@@ -1183,7 +1235,6 @@ public class HttpListener extends ConnectorSettingsPanel {
     private javax.swing.JLabel includeMetadataLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton includeMetadataNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton includeMetadataYesRadio;
-    private javax.swing.ButtonGroup listenerAddressButtonGroup;
     private javax.swing.JLabel messageContentLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton messageContentPlainBodyRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton messageContentXmlBodyRadio;
@@ -1196,6 +1247,10 @@ public class HttpListener extends ConnectorSettingsPanel {
     private javax.swing.JLabel receiveTimeoutLabel1;
     private com.mirth.connect.client.ui.components.MirthTextField responseContentTypeField;
     private javax.swing.JLabel responseContentTypeLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton responseDataTypeBinaryRadio;
+    private javax.swing.ButtonGroup responseDataTypeButtonGroup;
+    private javax.swing.JLabel responseDataTypeLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton responseDataTypeTextRadio;
     private javax.swing.JButton responseHeadersDeleteButton;
     private javax.swing.JButton responseHeadersNewButton;
     private javax.swing.JScrollPane responseHeadersPane;

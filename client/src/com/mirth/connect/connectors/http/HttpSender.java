@@ -123,7 +123,7 @@ public class HttpSender extends ConnectorSettingsPanel {
 
         properties.setSocketTimeout(sendTimeoutField.getText());
 
-        properties.setUseAuthentication(authenticationYesRadio.isSelected());
+        properties.setUseAuthentication(dataTypeBinaryRadio.isSelected());
 
         if (authenticationTypeBasicRadio.isSelected()) {
             properties.setAuthenticationType("Basic");
@@ -140,6 +140,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         properties.setResponseParseMultipart(parseMultipartYesRadio.isSelected());
         properties.setResponseIncludeMetadata(includeMetadataYesRadio.isSelected());
 
+        properties.setDataTypeBinary(dataTypeBinaryRadio.isSelected());
         properties.setCharset(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
         properties.setParameters(getAdditionalProperties());
@@ -194,7 +195,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         sendTimeoutField.setText(props.getSocketTimeout());
 
         if (props.isUseAuthentication()) {
-            authenticationYesRadio.setSelected(true);
+            dataTypeBinaryRadio.setSelected(true);
             authenticationYesRadioActionPerformed(null);
         } else {
             authenticationNoRadio.setSelected(true);
@@ -245,6 +246,14 @@ public class HttpSender extends ConnectorSettingsPanel {
         }
 
         contentTypeField.setText(props.getContentType());
+
+        if (props.isDataTypeBinary()) {
+            dataTypeBinaryRadio.setSelected(true);
+            dataTypeBinaryRadioActionPerformed(null);
+        } else {
+            dataTypeTextRadio.setSelected(true);
+            dataTypeTextRadioActionPerformed(null);
+        }
 
         contentTextArea.setText(props.getContent());
 
@@ -657,8 +666,21 @@ public class HttpSender extends ConnectorSettingsPanel {
     private void setContentEnabled(boolean enabled) {
         contentTypeLabel.setEnabled(enabled);
         contentTypeField.setEnabled(enabled);
+        dataTypeLabel.setEnabled(enabled);
+        dataTypeBinaryRadio.setEnabled(enabled);
+        dataTypeTextRadio.setEnabled(enabled);
+        charsetEncodingLabel.setEnabled(enabled);
+        charsetEncodingCombobox.setEnabled(enabled);
         contentLabel.setEnabled(enabled);
         contentTextArea.setEnabled(enabled);
+
+        if (enabled) {
+            if (dataTypeBinaryRadio.isSelected()) {
+                dataTypeBinaryRadioActionPerformed(null);
+            } else {
+                dataTypeTextRadioActionPerformed(null);
+            }
+        }
     }
 
     private void setQueryParametersEnabled(boolean enabled) {
@@ -709,6 +731,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         parseMultipartButtonGroup = new javax.swing.ButtonGroup();
         includeMetadataButtonGroup = new javax.swing.ButtonGroup();
         proxyTypeButtonGroup = new javax.swing.ButtonGroup();
+        dataTypeButtonGroup = new javax.swing.ButtonGroup();
         urlLabel = new javax.swing.JLabel();
         urlField = new com.mirth.connect.client.ui.components.MirthIconTextField();
         queryParametersNewButton = new javax.swing.JButton();
@@ -738,7 +761,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         contentTypeField = new com.mirth.connect.client.ui.components.MirthTextField();
         contentTypeLabel = new javax.swing.JLabel();
         authenticationLabel = new javax.swing.JLabel();
-        authenticationYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        dataTypeBinaryRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         authenticationNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         usernameField = new com.mirth.connect.client.ui.components.MirthTextField();
         usernameLabel = new javax.swing.JLabel();
@@ -765,6 +788,9 @@ public class HttpSender extends ConnectorSettingsPanel {
         proxyPortLabel = new javax.swing.JLabel();
         proxyPortField = new com.mirth.connect.client.ui.components.MirthTextField();
         authenticationPreemptiveCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        dataTypeLabel = new javax.swing.JLabel();
+        authenticationYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        dataTypeTextRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -929,14 +955,14 @@ public class HttpSender extends ConnectorSettingsPanel {
 
         authenticationLabel.setText("Authentication:");
 
-        authenticationYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        authenticationButtonGroup.add(authenticationYesRadio);
-        authenticationYesRadio.setText("Yes");
-        authenticationYesRadio.setToolTipText("<html>Turning on authentication uses a username and password to communicate with the HTTP server.</html>");
-        authenticationYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        authenticationYesRadio.addActionListener(new java.awt.event.ActionListener() {
+        dataTypeBinaryRadio.setBackground(new java.awt.Color(255, 255, 255));
+        dataTypeButtonGroup.add(dataTypeBinaryRadio);
+        dataTypeBinaryRadio.setText("Binary");
+        dataTypeBinaryRadio.setToolTipText("<html>Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).<br/>Select Text if the outbound message is text (will be encoded with the specified character set encoding).</html>");
+        dataTypeBinaryRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        dataTypeBinaryRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                authenticationYesRadioActionPerformed(evt);
+                dataTypeBinaryRadioActionPerformed(evt);
             }
         });
 
@@ -1046,32 +1072,57 @@ public class HttpSender extends ConnectorSettingsPanel {
         authenticationPreemptiveCheckBox.setText("Preemptive");
         authenticationPreemptiveCheckBox.setToolTipText("<html>If checked, the authorization header will be sent to the server with the initial<br/>request. Otherwise, the header will only be sent when the server requests it.<br/>When using digest authentication, an Authorization header containing the<br/>realm/nonce/algorithm/qop values must be included in the Headers table.</html>");
 
+        dataTypeLabel.setText("Data Type:");
+
+        authenticationYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        authenticationButtonGroup.add(authenticationYesRadio);
+        authenticationYesRadio.setText("Yes");
+        authenticationYesRadio.setToolTipText("<html>Turning on authentication uses a username and password to communicate with the HTTP server.</html>");
+        authenticationYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        authenticationYesRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                authenticationYesRadioActionPerformed(evt);
+            }
+        });
+
+        dataTypeTextRadio.setBackground(new java.awt.Color(255, 255, 255));
+        dataTypeButtonGroup.add(dataTypeTextRadio);
+        dataTypeTextRadio.setText("Text");
+        dataTypeTextRadio.setToolTipText("<html>Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).<br/>Select Text if the outbound message is text (will be encoded with the specified character set encoding).</html>");
+        dataTypeTextRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        dataTypeTextRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dataTypeTextRadioActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(proxyPortLabel)
-                    .addComponent(proxyAddressLabel)
-                    .addComponent(useProxyServerLabel)
-                    .addComponent(includeMetadataLabel)
-                    .addComponent(parseMultipartLabel)
-                    .addComponent(sendTimeoutLabel)
-                    .addComponent(charsetEncodingLabel)
-                    .addComponent(authenticationTypeLabel)
-                    .addComponent(contentTypeLabel)
-                    .addComponent(authenticationLabel)
-                    .addComponent(usernameLabel)
-                    .addComponent(passwordLabel)
-                    .addComponent(contentLabel)
-                    .addComponent(multipartLabel)
-                    .addComponent(responseContentLabel)
-                    .addComponent(methodLabel)
-                    .addComponent(queryParametersLabel)
-                    .addComponent(headersLabel)
-                    .addComponent(urlLabel))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(includeMetadataLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(headersLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(methodLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(queryParametersLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(parseMultipartLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(sendTimeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(charsetEncodingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(authenticationTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(multipartLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(responseContentLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(contentLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(contentTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(authenticationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(dataTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(urlLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(useProxyServerLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(proxyAddressLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(proxyPortLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -1138,7 +1189,11 @@ public class HttpSender extends ConnectorSettingsPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(useProxyServerNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(proxyAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 202, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(proxyPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(proxyPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(dataTypeTextRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -1199,8 +1254,8 @@ public class HttpSender extends ConnectorSettingsPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(authenticationLabel)
-                    .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(authenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(authenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(authenticationTypeLabel)
@@ -1215,10 +1270,6 @@ public class HttpSender extends ConnectorSettingsPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(passwordLabel)
                     .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(charsetEncodingLabel)
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(queryParametersLabel)
@@ -1240,10 +1291,19 @@ public class HttpSender extends ConnectorSettingsPanel {
                     .addComponent(contentTypeLabel)
                     .addComponent(contentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(dataTypeLabel)
+                    .addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(dataTypeTextRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(charsetEncodingLabel)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(contentLabel)
-                    .addComponent(contentTextArea, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(contentTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1367,6 +1427,19 @@ public class HttpSender extends ConnectorSettingsPanel {
         proxyPortField.setEnabled(false);
     }//GEN-LAST:event_useProxyServerNoRadioActionPerformed
 
+    private void dataTypeBinaryRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dataTypeBinaryRadioActionPerformed
+        charsetEncodingLabel.setEnabled(false);
+        charsetEncodingCombobox.setEnabled(false);
+        charsetEncodingCombobox.setSelectedIndex(0);
+    }//GEN-LAST:event_dataTypeBinaryRadioActionPerformed
+
+    private void dataTypeTextRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dataTypeTextRadioActionPerformed
+        if (postButton.isSelected() || putButton.isSelected()) {
+            charsetEncodingLabel.setEnabled(true);
+            charsetEncodingCombobox.setEnabled(true);
+        }
+    }//GEN-LAST:event_dataTypeTextRadioActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup authenticationButtonGroup;
     private javax.swing.JLabel authenticationLabel;
@@ -1383,6 +1456,10 @@ public class HttpSender extends ConnectorSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea contentTextArea;
     private com.mirth.connect.client.ui.components.MirthTextField contentTypeField;
     private javax.swing.JLabel contentTypeLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton dataTypeBinaryRadio;
+    private javax.swing.ButtonGroup dataTypeButtonGroup;
+    private javax.swing.JLabel dataTypeLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton dataTypeTextRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton deleteButton;
     private com.mirth.connect.client.ui.components.MirthRadioButton getButton;
     private javax.swing.JButton headersDeleteButton;

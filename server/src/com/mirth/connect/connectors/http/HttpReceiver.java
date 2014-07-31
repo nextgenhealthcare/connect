@@ -76,10 +76,13 @@ import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
 import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
+import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
+import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -262,7 +265,7 @@ public class HttpReceiver extends SourceConnector {
 
             try {
                 Map<String, Object> sourceMap = new HashMap<String, Object>();
-                String messageContent = null;
+                Object messageContent = null;
 
                 try {
                     messageContent = getMessage(baseRequest, sourceMap);
@@ -272,20 +275,33 @@ public class HttpReceiver extends SourceConnector {
 
                 if (messageContent != null) {
                     if (isProcessBatch()) {
-                        try {
-                            BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(messageContent), sourceMap);
-                            ResponseHandler responseHandler = new SimpleResponseHandler();
+                        if (messageContent instanceof byte[]) {
+                            BatchMessageException e = new BatchMessageException("Batch processing is not supported for binary data.");
+                            logger.error(e.getMessage() + " (channel: " + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + ")", e);
+                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), null, e));
+                        } else {
+                            try {
+                                BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader((String) messageContent), sourceMap);
+                                ResponseHandler responseHandler = new SimpleResponseHandler();
 
-                            dispatchBatchMessage(batchRawMessage, responseHandler);
+                                dispatchBatchMessage(batchRawMessage, responseHandler);
 
-                            dispatchResult = responseHandler.getResultForResponse();
-                            sendResponse(baseRequest, servletResponse, dispatchResult);
-                        } catch (Throwable t) {
-                            sendErrorResponse(servletResponse, dispatchResult, t);
+                                dispatchResult = responseHandler.getResultForResponse();
+                                sendResponse(baseRequest, servletResponse, dispatchResult);
+                            } catch (Throwable t) {
+                                sendErrorResponse(servletResponse, dispatchResult, t);
+                            }
                         }
                     } else {
                         try {
-                            dispatchResult = dispatchRawMessage(new RawMessage(messageContent, null, sourceMap));
+                            RawMessage rawMessage = null;
+                            if (messageContent instanceof byte[]) {
+                                rawMessage = new RawMessage((byte[]) messageContent, null, sourceMap);
+                            } else {
+                                rawMessage = new RawMessage((String) messageContent, null, sourceMap);
+                            }
+
+                            dispatchResult = dispatchRawMessage(rawMessage);
 
                             sendResponse(baseRequest, servletResponse, dispatchResult);
                         } catch (Throwable t) {
@@ -324,7 +340,12 @@ public class HttpReceiver extends SourceConnector {
 
             if (message != null) {
                 OutputStream responseOutputStream = servletResponse.getOutputStream();
-                byte[] responseBytes = message.getBytes(connectorProperties.getCharset());
+                byte[] responseBytes;
+                if (connectorProperties.isResponseDataTypeBinary()) {
+                    responseBytes = Base64Util.decodeBase64(message.getBytes("US-ASCII"));
+                } else {
+                    responseBytes = message.getBytes(connectorProperties.getCharset());
+                }
 
                 // If the client accepts GZIP compression, compress the content
                 String acceptEncoding = baseRequest.getHeader("Accept-Encoding");
@@ -386,7 +407,7 @@ public class HttpReceiver extends SourceConnector {
         servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
     }
 
-    private String getMessage(Request request, Map<String, Object> sourceMap) throws IOException, ChannelException, MessagingException, DonkeyElementException, ParserConfigurationException {
+    private Object getMessage(Request request, Map<String, Object> sourceMap) throws IOException, ChannelException, MessagingException, DonkeyElementException, ParserConfigurationException {
         HttpRequestMessage requestMessage = new HttpRequestMessage();
         requestMessage.setMethod(request.getMethod());
         requestMessage.setHeaders(HttpMessageConverter.convertFieldEnumerationToMap(request));
@@ -400,32 +421,46 @@ public class HttpReceiver extends SourceConnector {
             requestInputStream = new GZIPInputStream(requestInputStream);
         }
 
-        // Only parse multipart if XML Body is selected and Parse Multipart is enabled
-        if (connectorProperties.isXmlBody() && connectorProperties.isParseMultipart() && ServletFileUpload.isMultipartContent(request)) {
-            requestMessage.setContent(new MimeMultipart(new ByteArrayDataSource(requestInputStream, request.getContentType())));
-        } else {
-            requestMessage.setContent(IOUtils.toString(requestInputStream, HttpMessageConverter.getDefaultHttpCharset(request.getCharacterEncoding())));
-        }
-
         ContentType contentType;
         try {
             contentType = ContentType.parse(request.getContentType());
         } catch (RuntimeException e) {
             contentType = ContentType.TEXT_PLAIN;
         }
-
         requestMessage.setContentType(contentType);
+
         requestMessage.setRemoteAddress(StringUtils.trimToEmpty(request.getRemoteAddr()));
         requestMessage.setQueryString(StringUtils.trimToEmpty(request.getQueryString()));
         requestMessage.setRequestUrl(StringUtils.trimToEmpty(getRequestURL(request)));
         requestMessage.setContextPath(StringUtils.trimToEmpty(new URL(requestMessage.getRequestUrl()).getPath()));
 
-        String rawMessageContent;
+        /*
+         * First parse out the body of the HTTP request. Depending on the connector settings, this
+         * could end up being a string encoded with the request charset, a byte array representing
+         * the raw request payload, or a MimeMultipart object.
+         */
+
+        // Only parse multipart if XML Body is selected and Parse Multipart is enabled
+        if (connectorProperties.isXmlBody() && connectorProperties.isParseMultipart() && ServletFileUpload.isMultipartContent(request)) {
+            requestMessage.setContent(new MimeMultipart(new ByteArrayDataSource(requestInputStream, contentType.toString())));
+        } else if (HttpMessageConverter.isBinaryContentType(contentType.getMimeType())) {
+            requestMessage.setContent(IOUtils.toByteArray(requestInputStream));
+        } else {
+            requestMessage.setContent(IOUtils.toString(requestInputStream, HttpMessageConverter.getDefaultHttpCharset(request.getCharacterEncoding())));
+        }
+
+        /*
+         * Now that we have the request body, we need to create the actual RawMessage message data.
+         * Depending on the connector settings this could be our custom serialized XML, a Base64
+         * string encoded from the raw request payload, or a string encoded from the payload with
+         * the request charset.
+         */
+        Object rawMessageContent;
 
         if (connectorProperties.isXmlBody()) {
             rawMessageContent = HttpMessageConverter.httpRequestToXml(requestMessage, connectorProperties.isParseMultipart(), connectorProperties.isIncludeMetadata());
         } else {
-            rawMessageContent = (String) requestMessage.getContent();
+            rawMessageContent = requestMessage.getContent();
         }
 
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));
