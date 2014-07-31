@@ -22,6 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
@@ -113,6 +114,7 @@ public class HttpDispatcher extends DestinationConnector {
 
     private static final String PROXY_CONTEXT_KEY = "dispatcherProxy";
     private static final Pattern AUTH_HEADER_PATTERN = Pattern.compile("(\\S+)\\s*=\\s*([^=,;\"\\s]+|\"([^\"]|\\\\[\\s\\S])*(?<!\\\\)\")");
+    private static final int MAX_MAP_SIZE = 100;
 
     private Logger logger = Logger.getLogger(this.getClass());
     private HttpDispatcherProperties connectorProperties;
@@ -124,6 +126,8 @@ public class HttpDispatcher extends DestinationConnector {
     private Map<Long, CloseableHttpClient> clients = new ConcurrentHashMap<Long, CloseableHttpClient>();
     private HttpConfiguration configuration;
     private RegistryBuilder<ConnectionSocketFactory> socketFactoryRegistry;
+    private Map<String, String[]> binaryMimeTypesArrayMap;
+    private Map<String, Pattern> binaryMimeTypesRegexMap;
 
     @Override
     public void onDeploy() throws DeployException {
@@ -144,6 +148,12 @@ public class HttpDispatcher extends DestinationConnector {
             configuration.configureConnectorDeploy(this);
         } catch (Exception e) {
             throw new DeployException(e);
+        }
+
+        if (connectorProperties.isResponseBinaryMimeTypesRegex()) {
+            binaryMimeTypesRegexMap = new ConcurrentHashMap<String, Pattern>();
+        } else {
+            binaryMimeTypesArrayMap = new ConcurrentHashMap<String, String[]>();
         }
     }
 
@@ -181,6 +191,7 @@ public class HttpDispatcher extends DestinationConnector {
         httpDispatcherProperties.setHost(replacer.replaceValues(httpDispatcherProperties.getHost(), connectorMessage));
         httpDispatcherProperties.setProxyAddress(replacer.replaceValues(httpDispatcherProperties.getProxyAddress(), connectorMessage));
         httpDispatcherProperties.setProxyPort(replacer.replaceValues(httpDispatcherProperties.getProxyPort(), connectorMessage));
+        httpDispatcherProperties.setResponseBinaryMimeTypes(replacer.replaceValues(httpDispatcherProperties.getResponseBinaryMimeTypes(), connectorMessage));
         httpDispatcherProperties.setHeaders(replacer.replaceValuesInMap(httpDispatcherProperties.getHeaders(), connectorMessage));
         httpDispatcherProperties.setParameters(replacer.replaceValuesInMap(httpDispatcherProperties.getParameters(), connectorMessage));
         httpDispatcherProperties.setUsername(replacer.replaceValues(httpDispatcherProperties.getUsername(), connectorMessage));
@@ -328,7 +339,7 @@ public class HttpDispatcher extends DestinationConnector {
             // Only parse multipart if XML Body is selected and Parse Multipart is enabled
             if (httpDispatcherProperties.isResponseXmlBody() && httpDispatcherProperties.isResponseParseMultipart() && responseContentType.getMimeType().startsWith(FileUploadBase.MULTIPART)) {
                 responseBody = new MimeMultipart(new ByteArrayDataSource(httpResponse.getEntity().getContent(), responseContentType.toString()));
-            } else if (HttpMessageConverter.isBinaryContentType(responseContentType.getMimeType())) {
+            } else if (isBinaryContentType(httpDispatcherProperties.getResponseBinaryMimeTypes(), responseContentType)) {
                 responseBody = IOUtils.toByteArray(httpResponse.getEntity().getContent());
             } else {
                 responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), responseCharset);
@@ -538,6 +549,45 @@ public class HttpDispatcher extends DestinationConnector {
                 request.addHeader(digestScheme.authenticate(credentials, request, context));
                 authCache.put(target, digestScheme);
             }
+        }
+    }
+
+    private boolean isBinaryContentType(String binaryMimeTypes, ContentType contentType) {
+        String mimeType = contentType.getMimeType();
+
+        if (connectorProperties.isResponseBinaryMimeTypesRegex()) {
+            Pattern binaryMimeTypesRegex = binaryMimeTypesRegexMap.get(binaryMimeTypes);
+
+            if (binaryMimeTypesRegex == null) {
+                try {
+                    binaryMimeTypesRegex = Pattern.compile(binaryMimeTypes);
+                    
+                    if (binaryMimeTypesRegexMap.size() >= MAX_MAP_SIZE) {
+                        binaryMimeTypesRegexMap.clear();
+                    }
+                    
+                    binaryMimeTypesRegexMap.put(binaryMimeTypes, binaryMimeTypesRegex);
+                } catch (PatternSyntaxException e) {
+                    logger.warn("Invalid binary MIME types regular expression: " + binaryMimeTypes, e);
+                    return false;
+                }
+            }
+
+            return binaryMimeTypesRegex.matcher(mimeType).matches();
+        } else {
+            String[] binaryMimeTypesArray = binaryMimeTypesArrayMap.get(binaryMimeTypes);
+
+            if (binaryMimeTypesArray == null) {
+                binaryMimeTypesArray = StringUtils.split(binaryMimeTypes.replaceAll("\\s*,\\s*", ",").trim(), ',');
+                
+                if (binaryMimeTypesArrayMap.size() >= MAX_MAP_SIZE) {
+                    binaryMimeTypesArrayMap.clear();
+                }
+                
+                binaryMimeTypesArrayMap.put(binaryMimeTypes, binaryMimeTypesArray);
+            }
+
+            return StringUtils.startsWithAny(mimeType, binaryMimeTypesArray);
         }
     }
 }

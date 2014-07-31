@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -101,6 +103,8 @@ public class HttpReceiver extends SourceConnector {
     private String host;
     private int port;
     private int timeout;
+    private String[] binaryMimeTypesArray;
+    private Pattern binaryMimeTypesRegex;
 
     @Override
     public void onDeploy() throws DeployException {
@@ -124,6 +128,17 @@ public class HttpReceiver extends SourceConnector {
             configuration.configureConnectorDeploy(this);
         } catch (Exception e) {
             throw new DeployException(e);
+        }
+
+        String replacedBinaryMimeTypes = replacer.replaceValues(connectorProperties.getBinaryMimeTypes(), getChannelId());
+        if (connectorProperties.isBinaryMimeTypesRegex()) {
+            try {
+                binaryMimeTypesRegex = Pattern.compile(replacedBinaryMimeTypes);
+            } catch (PatternSyntaxException e) {
+                throw new DeployException("Invalid binary MIME types regular expression: " + replacedBinaryMimeTypes, e);
+            }
+        } else {
+            binaryMimeTypesArray = StringUtils.split(replacedBinaryMimeTypes.replaceAll("\\s*,\\s*", ",").trim(), ',');
         }
     }
 
@@ -443,7 +458,7 @@ public class HttpReceiver extends SourceConnector {
         // Only parse multipart if XML Body is selected and Parse Multipart is enabled
         if (connectorProperties.isXmlBody() && connectorProperties.isParseMultipart() && ServletFileUpload.isMultipartContent(request)) {
             requestMessage.setContent(new MimeMultipart(new ByteArrayDataSource(requestInputStream, contentType.toString())));
-        } else if (HttpMessageConverter.isBinaryContentType(contentType.getMimeType())) {
+        } else if (isBinaryContentType(contentType)) {
             requestMessage.setContent(IOUtils.toByteArray(requestInputStream));
         } else {
             requestMessage.setContent(IOUtils.toString(requestInputStream, HttpMessageConverter.getDefaultHttpCharset(request.getCharacterEncoding())));
@@ -710,5 +725,15 @@ public class HttpReceiver extends SourceConnector {
         }
 
         return requestURL;
+    }
+
+    private boolean isBinaryContentType(ContentType contentType) {
+        String mimeType = contentType.getMimeType();
+
+        if (connectorProperties.isBinaryMimeTypesRegex()) {
+            return binaryMimeTypesRegex.matcher(mimeType).matches();
+        } else {
+            return StringUtils.startsWithAny(mimeType, binaryMimeTypesArray);
+        }
     }
 }

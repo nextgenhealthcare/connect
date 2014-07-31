@@ -35,6 +35,8 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
     private boolean responseXmlBody;
     private boolean responseParseMultipart;
     private boolean responseIncludeMetadata;
+    private String responseBinaryMimeTypes;
+    private boolean responseBinaryMimeTypesRegex;
     private boolean multipart;
     private boolean useAuthentication;
     private String authenticationType;
@@ -60,6 +62,8 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
         this.responseXmlBody = false;
         this.responseParseMultipart = true;
         this.responseIncludeMetadata = false;
+        this.responseBinaryMimeTypes = "application/, image/, video/, audio/";
+        this.responseBinaryMimeTypesRegex = false;
         this.multipart = false;
         this.useAuthentication = false;
         this.authenticationType = "Basic";
@@ -87,6 +91,8 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
         responseXmlBody = props.isResponseXmlBody();
         responseParseMultipart = props.isResponseParseMultipart();
         responseIncludeMetadata = props.isResponseIncludeMetadata();
+        responseBinaryMimeTypes = props.getResponseBinaryMimeTypes();
+        responseBinaryMimeTypesRegex = props.isResponseBinaryMimeTypesRegex();
         multipart = props.isMultipart();
         useAuthentication = props.isUseAuthentication();
         authenticationType = props.getAuthenticationType();
@@ -178,6 +184,22 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
 
     public void setResponseIncludeMetadata(boolean responseIncludeMetadata) {
         this.responseIncludeMetadata = responseIncludeMetadata;
+    }
+
+    public String getResponseBinaryMimeTypes() {
+        return responseBinaryMimeTypes;
+    }
+
+    public void setResponseBinaryMimeTypes(String responseBinaryMimeTypes) {
+        this.responseBinaryMimeTypes = responseBinaryMimeTypes;
+    }
+
+    public boolean isResponseBinaryMimeTypesRegex() {
+        return responseBinaryMimeTypesRegex;
+    }
+
+    public void setResponseBinaryMimeTypesRegex(boolean responseBinaryMimeTypesRegex) {
+        this.responseBinaryMimeTypesRegex = responseBinaryMimeTypesRegex;
     }
 
     public boolean isMultipart() {
@@ -357,6 +379,13 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
         element.addChildElement("proxyAddress", "");
         element.addChildElement("proxyPort", "");
 
+        if (responseXmlBody) {
+            element.addChildElement("responseBinaryMimeTypes", "application/, image/, video/, audio/");
+        } else {
+            element.addChildElement("responseBinaryMimeTypes");
+        }
+        element.addChildElement("responseBinaryMimeTypesRegex", "false");
+
         boolean useAuthentication = Boolean.parseBoolean(element.getChildElement("useAuthentication").getTextContent());
         element.addChildElement("usePreemptiveAuthentication", Boolean.toString(useAuthentication));
 
@@ -371,6 +400,7 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
         purgedProperties.put("headerCount", headers.size());
         purgedProperties.put("parameterCount", parameters.size());
         purgedProperties.put("multipart", multipart);
+        purgedProperties.put("responseBinaryMimeTypesRegex", responseBinaryMimeTypesRegex);
         purgedProperties.put("useAuthentication", useAuthentication);
         purgedProperties.put("contentLines", PurgeUtil.countLines(content));
         purgedProperties.put("dataTypeBinary", dataTypeBinary);

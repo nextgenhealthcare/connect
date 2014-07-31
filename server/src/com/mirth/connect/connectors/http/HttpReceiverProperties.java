@@ -31,6 +31,8 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     private boolean xmlBody;
     private boolean parseMultipart;
     private boolean includeMetadata;
+    private String binaryMimeTypes;
+    private boolean binaryMimeTypesRegex;
     private String responseContentType;
     private boolean responseDataTypeBinary;
     private String responseStatusCode;
@@ -47,6 +49,8 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         this.xmlBody = false;
         this.parseMultipart = true;
         this.includeMetadata = false;
+        this.binaryMimeTypes = "application/, image/, video/, audio/";
+        this.binaryMimeTypesRegex = false;
         this.responseContentType = "text/plain";
         this.responseDataTypeBinary = false;
         this.responseStatusCode = "";
@@ -79,6 +83,22 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
 
     public void setIncludeMetadata(boolean includeMetadata) {
         this.includeMetadata = includeMetadata;
+    }
+
+    public String getBinaryMimeTypes() {
+        return binaryMimeTypes;
+    }
+
+    public void setBinaryMimeTypes(String binaryMimeTypes) {
+        this.binaryMimeTypes = binaryMimeTypes;
+    }
+
+    public boolean isBinaryMimeTypesRegex() {
+        return binaryMimeTypesRegex;
+    }
+
+    public void setBinaryMimeTypesRegex(boolean binaryMimeTypesRegex) {
+        this.binaryMimeTypesRegex = binaryMimeTypesRegex;
     }
 
     public String getResponseContentType() {
@@ -193,6 +213,13 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         element.addChildElement("parseMultipart", Boolean.toString(!xmlBody));
         element.addChildElement("includeMetadata", Boolean.toString(xmlBody));
 
+        if (xmlBody) {
+            element.addChildElement("binaryMimeTypes", "application/, image/, video/, audio/");
+        } else {
+            element.addChildElement("binaryMimeTypes");
+        }
+        element.addChildElement("binaryMimeTypesRegex", "false");
+
         element.addChildElement("responseDataTypeBinary", "false");
 
         element.addChildElement("staticResources");
@@ -202,6 +229,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("sourceConnectorProperties", sourceConnectorProperties.getPurgedProperties());
+        purgedProperties.put("binaryMimeTypesRegex", binaryMimeTypesRegex);
         purgedProperties.put("responseContentType", responseContentType);
         purgedProperties.put("responseDataTypeBinary", responseDataTypeBinary);
         purgedProperties.put("responseHeaderChars", responseHeaders.size());

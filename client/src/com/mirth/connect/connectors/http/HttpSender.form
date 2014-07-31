@@ -51,26 +51,27 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="includeMetadataLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="methodLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="queryParametersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="parseMultipartLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="sendTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="charsetEncodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="authenticationTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="multipartLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseContentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="contentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="contentTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="authenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="dataTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="urlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="includeMetadataLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="useProxyServerLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseContentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="queryParametersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="methodLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseBinaryMimeTypesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="multipartLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="urlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="proxyAddressLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="proxyPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="dataTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -96,67 +97,74 @@
                   </Group>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="responseContentPlainBodyRadio" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="responseContentXmlBodyRadio" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="passwordField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
-                          <Component id="sendTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="urlField" min="-2" pref="300" max="-2" attributes="1"/>
+                          <Group type="102" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="includeMetadataYesRadio" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="includeMetadataNoRadio" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="parseMultipartYesRadio" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="parseMultipartNoRadio" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="useProxyServerYesRadio" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="useProxyServerNoRadio" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="responseContentPlainBodyRadio" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="responseContentXmlBodyRadio" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
+                                  <Component id="passwordField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
+                                  <Component id="sendTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="postButton" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="getButton" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="putButton" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="multipartYesButton" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="multipartNoButton" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Component id="proxyAddressField" alignment="0" min="-2" pref="202" max="-2" attributes="0"/>
+                                  <Component id="proxyPortField" alignment="0" min="-2" pref="56" max="-2" attributes="0"/>
+                                  <Component id="urlField" alignment="0" min="-2" pref="300" max="-2" attributes="1"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="authenticationTypeBasicRadio" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="authenticationTypeDigestRadio" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="authenticationPreemptiveCheckBox" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="authenticationYesRadio" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="authenticationNoRadio" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="testConnection" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="postButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="getButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="putButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="multipartYesButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="multipartNoButton" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" attributes="0">
-                              <Component id="parseMultipartYesRadio" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="parseMultipartNoRadio" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <Component id="includeMetadataYesRadio" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="includeMetadataNoRadio" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="authenticationYesRadio" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="authenticationNoRadio" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="authenticationTypeBasicRadio" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="authenticationTypeDigestRadio" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="authenticationPreemptiveCheckBox" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <Component id="useProxyServerYesRadio" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="useProxyServerNoRadio" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="proxyAddressField" alignment="0" min="-2" pref="202" max="-2" attributes="0"/>
-                          <Component id="proxyPortField" alignment="0" min="-2" pref="56" max="-2" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="dataTypeBinaryRadio" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="dataTypeTextRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="responseBinaryMimeTypesField" min="-2" pref="200" max="-2" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="responseBinaryMimeTypesRegexCheckBox" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
@@ -229,6 +237,12 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="responseBinaryMimeTypesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseBinaryMimeTypesField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseBinaryMimeTypesRegexCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="authenticationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -258,7 +272,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="queryParametersDeleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="queryParametersPane" pref="81" max="32767" attributes="0"/>
+                  <Component id="queryParametersPane" pref="84" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -268,7 +282,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="headersDeleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="headersPane" pref="84" max="32767" attributes="0"/>
+                  <Component id="headersPane" pref="85" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -289,7 +303,7 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="contentLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="contentTextArea" pref="132" max="32767" attributes="0"/>
+                  <Component id="contentTextArea" pref="133" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
@@ -885,6 +899,31 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dataTypeTextRadioActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="responseBinaryMimeTypesLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Binary MIME Types:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="responseBinaryMimeTypesField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When a response comes in with a Content-Type header that&lt;br/&gt;matches one of these entries, the content will be encoded&lt;br/&gt;into a Base64 string. If Regular Expression is unchecked,&lt;br/&gt;specify multiple entries with commas. Otherwise, enter a&lt;br/&gt;valid regular expression to match MIME types against.&lt;/html&gt;"/>
+        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[200, 21]"/>
+        </Property>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[200, 21]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="responseBinaryMimeTypesRegexCheckBox">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Regular Expression"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When a response comes in with a Content-Type header that&lt;br/&gt;matches one of these entries, the content will be encoded&lt;br/&gt;into a Base64 string. If Regular Expression is unchecked,&lt;br/&gt;specify multiple entries with commas. Otherwise, enter a&lt;br/&gt;valid regular expression to match MIME types against.&lt;/html&gt;"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

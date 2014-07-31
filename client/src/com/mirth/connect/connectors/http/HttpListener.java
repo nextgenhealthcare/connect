@@ -139,6 +139,8 @@ public class HttpListener extends ConnectorSettingsPanel {
         properties.setXmlBody(messageContentXmlBodyRadio.isSelected());
         properties.setParseMultipart(parseMultipartYesRadio.isSelected());
         properties.setIncludeMetadata(includeMetadataYesRadio.isSelected());
+        properties.setBinaryMimeTypes(binaryMimeTypesField.getText());
+        properties.setBinaryMimeTypesRegex(binaryMimeTypesRegexCheckBox.isSelected());
         properties.setResponseContentType(responseContentTypeField.getText());
         properties.setResponseDataTypeBinary(responseDataTypeBinaryRadio.isSelected());
         properties.setCharset(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
@@ -179,6 +181,9 @@ public class HttpListener extends ConnectorSettingsPanel {
         } else {
             includeMetadataNoRadio.setSelected(true);
         }
+
+        binaryMimeTypesField.setText(props.getBinaryMimeTypes());
+        binaryMimeTypesRegexCheckBox.setSelected(props.isBinaryMimeTypesRegex());
 
         responseContentTypeField.setText(props.getResponseContentType());
 
@@ -843,6 +848,9 @@ public class HttpListener extends ConnectorSettingsPanel {
         responseDataTypeLabel = new javax.swing.JLabel();
         responseDataTypeBinaryRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         responseDataTypeTextRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        binaryMimeTypesLabel = new javax.swing.JLabel();
+        binaryMimeTypesField = new com.mirth.connect.client.ui.components.MirthTextField();
+        binaryMimeTypesRegexCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -1007,6 +1015,16 @@ public class HttpListener extends ConnectorSettingsPanel {
             }
         });
 
+        binaryMimeTypesLabel.setText("Binary MIME Types:");
+
+        binaryMimeTypesField.setToolTipText("<html>When a response comes in with a Content-Type header that<br/>matches one of these entries, the content will be encoded<br/>into a Base64 string. If Regular Expression is unchecked,<br/>specify multiple entries with commas. Otherwise, enter a<br/>valid regular expression to match MIME types against.</html>");
+        binaryMimeTypesField.setMinimumSize(new java.awt.Dimension(200, 21));
+        binaryMimeTypesField.setPreferredSize(new java.awt.Dimension(200, 21));
+
+        binaryMimeTypesRegexCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        binaryMimeTypesRegexCheckBox.setText("Regular Expression");
+        binaryMimeTypesRegexCheckBox.setToolTipText("<html>When a response comes in with a Content-Type header that<br/>matches one of these entries, the content will be encoded<br/>into a Base64 string. If Regular Expression is unchecked,<br/>specify multiple entries with commas. Otherwise, enter a<br/>valid regular expression to match MIME types against.</html>");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -1014,44 +1032,52 @@ public class HttpListener extends ConnectorSettingsPanel {
             .addGroup(layout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(receiveTimeoutLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(binaryMimeTypesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(headersLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(httpUrlLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(responseDataTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(receiveTimeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(contextPathLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(messageContentLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(staticResourcesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(includeMetadataLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(charsetEncodingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(responseContentTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(messageContentLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(parseMultipartLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(staticResourcesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(receiveTimeoutLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(responseDataTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(includeMetadataLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addComponent(parseMultipartLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(responseHeadersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)
-                    .addComponent(contextPathField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(httpUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(responseContentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(responseDataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(responseDataTypeTextRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(messageContentPlainBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(messageContentXmlBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(parseMultipartYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(parseMultipartNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(responseStatusCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(responseHeadersPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(includeMetadataYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(includeMetadataNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(responseStatusCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(httpUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(responseDataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(responseDataTypeTextRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(contextPathField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(messageContentPlainBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(messageContentXmlBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(includeMetadataYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(includeMetadataNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(parseMultipartYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(parseMultipartNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(responseContentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(binaryMimeTypesField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(binaryMimeTypesRegexCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -1089,6 +1115,11 @@ public class HttpListener extends ConnectorSettingsPanel {
                     .addComponent(includeMetadataNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(binaryMimeTypesLabel)
+                    .addComponent(binaryMimeTypesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(binaryMimeTypesRegexCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(httpUrlLabel)
                     .addComponent(httpUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1115,7 +1146,7 @@ public class HttpListener extends ConnectorSettingsPanel {
                         .addComponent(responseHeadersNewButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(responseHeadersDeleteButton))
-                    .addComponent(responseHeadersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE))
+                    .addComponent(responseHeadersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(staticResourcesLabel)
@@ -1123,7 +1154,7 @@ public class HttpListener extends ConnectorSettingsPanel {
                         .addComponent(staticResourcesNewButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(staticResourcesDeleteButton))
-                    .addComponent(responseHeadersPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE))
+                    .addComponent(responseHeadersPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -1223,6 +1254,9 @@ public class HttpListener extends ConnectorSettingsPanel {
     }//GEN-LAST:event_responseDataTypeTextRadioActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.mirth.connect.client.ui.components.MirthTextField binaryMimeTypesField;
+    private javax.swing.JLabel binaryMimeTypesLabel;
+    private com.mirth.connect.client.ui.components.MirthCheckBox binaryMimeTypesRegexCheckBox;
     private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private javax.swing.JLabel charsetEncodingLabel;
     private com.mirth.connect.client.ui.components.MirthTextField contextPathField;

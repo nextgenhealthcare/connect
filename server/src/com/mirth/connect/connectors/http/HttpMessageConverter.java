@@ -180,9 +180,4 @@ public class HttpMessageConverter {
 
         return headers;
     }
-
-    public static boolean isBinaryContentType(String contentType) {
-        return StringUtils.startsWithAny(contentType, new String[] { "application/", "image/",
-                "video/", "audio/" });
-    }
 }

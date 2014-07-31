@@ -36,51 +36,62 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="receiveTimeoutLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="binaryMimeTypesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="httpUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseDataTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="receiveTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="contextPathLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="messageContentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="staticResourcesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="includeMetadataLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="charsetEncodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="responseContentTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="messageContentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="parseMultipartLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="staticResourcesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="receiveTimeoutLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseDataTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="includeMetadataLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="responseHeadersPane" alignment="0" pref="423" max="32767" attributes="0"/>
-                  <Component id="contextPathField" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
-                  <Component id="httpUrlField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
-                  <Component id="receiveTimeoutField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
-                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseContentTypeField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="responseDataTypeBinaryRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="responseDataTypeTextRadio" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="messageContentPlainBodyRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="messageContentXmlBodyRadio" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="parseMultipartYesRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="parseMultipartNoRadio" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="responseStatusCodeField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
                   <Component id="responseHeadersPane1" alignment="0" pref="423" max="32767" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="includeMetadataYesRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="includeMetadataNoRadio" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="responseStatusCodeField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
+                          <Component id="httpUrlField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="responseDataTypeBinaryRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="responseDataTypeTextRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="receiveTimeoutField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
+                          <Component id="contextPathField" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="messageContentPlainBodyRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="messageContentXmlBodyRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="includeMetadataYesRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="includeMetadataNoRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="parseMultipartYesRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="parseMultipartNoRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="responseContentTypeField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="binaryMimeTypesField" min="-2" pref="200" max="-2" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="binaryMimeTypesRegexCheckBox" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -130,6 +141,12 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="binaryMimeTypesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="binaryMimeTypesField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="binaryMimeTypesRegexCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="httpUrlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="httpUrlField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -162,7 +179,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="responseHeadersDeleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="responseHeadersPane" alignment="0" pref="101" max="32767" attributes="2"/>
+                  <Component id="responseHeadersPane" alignment="0" pref="104" max="32767" attributes="2"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -172,7 +189,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="staticResourcesDeleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="responseHeadersPane1" alignment="0" pref="103" max="32767" attributes="2"/>
+                  <Component id="responseHeadersPane1" alignment="0" pref="105" max="32767" attributes="2"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
@@ -490,6 +507,31 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="responseDataTypeTextRadioActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="binaryMimeTypesLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Binary MIME Types:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="binaryMimeTypesField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When a response comes in with a Content-Type header that&lt;br/&gt;matches one of these entries, the content will be encoded&lt;br/&gt;into a Base64 string. If Regular Expression is unchecked,&lt;br/&gt;specify multiple entries with commas. Otherwise, enter a&lt;br/&gt;valid regular expression to match MIME types against.&lt;/html&gt;"/>
+        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[200, 21]"/>
+        </Property>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[200, 21]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="binaryMimeTypesRegexCheckBox">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Regular Expression"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When a response comes in with a Content-Type header that&lt;br/&gt;matches one of these entries, the content will be encoded&lt;br/&gt;into a Base64 string. If Regular Expression is unchecked,&lt;br/&gt;specify multiple entries with commas. Otherwise, enter a&lt;br/&gt;valid regular expression to match MIME types against.&lt;/html&gt;"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>
