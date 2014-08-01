@@ -66,8 +66,8 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
         }
 
         /*
-         * Skip the root element, MSH.1, and MSH.2 since those don't have any
-         * data that we care about.
+         * Skip the root element, MSH.1, and MSH.2 since those don't have any data that we care
+         * about.
          */
         if ((localNameArray.length == 1) && (localNameArray[0].equals(ER7Reader.MESSAGE_ROOT_ID))) {
             rootLevel = 0;
@@ -82,31 +82,29 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
         }
 
         /*
-         * If the element that we've found is the same as the last, then we have
-         * a repetition, so we remove the last separator that was added and
-         * append to repetition separator.
+         * If the element that we've found is the same as the last, then we have a repetition, so we
+         * remove the last separator that was added and append to repetition separator.
          */
         if (ArrayUtils.isEquals(localNameArray, previousFieldNameArray)) {
             output.deleteCharAt(output.length() - 1);
             output.append(repetitionSeparator);
+            previousComponentNameArray = null;
             return;
         }
 
         /*
-         * To find the delimeter count we are splitting the element name by the
-         * ID delimeter.
+         * To find the delimeter count we are splitting the element name by the ID delimeter.
          */
         int currentDelimeterCount = localNameArray.length - 1;
 
         /*
-         * MIRTH-2078: Don't add missing fields/components/subcomponents if the
-         * current level was the starting level. This only pertains to partial
-         * XML messages where the root is a field or component.
+         * MIRTH-2078: Don't add missing fields/components/subcomponents if the current level was
+         * the starting level. This only pertains to partial XML messages where the root is a field
+         * or component.
          */
         if (currentDelimeterCount == 1 && rootLevel <= 1) {
             /*
-             * This will add missing fields if any (ex. between OBX.1 and
-             * OBX.5).
+             * This will add missing fields if any (ex. between OBX.1 and OBX.5).
              */
             int previousFieldId = 0;
 
@@ -123,8 +121,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
             previousFieldNameArray = localNameArray;
         } else if (currentDelimeterCount == 2 && rootLevel <= 2) {
             /*
-             * This will add missing components if any (ex. between OBX.1.1 and
-             * OBX.1.5).
+             * This will add missing components if any (ex. between OBX.1.1 and OBX.1.5).
              */
             int previousComponentId = 0;
 
@@ -142,8 +139,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
             previousComponentNameArray = localNameArray;
         } else if (currentDelimeterCount == 3 && rootLevel <= 3) {
             /*
-             * This will add missing subcomponents if any (ex. between OBX.1.1.1
-             * and OBX.1.1.5).
+             * This will add missing subcomponents if any (ex. between OBX.1.1.1 and OBX.1.1.5).
              */
             int previousSubcomponentId = 0;
 
@@ -162,22 +158,22 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
         }
 
         /*
-         * If we have an element with no periods, then we know its the name of
-         * the segment, so write it to the output buffer followed by the field
-         * separator.
+         * If we have an element with no periods, then we know its the name of the segment, so write
+         * it to the output buffer followed by the field separator.
          */
         if (currentDelimeterCount == 0) {
             output.append(localName);
             output.append(fieldSeparator);
 
             /*
-             * Also set previousFieldName to null so that multiple segments in a
-             * row with only one field don't trigger a repetition character.
-             * (i.e. NTE|1<CR>NTE|2)
+             * Also set previousFieldName to null so that multiple segments in a row with only one
+             * field don't trigger a repetition character. (i.e. NTE|1<CR>NTE|2)
              */
             previousFieldNameArray = null;
         } else if (currentDelimeterCount == 1) {
             previousComponentNameArray = null;
+        } else if (currentDelimeterCount == 2) {
+            previousSubcomponentNameArray = null;
         }
     }
 
@@ -189,9 +185,8 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
         String[] localNameArray = StringUtils.split(localName, ID_DELIMETER);
 
         /*
-         * Once we see the closing of MSH.1 or MSH.2 tags, we know that the
-         * separator characters have been added to the output buffer, so we can
-         * grab them and set the local variables.
+         * Once we see the closing of MSH.1 or MSH.2 tags, we know that the separator characters
+         * have been added to the output buffer, so we can grab them and set the local variables.
          */
         if ((localNameArray.length == 1) && (localNameArray[0].equals(ER7Reader.MESSAGE_ROOT_ID))) {
             return;
@@ -213,8 +208,8 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
         int currentDelimeterCount = localNameArray.length - 1;
 
         /*
-         * We don't want to have tailing separators, so once we get to the last
-         * element of a nested level, we delete the last character.
+         * We don't want to have tailing separators, so once we get to the last element of a nested
+         * level, we delete the last character.
          */
         if (currentDelimeterCount > previousDelimeterCount) {
             previousDelimeterCount = currentDelimeterCount;
@@ -224,15 +219,13 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
         }
 
         /*
-         * The number of periods in the element tells us the level. So, MSH is
-         * at level 0, MSH.3 is at level 1, MSH.3.1 at level 2, and so on. We
-         * can use this to determine which seperator to append once the element
-         * is closed.
+         * The number of periods in the element tells us the level. So, MSH is at level 0, MSH.3 is
+         * at level 1, MSH.3.1 at level 2, and so on. We can use this to determine which seperator
+         * to append once the element is closed.
          * 
-         * MIRTH-2078: Only add the last character if the root delimiter is 0
-         * (HL7Message) or the current element level is deeper than the root
-         * level. This only pertains to partial XML messages where the root is a
-         * field or component.
+         * MIRTH-2078: Only add the last character if the root delimiter is 0 (HL7Message) or the
+         * current element level is deeper than the root level. This only pertains to partial XML
+         * messages where the root is a field or component.
          */
         if (rootLevel == 0 || currentDelimeterCount >= rootLevel) {
             switch (currentDelimeterCount) {
@@ -261,8 +254,8 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
         String str = new String(ch, start, length);
 
         /*
-         * Write the substring to the output buffer, unless it is the field
-         * separators (to avoid MSH.1. being written out).
+         * Write the substring to the output buffer, unless it is the field separators (to avoid
+         * MSH.1. being written out).
          */
         if (inElement && !str.equals(fieldSeparator)) {
             logger.trace("writing output: " + str);
