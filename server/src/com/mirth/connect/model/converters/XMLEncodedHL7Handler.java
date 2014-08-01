@@ -89,6 +89,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
         if (ArrayUtils.isEquals(localNameArray, previousFieldNameArray)) {
             output.deleteCharAt(output.length() - 1);
             output.append(repetitionSeparator);
+            previousComponentNameArray = null;
             return;
         }
 
@@ -178,6 +179,8 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
             previousFieldNameArray = null;
         } else if (currentDelimeterCount == 1) {
             previousComponentNameArray = null;
+        } else if (currentDelimeterCount == 2) {
+            previousSubcomponentNameArray = null;
         }
     }
 
