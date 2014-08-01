@@ -19,15 +19,21 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.EventObject;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
@@ -67,6 +73,13 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     private final String ID_COLUMN_NAME = "ID";
     private final String CONTENT_COLUMN_NAME = "Content";
     private final String MIME_TYPE_COLUMN_NAME = "MIME Type";
+
+    private final int NAME_COLUMN = 0;
+    private final int VALUE_COLUMN = 1;
+    private final String NAME_COLUMN_NAME = "Name";
+    private final String VALUE_COLUMN_NAME = "Value";
+    private int headerLastIndex = -1;
+
     ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private Frame parent;
     private DefinitionServiceMap currentServiceMap;
@@ -87,6 +100,14 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         };
         wsdlUrlField.addKeyListener(keyListener);
         soapActionField.addKeyListener(keyListener);
+
+        headersPane.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                deselectRows(headersTable, headersDeleteButton);
+            }
+        });
+        headersDeleteButton.setEnabled(false);
 
         sslWarningPanel = new SSLWarningPanel();
     }
@@ -126,6 +147,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         }
 
         properties.setWsdlDefinitionMap(currentServiceMap);
+        properties.setHeaders(getHeaderProperties());
 
         properties.setUseMtom(useMtomYesRadio.isSelected());
 
@@ -177,6 +199,12 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         generateEnvelope.setEnabled(!isDefaultOperations());
 
         parent.setSaveEnabled(enabled);
+
+        if (props.getHeaders() != null) {
+            setHeaderProperties(props.getHeaders());
+        } else {
+            setHeaderProperties(new LinkedHashMap<String, String>());
+        }
 
         List<List<String>> attachments = new ArrayList<List<String>>();
 
@@ -354,6 +382,153 @@ public class WebServiceSender extends ConnectorSettingsPanel {
 
     private boolean isDefaultOperations() {
         return (operationComboBox.getItemCount() == 1 && operationComboBox.getItemAt(0).equals(WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN));
+    }
+
+    public void setHeaderProperties(Map<String, String> properties) {
+        Object[][] tableData = new Object[properties.size()][2];
+
+        headersTable = new MirthTable();
+
+        int j = 0;
+        Iterator i = properties.entrySet().iterator();
+        while (i.hasNext()) {
+            Map.Entry entry = (Map.Entry) i.next();
+            tableData[j][NAME_COLUMN] = (String) entry.getKey();
+            tableData[j][VALUE_COLUMN] = (String) entry.getValue();
+            j++;
+        }
+
+        headersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
+                NAME_COLUMN_NAME, VALUE_COLUMN_NAME }) {
+
+            boolean[] canEdit = new boolean[] { true, true };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit[columnIndex];
+            }
+        });
+
+        headersTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            public void valueChanged(ListSelectionEvent evt) {
+                if (getSelectedRow(headersTable) != -1) {
+                    headerLastIndex = getSelectedRow(headersTable);
+                    headersDeleteButton.setEnabled(true);
+                } else {
+                    headersDeleteButton.setEnabled(false);
+                }
+            }
+        });
+
+        class WebServiceTableCellEditor extends TextFieldCellEditor {
+            boolean checkProperties;
+
+            public WebServiceTableCellEditor(boolean checkProperties) {
+                super();
+                this.checkProperties = checkProperties;
+            }
+
+            public boolean checkUniqueProperty(String property) {
+                boolean exists = false;
+
+                for (int i = 0; i < headersTable.getRowCount(); i++) {
+                    if (headersTable.getValueAt(i, NAME_COLUMN) != null && ((String) headersTable.getValueAt(i, NAME_COLUMN)).equalsIgnoreCase(property)) {
+                        exists = true;
+                    }
+                }
+
+                return exists;
+            }
+
+            @Override
+            public boolean isCellEditable(EventObject evt) {
+                boolean editable = super.isCellEditable(evt);
+
+                if (editable) {
+                    headersDeleteButton.setEnabled(false);
+                }
+
+                return editable;
+            }
+
+            @Override
+            protected boolean valueChanged(String value) {
+                headersDeleteButton.setEnabled(true);
+
+                if (checkProperties && (value.length() == 0 || checkUniqueProperty(value))) {
+                    return false;
+                }
+
+                parent.setSaveEnabled(true);
+                return true;
+            }
+        }
+
+        headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(NAME_COLUMN_NAME)).setCellEditor(new WebServiceTableCellEditor(true));
+        headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new WebServiceTableCellEditor(false));
+        headersTable.setCustomEditorControls(true);
+
+        headersTable.setSelectionMode(0);
+        headersTable.setRowSelectionAllowed(true);
+        headersTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        headersTable.setDragEnabled(false);
+        headersTable.setOpaque(true);
+        headersTable.setSortable(false);
+        headersTable.getTableHeader().setReorderingAllowed(false);
+
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            headersTable.setHighlighters(highlighter);
+        }
+
+        headersPane.setViewportView(headersTable);
+    }
+
+    public Map<String, String> getHeaderProperties() {
+        Map<String, String> properties = new LinkedHashMap<String, String>();
+
+        for (int i = 0; i < headersTable.getRowCount(); i++) {
+            if (((String) headersTable.getValueAt(i, NAME_COLUMN)).length() > 0) {
+                properties.put(((String) headersTable.getValueAt(i, NAME_COLUMN)), ((String) headersTable.getValueAt(i, VALUE_COLUMN)));
+            }
+        }
+
+        return properties;
+    }
+
+    /** Clears the selection in the table and sets the tasks appropriately */
+    public void deselectRows(MirthTable table, JButton button) {
+        table.clearSelection();
+        button.setEnabled(false);
+    }
+
+    /** Get the currently selected table index */
+    public int getSelectedRow(MirthTable table) {
+        if (table.isEditing()) {
+            return table.getEditingRow();
+        } else {
+            return table.getSelectedRow();
+        }
+    }
+
+    /**
+     * Get the name that should be used for a new property so that it is unique.
+     */
+    private String getNewPropertyName(MirthTable table) {
+        String temp = "Property ";
+
+        for (int i = 1; i <= table.getRowCount() + 1; i++) {
+            boolean exists = false;
+            for (int j = 0; j < table.getRowCount(); j++) {
+                if (((String) table.getValueAt(j, NAME_COLUMN)).equalsIgnoreCase(temp + i)) {
+                    exists = true;
+                }
+            }
+            if (!exists) {
+                return temp + i;
+            }
+        }
+        return "";
     }
 
     private void setAttachments(List<List<String>> attachments) {
@@ -592,6 +767,11 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         locationURIComboBox = new com.mirth.connect.client.ui.components.MirthEditableComboBox();
         socketTimeoutLabel = new javax.swing.JLabel();
         socketTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
+        headersLabel = new javax.swing.JLabel();
+        headersNewButton = new javax.swing.JButton();
+        headersPane = new javax.swing.JScrollPane();
+        headersTable = new com.mirth.connect.client.ui.components.MirthTable();
+        headersDeleteButton = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -759,11 +939,38 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         locationURILabel.setText("Location URI:");
 
         locationURIComboBox.setBackground(new java.awt.Color(222, 222, 222));
-        locationURIComboBox.setToolTipText("<html>The dispatch location for the port / endpoint defined above.<br/>This field is filled in automatically when the Get Operations<br/>button is clicked and does not usually need to be changed.</html>");
+        locationURIComboBox.setToolTipText("<html>The dispatch location for the port / endpoint defined above.<br/>This field is filled in automatically when the Get Operations<br/>button is clicked and does not usually need to be changed.<br/>If left blank, the default URI defined in the WSDL will be used.</html>");
 
         socketTimeoutLabel.setText("Socket Timeout (ms):");
 
         socketTimeoutField.setToolTipText("<html>Sets the connection and socket timeout (SO_TIMEOUT) in<br/>milliseconds to be used when invoking the web service.<br/>A timeout value of zero is interpreted as an infinite timeout.</html>");
+
+        headersLabel.setText("Headers:");
+
+        headersNewButton.setText("New");
+        headersNewButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                headersNewButtonActionPerformed(evt);
+            }
+        });
+
+        headersTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Name", "Value"
+            }
+        ));
+        headersTable.setToolTipText("Header parameters are encoded as HTTP headers in the HTTP request sent to the server.");
+        headersPane.setViewportView(headersTable);
+
+        headersDeleteButton.setText("Delete");
+        headersDeleteButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                headersDeleteButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -772,37 +979,38 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(attachmentsLabel)
                     .addComponent(socketTimeoutLabel)
                     .addComponent(locationURILabel)
                     .addComponent(authenticationLabel)
                     .addComponent(soapActionLabel)
-                    .addComponent(attachmentsLabel)
                     .addComponent(jLabel4)
-                    .addComponent(useMtomLabel)
                     .addComponent(portLabel)
                     .addComponent(usernameLabel)
                     .addComponent(jLabel1)
                     .addComponent(serviceLabel)
                     .addComponent(passwordLabel)
                     .addComponent(invocationTypeLabel)
-                    .addComponent(wsdlUrlLabel))
+                    .addComponent(wsdlUrlLabel)
+                    .addComponent(headersLabel)
+                    .addComponent(useMtomLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(wsdlUrlField, javax.swing.GroupLayout.DEFAULT_SIZE, 252, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(getOperationsButton))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(attachmentsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(newButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(deleteButton)))
                     .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE)
                     .addComponent(soapActionField, javax.swing.GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE)
                     .addComponent(serviceComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(portComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(locationURIComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(headersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(headersNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(headersDeleteButton)))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -819,12 +1027,18 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                                 .addComponent(operationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(generateEnvelope))
+                            .addComponent(socketTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(useMtomYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(useMtomNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(socketTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                                .addComponent(useMtomNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(attachmentsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(newButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(deleteButton))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -882,18 +1096,26 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                     .addComponent(jLabel4)
                     .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(headersLabel)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(headersNewButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(headersDeleteButton))
+                    .addComponent(headersPane, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(useMtomLabel)
                     .addComponent(useMtomYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(useMtomNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(attachmentsLabel)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(newButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(deleteButton))
-                    .addComponent(attachmentsLabel)
-                    .addComponent(attachmentsPane, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(attachmentsPane, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -1068,6 +1290,31 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         }
     }//GEN-LAST:event_portComboBoxActionPerformed
 
+    private void headersNewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_headersNewButtonActionPerformed
+        ((DefaultTableModel) headersTable.getModel()).addRow(new Object[] {
+                getNewPropertyName(headersTable), "" });
+        headersTable.setRowSelectionInterval(headersTable.getRowCount() - 1, headersTable.getRowCount() - 1);
+        parent.setSaveEnabled(true);
+    }//GEN-LAST:event_headersNewButtonActionPerformed
+
+    private void headersDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_headersDeleteButtonActionPerformed
+        if (getSelectedRow(headersTable) != -1 && !headersTable.isEditing()) {
+            ((DefaultTableModel) headersTable.getModel()).removeRow(getSelectedRow(headersTable));
+
+            if (headersTable.getRowCount() != 0) {
+                if (headerLastIndex == 0) {
+                    headersTable.setRowSelectionInterval(0, 0);
+                } else if (headerLastIndex == headersTable.getRowCount()) {
+                    headersTable.setRowSelectionInterval(headerLastIndex - 1, headerLastIndex - 1);
+                } else {
+                    headersTable.setRowSelectionInterval(headerLastIndex, headerLastIndex);
+                }
+            }
+
+            parent.setSaveEnabled(true);
+        }
+    }//GEN-LAST:event_headersDeleteButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel attachmentsLabel;
     private javax.swing.JScrollPane attachmentsPane;
@@ -1079,6 +1326,11 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     private javax.swing.JButton deleteButton;
     private javax.swing.JButton generateEnvelope;
     private javax.swing.JButton getOperationsButton;
+    private javax.swing.JButton headersDeleteButton;
+    private javax.swing.JLabel headersLabel;
+    private javax.swing.JButton headersNewButton;
+    private javax.swing.JScrollPane headersPane;
+    private com.mirth.connect.client.ui.components.MirthTable headersTable;
     private javax.swing.ButtonGroup invocationButtonGroup;
     private com.mirth.connect.client.ui.components.MirthRadioButton invocationOneWayRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton invocationTwoWayRadio;

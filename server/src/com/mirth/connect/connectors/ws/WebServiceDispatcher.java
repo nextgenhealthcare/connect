@@ -18,8 +18,11 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
@@ -284,6 +287,7 @@ public class WebServiceDispatcher extends DestinationConnector {
 
         webServiceDispatcherProperties.setSoapAction(replacer.replaceValues(webServiceDispatcherProperties.getSoapAction(), connectorMessage));
         webServiceDispatcherProperties.setEnvelope(replacer.replaceValues(webServiceDispatcherProperties.getEnvelope(), connectorMessage));
+        webServiceDispatcherProperties.setHeaders(replacer.replaceValuesInMap(webServiceDispatcherProperties.getHeaders(), connectorMessage));
 
         if (webServiceDispatcherProperties.isUseMtom()) {
             replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentNames(), connectorMessage);
@@ -338,6 +342,25 @@ public class WebServiceDispatcher extends DestinationConnector {
             if (StringUtils.isNotEmpty(soapAction)) {
                 dispatch.getRequestContext().put(BindingProvider.SOAPACTION_USE_PROPERTY, true); // MIRTH-2109
                 dispatch.getRequestContext().put(BindingProvider.SOAPACTION_URI_PROPERTY, soapAction);
+            }
+
+            // Add custom headers
+            if (MapUtils.isNotEmpty(webServiceDispatcherProperties.getHeaders())) {
+                Map<String, List<String>> requestHeaders = (Map<String, List<String>>) dispatch.getRequestContext().get(MessageContext.HTTP_REQUEST_HEADERS);
+                if (requestHeaders == null) {
+                    requestHeaders = new HashMap<String, List<String>>();
+                }
+
+                for (Entry<String, String> entry : webServiceDispatcherProperties.getHeaders().entrySet()) {
+                    List<String> valueList = requestHeaders.get(entry.getKey());
+                    if (valueList == null) {
+                        valueList = new ArrayList<String>();
+                        requestHeaders.put(entry.getKey(), valueList);
+                    }
+                    valueList.add(entry.getValue());
+                }
+
+                dispatch.getRequestContext().put(MessageContext.HTTP_REQUEST_HEADERS, requestHeaders);
             }
 
             // build the message

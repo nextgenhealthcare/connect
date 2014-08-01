@@ -10,6 +10,7 @@
 package com.mirth.connect.connectors.ws;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     private String password;
     private String envelope;
     private boolean oneWay;
+    private Map<String, String> headers;
     private boolean useMtom;
     private List<String> attachmentNames;
     private List<String> attachmentContents;
@@ -60,12 +62,13 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         this.service = "";
         this.port = "";
         this.locationURI = "";
-        this.socketTimeout = "30000"; 
+        this.socketTimeout = "30000";
         this.useAuthentication = false;
         this.username = "";
         this.password = "";
         this.envelope = "";
         this.oneWay = false;
+        this.headers = new LinkedHashMap<String, String>();
         this.useMtom = false;
         this.attachmentNames = new ArrayList<String>();
         this.attachmentContents = new ArrayList<String>();
@@ -89,6 +92,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         password = props.getPassword();
         envelope = props.getEnvelope();
         oneWay = props.isOneWay();
+        headers = new LinkedHashMap<String, String>(props.getHeaders());
         useMtom = props.isUseMtom();
         attachmentNames = new ArrayList<String>(props.getAttachmentNames());
         attachmentContents = new ArrayList<String>(props.getAttachmentContents());
@@ -182,6 +186,14 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
 
     public void setOneWay(boolean oneWay) {
         this.oneWay = oneWay;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
     }
 
     public boolean isUseMtom() {
@@ -350,11 +362,19 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
                 DonkeyElement definitionMapElement = element.addChildElementFromXml(ObjectXMLSerializer.getInstance().serialize(wsdlDefinitionMap));
                 definitionMapElement.setNodeName("wsdlDefinitionMap");
             } catch (DonkeyElementException e) {
-                throw new SerializerException("Failed to migrate Web Service Sender operation list.");
+                throw new SerializerException("Failed to migrate Web Service Sender operation list.", e);
             }
         }
-        
+
         element.addChildElement("socketTimeout", "0");
+
+        Map<String, String> headers = new LinkedHashMap<String, String>();
+        try {
+            DonkeyElement headersElement = element.addChildElementFromXml(ObjectXMLSerializer.getInstance().serialize(headers));
+            headersElement.setNodeName("headers");
+        } catch (DonkeyElementException e) {
+            throw new SerializerException("Failed to migrate Web Service Sender headers.", e);
+        }
     }
 
     @Override
@@ -364,6 +384,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         purgedProperties.put("useAuthentication", useAuthentication);
         purgedProperties.put("envelopeLines", PurgeUtil.countLines(envelope));
         purgedProperties.put("oneWay", oneWay);
+        purgedProperties.put("headersCount", headers.size());
         purgedProperties.put("useMtom", useMtom);
         purgedProperties.put("attachmentNamesCount", attachmentNames.size());
         purgedProperties.put("attachmentContentCount", attachmentContents.size());
