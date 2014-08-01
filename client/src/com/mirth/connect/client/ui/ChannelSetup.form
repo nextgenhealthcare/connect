@@ -31,7 +31,7 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="channelView" pref="816" max="32767" attributes="0"/>
+          <Component id="channelView" pref="776" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -98,7 +98,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="messagePruningPanel" max="32767" attributes="0"/>
-                                  <Component id="customMetadataPanel" pref="399" max="32767" attributes="0"/>
+                                  <Component id="customMetadataPanel" pref="420" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
@@ -119,7 +119,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="channelTagsPanel" max="32767" attributes="0"/>
-                          <Component id="customMetadataPanel" pref="138" max="32767" attributes="0"/>
+                          <Component id="customMetadataPanel" pref="153" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jPanel1" max="32767" attributes="0"/>
@@ -165,22 +165,30 @@
                               </Group>
                               <Component id="summaryNameField" alignment="0" min="-2" pref="185" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" attributes="0">
-                                  <Component id="summaryEnabledCheckbox" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" pref="195" max="-2" attributes="0"/>
-                                  <Component id="summaryRevision" max="32767" attributes="0"/>
+                                  <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="clearGlobalChannelMapCheckBox" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
+                                          <Component id="summaryRevision" max="32767" attributes="0"/>
+                                      </Group>
+                                      <Group type="102" attributes="0">
+                                          <Component id="attachmentStoreCheckBox" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="attachmentWarningLabel" min="-2" pref="351" max="-2" attributes="0"/>
+                                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                      </Group>
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="summaryEnabledCheckbox" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="channelIdField" max="32767" attributes="0"/>
+                                      </Group>
+                                  </Group>
                               </Group>
-                              <Group type="102" attributes="0">
-                                  <Component id="attachmentStoreCheckBox" min="-2" max="-2" attributes="0"/>
+                              <Group type="102" alignment="1" attributes="0">
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="attachmentWarningLabel" min="-2" pref="351" max="-2" attributes="0"/>
-                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                              </Group>
-                              <Group type="102" attributes="0">
-                                  <Component id="clearGlobalChannelMapCheckBox" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
                                   <Component id="lastModified" max="32767" attributes="0"/>
                               </Group>
                           </Group>
@@ -194,24 +202,30 @@
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="summaryNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="summaryNameField" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="summaryRevision" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="summaryEnabledCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="channelIdField" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                                  <Component id="lastModified" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="clearGlobalChannelMapCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Group type="103" groupAlignment="3" attributes="0">
+                                      <Component id="summaryPatternLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="changeDataTypesButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="3" attributes="0">
+                                      <Component id="initialState" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="initialStateLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  </Group>
                               </Group>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="summaryPatternLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="changeDataTypesButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Group type="103" groupAlignment="3" attributes="0">
+                                      <Component id="clearGlobalChannelMapCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="summaryRevision" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                  <Component id="lastModified" min="-2" max="-2" attributes="0"/>
                               </Group>
-                          </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="initialState" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="initialStateLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
@@ -371,6 +385,16 @@
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
                   </AuxValues>
+                </Component>
+                <Component class="javax.swing.JTextField" name="channelIdField">
+                  <Properties>
+                    <Property name="editable" type="boolean" value="false"/>
+                    <Property name="horizontalAlignment" type="int" value="4"/>
+                    <Property name="text" type="java.lang.String" value="Id: "/>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="null"/>
+                    </Property>
+                  </Properties>
                 </Component>
               </SubComponents>
             </Container>
@@ -613,7 +637,7 @@
                               <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="archiveCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="43" max="32767" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -868,7 +892,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
                               <Component id="addMetaDataButton" max="32767" attributes="0"/>
-                              <Component id="deleteMetaDataButton" pref="60" max="32767" attributes="0"/>
+                              <Component id="deleteMetaDataButton" pref="0" max="32767" attributes="0"/>
                               <Component id="revertMetaDataButton" alignment="0" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -1019,12 +1043,12 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="sourceConnectorPane" pref="787" max="32767" attributes="0"/>
+                          <Component id="sourceConnectorPane" pref="743" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="sourceSourceLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="sourceSourceDropdown" min="-2" max="-2" attributes="2"/>
-                              <EmptySpace min="0" pref="483" max="32767" attributes="0"/>
+                              <EmptySpace min="0" pref="367" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -1069,9 +1093,6 @@
             </Component>
             <Container class="javax.swing.JScrollPane" name="sourceConnectorPane">
               <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="null"/>
                 </Property>
@@ -1117,9 +1138,9 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="destinationTablePane" alignment="0" pref="787" max="32767" attributes="0"/>
+                          <Component id="destinationTablePane" alignment="0" pref="743" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
-                              <Component id="destinationConnectorPane" pref="595" max="32767" attributes="0"/>
+                              <Component id="destinationConnectorPane" pref="551" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="destinationVariableList" min="-2" pref="186" max="-2" attributes="0"/>
                           </Group>
@@ -1129,7 +1150,7 @@
                               <Component id="destinationSourceDropdown" min="-2" max="-2" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="waitForPreviousCheckbox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="308" max="32767" attributes="0"/>
+                              <EmptySpace min="0" pref="157" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -1185,9 +1206,6 @@
             </Component>
             <Container class="javax.swing.JScrollPane" name="destinationConnectorPane">
               <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="null"/>
                 </Property>
