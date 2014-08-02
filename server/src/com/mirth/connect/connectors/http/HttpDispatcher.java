@@ -438,7 +438,7 @@ public class HttpDispatcher extends DestinationConnector {
                 MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
                 multipartEntityBuilder.addPart(tempFile.getName(), new FileBody(tempFile, contentType, tempFile.getName()));
                 httpEntity = multipartEntityBuilder.build();
-            } else if (contentType.getMimeType().equals(ContentType.APPLICATION_FORM_URLENCODED.getMimeType())) {
+            } else if (StringUtils.startsWithIgnoreCase(contentType.getMimeType(), ContentType.APPLICATION_FORM_URLENCODED.getMimeType())) {
                 httpMethod = new HttpPost(uriBuilder.build());
                 httpEntity = new UrlEncodedFormEntity(queryParameters, contentType.getCharset());
             } else {
@@ -561,11 +561,11 @@ public class HttpDispatcher extends DestinationConnector {
             if (binaryMimeTypesRegex == null) {
                 try {
                     binaryMimeTypesRegex = Pattern.compile(binaryMimeTypes);
-                    
+
                     if (binaryMimeTypesRegexMap.size() >= MAX_MAP_SIZE) {
                         binaryMimeTypesRegexMap.clear();
                     }
-                    
+
                     binaryMimeTypesRegexMap.put(binaryMimeTypes, binaryMimeTypesRegex);
                 } catch (PatternSyntaxException e) {
                     logger.warn("Invalid binary MIME types regular expression: " + binaryMimeTypes, e);
@@ -579,11 +579,11 @@ public class HttpDispatcher extends DestinationConnector {
 
             if (binaryMimeTypesArray == null) {
                 binaryMimeTypesArray = StringUtils.split(binaryMimeTypes.replaceAll("\\s*,\\s*", ",").trim(), ',');
-                
+
                 if (binaryMimeTypesArrayMap.size() >= MAX_MAP_SIZE) {
                     binaryMimeTypesArrayMap.clear();
                 }
-                
+
                 binaryMimeTypesArrayMap.put(binaryMimeTypes, binaryMimeTypesArray);
             }
 

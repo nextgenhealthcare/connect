@@ -23,11 +23,14 @@ import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.entity.ContentType;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -93,6 +96,23 @@ public class HttpSender extends ConnectorSettingsPanel {
         references.put(getConnectorName() + " Functions", getReferenceItems());
 
         sslWarningPanel = new SSLWarningPanel();
+
+        contentTypeField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                checkContentEnabled();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                checkContentEnabled();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                checkContentEnabled();
+            }
+        });
     }
 
     @Override
@@ -263,6 +283,8 @@ public class HttpSender extends ConnectorSettingsPanel {
         contentTextArea.setText(props.getContent());
 
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, props.getCharset());
+
+        checkContentEnabled();
     }
 
     @Override
@@ -573,7 +595,7 @@ public class HttpSender extends ConnectorSettingsPanel {
                 }
             }
 
-            if (props.getContent().length() == 0) {
+            if (!isUsingFormUrlEncoded() && props.getContent().length() == 0) {
                 valid = false;
                 if (highlight) {
                     contentTextArea.setBackground(UIConstants.INVALID_COLOR);
@@ -668,18 +690,26 @@ public class HttpSender extends ConnectorSettingsPanel {
         }
     }
 
-    private void setContentEnabled(boolean enabled) {
-        contentTypeLabel.setEnabled(enabled);
-        contentTypeField.setEnabled(enabled);
-        dataTypeLabel.setEnabled(enabled);
-        dataTypeBinaryRadio.setEnabled(enabled);
-        dataTypeTextRadio.setEnabled(enabled);
-        charsetEncodingLabel.setEnabled(enabled);
-        charsetEncodingCombobox.setEnabled(enabled);
-        contentLabel.setEnabled(enabled);
-        contentTextArea.setEnabled(enabled);
+    private boolean isUsingFormUrlEncoded() {
+        return StringUtils.startsWithIgnoreCase(contentTypeField.getText(), ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
+    }
 
-        if (enabled) {
+    private void checkContentEnabled() {
+        boolean usingEntityEnclosingRequest = postButton.isSelected() || putButton.isSelected();
+        boolean usingFormUrlEncoded = isUsingFormUrlEncoded();
+        boolean contentEnabled = usingEntityEnclosingRequest && !usingFormUrlEncoded;
+
+        contentTypeLabel.setEnabled(usingEntityEnclosingRequest);
+        contentTypeField.setEnabled(usingEntityEnclosingRequest);
+        dataTypeLabel.setEnabled(contentEnabled);
+        dataTypeBinaryRadio.setEnabled(contentEnabled);
+        dataTypeTextRadio.setEnabled(contentEnabled);
+        charsetEncodingLabel.setEnabled(contentEnabled);
+        charsetEncodingCombobox.setEnabled(contentEnabled);
+        contentLabel.setEnabled(contentEnabled);
+        contentTextArea.setEnabled(contentEnabled);
+
+        if (contentEnabled) {
             if (dataTypeBinaryRadio.isSelected()) {
                 dataTypeBinaryRadioActionPerformed(null);
             } else {
@@ -957,7 +987,7 @@ public class HttpSender extends ConnectorSettingsPanel {
 
         contentLabel.setText("Content:");
 
-        contentTypeField.setToolTipText("The HTTP message body MIME type.");
+        contentTypeField.setToolTipText("<html>The HTTP message body MIME type to use. If<br/>application/x-www-form-urlencoded is used,<br/>the query parameters specified above will be<br/>automatically encoded into the request body.</html>");
 
         contentTypeLabel.setText("Content Type:");
 
@@ -1364,25 +1394,25 @@ public class HttpSender extends ConnectorSettingsPanel {
     }//GEN-LAST:event_headersNewButtonActionPerformed
 
     private void postButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_postButtonActionPerformed
-        setContentEnabled(true);
+        checkContentEnabled();
         checkMultipartEnabled();
         setQueryParametersEnabled(true);
     }//GEN-LAST:event_postButtonActionPerformed
 
     private void getButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getButtonActionPerformed
-        setContentEnabled(false);
+        checkContentEnabled();
         checkMultipartEnabled();
         setQueryParametersEnabled(true);
     }//GEN-LAST:event_getButtonActionPerformed
 
     private void putButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_putButtonActionPerformed
-        setContentEnabled(true);
+        checkContentEnabled();
         checkMultipartEnabled();
         setQueryParametersEnabled(true);
     }//GEN-LAST:event_putButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-        setContentEnabled(false);
+        checkContentEnabled();
         checkMultipartEnabled();
         setQueryParametersEnabled(true);
     }//GEN-LAST:event_deleteButtonActionPerformed
