@@ -11,6 +11,7 @@ package com.mirth.connect.connectors.ws;
 
 import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -20,6 +21,7 @@ import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.handler.Handler;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
@@ -144,12 +146,15 @@ public class WebServiceReceiver extends SourceConnector {
         String serviceName = replacer.replaceValues(connectorProperties.getServiceName(), getChannelId());
         HttpContext context = server.createContext("/services/" + serviceName);
 
-        if (connectorProperties.getUsernames().size() > 0) {
+        if (CollectionUtils.isNotEmpty(connectorProperties.getUsernames())) {
+            final List<String> usernames = new ArrayList<String>(connectorProperties.getUsernames());
+            final List<String> passwords = new ArrayList<String>(connectorProperties.getPasswords());
+            replacer.replaceValuesInList(usernames, getChannelId());
+            replacer.replaceValuesInList(passwords, getChannelId());
+
             context.setAuthenticator(new BasicAuthenticator("/services/" + serviceName) {
                 @Override
                 public boolean checkCredentials(String username, String password) {
-                    List<String> usernames = connectorProperties.getUsernames();
-                    List<String> passwords = connectorProperties.getPasswords();
                     if (usernames.contains(username) && passwords.get(usernames.indexOf(username)).equals(password)) {
                         return true;
                     } else {

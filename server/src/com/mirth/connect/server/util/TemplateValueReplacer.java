@@ -10,6 +10,7 @@
 package com.mirth.connect.server.util;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -64,6 +65,18 @@ public class TemplateValueReplacer extends ValueReplacer {
             return evaluate(context, template);
         } else {
             return template;
+        }
+    }
+
+    /**
+     * Replaces all values in a list. Uses the default context along with the global channel
+     * variable map.
+     * 
+     * @return void
+     */
+    public void replaceValuesInList(List<String> list, String channelId) {
+        for (int i = 0; i <= list.size() - 1; i++) {
+            list.set(i, replaceValues(list.get(i), channelId));
         }
     }
 
