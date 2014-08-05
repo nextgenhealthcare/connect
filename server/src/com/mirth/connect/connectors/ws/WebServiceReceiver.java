@@ -205,14 +205,22 @@ public class WebServiceReceiver extends SourceConnector {
     }
 
     public String processData(String message) {
+        return processData(new RawMessage(message));
+    }
+
+    public String processData(RawMessage rawMessage) {
         String response = null;
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));
 
         try {
             if (isProcessBatch()) {
-                BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(message));
-
                 try {
+                    if (rawMessage.isBinary()) {
+                        throw new BatchMessageException("Batch processing is not supported for binary data.");
+                    }
+
+                    BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(rawMessage.getRawData()), rawMessage.getSourceMap());
+
                     ResponseHandler responseHandler = new SimpleResponseHandler();
                     dispatchBatchMessage(batchRawMessage, responseHandler);
 
@@ -225,7 +233,6 @@ public class WebServiceReceiver extends SourceConnector {
                     eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error processing batch message", e));
                 }
             } else {
-                RawMessage rawMessage = new RawMessage(message);
                 DispatchResult dispatchResult = null;
 
                 try {
