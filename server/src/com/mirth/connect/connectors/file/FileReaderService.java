@@ -21,7 +21,7 @@ public class FileReaderService implements ConnectorService {
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
-        if (method.equals("testRead")) {
+        if (method.equals(FileServiceMethods.METHOD_TEST_READ)) {
             FileReceiverProperties connectorProperties = (FileReceiverProperties) object;
 
             String host = replacer.replaceValues(connectorProperties.getHost(), channelId);

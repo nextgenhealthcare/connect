@@ -10,11 +10,9 @@
 package com.mirth.connect.connectors.file;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -376,6 +374,21 @@ public class FileReader extends ConnectorSettingsPanel {
     public void doLocalDecoration(ConnectorTypeDecoration connectorTypeDecoration) {
         if (FileScheme.FTP.getDisplayName().equalsIgnoreCase((String) schemeComboBox.getSelectedItem())) {
             hostLabel.setText("ftp" + (connectorTypeDecoration != null ? "s" : "") + "://");
+        }
+    }
+
+    @Override
+    public void handleConnectorServiceResponse(String method, Object response) {
+        if (method.equals(FileServiceMethods.METHOD_TEST_READ)) {
+            ConnectionTestResponse connectionTestResponse = (ConnectionTestResponse) response;
+
+            if (connectionTestResponse == null) {
+                parent.alertError(parent, "Failed to invoke service.");
+            } else if (connectionTestResponse.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
+                parent.alertInformation(parent, connectionTestResponse.getMessage());
+            } else {
+                parent.alertWarning(parent, connectionTestResponse.getMessage());
+            }
         }
     }
 
@@ -1170,36 +1183,7 @@ public class FileReader extends ConnectorSettingsPanel {
     }//GEN-LAST:event_fileTypeBinaryActionPerformed
 
     private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
-        final String workingId = parent.startWorking("Testing connection...");
-
-        SwingWorker worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-
-                try {
-                    ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(parent.channelEditPanel.currentChannel.getId(), getConnectorName(), "testRead", getProperties());
-
-                    if (response == null) {
-                        throw new ClientException("Failed to invoke service.");
-                    } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
-                        parent.alertInformation(parent, response.getMessage());
-                    } else {
-                        parent.alertWarning(parent, response.getMessage());
-                    }
-
-                    return null;
-                } catch (ClientException e) {
-                    parent.alertError(parent, e.getMessage());
-                    return null;
-                }
-            }
-
-            public void done() {
-                parent.stopWorking(workingId);
-            }
-        };
-
-        worker.execute();
+        invokeConnectorService(FileServiceMethods.METHOD_TEST_READ, "Testing connection...", "Failed to invoke service: ");
     }//GEN-LAST:event_testConnectionActionPerformed
 
     private void secureModeYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureModeYesActionPerformed

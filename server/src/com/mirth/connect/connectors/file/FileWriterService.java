@@ -21,7 +21,7 @@ public class FileWriterService implements ConnectorService {
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
-        if (method.equals("testWrite")) {
+        if (method.equals(FileServiceMethods.METHOD_TEST_WRITE)) {
             FileDispatcherProperties connectorProperties = (FileDispatcherProperties) object;
 
             String host = replacer.replaceValues(connectorProperties.getHost(), channelId);
