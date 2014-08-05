@@ -19,6 +19,7 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
@@ -85,10 +86,14 @@ public class FtpConnection implements FileSystemConnection {
     private static transient Log logger = LogFactory.getLog(FtpConnection.class);
 
     /** The apache commons FTP client instance */
-    private HaltableFTPClient client = null;
+    protected FTPClient client = null;
 
     public FtpConnection(String host, int port, String username, String password, boolean passive, int timeout) throws Exception {
-        client = new HaltableFTPClient();
+        this(host, port, username, password, passive, timeout, new HaltableFTPClient());
+    }
+
+    public FtpConnection(String host, int port, String username, String password, boolean passive, int timeout, FTPClient client) throws Exception {
+        this.client = client;
         // This sets the timeout for read operations on data sockets. It does not affect write operations.
         client.setDataTimeout(timeout);
 
@@ -356,7 +361,9 @@ public class FtpConnection implements FileSystemConnection {
 
     @Override
     public void disconnect() {
-        client.closeDataSockets();
+        if (client instanceof HaltableFTPClient) {
+            ((HaltableFTPClient) client).closeDataSockets();
+        }
         try {
             client.disconnect();
         } catch (IOException e) {

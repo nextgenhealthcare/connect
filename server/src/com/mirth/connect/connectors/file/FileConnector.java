@@ -269,7 +269,7 @@ public class FileConnector {
      *            ???
      * @return The pool of connections for this endpoint.
      */
-    private synchronized ObjectPool getConnectionPool(URI uri, ConnectorMessage message, ConnectorProperties connectorProperties) throws URISyntaxException {
+    private synchronized ObjectPool getConnectionPool(URI uri, ConnectorMessage message, ConnectorProperties connectorProperties) throws Exception {
         String username;
         String password;
 
@@ -283,19 +283,25 @@ public class FileConnector {
             password = fileDispatcherProperties.getPassword();
         }
 
-        String key = FileSystemConnectionFactory.getPoolKey(getScheme(), username, password, uri.getHost(), uri.getPort(), isSecure());
+        FileSystemConnectionFactory fileSystemConnectionFactory = getFileSystemConnectionFactory(uri, username, password, connectorProperties);
+        String key = fileSystemConnectionFactory.getPoolKey();
         ObjectPool pool = pools.get(key);
+
         if (pool == null) {
             GenericObjectPool.Config config = new GenericObjectPool.Config();
             if (isValidateConnection()) {
                 config.testOnBorrow = true;
                 config.testOnReturn = true;
             }
-            pool = new GenericObjectPool(new FileSystemConnectionFactory(getScheme(), username, password, uri.getHost(), uri.getPort(), isPassive(), isSecure(), NumberUtils.toInt(getTimeout())), config);
+            pool = new GenericObjectPool(fileSystemConnectionFactory, config);
 
             pools.put(key, pool);
         }
         return pool;
+    }
+
+    protected FileSystemConnectionFactory getFileSystemConnectionFactory(URI uri, String username, String password, ConnectorProperties connectorProperties) throws Exception {
+        return new FileSystemConnectionFactory(getScheme(), username, password, uri.getHost(), uri.getPort(), isPassive(), isSecure(), NumberUtils.toInt(getTimeout()));
     }
 
     /**
@@ -313,7 +319,7 @@ public class FileConnector {
         this.outputStream = outputStream;
     }
 
-    URI getEndpointURI(String host) throws URISyntaxException {
+    protected URI getEndpointURI(String host) throws URISyntaxException {
         StringBuilder sspBuilder = new StringBuilder();
 
         sspBuilder.append("//");

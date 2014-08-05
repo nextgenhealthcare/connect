@@ -18,24 +18,22 @@ import org.apache.commons.pool.PoolableObjectFactory;
 import com.mirth.connect.connectors.file.FileScheme;
 
 /**
- * A factory to create instances of FileSystemConnection based on the endpoint
- * and connector properties, and to adapt between them and the connection pool.
- * 
+ * A factory to create instances of FileSystemConnection based on the endpoint and connector
+ * properties, and to adapt between them and the connection pool.
  */
 public class FileSystemConnectionFactory implements PoolableObjectFactory {
     private static transient Log logger = LogFactory.getLog(FileSystemConnectionFactory.class);
-    private FileScheme scheme;
-    private String username;
-    private String password;
-    private String host;
-    private int port;
-    private boolean passive;
-    private boolean secure;
-    private int timeout;
+    protected FileScheme scheme;
+    protected String username;
+    protected String password;
+    protected String host;
+    protected int port;
+    protected boolean passive;
+    protected boolean secure;
+    protected int timeout;
 
     /**
-     * Construct a FileSystemConnectionFactory from the endpoint URI and
-     * connector properties
+     * Construct a FileSystemConnectionFactory from the endpoint URI and connector properties
      */
     public FileSystemConnectionFactory(FileScheme scheme, String username, String password, String host, int port, boolean passive, boolean secure, int timeout) {
         this.scheme = scheme;
@@ -51,7 +49,7 @@ public class FileSystemConnectionFactory implements PoolableObjectFactory {
     /**
      * Gets a pool key for connections on this endpoint
      */
-    public static String getPoolKey(FileScheme scheme, String username, String password, String host, int port, boolean secure) {
+    public String getPoolKey() {
         if (scheme.equals(FileScheme.FILE)) {
             return "file://";
         } else if (scheme.equals(FileScheme.FTP)) {
