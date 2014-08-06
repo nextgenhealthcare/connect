@@ -298,7 +298,7 @@ public class DataPruner implements Runnable {
                     status.setCurrentChannelName(task.getChannelName());
                     status.setTaskStartTime(Calendar.getInstance());
 
-                    PruneResult result = pruneChannel(task.getChannelId(), task.getMessageDateThreshold(), task.getContentDateThreshold(), archiveFolder, task.isArchiveEnabled());
+                    PruneResult result = pruneChannel(task.getChannelId(), task.getChannelName(), task.getMessageDateThreshold(), task.getContentDateThreshold(), archiveFolder, task.isArchiveEnabled());
 
                     status.getProcessedChannelIds().add(task.getChannelId());
 
@@ -324,7 +324,11 @@ public class DataPruner implements Runnable {
                     attributes.put("error", e.getMessage());
                     attributes.put("trace", ExceptionUtils.getStackTrace(e));
                     eventController.dispatchEvent(new ServerEvent(DataPrunerService.PLUGINPOINT, Level.ERROR, Outcome.FAILURE, attributes));
-                    logger.error("Could not prune messages for channel: " + task.getChannelName(), e);
+                    Throwable t = e;
+                    if (e instanceof DataPrunerException) {
+                        t = e.getCause();
+                    }
+                    logger.error("Failed to prune messages for channel " + task.getChannelName() + " (" + task.getChannelId() + ").", t);
                 } finally {
                     status.getPendingChannelIds().remove(task.getChannelId());
                     status.setCurrentChannelId(null);
@@ -377,7 +381,7 @@ public class DataPruner implements Runnable {
         }
     }
 
-    public PruneResult pruneChannel(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder, boolean channelArchiveEnabled) throws InterruptedException, DataPrunerException {
+    public PruneResult pruneChannel(String channelId, String channelName, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder, boolean channelArchiveEnabled) throws InterruptedException, DataPrunerException {
         logger.debug("Executing pruner for channel: " + channelId);
 
         if (messageDateThreshold == null && contentDateThreshold == null) {
@@ -438,6 +442,7 @@ public class DataPruner implements Runnable {
                 throw e;
             } catch (Exception e) {
                 if (retries > 0) {
+                    logger.error("Failed to prune messages for channel " + channelName + " (" + channelId + "). Attempts remaining: " + retries + ".", e);
                     retries--;
                 } else {
                     throw new DataPrunerException("Failed to prune messages", e);
