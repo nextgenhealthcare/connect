@@ -451,11 +451,11 @@ public class DashboardPanel extends javax.swing.JPanel {
         }
 
         if (loadPanelPlugin) {
-            loadPanelPlugin(getCurrentTabPlugin());
-
             for (DashboardPanelPlugin plugin : LoadedExtensions.getInstance().getDashboardTablePlugins().values()) {
                 loadPanelPlugin(plugin);
             }
+
+            loadPanelPlugin(getCurrentTabPlugin());
         }
     }
 
