@@ -97,7 +97,7 @@ public class DataPrunerTest {
 
     private void runPrunerTests(boolean messagesPrunable, boolean contentPrunable) throws Exception {
         prepareTestMessages(TEST_CHANNEL_ID, messagesPrunable, contentPrunable, true, Status.SENT, TEST_POWER);
-        new DataPruner().pruneChannel(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
+        new DataPruner().pruneChannel(TEST_CHANNEL_ID,TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
         assertEquals(messagesPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(contentPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
 
@@ -116,7 +116,7 @@ public class DataPrunerTest {
                 logger.info("Running pruner w/ archiver test, block size: " + blockSize + ", prune messages: " + messagesPrunable + ", prune content: " + contentPrunable);
 
                 prepareTestMessages(TEST_CHANNEL_ID, messagesPrunable, contentPrunable, true, Status.SENT, TEST_POWER);
-                pruner.pruneChannel(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, pruner.getArchiverOptions().getRootFolder(), true);
+                pruner.pruneChannel(TEST_CHANNEL_ID, TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, pruner.getArchiverOptions().getRootFolder(), true);
                 assertEquals(messagesPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
                 assertEquals(contentPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
             } catch (AssertionError e) {
@@ -132,7 +132,7 @@ public class DataPrunerTest {
     public void testPruneNone() throws Exception {
         prepareTestMessages(TEST_CHANNEL_ID, false, false, true, Status.SENT, TEST_POWER);
         DataPruner pruner = new DataPruner();
-        pruner.pruneChannel(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
+        pruner.pruneChannel(TEST_CHANNEL_ID, TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
     }
@@ -141,7 +141,7 @@ public class DataPrunerTest {
     public final void testPruneSkipIncomplete() throws Exception {
         prepareTestMessages(TEST_CHANNEL_ID, true, true, false, Status.SENT, TEST_POWER);
         DataPruner pruner = new DataPruner();
-        pruner.pruneChannel(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
+        pruner.pruneChannel(TEST_CHANNEL_ID, TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
     }
@@ -151,7 +151,7 @@ public class DataPrunerTest {
         prepareTestMessages(TEST_CHANNEL_ID, true, true, false, Status.SENT, TEST_POWER);
         DataPruner pruner = new DataPruner();
         pruner.setSkipIncomplete(false);
-        pruner.pruneChannel(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
+        pruner.pruneChannel(TEST_CHANNEL_ID, TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
         assertEquals(0, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(0, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
     }
@@ -160,7 +160,7 @@ public class DataPrunerTest {
     public final void testPruneQueued() throws Exception {
         prepareTestMessages(TEST_CHANNEL_ID, true, true, true, Status.QUEUED, TEST_POWER);
         DataPruner pruner = new DataPruner();
-        pruner.pruneChannel(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
+        pruner.pruneChannel(TEST_CHANNEL_ID, TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
     }
@@ -169,7 +169,7 @@ public class DataPrunerTest {
     public final void testPruneError() throws Exception {
         prepareTestMessages(TEST_CHANNEL_ID, true, true, true, Status.ERROR, TEST_POWER);
         DataPruner pruner = new DataPruner();
-        pruner.pruneChannel(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
+        pruner.pruneChannel(TEST_CHANNEL_ID, TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
     }
@@ -181,7 +181,7 @@ public class DataPrunerTest {
         DataPruner pruner = new DataPruner();
 
         long startTime = System.currentTimeMillis();
-        pruner.pruneChannel(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
+        pruner.pruneChannel(TEST_CHANNEL_ID, TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold, null, true);
         long duration = System.currentTimeMillis() - startTime;
 
         System.out.println("Archiver/Pruner executed in " + duration + "ms");
