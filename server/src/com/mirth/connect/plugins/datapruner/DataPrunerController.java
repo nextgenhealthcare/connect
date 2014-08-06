@@ -23,7 +23,7 @@ public abstract class DataPrunerController {
                 ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
                 extensionController.loadExtensions();
 
-                if (extensionController.getPluginMetaData().containsKey("Clustering") || extensionController.getPluginMetaData().containsKey("Mirth Appliance")) {
+                if (extensionController.getPluginMetaData().containsKey("Basic Clustering") || extensionController.getPluginMetaData().containsKey("Advanced Clustering")) {
                     try {
                         String clusterDataPrunerController = "com.mirth.connect.plugins.clustering.server.datapruner.ClusterDataPrunerController";
                         instance = (DataPrunerController) Class.forName(clusterDataPrunerController).newInstance();
