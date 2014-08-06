@@ -65,16 +65,16 @@ public class DefaultControllerFactory extends ControllerFactory {
             ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
             extensionController.loadExtensions();
 
-            if (extensionController.getPluginMetaData().containsKey("Clustering")) {
+            if (extensionController.getPluginMetaData().containsKey("Advanced Clustering")) {
                 try {
-                    String clusterEngineController = "com.mirth.connect.plugins.clustering.server.AdvancedClusterEngineController";
+                    String clusterEngineController = "com.mirth.connect.plugins.clusteringadvanced.server.AdvancedClusterEngineController";
                     engineController = (EngineController) Class.forName(clusterEngineController).newInstance();
                     logger.debug("using engine controller: " + clusterEngineController);
                 } catch (Exception e) {
                 }
-            } else if (extensionController.getPluginMetaData().containsKey("Mirth Appliance")) {
+            } else if (extensionController.getPluginMetaData().containsKey("Basic Clustering")) {
                 try {
-                    String clusterEngineController = "com.mirth.connect.plugins.appliance.ApplianceClusterEngineController";
+                    String clusterEngineController = "com.mirth.connect.plugins.clusteringbasic.BasicClusterEngineController";
                     engineController = (EngineController) Class.forName(clusterEngineController).newInstance();
                     logger.debug("using engine controller: " + clusterEngineController);
                 } catch (Exception e) {
