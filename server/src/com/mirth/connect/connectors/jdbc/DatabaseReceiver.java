@@ -298,7 +298,7 @@ public class DatabaseReceiver extends PollConnector {
         }
 
         @Override
-        public void responseProcess() throws Exception {
+        public void responseProcess(int batchSequenceId, boolean batchComplete) throws Exception {
             if (dispatchResult.getProcessedMessage() != null) {
                 delegate.runPostProcess(resultMap, dispatchResult.getProcessedMessage().getMergedConnectorMessage());
             } else {

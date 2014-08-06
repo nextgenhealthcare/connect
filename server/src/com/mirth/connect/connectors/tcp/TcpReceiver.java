@@ -57,9 +57,11 @@ import com.mirth.connect.donkey.server.event.ConnectorCountEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.message.StreamHandler;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
+import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
 import com.mirth.connect.donkey.server.message.batch.BatchStreamReader;
 import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
+import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
 import com.mirth.connect.donkey.util.ThreadUtils;
 import com.mirth.connect.model.transmission.StreamHandlerException;
 import com.mirth.connect.model.transmission.batch.DefaultBatchStreamReader;
@@ -476,13 +478,12 @@ public class TcpReceiver extends SourceConnector {
         }
     }
 
-    protected class TcpReader extends ResponseHandler implements Callable<Throwable>, BatchMessageReceiver {
+    protected class TcpReader implements Callable<Throwable>, BatchMessageReceiver {
         private StateAwareSocket socket = null;
         private StateAwareSocket responseSocket = null;
         private AtomicBoolean reading = null;
         private AtomicBoolean canRead = null;
         private StreamHandler streamHandler = null;
-        private boolean firstMessage;
 
         public TcpReader(StateAwareSocket socket) throws SocketException {
             this.socket = socket;
@@ -529,7 +530,6 @@ public class TcpReceiver extends SourceConnector {
                             sourceMap.put("remotePort", ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort());
                         }
 
-                        firstMessage = true;
                         OutputStream outputStream = null;
 
                         if (connectorProperties.getRespondOnNewConnection() != TcpReceiverProperties.NEW_CONNECTION) {
@@ -560,7 +560,7 @@ public class TcpReceiver extends SourceConnector {
 
                             // Send the message to the source connector
                             try {
-                                dispatchBatchMessage(rawMessage, this);
+                                dispatchBatchMessage(rawMessage, new TcpResponseHandler(responseSocket, streamHandler));
                             } catch (BatchMessageException e) {
                                 Throwable cause = e.getCause();
                                 if (cause instanceof IOException) {
@@ -593,53 +593,86 @@ public class TcpReceiver extends SourceConnector {
                                 logger.debug("Bytes returned from socket, length: " + bytes.length + " (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")");
                                 eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING, "Message received from " + SocketUtil.getLocalAddress(socket) + ", processing... "));
 
-                                RawMessage rawMessage = null;
+                                if (isProcessBatch()) {
+                                    try {
+                                        BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(getStringFromBytes(bytes)), sourceMap);
+                                        ResponseHandler responseHandler = new SimpleResponseHandler();
 
-                                if (connectorProperties.isDataTypeBinary()) {
-                                    // Store the raw bytes in the RawMessage object
-                                    rawMessage = new RawMessage(bytes);
-                                } else {
-                                    // Encode the bytes using the charset encoding property and store the string in the RawMessage object
-                                    rawMessage = new RawMessage(getStringFromBytes(bytes));
-                                }
+                                        dispatchBatchMessage(batchRawMessage, responseHandler);
 
-                                rawMessage.setSourceMap(sourceMap);
+                                        DispatchResult dispatchResult = responseHandler.getResultForResponse();
 
-                                DispatchResult dispatchResult = null;
+                                        streamHandler.commit(true);
 
-                                ThreadUtils.checkInterruptedStatus();
+                                        // Check to see if we have a response to send
+                                        if (dispatchResult.getSelectedResponse() != null) {
+                                            try {
+                                                // If the response socket hasn't been initialized, do that now
+                                                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
+                                                    responseSocket = createResponseSocket();
+                                                    connectResponseSocket(responseSocket, streamHandler);
+                                                }
 
-                                // Send the message to the source connector
-                                try {
-                                    dispatchResult = dispatchRawMessage(rawMessage);
-
-                                    streamHandler.commit(true);
-
-                                    // Check to see if we have a response to send
-                                    if (dispatchResult.getSelectedResponse() != null) {
-                                        // Send the response
-                                        dispatchResult.setAttemptedResponse(true);
-
-                                        try {
-                                            // If the response socket hasn't been initialized, do that now
-                                            if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
-                                                responseSocket = createResponseSocket();
-                                                connectResponseSocket(responseSocket, streamHandler);
-                                            }
-
-                                            sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION);
-                                        } catch (IOException e) {
-                                            dispatchResult.setResponseError(ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error sending response.", e));
-                                        } finally {
-                                            if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
-                                                closeSocketQuietly(responseSocket);
+                                                sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION);
+                                            } catch (IOException e) {
+                                            } finally {
+                                                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
+                                                    closeSocketQuietly(responseSocket);
+                                                }
                                             }
                                         }
+                                    } catch (BatchMessageException e) {
+                                        streamHandler.commit(false);
                                     }
-                                } catch (ChannelException e) {
-                                    streamHandler.commit(false);
-                                } finally {
-                                    finishDispatch(dispatchResult);
+                                } else {
+                                    RawMessage rawMessage = null;
+
+                                    if (connectorProperties.isDataTypeBinary()) {
+                                        // Store the raw bytes in the RawMessage object
+                                        rawMessage = new RawMessage(bytes);
+                                    } else {
+                                        // Encode the bytes using the charset encoding property and store the string in the RawMessage object
+                                        rawMessage = new RawMessage(getStringFromBytes(bytes));
+                                    }
+
+                                    rawMessage.setSourceMap(sourceMap);
+
+                                    DispatchResult dispatchResult = null;
+
+                                    ThreadUtils.checkInterruptedStatus();
+
+                                    // Send the message to the source connector
+                                    try {
+                                        dispatchResult = dispatchRawMessage(rawMessage);
+
+                                        streamHandler.commit(true);
+
+                                        // Check to see if we have a response to send
+                                        if (dispatchResult.getSelectedResponse() != null) {
+                                            // Send the response
+                                            dispatchResult.setAttemptedResponse(true);
+
+                                            try {
+                                                // If the response socket hasn't been initialized, do that now
+                                                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
+                                                    responseSocket = createResponseSocket();
+                                                    connectResponseSocket(responseSocket, streamHandler);
+                                                }
+
+                                                sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler, connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION);
+                                            } catch (IOException e) {
+                                                dispatchResult.setResponseError(ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error sending response.", e));
+                                            } finally {
+                                                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
+                                                    closeSocketQuietly(responseSocket);
+                                                }
+                                            }
+                                        }
+                                    } catch (ChannelException e) {
+                                        streamHandler.commit(false);
+                                    } finally {
+                                        finishDispatch(dispatchResult);
+                                    }
                                 }
 
                                 eventController.dispatchEvent(new ConnectorCountEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE, SocketUtil.getLocalAddress(socket) + " -> " + SocketUtil.getInetAddress(socket), (Boolean) null));
@@ -753,12 +786,22 @@ public class TcpReceiver extends SourceConnector {
         public String getStringFromBytes(byte[] bytes) throws IOException {
             return new String(bytes, CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding()));
         }
+    }
+
+    private class TcpResponseHandler extends ResponseHandler {
+
+        private StateAwareSocket responseSocket = null;
+        private StreamHandler streamHandler = null;
+
+        public TcpResponseHandler(StateAwareSocket responseSocket, StreamHandler streamHandler) {
+            this.responseSocket = responseSocket;
+            this.streamHandler = streamHandler;
+        }
 
         @Override
-        public void responseProcess() throws IOException {
+        public void responseProcess(int batchSequenceId, boolean batchComplete) throws IOException {
             // Only send a response for the first message
-            if (firstMessage) {
-                firstMessage = false;
+            if ((isUseFirstResponse() && batchSequenceId == 1) || (!isUseFirstResponse() && batchComplete)) {
                 streamHandler.commit(true);
 
                 // Check to see if we have a response to send
@@ -787,13 +830,10 @@ public class TcpReceiver extends SourceConnector {
 
         @Override
         public void responseError(ChannelException e) {
-            if (firstMessage) {
-                firstMessage = false;
-                try {
-                    streamHandler.commit(false);
-                } catch (Throwable t) {
-                    logger.warn("Error commiting ACK or NACK bytes", t);
-                }
+            try {
+                streamHandler.commit(false);
+            } catch (Throwable t) {
+                logger.warn("Error commiting ACK or NACK bytes", t);
             }
         }
     }

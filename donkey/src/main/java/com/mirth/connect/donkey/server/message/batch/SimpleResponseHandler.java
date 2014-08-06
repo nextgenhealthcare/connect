@@ -14,7 +14,7 @@ import com.mirth.connect.donkey.server.channel.ChannelException;
 public class SimpleResponseHandler extends ResponseHandler {
 
     @Override
-    public void responseProcess() throws Exception {}
+    public void responseProcess(int batchSequenceId, boolean batchComplete) throws Exception {}
 
     @Override
     public void responseError(ChannelException e) {}

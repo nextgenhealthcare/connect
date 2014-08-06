@@ -265,7 +265,7 @@ public abstract class SourceConnector extends Connector {
 
                         try {
                             // Allow the response handler to process the result
-                            responseHandler.responseProcess();
+                            responseHandler.responseProcess(batchAdaptor.getBatchSequenceId(), batchAdaptor.isBatchComplete());
                         } catch (Exception e) {
                             // Stop the entire batch if an exceptions occurs processing a response
                             throw new BatchMessageException("Failed to process response for batch message at message " + batchAdaptor.getBatchSequenceId(), e);

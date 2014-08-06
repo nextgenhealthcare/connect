@@ -39,7 +39,11 @@ public abstract class ResponseHandler {
         this.useFirstResponse = useFirstResponse;
     }
 
-    public abstract void responseProcess() throws Exception;
+    protected boolean isUseFirstResponse() {
+        return useFirstResponse;
+    }
+
+    public abstract void responseProcess(int batchSequenceId, boolean batchComplete) throws Exception;
 
     public abstract void responseError(ChannelException e);
 
