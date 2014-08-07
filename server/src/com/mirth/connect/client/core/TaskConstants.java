@@ -154,7 +154,6 @@ public class TaskConstants {
 
     // Extensions Tasks
     public static final String EXTENSIONS_REFRESH = "doRefreshExtensions";
-    public static final String EXTENSIONS_CHECK_FOR_UPDATES = "doCheckForUpdates";
     public static final String EXTENSIONS_ENABLE = "doEnableExtension";
     public static final String EXTENSIONS_DISABLE = "doDisableExtension";
     public static final String EXTENSIONS_SHOW_PROPERTIES = "doShowExtensionProperties";
@@ -162,9 +161,9 @@ public class TaskConstants {
 
     // Other Tasks
     public static final String OTHER_HELP = "doHelp";
+    public static final String OTHER_VIEW_USER_API = "goToUserAPI";
     public static final String OTHER_ABOUT = "goToAbout";
     public static final String OTHER_VISIT_MIRTH = "goToMirth";
     public static final String OTHER_REPORT_ISSUE = "doReportIssue";
     public static final String OTHER_LOGOUT = "doLogout";
-    public static final String OTHER_VIEW_USER_API = "goToUserAPI";
 }

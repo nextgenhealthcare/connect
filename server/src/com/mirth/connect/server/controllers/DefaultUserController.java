@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
@@ -24,6 +25,7 @@ import com.mirth.connect.model.Credentials;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.User;
+import com.mirth.connect.server.mybatis.KeyValuePair;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.LoginRequirementsChecker;
 import com.mirth.connect.server.util.PasswordRequirementsChecker;
@@ -335,26 +337,11 @@ public class DefaultUserController extends UserController {
         parameterMap.put("firstName", user.getFirstName());
         parameterMap.put("lastName", user.getLastName());
         parameterMap.put("organization", user.getOrganization());
+        parameterMap.put("industry", user.getIndustry());
         parameterMap.put("email", user.getEmail());
         parameterMap.put("phoneNumber", user.getPhoneNumber());
         parameterMap.put("description", user.getDescription());
         return parameterMap;
-    }
-
-    public Properties getUserPreferences(User user) throws ControllerException {
-        try {
-            return ConfigurationController.getInstance().getPropertiesForGroup("user." + user.getId());
-        } catch (Exception e) {
-            throw new ControllerException(e);
-        }
-    }
-
-    public void setUserPreference(User user, String name, String value) throws ControllerException {
-        try {
-            ConfigurationController.getInstance().saveProperty("user." + user.getId(), name, value);
-        } catch (Exception e) {
-            throw new ControllerException(e);
-        }
     }
 
     @Override
@@ -363,6 +350,91 @@ public class DefaultUserController extends UserController {
             return SqlConfig.getSqlSessionManager().selectList("User.getUserCredentials", userId);
         } catch (Exception e) {
             throw new ControllerException(e);
+        }
+    }
+
+    public void setUserPreference(User user, String name, String value) {
+        logger.debug("storing preference: user id=" + user.getId() + ", name=" + name);
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
+            parameterMap.put("person_id", user.getId());
+            parameterMap.put("name", name);
+            parameterMap.put("value", value);
+
+            if (getUserPreference(user, name) == null) {
+                SqlConfig.getSqlSessionManager().insert("User.insertPreference", parameterMap);
+            } else {
+                SqlConfig.getSqlSessionManager().insert("User.updatePreference", parameterMap);
+            }
+
+            if (DatabaseUtil.statementExists("User.vacuumPersonPreferencesTable")) {
+                SqlConfig.getSqlSessionManager().update("User.vacuumPersonPreferencesTable");
+            }
+        } catch (Exception e) {
+            logger.error("Could not store preference: user id=" + user.getId() + ", name=" + name, e);
+        }
+    }
+    
+    @Override
+    public Properties getUserPreferences(User user) {
+        int id = user.getId();
+        logger.debug("retrieving preferences: user id=" + id);
+        Properties properties = new Properties();
+
+        try {
+            List<KeyValuePair> result = SqlConfig.getSqlSessionManager().selectList("User.selectPreferencesForUser", id);
+
+            for (KeyValuePair pair : result) {
+                properties.setProperty(pair.getKey(), StringUtils.defaultString(pair.getValue()));
+            }
+        } catch (Exception e) {
+            logger.error("Could not retrieve preferences: user id=" + id, e);
+        }
+        
+        return properties;
+    }
+
+    @Override
+    public String getUserPreference(User user, String name) {
+        int id = user.getId();
+        logger.debug("retrieving preference: user id=" + id + ", name=" + name);
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
+            parameterMap.put("person_id", id);
+            parameterMap.put("name", name);
+            return (String) SqlConfig.getSqlSessionManager().selectOne("User.selectPreference", parameterMap);
+        } catch (Exception e) {
+            logger.warn("Could not retrieve preference: user id=" + id + ", name=" + name, e);
+        }
+
+        return null;
+    }
+
+    public void removePreferencesForUser(int id) {
+        logger.debug("deleting all preferences: user id=" + id);
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
+            parameterMap.put("person_id", id);
+            SqlConfig.getSqlSessionManager().delete("User.deletePreference", parameterMap);
+        } catch (Exception e) {
+            logger.error("Could not delete preferences: user id=" + id);
+        }
+    }
+
+    @Override
+    public void removePreference(int id, String name) {
+        logger.debug("deleting preference: user id=" + id + ", name=" + name);
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
+            parameterMap.put("category", id);
+            parameterMap.put("name", name);
+            SqlConfig.getSqlSessionManager().delete("User.deletePreference", parameterMap);
+        } catch (Exception e) {
+            logger.error("Could not delete preference: user id=" + id + ", name=" + name, e);
         }
     }
 }

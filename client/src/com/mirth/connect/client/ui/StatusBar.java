@@ -23,7 +23,14 @@ public class StatusBar extends javax.swing.JPanel {
     public StatusBar() {
         initComponents();
         workingText.setText("");
-        serverLabel.setText("Connected to: " + PlatformUI.SERVER_NAME);
+        StringBuilder statusBarText = new StringBuilder();
+        statusBarText.append("Connected to: ");
+        
+        if (!StringUtils.isBlank(PlatformUI.SERVER_NAME)) {
+            statusBarText.append(PlatformUI.SERVER_NAME + " | ");
+        }
+        statusBarText.append(PlatformUI.SERVER_URL);
+        serverLabel.setText(statusBarText.toString());
         serverLabel.setIcon(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/server.png")));
         progressBar.setEnabled(false);
         progressBar.setForeground(UIConstants.JX_CONTAINER_BACKGROUND_COLOR);

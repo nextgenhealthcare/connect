@@ -20,6 +20,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.mirth.connect.client.core.ClientException;
@@ -106,6 +107,25 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             public Void doInBackground() {
                 try {
                     getFrame().mirthClient.setServerSettings(serverSettings);
+                    
+                    String serverName = serverNameField.getText();
+                    StringBuilder titleText = new StringBuilder();
+                    StringBuilder statusBarText = new StringBuilder();
+                    titleText.append(UIConstants.TITLE_TEXT + " - ");
+                    statusBarText.append("Connected to: ");
+                    
+                    if (!StringUtils.isBlank(serverNameField.getText())) {
+                        titleText.append(serverName);
+                        statusBarText.append(serverName + " | ");
+                        PlatformUI.SERVER_NAME = serverNameField.getText();
+                    } else {
+                        titleText.append(PlatformUI.SERVER_URL);
+                    }
+                    statusBarText.append(PlatformUI.SERVER_URL);
+                    titleText.append(" - (" + PlatformUI.SERVER_VERSION + ")");
+                    getFrame().setTitle(titleText.toString());
+                    getFrame().statusBar.setServerText(statusBarText.toString());
+                    
                     getFrame().mirthClient.setUpdateSettings(updateSettings);
                 } catch (ClientException e) {
                     getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
@@ -128,6 +148,18 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
     /** Loads the current server settings into the Settings form */
     public void setServerSettings(ServerSettings serverSettings) {
+        if (serverSettings.getServerName() != null) {
+            serverNameField.setText(serverSettings.getServerName());
+        } else {
+            serverNameField.setText("");
+        }
+        
+        if (serverSettings.getOrganizationName() != null) {
+            organizationNameField.setText(serverSettings.getOrganizationName());
+        } else {
+            organizationNameField.setText("");
+        }
+        
         if (serverSettings.getSmtpHost() != null) {
             smtpHostField.setText(serverSettings.getSmtpHost());
         } else {
@@ -206,28 +238,19 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     }
 
     public void setUpdateSettings(UpdateSettings updateSettings) {
-        if (updateSettings.getUpdatesEnabled() != null && !updateSettings.getUpdatesEnabled()) {
-            checkForUpdatesNoRadio.setSelected(true);
-        } else {
-            checkForUpdatesYesRadio.setSelected(true);
-        }
-
         if (updateSettings.getStatsEnabled() != null && !updateSettings.getStatsEnabled()) {
             provideUsageStatsNoRadio.setSelected(true);
         } else {
             provideUsageStatsYesRadio.setSelected(true);
-        }
-
-        if (updateSettings.getUpdateUrl() != null) {
-            updateUrlField.setText(updateSettings.getUpdateUrl());
-        } else {
-            updateUrlField.setText("");
         }
     }
 
     /** Saves the current settings from the settings form */
     public ServerSettings getServerSettings() {
         ServerSettings serverSettings = new ServerSettings();
+        
+        serverSettings.setServerName(serverNameField.getText());
+        serverSettings.setOrganizationName(organizationNameField.getText());
 
         serverSettings.setClearGlobalMap(clearGlobalMapYesRadio.isSelected());
 
@@ -296,9 +319,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     public UpdateSettings getUpdateSettings() {
         UpdateSettings updateSettings = new UpdateSettings();
 
-        updateSettings.setUpdatesEnabled(checkForUpdatesYesRadio.isSelected());
         updateSettings.setStatsEnabled(provideUsageStatsYesRadio.isSelected());
-        updateSettings.setUpdateUrl(updateUrlField.getText());
 
         return updateSettings;
     }
@@ -445,7 +466,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         requireAuthenticationButtonGroup = new javax.swing.ButtonGroup();
         clearGlobalMapButtonGroup = new javax.swing.ButtonGroup();
-        checkForUpdatesButtonGroup = new javax.swing.ButtonGroup();
         provideUsageStatsButtonGroup = new javax.swing.ButtonGroup();
         secureConnectionButtonGroup = new javax.swing.ButtonGroup();
         emailPanel = new javax.swing.JPanel();
@@ -468,25 +488,25 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         secureConnectionSSLRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         smtpTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
         smtpTimeoutLabel = new javax.swing.JLabel();
-        configurationPanel = new javax.swing.JPanel();
-        clearGlobalMapLabel = new javax.swing.JLabel();
-        clearGlobalMapYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        clearGlobalMapNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        checkForUpdatesLabel = new javax.swing.JLabel();
-        checkForUpdatesYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        checkForUpdatesNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        generalPanel = new javax.swing.JPanel();
         provideUsageStatsLabel = new javax.swing.JLabel();
         provideUsageStatsYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         provideUsageStatsNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        updateUrlField = new com.mirth.connect.client.ui.components.MirthTextField();
-        updateUrlLabel = new javax.swing.JLabel();
         provideUsageStatsMoreInfoLabel = new javax.swing.JLabel();
-        queueBufferSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
+        organizationNameLabel = new javax.swing.JLabel();
+        organizationNameField = new com.mirth.connect.client.ui.components.MirthTextField();
+        serverNameField = new com.mirth.connect.client.ui.components.MirthTextField();
+        serverNameLabel = new javax.swing.JLabel();
+        channelPanel = new javax.swing.JPanel();
+        clearGlobalMapLabel = new javax.swing.JLabel();
+        clearGlobalMapYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        clearGlobalMapNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         queueBufferSizeLabel = new javax.swing.JLabel();
         defaultMetaDataLabel = new javax.swing.JLabel();
         defaultMetaDataSourceCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         defaultMetaDataTypeCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         defaultMetaDataVersionCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        queueBufferSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -643,12 +663,85 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(passwordLabel)
-                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
-        configurationPanel.setBackground(new java.awt.Color(255, 255, 255));
-        configurationPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Configuration", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        generalPanel.setBackground(new java.awt.Color(255, 255, 255));
+        generalPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "General", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+
+        provideUsageStatsLabel.setText("Provide usage statistics:");
+
+        provideUsageStatsYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        provideUsageStatsYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        provideUsageStatsButtonGroup.add(provideUsageStatsYesRadio);
+        provideUsageStatsYesRadio.setText("Yes");
+        provideUsageStatsYesRadio.setToolTipText("<html>Toggles sending usage statistics to Mirth.  These statistics <br>do not contain any PHI, and help Mirth determine which connectors <br>or areas of Mirth Connect are most widely used.</html>");
+        provideUsageStatsYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        provideUsageStatsNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        provideUsageStatsNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        provideUsageStatsButtonGroup.add(provideUsageStatsNoRadio);
+        provideUsageStatsNoRadio.setText("No");
+        provideUsageStatsNoRadio.setToolTipText("<html>Toggles sending usage statistics to Mirth.  These statistics <br>do not contain any PHI, and help Mirth determine which connectors <br>or areas of Mirth Connect are most widely used.</html>");
+        provideUsageStatsNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        provideUsageStatsMoreInfoLabel.setText("<html><font color=blue><u>More Info</u></font></html>");
+        provideUsageStatsMoreInfoLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                provideUsageStatsMoreInfoLabelMouseClicked(evt);
+            }
+        });
+
+        organizationNameLabel.setText("Organization name:");
+
+        organizationNameField.setToolTipText("");
+
+        serverNameField.setToolTipText("");
+
+        serverNameLabel.setText("Server name:");
+
+        javax.swing.GroupLayout generalPanelLayout = new javax.swing.GroupLayout(generalPanel);
+        generalPanel.setLayout(generalPanelLayout);
+        generalPanelLayout.setHorizontalGroup(
+            generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(generalPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(serverNameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(organizationNameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(provideUsageStatsLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(generalPanelLayout.createSequentialGroup()
+                        .addComponent(provideUsageStatsYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(provideUsageStatsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(provideUsageStatsMoreInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(serverNameField, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
+                    .addComponent(organizationNameField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(87, Short.MAX_VALUE))
+        );
+        generalPanelLayout.setVerticalGroup(
+            generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(generalPanelLayout.createSequentialGroup()
+                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(serverNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(serverNameLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(organizationNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(organizationNameLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(provideUsageStatsYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(provideUsageStatsLabel)
+                    .addComponent(provideUsageStatsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(provideUsageStatsMoreInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+
+        channelPanel.setBackground(new java.awt.Color(255, 255, 255));
+        channelPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Channel", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
 
         clearGlobalMapLabel.setText("Clear global map on redeploy:");
 
@@ -666,53 +759,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         clearGlobalMapNoRadio.setText("No");
         clearGlobalMapNoRadio.setToolTipText("Toggles clearing the global map when redeploying all channels.");
         clearGlobalMapNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        checkForUpdatesLabel.setText("Check for updates:");
-
-        checkForUpdatesYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        checkForUpdatesYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        checkForUpdatesButtonGroup.add(checkForUpdatesYesRadio);
-        checkForUpdatesYesRadio.setSelected(true);
-        checkForUpdatesYesRadio.setText("Yes");
-        checkForUpdatesYesRadio.setToolTipText("Toggles checking for software updates.");
-        checkForUpdatesYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        checkForUpdatesNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        checkForUpdatesNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        checkForUpdatesButtonGroup.add(checkForUpdatesNoRadio);
-        checkForUpdatesNoRadio.setText("No");
-        checkForUpdatesNoRadio.setToolTipText("Toggles checking for software updates.");
-        checkForUpdatesNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        provideUsageStatsLabel.setText("Provide usage statistics:");
-
-        provideUsageStatsYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        provideUsageStatsYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        provideUsageStatsButtonGroup.add(provideUsageStatsYesRadio);
-        provideUsageStatsYesRadio.setSelected(true);
-        provideUsageStatsYesRadio.setText("Yes");
-        provideUsageStatsYesRadio.setToolTipText("<html>Toggles sending usage statistics to Mirth.  These statistics <br>do not contain any PHI, and help Mirth determine which connectors <br>or areas of Mirth Connect are most widely used.</html>");
-        provideUsageStatsYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        provideUsageStatsNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        provideUsageStatsNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        provideUsageStatsButtonGroup.add(provideUsageStatsNoRadio);
-        provideUsageStatsNoRadio.setText("No");
-        provideUsageStatsNoRadio.setToolTipText("<html>Toggles sending usage statistics to Mirth.  These statistics <br>do not contain any PHI, and help Mirth determine which connectors <br>or areas of Mirth Connect are most widely used.</html>");
-        provideUsageStatsNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        updateUrlField.setToolTipText("The URL to use when checking for software updates.");
-
-        updateUrlLabel.setText("Update URL:");
-
-        provideUsageStatsMoreInfoLabel.setText("<html><font color=blue><u>Privacy Policy</u></font></html>");
-        provideUsageStatsMoreInfoLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                provideUsageStatsMoreInfoLabelMouseClicked(evt);
-            }
-        });
-
-        queueBufferSizeField.setToolTipText("<html>The maximum number of queued messages each connector will hold in memory.<br>There is no limit to the total number of queued messages. A smaller buffer will<br>use less memory, but may decrease queue performance. Mirth Connect must be<br>restarted for this setting to take effect.</html>");
 
         queueBufferSizeLabel.setText("Queue Buffer Size:");
 
@@ -736,78 +782,51 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         defaultMetaDataVersionCheckBox.setToolTipText("<html>If checked, the Version metadata column will be added by<br/>default when a user creates a new channel. The user can<br/>choose to remove the column on the channel's Summary tab.</html>");
         defaultMetaDataVersionCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        javax.swing.GroupLayout configurationPanelLayout = new javax.swing.GroupLayout(configurationPanel);
-        configurationPanel.setLayout(configurationPanelLayout);
-        configurationPanelLayout.setHorizontalGroup(
-            configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(configurationPanelLayout.createSequentialGroup()
+        queueBufferSizeField.setToolTipText("SMTP port used for global SMTP settings.");
+
+        javax.swing.GroupLayout channelPanelLayout = new javax.swing.GroupLayout(channelPanel);
+        channelPanel.setLayout(channelPanelLayout);
+        channelPanelLayout.setHorizontalGroup(
+            channelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(channelPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(channelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(defaultMetaDataLabel)
-                    .addComponent(checkForUpdatesLabel)
                     .addComponent(clearGlobalMapLabel)
-                    .addComponent(provideUsageStatsLabel)
-                    .addComponent(updateUrlLabel)
                     .addComponent(queueBufferSizeLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(updateUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(configurationPanelLayout.createSequentialGroup()
-                        .addComponent(provideUsageStatsYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(provideUsageStatsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(provideUsageStatsMoreInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(configurationPanelLayout.createSequentialGroup()
+                .addGroup(channelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(channelPanelLayout.createSequentialGroup()
                         .addComponent(clearGlobalMapYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(clearGlobalMapNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(configurationPanelLayout.createSequentialGroup()
-                        .addComponent(checkForUpdatesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(checkForUpdatesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(queueBufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(configurationPanelLayout.createSequentialGroup()
+                    .addGroup(channelPanelLayout.createSequentialGroup()
                         .addComponent(defaultMetaDataSourceCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(defaultMetaDataTypeCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(defaultMetaDataVersionCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(defaultMetaDataVersionCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(queueBufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        configurationPanelLayout.setVerticalGroup(
-            configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(configurationPanelLayout.createSequentialGroup()
-                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+        channelPanelLayout.setVerticalGroup(
+            channelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(channelPanelLayout.createSequentialGroup()
+                .addGap(0, 0, 0)
+                .addGroup(channelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(clearGlobalMapLabel)
                     .addComponent(clearGlobalMapYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(clearGlobalMapNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(checkForUpdatesLabel)
-                    .addComponent(checkForUpdatesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(checkForUpdatesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(channelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(queueBufferSizeLabel)
+                    .addComponent(queueBufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(provideUsageStatsLabel)
-                    .addComponent(provideUsageStatsYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(provideUsageStatsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(provideUsageStatsMoreInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(updateUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(updateUrlLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(queueBufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(queueBufferSizeLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(channelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(defaultMetaDataLabel)
                     .addComponent(defaultMetaDataSourceCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(defaultMetaDataTypeCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(defaultMetaDataVersionCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(defaultMetaDataVersionCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -817,18 +836,21 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(configurationPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(emailPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(generalPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(emailPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(channelPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(configurationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addComponent(generalPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(channelPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(emailPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(41, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -851,15 +873,11 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     }//GEN-LAST:event_requireAuthenticationYesRadioActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.ButtonGroup checkForUpdatesButtonGroup;
-    private javax.swing.JLabel checkForUpdatesLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton checkForUpdatesNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton checkForUpdatesYesRadio;
+    private javax.swing.JPanel channelPanel;
     private javax.swing.ButtonGroup clearGlobalMapButtonGroup;
     private javax.swing.JLabel clearGlobalMapLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton clearGlobalMapNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton clearGlobalMapYesRadio;
-    private javax.swing.JPanel configurationPanel;
     private com.mirth.connect.client.ui.components.MirthTextField defaultFromAddressField;
     private javax.swing.JLabel defaultFromAddressLabel;
     private javax.swing.JLabel defaultMetaDataLabel;
@@ -867,6 +885,9 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthCheckBox defaultMetaDataTypeCheckBox;
     private com.mirth.connect.client.ui.components.MirthCheckBox defaultMetaDataVersionCheckBox;
     private javax.swing.JPanel emailPanel;
+    private javax.swing.JPanel generalPanel;
+    private com.mirth.connect.client.ui.components.MirthTextField organizationNameField;
+    private javax.swing.JLabel organizationNameLabel;
     private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
     private javax.swing.ButtonGroup provideUsageStatsButtonGroup;
@@ -885,14 +906,14 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthRadioButton secureConnectionNoneRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton secureConnectionSSLRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton secureConnectionTLSRadio;
+    private com.mirth.connect.client.ui.components.MirthTextField serverNameField;
+    private javax.swing.JLabel serverNameLabel;
     private com.mirth.connect.client.ui.components.MirthTextField smtpHostField;
     private javax.swing.JLabel smtpHostLabel;
     private com.mirth.connect.client.ui.components.MirthTextField smtpPortField;
     private javax.swing.JLabel smtpPortLabel;
     private com.mirth.connect.client.ui.components.MirthTextField smtpTimeoutField;
     private javax.swing.JLabel smtpTimeoutLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField updateUrlField;
-    private javax.swing.JLabel updateUrlLabel;
     private com.mirth.connect.client.ui.components.MirthTextField usernameField;
     private javax.swing.JLabel usernameLabel;
     // End of variables declaration//GEN-END:variables

@@ -29,6 +29,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("serverSettings")
 public class ServerSettings extends AbstractSettings implements Serializable, Auditable, Purgable {
 
+    private static final String SERVER_NAME = "server.name";
+    private static final String ORGANIZATION_NAME = "server.organization";
     private static final String CLEAR_GLOBAL_MAP = "server.resetglobalvariables";
     private static final String QUEUE_BUFFER_SIZE = "server.queuebuffersize";
     private static final String DEFAULT_METADATA_COLUMNS = "server.defaultmetadatacolumns";
@@ -41,7 +43,9 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     private static final String SMTP_USERNAME = "smtp.username";
     private static final String SMTP_PASSWORD = "smtp.password";
 
-    // Configuration
+    // General
+    private String serverName;
+    private String organizationName;
     private Boolean clearGlobalMap;
     private Integer queueBufferSize;
     private List<MetaDataColumn> defaultMetaDataColumns;
@@ -66,6 +70,14 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
 
     public Properties getProperties() {
         Properties properties = new Properties();
+        
+        if (getServerName() != null) {
+            properties.put(SERVER_NAME, getServerName());
+        }
+        
+        if (getOrganizationName() != null) {
+            properties.put(ORGANIZATION_NAME, getOrganizationName());
+        }
 
         if (getClearGlobalMap() != null) {
             properties.put(CLEAR_GLOBAL_MAP, BooleanUtils.toIntegerObject(getClearGlobalMap()).toString());
@@ -105,6 +117,8 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     }
 
     public void setProperties(Properties properties) {
+        setServerName(properties.getProperty(SERVER_NAME));
+        setOrganizationName(properties.getProperty(ORGANIZATION_NAME));
         setClearGlobalMap(intToBooleanObject(properties.getProperty(CLEAR_GLOBAL_MAP)));
         setQueueBufferSize(toIntegerObject(properties.getProperty(QUEUE_BUFFER_SIZE)));
         setDefaultMetaDataColumns(toList(properties.getProperty(DEFAULT_METADATA_COLUMNS), MetaDataColumn.class, DefaultMetaData.DEFAULT_COLUMNS));
@@ -116,6 +130,22 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         setSmtpAuth(intToBooleanObject(properties.getProperty(SMTP_AUTH)));
         setSmtpUsername(properties.getProperty(SMTP_USERNAME));
         setSmtpPassword(properties.getProperty(SMTP_PASSWORD));
+    }
+    
+    public String getServerName() {
+        return serverName;
+    }
+    
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+    }
+    
+    public String getOrganizationName() {
+        return organizationName;
+    }
+    
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
     }
 
     public Boolean getClearGlobalMap() {

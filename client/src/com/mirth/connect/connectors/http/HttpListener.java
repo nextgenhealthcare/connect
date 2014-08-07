@@ -275,7 +275,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     public void updateHttpUrl() {
         String server = "<server ip>";
         try {
-            server = new URI(PlatformUI.SERVER_NAME).getHost();
+            server = new URI(PlatformUI.SERVER_URL).getHost();
         } catch (Exception e) {
             // ignore exceptions getting the server ip
         }

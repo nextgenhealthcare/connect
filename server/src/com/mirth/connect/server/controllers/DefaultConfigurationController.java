@@ -485,7 +485,12 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
 
             if (serverConfiguration.getServerSettings() != null) {
-                setServerSettings(serverConfiguration.getServerSettings());
+                // The server name and organization name must not be restored.
+                ServerSettings serverSettings = serverConfiguration.getServerSettings();
+                serverSettings.setOrganizationName(null);
+                serverSettings.setServerName(null);
+
+                setServerSettings(serverSettings);
             }
 
             if (serverConfiguration.getUpdateSettings() != null) {

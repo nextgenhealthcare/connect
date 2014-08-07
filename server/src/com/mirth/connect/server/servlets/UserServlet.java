@@ -168,6 +168,18 @@ public class UserServlet extends MirthServlet {
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
+                } else if (operation.equals(Operations.USER_PREFERENCE_GET)) {
+                    User user = serializer.deserialize(request.getParameter("user"), User.class);
+                    parameterMap.put("user", user);
+
+                    // Allow if the user is requesting his own preferences. Check
+                    // this first so a current user call is not audited.
+                    if (isCurrentUser(request, user) || isUserAuthorized(request, parameterMap)) {
+                        String name = request.getParameter("name");
+                        serializer.serialize(userController.getUserPreference(user, name), out);
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
                 }
             }
         } catch (RuntimeIOException rio) {
@@ -187,7 +199,7 @@ public class UserServlet extends MirthServlet {
             // if the version of the client in is not the same as the server and
             // the version is not 0.0.0 (bypass)
             if (!version.equals(configurationController.getServerVersion()) && !version.equals("0.0.0")) {
-                loginStatus = new LoginStatus(LoginStatus.Status.FAIL_VERSION_MISMATCH, "Mirth Connect Administrator version " + version + " cannot conect to Server version " + configurationController.getServerVersion() + ". Please clear your Java cache and relaunch the Administrator from the Server webpage.");
+                loginStatus = new LoginStatus(LoginStatus.Status.FAIL_VERSION_MISMATCH, "Mirth Connect Administrator version " + version + " cannot connect to Server version " + configurationController.getServerVersion() + ". Please clear your Java cache and relaunch the Administrator from the Server webpage.");
             } else {
                 HttpSession session = request.getSession();
 

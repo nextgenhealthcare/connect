@@ -60,10 +60,6 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
             setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
 
-
-        usageStatsMoreInfoLabel.setToolTipText(UIConstants.PRIVACY_TOOLTIP);
-        usageStatsMoreInfoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
         setVisible(true);
     }
 
@@ -93,8 +89,6 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
         registerCheckBox = new javax.swing.JCheckBox();
-        usageStatsCheckBox = new javax.swing.JCheckBox();
-        usageStatsMoreInfoLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Welcome to Mirth Connect");
@@ -110,7 +104,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
             }
         });
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18));
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Welcome to Mirth Connect");
 
@@ -127,13 +121,13 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
             mirthHeadingPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mirthHeadingPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE)
+                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
-        jTextPane1.setBackground(new java.awt.Color(250, 250, 210));
         jTextPane1.setEditable(false);
-        jTextPane1.setText("You have recently installed or upgraded this Mirth Connect Server, and may now customize your Mirth Connect user account information. You also have the option of changing your account password.");
+        jTextPane1.setBackground(new java.awt.Color(250, 250, 210));
+        jTextPane1.setText("You may now customize your Mirth Connect user account information. You also have the option of changing your account password.");
         jTextPane1.setAutoscrolls(false);
         jTextPane1.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         jTextPane1.setEnabled(false);
@@ -141,21 +135,10 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
         registerCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         registerCheckBox.setSelected(true);
-        registerCheckBox.setText("Register this instance of Mirth Connect");
+        registerCheckBox.setText("Register user information");
         registerCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 registerCheckBoxActionPerformed(evt);
-            }
-        });
-
-        usageStatsCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        usageStatsCheckBox.setSelected(true);
-        usageStatsCheckBox.setText("Submit usage statistics");
-
-        usageStatsMoreInfoLabel.setText("<html><font color=blue><u>Privacy Policy</u></font></html>");
-        usageStatsMoreInfoLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                usageStatsMoreInfoLabelMouseClicked(evt);
             }
         });
 
@@ -167,25 +150,21 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
                 .addContainerGap(305, Short.MAX_VALUE)
                 .addComponent(finishButton)
                 .addGap(9, 9, 9))
-            .addComponent(mirthHeadingPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, channelOverviewLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)
-                .addContainerGap())
-            .addGroup(channelOverviewLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(mirthHeadingPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
             .addGroup(channelOverviewLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(channelOverviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(registerCheckBox)
-                    .addComponent(userEditPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, channelOverviewLayout.createSequentialGroup()
+                        .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)
+                        .addContainerGap())
                     .addGroup(channelOverviewLayout.createSequentialGroup()
-                        .addComponent(usageStatsCheckBox)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(usageStatsMoreInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(31, Short.MAX_VALUE))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(channelOverviewLayout.createSequentialGroup()
+                        .addGroup(channelOverviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(registerCheckBox)
+                            .addComponent(userEditPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(31, Short.MAX_VALUE))))
         );
         channelOverviewLayout.setVerticalGroup(
             channelOverviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -197,11 +176,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
                 .addComponent(userEditPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(registerCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(channelOverviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(usageStatsCheckBox)
-                    .addComponent(usageStatsMoreInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 6, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(finishButton)
@@ -246,12 +221,8 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         }
 
         try {
-            UpdateSettings updateSettings = new UpdateSettings();
-            
-            updateSettings.setStatsEnabled(usageStatsCheckBox.isSelected());
-            updateSettings.setFirstLogin(false);
-
-            parent.mirthClient.setUpdateSettings(updateSettings);
+        	User currentUser = parent.getCurrentUser(parent);
+            parent.mirthClient.setUserPreference(currentUser, "firstlogin", "false");
         } catch (ClientException e) {
             parent.alertException(this, e.getStackTrace(), e.getMessage());
         }
@@ -262,12 +233,9 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 
 private void registerCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerCheckBoxActionPerformed
     boolean selected = registerCheckBox.isSelected();
-    userEditPanel.setRequiredFields(selected, selected, selected, selected, true);
+    userEditPanel.setRequiredFields(selected, selected, selected, selected, true, selected);
 }//GEN-LAST:event_registerCheckBoxActionPerformed
 
-private void usageStatsMoreInfoLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usageStatsMoreInfoLabelMouseClicked
-    BareBonesBrowserLaunch.openURL(UIConstants.PRIVACY_URL);
-}//GEN-LAST:event_usageStatsMoreInfoLabelMouseClicked
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel channelOverview;
     private javax.swing.JButton finishButton;
@@ -277,8 +245,6 @@ private void usageStatsMoreInfoLabelMouseClicked(java.awt.event.MouseEvent evt) 
     private javax.swing.JTextPane jTextPane1;
     private com.mirth.connect.client.ui.MirthHeadingPanel mirthHeadingPanel1;
     private javax.swing.JCheckBox registerCheckBox;
-    private javax.swing.JCheckBox usageStatsCheckBox;
-    private javax.swing.JLabel usageStatsMoreInfoLabel;
     private com.mirth.connect.client.ui.UserEditPanel userEditPanel;
     // End of variables declaration//GEN-END:variables
 }

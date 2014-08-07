@@ -109,6 +109,8 @@ public abstract class UserController extends Controller {
      */
     public abstract boolean isUserLoggedIn(User user) throws ControllerException;
 
+    public abstract List<Credentials> getUserCredentials(Integer userId) throws ControllerException;
+
     /**
      * Returns a user preference (name/value pair).
      * 
@@ -117,6 +119,8 @@ public abstract class UserController extends Controller {
      * @throws ControllerException if the preferences could not be retrieved
      */
     public abstract Properties getUserPreferences(User user) throws ControllerException;
+    
+    public abstract String getUserPreference(User user, String name);
 
     /**
      * Sets a user preference. For example, the dashboard refresh interval.
@@ -128,5 +132,7 @@ public abstract class UserController extends Controller {
      */
     public abstract void setUserPreference(User user, String name, String value) throws ControllerException;
     
-    public abstract List<Credentials> getUserCredentials(Integer userId) throws ControllerException;
+    public abstract void removePreferencesForUser(int id);
+
+    public abstract void removePreference(int id, String name);
 }

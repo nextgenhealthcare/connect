@@ -27,6 +27,7 @@ public class User implements Serializable, Auditable {
     private String organization;
     private String description;
     private String phoneNumber;
+    private String industry;
     private Calendar lastLogin;
     private Calendar gracePeriodStart;
 
@@ -92,6 +93,14 @@ public class User implements Serializable, Auditable {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+    
+    public String getIndustry() {
+        return this.industry;
+    }
+    
+    public void setIndustry(String industry) {
+        this.industry = industry;
     }
 
     public Calendar getLastLogin() {

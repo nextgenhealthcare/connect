@@ -94,7 +94,6 @@ import com.mirth.connect.client.ui.alert.DefaultAlertPanel;
 import com.mirth.connect.client.ui.browsers.event.EventBrowser;
 import com.mirth.connect.client.ui.browsers.message.MessageBrowser;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
-import com.mirth.connect.client.ui.extensionmanager.ExtensionUpdateDialog;
 import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
@@ -116,7 +115,6 @@ import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerSettings;
-import com.mirth.connect.model.UpdateInfo;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.alert.AlertModel;
@@ -227,7 +225,15 @@ public class Frame extends JXFrame {
 
         taskPaneContainer = new JXTaskPaneContainer();
 
-        setTitle(UIConstants.TITLE_TEXT + " - " + PlatformUI.SERVER_NAME);
+        StringBuilder titleText = new StringBuilder();
+        titleText.append(UIConstants.TITLE_TEXT + " - ");
+        
+        if (!StringUtils.isBlank(PlatformUI.SERVER_NAME)) {
+            titleText.append(PlatformUI.SERVER_NAME);
+        } else {
+            titleText.append(PlatformUI.SERVER_URL);
+        }
+        setTitle(titleText.toString());
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setIconImage(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/mirth_32_ico.png")).getImage());
         makePaneContainer();
@@ -383,7 +389,7 @@ public class Frame extends JXFrame {
         setInitialVisibleTasks();
         login.setStatus("Loading preferences...");
         userPreferences = Preferences.userNodeForPackage(Mirth.class);
-        userPreferences.put("defaultServer", PlatformUI.SERVER_NAME);
+        userPreferences.put("defaultServer", PlatformUI.SERVER_URL);
         login.setStatus("Loading GUI components...");
         splitPane.setDividerSize(0);
         splitPane.setBorder(BorderFactory.createEmptyBorder());
@@ -1005,7 +1011,6 @@ public class Frame extends JXFrame {
         extensionsTasks.setFocusable(false);
 
         addTask(TaskConstants.EXTENSIONS_REFRESH, "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), extensionsTasks, extensionsPopupMenu);
-        addTask(TaskConstants.EXTENSIONS_CHECK_FOR_UPDATES, "Check for Updates", "Checks all extensions for updates.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/world_link.png")), extensionsTasks, extensionsPopupMenu);
         addTask(TaskConstants.EXTENSIONS_ENABLE, "Enable Extension", "Enable the currently selected extension.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_play_blue.png")), extensionsTasks, extensionsPopupMenu);
         addTask(TaskConstants.EXTENSIONS_DISABLE, "Disable Extension", "Disable the currently selected extension.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_stop_blue.png")), extensionsTasks, extensionsPopupMenu);
         addTask(TaskConstants.EXTENSIONS_SHOW_PROPERTIES, "Show Properties", "Display the currently selected extension properties.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_view_list.png")), extensionsTasks, extensionsPopupMenu);
@@ -1025,10 +1030,10 @@ public class Frame extends JXFrame {
         otherPane.setName(TaskConstants.OTHER_KEY);
         otherPane.setFocusable(false);
         addTask(TaskConstants.OTHER_HELP, "Help", "View the Mirth Connect wiki.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/help.png")), otherPane, null);
+        addTask(TaskConstants.OTHER_VIEW_USER_API, "View User API", "View documentation for the Mirth Connect User API.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_text.png")), otherPane, null);
         addTask(TaskConstants.OTHER_ABOUT, "About Mirth Connect", "View the about page for Mirth Connect.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/information.png")), otherPane, null);
         addTask(TaskConstants.OTHER_VISIT_MIRTH, "Visit mirthcorp.com", "View Mirth's homepage.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/house.png")), otherPane, null);
         addTask(TaskConstants.OTHER_REPORT_ISSUE, "Report Issue", "Visit Mirth's issue tracker.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bug.png")), otherPane, null);
-        addTask(TaskConstants.OTHER_VIEW_USER_API, "View User API", "View documentation for the Mirth Connect User API.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_text.png")), otherPane, null);
         addTask(TaskConstants.OTHER_LOGOUT, "Logout", "Logout and return to the login screen.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/disconnect.png")), otherPane, null);
         setNonFocusable(otherPane);
         taskPaneContainer.add(otherPane);
@@ -1164,19 +1169,25 @@ public class Frame extends JXFrame {
                 }
                 mirthClient.cleanup();
                 this.dispose();
-                LoginPanel.getInstance().initialize(PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION, "", "");
+                LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
                 return;
             } else if (message.startsWith("org.apache.http.conn.HttpHostConnectException") && message.indexOf("Connection refused") != -1) {
                 connectionError = true;
                 statusUpdaterExecutor.shutdownNow();
 
-                alertWarning(parentComponent, "The Mirth Connect server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and log in again.");
+                String server;
+                if (!StringUtils.isBlank(PlatformUI.SERVER_NAME)) {
+                	server = PlatformUI.SERVER_NAME + "(" + PlatformUI.SERVER_URL + ")";
+                } else {
+                	server = PlatformUI.SERVER_URL;
+                }
+                alertWarning(parentComponent, "The Mirth Connect server " + server + " is no longer running.  Please start it and log in again.");
                 if (!exportChannelOnError()) {
                     return;
                 }
                 mirthClient.cleanup();
                 this.dispose();
-                LoginPanel.getInstance().initialize(PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION, "", "");
+                LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
                 return;
             } else if (message.startsWith("com.mirth.connect.client.core.UnauthorizedException")) {
                 message = "You are not authorized to peform this action.\n\n" + message;
@@ -1575,52 +1586,6 @@ public class Frame extends JXFrame {
         worker.execute();
     }
 
-    public void checkForUpdates() {
-        final String workingId = startWorking("Checking for updates...");
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                UpdateSettings updateSettings = null;
-                try {
-                    updateSettings = mirthClient.getUpdateSettings();
-                } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                }
-
-                // Only check if updates are enabled
-                if ((updateSettings != null) && updateSettings.getUpdatesEnabled()) {
-                    try {
-                        List<UpdateInfo> updateInfoList = getUpdateClient(PlatformUI.MIRTH_FRAME).getUpdates();
-
-                        boolean newUpdates = false;
-
-                        for (UpdateInfo updateInfo : updateInfoList) {
-                            // Set to true as long as the update is not ignored and not optional.
-                            if (!updateInfo.isIgnored() && !updateInfo.isOptional()) {
-                                newUpdates = true;
-                            }
-                        }
-
-                        if (newUpdates) {
-                            new ExtensionUpdateDialog(updateInfoList);
-                        }
-                    } catch (ClientException e) {
-                        // ignore errors connecting to update/stats server
-                    }
-                }
-
-                return null;
-            }
-
-            public void done() {
-                stopWorking(workingId);
-            }
-        };
-
-        worker.execute();
-    }
-
     public void sendUsageStatistics() {
         final String workingId = startWorking("Sending usage statistics...");
 
@@ -1750,7 +1715,7 @@ public class Frame extends JXFrame {
     }
 
     public void goToUserAPI() {
-        BareBonesBrowserLaunch.openURL(PlatformUI.SERVER_NAME + UIConstants.USER_API_LOCATION);
+        BareBonesBrowserLaunch.openURL(PlatformUI.SERVER_URL + UIConstants.USER_API_LOCATION);
     }
 
     public void goToAbout() {
@@ -1919,7 +1884,7 @@ public class Frame extends JXFrame {
             this.dispose();
 
             if (!quit) {
-                LoginPanel.getInstance().initialize(PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION, "", "");
+                LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
             }
         } catch (ClientException e) {
             alertException(this, e.getStackTrace(), e.getMessage());
@@ -4578,14 +4543,6 @@ public class Frame extends JXFrame {
     public void refreshExtensions() {
         extensionsPanel.setPluginData(getPluginMetaData());
         extensionsPanel.setConnectorData(getConnectorMetaData());
-    }
-
-    public void doCheckForUpdates() {
-        try {
-            new ExtensionUpdateDialog();
-        } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
-        }
     }
 
     public void doEnableExtension() {

@@ -1165,6 +1165,12 @@ public class Client {
         NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_PREFERENCES_GET.getName()), new BasicNameValuePair("user", serializer.serialize(user)) };
         return serializer.deserialize(serverConnection.executePostMethod(USER_SERVLET, params), Properties.class);
     }
+    
+    public String getUserPreference(User user, String name) throws ClientException {
+        logger.debug("retrieving user preferences");
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_PREFERENCE_GET.getName()), new BasicNameValuePair("user", serializer.serialize(user)), new BasicNameValuePair("name", name) };
+        return serializer.deserialize(serverConnection.executePostMethod(USER_SERVLET, params), String.class);
+    }
 
     /**
      * Sets a user preference.

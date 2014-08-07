@@ -36,6 +36,7 @@ public class UserPanel extends javax.swing.JPanel {
     private final String USERFIRSTNAME_COLUMN_NAME = "First Name";
     private final String USERLASTNAME_COLUMN_NAME = "Last Name";
     private final String USERORGANIZATION_COLUMN_NAME = "Organization";
+    private final String USERINDUSTRY_COLUMN_NAME = "Industry";
     private final String USERPHONENUMBER_COLUMN_NAME = "Phone Number";
     private final String USERDESCRIPTION_COLUMN_NAME = "Description";
     private final String USERLASTLOGIN_COLUMN_NAME = "Last Login";
@@ -69,6 +70,8 @@ public class UserPanel extends javax.swing.JPanel {
         usersTable.getColumnExt(USERNAME_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         usersTable.getColumnExt(USERFIRSTNAME_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         usersTable.getColumnExt(USERLASTNAME_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        usersTable.getColumnExt(USERINDUSTRY_COLUMN_NAME).setMinWidth(125);
+        usersTable.getColumnExt(USERINDUSTRY_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         usersTable.getColumnExt(USERORGANIZATION_COLUMN_NAME).setMinWidth(125);
         usersTable.getColumnExt(USERORGANIZATION_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         usersTable.getColumnExt(USER_EMAIL_COLUMN_NAME).setMinWidth(150);
@@ -146,7 +149,7 @@ public class UserPanel extends javax.swing.JPanel {
         Object[][] tableData = null;
 
         if (parent.users != null) {
-            tableData = new Object[parent.users.size()][8];
+            tableData = new Object[parent.users.size()][9];
 
             for (int i = 0; i < parent.users.size(); i++) {
                 User temp = parent.users.get(i);
@@ -154,15 +157,16 @@ public class UserPanel extends javax.swing.JPanel {
                 tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/user.png")), temp.getUsername());
                 tableData[i][1] = temp.getFirstName();
                 tableData[i][2] = temp.getLastName();
-                tableData[i][3] = temp.getOrganization();
-                tableData[i][4] = temp.getEmail();
-                tableData[i][5] = temp.getPhoneNumber();
+                tableData[i][3] = temp.getEmail();
+                tableData[i][4] = temp.getPhoneNumber();
+                tableData[i][5] = temp.getOrganization();
+                tableData[i][6] = temp.getIndustry();
 
                 if (temp.getLastLogin() != null) {
-                    tableData[i][6] = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(temp.getLastLogin().getTime());
+                    tableData[i][7] = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(temp.getLastLogin().getTime());
                 }
 
-                tableData[i][7] = temp.getDescription();
+                tableData[i][8] = temp.getDescription();
             }
         }
 
@@ -174,12 +178,12 @@ public class UserPanel extends javax.swing.JPanel {
             usersTable = new MirthTable();
             usersTable.setModel(new RefreshTableModel(tableData, new String[] {
                     USERNAME_COLUMN_NAME, USERFIRSTNAME_COLUMN_NAME, USERLASTNAME_COLUMN_NAME,
-                    USERORGANIZATION_COLUMN_NAME, USER_EMAIL_COLUMN_NAME,
-                    USERPHONENUMBER_COLUMN_NAME, USERLASTLOGIN_COLUMN_NAME,
-                    USERDESCRIPTION_COLUMN_NAME }) {
+                    USER_EMAIL_COLUMN_NAME, USERPHONENUMBER_COLUMN_NAME,
+                    USERORGANIZATION_COLUMN_NAME, USERINDUSTRY_COLUMN_NAME,
+                    USERLASTLOGIN_COLUMN_NAME, USERDESCRIPTION_COLUMN_NAME }) {
 
                 boolean[] canEdit = new boolean[] { false, false, false, false, false, false,
-                        false, false };
+                        false, false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -202,8 +206,8 @@ public class UserPanel extends javax.swing.JPanel {
     }
 
     /**
-     * Shows the popup menu when the trigger button (right-click) has been
-     * pushed. Deselects the rows if no row was selected.
+     * Shows the popup menu when the trigger button (right-click) has been pushed. Deselects the
+     * rows if no row was selected.
      */
     private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
         int row = usersTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
@@ -220,8 +224,7 @@ public class UserPanel extends javax.swing.JPanel {
     }
 
     /**
-     * An action to set the correct tasks to visible when a user is selected in
-     * the table.
+     * An action to set the correct tasks to visible when a user is selected in the table.
      */
     private void UsersListSelected(ListSelectionEvent evt) {
         int row = usersTable.getSelectedRow();
@@ -252,8 +255,7 @@ public class UserPanel extends javax.swing.JPanel {
     }
 
     /**
-     * Returns the index according to the stored server's user list of the
-     * currently selected user.
+     * Returns the index according to the stored server's user list of the currently selected user.
      */
     public int getUserIndex() {
         int columnNumber = usersTable.getColumnViewIndex(USERNAME_COLUMN_NAME);

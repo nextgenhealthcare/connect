@@ -19,7 +19,9 @@ import com.mirth.connect.model.util.MigrationException;
 public class Migrate3_1_0 extends Migrator implements ConfigurationMigrator {
 
     @Override
-    public void migrate() throws MigrationException {}
+    public void migrate() throws MigrationException {
+    	executeScript(getDatabaseType() + "-3.0.0-3.1.0.sql");
+    }
 
     @Override
     public void migrateSerializedData() throws MigrationException {}

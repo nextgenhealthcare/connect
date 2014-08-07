@@ -127,6 +127,7 @@ public class Operations {
     public static final Operation USER_IS_USER_LOGGED_IN = new Operation("isUserLoggedIn", "Check if user is logged in", true);
     public static final Operation USER_PREFERENCES_GET = new Operation("getUserPreferences", "Get user preferences", true);
     public static final Operation USER_PREFERENCES_SET = new Operation("setUserPreference", "Set user preferences", true);
+    public static final Operation USER_PREFERENCE_GET = new Operation("getUserPreference", "Get user preference", true);
     
     // Usage Data
     public static final Operation USAGE_DATA_GET = new Operation("getUsageData", "Get usage data", false);
@@ -226,6 +227,7 @@ public class Operations {
         operationMap.put(USER_IS_USER_LOGGED_IN.getName(), USER_IS_USER_LOGGED_IN);
         operationMap.put(USER_PREFERENCES_GET.getName(), USER_PREFERENCES_GET);
         operationMap.put(USER_PREFERENCES_SET.getName(), USER_PREFERENCES_SET);
+        operationMap.put(USER_PREFERENCE_GET.getName(), USER_PREFERENCE_GET);
         operationMap.put(USAGE_DATA_GET.getName(), USAGE_DATA_GET);
     }
 

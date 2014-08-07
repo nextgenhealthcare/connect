@@ -28,7 +28,7 @@ public class ViewUserApiAction extends AbstractAction {
     }
 
     public void actionPerformed(ActionEvent e) {
-        BareBonesBrowserLaunch.openURL(PlatformUI.SERVER_NAME + UIConstants.USER_API_LOCATION);
+        BareBonesBrowserLaunch.openURL(PlatformUI.SERVER_URL + UIConstants.USER_API_LOCATION);
     }
 
     public boolean isEnabled() {

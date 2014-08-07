@@ -9,6 +9,9 @@
 
 package com.mirth.connect.client.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
@@ -19,6 +22,7 @@ public class UserEditPanel extends javax.swing.JPanel {
     private User user;
     private UserDialogInterface dialog;
     private Frame parent;
+    private final String DEFAULT_OPTION = "--Select an option--";
 
     public UserEditPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -33,6 +37,33 @@ public class UserEditPanel extends javax.swing.JPanel {
         email.setDocument(new MirthFieldConstraints(255, false, false, false));
         phone.setDocument(new MirthFieldConstraints(40, false, false, false));
         description.setDocument(new MirthFieldConstraints(255, false, false, false));
+
+        industry.getModel().setSelectedItem(DEFAULT_OPTION);
+        
+        List<String> industries = new ArrayList<String>();
+        industries.add("ACO");
+        industries.add("CHC/FQHC");
+        industries.add("Clinic");
+        industries.add("HIE");
+        industries.add("HIT Consulting");
+        industries.add("HIT Software");
+        industries.add("Hospital");
+        industries.add("Lab");
+        industries.add("Network");
+        industries.add("Other");
+        industries.add("Payer");
+        industries.add("Physicians Group");
+        industries.add("Private Practice");
+        industries.add("Public Health Agency");
+        industries.add("Radiology Center");
+        industries.add("University");
+        
+        for (String item : industries) {
+        	industry.addItem(item);
+        }
+        
+        // Disable scroll bar
+        industry.setMaximumRowCount(industry.getModel().getSize());
     }
 
     public void setUser(UserDialogInterface dialog, User user) {
@@ -48,6 +79,9 @@ public class UserEditPanel extends javax.swing.JPanel {
         email.setText(user.getEmail());
         phone.setText(user.getPhoneNumber());
         description.setText(user.getDescription());
+        if (!StringUtils.isBlank(user.getIndustry())) {
+            industry.setSelectedItem(user.getIndustry());
+        }
     }
 
     public User getUser() {
@@ -59,6 +93,9 @@ public class UserEditPanel extends javax.swing.JPanel {
         user.setEmail(email.getText());
         user.setPhoneNumber(phone.getText());
         user.setDescription(description.getText());
+        if (!industry.getSelectedItem().equals(DEFAULT_OPTION)) {
+            user.setIndustry((String) industry.getSelectedItem());
+        }
 
         return user;
     }
@@ -73,27 +110,22 @@ public class UserEditPanel extends javax.swing.JPanel {
     public boolean checkIfAbleToFinish() {
         boolean finishEnabled = true;
         // Any of the following clauses cause the finish button to be disabled
-        if ((StringUtils.isBlank(username.getText())) ||
-            (firstNameAsteriskLabel.isVisible() && StringUtils.isBlank(firstName.getText())) || 
-            (lastNameAsteriskLabel.isVisible() && StringUtils.isBlank(lastName.getText())) ||
-            (emailAsteriskLabel.isVisible() && StringUtils.isBlank(email.getText())) ||
-            (organizationAsteriskLabel.isVisible() && StringUtils.isBlank(organization.getText())) ||
-            (passwordAsteriskLabel.isVisible() && (StringUtils.isBlank(String.valueOf(password.getPassword())) || StringUtils.isBlank(String.valueOf(confirmPassword.getPassword())))))
-        {
+        if ((StringUtils.isBlank(username.getText())) || (firstNameAsteriskLabel.isVisible() && StringUtils.isBlank(firstName.getText())) || (lastNameAsteriskLabel.isVisible() && StringUtils.isBlank(lastName.getText())) || (emailAsteriskLabel.isVisible() && StringUtils.isBlank(email.getText())) || (industryAsteriskLabel.isVisible() && industry.getSelectedItem().equals(DEFAULT_OPTION)) || (organizationAsteriskLabel.isVisible() && StringUtils.isBlank(organization.getText())) || (passwordAsteriskLabel.isVisible() && (StringUtils.isBlank(String.valueOf(password.getPassword())) || StringUtils.isBlank(String.valueOf(confirmPassword.getPassword()))))) {
             finishEnabled = false;
         }
-        
+
         dialog.setFinishButtonEnabled(finishEnabled);
         return finishEnabled;
     }
 
-    public void setRequiredFields(boolean firstName, boolean lastName, boolean email, boolean organization, boolean password) {
+    public void setRequiredFields(boolean firstName, boolean lastName, boolean email, boolean organization, boolean password, boolean industry) {
         firstNameAsteriskLabel.setVisible(firstName);
         lastNameAsteriskLabel.setVisible(lastName);
         emailAsteriskLabel.setVisible(email);
         organizationAsteriskLabel.setVisible(organization);
         passwordAsteriskLabel.setVisible(password);
         confirmPasswordAsteriskLabel.setVisible(password);
+        industryAsteriskLabel.setVisible(industry);
 
         checkIfAbleToFinish();
     }
@@ -125,10 +157,9 @@ public class UserEditPanel extends javax.swing.JPanel {
         }
     }
 
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+    /**
+     * This method is called from within the constructor to initialize the form. WARNING: Do NOT
+     * modify this code. The content of this method is always regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -159,6 +190,9 @@ public class UserEditPanel extends javax.swing.JPanel {
         emailAsteriskLabel = new javax.swing.JLabel();
         firstNameAsteriskLabel = new javax.swing.JLabel();
         lastNameAsteriskLabel = new javax.swing.JLabel();
+        industry = new javax.swing.JComboBox();
+        industryLabel = new javax.swing.JLabel();
+        industryAsteriskLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -257,43 +291,58 @@ public class UserEditPanel extends javax.swing.JPanel {
         lastNameAsteriskLabel.setForeground(new java.awt.Color(255, 0, 0));
         lastNameAsteriskLabel.setText("*");
 
+        industry.setToolTipText("");
+        industry.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                industryActionPerformed(evt);
+            }
+        });
+
+        industryLabel.setText("Industry:");
+
+        industryAsteriskLabel.setForeground(new java.awt.Color(255, 0, 0));
+        industryAsteriskLabel.setText("*");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(confirmPasswordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(firstNameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(lastNameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(organizationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(emailLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(phoneLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(descriptionLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(usernameLabel)
+                    .addComponent(passwordLabel)
+                    .addComponent(confirmPasswordLabel)
+                    .addComponent(firstNameLabel)
+                    .addComponent(lastNameLabel)
+                    .addComponent(organizationLabel)
+                    .addComponent(descriptionLabel)
+                    .addComponent(phoneLabel)
+                    .addComponent(industryLabel)
+                    .addComponent(emailLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(confirmPassword, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
-                    .addComponent(username, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
-                    .addComponent(password, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
-                    .addComponent(lastName, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
-                    .addComponent(organization, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
-                    .addComponent(email, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
-                    .addComponent(phone, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
-                    .addComponent(firstName, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1))
+                    .addComponent(confirmPassword)
+                    .addComponent(username)
+                    .addComponent(password)
+                    .addComponent(lastName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(organization, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(email, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(phone, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(firstName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1)
+                    .addComponent(industry, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(lastNameAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(emailAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(organizationAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(passwordAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(usernameAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(confirmPasswordAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(firstNameAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(18, Short.MAX_VALUE))
+                    .addComponent(firstNameAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(industryAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(emailAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -325,57 +374,70 @@ public class UserEditPanel extends javax.swing.JPanel {
                     .addComponent(lastNameAsteriskLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(email, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(emailLabel)
+                    .addComponent(emailAsteriskLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(phone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(phoneLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(organizationLabel)
                     .addComponent(organization, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(organizationAsteriskLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(emailLabel)
-                    .addComponent(email, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(emailAsteriskLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(phoneLabel)
-                    .addComponent(phone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(industry, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(industryLabel)
+                    .addComponent(industryAsteriskLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(descriptionLabel)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 74, Short.MAX_VALUE))
-                .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(descriptionLabel)
+                        .addGap(0, 65, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1))
+                .addGap(4, 4, 4))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-private void usernameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_usernameKeyReleased
-    checkAndTriggerFinishButton(evt);
-}//GEN-LAST:event_usernameKeyReleased
+    private void usernameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_usernameKeyReleased
+        checkAndTriggerFinishButton(evt);
+    }//GEN-LAST:event_usernameKeyReleased
 
-private void passwordKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passwordKeyReleased
-    checkAndTriggerFinishButton(evt);
-}//GEN-LAST:event_passwordKeyReleased
+    private void passwordKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passwordKeyReleased
+        checkAndTriggerFinishButton(evt);
+    }//GEN-LAST:event_passwordKeyReleased
 
-private void confirmPasswordKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_confirmPasswordKeyReleased
-    checkAndTriggerFinishButton(evt);
-}//GEN-LAST:event_confirmPasswordKeyReleased
+    private void confirmPasswordKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_confirmPasswordKeyReleased
+        checkAndTriggerFinishButton(evt);
+    }//GEN-LAST:event_confirmPasswordKeyReleased
 
-private void firstNameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_firstNameKeyReleased
-    checkAndTriggerFinishButton(evt);
-}//GEN-LAST:event_firstNameKeyReleased
+    private void firstNameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_firstNameKeyReleased
+        checkAndTriggerFinishButton(evt);
+    }//GEN-LAST:event_firstNameKeyReleased
 
-private void lastNameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lastNameKeyReleased
-    checkAndTriggerFinishButton(evt);
-}//GEN-LAST:event_lastNameKeyReleased
+    private void lastNameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lastNameKeyReleased
+        checkAndTriggerFinishButton(evt);
+    }//GEN-LAST:event_lastNameKeyReleased
 
-private void organizationKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_organizationKeyReleased
-    checkAndTriggerFinishButton(evt);
-}//GEN-LAST:event_organizationKeyReleased
+    private void organizationKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_organizationKeyReleased
+        checkAndTriggerFinishButton(evt);
+    }//GEN-LAST:event_organizationKeyReleased
 
-private void emailKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_emailKeyReleased
-    checkAndTriggerFinishButton(evt);
-}//GEN-LAST:event_emailKeyReleased
+    private void emailKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_emailKeyReleased
+        checkAndTriggerFinishButton(evt);
+    }//GEN-LAST:event_emailKeyReleased
 
-private void phoneKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_phoneKeyReleased
-    checkAndTriggerFinishButton(evt);
-}//GEN-LAST:event_phoneKeyReleased
+    private void phoneKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_phoneKeyReleased
+        checkAndTriggerFinishButton(evt);
+    }//GEN-LAST:event_phoneKeyReleased
+
+    private void industryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_industryActionPerformed
+    	if (dialog != null) {
+    		checkIfAbleToFinish();
+    	}
+    }//GEN-LAST:event_industryActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPasswordField confirmPassword;
@@ -389,6 +451,9 @@ private void phoneKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ph
     private com.mirth.connect.client.ui.components.MirthTextField firstName;
     private javax.swing.JLabel firstNameAsteriskLabel;
     private javax.swing.JLabel firstNameLabel;
+    private javax.swing.JComboBox industry;
+    private javax.swing.JLabel industryAsteriskLabel;
+    private javax.swing.JLabel industryLabel;
     private javax.swing.JScrollPane jScrollPane1;
     private com.mirth.connect.client.ui.components.MirthTextField lastName;
     private javax.swing.JLabel lastNameAsteriskLabel;

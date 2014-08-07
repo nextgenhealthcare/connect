@@ -15,6 +15,9 @@ import java.awt.Cursor;
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
 
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.model.LoginStatus;
@@ -83,7 +86,7 @@ public class LoginPanel extends javax.swing.JFrame {
             PlatformUI.CLIENT_VERSION = version;
             
             setTitle("Mirth Connect " + version + " - Login");
-            
+
             serverName.setText(mirthServer);
             
             // Make sure the login window is centered and not minimized
@@ -402,7 +405,7 @@ public class LoginPanel extends javax.swing.JFrame {
                 try {
                     String server = serverName.getText();
                     client = new Client(server);
-                    PlatformUI.SERVER_NAME = server;
+                    PlatformUI.SERVER_URL = server;
                     
                     // Attempt to login
                     LoginStatus loginStatus = null;
@@ -414,25 +417,31 @@ public class LoginPanel extends javax.swing.JFrame {
                     
                     // If SUCCESS or SUCCESS_GRACE_PERIOD
                     if ((loginStatus != null) && ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD))) {
+                        String serverName = client.getServerSettings().getServerName();
+                        if (!StringUtils.isBlank(serverName)) {
+                            PlatformUI.SERVER_NAME = serverName;
+                        } else {
+                            PlatformUI.SERVER_NAME = null;
+                        }
+                        
                         PlatformUI.USER_NAME = username.getText();
                         setStatus("Authenticated...");
                         new Mirth(client);
                         LoginPanel.getInstance().setVisible(false);
 
                         try {
-                            if (client.getUpdateSettings().getFirstLogin()) {
-                                User currentUser = PlatformUI.MIRTH_FRAME.getCurrentUser(PlatformUI.MIRTH_FRAME);
+                            User currentUser = PlatformUI.MIRTH_FRAME.getCurrentUser(PlatformUI.MIRTH_FRAME);
+                            String firstlogin = client.getUserPreferences(currentUser).getProperty("firstlogin");
+                            if (firstlogin == null || BooleanUtils.toBoolean(firstlogin)) {
                                 new FirstLoginDialog(currentUser);
                             } else if (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD) {
-                                User currentUser = PlatformUI.MIRTH_FRAME.getCurrentUser(PlatformUI.MIRTH_FRAME);
                                 new ChangePasswordDialog(currentUser, loginStatus.getMessage());
                             }
                         } catch (ClientException e) {
                             PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                         }
 
-                        PlatformUI.MIRTH_FRAME.checkForUpdates();
-                        PlatformUI.MIRTH_FRAME.sendUsageStatistics();
+                        PlatformUI.MIRTH_FRAME.sendUsageStatistics();   
                     } else {
                         if (loginStatus != null) {
                             errorTextArea.setText(loginStatus.getMessage());

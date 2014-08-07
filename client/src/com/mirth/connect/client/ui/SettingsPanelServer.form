@@ -6,8 +6,6 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="clearGlobalMapButtonGroup">
     </Component>
-    <Component class="javax.swing.ButtonGroup" name="checkForUpdatesButtonGroup">
-    </Component>
     <Component class="javax.swing.ButtonGroup" name="provideUsageStatsButtonGroup">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="secureConnectionButtonGroup">
@@ -41,8 +39,9 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="configurationPanel" max="32767" attributes="3"/>
+                  <Component id="generalPanel" max="32767" attributes="3"/>
                   <Component id="emailPanel" alignment="0" max="32767" attributes="2"/>
+                  <Component id="channelPanel" alignment="0" max="32767" attributes="3"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -51,11 +50,13 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+              <Component id="generalPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="configurationPanel" min="-2" max="-2" attributes="0"/>
+              <Component id="channelPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="emailPanel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="25" max="32767" attributes="0"/>
+              <EmptySpace pref="41" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -165,7 +166,6 @@
                       <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -351,14 +351,158 @@
         </Component>
       </SubComponents>
     </Container>
-    <Container class="javax.swing.JPanel" name="configurationPanel">
+    <Container class="javax.swing.JPanel" name="generalPanel">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-            <TitledBorder title="Configuration">
+            <TitledBorder title="General">
+              <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
+                <MatteColorBorder bottom="0" left="0" right="0" top="1">
+                  <Color PropertyName="color" blue="cc" green="cc" red="cc" type="rgb"/>
+                </MatteColorBorder>
+              </Border>
+              <Font PropertyName="font" name="Tahoma" size="11" style="1"/>
+            </TitledBorder>
+          </Border>
+        </Property>
+      </Properties>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" attributes="0">
+                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="serverNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="organizationNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="provideUsageStatsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="provideUsageStatsYesRadio" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="provideUsageStatsNoRadio" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="provideUsageStatsMoreInfoLabel" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <Component id="serverNameField" alignment="0" pref="168" max="32767" attributes="1"/>
+                      <Component id="organizationNameField" alignment="0" max="32767" attributes="0"/>
+                  </Group>
+                  <EmptySpace pref="87" max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="serverNameField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="serverNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="organizationNameField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="organizationNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="provideUsageStatsYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="provideUsageStatsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="provideUsageStatsNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="provideUsageStatsMoreInfoLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Component class="javax.swing.JLabel" name="provideUsageStatsLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Provide usage statistics:"/>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="provideUsageStatsYesRadio">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+              </Border>
+            </Property>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="provideUsageStatsButtonGroup"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Yes"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Toggles sending usage statistics to Mirth.  These statistics &lt;br&gt;do not contain any PHI, and help Mirth determine which connectors &lt;br&gt;or areas of Mirth Connect are most widely used.&lt;/html&gt;"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="provideUsageStatsNoRadio">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+              </Border>
+            </Property>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="provideUsageStatsButtonGroup"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="No"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Toggles sending usage statistics to Mirth.  These statistics &lt;br&gt;do not contain any PHI, and help Mirth determine which connectors &lt;br&gt;or areas of Mirth Connect are most widely used.&lt;/html&gt;"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="provideUsageStatsMoreInfoLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;font color=blue&gt;&lt;u&gt;More Info&lt;/u&gt;&lt;/font&gt;&lt;/html&gt;"/>
+          </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="provideUsageStatsMoreInfoLabelMouseClicked"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JLabel" name="organizationNameLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Organization name:"/>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="organizationNameField">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value=""/>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="serverNameField">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value=""/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="serverNameLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Server name:"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPanel" name="channelPanel">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+            <TitledBorder title="Channel">
               <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
                 <MatteColorBorder bottom="0" left="0" right="0" top="1">
                   <Color PropertyName="color" blue="cc" green="cc" red="cc" type="rgb"/>
@@ -376,41 +520,25 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
-                      <Component id="defaultMetaDataLabel" min="-2" max="-2" attributes="0"/>
-                      <Component id="checkForUpdatesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="defaultMetaDataLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="clearGlobalMapLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                      <Component id="provideUsageStatsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                      <Component id="updateUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                      <Component id="queueBufferSizeLabel" min="-2" max="-2" attributes="0"/>
+                      <Component id="queueBufferSizeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="updateUrlField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="provideUsageStatsYesRadio" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="provideUsageStatsNoRadio" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="provideUsageStatsMoreInfoLabel" min="-2" max="-2" attributes="0"/>
-                      </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="clearGlobalMapYesRadio" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="clearGlobalMapNoRadio" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="checkForUpdatesYesRadio" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="checkForUpdatesNoRadio" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <Component id="queueBufferSizeField" alignment="0" min="-2" pref="60" max="-2" attributes="1"/>
-                      <Group type="102" attributes="0">
                           <Component id="defaultMetaDataSourceCheckBox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="defaultMetaDataTypeCheckBox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="defaultMetaDataVersionCheckBox" min="-2" max="-2" attributes="0"/>
                       </Group>
+                      <Component id="queueBufferSizeField" min="-2" pref="50" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -419,6 +547,7 @@
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
+                  <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="clearGlobalMapLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="clearGlobalMapYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -426,26 +555,8 @@
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="checkForUpdatesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="checkForUpdatesYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="checkForUpdatesNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="provideUsageStatsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="provideUsageStatsYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="provideUsageStatsNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="provideUsageStatsMoreInfoLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="updateUrlField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="updateUrlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="queueBufferSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="queueBufferSizeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="queueBufferSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
@@ -454,7 +565,6 @@
                       <Component id="defaultMetaDataTypeCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="defaultMetaDataVersionCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -504,121 +614,6 @@
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="checkForUpdatesLabel">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Check for updates:"/>
-          </Properties>
-        </Component>
-        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="checkForUpdatesYesRadio">
-          <Properties>
-            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="ff" green="ff" red="ff" type="rgb"/>
-            </Property>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-              </Border>
-            </Property>
-            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-              <ComponentRef name="checkForUpdatesButtonGroup"/>
-            </Property>
-            <Property name="selected" type="boolean" value="true"/>
-            <Property name="text" type="java.lang.String" value="Yes"/>
-            <Property name="toolTipText" type="java.lang.String" value="Toggles checking for software updates."/>
-            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-              <Insets value="[0, 0, 0, 0]"/>
-            </Property>
-          </Properties>
-        </Component>
-        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="checkForUpdatesNoRadio">
-          <Properties>
-            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="ff" green="ff" red="ff" type="rgb"/>
-            </Property>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-              </Border>
-            </Property>
-            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-              <ComponentRef name="checkForUpdatesButtonGroup"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="No"/>
-            <Property name="toolTipText" type="java.lang.String" value="Toggles checking for software updates."/>
-            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-              <Insets value="[0, 0, 0, 0]"/>
-            </Property>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="provideUsageStatsLabel">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Provide usage statistics:"/>
-          </Properties>
-        </Component>
-        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="provideUsageStatsYesRadio">
-          <Properties>
-            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="ff" green="ff" red="ff" type="rgb"/>
-            </Property>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-              </Border>
-            </Property>
-            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-              <ComponentRef name="provideUsageStatsButtonGroup"/>
-            </Property>
-            <Property name="selected" type="boolean" value="true"/>
-            <Property name="text" type="java.lang.String" value="Yes"/>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Toggles sending usage statistics to Mirth.  These statistics &lt;br&gt;do not contain any PHI, and help Mirth determine which connectors &lt;br&gt;or areas of Mirth Connect are most widely used.&lt;/html&gt;"/>
-            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-              <Insets value="[0, 0, 0, 0]"/>
-            </Property>
-          </Properties>
-        </Component>
-        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="provideUsageStatsNoRadio">
-          <Properties>
-            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="ff" green="ff" red="ff" type="rgb"/>
-            </Property>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-              </Border>
-            </Property>
-            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-              <ComponentRef name="provideUsageStatsButtonGroup"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="No"/>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Toggles sending usage statistics to Mirth.  These statistics &lt;br&gt;do not contain any PHI, and help Mirth determine which connectors &lt;br&gt;or areas of Mirth Connect are most widely used.&lt;/html&gt;"/>
-            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-              <Insets value="[0, 0, 0, 0]"/>
-            </Property>
-          </Properties>
-        </Component>
-        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="updateUrlField">
-          <Properties>
-            <Property name="toolTipText" type="java.lang.String" value="The URL to use when checking for software updates."/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="updateUrlLabel">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Update URL:"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="provideUsageStatsMoreInfoLabel">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;font color=blue&gt;&lt;u&gt;Privacy Policy&lt;/u&gt;&lt;/font&gt;&lt;/html&gt;"/>
-          </Properties>
-          <Events>
-            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="provideUsageStatsMoreInfoLabelMouseClicked"/>
-          </Events>
-        </Component>
-        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="queueBufferSizeField">
-          <Properties>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The maximum number of queued messages each connector will hold in memory.&lt;br&gt;There is no limit to the total number of queued messages. A smaller buffer will&lt;br&gt;use less memory, but may decrease queue performance. Mirth Connect must be&lt;br&gt;restarted for this setting to take effect.&lt;/html&gt;"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="queueBufferSizeLabel">
@@ -680,6 +675,11 @@
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="queueBufferSizeField">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="SMTP port used for global SMTP settings."/>
           </Properties>
         </Component>
       </SubComponents>
