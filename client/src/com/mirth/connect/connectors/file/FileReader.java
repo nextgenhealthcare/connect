@@ -9,6 +9,9 @@
 
 package com.mirth.connect.connectors.file;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 import javax.swing.DefaultComboBoxModel;
 
 import org.apache.log4j.Logger;
@@ -19,7 +22,11 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class FileReader extends ConnectorSettingsPanel {
@@ -43,6 +50,10 @@ public class FileReader extends ConnectorSettingsPanel {
         fileSizeMaximumField.setDocument(new MirthFieldConstraints(0, false, false, true));
         // ast:encoding activation
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
+
+        // This is required because of MIRTH-3305
+        Map<String, ArrayList<CodeTemplate>> references = ReferenceListFactory.getInstance().getReferences();
+        references.put(getConnectorName() + " Functions", getReferenceItems());
     }
 
     @Override
@@ -368,6 +379,18 @@ public class FileReader extends ConnectorSettingsPanel {
         usernameField.setBackground(null);
         passwordField.setBackground(null);
         timeoutField.setBackground(null);
+    }
+
+    @Override
+    public ArrayList<CodeTemplate> getReferenceItems() {
+        ArrayList<CodeTemplate> referenceItems = new ArrayList<CodeTemplate>();
+
+        referenceItems.add(new CodeTemplate("Get Original File Name", "Retrieves the name of the file read by the File Reader.", "sourceMap.get('originalFilename')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+        referenceItems.add(new CodeTemplate("Get Original File Directory", "Retrieves the parent directory of the file read by the File Reader.", "sourceMap.get('fileDirectory')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+        referenceItems.add(new CodeTemplate("Get Original File Size in Bytes", "Retrieves the size (in bytes) of the file read by the File Reader.", "sourceMap.get('fileSize')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+        referenceItems.add(new CodeTemplate("Get Original File Last Modified Timestamp", "Retrieves the last modified timestamp (in milliseconds since January 1st, 1970) of the file read by the File Reader.", "sourceMap.get('fileLastModified')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+
+        return referenceItems;
     }
 
     @Override

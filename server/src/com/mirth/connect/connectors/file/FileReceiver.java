@@ -280,6 +280,9 @@ public class FileReceiver extends PollConnector {
             originalFilename = file.getName();
             Map<String, Object> sourceMap = new HashMap<String, Object>();
             sourceMap.put("originalFilename", originalFilename);
+            sourceMap.put("fileDirectory", file.getParent());
+            sourceMap.put("fileSize", file.getSize());
+            sourceMap.put("fileLastModified", file.getLastModified());
 
             // Set the default file action
             FileAction action = FileAction.NONE;
