@@ -14,8 +14,8 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -570,7 +570,7 @@ public class DonkeyEngineController implements EngineController {
 
         com.mirth.connect.donkey.server.channel.Channel channel = new com.mirth.connect.donkey.server.channel.Channel();
 
-        Map<String, String> destinationNameMap = new HashMap<String, String>();
+        Map<String, Integer> destinationIdMap = new LinkedHashMap<String, Integer>();
 
         channel.setChannelId(channelId);
         channel.setLocalChannelId(donkeyChannelController.getLocalChannelId(channelId));
@@ -582,11 +582,11 @@ public class DonkeyEngineController implements EngineController {
         channel.setStorageSettings(storageSettings);
         channel.setMetaDataColumns(channelProperties.getMetaDataColumns());
         channel.setAttachmentHandler(createAttachmentHandler(channelId, channelProperties.getAttachmentProperties()));
-        channel.setPreProcessor(createPreProcessor(channelId, model.getPreprocessingScript()));
+        channel.setPreProcessor(createPreProcessor(channelId, model.getPreprocessingScript(), destinationIdMap));
         channel.setPostProcessor(createPostProcessor(channelId, model.getPostprocessingScript()));
-        channel.setSourceConnector(createSourceConnector(channel, model.getSourceConnector(), storageSettings, destinationNameMap));
+        channel.setSourceConnector(createSourceConnector(channel, model.getSourceConnector(), storageSettings, destinationIdMap));
         channel.setResponseSelector(new ResponseSelector(channel.getSourceConnector().getInboundDataType()));
-        channel.setSourceFilterTransformer(createFilterTransformerExecutor(channelId, model.getSourceConnector(), destinationNameMap));
+        channel.setSourceFilterTransformer(createFilterTransformerExecutor(channelId, model.getSourceConnector(), destinationIdMap));
 
         ConnectorMessageQueue sourceQueue = new ConnectorMessageQueue();
         sourceQueue.setBufferCapacity(queueBufferSize);
@@ -618,7 +618,7 @@ public class DonkeyEngineController implements EngineController {
                 }
 
                 Integer metaDataId = connector.getMetaDataId();
-                destinationNameMap.put(connector.getName(), "d" + String.valueOf(metaDataId));
+                destinationIdMap.put(connector.getName(), metaDataId);
 
                 if (metaDataId == null) {
                     metaDataId = model.getNextMetaDataId();
@@ -626,7 +626,7 @@ public class DonkeyEngineController implements EngineController {
                     connector.setMetaDataId(metaDataId);
                 }
 
-                chain.addDestination(connector.getMetaDataId(), createFilterTransformerExecutor(channelId, connector, destinationNameMap), createDestinationConnector(channel, connector, storageSettings, destinationNameMap));
+                chain.addDestination(connector.getMetaDataId(), createFilterTransformerExecutor(channelId, connector, destinationIdMap), createDestinationConnector(channel, connector, storageSettings, destinationIdMap));
             }
         }
 
@@ -743,7 +743,7 @@ public class DonkeyEngineController implements EngineController {
         return attachmentHandler;
     }
 
-    private PreProcessor createPreProcessor(String channelId, String preProcessingScript) {
+    private PreProcessor createPreProcessor(String channelId, String preProcessingScript, Map<String, Integer> destinationIdMap) {
         String scriptId = ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId);
 
         try {
@@ -752,7 +752,7 @@ public class DonkeyEngineController implements EngineController {
             logger.error("Error compiling preprocessor script " + scriptId + ".", e);
         }
 
-        return new JavaScriptPreprocessor();
+        return new JavaScriptPreprocessor(destinationIdMap);
     }
 
     private PostProcessor createPostProcessor(String channelId, String postProcessingScript) {
@@ -767,13 +767,13 @@ public class DonkeyEngineController implements EngineController {
         return new JavaScriptPostprocessor();
     }
 
-    private SourceConnector createSourceConnector(com.mirth.connect.donkey.server.channel.Channel donkeyChannel, Connector model, StorageSettings storageSettings, Map<String, String> destinationNameMap) throws Exception {
+    private SourceConnector createSourceConnector(com.mirth.connect.donkey.server.channel.Channel donkeyChannel, Connector model, StorageSettings storageSettings, Map<String, Integer> destinationIdMap) throws Exception {
         ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
         ConnectorProperties connectorProperties = model.getProperties();
         ConnectorMetaData connectorMetaData = extensionController.getConnectorMetaData().get(connectorProperties.getName());
         SourceConnector sourceConnector = (SourceConnector) Class.forName(connectorMetaData.getServerClassName()).newInstance();
 
-        setCommonConnectorProperties(donkeyChannel.getChannelId(), sourceConnector, model, destinationNameMap);
+        setCommonConnectorProperties(donkeyChannel.getChannelId(), sourceConnector, model, destinationIdMap);
 
         sourceConnector.setMetaDataReplacer(createMetaDataReplacer(model));
         sourceConnector.setChannel(donkeyChannel);
@@ -781,7 +781,7 @@ public class DonkeyEngineController implements EngineController {
         if (connectorProperties instanceof SourceConnectorPropertiesInterface) {
             SourceConnectorProperties sourceConnectorProperties = ((SourceConnectorPropertiesInterface) connectorProperties).getSourceConnectorProperties();
             sourceConnector.setRespondAfterProcessing(sourceConnectorProperties.isRespondAfterProcessing());
-            
+
             DataTypeServerPlugin dataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(model.getTransformer().getInboundDataType());
             DataTypeProperties dataTypeProperties = model.getTransformer().getInboundProperties();
             SerializerProperties serializerProperties = dataTypeProperties.getSerializerProperties();
@@ -799,7 +799,7 @@ public class DonkeyEngineController implements EngineController {
         return sourceConnector;
     }
 
-    private FilterTransformerExecutor createFilterTransformerExecutor(String channelId, Connector connector, Map<String, String> destinationNameMap) throws Exception {
+    private FilterTransformerExecutor createFilterTransformerExecutor(String channelId, Connector connector, Map<String, Integer> destinationIdMap) throws Exception {
         boolean runFilterTransformer = false;
         String template = null;
         Transformer transformer = connector.getTransformer();
@@ -850,13 +850,13 @@ public class DonkeyEngineController implements EngineController {
 
         if (runFilterTransformer) {
             String script = JavaScriptBuilder.generateFilterTransformerScript(filter, transformer);
-            filterTransformerExecutor.setFilterTransformer(new JavaScriptFilterTransformer(channelId, connector.getName(), script, template, destinationNameMap));
+            filterTransformerExecutor.setFilterTransformer(new JavaScriptFilterTransformer(channelId, connector.getName(), script, template, destinationIdMap));
         }
 
         return filterTransformerExecutor;
     }
 
-    private ResponseTransformerExecutor createResponseTransformerExecutor(String channelId, Connector connector, Map<String, String> destinationNameMap) throws Exception {
+    private ResponseTransformerExecutor createResponseTransformerExecutor(String channelId, Connector connector, Map<String, Integer> destinationIdMap) throws Exception {
         boolean runResponseTransformer = false;
         String template = null;
         Transformer transformer = connector.getResponseTransformer();
@@ -906,7 +906,7 @@ public class DonkeyEngineController implements EngineController {
 
         if (runResponseTransformer) {
             String script = JavaScriptBuilder.generateResponseTransformerScript(transformer);
-            responseTransformerExecutor.setResponseTransformer(new JavaScriptResponseTransformer(channelId, connector.getName(), script, template, destinationNameMap));
+            responseTransformerExecutor.setResponseTransformer(new JavaScriptResponseTransformer(channelId, connector.getName(), script, template, destinationIdMap));
         }
 
         return responseTransformerExecutor;
@@ -921,14 +921,14 @@ public class DonkeyEngineController implements EngineController {
         return chain;
     }
 
-    private DestinationConnector createDestinationConnector(com.mirth.connect.donkey.server.channel.Channel donkeyChannel, Connector model, StorageSettings storageSettings, Map<String, String> destinationNameMap) throws Exception {
+    private DestinationConnector createDestinationConnector(com.mirth.connect.donkey.server.channel.Channel donkeyChannel, Connector model, StorageSettings storageSettings, Map<String, Integer> destinationIdMap) throws Exception {
         ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
         ConnectorProperties connectorProperties = model.getProperties();
         ConnectorMetaData connectorMetaData = extensionController.getConnectorMetaData().get(connectorProperties.getName());
         String className = connectorMetaData.getServerClassName();
         DestinationConnector destinationConnector = (DestinationConnector) Class.forName(className).newInstance();
 
-        setCommonConnectorProperties(donkeyChannel.getChannelId(), destinationConnector, model, destinationNameMap);
+        setCommonConnectorProperties(donkeyChannel.getChannelId(), destinationConnector, model, destinationIdMap);
         destinationConnector.setChannel(donkeyChannel);
 
         destinationConnector.setDestinationName(model.getName());
@@ -942,7 +942,7 @@ public class DonkeyEngineController implements EngineController {
             responseValidator = new DefaultResponseValidator();
         }
         destinationConnector.setResponseValidator(responseValidator);
-        destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(donkeyChannel.getChannelId(), model, destinationNameMap));
+        destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(donkeyChannel.getChannelId(), model, destinationIdMap));
 
         ConnectorMessageQueue queue = new ConnectorMessageQueue();
         queue.setBufferCapacity(queueBufferSize);
@@ -952,11 +952,11 @@ public class DonkeyEngineController implements EngineController {
         return destinationConnector;
     }
 
-    private void setCommonConnectorProperties(String channelId, com.mirth.connect.donkey.server.channel.Connector connector, Connector model, Map<String, String> destinationNameMap) {
+    private void setCommonConnectorProperties(String channelId, com.mirth.connect.donkey.server.channel.Connector connector, Connector model, Map<String, Integer> destinationIdMap) {
         connector.setChannelId(channelId);
         connector.setMetaDataId(model.getMetaDataId());
         connector.setConnectorProperties(model.getProperties());
-        connector.setDestinationNameMap(destinationNameMap);
+        connector.setDestinationIdMap(destinationIdMap);
 
         Transformer transformerModel = model.getTransformer();
 

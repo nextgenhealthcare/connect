@@ -29,7 +29,7 @@ public abstract class Connector implements Startable, Stoppable {
     private DataType outboundDataType;
     private DeployedState currentState = DeployedState.STOPPED;
     private ConnectorProperties connectorProperties;
-    private Map<String, String> destinationNameMap;
+    private Map<String, Integer> destinationIdMap;
 
     public abstract void onDeploy() throws DeployException;
 
@@ -89,11 +89,11 @@ public abstract class Connector implements Startable, Stoppable {
         this.connectorProperties = connectorProperties;
     }
 
-    public Map<String, String> getDestinationNameMap() {
-        return destinationNameMap;
+    public Map<String, Integer> getDestinationIdMap() {
+        return destinationIdMap;
     }
 
-    public void setDestinationNameMap(Map<String, String> destinationNameMap) {
-        this.destinationNameMap = destinationNameMap;
+    public void setDestinationIdMap(Map<String, Integer> destinationIdMap) {
+        this.destinationIdMap = destinationIdMap;
     }
 }

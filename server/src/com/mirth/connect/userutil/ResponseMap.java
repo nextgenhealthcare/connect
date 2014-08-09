@@ -21,20 +21,20 @@ import java.util.Set;
 public class ResponseMap implements Map<String, Object> {
 
     private Map<String, Object> delegate;
-    private Map<String, String> destinationNameMap;
+    private Map<String, Integer> destinationIdMap;
 
     /**
      * Instantiates a new ResponseMap object.
      * 
      * @param delegate
      *            The underlying Map to reference for retrieving/setting data.
-     * @param destinationNameMap
+     * @param destinationIdMap
      *            A Map of destination names and their corresponding "d#" response map keys (where
      *            "#" is the destination connector metadata ID).
      */
-    public ResponseMap(Map<String, Object> delegate, Map<String, String> destinationNameMap) {
+    public ResponseMap(Map<String, Object> delegate, Map<String, Integer> destinationIdMap) {
         this.delegate = delegate;
-        this.destinationNameMap = destinationNameMap;
+        this.destinationIdMap = destinationIdMap;
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ResponseMap implements Map<String, Object> {
 
     @Override
     public boolean containsKey(Object key) {
-        return delegate.containsKey(key) || (destinationNameMap != null && destinationNameMap.containsKey(key) && delegate.containsKey(destinationNameMap.get(key)));
+        return delegate.containsKey(key) || (destinationIdMap != null && destinationIdMap.containsKey(key) && delegate.containsKey(getResponseMapKey(destinationIdMap.get(key))));
     }
 
     @Override
@@ -71,8 +71,8 @@ public class ResponseMap implements Map<String, Object> {
     public Object get(Object key) {
         Object value = delegate.get(key);
 
-        if (value == null && destinationNameMap != null && destinationNameMap.containsKey(key)) {
-            value = delegate.get(destinationNameMap.get(key));
+        if (value == null && destinationIdMap != null && destinationIdMap.containsKey(key)) {
+            value = delegate.get(getResponseMapKey(destinationIdMap.get(key)));
         }
 
         if (value != null && value instanceof com.mirth.connect.donkey.model.message.Response) {
@@ -130,5 +130,9 @@ public class ResponseMap implements Map<String, Object> {
     @Override
     public Collection<Object> values() {
         return delegate.values();
+    }
+
+    private String getResponseMapKey(int metaDataId) {
+        return "d" + String.valueOf(metaDataId);
     }
 }

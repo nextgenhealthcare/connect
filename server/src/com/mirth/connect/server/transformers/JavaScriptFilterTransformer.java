@@ -46,13 +46,13 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
     private String connectorName;
     private String scriptId;
     private String template;
-    private Map<String, String> destinationNameMap;
+    private Map<String, Integer> destinationIdMap;
 
-    public JavaScriptFilterTransformer(String channelId, String connectorName, String script, String template, Map<String, String> destinationNameMap) throws JavaScriptInitializationException {
+    public JavaScriptFilterTransformer(String channelId, String connectorName, String script, String template, Map<String, Integer> destinationIdMap) throws JavaScriptInitializationException {
         this.channelId = channelId;
         this.connectorName = connectorName;
         this.template = template;
-        this.destinationNameMap = destinationNameMap;
+        this.destinationIdMap = destinationIdMap;
         initialize(script);
     }
 
@@ -119,7 +119,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
             } else {
                 try {
                     // TODO: Get rid of template and phase
-                    Scriptable scope = JavaScriptScopeUtil.getFilterTransformerScope(scriptLogger, new ImmutableConnectorMessage(message, true, destinationNameMap), template, phase);
+                    Scriptable scope = JavaScriptScopeUtil.getFilterTransformerScope(scriptLogger, new ImmutableConnectorMessage(message, true, destinationIdMap), template, phase);
                     Object result = executeScript(compiledScript, scope);
 
                     String transformedData = JavaScriptScopeUtil.getTransformedDataFromScope(scope, StringUtils.isNotBlank(template));

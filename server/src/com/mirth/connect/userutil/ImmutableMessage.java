@@ -101,7 +101,7 @@ public class ImmutableMessage {
         };
 
         for (Integer key : message.getConnectorMessages().keySet()) {
-            map.put(key, new ImmutableConnectorMessage(message.getConnectorMessages().get(key), false, getDestinationNameMap()));
+            map.put(key, new ImmutableConnectorMessage(message.getConnectorMessages().get(key), false, getDestinationIdMap()));
         }
         return map;
     }
@@ -112,14 +112,18 @@ public class ImmutableMessage {
      * channel and response maps are copied from all connectors.
      */
     public ImmutableConnectorMessage getMergedConnectorMessage() {
-        return new ImmutableConnectorMessage(message.getMergedConnectorMessage(), false, getDestinationNameMap());
+        return new ImmutableConnectorMessage(message.getMergedConnectorMessage(), false, getDestinationIdMap());
     }
 
     /**
      * Returns a Map of destination connector names linked to their corresponding "d#" response map
      * keys (where "#" is the destination connector metadata ID).
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             {@link #getDestinationIdMap() getDestinationIdMap()} instead.
      */
     public Map<String, String> getDestinationNameMap() {
+        logger.error("This method is deprecated and will soon be removed. Please use getDestinationIdMap() instead.");
         Map<String, String> destinationNameMap = new HashMap<String, String>();
 
         for (ConnectorMessage destinationMessage : message.getConnectorMessages().values()) {
@@ -127,6 +131,20 @@ public class ImmutableMessage {
         }
 
         return Collections.unmodifiableMap(destinationNameMap);
+    }
+
+    /**
+     * Returns a Map of destination connector names linked to their corresponding connector metadata
+     * ID.
+     */
+    public Map<String, Integer> getDestinationIdMap() {
+        Map<String, Integer> destinationIdMap = new LinkedHashMap<String, Integer>();
+
+        for (ConnectorMessage destinationMessage : message.getConnectorMessages().values()) {
+            destinationIdMap.put(destinationMessage.getConnectorName(), destinationMessage.getMetaDataId());
+        }
+
+        return Collections.unmodifiableMap(destinationIdMap);
     }
 
     @Override

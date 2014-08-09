@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -227,7 +228,7 @@ public class Frame extends JXFrame {
 
         StringBuilder titleText = new StringBuilder();
         titleText.append(UIConstants.TITLE_TEXT + " - ");
-        
+
         if (!StringUtils.isBlank(PlatformUI.SERVER_NAME)) {
             titleText.append(PlatformUI.SERVER_NAME);
         } else {
@@ -1177,9 +1178,9 @@ public class Frame extends JXFrame {
 
                 String server;
                 if (!StringUtils.isBlank(PlatformUI.SERVER_NAME)) {
-                	server = PlatformUI.SERVER_NAME + "(" + PlatformUI.SERVER_URL + ")";
+                    server = PlatformUI.SERVER_NAME + "(" + PlatformUI.SERVER_URL + ")";
                 } else {
-                	server = PlatformUI.SERVER_URL;
+                    server = PlatformUI.SERVER_URL;
                 }
                 alertWarning(parentComponent, "The Mirth Connect server " + server + " is no longer running.  Please start it and log in again.");
                 if (!exportChannelOnError()) {
@@ -2280,7 +2281,7 @@ public class Frame extends JXFrame {
                         channelStatus.setDeployedDate(channelSummary.getChannelStatus().getDeployedDate());
                         channelStatus.setDeployedRevisionDelta(channelSummary.getChannelStatus().getDeployedRevisionDelta());
                     }
-                    
+
                     channelStatus.setLocalChannelId(channelSummary.getChannelStatus().getLocalChannelId());
                 }
             }
@@ -3840,7 +3841,7 @@ public class Frame extends JXFrame {
         worker.execute();
     }
 
-    public void reprocessMessage(final String channelId, final MessageFilter filter, final boolean replace, final List<Integer> reprocessMetaDataIds) {
+    public void reprocessMessage(final String channelId, final MessageFilter filter, final boolean replace, final Collection<Integer> reprocessMetaDataIds) {
         final String workingId = startWorking("Reprocessing messages...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -3880,7 +3881,7 @@ public class Frame extends JXFrame {
         worker.execute();
     }
 
-    public void processMessage(final String channelId, final String message, final List<Integer> metaDataIds) {
+    public void processMessage(final String channelId, final String message, final Collection<Integer> metaDataIds) {
         final String workingId = startWorking("Processing message...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {

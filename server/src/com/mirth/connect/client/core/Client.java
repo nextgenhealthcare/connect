@@ -11,6 +11,7 @@ package com.mirth.connect.client.core;
 
 import java.io.File;
 import java.security.Provider;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -884,7 +885,7 @@ public class Client {
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
 
-    public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds) throws ClientException {
+    public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, Collection<Integer> reprocessMetaDataIds) throws ClientException {
         logger.debug("reprocessing messages");
         NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_REPROCESS.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("filter", serializer.serialize(filter)), new BasicNameValuePair("replace", String.valueOf(replace)), new BasicNameValuePair("reprocessMetaDataIds", serializer.serialize(reprocessMetaDataIds)) };
         serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params);
@@ -894,7 +895,7 @@ public class Client {
         processMessage(channelId, rawMessage, null);
     }
 
-    public void processMessage(String channelId, String rawMessage, List<Integer> metaDataIds) throws ClientException {
+    public void processMessage(String channelId, String rawMessage, Collection<Integer> metaDataIds) throws ClientException {
         logger.debug("processing message");
         NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_PROCESS.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("message", rawMessage), new BasicNameValuePair("metaDataIds", serializer.serialize(metaDataIds)) };
         serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params);

@@ -100,7 +100,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
             Status responseStatus = Status.SENT;
 
             try {
-                Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(scriptLogger, connector.getChannelId(), new ImmutableConnectorMessage(connectorMessage, true, connector.getDestinationNameMap()));
+                Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(scriptLogger, connector.getChannelId(), new ImmutableConnectorMessage(connectorMessage, true, connector.getDestinationIdMap()));
 
                 Object result = JavaScriptUtil.executeScript(this, scriptId, scope, connector.getChannelId(), connector.getDestinationName());
 

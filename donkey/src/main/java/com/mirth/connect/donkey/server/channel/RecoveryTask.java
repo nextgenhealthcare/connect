@@ -10,6 +10,7 @@
 package com.mirth.connect.donkey.server.channel;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -67,12 +68,10 @@ public class RecoveryTask implements Callable<Void> {
                                 }
 
                                 // get the list of destination meta data ids to send to
-                                List<Integer> channelMapMetaDataIds = null;
+                                Collection<Integer> metaDataIds = null;
 
-                                if (recoveredConnectorMessage.getChannelMap().containsKey(Constants.DESTINATION_META_DATA_IDS_KEY)) {
-                                    channelMapMetaDataIds = (List<Integer>) recoveredConnectorMessage.getChannelMap().get(Constants.DESTINATION_META_DATA_IDS_KEY);
-                                } else if (recoveredConnectorMessage.getSourceMap().containsKey(Constants.DESTINATION_META_DATA_IDS_KEY)) {
-                                    channelMapMetaDataIds = (List<Integer>) recoveredConnectorMessage.getSourceMap().get(Constants.DESTINATION_META_DATA_IDS_KEY);
+                                if (recoveredConnectorMessage.getSourceMap().containsKey(Constants.DESTINATION_SET_KEY)) {
+                                    metaDataIds = (Collection<Integer>) recoveredConnectorMessage.getSourceMap().get(Constants.DESTINATION_SET_KEY);
                                 }
 
                                 List<Integer> enabledMetaDataIds = new ArrayList<Integer>();
@@ -80,7 +79,7 @@ public class RecoveryTask implements Callable<Void> {
                                 // The order of the enabledMetaDataId list needs to be based on the chain order.
                                 // We do not use ListUtils here because there is no official guarantee of order.
                                 for (Integer id : chainMetaDataIds) {
-                                    if (CollectionUtils.isEmpty(channelMapMetaDataIds) || channelMapMetaDataIds.contains(id)) {
+                                    if (CollectionUtils.isEmpty(metaDataIds) || metaDataIds.contains(id)) {
                                         // Don't add the ID to the enabled list if it already exists in the database
                                         // This doesn't apply to the current metadata ID, which will always be there
                                         if (!existingMetaDataIds.contains(id) || id == metaDataId) {

@@ -11,7 +11,9 @@ package com.mirth.connect.userutil;
 
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
@@ -28,7 +30,7 @@ public class ImmutableConnectorMessage {
 
     private ConnectorMessage connectorMessage;
     private boolean modifiableMaps;
-    private Map<String, String> destinationNameMap;
+    private Map<String, Integer> destinationIdMap;
     private Serializer serializer;
 
     /**
@@ -64,16 +66,14 @@ public class ImmutableConnectorMessage {
      *            If true, variable maps (e.g. connector/channel/response) will be modifiable, and
      *            values may be set in them as well as retrieved. Otherwise, data will only be able
      *            to be retrieved from the maps, and no updates will be allowed.
-     * @param destinationNameMap
+     * @param destinationIdMap
      *            A map containing all applicable destination names in the channel and their
-     *            corresponding "d#" response map keys. This is used so that the response map has
-     *            the ability to get destination responses by name as well as by the proper "d#"
-     *            key.
+     *            corresponding connector metadata ids.
      */
-    public ImmutableConnectorMessage(ConnectorMessage connectorMessage, boolean modifiableMaps, Map<String, String> destinationNameMap) {
+    public ImmutableConnectorMessage(ConnectorMessage connectorMessage, boolean modifiableMaps, Map<String, Integer> destinationIdMap) {
         this.connectorMessage = connectorMessage;
         this.modifiableMaps = modifiableMaps;
-        this.destinationNameMap = destinationNameMap;
+        this.destinationIdMap = destinationIdMap;
 
         // NOTE: this serializer must always be the same type of serializer that is set via Donkey.setSerializer() in Mirth.startup()
         this.serializer = ObjectXMLSerializer.getInstance();
@@ -428,9 +428,9 @@ public class ImmutableConnectorMessage {
      */
     public Map<String, Object> getResponseMap() {
         if (modifiableMaps) {
-            return new ResponseMap(connectorMessage.getResponseMap(), destinationNameMap);
+            return new ResponseMap(connectorMessage.getResponseMap(), destinationIdMap);
         } else {
-            return new ResponseMap(Collections.unmodifiableMap(connectorMessage.getResponseMap()), destinationNameMap);
+            return new ResponseMap(Collections.unmodifiableMap(connectorMessage.getResponseMap()), destinationIdMap);
         }
     }
 
@@ -451,9 +451,33 @@ public class ImmutableConnectorMessage {
     /**
      * Returns a Map of destination connector names linked to their corresponding "d#" response map
      * keys (where "#" is the destination connector metadata ID).
+     * 
+     * @deprecated This method is deprecated and will soon be removed. Please use
+     *             {@link #getDestinationIdMap() getDestinationIdMap()} instead.
      */
     public Map<String, String> getDestinationNameMap() {
-        return destinationNameMap != null ? Collections.unmodifiableMap(destinationNameMap) : null;
+        logger.error("This method is deprecated and will soon be removed. Please use getDestinationIdMap() instead.");
+        Map<String, String> destinationNameMap = null;
+
+        if (destinationIdMap != null) {
+            destinationNameMap = new HashMap<String, String>();
+
+            for (Entry<String, Integer> entry : destinationIdMap.entrySet()) {
+                destinationNameMap.put(entry.getKey(), "d" + String.valueOf(entry.getValue()));
+            }
+
+            destinationNameMap = Collections.unmodifiableMap(destinationNameMap);
+        }
+
+        return destinationNameMap;
+    }
+
+    /**
+     * Returns a Map of destination connector names linked to their corresponding connector metadata
+     * ID.
+     */
+    public Map<String, Integer> getDestinationIdMap() {
+        return destinationIdMap != null ? Collections.unmodifiableMap(destinationIdMap) : null;
     }
 
     @Override

@@ -9,11 +9,9 @@
 
 package com.mirth.connect.donkey.model.message;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import com.mirth.connect.donkey.server.Constants;
 
 public class RawMessage {
     private boolean overwrite;
@@ -21,6 +19,7 @@ public class RawMessage {
     private Long originalMessageId;
     private String rawData;
     private byte[] rawBytes;
+    private Collection<Integer> destinationMetaDataIds;
     private Map<String, Object> sourceMap = new HashMap<String, Object>();
     private Boolean binary;
 
@@ -28,18 +27,18 @@ public class RawMessage {
         this(rawData, null);
     }
 
-    public RawMessage(String rawData, List<Integer> destinationMetaDataIds) {
+    public RawMessage(String rawData, Collection<Integer> destinationMetaDataIds) {
         this(rawData, destinationMetaDataIds, null);
     }
 
-    public RawMessage(String rawData, List<Integer> destinationMetaDataIds, Map<String, Object> sourceMap) {
+    public RawMessage(String rawData, Collection<Integer> destinationMetaDataIds, Map<String, Object> sourceMap) {
         this.rawData = rawData;
 
         if (sourceMap != null) {
             setSourceMap(sourceMap);
         }
 
-        setDestinationMetaDataIds(destinationMetaDataIds);
+        this.destinationMetaDataIds = destinationMetaDataIds;
         this.binary = false;
     }
 
@@ -47,18 +46,18 @@ public class RawMessage {
         this(rawBytes, null);
     }
 
-    public RawMessage(byte[] rawBytes, List<Integer> destinationMetaDataIds) {
+    public RawMessage(byte[] rawBytes, Collection<Integer> destinationMetaDataIds) {
         this(rawBytes, destinationMetaDataIds, null);
     }
 
-    public RawMessage(byte[] rawBytes, List<Integer> destinationMetaDataIds, Map<String, Object> sourceMap) {
+    public RawMessage(byte[] rawBytes, Collection<Integer> destinationMetaDataIds, Map<String, Object> sourceMap) {
         this.rawBytes = rawBytes;
 
         if (sourceMap != null) {
             setSourceMap(sourceMap);
         }
 
-        setDestinationMetaDataIds(destinationMetaDataIds);
+        this.destinationMetaDataIds = destinationMetaDataIds;
         this.binary = true;
     }
 
@@ -94,20 +93,12 @@ public class RawMessage {
         return rawBytes == null ? new byte[0] : rawBytes;
     }
 
-    public List<Integer> getDestinationMetaDataIds() {
-        if (sourceMap != null) {
-            return (List<Integer>) sourceMap.get(Constants.DESTINATION_META_DATA_IDS_KEY);
-        }
-
-        return null;
+    public Collection<Integer> getDestinationMetaDataIds() {
+        return destinationMetaDataIds;
     }
 
-    public void setDestinationMetaDataIds(List<Integer> destinationMetaDataIds) {
-        if (destinationMetaDataIds != null) {
-            sourceMap.put(Constants.DESTINATION_META_DATA_IDS_KEY, destinationMetaDataIds);
-        } else {
-            sourceMap.remove(Constants.DESTINATION_META_DATA_IDS_KEY);
-        }
+    public void setDestinationMetaDataIds(Collection<Integer> destinationMetaDataIds) {
+        this.destinationMetaDataIds = destinationMetaDataIds;
     }
 
     public Map<String, Object> getSourceMap() {

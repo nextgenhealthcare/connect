@@ -153,7 +153,7 @@ public class MessageObjectServlet extends MirthServlet {
                     final String channelId = request.getParameter("channelId");
                     final MessageFilter filter = serializer.deserialize(request.getParameter("filter"), MessageFilter.class);
                     final boolean replace = Boolean.valueOf(request.getParameter("replace"));
-                    final List<Integer> reprocessMetaDataIds = serializer.deserializeList(request.getParameter("reprocessMetaDataIds"), Integer.class);
+                    final Collection<Integer> reprocessMetaDataIds = serializer.deserialize(request.getParameter("reprocessMetaDataIds"), Collection.class);
                     parameterMap.put("filter", filter);
                     parameterMap.put("replace", replace);
                     parameterMap.put("destinations", reprocessMetaDataIds);
@@ -176,7 +176,7 @@ public class MessageObjectServlet extends MirthServlet {
                     String rawData = request.getParameter("message");
 
                     @SuppressWarnings("unchecked")
-                    List<Integer> metaDataIds = serializer.deserializeList(request.getParameter("metaDataIds"), Integer.class);
+                    Collection<Integer> metaDataIds = serializer.deserialize(request.getParameter("metaDataIds"), Collection.class);
 
                     final RawMessage rawMessage = new RawMessage(rawData, metaDataIds);
 

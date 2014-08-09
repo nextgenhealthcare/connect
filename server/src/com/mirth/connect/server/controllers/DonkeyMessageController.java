@@ -10,6 +10,7 @@
 package com.mirth.connect.server.controllers;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -426,7 +427,7 @@ public class DonkeyMessageController extends MessageController {
         }
     }
 
-    public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds) {
+    public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, Collection<Integer> reprocessMetaDataIds) {
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
         Channel deployedChannel = engineController.getDeployedChannel(channelId);
         AttachmentHandler attachmentHandler = deployedChannel.getAttachmentHandler();

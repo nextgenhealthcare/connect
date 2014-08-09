@@ -30,9 +30,11 @@ import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.userutil.AlertSender;
 import com.mirth.connect.server.userutil.Attachment;
 import com.mirth.connect.server.userutil.ChannelMap;
+import com.mirth.connect.server.userutil.DestinationSet;
 import com.mirth.connect.server.userutil.ImmutableResponse;
 import com.mirth.connect.server.userutil.MessageObject;
 import com.mirth.connect.server.userutil.MuleContext;
+import com.mirth.connect.server.userutil.SourceMap;
 import com.mirth.connect.server.userutil.VMRouter;
 import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
 import com.mirth.connect.server.util.GlobalVariableStore;
@@ -123,9 +125,9 @@ public class JavaScriptScopeUtil {
         ConnectorMessage mergedConnectorMessage = message.getMergedConnectorMessage();
         ImmutableConnectorMessage immutableConnectorMessage = new ImmutableConnectorMessage(mergedConnectorMessage);
 
-        add("sourceMap", scope, immutableConnectorMessage.getSourceMap());
+        add("sourceMap", scope, new SourceMap(immutableConnectorMessage.getSourceMap()));
         add("channelMap", scope, new ChannelMap(immutableConnectorMessage.getChannelMap(), immutableConnectorMessage.getSourceMap()));
-        add("responseMap", scope, new ResponseMap(mergedConnectorMessage.getResponseMap(), immutableMessage.getDestinationNameMap()));
+        add("responseMap", scope, new ResponseMap(mergedConnectorMessage.getResponseMap(), immutableMessage.getDestinationIdMap()));
     }
 
     // ConnectorMessage Builder
@@ -134,12 +136,16 @@ public class JavaScriptScopeUtil {
         add("messageObject", scope, new MessageObject(message));
 
         add("connectorMessage", scope, message);
-        add("sourceMap", scope, message.getSourceMap());
+        add("sourceMap", scope, new SourceMap(message.getSourceMap()));
         add("connectorMap", scope, message.getConnectorMap());
         add("channelMap", scope, new ChannelMap(message.getChannelMap(), message.getSourceMap()));
-        add("responseMap", scope, new ResponseMap(message.getResponseMap(), message.getDestinationNameMap()));
+        add("responseMap", scope, new ResponseMap(message.getResponseMap(), message.getDestinationIdMap()));
         add("connector", scope, message.getConnectorName());
         add("alerts", scope, new AlertSender(message));
+
+        if (message.getMetaDataId() == 0) {
+            add("destinationSet", scope, new DestinationSet(message));
+        }
     }
 
     private static void addResponse(Scriptable scope, Response response) {
@@ -163,7 +169,7 @@ public class JavaScriptScopeUtil {
     private static void addGlobalMap(Scriptable scope) {
         add("globalMap", scope, GlobalVariableStore.getInstance());
     }
-    
+
     // Configuration Map Builder
     private static void addConfigurationMap(Scriptable scope) {
         add("configurationMap", scope, ConfigurationController.getInstance().getConfigurationMap());

@@ -227,6 +227,9 @@ public class ReferenceListFactory {
         variablelistItems.add(new CodeTemplate("Create Segment (in message, index)", "Create a new segment in specified message (msg or tmp) at segment index i", "createSegment('segmentName', msg, i)", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Create Segment After Segment", "Create a new segment and insert it after the target segment", "createSegmentAfter('insertSegmentName', afterThisSegment)", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Delete Segment", "Delete a segment from the message", "delete msg['segment']", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Remove one or more from Destination Set", "Stop one or more destinations from being processed for this message. Only available in the preprocessor or source filter/transformer.", "destinationSet.remove([metaDataIdOrConnectorNames]);", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Remove all except specified from Destination Set", "Stop all except the specified destinations from being processed for this message. Only available in the preprocessor or source filter/transformer.", "destinationSet.removeAllExcept([metaDataIdOrConnectorNames]);", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Remove all from Destination Set", "Stop all destinations from being processed for this message. Only available in the preprocessor or source filter/transformer.", "destinationSet.removeAll();", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
 
         return variablelistItems;
     }

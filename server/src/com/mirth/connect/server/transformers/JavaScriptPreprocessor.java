@@ -9,6 +9,8 @@
 
 package com.mirth.connect.server.transformers;
 
+import java.util.Map;
+
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -24,7 +26,13 @@ import com.mirth.connect.util.ErrorMessageBuilder;
 public class JavaScriptPreprocessor implements PreProcessor {
 
     private JavaScriptPreProcessorTask task = new JavaScriptPreProcessorTask();
-    private EventController eventController= ControllerFactory.getFactory().createEventController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
+
+    private Map<String, Integer> destinationIdMap;
+
+    public JavaScriptPreprocessor(Map<String, Integer> destinationIdMap) {
+        this.destinationIdMap = destinationIdMap;
+    }
 
     @Override
     public String doPreProcess(ConnectorMessage message) throws DonkeyException, InterruptedException {
@@ -54,7 +62,7 @@ public class JavaScriptPreprocessor implements PreProcessor {
 
         @Override
         public Object call() throws Exception {
-            return JavaScriptUtil.executePreprocessorScripts(this, message);
+            return JavaScriptUtil.executePreprocessorScripts(this, message, destinationIdMap);
         }
     }
 }

@@ -13,7 +13,7 @@ public class Constants {
     /**
      * Reserved source map key for the destination metadata ids that a message is being sent through
      */
-    public static final String DESTINATION_META_DATA_IDS_KEY = "mirth_destinations";
+    public static final String DESTINATION_SET_KEY = "destinationSet";
 
     /**
      * Reserved source map key for the first message id of a batch

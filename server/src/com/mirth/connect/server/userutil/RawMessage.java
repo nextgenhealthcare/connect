@@ -9,14 +9,14 @@
 
 package com.mirth.connect.server.userutil;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 /**
  * This class represents a raw message as it is received by a channel, and is used to retrieve
- * details such as the raw data or channel map.
+ * details such as the raw data or source map.
  */
 public class RawMessage {
     private Logger logger = Logger.getLogger(getClass());
@@ -38,10 +38,10 @@ public class RawMessage {
      * @param rawData
      *            The textual data to dispatch to the channel.
      * @param destinationMetaDataIds
-     *            A list of integers (metadata IDs) representing which destinations to dispatch the
-     *            message to.
+     *            A collection of integers (metadata IDs) representing which destinations to
+     *            dispatch the message to. JavaScript arrays can be used.
      */
-    public RawMessage(String rawData, List<Integer> destinationMetaDataIds) {
+    public RawMessage(String rawData, Collection<Integer> destinationMetaDataIds) {
         rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawData, destinationMetaDataIds);
     }
 
@@ -51,14 +51,14 @@ public class RawMessage {
      * @param rawData
      *            The textual data to dispatch to the channel.
      * @param destinationMetaDataIds
-     *            A list of integers (metadata IDs) representing which destinations to dispatch the
-     *            message to.
-     * @param channelMap
-     *            Any values placed in this map will be populated in the channel map at the
-     *            beginning of the message's lifecycle.
+     *            A collection of integers (metadata IDs) representing which destinations to
+     *            dispatch the message to. JavaScript arrays can be used.
+     * @param sourceMap
+     *            Any values placed in this map will be populated in the source map at the beginning
+     *            of the message's lifecycle.
      */
-    public RawMessage(String rawData, List<Integer> destinationMetaDataIds, Map<String, Object> channelMap) {
-        rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawData, destinationMetaDataIds, channelMap);
+    public RawMessage(String rawData, Collection<Integer> destinationMetaDataIds, Map<String, Object> sourceMap) {
+        rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawData, destinationMetaDataIds, sourceMap);
     }
 
     /**
@@ -77,10 +77,10 @@ public class RawMessage {
      * @param rawBytes
      *            The binary data (byte array) to dispatch to the channel.
      * @param destinationMetaDataIds
-     *            A list of integers (metadata IDs) representing which destinations to dispatch the
-     *            message to.
+     *            A collection of integers (metadata IDs) representing which destinations to
+     *            dispatch the message to. JavaScript arrays can be used.
      */
-    public RawMessage(byte[] rawBytes, List<Integer> destinationMetaDataIds) {
+    public RawMessage(byte[] rawBytes, Collection<Integer> destinationMetaDataIds) {
         rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawBytes, destinationMetaDataIds);
     }
 
@@ -90,14 +90,14 @@ public class RawMessage {
      * @param rawBytes
      *            The binary data (byte array) to dispatch to the channel.
      * @param destinationMetaDataIds
-     *            A list of integers (metadata IDs) representing which destinations to dispatch the
-     *            message to.
-     * @param channelMap
-     *            Any values placed in this map will be populated in the channel map at the
-     *            beginning of the message's lifecycle.
+     *            A collection of integers (metadata IDs) representing which destinations to
+     *            dispatch the message to. JavaScript arrays can be used.
+     * @param sourceMap
+     *            Any values placed in this map will be populated in the source map at the beginning
+     *            of the message's lifecycle.
      */
-    public RawMessage(byte[] rawBytes, List<Integer> destinationMetaDataIds, Map<String, Object> channelMap) {
-        rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawBytes, destinationMetaDataIds, channelMap);
+    public RawMessage(byte[] rawBytes, Collection<Integer> destinationMetaDataIds, Map<String, Object> sourceMap) {
+        rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawBytes, destinationMetaDataIds, sourceMap);
     }
 
     /**
@@ -115,10 +115,10 @@ public class RawMessage {
     }
 
     /**
-     * Returns the list of integers (metadata IDs) representing which destinations to dispatch the
-     * message to.
+     * Returns the collection of integers (metadata IDs) representing which destinations to dispatch
+     * the message to.
      */
-    public List<Integer> getDestinationMetaDataIds() {
+    public Collection<Integer> getDestinationMetaDataIds() {
         return rawMessage.getDestinationMetaDataIds();
     }
 
@@ -129,7 +129,7 @@ public class RawMessage {
      *            A list of integers (metadata IDs) representing which destinations to dispatch the
      *            message to.
      */
-    public void setDestinationMetaDataIds(List<Integer> destinationMetaDataIds) {
+    public void setDestinationMetaDataIds(Collection<Integer> destinationMetaDataIds) {
         rawMessage.setDestinationMetaDataIds(destinationMetaDataIds);
     }
 

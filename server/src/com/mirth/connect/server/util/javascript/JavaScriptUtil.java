@@ -140,7 +140,7 @@ public class JavaScriptUtil {
      * @throws JavaScriptExecutorException
      * 
      */
-    public static String executePreprocessorScripts(JavaScriptTask<Object> task, ConnectorMessage message) throws Exception {
+    public static String executePreprocessorScripts(JavaScriptTask<Object> task, ConnectorMessage message, Map<String, Integer> destinationIdMap) throws Exception {
         String processedMessage = null;
         String globalResult = message.getRaw().getContent();
         Logger scriptLogger = Logger.getLogger(ScriptController.PREPROCESSOR_SCRIPT_KEY.toLowerCase());
@@ -151,7 +151,7 @@ public class JavaScriptUtil {
 
             if (compiledScriptCache.getCompiledScript(ScriptController.PREPROCESSOR_SCRIPT_KEY) != null) {
                 try {
-                    Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), message.getRaw().getContent(), new ImmutableConnectorMessage(message, true));
+                    Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), message.getRaw().getContent(), new ImmutableConnectorMessage(message, true, destinationIdMap));
                     result = JavaScriptUtil.executeScript(task, ScriptController.PREPROCESSOR_SCRIPT_KEY, scope, null, null);
                 } finally {
                     Context.exit();
@@ -180,7 +180,7 @@ public class JavaScriptUtil {
             if (compiledScriptCache.getCompiledScript(scriptId) != null) {
                 try {
                     // Update the scope with the result from the global processor
-                    Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), globalResult, new ImmutableConnectorMessage(message, true));
+                    Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), globalResult, new ImmutableConnectorMessage(message, true, destinationIdMap));
                     result = JavaScriptUtil.executeScript(task, scriptId, scope, null, null);
                 } finally {
                     Context.exit();

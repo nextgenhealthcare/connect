@@ -46,13 +46,13 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
     private String connectorName;
     private String scriptId;
     private String template;
-    private Map<String, String> destinationNameMap;
+    private Map<String, Integer> destinationIdMap;
 
-    public JavaScriptResponseTransformer(String channelId, String connectorName, String script, String template, Map<String, String> destinationNameMap) throws JavaScriptInitializationException {
+    public JavaScriptResponseTransformer(String channelId, String connectorName, String script, String template, Map<String, Integer> destinationIdMap) throws JavaScriptInitializationException {
         this.channelId = channelId;
         this.connectorName = connectorName;
         this.template = template;
-        this.destinationNameMap = destinationNameMap;
+        this.destinationIdMap = destinationIdMap;
         initialize(script);
     }
 
@@ -127,7 +127,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
             } else {
                 try {
                     com.mirth.connect.userutil.Response userResponse = new com.mirth.connect.userutil.Response(response);
-                    Scriptable scope = JavaScriptScopeUtil.getResponseTransformerScope(scriptLogger, userResponse, new ImmutableConnectorMessage(connectorMessage, true, destinationNameMap), template);
+                    Scriptable scope = JavaScriptScopeUtil.getResponseTransformerScope(scriptLogger, userResponse, new ImmutableConnectorMessage(connectorMessage, true, destinationIdMap), template);
                     // Execute the script
                     executeScript(compiledScript, scope);
 

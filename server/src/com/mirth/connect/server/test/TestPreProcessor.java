@@ -99,7 +99,7 @@ public class TestPreProcessor {
 
     @Test
     public final void testPreProcessor() throws Exception {
-        final JavaScriptPreprocessor preprocessor = new JavaScriptPreprocessor();
+        final JavaScriptPreprocessor preprocessor = new JavaScriptPreprocessor(null);
         final String testResult = "test result";
         final int testSize = 100000;
 

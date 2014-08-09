@@ -88,7 +88,7 @@ public class MuleContext {
             if ("messageId".equals(key)) {
                 return connectorMessage.getMessageId();
             } else if ("destinations".equals(key)) {
-                key = Constants.DESTINATION_META_DATA_IDS_KEY;
+                key = Constants.DESTINATION_SET_KEY;
             }
 
             return delegate.get(key);

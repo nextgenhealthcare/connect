@@ -177,7 +177,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
                 if (mergedConnectorMessage == null) {
                     scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, connector.getChannelId());
                 } else {
-                    scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, connector.getChannelId(), new ImmutableConnectorMessage(mergedConnectorMessage, true, connector.getDestinationNameMap()));
+                    scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, connector.getChannelId(), new ImmutableConnectorMessage(mergedConnectorMessage, true, connector.getDestinationIdMap()));
                 }
 
                 if (resultMap != null) {
