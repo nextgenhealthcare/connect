@@ -383,17 +383,19 @@ public abstract class SourceConnector extends Connector {
 
                     dao.markAsProcessed(getChannelId(), messageId);
 
-                    if (dispatchResult.isRemoveContent()) {
-                        dao.deleteMessageContent(getChannelId(), messageId);
-                    }
-
-                    if (dispatchResult.isRemoveAttachments()) {
-                        dao.deleteMessageAttachments(getChannelId(), messageId);
+                    // If destination queuing is disabled, it's safe to remove content in the same transaction
+                    if (!channel.isUsingDestinationQueues()) {
+                        channel.removeContent(dao, processedMessage, messageId, false, false);
                     }
                 }
 
                 if (dao != null) {
                     dao.commit(storageSettings.isDurable());
+                }
+
+                // If destination queuing is enabled, we have to remove content in a separate transaction
+                if (dispatchResult.isMarkAsProcessed() && channel.isUsingDestinationQueues()) {
+                    channel.removeContent(dao, processedMessage, messageId, false, true);
                 }
             } finally {
                 if (dao != null) {

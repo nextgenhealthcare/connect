@@ -108,6 +108,19 @@
 		FROM D_M${localChannelId}
 	</query>
 	
+	<query id="getConnectorMessageStatuses">
+		SELECT STATUS
+		FROM D_MM${localChannelId}
+		WHERE MESSAGE_ID = ?
+	</query>
+	
+	<query id="getConnectorMessageStatusesCheckProcessed">
+		SELECT MM.STATUS
+		FROM D_M${localChannelId} M
+		JOIN D_MM${localChannelId} MM ON MM.MESSAGE_ID = M.ID
+		WHERE M.ID = ? AND M.PROCESSED = TRUE
+	</query>
+	
 	<query id="getUnfinishedMessages">
 		SELECT M.*
 		FROM D_M${localChannelId} M

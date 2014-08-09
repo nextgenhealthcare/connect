@@ -246,6 +246,13 @@
 		) AS A WHERE A.ROWNUM <![CDATA[ > ]]> ${offset} AND A.ROWNUM <![CDATA[ <= ]]> (${offset} + ${limit})
 	</query>
 	
+	<query id="getConnectorMessageStatusesCheckProcessed">
+		SELECT MM.STATUS
+		FROM D_M${localChannelId} M
+		JOIN D_MM${localChannelId} MM ON MM.MESSAGE_ID = M.ID
+		WHERE M.ID = ? AND M.PROCESSED = 1
+	</query>
+	
 	<query id="getUnfinishedMessages">
 		SELECT M.*
 		FROM D_M${localChannelId} M

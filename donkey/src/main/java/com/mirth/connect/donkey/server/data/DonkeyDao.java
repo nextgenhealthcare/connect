@@ -104,6 +104,8 @@ public interface DonkeyDao {
 
     public long getConnectorMessageMaxMessageId(String channelId, String serverId, int metaDataId, Status status);
 
+    public Set<Status> getConnectorMessageStatuses(String channelId, long messageId, boolean checkProcessed);
+
     public List<Message> getUnfinishedMessages(String channelId, String serverId);
 
     public List<MetaDataColumn> getMetaDataColumns(String channelId);

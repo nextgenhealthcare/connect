@@ -16,8 +16,12 @@ import java.util.UUID;
 
 import javax.activation.UnsupportedDataTypeException;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
@@ -72,18 +76,28 @@ public class MessageController {
     }
 
     public boolean isMessageCompleted(Message message) {
-        return isMessageCompleted(message.getConnectorMessages());
-    }
-
-    public boolean isMessageCompleted(Map<Integer, ConnectorMessage> connectorMessages) {
-        if (connectorMessages.size() == 0) {
+        if (MapUtils.isEmpty(message.getConnectorMessages())) {
             return false;
         }
 
-        for (Entry<Integer, ConnectorMessage> connectorMessageEntry : connectorMessages.entrySet()) {
+        for (Entry<Integer, ConnectorMessage> connectorMessageEntry : message.getConnectorMessages().entrySet()) {
             ConnectorMessage connectorMessage = connectorMessageEntry.getValue();
 
             if (!connectorMessage.getStatus().isCompleted()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean isMessageCompleted(Set<Status> statuses) {
+        if (CollectionUtils.isEmpty(statuses)) {
+            return false;
+        }
+
+        for (Status status : statuses) {
+            if (!status.isCompleted()) {
                 return false;
             }
         }

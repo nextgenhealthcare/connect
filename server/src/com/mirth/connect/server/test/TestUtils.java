@@ -152,10 +152,10 @@ public class TestUtils {
             long messageId = messageIdSequence++;
 
             if (getSourceConnector().isRespondAfterProcessing()) {
-                return new DummyDispatchResult(messageId, TestUtils.createTestProcessedMessage(getChannelId(), getServerId(), messageId, rawMessage.getRawData()), null, true, false, false, true);
+                return new DummyDispatchResult(messageId, TestUtils.createTestProcessedMessage(getChannelId(), getServerId(), messageId, rawMessage.getRawData()), null, true, true);
             }
 
-            return new DummyDispatchResult(messageId, null, null, false, false, false, false);
+            return new DummyDispatchResult(messageId, null, null, false, false);
         }
 
         public List<RawMessage> getRawMessages() {
@@ -165,8 +165,8 @@ public class TestUtils {
 
     // extend DispatchResult so that we can access it's protected constructor
     public static class DummyDispatchResult extends DispatchResult {
-        public DummyDispatchResult(long messageId, Message processedMessage, Response selectedResponse, boolean markAsProcessed, boolean removeContent, boolean removeAttachments, boolean lockAcquired) {
-            super(messageId, processedMessage, selectedResponse, markAsProcessed, removeContent, removeAttachments, lockAcquired);
+        public DummyDispatchResult(long messageId, Message processedMessage, Response selectedResponse, boolean markAsProcessed, boolean lockAcquired) {
+            super(messageId, processedMessage, selectedResponse, markAsProcessed, lockAcquired);
         }
     }
 }

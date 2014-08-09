@@ -23,7 +23,6 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Constants;
-import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
@@ -138,15 +137,6 @@ public class RecoveryTask implements Callable<Void> {
                         channel.finishMessage(message, !responseSelector.canRespond());
 
                         if (responseSelector.canRespond()) {
-                            boolean removeContent = false;
-                            boolean removeAttachments = false;
-                            boolean messageCompleted = MessageController.getInstance().isMessageCompleted(message);
-
-                            if (messageCompleted) {
-                                removeContent = (storageSettings.isRemoveContentOnCompletion());
-                                removeAttachments = (storageSettings.isRemoveAttachmentsOnCompletion());
-                            }
-
                             Response response = null;
 
                             /*
@@ -158,7 +148,7 @@ public class RecoveryTask implements Callable<Void> {
                                 response = responseSelector.getResponse(sourceMessage, message);
                             }
 
-                            DispatchResult dispatchResult = new DispatchResult(message.getMessageId(), message, response, true, removeContent, removeAttachments, false);
+                            DispatchResult dispatchResult = new DispatchResult(message.getMessageId(), message, response, true, false);
                             channel.getSourceConnector().handleRecoveredResponse(dispatchResult);
                         }
                     }

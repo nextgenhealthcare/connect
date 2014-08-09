@@ -37,7 +37,6 @@ import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
@@ -510,28 +509,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
                             response.fixStatus(isQueueEnabled());
 
                             afterSend(dao, connectorMessage, response, previousStatus);
-
-                            /*
-                             * if the "remove content on completion" setting is enabled, we will
-                             * need to retrieve a list of the other connector messages for this
-                             * message id and check if the message is "completed"
-                             */
-                            if (storageSettings.isRemoveContentOnCompletion() || storageSettings.isRemoveAttachmentsOnCompletion()) {
-                                Map<Integer, ConnectorMessage> connectorMessages = dao.getConnectorMessages(getChannelId(), connectorMessage.getMessageId());
-
-                                // update the map with the message that was just sent
-                                connectorMessages.put(getMetaDataId(), connectorMessage);
-
-                                if (MessageController.getInstance().isMessageCompleted(connectorMessages)) {
-                                    if (storageSettings.isRemoveContentOnCompletion()) {
-                                        dao.deleteMessageContent(getChannelId(), connectorMessage.getMessageId());
-                                    }
-
-                                    if (storageSettings.isRemoveAttachmentsOnCompletion()) {
-                                        dao.deleteMessageAttachments(getChannelId(), connectorMessage.getMessageId());
-                                    }
-                                }
-                            }
                         } else {
                             connectorMessage.setStatus(Status.ERROR);
                             connectorMessage.setProcessingError("Mismatched connector properties detected in queued message. The connector type may have changed since the message was queued.\nFOUND: " + serializedPropertiesClass.getSimpleName() + "\nEXPECTED: " + connectorPropertiesClass.getSimpleName());
@@ -542,6 +519,20 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
                         ThreadUtils.checkInterruptedStatus();
                         dao.commit(storageSettings.isDurable());
+
+                        // Only actually attempt to remove content if the status is SENT
+                        if (connectorMessage.getStatus().isCompleted()) {
+                            try {
+                                channel.removeContent(dao, null, lastMessageId, true, true);
+                            } catch (RuntimeException e) {
+                                /*
+                                 * The connector message itself processed successfully, only the
+                                 * remove content operation failed. In this case just give up and
+                                 * log an error.
+                                 */
+                                logger.error("Error removing content for message " + lastMessageId + " for channel " + getChannelId() + " (" + destinationName + "). This error is expected if the message was manually removed from the queue.", e);
+                            }
+                        }
                     } catch (RuntimeException e) {
                         logger.error("Error processing queued " + (connectorMessage != null ? connectorMessage.toString() : "message (null)") + " for channel " + getChannelId() + " (" + destinationName + "). This error is expected if the message was manually removed from the queue.", e);
                         /*

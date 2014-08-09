@@ -30,6 +30,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -117,6 +119,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     private boolean stopSourceQueue = false;
     private ChannelProcessLock processLock = new DefaultChannelProcessLock();
+    private Lock removeContentLock = new ReentrantLock(true);
     private ChannelLock lock = ChannelLock.UNLOCKED;
 
     private MessageController messageController = MessageController.getInstance();
@@ -384,6 +387,21 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
 
         return metaDataIds;
+    }
+
+    /**
+     * Returns true if any destinations have queuing enabled.
+     */
+    public boolean isUsingDestinationQueues() {
+        for (DestinationChain chain : destinationChains) {
+            for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
+                if (destinationConnector.isQueueEnabled()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public void invalidateQueues() {
@@ -953,8 +971,6 @@ public class Channel implements Startable, Stoppable, Runnable {
             DonkeyDao dao = null;
             Message processedMessage = null;
             Response response = null;
-            boolean removeContent = false;
-            boolean removeAttachments = false;
             DispatchResult dispatchResult = null;
 
             try {
@@ -977,12 +993,6 @@ public class Channel implements Startable, Stoppable, Runnable {
                     markDeletedQueuedMessages(rawMessage, persistedMessageId);
 
                     processedMessage = process(sourceMessage, false);
-
-                    boolean messageCompleted = messageController.isMessageCompleted(processedMessage);
-                    if (messageCompleted) {
-                        removeContent = (storageSettings.isRemoveContentOnCompletion());
-                        removeAttachments = (storageSettings.isRemoveAttachmentsOnCompletion());
-                    }
                 } else {
                     // Block other threads from adding to the source queue until both the current commit and queue addition finishes
                     synchronized (sourceQueue) {
@@ -1015,7 +1025,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
                 // Create the DispatchResult at the very end because lockAcquired might have changed
                 if (persistedMessageId != null) {
-                    dispatchResult = new DispatchResult(persistedMessageId, processedMessage, response, sourceConnector.isRespondAfterProcessing(), removeContent, removeAttachments, lockAcquired);
+                    dispatchResult = new DispatchResult(persistedMessageId, processedMessage, response, sourceConnector.isRespondAfterProcessing(), lockAcquired);
                 }
             }
 
@@ -1049,7 +1059,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 throw channelException;
             }
 
-            return new DispatchResult(persistedMessageId, null, null, false, false, false, lockAcquired, channelException);
+            return new DispatchResult(persistedMessageId, null, null, false, lockAcquired, channelException);
         } finally {
             synchronized (dispatchThreads) {
                 dispatchThreads.remove(currentThread);
@@ -1214,6 +1224,14 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     public void releaseProcessLock() {
         processLock.release();
+    }
+
+    public void obtainRemoveContentLock() throws InterruptedException {
+        removeContentLock.lockInterruptibly();
+    }
+
+    public void releaseRemoveContentLock() {
+        removeContentLock.unlock();
     }
 
     /**
@@ -1613,24 +1631,86 @@ public class Channel implements Startable, Stoppable, Runnable {
                 dao.markAsProcessed(channelId, finalMessage.getMessageId());
                 finalMessage.setProcessed(true);
 
-                boolean messageCompleted = messageController.isMessageCompleted(finalMessage);
-                if (messageCompleted) {
-                    if (storageSettings.isRemoveContentOnCompletion()) {
-                        dao.deleteMessageContent(channelId, finalMessage.getMessageId());
-                    }
-
-                    if (storageSettings.isRemoveAttachmentsOnCompletion()) {
-                        dao.deleteMessageAttachments(channelId, finalMessage.getMessageId());
-                    }
+                // If destination queuing is disabled, it's safe to remove content in the same transaction
+                if (!isUsingDestinationQueues()) {
+                    removeContent(dao, finalMessage, finalMessage.getMessageId(), false, false);
                 }
             }
 
             if (dao != null) {
                 dao.commit(storageSettings.isDurable());
             }
+
+            // If destination queuing is enabled, we have to remove content in a separate transaction
+            if (markAsProcessed && isUsingDestinationQueues()) {
+                removeContent(dao, finalMessage, finalMessage.getMessageId(), false, true);
+            }
         } finally {
             if (dao != null) {
                 dao.close();
+            }
+        }
+    }
+
+    public void removeContent(DonkeyDao dao, Message message, long messageId, boolean checkProcessed, boolean commit) {
+        if (storageSettings.isEnabled() && (storageSettings.isRemoveContentOnCompletion() || storageSettings.isRemoveAttachmentsOnCompletion())) {
+            /*
+             * If we're committing the deletes in a separate transaction (because separate threads
+             * could be trying to do the same thing), we have to check the database to see if the
+             * message is completed. Otherwise, we can infer it from the in-memory Message object.
+             */
+            if (commit) {
+                /*
+                 * If any status in the message is ERROR then we don't actually need to check the
+                 * database; we already know that we can't remove content. We only check destination
+                 * connectors that don't have queuing enabled, since it may be updated but not yet
+                 * committed in a separate thread.
+                 */
+                if (message != null) {
+                    for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
+                        int metaDataId = connectorMessage.getMetaDataId();
+                        if (connectorMessage.getStatus() == Status.ERROR && (metaDataId == 0 || !getDestinationConnector(metaDataId).isQueueEnabled())) {
+                            return;
+                        }
+                    }
+                }
+
+                try {
+                    // Grab the current statuses from the database, checking the processed flag only if we have to
+                    Set<Status> statuses = dao.getConnectorMessageStatuses(channelId, messageId, checkProcessed);
+
+                    if (messageController.isMessageCompleted(statuses)) {
+                        /*
+                         * If the processed flag is set and all statuses are FILTERED, TRANSFORMED,
+                         * or SENT, then we're okay to delete content and/or attachments.
+                         */
+                        obtainRemoveContentLock();
+
+                        try {
+                            if (storageSettings.isRemoveContentOnCompletion()) {
+                                dao.deleteMessageContent(channelId, messageId);
+                            }
+
+                            if (storageSettings.isRemoveAttachmentsOnCompletion()) {
+                                dao.deleteMessageAttachments(channelId, messageId);
+                            }
+
+                            dao.commit();
+                        } finally {
+                            releaseRemoveContentLock();
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("Error removing content for message " + messageId + " for channel " + channelId + ".", e);
+                }
+            } else if (!commit && message != null && messageController.isMessageCompleted(message)) {
+                if (storageSettings.isRemoveContentOnCompletion()) {
+                    dao.deleteMessageContent(channelId, messageId);
+                }
+
+                if (storageSettings.isRemoveAttachmentsOnCompletion()) {
+                    dao.deleteMessageAttachments(channelId, messageId);
+                }
             }
         }
     }
@@ -1914,6 +1994,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                      */
                     // TODO if we convert to use reentrant lock, think about what we should do with it here
                     processLock.reset();
+                    removeContentLock = new ReentrantLock(true);
                     dispatchThreads.clear();
                     shuttingDown = false;
                     stopSourceQueue = false;
