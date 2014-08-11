@@ -60,9 +60,7 @@ public class HL7V3DataTypeClientPlugin extends DataTypeClientPlugin {
     }
 
     @Override
-    public void start() {
-        addConversionTemplates(false);
-    }
+    public void start() {}
 
     @Override
     public void stop() {}

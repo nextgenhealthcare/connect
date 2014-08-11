@@ -28,6 +28,7 @@ public abstract class MetaData {
     @XStreamAlias("libraries")
     @XStreamImplicit(itemFieldName = "library")
     private List<ExtensionLibrary> libraries;
+    private String templateClassName;
 
     public String getPath() {
         return path;
@@ -91,5 +92,13 @@ public abstract class MetaData {
 
     public void setLibraries(List<ExtensionLibrary> libraries) {
         this.libraries = libraries;
+    }
+
+    public String getTemplateClassName() {
+        return templateClassName;
+    }
+
+    public void setTemplateClassName(String templateClassName) {
+        this.templateClassName = templateClassName;
     }
 }

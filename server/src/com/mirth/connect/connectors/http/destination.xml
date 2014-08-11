@@ -9,6 +9,7 @@
 	<serverClassName>com.mirth.connect.connectors.http.HttpDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.http.HttpDispatcherProperties</sharedClassName>
 	<serviceClassName>com.mirth.connect.connectors.http.HttpConnectorService</serviceClassName>
+	<templateClassName>com.mirth.connect.connectors.http.HttpSenderCodeTemplatePlugin</templateClassName>
 	<library type="CLIENT" path="http-client.jar" />
 	<library type="SHARED" path="http-shared.jar" />
 	<library type="SERVER" path="http-server.jar" />

@@ -9,7 +9,7 @@
 
 package com.mirth.connect.client.ui.panels.reference;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.mirth.connect.model.CodeTemplate;
 
@@ -18,7 +18,7 @@ public class ReferenceListPanel extends javax.swing.JPanel {
     /**
      * Creates new form ReferenceListPanel
      */
-    public ReferenceListPanel(String title, ArrayList<CodeTemplate> items) {
+    public ReferenceListPanel(String title, List<CodeTemplate> items) {
         initComponents();
         variableReferenceTable = new VariableReferenceTable(title, items);
         variableReferenceTable.setDragEnabled(true);
@@ -29,10 +29,11 @@ public class ReferenceListPanel extends javax.swing.JPanel {
     /**
      * Refreshes the reference table items based on the find string parameter
      * 
-     * @param filterString The search expression
+     * @param filterString
+     *            The search expression
      */
     public void refreshTableList(final String filterString) {
-    	variableReferenceTable.performFilter(filterString);      
+        variableReferenceTable.performFilter(filterString);
     }
 
     /**

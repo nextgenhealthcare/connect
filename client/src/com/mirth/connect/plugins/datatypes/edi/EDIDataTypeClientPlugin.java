@@ -60,9 +60,7 @@ public class EDIDataTypeClientPlugin extends DataTypeClientPlugin {
     }
 
     @Override
-    public void start() {
-        addConversionTemplates(false);
-    }
+    public void start() {}
 
     @Override
     public void stop() {}

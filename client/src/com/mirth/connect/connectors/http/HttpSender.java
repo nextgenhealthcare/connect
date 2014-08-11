@@ -91,10 +91,6 @@ public class HttpSender extends ConnectorSettingsPanel {
             }
         });
 
-        // This is required because of MIRTH-3305
-        Map<String, ArrayList<CodeTemplate>> references = ReferenceListFactory.getInstance().getReferences();
-        references.put(getConnectorName() + " Functions", getReferenceItems());
-
         sslWarningPanel = new SSLWarningPanel();
 
         contentTypeField.getDocument().addDocumentListener(new DocumentListener() {
@@ -615,16 +611,6 @@ public class HttpSender extends ConnectorSettingsPanel {
         sendTimeoutField.setBackground(null);
         contentTypeField.setBackground(null);
         contentTextArea.setBackground(null);
-    }
-
-    @Override
-    public ArrayList<CodeTemplate> getReferenceItems() {
-        ArrayList<CodeTemplate> referenceItems = new ArrayList<CodeTemplate>();
-
-        referenceItems.add(new CodeTemplate("Get HTTP Response Status Line", "Retrieves the status line (e.g. \"HTTP/1.1 200 OK\") from an HTTP response, for use in the response transformer.", "$('responseStatusLine')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
-        referenceItems.add(new CodeTemplate("Get HTTP Response Header", "Retrieves a header value from an HTTP response, for use in the response transformer.", "$('responseHeaders').get('Header-Name')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
-
-        return referenceItems;
     }
 
     @Override

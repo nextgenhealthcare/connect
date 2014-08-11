@@ -18,7 +18,8 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-import com.mirth.connect.client.core.ClientException;
+import org.apache.commons.lang.StringUtils;
+
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.PluginClass;
@@ -85,23 +86,56 @@ public class LoadedExtensions {
         NavigableMap<Integer, List<String>> weightedPlugins = new TreeMap<Integer, List<String>>();
         for (PluginMetaData metaData : PlatformUI.MIRTH_FRAME.getPluginMetaData().values()) {
             try {
-                if (PlatformUI.MIRTH_FRAME.mirthClient.isExtensionEnabled(metaData.getName()) && (metaData.getClientClasses() != null)) {
-                    for (PluginClass pluginClass : metaData.getClientClasses()) {
-                        String clazzName = pluginClass.getName();
-                        int weight = pluginClass.getWeight();
-                        pluginNameMap.put(clazzName, metaData.getName());
+                if (PlatformUI.MIRTH_FRAME.mirthClient.isExtensionEnabled(metaData.getName())) {
+                    if (metaData.getClientClasses() != null) {
+                        for (PluginClass pluginClass : metaData.getClientClasses()) {
+                            String clazzName = pluginClass.getName();
+                            int weight = pluginClass.getWeight();
+                            pluginNameMap.put(clazzName, metaData.getName());
 
-                        List<String> classList = weightedPlugins.get(weight);
-                        if (classList == null) {
-                            classList = new ArrayList<String>();
-                            weightedPlugins.put(weight, classList);
+                            List<String> classList = weightedPlugins.get(weight);
+                            if (classList == null) {
+                                classList = new ArrayList<String>();
+                                weightedPlugins.put(weight, classList);
+                            }
+
+                            classList.add(clazzName);
                         }
+                    }
 
-                        classList.add(clazzName);
+                    if (StringUtils.isNotEmpty(metaData.getTemplateClassName())) {
+                        Class<?> clazz = Class.forName(metaData.getTemplateClassName());
+
+                        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+                            if (constructor.getParameterTypes().length == 1) {
+                                CodeTemplatePlugin codeTemplatePlugin = (CodeTemplatePlugin) constructor.newInstance(new Object[] { metaData.getName() });
+                                addPluginPoints(codeTemplatePlugin);
+                                break;
+                            }
+                        }
                     }
                 }
-            } catch (ClientException e) {
+            } catch (Exception e) {
                 PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+            }
+        }
+
+        // Load connector code template plugins before anything else
+        for (ConnectorMetaData metaData : PlatformUI.MIRTH_FRAME.getConnectorMetaData().values()) {
+            try {
+                if (PlatformUI.MIRTH_FRAME.mirthClient.isExtensionEnabled(metaData.getName()) && StringUtils.isNotEmpty(metaData.getTemplateClassName())) {
+                    Class<?> clazz = Class.forName(metaData.getTemplateClassName());
+
+                    for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+                        if (constructor.getParameterTypes().length == 1) {
+                            CodeTemplatePlugin codeTemplatePlugin = (CodeTemplatePlugin) constructor.newInstance(new Object[] { metaData.getName() });
+                            addPluginPoints(codeTemplatePlugin);
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), "Could not load code template plugin: " + metaData.getTemplateClassName());
             }
         }
 

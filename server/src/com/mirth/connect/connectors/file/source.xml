@@ -9,6 +9,7 @@
 	<serverClassName>com.mirth.connect.connectors.file.FileReceiver</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.file.FileReceiverProperties</sharedClassName>
 	<serviceClassName>com.mirth.connect.connectors.file.FileReaderService</serviceClassName>
+	<templateClassName>com.mirth.connect.connectors.file.FileReaderCodeTemplatePlugin</templateClassName>
 	<library type="CLIENT" path="file-client.jar" />
 	<library type="SHARED" path="file-shared.jar" />
 	<library type="SERVER" path="file-server.jar" />

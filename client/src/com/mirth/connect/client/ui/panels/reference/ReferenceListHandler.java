@@ -11,7 +11,7 @@ package com.mirth.connect.client.ui.panels.reference;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,16 +25,16 @@ import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 
 public class ReferenceListHandler extends TransferHandler {
 
-    private ArrayList<CodeTemplate> listItems;
+    private List<CodeTemplate> listItems;
 
     //private final static String FUNCTION_PATTERN = "(function\\s*\\(.*\\))";
 
-    public ReferenceListHandler(ArrayList<CodeTemplate> listItems) {
+    public ReferenceListHandler(List<CodeTemplate> listItems) {
         super();
         this.listItems = listItems;
     }
 
-    public void setListItems(ArrayList<CodeTemplate> listItems) {
+    public void setListItems(List<CodeTemplate> listItems) {
         this.listItems = listItems;
     }
 

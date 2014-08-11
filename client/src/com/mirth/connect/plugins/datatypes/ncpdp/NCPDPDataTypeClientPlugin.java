@@ -60,9 +60,7 @@ public class NCPDPDataTypeClientPlugin extends DataTypeClientPlugin {
     }
 
     @Override
-    public void start() {
-        addConversionTemplates(false);
-    }
+    public void start() {}
 
     @Override
     public void stop() {}

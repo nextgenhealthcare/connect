@@ -11,6 +11,7 @@
 	<clientClasses>
 		<string>com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeClientPlugin</string>
 	</clientClasses>
+	<templateClassName>com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeCodeTemplatePlugin</templateClassName>
 	<library type="CLIENT" path="datatype-delimited-client.jar" />
 	<library type="SHARED" path="datatype-delimited-shared.jar" />
 	<library type="SERVER" path="datatype-delimited-server.jar" />

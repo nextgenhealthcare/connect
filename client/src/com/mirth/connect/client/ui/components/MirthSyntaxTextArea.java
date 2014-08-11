@@ -10,8 +10,8 @@
 package com.mirth.connect.client.ui.components;
 
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -41,9 +41,8 @@ import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.ContextType;
 
 /**
- * Mirth's implementation of the JTextArea. Adds enabling of the save button in
- * parent. Also adds a trigger button (right click) editor menu with Cut, Copy,
- * Paste, Delete, and Select All.
+ * Mirth's implementation of the JTextArea. Adds enabling of the save button in parent. Also adds a
+ * trigger button (right click) editor menu with Cut, Copy, Paste, Delete, and Select All.
  */
 public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInterface {
 
@@ -104,7 +103,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
             varlist = new JMenu("Built-in Variables");
             funclist = new JMenu("Built-in Functions");
             ReferenceListFactory functionBuilder = ReferenceListFactory.getInstance();
-            ArrayList<CodeTemplate> jshelpers = functionBuilder.getVariableListItems(ListType.ALL.getValue(), context);
+            List<CodeTemplate> jshelpers = functionBuilder.getVariableListItems(ListType.ALL.getValue(), context);
             Iterator<CodeTemplate> it = jshelpers.iterator();
 
             while (it.hasNext()) {
@@ -125,7 +124,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
             popup.add(varlist);
             popup.add(funclist);
             popup.addSeparator();
-            
+
             viewUserApiAction = new ViewUserApiAction(this);
             popup.add(viewUserApiAction);
         }
@@ -195,8 +194,8 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
     }
 
     /**
-     * Overrides setDocument(Document doc) so that a document listener is added
-     * to the current document to listen for changes.
+     * Overrides setDocument(Document doc) so that a document listener is added to the current
+     * document to listen for changes.
      */
     public void setDocument(SyntaxDocument doc) {
         super.setDocument(doc);
@@ -219,8 +218,8 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
     }
 
     /**
-     * Overrides setText(String t) so that the save button is disabled when
-     * Mirth sets the text of a field.
+     * Overrides setText(String t) so that the save button is disabled when Mirth sets the text of a
+     * field.
      */
     public void setText(String t) {
         boolean visible = parent.changesHaveBeenMade();

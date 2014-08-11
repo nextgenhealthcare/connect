@@ -9,7 +9,8 @@
 
 package com.mirth.connect.plugins;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import com.mirth.connect.model.CodeTemplate;
 
@@ -19,6 +20,5 @@ public abstract class CodeTemplatePlugin extends ClientPlugin {
         super(name);
     }
 
-    public abstract ArrayList<CodeTemplate> getReferenceItems();
-
+    public abstract Map<String, List<CodeTemplate>> getReferenceItems();
 }

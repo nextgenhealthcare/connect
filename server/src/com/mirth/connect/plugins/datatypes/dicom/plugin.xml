@@ -11,6 +11,7 @@
 	<clientClasses>
 		<string>com.mirth.connect.plugins.datatypes.dicom.DICOMDataTypeClientPlugin</string>
 	</clientClasses>
+	<templateClassName>com.mirth.connect.plugins.datatypes.dicom.DICOMDataTypeCodeTemplatePlugin</templateClassName>
 	<library type="CLIENT" path="datatype-dicom-client.jar" />
 	<library type="SHARED" path="datatype-dicom-shared.jar" />
 	<library type="SERVER" path="datatype-dicom-server.jar" />

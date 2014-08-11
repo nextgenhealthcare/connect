@@ -9,9 +9,10 @@
 
 package com.mirth.connect.client.ui;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.DefaultComboBoxModel;
@@ -35,7 +36,7 @@ public class FunctionList extends javax.swing.JPanel {
 
     /** Creates new form FunctionList */
     public FunctionList(int context) {
-    	this.enableFilter = true;
+        this.enableFilter = true;
         this.context = context;
         initComponents();
         panels = new LinkedHashMap<String, JPanel>();
@@ -44,11 +45,11 @@ public class FunctionList extends javax.swing.JPanel {
     }
 
     /**
-     * Constructor to initialize the panel with the option to enable/disable
-     * the filter component
-     *
+     * Constructor to initialize the panel with the option to enable/disable the filter component
+     * 
      * @param context
-     * @param enableFilter TRUE the panel should be initialized with the filter component
+     * @param enableFilter
+     *            TRUE the panel should be initialized with the filter component
      */
     public FunctionList(int context, boolean enableFilter) {
         this(context);
@@ -58,12 +59,13 @@ public class FunctionList extends javax.swing.JPanel {
 
     /**
      * Helper method to disable/enable the filter components for this panel.
-     *
-     * @param enable TRUE to enable filter component to the panel.
+     * 
+     * @param enable
+     *            TRUE to enable filter component to the panel.
      */
     private void enableFilter(boolean enable) {
-    	enableFilter = enable;
-    	
+        enableFilter = enable;
+
         filterLabel.setVisible(enable);
         filterField.setVisible(enable);
         filterField.setEnabled(enable);
@@ -72,15 +74,15 @@ public class FunctionList extends javax.swing.JPanel {
     public void setup() {
         ReferenceListFactory builder = ReferenceListFactory.getInstance();
 
-        LinkedHashMap<String, ArrayList<CodeTemplate>> references = builder.getReferences();
-        Iterator<Entry<String, ArrayList<CodeTemplate>>> i = references.entrySet().iterator();
+        Map<String, List<CodeTemplate>> references = builder.getReferences();
+        Iterator<Entry<String, List<CodeTemplate>>> i = references.entrySet().iterator();
         addPanel(new ReferenceListPanel(ListType.ALL.getValue(), builder.getVariableListItems(ListType.ALL.getValue(), context)), "All");
 
         while (i.hasNext()) {
-            Entry<String, ArrayList<CodeTemplate>> entry = i.next();
+            Entry<String, List<CodeTemplate>> entry = i.next();
             String key = entry.getKey();
             references.get(entry.getKey());
-            ArrayList<CodeTemplate> items = builder.getVariableListItems(key, context);
+            List<CodeTemplate> items = builder.getVariableListItems(key, context);
 
             if (items != null && items.size() > 0) {
                 addPanel(new ReferenceListPanel(key, items), key);
@@ -97,21 +99,21 @@ public class FunctionList extends javax.swing.JPanel {
 
         addPanel(new ReferenceListPanel(ListType.ALL.getValue(), builder.getVariableListItems(ListType.ALL.getValue(), context)), "All");
 
-        ArrayList<CodeTemplate> variableListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_VARIABLES, context);
+        List<CodeTemplate> variableListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_VARIABLES, context);
         if (variableListItems.size() > 0) {
             addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_VARIABLES, variableListItems), ReferenceListFactory.USER_TEMPLATE_VARIABLES);
         } else if (panels.get(ReferenceListFactory.USER_TEMPLATE_VARIABLES) != null) {
             panels.remove(ReferenceListFactory.USER_TEMPLATE_VARIABLES);
         }
 
-        ArrayList<CodeTemplate> codeListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_CODE, context);
+        List<CodeTemplate> codeListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_CODE, context);
         if (codeListItems.size() > 0) {
             addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_CODE, codeListItems), ReferenceListFactory.USER_TEMPLATE_CODE);
         } else if (panels.get(ReferenceListFactory.USER_TEMPLATE_CODE) != null) {
             panels.remove(ReferenceListFactory.USER_TEMPLATE_CODE);
         }
 
-        ArrayList<CodeTemplate> functionListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, context);
+        List<CodeTemplate> functionListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, context);
         if (functionListItems.size() > 0) {
             addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, functionListItems), ReferenceListFactory.USER_TEMPLATE_FUNCTIONS);
         } else if (panels.get(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS) != null) {
@@ -242,8 +244,8 @@ public class FunctionList extends javax.swing.JPanel {
     }//GEN-LAST:event_filterFieldKeyReleased
 
     private void variableReferenceDropDownActionPerformed(java.awt.event.ActionEvent evt) {
-    	filterField.setText("");  // clear the filter text field
-    	refreshTableList();  // refresh table list based on the new filter value
+        filterField.setText(""); // clear the filter text field
+        refreshTableList(); // refresh table list based on the new filter value
         updateUserTemplates();
         variableScrollPane.setViewportView((panels.get(variableReferenceDropDown.getSelectedItem())));
     }

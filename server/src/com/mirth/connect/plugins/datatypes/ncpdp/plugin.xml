@@ -11,6 +11,7 @@
 	<clientClasses>
 		<string>com.mirth.connect.plugins.datatypes.ncpdp.NCPDPDataTypeClientPlugin</string>
 	</clientClasses>
+	<templateClassName>com.mirth.connect.plugins.datatypes.ncpdp.NCPDPDataTypeCodeTemplatePlugin</templateClassName>
 	<library type="CLIENT" path="datatype-ncpdp-client.jar" />
 	<library type="SHARED" path="datatype-ncpdp-shared.jar" />
 	<library type="SERVER" path="datatype-ncpdp-server.jar" />

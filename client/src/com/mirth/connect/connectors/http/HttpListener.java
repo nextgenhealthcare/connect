@@ -120,10 +120,6 @@ public class HttpListener extends ConnectorSettingsPanel {
         initComponentsManual();
         httpUrlField.setEditable(false);
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
-
-        // This is required because of MIRTH-3305
-        Map<String, ArrayList<CodeTemplate>> references = ReferenceListFactory.getInstance().getReferences();
-        references.put(getConnectorName() + " Functions", getReferenceItems());
     }
 
     @Override
@@ -246,19 +242,6 @@ public class HttpListener extends ConnectorSettingsPanel {
     public void resetInvalidProperties() {
         receiveTimeoutField.setBackground(null);
         responseContentTypeField.setBackground(null);
-    }
-
-    @Override
-    public ArrayList<CodeTemplate> getReferenceItems() {
-        ArrayList<CodeTemplate> referenceItems = new ArrayList<CodeTemplate>();
-
-        referenceItems.add(new CodeTemplate("Get HTTP Request Method", "Retrieves the method (e.g. GET, POST) from an incoming HTTP request.", "sourceMap.get('method')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
-        referenceItems.add(new CodeTemplate("Get HTTP Request Context Path", "Retrieves the context path from an incoming HTTP request.", "sourceMap.get('contextPath')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
-        referenceItems.add(new CodeTemplate("Get HTTP Request Header", "Retrieves a header value from an incoming HTTP request.", "sourceMap.get('headers').get('Header-Name')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
-        referenceItems.add(new CodeTemplate("Get HTTP Request Parameter", "Retrieves a query/form parameter from an incoming HTTP request. If multiple values exist for the parameter, an array will be returned.", "sourceMap.get('parameters').get('parameterName')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
-        referenceItems.add(new CodeTemplate("Convert HTTP Payload to XML", "Serializes an HTTP request body into XML. Multipart requests will also automatically be parsed into separate XML nodes. The body may be passed in as a string or input stream.", "HTTPUtil.httpBodyToXml(httpBody, contentType)", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-
-        return referenceItems;
     }
 
     @Override

@@ -11,6 +11,7 @@
 	<clientClasses>
 		<string>com.mirth.connect.plugins.datatypes.hl7v2.HL7v2DataTypeClientPlugin</string>
 	</clientClasses>
+	<templateClassName>com.mirth.connect.plugins.datatypes.hl7v2.HL7v2DataTypeCodeTemplatePlugin</templateClassName>
 	<library type="CLIENT" path="datatype-hl7v2-client.jar" />
 	<library type="SHARED" path="datatype-hl7v2-shared.jar" />
 	<library type="SERVER" path="datatype-hl7v2-server.jar" />

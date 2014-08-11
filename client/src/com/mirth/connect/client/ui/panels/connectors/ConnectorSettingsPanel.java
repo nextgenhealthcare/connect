@@ -21,7 +21,6 @@ import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.model.CodeTemplate;
 
 public abstract class ConnectorSettingsPanel extends JPanel {
 
@@ -77,10 +76,6 @@ public abstract class ConnectorSettingsPanel extends JPanel {
 
     public TransferMode getTransferMode() {
         return TransferMode.VELOCITY;
-    }
-
-    public ArrayList<CodeTemplate> getReferenceItems() {
-        return new ArrayList<CodeTemplate>();
     }
 
     public boolean requiresXmlDataType() {

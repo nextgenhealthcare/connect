@@ -11,11 +11,12 @@ package com.mirth.connect.client.ui.panels.reference;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
-import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.CodeTemplate.ContextType;
@@ -45,10 +46,10 @@ public class ReferenceListFactory {
     public static final String USER_TEMPLATE_CODE = "User Defined Code";
     public static final String USER_TEMPLATE_FUNCTIONS = "User Defined Functions";
     private static ReferenceListFactory instance;
-    private LinkedHashMap<String, ArrayList<CodeTemplate>> references;
+    private Map<String, List<CodeTemplate>> references;
 
     private ReferenceListFactory() {
-        references = new LinkedHashMap<String, ArrayList<CodeTemplate>>();
+        references = new LinkedHashMap<String, List<CodeTemplate>>();
         if (PlatformUI.MIRTH_FRAME != null) { // null parent check to let forms load in NetBeans
             setup();
         }
@@ -64,7 +65,7 @@ public class ReferenceListFactory {
         }
     }
 
-    public LinkedHashMap<String, ArrayList<CodeTemplate>> getReferences() {
+    public Map<String, List<CodeTemplate>> getReferences() {
         return references;
     }
 
@@ -80,17 +81,16 @@ public class ReferenceListFactory {
         references.put(ListType.DATE.getValue(), setupDateItems());
         references.put(ListType.POSTPROCESSOR.getValue(), setupPostprocessorItems());
 
-        for (Entry<String, ConnectorSettingsPanel> connectorEntry : LoadedExtensions.getInstance().getConnectors().entrySet()) {
-            ArrayList<CodeTemplate> items = connectorEntry.getValue().getReferenceItems();
-            if (items.size() > 0) {
-                references.put(connectorEntry.getKey() + " Functions", items);
-            }
-        }
-
         for (Entry<String, CodeTemplatePlugin> codeTemplatePluginEntry : LoadedExtensions.getInstance().getCodeTemplatePlugins().entrySet()) {
-            ArrayList<CodeTemplate> items = codeTemplatePluginEntry.getValue().getReferenceItems();
-            if (items.size() > 0) {
-                references.put(codeTemplatePluginEntry.getKey() + " Functions", items);
+            for (Entry<String, List<CodeTemplate>> entry : codeTemplatePluginEntry.getValue().getReferenceItems().entrySet()) {
+                List<CodeTemplate> codeTemplates = references.get(entry.getKey());
+
+                if (codeTemplates == null) {
+                    codeTemplates = new ArrayList<CodeTemplate>();
+                    references.put(entry.getKey(), codeTemplates);
+                }
+
+                codeTemplates.addAll(entry.getValue());
             }
         }
 
@@ -98,9 +98,9 @@ public class ReferenceListFactory {
     }
 
     public void updateUserTemplates() {
-        ArrayList<CodeTemplate> variables = new ArrayList<CodeTemplate>();
-        ArrayList<CodeTemplate> functions = new ArrayList<CodeTemplate>();
-        ArrayList<CodeTemplate> code = new ArrayList<CodeTemplate>();
+        List<CodeTemplate> variables = new ArrayList<CodeTemplate>();
+        List<CodeTemplate> functions = new ArrayList<CodeTemplate>();
+        List<CodeTemplate> code = new ArrayList<CodeTemplate>();
         for (CodeTemplate template : PlatformUI.MIRTH_FRAME.codeTemplates) {
             if (template.getType() == CodeSnippetType.VARIABLE) {
                 variables.add(template);
@@ -120,7 +120,7 @@ public class ReferenceListFactory {
         references.put(USER_TEMPLATE_FUNCTIONS, functions);
     }
 
-    public ArrayList<CodeTemplate> getVariableListItems(String itemName, int context) {
+    public List<CodeTemplate> getVariableListItems(String itemName, int context) {
         if (PlatformUI.MIRTH_FRAME != null) { // null parent check to let forms load in NetBeans
             updateUserTemplates();
         }
@@ -132,8 +132,8 @@ public class ReferenceListFactory {
         }
     }
 
-    private ArrayList<CodeTemplate> getItems(String reference, int context) {
-        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+    private List<CodeTemplate> getItems(String reference, int context) {
+        List<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
 
         if (references.get(reference) == null) {
             return new ArrayList<CodeTemplate>();
@@ -148,10 +148,10 @@ public class ReferenceListFactory {
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> getAllItems(int context) {
-        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+    private List<CodeTemplate> getAllItems(int context) {
+        List<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
 
-        for (ArrayList<CodeTemplate> items : references.values()) {
+        for (List<CodeTemplate> items : references.values()) {
             for (CodeTemplate item : items) {
                 if (context >= item.getScope()) {
                     variablelistItems.add(item);
@@ -162,8 +162,8 @@ public class ReferenceListFactory {
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupConversionItems() {
-        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+    private List<CodeTemplate> setupConversionItems() {
+        List<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
 
         variablelistItems.add(new CodeTemplate("Get Serializer", "Creates and returns a data type serializer with the specified serialization and deserialization properties. " + getDataTypesToolTipText(), "var dataType = 'HL7V2';\nvar serializationProperties = SerializerFactory.getDefaultSerializationProperties(dataType);\nvar deserializationProperties = SerializerFactory.getDefaultDeserializationProperties(dataType);\nvar serializer = SerializerFactory.getSerializer(dataType, serializationProperties, deserializationProperties);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
 
@@ -180,8 +180,8 @@ public class ReferenceListFactory {
         return builder.toString();
     }
 
-    private ArrayList<CodeTemplate> setupLoggingAndAlertsItems() {
-        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+    private List<CodeTemplate> setupLoggingAndAlertsItems() {
+        List<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
         variablelistItems.add(new CodeTemplate("Log an Info Statement", "Outputs the message to the system info log.", "logger.info('message');", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Log an Error Statement", "Outputs the message to the system error log.", "logger.error('message');", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Send an Email", "Sends an alert email using the alert SMTP properties.", "var smtpConn = SMTPConnectionFactory.createSMTPConnection();\nsmtpConn.send('to', 'cc', 'from', 'subject', 'body', 'charset');", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
@@ -190,8 +190,8 @@ public class ReferenceListFactory {
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupDatabaseItems() {
-        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+    private List<CodeTemplate> setupDatabaseItems() {
+        List<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
         variablelistItems.add(new CodeTemplate("Perform Database Query", "Performs a database query and returns the rowset.", "var dbConn;\nvar result;\n\ntry {\n\tdbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\n\tresult = dbConn.executeCachedQuery('expression');\n} finally {\n\tif (dbConn) {\n\t\tdbConn.close();\n\t}\n}", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Perform Parameterized Database Query", "Performs a database query with a (Java) list of parameters.", "var dbConn;\nvar result;\n\ntry {\n\tdbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\n\tresult = dbConn.executeCachedQuery('expression', paramList);\n} finally {\n\tif (dbConn) {\n\t\tdbConn.close();\n\t}\n}", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Perform Database Update", "Performs a database update.", "var dbConn;\nvar result;\n\ntry {\n\tdbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\n\tresult = dbConn.executeUpdate('expression');\n} finally {\n\tif (dbConn) {\n\t\tdbConn.close();\n\t}\n}", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
@@ -209,8 +209,8 @@ public class ReferenceListFactory {
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupMessageItems() {
-        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+    private List<CodeTemplate> setupMessageItems() {
+        List<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
 
         variablelistItems.add(new CodeTemplate("Incoming Message", "The original message received.", "connectorMessage.getRawData()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Incoming Message (XML)", "The original message as XML", "msg", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
@@ -234,8 +234,8 @@ public class ReferenceListFactory {
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupResponseItems() {
-        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+    private List<CodeTemplate> setupResponseItems() {
+        List<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
 
         variablelistItems.add(new CodeTemplate("Set Response Status to SENT", "Indicates message was successfully SENT.", "responseStatus = SENT;", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Set Response Status to QUEUED", "Indicates message should be QUEUED. If queuing is disabled, the message status will be set to ERROR.", "responseStatus = QUEUED;", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
@@ -246,8 +246,8 @@ public class ReferenceListFactory {
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupChannelItems() {
-        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+    private List<CodeTemplate> setupChannelItems() {
+        List<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
 
         variablelistItems.add(new CodeTemplate("Channel ID", "The message channel id", "channelId", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CHANNEL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Channel Name", "The message channel name", "var channelName = ChannelUtil.getDeployedChannelName(channelId);", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CHANNEL_CONTEXT.getContext()));
@@ -255,8 +255,8 @@ public class ReferenceListFactory {
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupMapItems() {
-        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+    private List<CodeTemplate> setupMapItems() {
+        List<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
         variablelistItems.add(new CodeTemplate("Lookup Value in All Maps", "Returns the value of the key if it exists in any map.", "$('key')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Get Configuration Variable Map", "The variable map containing server specific settings.", "configurationMap.get('key')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Get Global Variable Map", "The variable map that persists values between channels.", "globalMap.get('key')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
@@ -277,8 +277,8 @@ public class ReferenceListFactory {
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupUtilityItems() {
-        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+    private List<CodeTemplate> setupUtilityItems() {
+        List<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
         variablelistItems.add(new CodeTemplate("Use Java Class", "Access any Java class in the current classpath", "var object = Packages.[fully-qualified name];", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Generate Unique ID", "Generate a Universally Unique Identifier", "var uuid = UUIDGenerator.getUUID();", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Call System Function", "Execute a command on server system. Must have proper security enabled.", "java.lang.Runtime.getRuntime().exec(\"system_command\");", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
@@ -306,8 +306,8 @@ public class ReferenceListFactory {
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupDateItems() {
-        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+    private List<CodeTemplate> setupDateItems() {
+        List<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
         variablelistItems.add(new CodeTemplate("Get Date Object From Pattern", "Parse a date according to specified pattern", "var date = DateUtil.getDate(pattern, date);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Format Date Object", "Formats a date object based on specified format", "var dateString = DateUtil.formatDate(pattern, date);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Convert Date String", "Parse a date and return a newly formatted date", "var datestring = DateUtil.convertDate(inpattern, outpattern, date);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
@@ -316,8 +316,8 @@ public class ReferenceListFactory {
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupPostprocessorItems() {
-        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+    private List<CodeTemplate> setupPostprocessorItems() {
+        List<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
         variablelistItems.add(new CodeTemplate("Completed Message Object", "The final message object, which contains all processed source and destination connector messages.", "message", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Get Merged Connector Message", "Returns a connector message that has a channel map and response map which are merged from all connector messages.\nThis also includes the raw and processed raw content from the source connector.", "message.getMergedConnectorMessage()", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Get Source Connector Message", "Returns the source connector message contained in the final message object.", "message.getConnectorMessages().get(0)", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
