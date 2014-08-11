@@ -75,12 +75,14 @@ public class ChannelController {
     public Statistics getTotalStatistics() {
         return totalStats;
     }
-    
+
     /**
      * Reset the statistics for the given channels/connectors and statuses
      * 
-     * @param channelConnectorMap A Map of channel ids and lists of connector meta data ids
-     * @param statuses A list of statuses
+     * @param channelConnectorMap
+     *            A Map of channel ids and lists of connector meta data ids
+     * @param statuses
+     *            A list of statuses
      */
     public void resetStatistics(Map<String, List<Integer>> channelConnectorMap, Set<Status> statuses) {
         DonkeyDao dao = donkey.getDaoFactory().getDao();
@@ -162,34 +164,23 @@ public class ChannelController {
         }
     }
 
-    private synchronized long getNextLocalChannelId() {
-        Long nextChannelId = null;
+    private synchronized long createChannel(String channelId) {
         DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
-            nextChannelId = dao.selectMaxLocalChannelId();
-        } finally {
-            dao.close();
-        }
+            Long localChannelId = dao.selectMaxLocalChannelId();
+            if (localChannelId == null) {
+                localChannelId = 1L;
+            } else {
+                localChannelId++;
+            }
 
-        if (nextChannelId == null) {
-            return 1;
-        }
-
-        return ++nextChannelId;
-    }
-
-    private long createChannel(String channelId) {
-        long localChannelId = getNextLocalChannelId();
-        DonkeyDao dao = donkey.getDaoFactory().getDao();
-
-        try {
             dao.createChannel(channelId, localChannelId);
             dao.commit();
+
+            return localChannelId;
         } finally {
             dao.close();
         }
-
-        return localChannelId;
     }
 }
