@@ -9,14 +9,16 @@
 
 package com.mirth.connect.donkey.server;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
@@ -282,20 +284,24 @@ public class Donkey {
     }
 
     public Set<String> getDeployedChannelIds() {
-        TreeMap<Calendar, String> treeMap = new TreeMap<Calendar, String>(new Comparator<Calendar>() {
+        List<Channel> channels = new ArrayList<Channel>(deployedChannels.values());
+
+        Collections.sort(channels, new Comparator<Channel>() {
 
             @Override
-            public int compare(Calendar o1, Calendar o2) {
-                return o1.compareTo(o2);
+            public int compare(Channel o1, Channel o2) {
+                return o1.getDeployDate().compareTo(o2.getDeployDate());
             }
 
         });
 
-        for (Channel channel : deployedChannels.values()) {
-            treeMap.put(channel.getDeployDate(), channel.getChannelId());
+        Set<String> channelIds = new LinkedHashSet<String>();
+
+        for (Channel channel : channels) {
+            channelIds.add(channel.getChannelId());
         }
 
-        return new LinkedHashSet<String>(treeMap.values());
+        return channelIds;
     }
 
     public boolean isRunning() {
