@@ -277,7 +277,7 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public void removeChannels(Set<String> channelIds, ServerEventContext context, boolean undeployFirst) {
+    public void removeChannels(Set<String> channelIds, ServerEventContext context) {
         List<ChannelTask> tasks = new ArrayList<ChannelTask>();
 
         for (Channel channel : channelController.getChannels(channelIds)) {

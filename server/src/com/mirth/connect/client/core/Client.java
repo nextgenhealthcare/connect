@@ -236,7 +236,7 @@ public class Client {
      * @throws ClientException
      */
     public synchronized void removeChannel(Channel channel) throws ClientException {
-        removeChannels(Collections.singleton(channel.getId()), false);
+        removeChannels(Collections.singleton(channel.getId()));
     }
 
     /**
@@ -247,9 +247,9 @@ public class Client {
      * @param undeployFirst
      * @throws ClientException
      */
-    public synchronized void removeChannels(Set<String> channelIds, boolean undeployFirst) throws ClientException {
-        logger.debug("removing channel: channelIds=" + String.valueOf(channelIds) + ", undeployFirst=" + undeployFirst);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_REMOVE.getName()), new BasicNameValuePair("channelIds", serializer.serialize(channelIds)), new BasicNameValuePair("undeployFirst", new Boolean(undeployFirst).toString()) };
+    public synchronized void removeChannels(Set<String> channelIds) throws ClientException {
+        logger.debug("removing channel: channelIds=" + String.valueOf(channelIds));
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_REMOVE.getName()), new BasicNameValuePair("channelIds", serializer.serialize(channelIds)) };
         serverConnection.executePostMethod(CHANNEL_SERVLET, params);
     }
 

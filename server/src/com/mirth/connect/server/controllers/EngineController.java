@@ -49,7 +49,7 @@ public interface EngineController {
 
     public void haltChannels(Set<String> channelIds);
 
-    public void removeChannels(Set<String> channelIds, ServerEventContext context, boolean undeployFirst);
+    public void removeChannels(Set<String> channelIds, ServerEventContext context);
 
     public void startConnector(Map<String, List<Integer>> connectorInfo);
 

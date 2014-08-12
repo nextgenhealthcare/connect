@@ -2186,7 +2186,7 @@ public class Frame extends JXFrame {
                 }
 
                 try {
-                    mirthClient.removeChannels(channelIds, true);
+                    mirthClient.removeChannels(channelIds);
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }

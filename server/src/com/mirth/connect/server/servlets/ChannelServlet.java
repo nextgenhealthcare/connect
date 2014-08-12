@@ -100,7 +100,6 @@ public class ChannelServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.CHANNEL_REMOVE)) {
                     Set<String> channelIds = getSerializedParameter(request, "channelIds", parameterMap, serializer, Set.class);
-                    boolean undeployFirst = getBooleanParameter(request, "undeployFirst", parameterMap);
 
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -109,7 +108,7 @@ public class ChannelServlet extends MirthServlet {
                             channelIds = redactChannelIds(request, channelIds);
                         }
 
-                        engineController.removeChannels(channelIds, context, undeployFirst);
+                        engineController.removeChannels(channelIds, context);
                     }
                 } else if (operation.equals(Operations.CHANNEL_GET_SUMMARY)) {
                     response.setContentType(APPLICATION_XML);
