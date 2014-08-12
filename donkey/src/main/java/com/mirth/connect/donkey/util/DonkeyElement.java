@@ -36,15 +36,16 @@ import org.w3c.dom.UserDataHandler;
 import org.xmlpull.v1.dom2_builder.DOM2XmlPullBuilder;
 
 /**
- * Represents a DOM document element. Implements additional convenience methods beyond what is defined by the Element interface.
+ * Represents a DOM document element. Implements additional convenience methods beyond what is
+ * defined by the Element interface.
  */
 public class DonkeyElement implements Element {
     private Element element;
-    
+
     public DonkeyElement(Element element) {
         this.element = element;
     }
-    
+
     public DonkeyElement(String xml) throws DonkeyElementException {
         try {
             this.element = fromXml(xml, DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument());
@@ -52,7 +53,7 @@ public class DonkeyElement implements Element {
             throw new DonkeyElementException(e);
         }
     }
-    
+
     public Element getElement() {
         return element;
     }
@@ -91,14 +92,14 @@ public class DonkeyElement implements Element {
         element.appendChild(child);
         return new DonkeyElement(child);
     }
-    
+
     public DonkeyElement addChildElement(String name, String content) {
         Element child = element.getOwnerDocument().createElement(name);
         element.appendChild(child);
         child.setTextContent(content);
         return new DonkeyElement(child);
     }
-    
+
     public DonkeyElement addChildElementFromXml(String xml) throws DonkeyElementException {
         Element child = fromXml(xml, element.getOwnerDocument());
         element.appendChild(child);
@@ -430,7 +431,7 @@ public class DonkeyElement implements Element {
     public void setIdAttributeNode(Attr idAttr, boolean isId) throws DOMException {
         element.setIdAttributeNode(idAttr, isId);
     }
-    
+
     /**
      * Serializes the element into an XML string.
      */
@@ -457,10 +458,19 @@ public class DonkeyElement implements Element {
             throw new DonkeyElementException(e);
         }
     }
-    
+
     public static class DonkeyElementException extends Exception {
         public DonkeyElementException(Throwable cause) {
             super(cause);
+        }
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return toXml();
+        } catch (Exception e) {
+            return super.toString();
         }
     }
 }

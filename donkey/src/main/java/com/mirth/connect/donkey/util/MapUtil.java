@@ -110,7 +110,10 @@ public class MapUtil {
         Map<String, Object> map = new HashMap<String, Object>();
 
         for (DonkeyElement entry : mapElement.getChildElements()) {
-            if (entry.getChildElements().size() > 1) {
+            if (!entry.getNodeName().equalsIgnoreCase("entry")) {
+                // If the child isn't an entry node, assume it's an intermediate delegate map (like "m" for unmodifiable maps).
+                map.putAll(deserializeMapWithInvalidValues(serializer, entry));
+            } else if (entry.getChildElements().size() > 1) {
                 String key = entry.getChildElements().get(0).getTextContent();
                 String valueXML = "";
                 Object value = null;
