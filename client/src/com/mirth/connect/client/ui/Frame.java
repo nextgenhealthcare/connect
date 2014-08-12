@@ -98,6 +98,7 @@ import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
 import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.model.Channel;
@@ -3642,7 +3643,7 @@ public class Frame extends JXFrame {
             return;
         }
 
-        editMessageDialog.setPropertiesAndShow("", channelStatus.getChannel().getSourceConnector().getTransformer().getInboundDataType(), channelStatus.getChannel().getId(), dashboardPanel.getDestinationConnectorNames(channelId), selectedMetaDataIds);
+        editMessageDialog.setPropertiesAndShow("", channelStatus.getChannel().getSourceConnector().getTransformer().getInboundDataType(), channelStatus.getChannel().getId(), dashboardPanel.getDestinationConnectorNames(channelId), selectedMetaDataIds, new HashMap<String, Object>());
     }
 
     public void doExportMessages() {
@@ -3881,14 +3882,14 @@ public class Frame extends JXFrame {
         worker.execute();
     }
 
-    public void processMessage(final String channelId, final String message, final Collection<Integer> metaDataIds) {
+    public void processMessage(final String channelId, final RawMessage rawMessage) {
         final String workingId = startWorking("Processing message...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {
-                    mirthClient.processMessage(channelId, message, metaDataIds);
+                    mirthClient.processMessage(channelId, rawMessage);
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }

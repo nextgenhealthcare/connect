@@ -9,11 +9,12 @@
 
 package com.mirth.connect.donkey.model.message;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RawMessage {
+public class RawMessage implements Serializable {
     private boolean overwrite;
     private boolean imported;
     private Long originalMessageId;

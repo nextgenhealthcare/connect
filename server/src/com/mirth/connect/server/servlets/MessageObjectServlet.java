@@ -175,16 +175,10 @@ public class MessageObjectServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.MESSAGE_PROCESS)) {
                     final String channelId = request.getParameter("channelId");
-                    String rawData = request.getParameter("message");
-
-                    @SuppressWarnings("unchecked")
-                    Collection<Integer> metaDataIds = serializer.deserialize(request.getParameter("metaDataIds"), Collection.class);
-
-                    final RawMessage rawMessage = new RawMessage(rawData, metaDataIds);
+                    final RawMessage rawMessage = (RawMessage) serializer.deserialize(request.getParameter("rawMessage"), RawMessage.class);
 
                     parameterMap.put("channelId", channelId);
-                    parameterMap.put("message", rawData);
-                    parameterMap.put("metaDataIds", metaDataIds);
+                    parameterMap.put("rawMessage", rawMessage);
 
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);

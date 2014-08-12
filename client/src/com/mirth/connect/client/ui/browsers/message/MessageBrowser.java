@@ -1078,11 +1078,16 @@ public class MessageBrowser extends javax.swing.JPanel {
                             Integer metaDataId = messageNode.getMetaDataId();
 
                             Message currentMessage = messageCache.get(messageId);
-
-                            ConnectorMessage connectorMessage;
+                            ConnectorMessage connectorMessage = currentMessage.getConnectorMessages().get(metaDataId);
                             List<Integer> selectedMetaDataIds = new ArrayList<Integer>();
 
-                            connectorMessage = currentMessage.getConnectorMessages().get(metaDataId);
+                            Map<String, Object> sourceMap = new HashMap<String, Object>();
+                            if (connectorMessage.getSourceMap() != null) {
+                                sourceMap.putAll(connectorMessage.getSourceMap());
+                                // Remove the destination set if it exists, because that will be determined by the selected metadata IDs
+                                sourceMap.remove("destinationSet");
+                            }
+
                             if (metaDataId == 0) {
                                 selectedMetaDataIds = null;
                             } else {
@@ -1090,7 +1095,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                             }
 
                             if (connectorMessage.getRaw() != null) {
-                                parent.editMessageDialog.setPropertiesAndShow(connectorMessage.getRaw().getContent(), connectorMessage.getRaw().getDataType(), channelId, parent.dashboardPanel.getDestinationConnectorNames(channelId), selectedMetaDataIds);
+                                parent.editMessageDialog.setPropertiesAndShow(connectorMessage.getRaw().getContent(), connectorMessage.getRaw().getDataType(), channelId, parent.dashboardPanel.getDestinationConnectorNames(channelId), selectedMetaDataIds, sourceMap);
                             }
                         }
                     }
@@ -1984,7 +1989,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         updateMappingsTable(tableData, false);
     }
-    
+
     /**
      * A glorified version of String.valueOf that calls Arrays.toString for arrays (and arrays
      * within maps).
@@ -1998,26 +2003,26 @@ public class MessageBrowser extends javax.swing.JPanel {
                 // Build a custom string representation of the map that also converts arrays using Arrays.toString. 
                 Map<?, ?> map = (Map<?, ?>) object;
                 StringBuilder builder = new StringBuilder("{");
-                
+
                 for (Iterator<?> it = map.entrySet().iterator(); it.hasNext();) {
                     Entry<?, ?> entry = (Entry<?, ?>) it.next();
                     Object key = entry.getKey();
                     Object value = entry.getValue();
-                    
+
                     builder.append(key == map ? "(this Map)" : valueOf(key));
                     builder.append('=');
                     builder.append(value == map ? "(this Map)" : valueOf(value));
-                    
+
                     if (it.hasNext()) {
                         builder.append(", ");
                     }
                 }
-                
+
                 builder.append('}');
                 return builder.toString();
             }
         }
-        
+
         return String.valueOf(object);
     }
 

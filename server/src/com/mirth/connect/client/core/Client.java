@@ -32,6 +32,7 @@ import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelHeader;
@@ -892,12 +893,12 @@ public class Client {
     }
 
     public void processMessage(String channelId, String rawMessage) throws ClientException {
-        processMessage(channelId, rawMessage, null);
+        processMessage(channelId, new RawMessage(rawMessage));
     }
 
-    public void processMessage(String channelId, String rawMessage, Collection<Integer> metaDataIds) throws ClientException {
+    public void processMessage(String channelId, RawMessage rawMessage) throws ClientException {
         logger.debug("processing message");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_PROCESS.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("message", rawMessage), new BasicNameValuePair("metaDataIds", serializer.serialize(metaDataIds)) };
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_PROCESS.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("rawMessage", serializer.serialize(rawMessage)) };
         serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params);
     }
 
