@@ -35,11 +35,7 @@ import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
@@ -57,23 +53,23 @@ public class DocumentDispatcher extends DestinationConnector {
     private static long ownerPasswordSeq = System.currentTimeMillis();
 
     @Override
-    public void onDeploy() throws DeployException {
+    public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (DocumentDispatcherProperties) getConnectorProperties();
 
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {}
+    public void onUndeploy() throws ConnectorTaskException {}
 
     @Override
-    public void onStart() throws StartException {}
+    public void onStart() throws ConnectorTaskException {}
 
     @Override
-    public void onStop() throws StopException {}
+    public void onStop() throws ConnectorTaskException {}
 
     @Override
-    public void onHalt() throws HaltException {}
+    public void onHalt() throws ConnectorTaskException {}
 
     @Override
     public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {

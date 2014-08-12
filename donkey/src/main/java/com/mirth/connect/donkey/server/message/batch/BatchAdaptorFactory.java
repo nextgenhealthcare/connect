@@ -12,9 +12,8 @@ package com.mirth.connect.donkey.server.message.batch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 
@@ -43,11 +42,11 @@ public abstract class BatchAdaptorFactory {
         batches.decrementAndGet();
     }
 
-    public void start() throws StartException {
+    public void start() throws ConnectorTaskException, InterruptedException {
         finished.set(false);
     }
 
-    public void stop() throws StopException {
+    public void stop() throws ConnectorTaskException, InterruptedException {
         finished.set(true);
 
         while (true) {
@@ -57,11 +56,7 @@ public abstract class BatchAdaptorFactory {
                 }
             }
 
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new StopException(e);
-            }
+            Thread.sleep(100);
         }
     }
 

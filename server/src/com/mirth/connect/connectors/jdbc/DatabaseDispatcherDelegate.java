@@ -11,22 +11,18 @@ package com.mirth.connect.connectors.jdbc;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 
 public interface DatabaseDispatcherDelegate {
-    public void deploy() throws DeployException;
+    public void deploy() throws ConnectorTaskException;
 
-    public void undeploy() throws UndeployException;
+    public void undeploy() throws ConnectorTaskException;
 
-    public void start() throws StartException;
+    public void start() throws ConnectorTaskException;
 
-    public void stop() throws StopException;
+    public void stop() throws ConnectorTaskException;
 
-    public void halt() throws HaltException;
+    public void halt() throws ConnectorTaskException;
 
     /**
      * Using the given DatabaseDispatcherProperties, execute the dispatcher's query or script with

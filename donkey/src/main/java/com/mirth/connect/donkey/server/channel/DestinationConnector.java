@@ -33,10 +33,8 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.Constants;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
@@ -183,8 +181,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
         channel.getEventDispatcher().dispatchEvent(new DeployedStateEvent(getChannelId(), channel.getName(), getMetaDataId(), destinationName, DeployedStateEventType.getTypeFromDeployedState(currentState)));
     }
 
-    @Override
-    public void start() throws StartException {
+    public void start() throws ConnectorTaskException, InterruptedException {
         updateCurrentState(DeployedState.STARTING);
 
         if (isQueueEnabled()) {
@@ -210,8 +207,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
         updateCurrentState(DeployedState.STARTED);
     }
 
-    @Override
-    public void stop() throws StopException {
+    public void stop() throws ConnectorTaskException, InterruptedException {
         updateCurrentState(DeployedState.STOPPING);
 
         if (MapUtils.isNotEmpty(queueThreads)) {
@@ -221,9 +217,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 }
 
                 queueThreads.clear();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new StopException("Failed to stop destination connector for channel: " + getChannelId(), e);
             } finally {
                 // Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
                 // unsynchronized with the data store.
@@ -237,28 +230,27 @@ public abstract class DestinationConnector extends Connector implements Runnable
         } catch (Throwable t) {
             Throwable cause = t;
 
-            if (cause instanceof StopException) {
+            if (cause instanceof ConnectorTaskException) {
                 cause = cause.getCause();
             }
             if (cause instanceof ExecutionException) {
                 cause = cause.getCause();
             }
-
-            // If the thread has been interrupted, we don't want to set the state here because halt() will do it
-            if (!(cause instanceof InterruptedException)) {
-                updateCurrentState(DeployedState.STOPPED);
+            if (cause instanceof InterruptedException) {
+                throw (InterruptedException) cause;
             }
 
-            if (t instanceof StopException) {
-                throw (StopException) t;
+            updateCurrentState(DeployedState.STOPPED);
+
+            if (t instanceof ConnectorTaskException) {
+                throw (ConnectorTaskException) t;
             } else {
-                throw new StopException(t);
+                throw new ConnectorTaskException(t);
             }
         }
     }
 
-    @Override
-    public void halt() throws HaltException {
+    public void halt() throws ConnectorTaskException, InterruptedException {
         updateCurrentState(DeployedState.STOPPING);
 
         if (MapUtils.isNotEmpty(queueThreads)) {
@@ -277,9 +269,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
                     }
 
                     queueThreads.clear();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw new HaltException("Failed to halt destination connector for channel: " + getChannelId(), e);
                 } finally {
                     // Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
                     // unsynchronized with the data store.

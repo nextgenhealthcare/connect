@@ -16,11 +16,7 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 
 public class TestDestinationConnector extends DestinationConnector {
@@ -29,19 +25,19 @@ public class TestDestinationConnector extends DestinationConnector {
     private List<Long> messageIds = new ArrayList<Long>();
 
     @Override
-    public void onDeploy() throws DeployException {}
+    public void onDeploy() throws ConnectorTaskException {}
 
     @Override
-    public void onUndeploy() throws UndeployException {}
+    public void onUndeploy() throws ConnectorTaskException {}
 
     @Override
-    public void onStart() throws StartException {}
+    public void onStart() throws ConnectorTaskException {}
 
     @Override
-    public void onStop() throws StopException {}
+    public void onStop() throws ConnectorTaskException {}
 
     @Override
-    public void onHalt() throws HaltException {}
+    public void onHalt() throws ConnectorTaskException {}
 
     @Override
     public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message) {}

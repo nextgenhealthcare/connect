@@ -114,7 +114,7 @@ public class PerformanceTests {
 
         TestChannel destChannel = TestUtils.createDefaultChannel(channelId, serverId, waitForDestinations, 1, 1);
         destChannel.deploy();
-        destChannel.start();
+        destChannel.start(null);
 
         Channel[] sourceChannels = new Channel[numSources];
 
@@ -132,7 +132,7 @@ public class PerformanceTests {
             chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), channelWriter);
 
             sourceChannels[i].deploy();
-            sourceChannels[i].start();
+            sourceChannels[i].start(null);
         }
 
         List<Long> messageIds = new ArrayList<Long>();

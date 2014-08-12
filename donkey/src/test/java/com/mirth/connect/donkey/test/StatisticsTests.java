@@ -85,7 +85,7 @@ public class StatisticsTests {
         TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId, true, 2, 2);
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         // Send messages through the channel
         for (int i = 1; i <= TEST_SIZE; i++) {
@@ -137,7 +137,7 @@ public class StatisticsTests {
         channel.getSourceFilterTransformer().setFilterTransformer(filterTransformer);
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         // Send messages through the channel
         for (int i = 1; i <= TEST_SIZE; i++) {
@@ -250,7 +250,7 @@ public class StatisticsTests {
         ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
         TestUtils.deleteChannelStatistics(channel.getChannelId());
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         // Send messages through the channel
         for (int i = 1; i <= TEST_SIZE; i++) {
@@ -406,7 +406,7 @@ public class StatisticsTests {
         ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
         TestUtils.deleteChannelStatistics(channel.getChannelId());
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         Map<Status, Long> stats;
 

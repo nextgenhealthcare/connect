@@ -156,7 +156,7 @@ public class ChannelTests {
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         assertTrue(channel.getCurrentState() == DeployedState.STARTED);
         assertNotNull(channel.getSourceQueue());
@@ -200,7 +200,7 @@ public class ChannelTests {
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
         channel.pause();
 
         assertFalse(sourceConnector.getCurrentState() != DeployedState.STOPPED);
@@ -244,7 +244,7 @@ public class ChannelTests {
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         for (int i = 1; i <= TEST_SIZE; i++) {
             sourceConnector.readTestMessage(testMessage);
@@ -291,7 +291,7 @@ public class ChannelTests {
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         for (int i = 1; i <= TEST_SIZE; i++) {
             sourceConnector.readTestMessage(testMessage);
@@ -486,7 +486,7 @@ public class ChannelTests {
         TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId);
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, serverId).getConnectorMessages().get(0);
 
@@ -627,7 +627,7 @@ public class ChannelTests {
         SourceConnector sourceConnector = channel.getSourceConnector();
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         DispatchResult dispatchResult = sourceConnector.dispatchRawMessage(new RawMessage(testMessage));
         sourceConnector.finishDispatch(dispatchResult);
@@ -687,7 +687,7 @@ public class ChannelTests {
         SourceConnector sourceConnector = channel.getSourceConnector();
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         DispatchResult dispatchResult = sourceConnector.dispatchRawMessage(new RawMessage(testMessage));
         sourceConnector.finishDispatch(dispatchResult);

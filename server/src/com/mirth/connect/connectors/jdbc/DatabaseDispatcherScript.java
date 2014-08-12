@@ -22,11 +22,7 @@ import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -50,30 +46,30 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     }
 
     @Override
-    public void deploy() throws DeployException {
+    public void deploy() throws ConnectorTaskException {
         DatabaseDispatcherProperties connectorProperties = (DatabaseDispatcherProperties) connector.getConnectorProperties();
         scriptId = UUID.randomUUID().toString();
 
         try {
             JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getQuery(), ContextType.MESSAGE_CONTEXT, null, null);
         } catch (Exception e) {
-            throw new DeployException("Error compiling script " + scriptId + ".", e);
+            throw new ConnectorTaskException("Error compiling script " + scriptId + ".", e);
         }
     }
 
     @Override
-    public void undeploy() throws UndeployException {
+    public void undeploy() throws ConnectorTaskException {
         JavaScriptUtil.removeScriptFromCache(scriptId);
     }
 
     @Override
-    public void start() throws StartException {}
+    public void start() throws ConnectorTaskException {}
 
     @Override
-    public void stop() throws StopException {}
+    public void stop() throws ConnectorTaskException {}
 
     @Override
-    public void halt() throws HaltException {}
+    public void halt() throws ConnectorTaskException {}
 
     @Override
     public Response send(DatabaseDispatcherProperties connectorProperties, ConnectorMessage connectorMessage) throws DatabaseDispatcherException, InterruptedException {

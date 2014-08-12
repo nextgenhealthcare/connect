@@ -139,7 +139,7 @@ public class QueueTests {
 
         // Start up a default channel
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         // give the queue thread time to start
         Thread.sleep(3000);
@@ -163,7 +163,7 @@ public class QueueTests {
         assertEquals(channel.getSourceQueue().size(), TEST_SIZE);
 
         // Start up the channel
-        channel.start();
+        channel.start(null);
 
         Thread.sleep(500 * TEST_SIZE);
 
@@ -216,7 +216,7 @@ public class QueueTests {
 
         // Deploy a default channel
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         ConnectorMessageQueue sourceQueue = channel.getSourceQueue();
         int initialSize = sourceQueue.getBufferCapacity() * testSize + 1;
@@ -334,7 +334,7 @@ public class QueueTests {
 
         // Deploy a default channel
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         ConnectorMessageQueue sourceQueue = channel.getSourceQueue();
         int initialSize = sourceQueue.getBufferCapacity() * testSize + 1;
@@ -473,7 +473,7 @@ public class QueueTests {
 
         // Start up the channel
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         Thread.sleep(1000);
 
@@ -515,7 +515,7 @@ public class QueueTests {
         assertEquals(TEST_SIZE, destinationConnector.getQueue().size() - 1);
 
         // Start the channel back up
-        channel.start();
+        channel.start(null);
 
         Thread.sleep(500 * TEST_SIZE);
 

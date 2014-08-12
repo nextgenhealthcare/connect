@@ -33,11 +33,7 @@ import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
@@ -58,7 +54,7 @@ public class DatabaseReceiver extends PollConnector {
     private Logger logger = Logger.getLogger(getClass());
 
     @Override
-    public void onDeploy() throws DeployException {
+    public void onDeploy() throws ConnectorTaskException {
         connectorProperties = (DatabaseReceiverProperties) getConnectorProperties();
 
         /*
@@ -77,27 +73,23 @@ public class DatabaseReceiver extends PollConnector {
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {
+    public void onUndeploy() throws ConnectorTaskException {
         delegate.undeploy();
     }
 
     @Override
-    public void onStart() throws StartException {
+    public void onStart() throws ConnectorTaskException {
         delegate.start();
     }
 
     @Override
-    public void onStop() throws StopException {
+    public void onStop() throws ConnectorTaskException {
         delegate.stop();
     }
 
     @Override
-    public void onHalt() throws HaltException {
-        try {
-            onStop();
-        } catch (StopException e) {
-            throw new HaltException(e);
-        }
+    public void onHalt() throws ConnectorTaskException {
+        onStop();
     }
 
     @Override

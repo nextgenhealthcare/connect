@@ -73,7 +73,7 @@ public class SourceConnectorTests {
         channel.getResponseSelector().setRespondFromName(SourceConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         // Assert that the default source connector behaviour is to wait for destinations
         assertTrue(sourceConnector.isRespondAfterProcessing());
@@ -188,7 +188,7 @@ public class SourceConnectorTests {
         channel.getResponseSelector().setRespondFromName(SourceConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         for (int i = 1; i <= TEST_SIZE; i++) {
             RawMessage rawMessage = new RawMessage(testMessage);
@@ -262,7 +262,7 @@ public class SourceConnectorTests {
         Response response = null;
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         channel.getResponseSelector().setRespondFromName(SourceConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
 

@@ -10,11 +10,7 @@
 package com.mirth.connect.donkey.test.util;
 
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
@@ -23,21 +19,21 @@ public class TestPollConnector extends PollConnector {
     protected TestPollConnectorProperties connectorProperties;
 
     @Override
-    public void onDeploy() throws DeployException {
+    public void onDeploy() throws ConnectorTaskException {
         connectorProperties = (TestPollConnectorProperties) getConnectorProperties();
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {}
+    public void onUndeploy() throws ConnectorTaskException {}
 
     @Override
-    public void onStart() throws StartException {}
+    public void onStart() throws ConnectorTaskException {}
 
     @Override
-    public void onStop() throws StopException {}
-    
+    public void onStop() throws ConnectorTaskException {}
+
     @Override
-    public void onHalt() throws HaltException {}
+    public void onHalt() throws ConnectorTaskException {}
 
     @Override
     protected void poll() {
@@ -52,8 +48,8 @@ public class TestPollConnector extends PollConnector {
         }
     }
 
-	@Override
-	public void handleRecoveredResponse(DispatchResult dispatchResult) {
-		finishDispatch(dispatchResult);
-	}
+    @Override
+    public void handleRecoveredResponse(DispatchResult dispatchResult) {
+        finishDispatch(dispatchResult);
+    }
 }

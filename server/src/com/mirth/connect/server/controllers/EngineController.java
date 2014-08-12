@@ -10,11 +10,10 @@
 package com.mirth.connect.server.controllers;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.PauseException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.Channel;
@@ -23,6 +22,7 @@ import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.ServerEventContext;
+import com.mirth.connect.server.mybatis.MessageSearchResult;
 
 public interface EngineController {
     public void startEngine() throws StartException, StopException, ControllerException, InterruptedException;
@@ -31,52 +31,39 @@ public interface EngineController {
 
     public boolean isRunning();
 
+    public void startupDeploy() throws StartException, StopException, InterruptedException;
+
     public void deployChannels(Set<String> channelIds, ServerEventContext context);
 
     public void undeployChannels(Set<String> channelIds, ServerEventContext context);
 
-    public void redeployAllChannels() throws StopException, StartException, InterruptedException;
+    public void redeployAllChannels(ServerEventContext context);
 
-    public void startupDeploy() throws StartException, StopException, InterruptedException;
+    public void startChannels(Set<String> channelIds);
+
+    public void stopChannels(Set<String> channelIds);
+
+    public void pauseChannels(Set<String> channelIds);
+
+    public void resumeChannels(Set<String> channelIds);
+
+    public void haltChannels(Set<String> channelIds);
+
+    public void removeChannels(Set<String> channelIds, ServerEventContext context, boolean undeployFirst);
+
+    public void startConnector(Map<String, List<Integer>> connectorInfo);
+
+    public void stopConnector(Map<String, List<Integer>> connectorInfo);
+
+    public void removeMessages(String channelId, Map<Long, MessageSearchResult> results) throws Exception;
+
+    public void removeAllMessages(Set<String> channelIds, boolean force, boolean clearStatistics);
 
     public boolean isDeployed(String channelId);
 
     public Channel getDeployedChannel(String channelId);
 
     public DispatchResult dispatchRawMessage(String channelId, RawMessage rawMessage, boolean force, boolean canBatch) throws ChannelException, BatchMessageException;
-
-    public void startChannel(String channelId) throws StartException, StopException;
-
-    /**
-     * Stops the channel with the specified id.
-     * 
-     * @param channelId
-     * @throws ControllerException
-     */
-    public void stopChannel(String channelId) throws StopException;
-
-    public void haltChannel(String channelId) throws HaltException;
-
-    /**
-     * Pauses the channel with the specified id.
-     * 
-     * @param channelId
-     * @throws ControllerException
-     */
-    public void pauseChannel(String channelId) throws PauseException;
-
-    /**
-     * Resumes the channel with the specified id.
-     * 
-     * @param channelId
-     * @throws StopException
-     * @throws ControllerException
-     */
-    public void resumeChannel(String channelId) throws StartException, StopException;
-
-    public void startConnector(String channelId, Integer metaDataId) throws StartException;
-
-    public void stopConnector(String channelId, Integer metaDataId) throws StopException;
 
     /**
      * Returns a list of DashboardStatus objects representing the running channels.

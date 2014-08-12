@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,6 @@ import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ChannelController;
-import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 
@@ -111,36 +109,7 @@ public class ChannelServlet extends MirthServlet {
                             channelIds = redactChannelIds(request, channelIds);
                         }
 
-                        if (undeployFirst) {
-                            // Undeploy any currently deployed channels in the set
-                            Set<String> deployedChannelIds = new HashSet<String>();
-
-                            for (String channelId : channelIds) {
-                                if (engineController.isDeployed(channelId)) {
-                                    deployedChannelIds.add(channelId);
-                                }
-                            }
-
-                            if (!deployedChannelIds.isEmpty()) {
-                                engineController.undeployChannels(deployedChannelIds, context);
-                            }
-                        }
-
-                        ControllerException firstCause = null;
-
-                        for (Channel channel : channelController.getChannels(channelIds)) {
-                            try {
-                                channelController.removeChannel(channel, context);
-                            } catch (ControllerException e) {
-                                if (firstCause == null) {
-                                    firstCause = e;
-                                }
-                            }
-                        }
-
-                        if (firstCause != null) {
-                            throw firstCause;
-                        }
+                        engineController.removeChannels(channelIds, context, undeployFirst);
                     }
                 } else if (operation.equals(Operations.CHANNEL_GET_SUMMARY)) {
                     response.setContentType(APPLICATION_XML);

@@ -21,9 +21,7 @@ import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
@@ -47,14 +45,14 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     }
 
     @Override
-    public void deploy() throws DeployException {
+    public void deploy() throws ConnectorTaskException {
         connectorProperties = (DatabaseReceiverProperties) connector.getConnectorProperties();
         selectScriptId = UUID.randomUUID().toString();
 
         try {
             JavaScriptUtil.compileAndAddScript(selectScriptId, connectorProperties.getSelect(), ContextType.MESSAGE_CONTEXT, null, null);
         } catch (Exception e) {
-            throw new DeployException("Error compiling select script " + selectScriptId + ".", e);
+            throw new ConnectorTaskException("Error compiling select script " + selectScriptId + ".", e);
         }
 
         if (connectorProperties.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER) {
@@ -63,16 +61,16 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
             try {
                 JavaScriptUtil.compileAndAddScript(updateScriptId, connectorProperties.getUpdate(), ContextType.MESSAGE_CONTEXT, null, null);
             } catch (Exception e) {
-                throw new DeployException("Error compiling update script " + updateScriptId + ".", e);
+                throw new ConnectorTaskException("Error compiling update script " + updateScriptId + ".", e);
             }
         }
     }
 
     @Override
-    public void start() throws StartException {}
+    public void start() throws ConnectorTaskException {}
 
     @Override
-    public void stop() throws StopException {}
+    public void stop() throws ConnectorTaskException {}
 
     @Override
     public void undeploy() {

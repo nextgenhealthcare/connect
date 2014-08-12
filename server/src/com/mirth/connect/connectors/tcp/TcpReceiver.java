@@ -44,11 +44,7 @@ import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
@@ -102,11 +98,11 @@ public class TcpReceiver extends SourceConnector {
     private DataTypeServerPlugin dataTypeServerPlugin;
 
     @Override
-    public void onDeploy() throws DeployException {
+    public void onDeploy() throws ConnectorTaskException {
         connectorProperties = (TcpReceiverProperties) getConnectorProperties();
 
         if (connectorProperties.isDataTypeBinary() && isProcessBatch()) {
-            throw new DeployException("Batch processing is not supported for binary data.");
+            throw new ConnectorTaskException("Batch processing is not supported for binary data.");
         }
 
         maxConnections = NumberUtils.toInt(connectorProperties.getMaxConnections());
@@ -124,13 +120,13 @@ public class TcpReceiver extends SourceConnector {
         }
 
         if (transmissionModeProvider == null) {
-            throw new DeployException("Unable to find transmission mode plugin: " + pluginPointName);
+            throw new ConnectorTaskException("Unable to find transmission mode plugin: " + pluginPointName);
         }
 
         dataTypeServerPlugin = extensionController.getDataTypePlugins().get(getInboundDataType().getType());
 
         if (dataTypeServerPlugin == null) {
-            throw new DeployException("Unable to find data type plugin: " + getInboundDataType().getType());
+            throw new ConnectorTaskException("Unable to find data type plugin: " + getInboundDataType().getType());
         }
 
         disposing = new AtomicBoolean(false);
@@ -139,10 +135,10 @@ public class TcpReceiver extends SourceConnector {
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {}
+    public void onUndeploy() throws ConnectorTaskException {}
 
     @Override
-    public void onStart() throws StartException {
+    public void onStart() throws ConnectorTaskException {
         disposing.set(false);
         results.clear();
         clientReaders.clear();
@@ -159,7 +155,7 @@ public class TcpReceiver extends SourceConnector {
             try {
                 createServerSocket();
             } catch (IOException e) {
-                throw new StartException("Failed to create server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                throw new ConnectorTaskException("Failed to create server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
             }
         }
 
@@ -243,8 +239,8 @@ public class TcpReceiver extends SourceConnector {
     }
 
     @Override
-    public void onStop() throws StopException {
-        StopException firstCause = null;
+    public void onStop() throws ConnectorTaskException {
+        ConnectorTaskException firstCause = null;
 
         synchronized (clientReaders) {
             disposing.set(true);
@@ -262,7 +258,7 @@ public class TcpReceiver extends SourceConnector {
                     logger.debug("Closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
                     serverSocket.close();
                 } catch (IOException e) {
-                    firstCause = new StopException("Error closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                    firstCause = new ConnectorTaskException("Error closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                 }
             }
         } else {
@@ -270,7 +266,7 @@ public class TcpReceiver extends SourceConnector {
             try {
                 SocketUtil.closeSocket(clientSocket);
             } catch (IOException e) {
-                firstCause = new StopException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                firstCause = new ConnectorTaskException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
             } finally {
                 clientSocket = null;
             }
@@ -281,7 +277,7 @@ public class TcpReceiver extends SourceConnector {
             disposeThread(false);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new StopException("Thread join operation interrupted (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+            throw new ConnectorTaskException("Thread join operation interrupted (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
         }
 
         synchronized (clientReaders) {
@@ -306,7 +302,7 @@ public class TcpReceiver extends SourceConnector {
                     }
                 } catch (IOException e) {
                     if (firstCause == null) {
-                        firstCause = new StopException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                        firstCause = new ConnectorTaskException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                     }
                 }
             }
@@ -318,7 +314,7 @@ public class TcpReceiver extends SourceConnector {
             cleanup(true, false, false);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new StopException("Client thread disposal interrupted (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+            throw new ConnectorTaskException("Client thread disposal interrupted (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
         }
 
         // Close all client sockets after canceling tasks in case a task failed to complete
@@ -328,7 +324,7 @@ public class TcpReceiver extends SourceConnector {
                     reader.getSocket().close();
                 } catch (IOException e) {
                     if (firstCause == null) {
-                        firstCause = new StopException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                        firstCause = new ConnectorTaskException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                     }
                 }
 
@@ -336,7 +332,7 @@ public class TcpReceiver extends SourceConnector {
                     SocketUtil.closeSocket(reader.getResponseSocket());
                 } catch (IOException e) {
                     if (firstCause == null) {
-                        firstCause = new StopException("Error closing response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                        firstCause = new ConnectorTaskException("Error closing response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                     }
                 }
             }
@@ -348,7 +344,7 @@ public class TcpReceiver extends SourceConnector {
             SocketUtil.closeSocket(recoveryResponseSocket);
         } catch (IOException e) {
             if (firstCause == null) {
-                firstCause = new StopException("Error closing response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                firstCause = new ConnectorTaskException("Error closing response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
             }
         }
 
@@ -358,8 +354,8 @@ public class TcpReceiver extends SourceConnector {
     }
 
     @Override
-    public void onHalt() throws HaltException {
-        HaltException firstCause = null;
+    public void onHalt() throws ConnectorTaskException {
+        ConnectorTaskException firstCause = null;
 
         synchronized (clientReaders) {
             disposing.set(true);
@@ -374,7 +370,7 @@ public class TcpReceiver extends SourceConnector {
                     logger.debug("Closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
                     serverSocket.close();
                 } catch (IOException e) {
-                    firstCause = new HaltException("Error closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                    firstCause = new ConnectorTaskException("Error closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                 }
             }
         } else {
@@ -382,7 +378,7 @@ public class TcpReceiver extends SourceConnector {
             try {
                 SocketUtil.closeSocket(clientSocket);
             } catch (IOException e) {
-                firstCause = new HaltException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                firstCause = new ConnectorTaskException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
             } finally {
                 clientSocket = null;
             }
@@ -394,7 +390,7 @@ public class TcpReceiver extends SourceConnector {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             if (firstCause == null) {
-                firstCause = new HaltException("Thread join operation interrupted (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                firstCause = new ConnectorTaskException("Thread join operation interrupted (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
             }
         }
 
@@ -406,7 +402,7 @@ public class TcpReceiver extends SourceConnector {
                 } catch (IOException e) {
                     if (firstCause == null) {
                         logger.debug("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                        firstCause = new HaltException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                        firstCause = new ConnectorTaskException("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                     }
                 }
 
@@ -415,7 +411,7 @@ public class TcpReceiver extends SourceConnector {
                 } catch (IOException e) {
                     if (firstCause == null) {
                         logger.debug("Error closing response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                        firstCause = new HaltException("Error closing response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                        firstCause = new ConnectorTaskException("Error closing response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                     }
                 }
             }
@@ -426,7 +422,7 @@ public class TcpReceiver extends SourceConnector {
             SocketUtil.closeSocket(recoveryResponseSocket);
         } catch (IOException e) {
             if (firstCause == null) {
-                firstCause = new HaltException("Error closing response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                firstCause = new ConnectorTaskException("Error closing response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
             }
         }
 
@@ -436,7 +432,7 @@ public class TcpReceiver extends SourceConnector {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             if (firstCause == null) {
-                firstCause = new HaltException("Client thread disposal interrupted (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                firstCause = new ConnectorTaskException("Client thread disposal interrupted (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
             }
         }
 

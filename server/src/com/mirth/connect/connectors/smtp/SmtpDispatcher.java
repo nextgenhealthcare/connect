@@ -25,11 +25,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
@@ -48,7 +44,7 @@ public class SmtpDispatcher extends DestinationConnector {
     private String charsetEncoding;
 
     @Override
-    public void onDeploy() throws DeployException {
+    public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (SmtpDispatcherProperties) getConnectorProperties();
 
         // TODO remove hardcoded HL7v2 reference?
@@ -56,16 +52,16 @@ public class SmtpDispatcher extends DestinationConnector {
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {}
+    public void onUndeploy() throws ConnectorTaskException {}
 
     @Override
-    public void onStart() throws StartException {}
+    public void onStart() throws ConnectorTaskException {}
 
     @Override
-    public void onStop() throws StopException {}
+    public void onStop() throws ConnectorTaskException {}
 
     @Override
-    public void onHalt() throws HaltException {}
+    public void onHalt() throws ConnectorTaskException {}
 
     @Override
     public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {

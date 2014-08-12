@@ -41,8 +41,8 @@ public class DefaultScriptController extends ScriptController {
     }
 
     /**
-     * Adds a script with the specified id to the database. If a script with the
-     * id already exists it will be overwritten.
+     * Adds a script with the specified id to the database. If a script with the id already exists
+     * it will be overwritten.
      * 
      * @param id
      * @param script
@@ -133,8 +133,8 @@ public class DefaultScriptController extends ScriptController {
     }
 
     @Override
-    public void executeGlobalDeployScript() throws Exception {
-        JavaScriptUtil.executeGlobalDeployScript(DEPLOY_SCRIPT_KEY);
+    public void executeGlobalDeployScript(String channelId) throws Exception {
+        JavaScriptUtil.executeGlobalDeployScript(DEPLOY_SCRIPT_KEY, channelId);
     }
 
     @Override
@@ -143,8 +143,8 @@ public class DefaultScriptController extends ScriptController {
     }
 
     @Override
-    public void executeGlobalShutdownScript() throws Exception {
-        JavaScriptUtil.executeGlobalShutdownScript(SHUTDOWN_SCRIPT_KEY);
+    public void executeGlobalShutdownScript(String channelId) throws Exception {
+        JavaScriptUtil.executeGlobalShutdownScript(SHUTDOWN_SCRIPT_KEY, channelId);
     }
 
     @Override

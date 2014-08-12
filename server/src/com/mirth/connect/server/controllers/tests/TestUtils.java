@@ -47,7 +47,6 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.Channel;
-import com.mirth.connect.donkey.server.channel.ChannelLock;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
@@ -103,7 +102,7 @@ public class TestUtils {
 
     public static void runChannelTest(Channel channel, final String testMessage, final int testSize) throws Exception {
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         SourceConnector sourceConnector = channel.getSourceConnector();
         RawMessage rawMessage = new RawMessage(testMessage);
@@ -188,7 +187,6 @@ public class TestUtils {
 
     public static Channel createChannel(String channelId, String serverId, SourceConnector sourceConnector, DestinationConnector destinationConnector) {
         Channel channel = new Channel();
-        channel.lock(ChannelLock.DEBUG);
         channel.setChannelId(channelId);
         channel.setServerId(serverId);
         channel.setEnabled(true);
@@ -224,7 +222,6 @@ public class TestUtils {
     public static Channel createChannel(String channelId, String serverId, boolean respondAfterProcessing, int numChains, int destinationsPerChain) {
         // create channel
         Channel channel = new Channel();
-        channel.lock(ChannelLock.DEBUG);
         channel.setChannelId(channelId);
         channel.setServerId(serverId);
         channel.setEnabled(true);

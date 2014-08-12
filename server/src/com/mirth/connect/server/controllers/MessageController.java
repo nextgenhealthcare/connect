@@ -46,8 +46,6 @@ public abstract class MessageController {
 
     public abstract void removeMessages(String channelId, MessageFilter filter);
 
-    public abstract void clearMessages(Set<String> channelIds, Boolean restartRunningChannels, Boolean clearStatistics) throws ControllerException;
-
     public abstract void reprocessMessages(String channelId, MessageFilter filter, boolean replace, Collection<Integer> reprocessMetaDataIds);
 
     public abstract void importMessage(String channelId, Message message) throws MessageImportException;

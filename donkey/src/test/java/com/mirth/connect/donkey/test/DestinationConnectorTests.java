@@ -186,7 +186,7 @@ public class DestinationConnectorTests {
         channel.addDestinationChain(chain);
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
         Thread.sleep(1000);
 
         // Assert that the destination connector has been deployed
@@ -321,7 +321,7 @@ public class DestinationConnectorTests {
         channel.addDestinationChain(chain);
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
         ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
 
         Connection connection = null;
@@ -445,7 +445,7 @@ public class DestinationConnectorTests {
         }
         
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         class TempClass {
             public long messageId;
@@ -578,7 +578,7 @@ public class DestinationConnectorTests {
 
         //ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         for (int i = 1; i <= TEST_SIZE; i++) {
             DispatchResult messageResponse = ((TestSourceConnector) channel.getSourceConnector()).readTestMessage(testMessage);

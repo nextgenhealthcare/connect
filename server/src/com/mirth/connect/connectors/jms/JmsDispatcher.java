@@ -32,10 +32,7 @@ import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
@@ -56,20 +53,20 @@ public class JmsDispatcher extends DestinationConnector {
     private static final int maxConnections = 1000;
 
     @Override
-    public void onDeploy() throws DeployException {
+    public void onDeploy() throws ConnectorTaskException {
         connectorProperties = (JmsDispatcherProperties) getConnectorProperties();
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
     }
 
     @Override
-    public void onUndeploy() {}
+    public void onUndeploy() throws ConnectorTaskException {}
 
     @Override
-    public void onStart() throws StartException {}
+    public void onStart() throws ConnectorTaskException {}
 
     @Override
-    public void onStop() throws StopException {
-        StopException firstCause = null;
+    public void onStop() throws ConnectorTaskException {
+        ConnectorTaskException firstCause = null;
 
         // Close the JMS connections
         for (String connectorKey : jmsConnections.keySet().toArray(new String[jmsConnections.size()])) {
@@ -77,34 +74,19 @@ public class JmsDispatcher extends DestinationConnector {
                 closeJmsConnection(connectorKey);
             } catch (Exception e) {
                 if (firstCause == null) {
-                    firstCause = new StopException("Error closing JMS connection (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", firstCause);
+                    firstCause = new ConnectorTaskException("Error closing JMS connection (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", firstCause);
                 }
             }
         }
 
         if (firstCause != null) {
-            throw new StopException("Error closing JMS connection (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", firstCause);
+            throw firstCause;
         }
     }
 
     @Override
-    public void onHalt() throws HaltException {
-        HaltException firstCause = null;
-
-        // Close the JMS connections
-        for (String connectorKey : jmsConnections.keySet().toArray(new String[jmsConnections.size()])) {
-            try {
-                closeJmsConnection(connectorKey);
-            } catch (Exception e) {
-                if (firstCause == null) {
-                    firstCause = new HaltException("Error closing JMS connection (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", firstCause);
-                }
-            }
-        }
-
-        if (firstCause != null) {
-            throw new HaltException("Error closing JMS connection (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", firstCause);
-        }
+    public void onHalt() throws ConnectorTaskException {
+        onStop();
     }
 
     @Override
@@ -265,7 +247,7 @@ public class JmsDispatcher extends DestinationConnector {
             if (jmsConnections.size() >= maxConnections) {
                 throw new Exception("Cannot create new connection. Maximum number (" + maxConnections + ") of cached connections reached.");
             }
-            
+
             Context initialContext = null;
             ConnectionFactory connectionFactory = null;
             Connection connection = null;
@@ -402,8 +384,7 @@ public class JmsDispatcher extends DestinationConnector {
             if (destinationName.equals(jmsSession.getDestinationName())) {
                 /*
                  * Only lookup/create a new destination object if the destination name has changed
-                 * since the
-                 * last time this method was called.
+                 * since the last time this method was called.
                  */
                 return jmsSession.getDestination();
             }

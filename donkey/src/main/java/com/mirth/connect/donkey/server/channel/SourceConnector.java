@@ -27,10 +27,8 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.Constants;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
@@ -101,8 +99,7 @@ public abstract class SourceConnector extends Connector {
     /**
      * Start the connector
      */
-    @Override
-    public void start() throws StartException {
+    public void start() throws ConnectorTaskException, InterruptedException {
         updateCurrentState(DeployedState.STARTING);
 
         if (isProcessBatch()) {
@@ -116,8 +113,7 @@ public abstract class SourceConnector extends Connector {
     /**
      * Stop the connector
      */
-    @Override
-    public void stop() throws StopException {
+    public void stop() throws ConnectorTaskException, InterruptedException {
         //TODO make this happen before the poll connector's stop method
         updateCurrentState(DeployedState.STOPPING);
 
@@ -130,22 +126,22 @@ public abstract class SourceConnector extends Connector {
         } catch (Throwable t) {
             Throwable cause = t;
 
-            if (cause instanceof StopException) {
+            if (cause instanceof ConnectorTaskException) {
                 cause = cause.getCause();
             }
             if (cause instanceof ExecutionException) {
                 cause = cause.getCause();
             }
-
-            // If the thread has been interrupted, we don't want to set the state here because halt() will do it
-            if (!(cause instanceof InterruptedException)) {
-                updateCurrentState(DeployedState.STOPPED);
+            if (cause instanceof InterruptedException) {
+                throw (InterruptedException) cause;
             }
 
-            if (t instanceof StopException) {
-                throw (StopException) t;
+            updateCurrentState(DeployedState.STOPPED);
+
+            if (t instanceof ConnectorTaskException) {
+                throw (ConnectorTaskException) t;
             } else {
-                throw new StopException(t);
+                throw new ConnectorTaskException(t);
             }
         }
     }
@@ -153,8 +149,7 @@ public abstract class SourceConnector extends Connector {
     /**
      * Stop the connector
      */
-    @Override
-    public void halt() throws HaltException {
+    public void halt() throws ConnectorTaskException, InterruptedException {
         //TODO make this happen before the poll connector's stop method
         updateCurrentState(DeployedState.STOPPING);
 

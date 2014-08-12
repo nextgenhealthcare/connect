@@ -24,11 +24,7 @@ import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
@@ -51,7 +47,7 @@ public class JavaScriptReceiver extends PollConnector {
     private Logger logger = Logger.getLogger(getClass());
 
     @Override
-    public void onDeploy() throws DeployException {
+    public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (JavaScriptReceiverProperties) getConnectorProperties();
 
         String scriptId = UUID.randomUUID().toString();
@@ -59,7 +55,7 @@ public class JavaScriptReceiver extends PollConnector {
         try {
             JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getScript(), ContextType.MESSAGE_CONTEXT, null, null);
         } catch (Exception e) {
-            throw new DeployException("Error compiling " + connectorProperties.getName() + " script " + scriptId + ".", e);
+            throw new ConnectorTaskException("Error compiling " + connectorProperties.getName() + " script " + scriptId + ".", e);
         }
 
         this.scriptId = scriptId;
@@ -67,18 +63,18 @@ public class JavaScriptReceiver extends PollConnector {
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {
+    public void onUndeploy() throws ConnectorTaskException {
         JavaScriptUtil.removeScriptFromCache(scriptId);
     }
 
     @Override
-    public void onStart() throws StartException {}
+    public void onStart() throws ConnectorTaskException {}
 
     @Override
-    public void onStop() throws StopException {}
+    public void onStop() throws ConnectorTaskException {}
 
     @Override
-    public void onHalt() throws HaltException {}
+    public void onHalt() throws ConnectorTaskException {}
 
     @Override
     public void handleRecoveredResponse(DispatchResult dispatchResult) {

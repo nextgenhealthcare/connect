@@ -94,11 +94,7 @@ import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
@@ -130,7 +126,7 @@ public class HttpDispatcher extends DestinationConnector {
     private Map<String, Pattern> binaryMimeTypesRegexMap;
 
     @Override
-    public void onDeploy() throws DeployException {
+    public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (HttpDispatcherProperties) getConnectorProperties();
 
         // load the default configuration
@@ -147,7 +143,7 @@ public class HttpDispatcher extends DestinationConnector {
             socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("http", PlainConnectionSocketFactory.getSocketFactory());
             configuration.configureConnectorDeploy(this);
         } catch (Exception e) {
-            throw new DeployException(e);
+            throw new ConnectorTaskException(e);
         }
 
         if (connectorProperties.isResponseBinaryMimeTypesRegex()) {
@@ -158,15 +154,15 @@ public class HttpDispatcher extends DestinationConnector {
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {
+    public void onUndeploy() throws ConnectorTaskException {
         configuration.configureConnectorUndeploy(this);
     }
 
     @Override
-    public void onStart() throws StartException {}
+    public void onStart() throws ConnectorTaskException {}
 
     @Override
-    public void onStop() throws StopException {
+    public void onStop() throws ConnectorTaskException {
         for (CloseableHttpClient client : clients.values().toArray(new CloseableHttpClient[clients.size()])) {
             HttpClientUtils.closeQuietly(client);
         }
@@ -175,7 +171,7 @@ public class HttpDispatcher extends DestinationConnector {
     }
 
     @Override
-    public void onHalt() throws HaltException {
+    public void onHalt() throws ConnectorTaskException {
         for (CloseableHttpClient client : clients.values().toArray(new CloseableHttpClient[clients.size()])) {
             HttpClientUtils.closeQuietly(client);
         }

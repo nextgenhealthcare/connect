@@ -9,6 +9,12 @@
 
 package com.mirth.connect.donkey.server;
 
-public interface Startable {
-    public void start() throws StartException;
+public class ResumeException extends Exception {
+    public ResumeException(String message) {
+        super(message);
+    }
+
+    public ResumeException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

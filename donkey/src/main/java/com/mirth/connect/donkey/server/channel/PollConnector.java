@@ -17,9 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 
 public abstract class PollConnector extends SourceConnector {
     private Timer timer;
@@ -27,7 +25,7 @@ public abstract class PollConnector extends SourceConnector {
     private AtomicBoolean terminated = new AtomicBoolean(true);
 
     @Override
-    public void start() throws StartException {
+    public void start() throws ConnectorTaskException, InterruptedException {
         super.start();
 
         terminated.set(false);
@@ -37,22 +35,18 @@ public abstract class PollConnector extends SourceConnector {
     }
 
     @Override
-    public void stop() throws StopException {
+    public void stop() throws ConnectorTaskException, InterruptedException {
         terminated.set(true);
 
         if (task != null) {
-            try {
-                task.terminate();
-            } catch (InterruptedException e) {
-                throw new StopException(e);
-            }
+            task.terminate();
             task = null;
         }
         super.stop();
     }
 
     @Override
-    public void halt() throws HaltException {
+    public void halt() throws ConnectorTaskException, InterruptedException {
         terminated.set(true);
         if (task != null) {
             // Interrupt the poll thread
@@ -61,11 +55,7 @@ public abstract class PollConnector extends SourceConnector {
         super.halt();
 
         if (task != null) {
-            try {
-                task.terminate();
-            } catch (InterruptedException e) {
-                throw new HaltException(e);
-            }
+            task.terminate();
             task = null;
         }
     }

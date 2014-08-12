@@ -41,11 +41,7 @@ import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
@@ -83,11 +79,11 @@ public class FileReceiver extends PollConnector {
     private long fileSizeMaximum;
 
     @Override
-    public void onDeploy() throws DeployException {
+    public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (FileReceiverProperties) SerializationUtils.clone(getConnectorProperties());
 
         if (connectorProperties.isBinary() && isProcessBatch()) {
-            throw new DeployException("Batch processing is not supported for binary data.");
+            throw new ConnectorTaskException("Batch processing is not supported for binary data.");
         }
 
         this.charsetEncoding = CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding(), System.getProperty("ca.uhn.hl7v2.llp.charset"));
@@ -110,13 +106,13 @@ public class FileReceiver extends PollConnector {
         try {
             configuration.configureConnectorDeploy(this, connectorProperties);
         } catch (Exception e) {
-            throw new DeployException(e);
+            throw new ConnectorTaskException(e);
         }
 
         try {
             uri = fileConnector.getEndpointURI(connectorProperties.getHost());
         } catch (URISyntaxException e1) {
-            throw new DeployException("Error creating URI.", e1);
+            throw new ConnectorTaskException("Error creating URI.", e1);
         }
 
         this.readDir = fileConnector.getPathPart(uri);
@@ -134,37 +130,33 @@ public class FileReceiver extends PollConnector {
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {}
+    public void onUndeploy() throws ConnectorTaskException {}
 
     @Override
-    public void onStart() throws StartException {
+    public void onStart() throws ConnectorTaskException {
         try {
             FileSystemConnection con = fileConnector.getConnection(uri, null, connectorProperties);
             fileConnector.releaseConnection(uri, con, null, connectorProperties);
         } catch (Exception e) {
-            throw new StartException(e.getMessage(), e);
+            throw new ConnectorTaskException(e.getMessage(), e);
         }
     }
 
     @Override
-    public void onStop() throws StopException {
+    public void onStop() throws ConnectorTaskException {
         try {
             fileConnector.doStop();
         } catch (FileConnectorException e) {
-            throw new StopException("Failed to stop File Connector", e);
+            throw new ConnectorTaskException("Failed to stop File Connector", e);
         }
 
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
     }
 
     @Override
-    public void onHalt() throws HaltException {
+    public void onHalt() throws ConnectorTaskException {
         fileConnector.disconnect();
-        try {
-            onStop();
-        } catch (StopException e) {
-            throw new HaltException(e);
-        }
+        onStop();
     }
 
     @Override

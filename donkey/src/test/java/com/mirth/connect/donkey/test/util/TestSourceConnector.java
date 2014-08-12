@@ -13,9 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
@@ -50,13 +48,13 @@ public class TestSourceConnector extends SourceConnector {
     }
 
     @Override
-    public void onStart() throws StartException {}
+    public void onStart() throws ConnectorTaskException {}
 
     @Override
-    public void onStop() throws StopException {}
-    
+    public void onStop() throws ConnectorTaskException {}
+
     @Override
-    public void onHalt() throws HaltException {}
+    public void onHalt() throws ConnectorTaskException {}
 
     @Override
     public void handleRecoveredResponse(DispatchResult dispatchResult) {

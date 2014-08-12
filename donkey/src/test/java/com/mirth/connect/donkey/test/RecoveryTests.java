@@ -94,7 +94,7 @@ public class RecoveryTests {
         }
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
         channel.getUnfinishedMessages();
         channel.stop();
         channel.undeploy();
@@ -148,7 +148,7 @@ public class RecoveryTests {
         }
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
         List<Message> recoveredMessages = channel.getUnfinishedMessages();
         channel.stop();
         channel.undeploy();
@@ -218,7 +218,7 @@ public class RecoveryTests {
         assertEquals((Integer) testSize, getMessageCount(localChannelId, 4, Status.PENDING));
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
         List<Message> recoveredMessages = channel.getUnfinishedMessages();
         channel.stop();
         channel.undeploy();
@@ -262,7 +262,7 @@ public class RecoveryTests {
             logger.info("Testing recovery on processed = false...");
 
             channel.deploy();
-            channel.start();
+            channel.start(null);
 
             for (int i = 1; i <= TEST_SIZE; i++) {
                 ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(testMessage, channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
@@ -278,7 +278,7 @@ public class RecoveryTests {
             }
 
             channel.deploy();
-            channel.start();
+            channel.start(null);
             channel.getUnfinishedMessages();
             
             for (DispatchResult dispatchResult : ((TestSourceConnector) channel.getSourceConnector()).getRecoveredDispatchResults()) {

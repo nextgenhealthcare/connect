@@ -17,11 +17,7 @@ import org.dcm4che2.tool.dcmrcv.DcmRcv;
 import org.dcm4che2.tool.dcmrcv.MirthDcmRcv;
 
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
@@ -35,17 +31,17 @@ public class DICOMReceiver extends SourceConnector {
     private DcmRcv dcmrcv;
 
     @Override
-    public void onDeploy() throws DeployException {
+    public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (DICOMReceiverProperties) getConnectorProperties();
 
         dcmrcv = new MirthDcmRcv(this);
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {}
+    public void onUndeploy() throws ConnectorTaskException {}
 
     @Override
-    public void onStart() throws StartException {
+    public void onStart() throws ConnectorTaskException {
         try {
             dcmrcv.setPort(NumberUtils.toInt(connectorProperties.getListenerConnectorProperties().getPort()));
             dcmrcv.setHostname(connectorProperties.getListenerConnectorProperties().getHost());
@@ -187,12 +183,12 @@ public class DICOMReceiver extends SourceConnector {
 
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
         } catch (Exception e) {
-            throw new StartException("Failed to start DICOM Listener", e);
+            throw new ConnectorTaskException("Failed to start DICOM Listener", e);
         }
     }
 
     @Override
-    public void onStop() throws StopException {
+    public void onStop() throws ConnectorTaskException {
         try {
             dcmrcv.stop();
         } catch (Exception e) {
@@ -205,12 +201,8 @@ public class DICOMReceiver extends SourceConnector {
     }
 
     @Override
-    public void onHalt() throws HaltException {
-        try {
-            onStop();
-        } catch (StopException e) {
-            throw new HaltException(e);
-        }
+    public void onHalt() throws ConnectorTaskException {
+        onStop();
     }
 
     @Override

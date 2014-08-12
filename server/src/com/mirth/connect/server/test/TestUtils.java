@@ -28,7 +28,6 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.channel.ChannelException;
-import com.mirth.connect.donkey.server.channel.ChannelLock;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
 import com.mirth.connect.model.Channel;
@@ -142,7 +141,6 @@ public class TestUtils {
         public DummyChannel(String channelId, String serverId) {
             setChannelId(channelId);
             setServerId(serverId);
-            lock(ChannelLock.DEBUG);
             setDaoFactory(new PassthruDaoFactory());
         }
 

@@ -116,7 +116,7 @@ public class ChannelControllerTests {
 
             channel = TestUtils.createDefaultChannel(channelId, serverId);
             channel.deploy();
-            channel.start();
+            channel.start(null);
 
             assertEquals(TestUtils.getChannelStatistics(channel.getChannelId()), ChannelController.getInstance().getStatistics().getChannelStats(channelId));
 
@@ -183,7 +183,7 @@ public class ChannelControllerTests {
             Map<Integer, Map<Status, Long>> initialStats = TestUtils.getChannelStatistics(channel.getChannelId());
 
             channel.deploy();
-            channel.start();
+            channel.start(null);
 
             // Send messages
             for (int i = 1; i <= TEST_SIZE; i++) {

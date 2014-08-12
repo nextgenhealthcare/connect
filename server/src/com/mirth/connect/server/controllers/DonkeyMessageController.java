@@ -30,24 +30,17 @@ import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.donkey.model.DonkeyException;
-import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelException;
-import com.mirth.connect.donkey.server.channel.DestinationChain;
-import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.message.DataType;
@@ -284,146 +277,48 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public void removeMessages(String channelId, MessageFilter filter) {
-        Channel channel = ControllerFactory.getFactory().createEngineController().getDeployedChannel(channelId);
-        if (channel != null) {
-            FilterOptions filterOptions = new FilterOptions(filter, channelId);
-            long maxMessageId = filterOptions.getMaxMessageId();
-            long minMessageId = filterOptions.getMinMessageId();
+        EngineController engineController = ControllerFactory.getFactory().createEngineController();
 
-            Long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
-            Map<String, Object> params = getBasicParameters(filter, localChannelId);
+        FilterOptions filterOptions = new FilterOptions(filter, channelId);
+        long maxMessageId = filterOptions.getMaxMessageId();
+        long minMessageId = filterOptions.getMinMessageId();
+
+        Long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
+        Map<String, Object> params = getBasicParameters(filter, localChannelId);
+        /*
+         * Include the processed boolean with the result set in order to determine whether the
+         * message can be deleted if the channel is not stopped
+         */
+        params.put("includeProcessed", true);
+
+        SqlSession session = SqlConfig.getSqlSessionManager();
+
+        long batchSize = 50000;
+
+        while (maxMessageId >= minMessageId) {
             /*
-             * Include the processed boolean with the result set in order to determine whether the
-             * message can be deleted if the channel is not stopped
+             * Search in descending order so that messages will be deleted from the greatest to
+             * lowest message id
              */
-            params.put("includeProcessed", true);
+            long currentMinMessageId = Math.max(maxMessageId - batchSize + 1, minMessageId);
+            params.put("maxMessageId", maxMessageId);
+            params.put("minMessageId", currentMinMessageId);
+            maxMessageId -= batchSize;
 
-            SqlSession session = SqlConfig.getSqlSessionManager();
+            Map<Long, MessageSearchResult> results = searchAll(session, params, filter, localChannelId, true, filterOptions);
 
-            long batchSize = 50000;
-
-            while (maxMessageId >= minMessageId) {
-                /*
-                 * Search in descending order so that messages will be deleted from the greatest to
-                 * lowest message id
-                 */
-                long currentMinMessageId = Math.max(maxMessageId - batchSize + 1, minMessageId);
-                params.put("maxMessageId", maxMessageId);
-                params.put("minMessageId", currentMinMessageId);
-                maxMessageId -= batchSize;
-
-                Map<Long, MessageSearchResult> results = searchAll(session, params, filter, localChannelId, true, filterOptions);
-
-                Map<Long, Set<Integer>> messages = new HashMap<Long, Set<Integer>>();
-
-                // For each message that was retrieved
-                for (Entry<Long, MessageSearchResult> entry : results.entrySet()) {
-                    Long messageId = entry.getKey();
-                    MessageSearchResult result = entry.getValue();
-                    Set<Integer> metaDataIds = result.getMetaDataIdSet();
-                    boolean processed = result.isProcessed();
-
-                    // Allow unprocessed messages to be deleted only if the channel is stopped.
-                    if (channel.getCurrentState() == DeployedState.STOPPED || processed) {
-                        if (metaDataIds.contains(0)) {
-                            // Delete the entire message if the source connector message is to be deleted
-                            messages.put(messageId, null);
-                        } else {
-                            // Otherwise only deleted the destination connector message
-                            messages.put(messageId, metaDataIds);
-                        }
-                    }
-                }
-
-                // Prevent the delete from occurring at the same time as the channel being started. 
-                synchronized (channel) {
-                    com.mirth.connect.donkey.server.controllers.MessageController.getInstance().deleteMessages(channelId, messages);
-                }
+            try {
+                engineController.removeMessages(channelId, results);
+            } catch (Exception e) {
+                logger.error("Remove messages task terminated due to error or halt.", e);
+                break;
             }
+        }
 
+        Channel channel = engineController.getDeployedChannel(channelId);
+        if (channel != null) {
             // Invalidate the queue buffer to ensure stats are updated.
             channel.invalidateQueues();
-        }
-    }
-
-    @Override
-    public void clearMessages(Set<String> channelIds, Boolean restartRunningChannels, Boolean clearStatistics) throws ControllerException {
-        DonkeyDao dao = donkey.getDaoFactory().getDao();
-
-        try {
-            EngineController engineController = ControllerFactory.getFactory().createEngineController();
-
-            for (String channelId : channelIds) {
-                Channel channel = engineController.getDeployedChannel(channelId);
-
-                if (channel != null) {
-                    Set<Integer> connectorsToStart = new HashSet<Integer>();
-                    DeployedState priorState = channel.getCurrentState();
-                    if (priorState != DeployedState.PAUSED && priorState != DeployedState.PAUSING) {
-                        connectorsToStart.add(0);
-                    }
-
-                    for (DestinationChain chain : channel.getDestinationChains()) {
-                        for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
-                            if (destinationConnector.getCurrentState() != DeployedState.STOPPED && destinationConnector.getCurrentState() != DeployedState.STOPPING) {
-                                connectorsToStart.add(destinationConnector.getMetaDataId());
-                            }
-                        }
-                    }
-
-                    boolean startChannelAfter = false;
-
-                    if (priorState != DeployedState.STOPPED && restartRunningChannels) {
-                        try {
-                            logger.debug("Stopping channel \"" + channel.getName() + "\" prior to removing messages");
-                            channel.stop();
-
-                            if (priorState != DeployedState.STOPPING) {
-                                startChannelAfter = true;
-                            }
-                        } catch (StopException e) {
-                            logger.error("Failed to stop channel id " + channelId, e);
-                        }
-                    }
-
-                    // Prevent the delete from occurring at the same time as the channel being started. 
-                    synchronized (channel) {
-                        // Only allow the messages to be cleared if the channel is stopped.
-                        if (channel.getCurrentState() == DeployedState.STOPPED) {
-                            logger.debug("Removing messages for channel \"" + channel.getName() + "\"");
-                            dao.deleteAllMessages(channelId);
-
-                            if (clearStatistics) {
-                                logger.debug("Clearing statistics for channel \"" + channel.getName() + "\"");
-
-                                Set<Status> statuses = Statistics.getTrackedStatuses();
-                                dao.resetStatistics(channelId, null, statuses);
-
-                                for (Integer metaDataId : channel.getMetaDataIds()) {
-                                    dao.resetStatistics(channelId, metaDataId, statuses);
-                                }
-                            }
-
-                            dao.commit();
-
-                            // Invalidate the queue buffer to ensure stats are updated.
-                            channel.invalidateQueues();
-                        }
-                    }
-
-                    if (startChannelAfter) {
-                        try {
-                            logger.debug("Restarting channel \"" + channel.getName() + "\"");
-                            // Only start the source connector if the channel wasn't paused or pausing before
-                            channel.start(connectorsToStart);
-                        } catch (StartException e) {
-                            logger.error("Failed to start channel id " + channelId, e);
-                        }
-                    }
-                }
-            }
-        } finally {
-            dao.close();
         }
     }
 

@@ -36,6 +36,7 @@ import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.server.controllers.MessageController;
 import com.mirth.connect.server.util.DICOMMessageUtil;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
@@ -52,6 +53,7 @@ public class MessageObjectServlet extends MirthServlet {
         } else {
             try {
                 final MessageController messageController = ControllerFactory.getFactory().createMessageController();
+                final EngineController engineController =  ControllerFactory.getFactory().createEngineController();
                 ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 PrintWriter out = response.getWriter();
                 Operation operation = Operations.getOperation(request.getParameter("op"));
@@ -93,7 +95,7 @@ public class MessageObjectServlet extends MirthServlet {
                         } catch (NumberFormatException e) {
                         }
 
-                        Channel channel = ControllerFactory.getFactory().createEngineController().getDeployedChannel(channelId);
+                        Channel channel = engineController.getDeployedChannel(channelId);
                         response.setContentType(APPLICATION_XML);
                         serializer.serialize(messageController.getMessages(filter, channel, includeContent, offset, limit), out);
                     }
@@ -107,7 +109,7 @@ public class MessageObjectServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        Channel channel = ControllerFactory.getFactory().createEngineController().getDeployedChannel(channelId);
+                        Channel channel = engineController.getDeployedChannel(channelId);
                         response.setContentType(APPLICATION_XML);
                         out.print(messageController.getMessageCount(filter, channel));
                     }
@@ -147,7 +149,7 @@ public class MessageObjectServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap) || hasUnauthorizedChannels(request, channelIds, authorizedChannelIds)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        messageController.clearMessages(channelIds, restartRunningChannels, clearStatistics);
+                        engineController.removeAllMessages(channelIds, restartRunningChannels, clearStatistics);
                     }
                 } else if (operation.equals(Operations.MESSAGE_REPROCESS)) {
                     final String channelId = request.getParameter("channelId");
@@ -191,7 +193,7 @@ public class MessageObjectServlet extends MirthServlet {
                             @Override
                             public void run() {
                                 try {
-                                    ControllerFactory.getFactory().createEngineController().dispatchRawMessage(channelId, rawMessage, true, true);
+                                    engineController.dispatchRawMessage(channelId, rawMessage, true, true);
                                 } catch (ChannelException e) {
                                     // Do nothing. An error should have been logged.
                                 } catch (BatchMessageException e) {

@@ -80,11 +80,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
@@ -114,7 +110,7 @@ public class WebServiceDispatcher extends DestinationConnector {
     private Map<Long, DispatchContainer> dispatchContainers = new ConcurrentHashMap<Long, DispatchContainer>();
 
     @Override
-    public void onDeploy() throws DeployException {
+    public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (WebServiceDispatcherProperties) getConnectorProperties();
 
         // load the default configuration
@@ -131,25 +127,25 @@ public class WebServiceDispatcher extends DestinationConnector {
             socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("http", PlainConnectionSocketFactory.getSocketFactory());
             configuration.configureConnectorDeploy(this);
         } catch (Exception e) {
-            throw new DeployException(e);
+            throw new ConnectorTaskException(e);
         }
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {
+    public void onUndeploy() throws ConnectorTaskException {
         configuration.configureConnectorUndeploy(this);
     }
 
     @Override
-    public void onStart() throws StartException {}
+    public void onStart() throws ConnectorTaskException {}
 
     @Override
-    public void onStop() throws StopException {
+    public void onStop() throws ConnectorTaskException {
         dispatchContainers.clear();
     }
 
     @Override
-    public void onHalt() throws HaltException {
+    public void onHalt() throws ConnectorTaskException {
         dispatchContainers.clear();
     }
 

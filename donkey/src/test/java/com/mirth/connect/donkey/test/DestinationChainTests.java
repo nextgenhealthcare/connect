@@ -132,7 +132,7 @@ public class DestinationChainTests {
         }
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         if (ChannelController.getInstance().channelExists(channelId)) {
             ChannelController.getInstance().deleteAllMessages(channelId);
@@ -218,7 +218,7 @@ public class DestinationChainTests {
         });
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;

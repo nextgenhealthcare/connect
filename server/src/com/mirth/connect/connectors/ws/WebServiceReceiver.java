@@ -29,11 +29,7 @@ import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
@@ -63,7 +59,7 @@ public class WebServiceReceiver extends SourceConnector {
     private WebServiceReceiverProperties connectorProperties;
 
     @Override
-    public void onDeploy() throws DeployException {
+    public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (WebServiceReceiverProperties) getConnectorProperties();
 
         // load the default configuration
@@ -79,17 +75,17 @@ public class WebServiceReceiver extends SourceConnector {
         try {
             configuration.configureConnectorDeploy(this);
         } catch (Exception e) {
-            throw new DeployException(e);
+            throw new ConnectorTaskException(e);
         }
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {
+    public void onUndeploy() throws ConnectorTaskException {
         configuration.configureConnectorUndeploy(this);
     }
 
     @Override
-    public void onStart() throws StartException {
+    public void onStart() throws ConnectorTaskException {
         String host = replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), getChannelId());
         int port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), getChannelId()));
 
@@ -101,7 +97,7 @@ public class WebServiceReceiver extends SourceConnector {
             configuration.configureReceiver(this);
             server.bind(new InetSocketAddress(host, port), 5);
         } catch (Exception e) {
-            throw new StartException("Error creating HTTP Server.", e);
+            throw new ConnectorTaskException("Error creating HTTP Server.", e);
         }
 
         executor = Executors.newFixedThreadPool(5);
@@ -170,7 +166,7 @@ public class WebServiceReceiver extends SourceConnector {
     }
 
     @Override
-    public void onStop() throws StopException {
+    public void onStop() throws ConnectorTaskException {
         try {
             logger.debug("stopping Web Service HTTP server");
 
@@ -186,17 +182,13 @@ public class WebServiceReceiver extends SourceConnector {
                 executor.shutdown();
             }
         } catch (Exception e) {
-            throw new StopException("Failed to stop Web Service Listener", e);
+            throw new ConnectorTaskException("Failed to stop Web Service Listener", e);
         }
     }
 
     @Override
-    public void onHalt() throws HaltException {
-        try {
-            onStop();
-        } catch (StopException e) {
-            throw new HaltException(e);
-        }
+    public void onHalt() throws ConnectorTaskException {
+        onStop();
     }
 
     @Override

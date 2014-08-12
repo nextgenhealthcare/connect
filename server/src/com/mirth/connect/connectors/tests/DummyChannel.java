@@ -11,6 +11,7 @@ package com.mirth.connect.connectors.tests;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -63,11 +64,15 @@ public class DummyChannel extends Channel {
     }
 
     @Override
-    public void start() throws StartException {
+    public void start(Set<Integer> metaDataIds) throws StartException {
         SourceConnector sourceConnector = getSourceConnector();
 
         if (sourceConnector != null) {
-            sourceConnector.start();
+            try {
+                sourceConnector.start();
+            } catch (Exception e) {
+                throw new StartException(e);
+            }
         }
     }
 
@@ -76,7 +81,11 @@ public class DummyChannel extends Channel {
         SourceConnector sourceConnector = getSourceConnector();
 
         if (sourceConnector != null) {
-            sourceConnector.stop();
+            try {
+                sourceConnector.stop();
+            } catch (Exception e) {
+                throw new StopException(e);
+            }
         }
     }
 
@@ -85,7 +94,11 @@ public class DummyChannel extends Channel {
         SourceConnector sourceConnector = getSourceConnector();
 
         if (sourceConnector != null) {
-            sourceConnector.halt();
+            try {
+                sourceConnector.halt();
+            } catch (Exception e) {
+                throw new HaltException(e);
+            }
         }
     }
 

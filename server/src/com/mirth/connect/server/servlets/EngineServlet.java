@@ -35,7 +35,7 @@ public class EngineServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // MIRTH-1745
         response.setCharacterEncoding("UTF-8");
-        
+
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {
@@ -51,7 +51,7 @@ public class EngineServlet extends MirthServlet {
                     if (!isUserAuthorized(request, null) || doesUserHaveChannelRestrictions(request)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        engineController.redeployAllChannels();
+                        engineController.redeployAllChannels(context);
                     }
                 } else if (operation.equals(Operations.CHANNEL_DEPLOY)) {
                     @SuppressWarnings("unchecked")

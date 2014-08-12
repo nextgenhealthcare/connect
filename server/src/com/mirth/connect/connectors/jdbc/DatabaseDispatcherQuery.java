@@ -21,10 +21,7 @@ import org.apache.commons.dbutils.DbUtils;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 
 public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
     private DatabaseDispatcher connector;
@@ -35,16 +32,16 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
     }
 
     @Override
-    public void deploy() {}
+    public void deploy() throws ConnectorTaskException {}
 
     @Override
-    public void undeploy() throws UndeployException {}
+    public void undeploy() throws ConnectorTaskException {}
 
     @Override
-    public void start() throws StartException {}
+    public void start() throws ConnectorTaskException {}
 
     @Override
-    public void stop() throws StopException {
+    public void stop() throws ConnectorTaskException {
         Throwable firstThrowable = null;
 
         for (BasicDataSource dataSource : dataSources.values()) {
@@ -60,19 +57,15 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
         }
 
         if (firstThrowable != null) {
-            throw new StopException("Failed to close data source", firstThrowable);
+            throw new ConnectorTaskException("Failed to close data source", firstThrowable);
         }
 
         dataSources.clear();
     }
 
     @Override
-    public void halt() throws HaltException {
-        try {
-            stop();
-        } catch (StopException e) {
-            throw new HaltException(e);
-        }
+    public void halt() throws ConnectorTaskException {
+        stop();
     }
 
     @Override
@@ -146,9 +139,9 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
 
         /*
          * If we have an existing connection pool and it is based on the same
-         * driver/username/password/url that is set in the given connector properties, then
-         * re-use the pool. Otherwise, close it and create a new pool since the connection
-         * settings have changed.
+         * driver/username/password/url that is set in the given connector properties, then re-use
+         * the pool. Otherwise, close it and create a new pool since the connection settings have
+         * changed.
          */
 
         if (dataSource != null && !dataSource.isClosed()) {

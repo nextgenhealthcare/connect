@@ -737,7 +737,7 @@ public class DonkeyDaoTests {
         TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId);
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         DonkeyDao dao = daoFactory.getDao();
 
@@ -854,7 +854,7 @@ public class DonkeyDaoTests {
         TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId);
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         try {
             logger.info("Testing DonkeyDao.deleteConnectorMessages...");
@@ -915,7 +915,7 @@ public class DonkeyDaoTests {
         TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId);
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
         
         logger.info("Testing DonkeyDao.deleteAllMessages...");
 
@@ -1455,7 +1455,7 @@ public class DonkeyDaoTests {
 
             long localChannelId = ChannelController.getInstance().getLocalChannelId(channel.getChannelId());
             channel.deploy();
-            channel.start();
+            channel.start(null);
 
             Long maxId = null;
             Connection connection = null;
@@ -1566,7 +1566,7 @@ public class DonkeyDaoTests {
             DonkeyDao dao = null;
             
             channel.deploy();
-            channel.start();
+            channel.start(null);
 
             // Test selecting connector messages by message ID
             for (int i = 1; i <= TEST_SIZE; i++) {
@@ -1704,7 +1704,7 @@ public class DonkeyDaoTests {
             logger.info("Testing DonkeyDao.getConnectorMessageCount...");
 
             channel.deploy();
-            channel.start();
+            channel.start(null);
             
             DonkeyDao dao = null;
 
@@ -1764,7 +1764,7 @@ public class DonkeyDaoTests {
             logger.info("Testing DonkeyDao.getUnfinishedMessages...");
 
             channel.deploy();
-            channel.start();
+            channel.start(null);
 
             for (int i = 1; i <= TEST_SIZE; i++) {
                 ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
@@ -1860,7 +1860,7 @@ public class DonkeyDaoTests {
         
         Channel channel = TestUtils.createDefaultChannel(channelId, serverId);
         channel.deploy();
-        channel.start();
+        channel.start(null);
         
         DispatchResult dispatchResult = null;
         

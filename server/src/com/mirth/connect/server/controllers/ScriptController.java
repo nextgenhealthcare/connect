@@ -64,8 +64,8 @@ public abstract class ScriptController extends Controller {
     }
 
     /**
-     * Adds a script with the specified groupId and id to the database. If a
-     * script with the id already exists it will be overwritten.
+     * Adds a script with the specified groupId and id to the database. If a script with the id
+     * already exists it will be overwritten.
      * 
      * @param groupId
      * @param id
@@ -100,13 +100,13 @@ public abstract class ScriptController extends Controller {
 
     // Deploy Script Execution
 
-    public abstract void executeGlobalDeployScript() throws Exception;
+    public abstract void executeGlobalDeployScript(String channelId) throws Exception;
 
     public abstract void executeChannelDeployScript(String channelId) throws Exception;
 
     // Shutdown Script Execution
 
-    public abstract void executeGlobalShutdownScript() throws Exception;
+    public abstract void executeGlobalShutdownScript(String channelId) throws Exception;
 
     public abstract void executeChannelShutdownScript(String channelId) throws Exception;
 }

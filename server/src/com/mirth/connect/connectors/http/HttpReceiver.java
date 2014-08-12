@@ -68,11 +68,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
@@ -107,11 +103,11 @@ public class HttpReceiver extends SourceConnector {
     private Pattern binaryMimeTypesRegex;
 
     @Override
-    public void onDeploy() throws DeployException {
+    public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (HttpReceiverProperties) getConnectorProperties();
 
         if (connectorProperties.isXmlBody() && isProcessBatch()) {
-            throw new DeployException("Batch processing is not supported for Xml Body.");
+            throw new ConnectorTaskException("Batch processing is not supported for Xml Body.");
         }
 
         // load the default configuration
@@ -127,7 +123,7 @@ public class HttpReceiver extends SourceConnector {
         try {
             configuration.configureConnectorDeploy(this);
         } catch (Exception e) {
-            throw new DeployException(e);
+            throw new ConnectorTaskException(e);
         }
 
         String replacedBinaryMimeTypes = replacer.replaceValues(connectorProperties.getBinaryMimeTypes(), getChannelId());
@@ -135,7 +131,7 @@ public class HttpReceiver extends SourceConnector {
             try {
                 binaryMimeTypesRegex = Pattern.compile(replacedBinaryMimeTypes);
             } catch (PatternSyntaxException e) {
-                throw new DeployException("Invalid binary MIME types regular expression: " + replacedBinaryMimeTypes, e);
+                throw new ConnectorTaskException("Invalid binary MIME types regular expression: " + replacedBinaryMimeTypes, e);
             }
         } else {
             binaryMimeTypesArray = StringUtils.split(replacedBinaryMimeTypes.replaceAll("\\s*,\\s*", ",").trim(), ',');
@@ -143,12 +139,12 @@ public class HttpReceiver extends SourceConnector {
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {
+    public void onUndeploy() throws ConnectorTaskException {
         configuration.configureConnectorUndeploy(this);
     }
 
     @Override
-    public void onStart() throws StartException {
+    public void onStart() throws ConnectorTaskException {
         host = replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), getChannelId());
         port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), getChannelId()));
         timeout = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getTimeout(), getChannelId()), 0);
@@ -248,27 +244,23 @@ public class HttpReceiver extends SourceConnector {
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
         } catch (Exception e) {
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.FAILURE));
-            throw new StartException("Failed to start HTTP Listener", e);
+            throw new ConnectorTaskException("Failed to start HTTP Listener", e);
         }
     }
 
     @Override
-    public void onStop() throws StopException {
+    public void onStop() throws ConnectorTaskException {
         try {
             logger.debug("stopping HTTP server");
             server.stop();
         } catch (Exception e) {
-            throw new StopException("Failed to stop HTTP Listener", e.getCause());
+            throw new ConnectorTaskException("Failed to stop HTTP Listener", e.getCause());
         }
     }
 
     @Override
-    public void onHalt() throws HaltException {
-        try {
-            onStop();
-        } catch (StopException e) {
-            throw new HaltException(e);
-        }
+    public void onHalt() throws ConnectorTaskException {
+        onStop();
     }
 
     private class RequestHandler extends AbstractHandler {

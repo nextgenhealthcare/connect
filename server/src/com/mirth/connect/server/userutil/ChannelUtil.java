@@ -72,7 +72,7 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.startChannel(convertId(channelIdOrName));
+                engineController.startChannels(Collections.singleton(convertId(channelIdOrName)));
                 return null;
             }
         }));
@@ -92,7 +92,7 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.stopChannel(convertId(channelIdOrName));
+                engineController.stopChannels(Collections.singleton(convertId(channelIdOrName)));
                 return null;
             }
         }));
@@ -112,7 +112,7 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.pauseChannel(convertId(channelIdOrName));
+                engineController.pauseChannels(Collections.singleton(convertId(channelIdOrName)));
                 return null;
             }
         }));
@@ -129,7 +129,7 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.resumeChannel(convertId(channelIdOrName));
+                engineController.resumeChannels(Collections.singleton(convertId(channelIdOrName)));
                 return null;
             }
         }));
@@ -149,7 +149,7 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.haltChannel(convertId(channelIdOrName));
+                engineController.haltChannels(Collections.singleton(convertId(channelIdOrName)));
                 return null;
             }
         }));
@@ -233,7 +233,7 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.startConnector(convertId(channelIdOrName), metaDataId);
+                engineController.startConnector(Collections.singletonMap(convertId(channelIdOrName), Collections.singletonList(metaDataId)));
                 return null;
             }
         }));
@@ -256,7 +256,7 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.stopConnector(convertId(channelIdOrName), metaDataId);
+                engineController.stopConnector(Collections.singletonMap(convertId(channelIdOrName), Collections.singletonList(metaDataId)));
                 return null;
             }
         }));
@@ -484,7 +484,7 @@ public class ChannelUtil {
      * @throws Exception
      */
     public static Future<Void> resetStatistics(final String channelIdOrName) throws Exception {
-        return new Future<Void>(executor.submit(new Callable<Void>(){
+        return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 clearStatistics(channelIdOrName, null, null);
@@ -495,19 +495,19 @@ public class ChannelUtil {
 
     /**
      * Reset all statistics for the specified connector on the given channel.
-     *
+     * 
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
-          * @param metaDataId
-     *            The metadata id of the deployed connector. Note that the source connector has a metadata id
-     *            of 0 and the aggregate of null.
+     * @param metaDataId
+     *            The metadata id of the deployed connector. Note that the source connector has a
+     *            metadata id of 0 and the aggregate of null.
      * @return A {@link Future} object representing the result of the asynchronous operation. You
      *         can call {@link Future#get() get()} or {@link Future#get(long) get(timeoutInMillis)}
      *         to wait for the operation to finish.
      * @throws Exception
      */
     public static Future<Void> resetStatistics(final String channelIdOrName, final Integer metaDataId) throws Exception {
-        return new Future<Void>(executor.submit(new Callable<Void>(){
+        return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 clearStatistics(channelIdOrName, metaDataId, null);
@@ -522,8 +522,8 @@ public class ChannelUtil {
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
      * @param metaDataId
-     *            The metadata id of the deployed connector. Note that the source connector has a metadata id
-     *            of 0 and the aggregate of null.
+     *            The metadata id of the deployed connector. Note that the source connector has a
+     *            metadata id of 0 and the aggregate of null.
      * @param statuses
      *            A collection of statuses to reset.
      * @return A {@link Future} object representing the result of the asynchronous operation. You
@@ -532,7 +532,7 @@ public class ChannelUtil {
      * @throws Exception
      */
     public static Future<Void> resetStatistics(final String channelIdOrName, final Integer metaDataId, final Collection<Status> statuses) throws Exception {
-        return new Future<Void>(executor.submit(new Callable<Void>(){
+        return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 clearStatistics(channelIdOrName, metaDataId, statuses);

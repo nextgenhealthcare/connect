@@ -13,16 +13,10 @@ import java.util.Map;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DeployedState;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.Startable;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.Stoppable;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.message.DataType;
 
-public abstract class Connector implements Startable, Stoppable {
+public abstract class Connector {
     private String channelId;
     private int metaDataId;
     private DataType inboundDataType;
@@ -31,15 +25,21 @@ public abstract class Connector implements Startable, Stoppable {
     private ConnectorProperties connectorProperties;
     private Map<String, Integer> destinationIdMap;
 
-    public abstract void onDeploy() throws DeployException;
+    public abstract void onDeploy() throws ConnectorTaskException;
 
-    public abstract void onUndeploy() throws UndeployException;
+    public abstract void onUndeploy() throws ConnectorTaskException;
 
-    public abstract void onStart() throws StartException;
+    public abstract void onStart() throws ConnectorTaskException;
 
-    public abstract void onStop() throws StopException;
+    public abstract void onStop() throws ConnectorTaskException;
 
-    public abstract void onHalt() throws HaltException;
+    public abstract void onHalt() throws ConnectorTaskException;
+
+    public abstract void start() throws ConnectorTaskException, InterruptedException;
+
+    public abstract void stop() throws ConnectorTaskException, InterruptedException;
+
+    public abstract void halt() throws ConnectorTaskException, InterruptedException;
 
     public String getChannelId() {
         return channelId;

@@ -14,18 +14,31 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
 import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
@@ -41,11 +54,8 @@ import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConfiguration;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.PauseException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
@@ -96,6 +106,7 @@ import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.channel.MirthMetaDataReplacer;
 import com.mirth.connect.server.message.DataTypeFactory;
 import com.mirth.connect.server.message.DefaultResponseValidator;
+import com.mirth.connect.server.mybatis.MessageSearchResult;
 import com.mirth.connect.server.transformers.JavaScriptFilterTransformer;
 import com.mirth.connect.server.transformers.JavaScriptPostprocessor;
 import com.mirth.connect.server.transformers.JavaScriptPreprocessor;
@@ -127,6 +138,11 @@ public class DonkeyEngineController implements EngineController {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private int queueBufferSize = Constants.DEFAULT_QUEUE_BUFFER_SIZE;
+    private Map<String, ExecutorService> engineExecutors = new HashMap<String, ExecutorService>();
+
+    private enum StatusTask {
+        START, STOP, PAUSE, RESUME
+    };
 
     protected DonkeyEngineController() {}
 
@@ -166,7 +182,7 @@ public class DonkeyEngineController implements EngineController {
 
     @Override
     public void stopEngine() throws StopException, InterruptedException {
-        undeployChannels(donkey.getDeployedChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+        undeployChannels(getDeployedIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
         donkey.stopEngine();
     }
 
@@ -176,214 +192,131 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public synchronized void deployChannels(Set<String> channelIds, ServerEventContext context) {
-        if (channelIds == null) {
-            throw new NullPointerException();
-        }
-
-        executeGlobalDeployScript();
-        executeChannelPluginOnDeploy(context);
-
-        List<Channel> channels = channelController.getChannels(channelIds);
-
-        for (Channel channel : channels) {
-            try {
-                deployChannel(channel, context);
-            } catch (Exception e) {
-                logger.error("Error deploying channel " + channel.getId() + ".", e);
-            }
-        }
-    }
-
-    protected void executeGlobalDeployScript() {
-        // Execute global deploy script before channel deploy script
-        try {
-            scriptController.executeGlobalDeployScript();
-        } catch (Exception e) {
-            logger.error("Error executing global deploy script.", e);
-        }
-    }
-
-    protected void executeChannelPluginOnDeploy(ServerEventContext context) {
-        // Execute the overall channel plugin deploy hook
-        for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
-            channelPlugin.deploy(context);
-        }
-    }
-
-    protected synchronized void deployChannel(Channel channel, ServerEventContext context) throws StartException, StopException, DeployException, UndeployException {
-        String channelId = channel.getId();
-
-        if (!channel.isEnabled()) {
-            return;
-        }
-
-        if (donkey.getDeployedChannels().containsKey(channelId)) {
-            undeployChannel(channelId, context);
-        }
-
-        com.mirth.connect.donkey.server.channel.Channel donkeyChannel = null;
-
-        try {
-            donkeyChannel = convertToDonkeyChannel(channel);
-        } catch (Exception e) {
-            throw new DeployException(e.getMessage(), e);
-        }
-
-        try {
-            scriptController.compileChannelScripts(channel);
-        } catch (ScriptCompileException e) {
-            throw new StartException("Failed to deploy channel " + channelId + ".", e);
-        }
-
-        clearGlobalChannelMap(channel);
-
-        try {
-            scriptController.executeChannelDeployScript(channel.getId());
-        } catch (Exception e) {
-            Throwable t = e;
-            if (e instanceof JavaScriptExecutorException) {
-                t = e.getCause();
-            }
-
-            eventController.dispatchEvent(new ErrorEvent(channel.getId(), null, ErrorEventType.DEPLOY_SCRIPT, null, null, "Error running channel deploy script", t));
-            throw new StartException("Failed to deploy channel " + channelId + ".", e);
-        }
-        channelController.putDeployedChannelInCache(channel);
-
-        // Execute the individual channel plugin deploy hook
-        for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
-            channelPlugin.deploy(channel, context);
-        }
-
-        donkeyChannel.setRevision(channel.getRevision());
-
-        try {
-            donkey.deployChannel(donkeyChannel);
-        } catch (DeployException e) {
-            // Remove the channel from the deployed channel cache if an exception occurred on deploy.
-            channelController.removeDeployedChannelFromCache(channelId);
-            // Remove the channel scripts from the script cache if an exception occurred on deploy.
-            scriptController.removeChannelScriptsFromCache(channelId);
-
-            throw e;
-        }
-    }
-
-    @Override
-    public synchronized void undeployChannels(Set<String> channelIds, ServerEventContext context) {
-        for (String channelId : channelIds) {
-            try {
-                undeployChannel(channelId, context);
-            } catch (Exception e) {
-                logger.error("Error undeploying channel " + channelId + ".", e);
-            }
-        }
-
-        // Execute the overall channel plugin undeploy hook
-        for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
-            channelPlugin.undeploy(context);
-        }
-
-        // Execute global shutdown script
-        try {
-            scriptController.executeGlobalShutdownScript();
-        } catch (Exception e) {
-            logger.error("Error executing global shutdown script.", e);
-        }
-    }
-
-    private synchronized void undeployChannel(String channelId, ServerEventContext context) throws StopException, UndeployException {
-        // Get a reference to the deployed channel for later
-        com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
-
-        donkey.undeployChannel(channelId);
-
-        // Remove connector scripts
-        if (channel.getSourceFilterTransformer().getFilterTransformer() != null) {
-            channel.getSourceFilterTransformer().getFilterTransformer().dispose();
-        }
-
-        for (DestinationChain chain : channel.getDestinationChains()) {
-            for (Integer metaDataId : chain.getDestinationConnectors().keySet()) {
-                if (chain.getFilterTransformerExecutors().get(metaDataId).getFilterTransformer() != null) {
-                    chain.getFilterTransformerExecutors().get(metaDataId).getFilterTransformer().dispose();
-                }
-                if (chain.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer() != null) {
-                    chain.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer().dispose();
-                }
-            }
-        }
-
-        // Execute the individual channel plugin undeploy hook
-        for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
-            channelPlugin.undeploy(channelId, context);
-        }
-
-        // Execute channel shutdown script
-        try {
-            scriptController.executeChannelShutdownScript(channelId);
-        } catch (Exception e) {
-            Throwable t = e;
-            if (e instanceof JavaScriptExecutorException) {
-                t = e.getCause();
-            }
-
-            eventController.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.SHUTDOWN_SCRIPT, null, null, "Error running channel shutdown script", t));
-            logger.error("Error executing shutdown script for channel " + channelId + ".", e);
-        }
-
-        // Remove channel scripts
-        scriptController.removeChannelScriptsFromCache(channelId);
-
-        channelController.removeDeployedChannelFromCache(channelId);
-    }
-
-    @Override
-    public synchronized void redeployAllChannels() throws StartException, StopException, InterruptedException {
-        undeployChannels(donkey.getDeployedChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
-        clearGlobalMap();
+    public void startupDeploy() throws StartException, StopException, InterruptedException {
         deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
     }
 
     @Override
-    public void startupDeploy() throws StartException, StopException, InterruptedException {
-        redeployAllChannels();
+    public void deployChannels(Set<String> channelIds, ServerEventContext context) {
+        List<ChannelTask> deployTasks = new ArrayList<ChannelTask>();
+        List<ChannelTask> undeployTasks = new ArrayList<ChannelTask>();
+
+        for (String channelId : channelIds) {
+            if (isDeployed(channelId)) {
+                undeployTasks.add(new UndeployTask(channelId, context));
+            }
+
+            deployTasks.add(new DeployTask(channelId, context));
+        }
+
+        if (CollectionUtils.isNotEmpty(undeployTasks)) {
+            waitForTasks(submitTasks(undeployTasks));
+            executeChannelPluginOnUndeploy(context);
+        }
+
+        if (CollectionUtils.isNotEmpty(deployTasks)) {
+            executeChannelPluginOnDeploy(context);
+            waitForTasks(submitTasks(deployTasks));
+        }
     }
 
     @Override
-    public void startChannel(String channelId) throws StartException {
-        donkey.startChannel(channelId);
+    public void undeployChannels(Set<String> channelIds, ServerEventContext context) {
+        List<ChannelTask> undeployTasks = new ArrayList<ChannelTask>();
+
+        for (String channelId : channelIds) {
+            undeployTasks.add(new UndeployTask(channelId, context));
+        }
+
+        if (CollectionUtils.isNotEmpty(undeployTasks)) {
+            waitForTasks(submitTasks(undeployTasks));
+            executeChannelPluginOnUndeploy(context);
+        }
     }
 
     @Override
-    public void stopChannel(String channelId) throws StopException {
-        donkey.stopChannel(channelId);
+    public void redeployAllChannels(ServerEventContext context) {
+        undeployChannels(getDeployedIds(), context);
+        clearGlobalMap();
+        deployChannels(channelController.getChannelIds(), context);
     }
 
     @Override
-    public void haltChannel(String channelId) throws HaltException {
-        donkey.haltChannel(channelId);
+    public void startChannels(Set<String> channelIds) {
+        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.START)));
     }
 
     @Override
-    public void pauseChannel(String channelId) throws PauseException {
-        donkey.pauseChannel(channelId);
+    public void stopChannels(Set<String> channelIds) {
+        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.STOP)));
     }
 
     @Override
-    public void resumeChannel(String channelId) throws StartException, StopException {
-        donkey.resumeChannel(channelId);
+    public void pauseChannels(Set<String> channelIds) {
+        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.PAUSE)));
     }
 
     @Override
-    public void startConnector(String channelId, Integer metaDataId) throws StartException {
-        donkey.startConnector(channelId, metaDataId);
+    public void resumeChannels(Set<String> channelIds) {
+        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.RESUME)));
     }
 
     @Override
-    public void stopConnector(String channelId, Integer metaDataId) throws StopException {
-        donkey.stopConnector(channelId, metaDataId);
+    public void startConnector(Map<String, List<Integer>> connectorInfo) {
+        waitForTasks(submitTasks(buildConnectorStatusTasks(connectorInfo, StatusTask.START)));
+    }
+
+    @Override
+    public void stopConnector(Map<String, List<Integer>> connectorInfo) {
+        waitForTasks(submitTasks(buildConnectorStatusTasks(connectorInfo, StatusTask.STOP)));
+    }
+
+    @Override
+    public void haltChannels(Set<String> channelIds) {
+        waitForTasks(submitHaltTasks(channelIds));
+    }
+
+    @Override
+    public void removeChannels(Set<String> channelIds, ServerEventContext context, boolean undeployFirst) {
+        List<ChannelTask> tasks = new ArrayList<ChannelTask>();
+
+        for (Channel channel : channelController.getChannels(channelIds)) {
+            tasks.add(new UndeployTask(channel.getId(), context));
+            tasks.add(new RemoveTask(channel, context));
+        }
+
+        if (CollectionUtils.isNotEmpty(tasks)) {
+            waitForTasks(submitTasks(tasks));
+            executeChannelPluginOnUndeploy(context);
+        }
+    }
+
+    @Override
+    public void removeMessages(String channelId, Map<Long, MessageSearchResult> results) throws Exception {
+        List<ChannelTask> tasks = new ArrayList<ChannelTask>();
+
+        tasks.add(new RemoveMessagesTask(channelId, results));
+
+        List<ChannelFuture> futures = submitTasks(tasks);
+        if (CollectionUtils.isEmpty(futures)) {
+            throw new InterruptedException();
+        }
+
+        // Don't use waitForTasks here because we want to throw any exceptions.
+        for (ChannelFuture future : futures) {
+            future.get();
+        }
+    };
+
+    @Override
+    public void removeAllMessages(Set<String> channelIds, boolean force, boolean clearStatistics) {
+        List<ChannelTask> tasks = new ArrayList<ChannelTask>();
+
+        for (String channelId : channelIds) {
+            tasks.add(new RemoveAllMessagesTask(channelId, force, clearStatistics));
+        }
+
+        waitForTasks(submitTasks(tasks));
     }
 
     @Override
@@ -987,6 +920,463 @@ public class DonkeyEngineController implements EngineController {
             }
         } catch (ControllerException e) {
             logger.error("Could not clear the global map.", e);
+        }
+    }
+
+    protected void executeGlobalDeployScript(String channelId) throws DeployException {
+        try {
+            scriptController.executeGlobalDeployScript(channelId);
+        } catch (Exception e) {
+            Throwable t = e;
+            if (e instanceof JavaScriptExecutorException) {
+                t = e.getCause();
+            }
+
+            eventController.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.DEPLOY_SCRIPT, null, null, "Error executing global deploy script.", t));
+            logger.error("Error executing global deploy script for channel " + channelId + ".", t);
+        }
+    }
+
+    protected void executeGlobalShutdownDeployScript(String channelId) {
+        try {
+            scriptController.executeGlobalShutdownScript(channelId);
+        } catch (Exception e) {
+            Throwable t = e;
+            if (e instanceof JavaScriptExecutorException) {
+                t = e.getCause();
+            }
+
+            eventController.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.SHUTDOWN_SCRIPT, null, null, "Error executing global shutdown script.", t));
+            logger.error("Error executing global shutdown script for channel " + channelId + ".", t);
+        }
+    }
+
+    protected void executeChannelPluginOnDeploy(ServerEventContext context) {
+        // Execute the overall channel plugin deploy hook
+        for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+            channelPlugin.deploy(context);
+        }
+    }
+
+    protected void executeChannelPluginOnUndeploy(ServerEventContext context) {
+        // Execute the overall channel plugin undeploy hook
+        for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+            channelPlugin.undeploy(context);
+        }
+    }
+
+    private synchronized ExecutorService getEngineExecutor(String channelId, boolean replace) {
+        ExecutorService engineExecutor = engineExecutors.get(channelId);
+
+        if (engineExecutor == null || replace) {
+            engineExecutor = new ThreadPoolExecutor(0, 1, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+            engineExecutors.put(channelId, engineExecutor);
+        }
+
+        return engineExecutor;
+    }
+
+    private List<ChannelTask> buildChannelStatusTasks(Set<String> channelIds, StatusTask task) {
+        List<ChannelTask> tasks = new ArrayList<ChannelTask>();
+
+        for (String channelId : channelIds) {
+            tasks.add(new ChannelStatusTask(channelId, task));
+        }
+
+        return tasks;
+    }
+
+    private List<ChannelTask> buildConnectorStatusTasks(Map<String, List<Integer>> connectorInfo, StatusTask task) {
+        List<ChannelTask> tasks = new ArrayList<ChannelTask>();
+
+        for (Entry<String, List<Integer>> entry : connectorInfo.entrySet()) {
+            String channelId = entry.getKey();
+            List<Integer> metaDataIds = entry.getValue();
+
+            for (Integer metaDataId : metaDataIds) {
+                tasks.add(new ConnectorStatusTask(channelId, metaDataId, task));
+            }
+        }
+
+        return tasks;
+    }
+
+    private void waitForTasks(List<ChannelFuture> futures) {
+        for (ChannelFuture future : futures) {
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                logger.error(ExceptionUtils.getStackTrace(e));
+            } catch (ExecutionException e) {
+                logger.error(ExceptionUtils.getStackTrace(e.getCause()));
+            } catch (CancellationException e) {
+                logger.error("Task cancelled because the channel " + future.getChannelId() + " was halted or removed.", e);
+            }
+        }
+    }
+
+    private synchronized List<ChannelFuture> submitTasks(List<ChannelTask> tasks) {
+        List<ChannelFuture> futures = new ArrayList<ChannelFuture>();
+        for (ChannelTask task : tasks) {
+            ExecutorService engineExecutor = getEngineExecutor(task.getChannelId(), false);
+
+            try {
+                futures.add(new ChannelFuture(task.getChannelId(), engineExecutor.submit(task)));
+            } catch (RejectedExecutionException e) {
+                /*
+                 * This can happen if a channel was halted, in which case we don't want to perform
+                 * whatever task this was anyway.
+                 */
+            }
+        }
+
+        return futures;
+    }
+
+    private synchronized List<ChannelFuture> submitHaltTasks(Set<String> channelIds) {
+        List<ChannelFuture> futures = new ArrayList<ChannelFuture>();
+
+        for (String channelId : channelIds) {
+            ExecutorService engineExecutor = getEngineExecutor(channelId, false);
+            // Shutdown the old executor to cancel existing tasks and prevent new tasks from being submitted to it.
+            List<Runnable> tasks = engineExecutor.shutdownNow();
+            // Cancel any tasks that had not yet started. Otherwise those tasks would be blocked at future.get() indefinitely.
+            for (Runnable task : tasks) {
+                ((Future<?>) task).cancel(true);
+            }
+
+            /*
+             * Create a new executor to submit the halt task to. Since all the submit methods are
+             * synchronized, it is not possible for any other tasks for this channel to occur before
+             * the halt task.
+             */
+            engineExecutor = getEngineExecutor(channelId, true);
+            futures.add(new ChannelFuture(channelId, engineExecutor.submit(new HaltTask(channelId))));
+        }
+
+        return futures;
+    }
+
+    private class DeployTask extends ChannelTask {
+
+        private ServerEventContext context;
+
+        public DeployTask(String channelId, ServerEventContext context) {
+            super(channelId);
+            this.context = context;
+        }
+
+        @Override
+        public Void call() throws Exception {
+            Channel channel = channelController.getChannelById(channelId);
+
+            if (channel == null || !channel.isEnabled() || isDeployed(channelId)) {
+                return null;
+            }
+
+            com.mirth.connect.donkey.server.channel.Channel donkeyChannel = null;
+
+            try {
+                donkeyChannel = convertToDonkeyChannel(channel);
+            } catch (Exception e) {
+                throw new DeployException(e.getMessage(), e);
+            }
+
+            executeGlobalDeployScript(channelId);
+
+            try {
+                scriptController.compileChannelScripts(channel);
+            } catch (ScriptCompileException e) {
+                throw new DeployException("Failed to deploy channel " + channelId + ".", e);
+            }
+
+            clearGlobalChannelMap(channel);
+
+            try {
+                scriptController.executeChannelDeployScript(channelId);
+            } catch (Exception e) {
+                Throwable t = e;
+                if (e instanceof JavaScriptExecutorException) {
+                    t = e.getCause();
+                }
+
+                eventController.dispatchEvent(new ErrorEvent(channel.getId(), null, ErrorEventType.DEPLOY_SCRIPT, null, null, "Error running channel deploy script", t));
+                throw new DeployException("Failed to deploy channel " + channelId + ".", e);
+            }
+
+            channelController.putDeployedChannelInCache(channel);
+
+            // Execute the individual channel plugin deploy hook
+            for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+                channelPlugin.deploy(channel, context);
+            }
+
+            donkeyChannel.setRevision(channel.getRevision());
+
+            try {
+                donkey.deployChannel(donkeyChannel);
+            } catch (DeployException e) {
+                // Remove the channel from the deployed channel cache if an exception occurred on deploy.
+                channelController.removeDeployedChannelFromCache(channelId);
+                // Remove the channel scripts from the script cache if an exception occurred on deploy.
+                scriptController.removeChannelScriptsFromCache(channelId);
+
+                throw e;
+            }
+
+            return null;
+        }
+    }
+
+    private class UndeployTask extends ChannelTask {
+
+        private ServerEventContext context;
+
+        public UndeployTask(String channelId, ServerEventContext context) {
+            super(channelId);
+            this.context = context;
+        }
+
+        @Override
+        public Void call() throws Exception {
+            // Get a reference to the deployed channel for later
+            com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
+
+            if (channel != null) {
+                donkey.undeployChannel(channel);
+
+                // Remove connector scripts
+                if (channel.getSourceFilterTransformer().getFilterTransformer() != null) {
+                    channel.getSourceFilterTransformer().getFilterTransformer().dispose();
+                }
+
+                for (DestinationChain chain : channel.getDestinationChains()) {
+                    for (Integer metaDataId : chain.getDestinationConnectors().keySet()) {
+                        if (chain.getFilterTransformerExecutors().get(metaDataId).getFilterTransformer() != null) {
+                            chain.getFilterTransformerExecutors().get(metaDataId).getFilterTransformer().dispose();
+                        }
+                        if (chain.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer() != null) {
+                            chain.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer().dispose();
+                        }
+                    }
+                }
+
+                // Execute the individual channel plugin undeploy hook
+                for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+                    channelPlugin.undeploy(channelId, context);
+                }
+
+                // Execute channel shutdown script
+                try {
+                    scriptController.executeChannelShutdownScript(channelId);
+                } catch (Exception e) {
+                    Throwable t = e;
+                    if (e instanceof JavaScriptExecutorException) {
+                        t = e.getCause();
+                    }
+
+                    eventController.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.SHUTDOWN_SCRIPT, null, null, "Error running channel shutdown script", t));
+                    logger.error("Error executing shutdown script for channel " + channelId + ".", e);
+                }
+
+                // Remove channel scripts
+                scriptController.removeChannelScriptsFromCache(channelId);
+
+                channelController.removeDeployedChannelFromCache(channelId);
+
+                executeGlobalShutdownDeployScript(channelId);
+            }
+
+            return null;
+        }
+    }
+
+    private class ChannelStatusTask extends ChannelTask {
+
+        private StatusTask task;
+
+        public ChannelStatusTask(String channelId, StatusTask task) {
+            super(channelId);
+            this.task = task;
+        }
+
+        @Override
+        public Void call() throws Exception {
+            if (task == StatusTask.START) {
+                donkey.startChannel(channelId);
+            } else if (task == StatusTask.STOP) {
+                donkey.stopChannel(channelId);
+            } else if (task == StatusTask.PAUSE) {
+                donkey.pauseChannel(channelId);
+            } else if (task == StatusTask.RESUME) {
+                donkey.resumeChannel(channelId);
+            }
+
+            return null;
+        }
+    }
+
+    private class ConnectorStatusTask extends ChannelTask {
+
+        private Integer metaDataId;
+        private StatusTask task;
+
+        public ConnectorStatusTask(String channelId, Integer metaDataId, StatusTask task) {
+            super(channelId);
+            this.metaDataId = metaDataId;
+            this.task = task;
+        }
+
+        @Override
+        public Void call() throws Exception {
+            if (task == StatusTask.START) {
+                donkey.startConnector(channelId, metaDataId);
+            } else if (task == StatusTask.STOP) {
+                donkey.stopConnector(channelId, metaDataId);
+            }
+
+            return null;
+        }
+    }
+
+    private class HaltTask extends ChannelTask {
+
+        public HaltTask(String channelId) {
+            super(channelId);
+        }
+
+        @Override
+        public Void call() throws Exception {
+            donkey.haltChannel(channelId);
+
+            return null;
+        }
+    }
+
+    private class RemoveTask extends ChannelTask {
+
+        private Channel channel;
+        private ServerEventContext context;
+
+        public RemoveTask(Channel channel, ServerEventContext context) {
+            super(channel.getId());
+            this.channel = channel;
+            this.context = context;
+        }
+
+        @Override
+        public Void call() throws Exception {
+            channelController.removeChannel(channel, context);
+
+            synchronized (DonkeyEngineController.this) {
+                ExecutorService engineExecutor = getEngineExecutor(channelId, false);
+                // Cancel any tasks that had not yet started. Otherwise those tasks would be blocked at future.get() indefinitely.
+                List<Runnable> tasks = engineExecutor.shutdownNow();
+                for (Runnable task : tasks) {
+                    ((Future<?>) task).cancel(true);
+                }
+
+                // Remove the executor since it has been shutdown. If another task comes in for this channel Id, a new executor will be created.
+                engineExecutors.remove(channelId);
+            }
+
+            return null;
+        }
+    }
+
+    private class RemoveMessagesTask extends ChannelTask {
+
+        private Map<Long, MessageSearchResult> results;
+
+        public RemoveMessagesTask(String channelId, Map<Long, MessageSearchResult> results) {
+            super(channelId);
+            this.results = results;
+        }
+
+        @Override
+        public Void call() throws Exception {
+            Map<Long, Set<Integer>> messages = new HashMap<Long, Set<Integer>>();
+
+            // For each message that was retrieved
+            for (Entry<Long, MessageSearchResult> entry : results.entrySet()) {
+                Long messageId = entry.getKey();
+                MessageSearchResult result = entry.getValue();
+                Set<Integer> metaDataIds = result.getMetaDataIdSet();
+                boolean processed = result.isProcessed();
+
+                com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
+                // Allow unprocessed messages to be deleted only if the channel is undeployed or stopped.
+                if (channel != null && (channel.getCurrentState() == DeployedState.STOPPED || processed)) {
+                    if (metaDataIds.contains(0)) {
+                        // Delete the entire message if the source connector message is to be deleted
+                        messages.put(messageId, null);
+                    } else {
+                        // Otherwise only deleted the destination connector message
+                        messages.put(messageId, metaDataIds);
+                    }
+                }
+            }
+
+            com.mirth.connect.donkey.server.channel.Channel.DELETE_PERMIT.acquire();
+
+            try {
+                com.mirth.connect.donkey.server.controllers.MessageController.getInstance().deleteMessages(channelId, messages);
+            } finally {
+                com.mirth.connect.donkey.server.channel.Channel.DELETE_PERMIT.release();
+            }
+
+            return null;
+        }
+    }
+
+    private class RemoveAllMessagesTask extends ChannelTask {
+
+        private boolean force;
+        private boolean clearStatistics;
+
+        public RemoveAllMessagesTask(String channelId, boolean force, boolean clearStatistics) {
+            super(channelId);
+            this.force = force;
+            this.clearStatistics = clearStatistics;
+        }
+
+        @Override
+        public Void call() throws Exception {
+            donkey.removeAllMessages(channelId, force, clearStatistics);
+
+            return null;
+        }
+    }
+
+    private abstract class ChannelTask implements Callable<Void> {
+
+        protected String channelId;
+
+        public ChannelTask(String channelId) {
+            this.channelId = channelId;
+        }
+
+        public String getChannelId() {
+            return channelId;
+        }
+    }
+
+    private class ChannelFuture {
+
+        private String channelId;
+        private Future<?> delegate;
+
+        public ChannelFuture(String channelId, Future<?> delegate) {
+            this.channelId = channelId;
+            this.delegate = delegate;
+        }
+
+        public String getChannelId() {
+            return channelId;
+        }
+
+        public Object get() throws InterruptedException, ExecutionException {
+            return delegate.get();
         }
     }
 }

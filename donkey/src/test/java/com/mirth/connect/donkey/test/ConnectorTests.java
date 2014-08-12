@@ -99,7 +99,7 @@ public class ConnectorTests {
         channel.addDestinationChain(chain);
 
         channel.deploy();
-        channel.start();
+        channel.start(null);
         Thread.sleep(sleepMillis);
         channel.stop();
         channel.undeploy();

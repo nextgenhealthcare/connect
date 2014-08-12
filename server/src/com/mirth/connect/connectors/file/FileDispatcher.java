@@ -24,11 +24,7 @@ import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
@@ -52,7 +48,7 @@ public class FileDispatcher extends DestinationConnector {
     private FileConfiguration configuration = null;
 
     @Override
-    public void onDeploy() throws DeployException {
+    public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (FileDispatcherProperties) getConnectorProperties();
 
         // Load the default configuration
@@ -68,7 +64,7 @@ public class FileDispatcher extends DestinationConnector {
         try {
             configuration.configureConnectorDeploy(this, connectorProperties);
         } catch (Exception e) {
-            throw new DeployException(e);
+            throw new ConnectorTaskException(e);
         }
 
         this.charsetEncoding = CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding(), System.getProperty("ca.uhn.hl7v2.llp.charset"));
@@ -77,28 +73,24 @@ public class FileDispatcher extends DestinationConnector {
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {}
+    public void onUndeploy() throws ConnectorTaskException {}
 
     @Override
-    public void onStart() throws StartException {}
+    public void onStart() throws ConnectorTaskException {}
 
     @Override
-    public void onStop() throws StopException {
+    public void onStop() throws ConnectorTaskException {
         try {
             fileConnector.doStop();
         } catch (FileConnectorException e) {
-            throw new StopException("Failed to stop File Connector", e);
+            throw new ConnectorTaskException("Failed to stop File Connector", e);
         }
     }
 
     @Override
-    public void onHalt() throws HaltException {
+    public void onHalt() throws ConnectorTaskException {
         fileConnector.disconnect();
-        try {
-            onStop();
-        } catch (StopException e) {
-            throw new HaltException(e);
-        }
+        onStop();
     }
 
     @Override

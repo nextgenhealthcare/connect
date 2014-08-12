@@ -44,7 +44,7 @@ public class ConnectorTests {
         ChannelController.getInstance().deleteAllMessages(TestUtils.CHANNEL_ID);
 
         DummyChannel channel = new DummyChannel(TestUtils.CHANNEL_ID, TestUtils.SERVER_ID, javaScriptReceiver, null);
-        channel.start();
+        channel.start(null);
         Thread.sleep(3250);
         channel.stop();
 
@@ -64,7 +64,7 @@ public class ConnectorTests {
         ChannelController.getInstance().deleteAllMessages(TestUtils.CHANNEL_ID);
 
         DummyChannel channel = new DummyChannel(TestUtils.CHANNEL_ID, TestUtils.SERVER_ID, null, javaScriptWriter);
-        channel.start();
+        channel.start(null);
 
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 

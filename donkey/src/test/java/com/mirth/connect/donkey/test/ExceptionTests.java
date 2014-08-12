@@ -25,9 +25,9 @@ import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
 import com.mirth.connect.donkey.server.channel.ResponseSelector;
@@ -64,14 +64,11 @@ public class ExceptionTests {
     }
 
     /*
-     * Create a new channel with a TestSourceConnector that always throws an
-     * exception from onStop().
-     * Start the channel, then pause it, and assert:
-     * - A PauseException was thrown
-     * - The source connector is now stopped
+     * Create a new channel with a TestSourceConnector that always throws an exception from
+     * onStop(). Start the channel, then pause it, and assert: - A PauseException was thrown - The
+     * source connector is now stopped
      * 
-     * Pause the channel again, and assert:
-     * - A PauseException was thrown
+     * Pause the channel again, and assert: - A PauseException was thrown
      */
     @Test
     final public void testChannelPause() throws Exception {
@@ -88,8 +85,8 @@ public class ExceptionTests {
 
         SourceConnector sourceConnector = new TestSourceConnector() {
             @Override
-            public void onStop() throws StopException {
-                throw new StopException("testing");
+            public void onStop() throws ConnectorTaskException {
+                throw new ConnectorTaskException("testing");
             }
         };
 
@@ -117,13 +114,13 @@ public class ExceptionTests {
 
         try {
             channel.deploy();
-            channel.start();
+            channel.start(null);
 
             // Assert that pausing the channel will cause an exception to be thrown from the source connector
             Exception e = null;
             try {
                 sourceConnector.stop();
-            } catch (StopException e2) {
+            } catch (ConnectorTaskException e2) {
                 e = e2;
             }
             assertNotNull(e);
@@ -135,7 +132,7 @@ public class ExceptionTests {
             e = null;
             try {
                 sourceConnector.stop();
-            } catch (StopException e2) {
+            } catch (ConnectorTaskException e2) {
                 e = e2;
             }
             assertNotNull(e);
@@ -146,26 +143,19 @@ public class ExceptionTests {
     }
 
     /*
-     * Start up a new channel and create a new source connector message
-     * Set the metadata ID to 1, process the message, and assert:
-     * - An InvalidConnectorMessageState exception was thrown
+     * Start up a new channel and create a new source connector message Set the metadata ID to 1,
+     * process the message, and assert: - An InvalidConnectorMessageState exception was thrown
      * 
-     * Reset the metadata ID, set the status to TRANSFORMER, process the
-     * message, and assert that:
-     * - An InvalidConnectorMessageState exception was thrown
+     * Reset the metadata ID, set the status to TRANSFORMER, process the message, and assert that: -
+     * An InvalidConnectorMessageState exception was thrown
      * 
-     * Reset the status, change the preprocessor to one that always throws
-     * exceptions, process the message, and assert that:
-     * - No exception was thrown
-     * - The connector message status was set to ERROR
-     * - The connector message errors field was set
+     * Reset the status, change the preprocessor to one that always throws exceptions, process the
+     * message, and assert that: - No exception was thrown - The connector message status was set to
+     * ERROR - The connector message errors field was set
      * 
-     * Create a new source connector message
-     * Set the channel's destination chain to one that always throws exceptions
-     * during call()
-     * Process the message, and assert:
-     * - No exception was thrown
-     * - Channel.process returns a MessageResponse
+     * Create a new source connector message Set the channel's destination chain to one that always
+     * throws exceptions during call() Process the message, and assert: - No exception was thrown -
+     * Channel.process returns a MessageResponse
      */
     @Test
     final public void testChannelProcess() throws Exception {
@@ -176,7 +166,7 @@ public class ExceptionTests {
 
             ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
             channel.deploy();
-            channel.start();
+            channel.start(null);
 
             ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId()).getConnectorMessages().get(0);
 

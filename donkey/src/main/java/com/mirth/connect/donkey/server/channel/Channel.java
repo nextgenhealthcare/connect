@@ -21,15 +21,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -55,15 +53,15 @@ import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.HaltException;
 import com.mirth.connect.donkey.server.PauseException;
+import com.mirth.connect.donkey.server.ResumeException;
 import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.Startable;
 import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.Stoppable;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.components.PostProcessor;
 import com.mirth.connect.donkey.server.channel.components.PreProcessor;
@@ -81,7 +79,7 @@ import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
-public class Channel implements Startable, Stoppable, Runnable {
+public class Channel implements Runnable {
     private String channelId;
     private long localChannelId;
     private String name;
@@ -108,20 +106,20 @@ public class Channel implements Startable, Stoppable, Runnable {
     private List<DestinationChain> destinationChains = new ArrayList<DestinationChain>();
     private ResponseSelector responseSelector;
 
-    // A single threaded executor that controls the channel (deploy, start, stop, etc...)
-    private ExecutorService controlExecutor = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+    /*
+     * Only 2 channels can remove all messages at a time since it can be a lengthy process. We don't
+     * want to use up all connections in the pool.
+     */
+    public static Semaphore DELETE_PERMIT = new Semaphore(2, true);
     // A cached thread pool executor that executes recovery tasks and destination chain tasks
     private ExecutorService channelExecutor;
     private Thread queueThread;
     private Set<Thread> dispatchThreads = new HashSet<Thread>();
     private boolean shuttingDown = false;
-    private Set<Future<?>> controlTasks = new LinkedHashSet<Future<?>>();
-    private Set<Thread> haltThreads = new LinkedHashSet<Thread>();
 
     private boolean stopSourceQueue = false;
     private ChannelProcessLock processLock = new DefaultChannelProcessLock();
     private Lock removeContentLock = new ReentrantLock(true);
-    private ChannelLock lock = ChannelLock.UNLOCKED;
 
     private MessageController messageController = MessageController.getInstance();
 
@@ -300,14 +298,6 @@ public class Channel implements Startable, Stoppable, Runnable {
         this.responseSelector = responseSelector;
     }
 
-    public void lock(ChannelLock lock) {
-        this.lock = lock;
-    }
-
-    public void unlock() {
-        this.lock = ChannelLock.UNLOCKED;
-    }
-
     public ChannelProcessLock getProcessLock() {
         return processLock;
     }
@@ -415,89 +405,141 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
     }
 
-    public void deploy() throws DeployException {
+    public synchronized void deploy() throws DeployException {
         if (!isConfigurationValid()) {
             throw new DeployException("Failed to deploy channel. The channel configuration is incomplete.");
         }
 
-        Future<?> task = null;
+        ChannelController.getInstance().initChannelStorage(channelId);
 
-        try {
-            synchronized (controlExecutor) {
-                if (lock == ChannelLock.DEPLOY || lock == ChannelLock.DEBUG) {
-                    task = controlExecutor.submit(new DeployTask());
-                    controlTasks.add(task);
-                }
-            }
+        /*
+         * Before deploying, make sure the connector is deployable. Verify that if queueing is
+         * enabled, the current storage settings support it.
+         */
+        if (!sourceConnector.isRespondAfterProcessing() && (!storageSettings.isEnabled() || !storageSettings.isStoreRaw() || (!storageSettings.isStoreMaps() && !storageSettings.isRawDurable()))) {
+            throw new DeployException("Failed to deploy channel " + name + " (" + channelId + "): the source connector has queueing enabled, but the current storage settings do not support queueing on the source connector.");
+        }
 
-            if (task != null) {
-                task.get();
+        for (DestinationChain chain : destinationChains) {
+            for (Integer metaDataId : chain.getMetaDataIds()) {
+                DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
 
-                Statistics channelStatistics = ChannelController.getInstance().getStatistics();
-                Map<Integer, Map<Status, Long>> connectorStatistics = new HashMap<Integer, Map<Status, Long>>();
-                Map<Status, Long> statisticMap = new HashMap<Status, Long>(channelStatistics.getConnectorStats(channelId, 0));
-                statisticMap.put(Status.QUEUED, (long) sourceQueue.size());
-
-                connectorStatistics.put(0, statisticMap);
-                for (DestinationChain chain : destinationChains) {
-                    for (Integer metaDataId : chain.getMetaDataIds()) {
-                        statisticMap = new HashMap<Status, Long>(channelStatistics.getConnectorStats(channelId, metaDataId));
-                        statisticMap.put(Status.QUEUED, (long) chain.getDestinationConnectors().get(metaDataId).getQueue().size());
-
-                        connectorStatistics.put(metaDataId, statisticMap);
-                    }
-                }
-
-                eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, name, null, null, DeployedStateEventType.DEPLOYED, connectorStatistics));
-            }
-        } catch (Throwable t) {
-            Throwable cause = t.getCause();
-            if (cause instanceof DeployException) {
-                throw (DeployException) cause;
-            }
-
-            throw new DeployException("Failed to deploy channel.", t);
-        } finally {
-            if (task != null) {
-                synchronized (controlExecutor) {
-                    controlTasks.remove(task);
+                if (destinationConnector.isQueueEnabled() && (!storageSettings.isEnabled() || !storageSettings.isStoreSourceEncoded() || !storageSettings.isStoreSent() || !storageSettings.isStoreMaps())) {
+                    throw new DeployException("Failed to deploy channel " + name + " (" + channelId + "): one or more destination connectors have queueing enabled, but the current storage settings do not support queueing on destination connectors.");
                 }
             }
         }
-    }
-
-    public void undeploy() throws UndeployException {
-        Future<?> task = null;
 
         try {
-            synchronized (controlExecutor) {
-                if (lock == ChannelLock.UNDEPLOY || lock == ChannelLock.DEBUG) {
-                    task = controlExecutor.submit(new UndeployTask());
-                    controlTasks.add(task);
+            updateMetaDataColumns();
+        } catch (SQLException e) {
+            throw new DeployException("Failed to deploy channel " + name + " (" + channelId + "): Unable to update custom metadata columns.");
+        }
+
+        List<Integer> deployedMetaDataIds = new ArrayList<Integer>();
+
+        // Call the connector onDeploy() methods so they can run their onDeploy logic
+        try {
+            if (responseSelector == null) {
+                responseSelector = new ResponseSelector(sourceConnector.getInboundDataType());
+            }
+
+            // set the source queue data source
+            sourceQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, serverId, 0, Status.RECEIVED, false, daoFactory));
+
+            // manually refresh the source queue size from it's data source
+            sourceQueue.updateSize();
+
+            deployedMetaDataIds.add(0);
+            sourceConnector.onDeploy();
+            if (sourceConnector.getBatchAdaptorFactory() != null) {
+                sourceConnector.getBatchAdaptorFactory().onDeploy();
+            }
+
+            for (DestinationChain chain : destinationChains) {
+                chain.setDaoFactory(daoFactory);
+                chain.setStorageSettings(storageSettings);
+
+                for (Integer metaDataId : chain.getMetaDataIds()) {
+                    DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
+                    destinationConnector.setDaoFactory(daoFactory);
+                    destinationConnector.setStorageSettings(storageSettings);
+
+                    // set the queue data source
+                    destinationConnector.getQueue().setDataSource(new ConnectorMessageQueueDataSource(getChannelId(), getServerId(), destinationConnector.getMetaDataId(), Status.QUEUED, destinationConnector.isQueueRotate(), daoFactory));
+
+                    // refresh the queue size from it's data source
+                    destinationConnector.getQueue().updateSize();
+
+                    deployedMetaDataIds.add(metaDataId);
+                    destinationConnector.onDeploy();
                 }
             }
 
-            if (task != null) {
-                task.get();
-                eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, name, null, null, DeployedStateEventType.UNDEPLOYED));
-            }
+            responseSelector.setNumDestinations(getDestinationCount());
         } catch (Throwable t) {
-            Throwable cause = t.getCause();
-            if (cause instanceof UndeployException) {
-                throw (UndeployException) cause;
+
+            // If an exception occurred, then attempt to rollback by undeploying all the connectors that were deployed
+            for (Integer metaDataId : deployedMetaDataIds) {
+                try {
+                    undeployConnector(metaDataId);
+                } catch (Exception e2) {
+                }
             }
 
-            throw new UndeployException("Failed to undeploy channel.", t);
-        } finally {
-            if (task != null) {
-                synchronized (controlExecutor) {
-                    controlTasks.remove(task);
+            throw new DeployException("Failed to deploy channel " + name + " (" + channelId + ").", t);
+        }
+
+        Statistics channelStatistics = ChannelController.getInstance().getStatistics();
+        Map<Integer, Map<Status, Long>> connectorStatistics = new HashMap<Integer, Map<Status, Long>>();
+        Map<Status, Long> statisticMap = new HashMap<Status, Long>(channelStatistics.getConnectorStats(channelId, 0));
+        statisticMap.put(Status.QUEUED, (long) sourceQueue.size());
+
+        connectorStatistics.put(0, statisticMap);
+        for (DestinationChain chain : destinationChains) {
+            for (Integer metaDataId : chain.getMetaDataIds()) {
+                statisticMap = new HashMap<Status, Long>(channelStatistics.getConnectorStats(channelId, metaDataId));
+                statisticMap.put(Status.QUEUED, (long) chain.getDestinationConnectors().get(metaDataId).getQueue().size());
+
+                connectorStatistics.put(metaDataId, statisticMap);
+            }
+        }
+
+        eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, name, null, null, DeployedStateEventType.DEPLOYED, connectorStatistics));
+    }
+
+    public synchronized void undeploy() throws UndeployException {
+        // Call the connector onUndeploy() methods so they can run their onUndeploy logic
+        Throwable firstCause = null;
+
+        List<Integer> deployedMetaDataIds = new ArrayList<Integer>();
+        deployedMetaDataIds.add(0);
+
+        for (DestinationChain chain : destinationChains) {
+            for (Integer metaDataId : chain.getMetaDataIds()) {
+                deployedMetaDataIds.add(metaDataId);
+            }
+        }
+
+        // If an exception occurs, then still proceed by undeploying the rest of the connectors
+        for (Integer metaDataId : deployedMetaDataIds) {
+            try {
+                undeployConnector(metaDataId);
+            } catch (Throwable t) {
+                if (firstCause == null) {
+                    firstCause = t;
                 }
             }
         }
+
+        if (firstCause != null) {
+            throw new UndeployException("Failed to undeploy channel " + name + " (" + channelId + "): One or more connectors failed to undeploy.", firstCause);
+        }
+
+        eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, name, null, null, DeployedStateEventType.UNDEPLOYED));
     }
 
-    private void undeployConnector(Integer metaDataId) throws UndeployException {
+    private void undeployConnector(Integer metaDataId) throws Exception {
         try {
             if (metaDataId == 0) {
                 if (sourceConnector != null) {
@@ -514,7 +556,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     destinationConnector.onUndeploy();
                 }
             }
-        } catch (UndeployException e) {
+        } catch (Exception e) {
             if (metaDataId == 0) {
                 logger.error("Error undeploying Source connector for channel " + name + " (" + channelId + ").", e);
             } else {
@@ -524,115 +566,115 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
     }
 
-    @Override
-    public void start() throws StartException {
-        start(null);
-    }
-
     /**
      * Start the channel and all of the channel's connectors.
      */
-    public void start(Set<Integer> connectorsToStart) throws StartException {
-        Future<?> task = null;
+    public synchronized void start(Set<Integer> connectorsToStart) throws StartException {
+        if (currentState == DeployedState.STOPPED) {
+            List<Integer> startedMetaDataIds = new ArrayList<Integer>();
 
-        try {
-            synchronized (controlExecutor) {
-                if (lock == ChannelLock.UNLOCKED || lock == ChannelLock.DEPLOY || lock == ChannelLock.DEBUG) {
-                    task = controlExecutor.submit(new StartTask(connectorsToStart));
-                    controlTasks.add(task);
-                }
-            }
+            try {
+                ThreadUtils.checkInterruptedStatus();
 
-            if (task != null) {
-                task.get();
-            }
-        } catch (Throwable t) {
-            Throwable cause = t.getCause();
-            if (cause instanceof StartException) {
-                throw (StartException) cause;
-            }
+                updateCurrentState(DeployedState.STARTING);
 
-            throw new StartException("Failed to start channel.", t);
-        } finally {
-            if (task != null) {
-                synchronized (controlExecutor) {
-                    controlTasks.remove(task);
-                }
-            }
-        }
-    }
+                /*
+                 * We can't guarantee the state of the process lock when the channel was stopped or
+                 * halted, so we just reset it.
+                 */
+                processLock.reset();
+                removeContentLock = new ReentrantLock(true);
+                dispatchThreads.clear();
+                shuttingDown = false;
+                stopSourceQueue = false;
 
-    @Override
-    public void stop() throws StopException {
-        Future<?> task = null;
+                // Remove any items in the queue's buffer because they may be outdated and refresh the queue size.
+                sourceQueue.invalidate(true, true);
 
-        try {
-            synchronized (controlExecutor) {
-                if (lock == ChannelLock.UNLOCKED || lock == ChannelLock.UNDEPLOY || lock == ChannelLock.DEBUG) {
-                    task = controlExecutor.submit(new StopTask());
-                    controlTasks.add(task);
-                }
-            }
-
-            if (task != null) {
-                task.get();
-            }
-        } catch (Throwable t) {
-            Throwable cause = t.getCause();
-            if (cause instanceof StopException) {
-                throw (StopException) cause;
-            }
-
-            throw new StopException("Failed to stop channel.", t);
-        } finally {
-            if (task != null) {
-                synchronized (controlExecutor) {
-                    controlTasks.remove(task);
-                }
-            }
-        }
-    }
-
-    public void halt() throws HaltException {
-        Future<?> task = null;
-        Throwable firstCause = null;
-
-        try {
-            synchronized (haltThreads) {
-                // Interrupt any active halt threads for this channel
-                Thread[] threads = new Thread[haltThreads.size()];
-                haltThreads.toArray(threads);
-                for (int i = threads.length - 1; i >= 0; i--) {
-                    threads[i].interrupt();
+                // enable all destination connectors in each chain
+                for (DestinationChain chain : destinationChains) {
+                    chain.getEnabledMetaDataIds().clear();
+                    chain.getEnabledMetaDataIds().addAll(chain.getMetaDataIds());
                 }
 
-                // Store the current halt thread so it can be interrupted
-                haltThreads.add(Thread.currentThread());
-            }
-            synchronized (controlExecutor) {
-                Object[] tasks = controlTasks.toArray();
+                channelExecutor = Executors.newCachedThreadPool();
 
-                // Cancel tasks in reverse order
-                for (int i = tasks.length - 1; i >= 0; i--) {
-                    ((Future<?>) tasks[i]).cancel(true);
-                }
+                // start the destination connectors
+                for (DestinationChain chain : destinationChains) {
+                    for (Integer metaDataId : chain.getMetaDataIds()) {
+                        DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
 
-                // These executors must be shutdown here in order to terminate a stop task.
-                // They are also shutdown in the halt task itself in case a start task started them after this point.
-                channelExecutor.shutdownNow();
-
-                if (queueThread != null) {
-                    queueThread.interrupt();
-                }
-
-                // Interrupt any dispatch threads that are currently processing
-                synchronized (dispatchThreads) {
-                    shuttingDown = true;
-                    for (Thread thread : dispatchThreads) {
-                        thread.interrupt();
+                        if (destinationConnector.getCurrentState() == DeployedState.STOPPED && (connectorsToStart == null || connectorsToStart.contains(metaDataId))) {
+                            startedMetaDataIds.add(metaDataId);
+                            destinationConnector.start();
+                        }
                     }
                 }
 
+                ThreadUtils.checkInterruptedStatus();
+                try {
+                    processUnfinishedMessages();
+                } catch (InterruptedException e) {
+                    logger.error("Startup recovery interrupted for channel " + name + "(" + channelId + ")", e);
+                    throw e;
+                } catch (Exception e) {
+                    Throwable cause;
+                    if (e instanceof ExecutionException) {
+                        cause = e.getCause();
+                    } else {
+                        cause = e;
+                    }
+
+                    logger.error("Startup recovery failed for channel " + name + "(" + channelId + "): " + cause.getMessage(), cause);
+                }
+
+                ThreadUtils.checkInterruptedStatus();
+                // start up the worker thread that will process queued messages
+                if (!sourceConnector.isRespondAfterProcessing()) {
+                    queueThread = new Thread(Channel.this);
+                    queueThread.start();
+                }
+
+                if (connectorsToStart == null || connectorsToStart.contains(0)) {
+                    ThreadUtils.checkInterruptedStatus();
+                    // start up the source connector
+                    if (sourceConnector.getCurrentState() == DeployedState.STOPPED) {
+                        startedMetaDataIds.add(0);
+                        sourceConnector.start();
+                    }
+
+                    updateCurrentState(DeployedState.STARTED);
+                } else {
+                    updateCurrentState(DeployedState.PAUSED);
+                }
+            } catch (Throwable t) {
+                if (t instanceof InterruptedException) {
+                    throw new StartException("Start channel task for " + name + " (" + channelId + ") terminated by halt notification.", t);
+                }
+                // If an exception occurred, then attempt to rollback by stopping all the connectors that were started
+                try {
+                    updateCurrentState(DeployedState.STOPPING);
+                    stop(startedMetaDataIds);
+                    updateCurrentState(DeployedState.STOPPED);
+                } catch (Throwable t2) {
+                    if (t2 instanceof InterruptedException) {
+                        throw new StartException("Start channel task for " + name + " (" + channelId + ") terminated by halt notification.", t);
+                    }
+
+                    updateCurrentState(DeployedState.STOPPED);
+                }
+
+                throw new StartException("Failed to start channel " + name + " (" + channelId + ").", t);
+            }
+        } else {
+            logger.warn("Failed to start channel " + name + " (" + channelId + "): The channel is already running.");
+        }
+    }
+
+    public synchronized void stop() throws StopException {
+        if (currentState != DeployedState.STOPPED) {
+            try {
+                updateCurrentState(DeployedState.STOPPING);
                 List<Integer> deployedMetaDataIds = new ArrayList<Integer>();
                 deployedMetaDataIds.add(0);
 
@@ -642,114 +684,209 @@ public class Channel implements Startable, Stoppable, Runnable {
                     }
                 }
 
-                for (Integer metaDataId : deployedMetaDataIds) {
-                    try {
-                        haltConnector(metaDataId);
-                    } catch (Throwable t) {
-                        if (t.getCause() instanceof InterruptedException) {
-                            throw (InterruptedException) t.getCause();
-                        }
-                        if (firstCause == null) {
-                            firstCause = t;
-                        }
+                stop(deployedMetaDataIds);
+                updateCurrentState(DeployedState.STOPPED);
+            } catch (Throwable t) {
+                if (t instanceof InterruptedException) {
+                    throw new StopException("Stop channel task for " + name + " (" + channelId + ") terminated by halt notification.", t);
+                }
+                throw new StopException("Failed to stop channel " + name + " (" + channelId + ").", t);
+            }
+        } else {
+            logger.warn("Failed to stop channel " + name + " (" + channelId + "): The channel is already stopped.");
+        }
+    }
+
+    public void halt() throws HaltException {
+        /*
+         * These executors must be shutdown here in order to terminate any other current task that
+         * may be stuck. They will be terminated again after the synchronization lock is obtained.
+         */
+
+        List<Runnable> tasks = channelExecutor.shutdownNow();
+        // If any tasks had not started yet, they need to be cancaelled, otherwise they will be stuck at future.get().
+        for (Runnable task : tasks) {
+            if (task instanceof Future) {
+                ((Future<?>) task).cancel(true);
+            }
+        }
+
+        if (queueThread != null) {
+            queueThread.interrupt();
+        }
+
+        // Interrupt any dispatch threads that are currently processing
+        synchronized (dispatchThreads) {
+            shuttingDown = true;
+            for (Thread thread : dispatchThreads) {
+                thread.interrupt();
+            }
+        }
+
+        List<Integer> deployedMetaDataIds = new ArrayList<Integer>();
+        deployedMetaDataIds.add(0);
+
+        for (DestinationChain chain : destinationChains) {
+            for (Integer metaDataId : chain.getMetaDataIds()) {
+                deployedMetaDataIds.add(metaDataId);
+            }
+        }
+
+        for (Integer metaDataId : deployedMetaDataIds) {
+            try {
+                haltConnector(metaDataId);
+            } catch (Throwable t) {
+            }
+        }
+
+        synchronized (this) {
+            /*
+             * The channel could have been started again before after the previous interrupts, so
+             * now that we have this lock we halt everything again to just in case.
+             */
+            if (currentState != DeployedState.STOPPED) {
+                try {
+                    updateCurrentState(DeployedState.STOPPING);
+
+                    halt(deployedMetaDataIds);
+                    updateCurrentState(DeployedState.STOPPED);
+                } catch (Throwable t) {
+                    if (t instanceof InterruptedException) {
+                        throw new HaltException("Halt channel task for " + name + " (" + channelId + ") terminated by another halt notification.", t);
+                    }
+                    throw new HaltException("Failed to halt channel " + name + " (" + channelId + ").", t);
+                }
+            } else {
+                logger.warn("Failed to stop channel " + name + " (" + channelId + "): The channel is already stopped.");
+            }
+        }
+    }
+
+    public synchronized void pause() throws PauseException {
+        if (currentState == DeployedState.STARTED) {
+            try {
+                updateCurrentState(DeployedState.PAUSING);
+                sourceConnector.stop();
+                updateCurrentState(DeployedState.PAUSED);
+            } catch (Throwable t) {
+                if (t instanceof InterruptedException) {
+                    throw new PauseException("Pause channel task for " + name + " (" + channelId + ") terminated by halt notification.", t);
+                }
+                throw new PauseException("Failed to pause channel " + name + " (" + channelId + ").", t);
+            }
+        } else {
+            //TODO what to do here?
+            if (currentState == DeployedState.PAUSED) {
+                logger.warn("Failed to pause channel " + name + " (" + channelId + "): The channel is already paused.");
+            } else {
+                logger.warn("Failed to pause channel " + name + " (" + channelId + "): The channel is currently " + currentState.toString().toLowerCase() + " and cannot be paused.");
+            }
+        }
+    }
+
+    public synchronized void resume() throws ResumeException {
+        if (currentState == DeployedState.PAUSED) {
+            try {
+                updateCurrentState(DeployedState.STARTING);
+                sourceConnector.start();
+                updateCurrentState(DeployedState.STARTED);
+            } catch (Throwable t) {
+                if (t instanceof InterruptedException) {
+                    throw new ResumeException("Resume channel task for " + name + " (" + channelId + ") terminated by halt notification.", t);
+                }
+
+                try {
+                    updateCurrentState(DeployedState.PAUSING);
+                    sourceConnector.stop();
+                    updateCurrentState(DeployedState.PAUSED);
+                } catch (Throwable e2) {
+                }
+
+                throw new ResumeException("Failed to resume channel " + name + " (" + channelId + ").", t);
+            }
+        } else {
+            logger.warn("Failed to resume channel " + name + " (" + channelId + "): The source connector is not currently paused.");
+        }
+    }
+
+    public synchronized void removeAllMessages(boolean force, boolean clearStatistics) throws InterruptedException {
+        boolean startChannelAfter = false;
+        Set<Integer> startMetaDataIds = new HashSet<Integer>();
+
+        // If force is true, then the channel will be stopped if necessary so the messages can be deleted.
+        if (currentState != DeployedState.STOPPED && force) {
+            if (sourceConnector.getCurrentState() != DeployedState.STOPPED) {
+                startMetaDataIds.add(0);
+            }
+
+            for (DestinationChain chain : getDestinationChains()) {
+                for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
+                    if (destinationConnector.getCurrentState() != DeployedState.STOPPED) {
+                        startMetaDataIds.add(destinationConnector.getMetaDataId());
                     }
                 }
-
-                task = controlExecutor.submit(new HaltTask());
-                controlTasks.add(task);
             }
 
-            task.get();
-
-            if (firstCause != null) {
-                throw firstCause;
+            try {
+                stop();
+                startChannelAfter = true;
+            } catch (StopException e) {
+                logger.error("Failed to stop channel " + name + " (" + channelId + ") in order to remove all messages.", e);
+                return;
             }
-        } catch (Throwable t) {
-            Throwable cause = t.getCause();
-            if (cause instanceof HaltException) {
-                throw (HaltException) cause;
-            }
+        }
 
-            throw new HaltException("Failed to halt channel.", t);
-        } finally {
-            if (task != null) {
-                synchronized (controlExecutor) {
-                    controlTasks.remove(task);
+        if (currentState == DeployedState.STOPPED) {
+            DELETE_PERMIT.acquire();
+
+            try {
+                DonkeyDao dao = getDaoFactory().getDao();
+                try {
+                    logger.debug("Removing messages for channel \"" + name + "\"");
+                    dao.deleteAllMessages(channelId);
+
+                    if (clearStatistics) {
+                        logger.debug("Clearing statistics for channel \"" + name + "\"");
+
+                        Set<Status> statuses = Statistics.getTrackedStatuses();
+                        dao.resetStatistics(channelId, null, statuses);
+
+                        for (Integer metaDataId : getMetaDataIds()) {
+                            dao.resetStatistics(channelId, metaDataId, statuses);
+                        }
+                    }
+
+                    dao.commit();
+                } finally {
+                    dao.close();
                 }
+            } finally {
+                DELETE_PERMIT.release();
             }
-            synchronized (haltThreads) {
-                haltThreads.remove(Thread.currentThread());
+            // Invalidate the queue buffer to ensure stats are updated.
+            invalidateQueues();
+        }
+
+        if (startChannelAfter) {
+            try {
+                logger.debug("Restarting channel \"" + name + "\" after removing all messages");
+                // Only start the source connector if the channel wasn't paused or pausing before
+                start(startMetaDataIds);
+            } catch (StartException e) {
+                logger.error("Failed to start channel " + name + " (" + channelId + ") after removing all messages.", e);
             }
         }
     }
 
-    public void pause() throws PauseException {
-        Future<?> task = null;
-
-        try {
-            synchronized (controlExecutor) {
-                if (lock == ChannelLock.UNLOCKED || lock == ChannelLock.DEBUG) {
-                    task = controlExecutor.submit(new PauseTask());
-                    controlTasks.add(task);
-                }
-            }
-
-            if (task != null) {
-                task.get();
-            }
-        } catch (Throwable t) {
-            Throwable cause = t.getCause();
-            if (cause instanceof PauseException) {
-                throw (PauseException) cause;
-            }
-
-            throw new PauseException("Failed to pause channel.", t);
-        } finally {
-            if (task != null) {
-                synchronized (controlExecutor) {
-                    controlTasks.remove(task);
-                }
-            }
-        }
-    }
-
-    public void resume() throws StartException {
-        Future<?> task = null;
-
-        try {
-            synchronized (controlExecutor) {
-                if (lock == ChannelLock.UNLOCKED || lock == ChannelLock.DEBUG) {
-                    task = controlExecutor.submit(new ResumeTask());
-                    controlTasks.add(task);
-                }
-            }
-
-            if (task != null) {
-                task.get();
-            }
-        } catch (Throwable t) {
-            Throwable cause = t.getCause();
-            if (cause instanceof StartException) {
-                throw (StartException) cause;
-            }
-
-            throw new StartException("Failed to resume channel.", t);
-        } finally {
-            if (task != null) {
-                synchronized (controlExecutor) {
-                    controlTasks.remove(task);
-                }
-            }
-        }
-    }
-
-    private void stop(List<Integer> metaDataIds) throws StopException, InterruptedException {
+    private void stop(List<Integer> metaDataIds) throws Throwable {
         stopSourceQueue = true;
         Throwable firstCause = null;
 
         ThreadUtils.checkInterruptedStatus();
         try {
             sourceConnector.stop();
+        } catch (InterruptedException e) {
+            throw e;
         } catch (Throwable t) {
             logger.error("Error stopping Source connector for channel " + name + " (" + channelId + ").", t);
             if (firstCause == null) {
@@ -779,18 +916,20 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         // If an exception occurs, then still proceed by stopping the rest of the connectors
         for (Integer metaDataId : metaDataIds) {
-            ThreadUtils.checkInterruptedStatus();
-
             try {
                 if (metaDataId > 0) {
                     getDestinationConnector(metaDataId).stop();
                 }
+            } catch (InterruptedException e) {
+                throw e;
             } catch (Throwable t) {
                 logger.error("Error stopping destination connector \"" + getDestinationConnector(metaDataId).getDestinationName() + "\" for channel " + name + " (" + channelId + ").", t);
                 if (firstCause == null) {
                     firstCause = t;
                 }
             }
+
+            ThreadUtils.checkInterruptedStatus();
         }
 
         if (queueThread != null) {
@@ -800,21 +939,21 @@ public class Channel implements Startable, Stoppable, Runnable {
         channelExecutor.shutdown();
 
         if (firstCause != null) {
-            /*
-             * Only set the state to STOPPED here if the exception (or its cause) is not an
-             * InterruptedException (indicating that the channel was halted).
-             */
-            if (!(firstCause instanceof InterruptedException) && (firstCause.getCause() == null || !(firstCause.getCause() instanceof InterruptedException))) {
-                updateCurrentState(DeployedState.STOPPED);
-            }
-            throw new StopException("Failed to stop channel " + name + " (" + channelId + "): One or more connectors failed to stop.", firstCause);
+            updateCurrentState(DeployedState.STOPPED);
+            throw firstCause;
         }
     }
 
-    private void halt(List<Integer> metaDataIds) throws HaltException, InterruptedException {
+    private void halt(List<Integer> metaDataIds) throws Throwable {
         stopSourceQueue = true;
 
-        channelExecutor.shutdownNow();
+        List<Runnable> tasks = channelExecutor.shutdownNow();
+        // If any tasks had not started yet, they need to be cancaelled, otherwise they will be stuck at future.get().
+        for (Runnable task : tasks) {
+            if (task instanceof Future) {
+                ((Future<?>) task).cancel(true);
+            }
+        }
 
         if (queueThread != null) {
             queueThread.interrupt();
@@ -834,6 +973,8 @@ public class Channel implements Startable, Stoppable, Runnable {
         for (Integer metaDataId : metaDataIds) {
             try {
                 haltConnector(metaDataId);
+            } catch (InterruptedException e) {
+                throw e;
             } catch (Throwable t) {
                 if (t.getCause() instanceof InterruptedException) {
                     throw (InterruptedException) t.getCause();
@@ -869,78 +1010,65 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         if (firstCause != null) {
             updateCurrentState(DeployedState.STOPPED);
-            throw new HaltException("Failed to stop channel " + name + " (" + channelId + "): One or more connectors failed to stop.", firstCause);
+            throw firstCause;
         }
     }
 
-    public void startConnector(Integer metaDataId) throws StartException {
-        Future<?> task = null;
+    public void startConnector(Integer metaDataId) throws StartException, ResumeException {
+        if (metaDataId == 0) {
+            resume();
+        } else {
+            DestinationConnector destinationConnector = getDestinationConnector(metaDataId);
 
-        try {
-            synchronized (controlExecutor) {
-                if (lock == ChannelLock.UNLOCKED || lock == ChannelLock.DEBUG) {
-                    task = controlExecutor.submit(metaDataId == 0 ? new ResumeTask() : new StartDestinationTask(metaDataId));
-                    controlTasks.add(task);
+            if (currentState == DeployedState.STARTED || currentState == DeployedState.PAUSED) {
+                if (destinationConnector.getCurrentState() == DeployedState.STOPPED) {
+                    try {
+                        destinationConnector.start();
+                    } catch (Throwable t) {
+                        throw new StartException("Failed to stop connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "). ", t);
+                    }
                 }
-            }
-
-            if (task != null) {
-                task.get();
-            }
-        } catch (Throwable t) {
-            Throwable cause = t.getCause();
-            if (cause instanceof StartException) {
-                throw (StartException) cause;
-            }
-
-            throw new StartException("Failed to start connector.", t);
-        } finally {
-            if (task != null) {
-                synchronized (controlExecutor) {
-                    controlTasks.remove(task);
-                }
+            } else {
+                logger.error("Failed to start connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "): The channel is not started or paused.");
             }
         }
     }
 
-    public void stopConnector(Integer metaDataId) throws StopException {
-        Future<?> task = null;
+    public void stopConnector(Integer metaDataId) throws StopException, PauseException {
+        if (metaDataId == 0) {
+            pause();
+        } else {
+            DestinationConnector destinationConnector = getDestinationConnector(metaDataId);
 
-        try {
-            synchronized (controlExecutor) {
-                if (lock == ChannelLock.UNLOCKED || lock == ChannelLock.DEBUG) {
-                    task = controlExecutor.submit(metaDataId == 0 ? new PauseTask() : new StopDestinationTask(metaDataId));
-                    controlTasks.add(task);
+            if (currentState == DeployedState.STARTED || currentState == DeployedState.PAUSED) {
+                if (destinationConnector.getCurrentState() != DeployedState.STOPPED) {
+                    // Destination connectors can only be stopped individually if the queue is enabled.
+                    if (destinationConnector.isQueueEnabled()) {
+                        try {
+                            // Force messages to be queued after this point even if attempt first is on.
+                            destinationConnector.setForceQueue(true);
+                            destinationConnector.stop();
+                        } catch (Throwable t) {
+                            throw new StopException("Failed to stop connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "). ", t);
+                        }
+                    } else {
+                        logger.error("Failed to stop connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "): Destination connectors must have queueing enabled to be stopped individually.");
+                    }
                 }
-            }
-
-            if (task != null) {
-                task.get();
-            }
-        } catch (Throwable t) {
-            Throwable cause = t.getCause();
-            if (cause instanceof StopException) {
-                throw (StopException) cause;
-            }
-
-            throw new StopException("Failed to stop connector.", t);
-        } finally {
-            if (task != null) {
-                synchronized (controlExecutor) {
-                    controlTasks.remove(task);
-                }
+            } else {
+                logger.error("Failed to stop connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "): The channel is not started or paused.");
             }
         }
     }
 
-    private void haltConnector(Integer metaDataId) throws HaltException {
+    private void haltConnector(Integer metaDataId) throws ConnectorTaskException, InterruptedException {
         try {
             if (metaDataId == 0) {
                 sourceConnector.halt();
             } else {
                 getDestinationConnector(metaDataId).halt();
             }
-        } catch (HaltException e) {
+        } catch (ConnectorTaskException e) {
             if (metaDataId == 0) {
                 logger.error("Error halting Source connector for channel " + name + " (" + channelId + ").", e);
             } else {
@@ -1842,448 +1970,44 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
     }
 
-    private class DeployTask implements Callable<Void> {
+    private void updateMetaDataColumns() throws SQLException {
+        DonkeyDao dao = daoFactory.getDao();
 
-        @Override
-        public Void call() throws Exception {
-            ChannelController.getInstance().initChannelStorage(channelId);
+        try {
+            Map<String, MetaDataColumnType> existingColumnsMap = new HashMap<String, MetaDataColumnType>();
+            List<String> columnsToRemove = new ArrayList<String>();
+            List<MetaDataColumn> existingColumns = dao.getMetaDataColumns(channelId);
 
-            /*
-             * Before deploying, make sure the connector is deployable. Verify that if queueing is
-             * enabled, the current storage settings support it.
-             */
-            if (!sourceConnector.isRespondAfterProcessing() && (!storageSettings.isEnabled() || !storageSettings.isStoreRaw() || (!storageSettings.isStoreMaps() && !storageSettings.isRawDurable()))) {
-                throw new DeployException("Failed to deploy channel " + name + " (" + channelId + "): the source connector has queueing enabled, but the current storage settings do not support queueing on the source connector.");
+            for (MetaDataColumn existingColumn : existingColumns) {
+                existingColumnsMap.put(existingColumn.getName(), existingColumn.getType());
+                columnsToRemove.add(existingColumn.getName());
             }
 
-            for (DestinationChain chain : destinationChains) {
-                for (Integer metaDataId : chain.getMetaDataIds()) {
-                    DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
+            for (MetaDataColumn column : metaDataColumns) {
+                String columnName = column.getName();
 
-                    if (destinationConnector.isQueueEnabled() && (!storageSettings.isEnabled() || !storageSettings.isStoreSourceEncoded() || !storageSettings.isStoreSent() || !storageSettings.isStoreMaps())) {
-                        throw new DeployException("Failed to deploy channel " + name + " (" + channelId + "): one or more destination connectors have queueing enabled, but the current storage settings do not support queueing on destination connectors.");
-                    }
-                }
-            }
-
-            try {
-                updateMetaDataColumns();
-            } catch (SQLException e) {
-                throw new DeployException("Failed to deploy channel " + name + " (" + channelId + "): Unable to update custom metadata columns.");
-            }
-
-            List<Integer> deployedMetaDataIds = new ArrayList<Integer>();
-
-            // Call the connector onDeploy() methods so they can run their onDeploy logic
-            try {
-                if (responseSelector == null) {
-                    responseSelector = new ResponseSelector(sourceConnector.getInboundDataType());
-                }
-
-                // set the source queue data source
-                sourceQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, serverId, 0, Status.RECEIVED, false, daoFactory));
-
-                // manually refresh the source queue size from it's data source
-                sourceQueue.updateSize();
-
-                deployedMetaDataIds.add(0);
-                sourceConnector.onDeploy();
-                if (sourceConnector.getBatchAdaptorFactory() != null) {
-                    sourceConnector.getBatchAdaptorFactory().onDeploy();
-                }
-
-                for (DestinationChain chain : destinationChains) {
-                    chain.setDaoFactory(daoFactory);
-                    chain.setStorageSettings(storageSettings);
-
-                    for (Integer metaDataId : chain.getMetaDataIds()) {
-                        DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
-                        destinationConnector.setDaoFactory(daoFactory);
-                        destinationConnector.setStorageSettings(storageSettings);
-
-                        // set the queue data source
-                        destinationConnector.getQueue().setDataSource(new ConnectorMessageQueueDataSource(getChannelId(), getServerId(), destinationConnector.getMetaDataId(), Status.QUEUED, destinationConnector.isQueueRotate(), daoFactory));
-
-                        // refresh the queue size from it's data source
-                        destinationConnector.getQueue().updateSize();
-
-                        deployedMetaDataIds.add(metaDataId);
-                        destinationConnector.onDeploy();
-                    }
-                }
-            } catch (Throwable t) {
-                // If an exception occurred, then attempt to rollback by undeploying all the connectors that were deployed
-                for (Integer metaDataId : deployedMetaDataIds) {
-                    try {
-                        undeployConnector(metaDataId);
-                    } catch (UndeployException e2) {
-                    }
-                }
-
-                throw new DeployException(t);
-            }
-
-            responseSelector.setNumDestinations(getDestinationCount());
-
-            return null;
-        }
-
-        private void updateMetaDataColumns() throws SQLException {
-            DonkeyDao dao = daoFactory.getDao();
-
-            try {
-                Map<String, MetaDataColumnType> existingColumnsMap = new HashMap<String, MetaDataColumnType>();
-                List<String> columnsToRemove = new ArrayList<String>();
-                List<MetaDataColumn> existingColumns = dao.getMetaDataColumns(channelId);
-
-                for (MetaDataColumn existingColumn : existingColumns) {
-                    existingColumnsMap.put(existingColumn.getName(), existingColumn.getType());
-                    columnsToRemove.add(existingColumn.getName());
-                }
-
-                for (MetaDataColumn column : metaDataColumns) {
-                    String columnName = column.getName();
-
-                    if (existingColumnsMap.containsKey(columnName)) {
-                        // The column name already exists in the table
-                        if (existingColumnsMap.get(columnName) != column.getType()) {
-                            // The column name is in the table, but the column type has changed
-                            dao.removeMetaDataColumn(channelId, columnName);
-                            dao.addMetaDataColumn(channelId, column);
-                        }
-                    } else {
-                        // The column name does not exist in the table
+                if (existingColumnsMap.containsKey(columnName)) {
+                    // The column name already exists in the table
+                    if (existingColumnsMap.get(columnName) != column.getType()) {
+                        // The column name is in the table, but the column type has changed
+                        dao.removeMetaDataColumn(channelId, columnName);
                         dao.addMetaDataColumn(channelId, column);
                     }
-
-                    columnsToRemove.remove(columnName);
-                }
-
-                for (String columnToRemove : columnsToRemove) {
-                    dao.removeMetaDataColumn(channelId, columnToRemove);
-                }
-
-                dao.commit();
-            } finally {
-                dao.close();
-            }
-        }
-    }
-
-    private class UndeployTask implements Callable<Void> {
-
-        @Override
-        public Void call() throws Exception {
-            // Call the connector onUndeploy() methods so they can run their onUndeploy logic
-            Throwable firstCause = null;
-
-            List<Integer> deployedMetaDataIds = new ArrayList<Integer>();
-            deployedMetaDataIds.add(0);
-
-            for (DestinationChain chain : destinationChains) {
-                for (Integer metaDataId : chain.getMetaDataIds()) {
-                    deployedMetaDataIds.add(metaDataId);
-                }
-            }
-
-            // If an exception occurs, then still proceed by undeploying the rest of the connectors
-            for (Integer metaDataId : deployedMetaDataIds) {
-                try {
-                    undeployConnector(metaDataId);
-                } catch (Throwable t) {
-                    if (firstCause == null) {
-                        firstCause = t;
-                    }
-                }
-            }
-
-            if (firstCause != null) {
-                throw new UndeployException("Failed to undeploy channel " + name + " (" + channelId + "): One or more connectors failed to undeploy.", firstCause);
-            }
-
-            return null;
-        }
-    }
-
-    private class StartTask implements Callable<Void> {
-
-        private Set<Integer> connectorsToStart;
-
-        public StartTask(Set<Integer> connectorsToStart) {
-            this.connectorsToStart = connectorsToStart;
-        }
-
-        @Override
-        public Void call() throws Exception {
-            if (currentState == DeployedState.STOPPED) {
-                // Prevent the channel for being started while messages are being deleted.
-                synchronized (Channel.this) {
-                    updateCurrentState(DeployedState.STARTING);
-
-                    /*
-                     * We can't guarantee the state of the process lock when the channel was stopped
-                     * / halted, so we just reset it.
-                     */
-                    // TODO if we convert to use reentrant lock, think about what we should do with it here
-                    processLock.reset();
-                    removeContentLock = new ReentrantLock(true);
-                    dispatchThreads.clear();
-                    shuttingDown = false;
-                    stopSourceQueue = false;
-
-                    // Remove any items in the queue's buffer because they may be outdated and refresh the queue size.
-                    sourceQueue.invalidate(true, true);
-
-                    // enable all destination connectors in each chain
-                    for (DestinationChain chain : destinationChains) {
-                        chain.getEnabledMetaDataIds().clear();
-                        chain.getEnabledMetaDataIds().addAll(chain.getMetaDataIds());
-                    }
-                    List<Integer> startedMetaDataIds = new ArrayList<Integer>();
-
-                    try {
-                        channelExecutor = Executors.newCachedThreadPool();
-
-                        // start the destination connectors
-                        for (DestinationChain chain : destinationChains) {
-                            for (Integer metaDataId : chain.getMetaDataIds()) {
-                                DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
-
-                                if (destinationConnector.getCurrentState() == DeployedState.STOPPED && (connectorsToStart == null || connectorsToStart.contains(metaDataId))) {
-                                    startedMetaDataIds.add(metaDataId);
-                                    destinationConnector.start();
-                                }
-                            }
-                        }
-
-                        ThreadUtils.checkInterruptedStatus();
-                        try {
-                            processUnfinishedMessages();
-                        } catch (InterruptedException e) {
-                            logger.error("Startup recovery interrupted for channel " + name + "(" + channelId + ")", e);
-                            Thread.currentThread().interrupt();
-                        } catch (Exception e) {
-                            Throwable cause;
-                            if (e instanceof ExecutionException) {
-                                cause = e.getCause();
-                            } else {
-                                cause = e;
-                            }
-
-                            logger.error("Startup recovery failed for channel " + name + "(" + channelId + "): " + cause.getMessage(), cause);
-                        }
-
-                        ThreadUtils.checkInterruptedStatus();
-                        // start up the worker thread that will process queued messages
-                        if (!sourceConnector.isRespondAfterProcessing()) {
-                            queueThread = new Thread(Channel.this);
-                            queueThread.start();
-                        }
-
-                        if (connectorsToStart == null || connectorsToStart.contains(0)) {
-                            ThreadUtils.checkInterruptedStatus();
-                            // start up the source connector
-                            if (sourceConnector.getCurrentState() == DeployedState.STOPPED) {
-                                startedMetaDataIds.add(0);
-                                sourceConnector.start();
-                            }
-
-                            updateCurrentState(DeployedState.STARTED);
-                        } else {
-                            updateCurrentState(DeployedState.PAUSED);
-                        }
-                    } catch (Throwable t) {
-                        // If an exception occurred, then attempt to rollback by stopping all the connectors that were started
-                        try {
-                            updateCurrentState(DeployedState.STOPPING);
-                            stop(startedMetaDataIds);
-                            updateCurrentState(DeployedState.STOPPED);
-                        } catch (Throwable t2) {
-                            /*
-                             * Only set the state to STOPPED here if the exception (or its cause) is
-                             * not an InterruptedException (indicating that the channel was halted).
-                             */
-                            if (!(t2 instanceof InterruptedException) && (t2.getCause() == null || !(t2.getCause() instanceof InterruptedException))) {
-                                updateCurrentState(DeployedState.STOPPED);
-                            }
-                        }
-
-                        throw new StartException(t);
-                    }
-                }
-            } else {
-                logger.warn("Failed to start channel " + name + " (" + channelId + "): The channel is already running.");
-            }
-
-            return null;
-        }
-    }
-
-    private class StopTask implements Callable<Void> {
-
-        @Override
-        public Void call() throws Exception {
-            if (currentState != DeployedState.STOPPED) {
-                updateCurrentState(DeployedState.STOPPING);
-                List<Integer> deployedMetaDataIds = new ArrayList<Integer>();
-                deployedMetaDataIds.add(0);
-
-                for (DestinationChain chain : destinationChains) {
-                    for (Integer metaDataId : chain.getMetaDataIds()) {
-                        deployedMetaDataIds.add(metaDataId);
-                    }
-                }
-
-                stop(deployedMetaDataIds);
-                updateCurrentState(DeployedState.STOPPED);
-            } else {
-                logger.warn("Failed to stop channel " + name + " (" + channelId + "): The channel is already stopped.");
-            }
-
-            return null;
-        }
-    }
-
-    private class HaltTask implements Callable<Void> {
-
-        @Override
-        public Void call() throws Exception {
-            if (currentState != DeployedState.STOPPED) {
-                updateCurrentState(DeployedState.STOPPING);
-                List<Integer> deployedMetaDataIds = new ArrayList<Integer>();
-                deployedMetaDataIds.add(0);
-
-                for (DestinationChain chain : destinationChains) {
-                    for (Integer metaDataId : chain.getMetaDataIds()) {
-                        deployedMetaDataIds.add(metaDataId);
-                    }
-                }
-
-                halt(deployedMetaDataIds);
-                updateCurrentState(DeployedState.STOPPED);
-            } else {
-                logger.warn("Failed to stop channel " + name + " (" + channelId + "): The channel is already stopped.");
-            }
-
-            return null;
-        }
-    }
-
-    private class PauseTask implements Callable<Void> {
-
-        @Override
-        public Void call() throws Exception {
-            if (currentState == DeployedState.STARTED) {
-                try {
-                    updateCurrentState(DeployedState.PAUSING);
-                    sourceConnector.stop();
-                    updateCurrentState(DeployedState.PAUSED);
-                } catch (Throwable t) {
-                    throw new PauseException("Failed to pause channel " + name + " (" + channelId + ").", t);
-                }
-            } else {
-                //TODO what to do here?
-                if (currentState == DeployedState.PAUSED) {
-                    logger.warn("Failed to pause channel " + name + " (" + channelId + "): The channel is already paused.");
                 } else {
-                    logger.warn("Failed to pause channel " + name + " (" + channelId + "): The channel is currently " + currentState.toString().toLowerCase() + " and cannot be paused.");
+                    // The column name does not exist in the table
+                    dao.addMetaDataColumn(channelId, column);
                 }
 
+                columnsToRemove.remove(columnName);
             }
 
-            return null;
-        }
-    }
-
-    private class ResumeTask implements Callable<Void> {
-
-        @Override
-        public Void call() throws Exception {
-            if (currentState == DeployedState.PAUSED) {
-                try {
-                    updateCurrentState(DeployedState.STARTING);
-                    sourceConnector.start();
-                    updateCurrentState(DeployedState.STARTED);
-                } catch (Throwable t) {
-                    try {
-                        updateCurrentState(DeployedState.PAUSING);
-                        sourceConnector.stop();
-                        updateCurrentState(DeployedState.PAUSED);
-                    } catch (Throwable e2) {
-                    }
-
-                    throw new StartException("Failed to resume channel " + name + " (" + channelId + ").", t);
-                }
-            } else {
-                logger.warn("Failed to resume channel " + name + " (" + channelId + "): The source connector is not currently paused.");
+            for (String columnToRemove : columnsToRemove) {
+                dao.removeMetaDataColumn(channelId, columnToRemove);
             }
 
-            return null;
+            dao.commit();
+        } finally {
+            dao.close();
         }
-    }
-
-    private class StartDestinationTask implements Callable<Void> {
-
-        private Integer metaDataId;
-
-        public StartDestinationTask(Integer metaDataId) {
-            this.metaDataId = metaDataId;
-        }
-
-        @Override
-        public Void call() throws Exception {
-            DestinationConnector destinationConnector = getDestinationConnector(metaDataId);
-
-            if (currentState == DeployedState.STARTED || currentState == DeployedState.PAUSED) {
-                if (destinationConnector.getCurrentState() == DeployedState.STOPPED) {
-                    try {
-                        destinationConnector.start();
-                    } catch (Throwable t) {
-                        throw new StartException("Failed to stop connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "). ", t);
-                    }
-                }
-            } else {
-                logger.error("Failed to start connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "): The channel is not started or paused.");
-            }
-
-            return null;
-        }
-
-    }
-
-    private class StopDestinationTask implements Callable<Void> {
-
-        private Integer metaDataId;
-
-        public StopDestinationTask(Integer metaDataId) {
-            this.metaDataId = metaDataId;
-        }
-
-        @Override
-        public Void call() throws Exception {
-            DestinationConnector destinationConnector = getDestinationConnector(metaDataId);
-
-            if (currentState == DeployedState.STARTED || currentState == DeployedState.PAUSED) {
-                if (destinationConnector.getCurrentState() != DeployedState.STOPPED) {
-                    // Destination connectors can only be stopped individually if the queue is enabled.
-                    if (destinationConnector.isQueueEnabled()) {
-                        try {
-                            // Force messages to be queued after this point even if attempt first is on.
-                            destinationConnector.setForceQueue(true);
-                            destinationConnector.stop();
-                        } catch (Throwable t) {
-                            throw new StopException("Failed to stop connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "). ", t);
-                        }
-                    } else {
-                        logger.error("Failed to stop connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "): Destination connectors must have queueing enabled to be stopped individually.");
-                    }
-                }
-            } else {
-                logger.error("Failed to stop connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "): The channel is not started or paused.");
-            }
-
-            return null;
-        }
-
     }
 }

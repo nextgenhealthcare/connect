@@ -18,7 +18,6 @@ import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.Channel;
-import com.mirth.connect.donkey.server.channel.ChannelLock;
 import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
 
 public class TestChannel extends Channel {
@@ -29,7 +28,6 @@ public class TestChannel extends Channel {
 
     public TestChannel() {
         super();
-        lock(ChannelLock.DEBUG);
         setDaoFactory(new BufferedDaoFactory(Donkey.getInstance().getDaoFactory()));
     }
 

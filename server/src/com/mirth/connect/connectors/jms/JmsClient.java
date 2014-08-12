@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
-import com.mirth.connect.donkey.server.StartException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.Connector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
@@ -85,7 +85,7 @@ public class JmsClient implements ExceptionListener {
     /**
      * Starts a JMS connection and session.
      */
-    public void start() throws StartException {
+    public void start() throws ConnectorTaskException {
         final String channelId = connector.getChannelId();
         Map<String, String> connectionProperties = replacer.replaceValues(connectorProperties.getConnectionProperties(), channelId);
         ConnectionFactory connectionFactory = null;
@@ -94,7 +94,7 @@ public class JmsClient implements ExceptionListener {
             try {
                 connectionFactory = lookupConnectionFactoryWithJndi();
             } catch (Exception e) {
-                throw new StartException("Failed to obtain the connection factory via JNDI", e);
+                throw new ConnectorTaskException("Failed to obtain the connection factory via JNDI", e);
             }
         } else {
             String className = replacer.replaceValues(connectorProperties.getConnectionFactoryClass(), channelId);
@@ -102,7 +102,7 @@ public class JmsClient implements ExceptionListener {
             try {
                 connectionFactory = (ConnectionFactory) Class.forName(className).newInstance();
             } catch (Exception e) {
-                throw new StartException("Failed to instantiate ConnectionFactory class: " + className, e);
+                throw new ConnectorTaskException("Failed to instantiate ConnectionFactory class: " + className, e);
             }
         }
 
@@ -131,7 +131,7 @@ public class JmsClient implements ExceptionListener {
             } catch (Exception e1) {
             }
 
-            throw new StartException("Failed to establish a JMS connection", e);
+            throw new ConnectorTaskException("Failed to establish a JMS connection", e);
         }
 
         connected.set(true);
@@ -158,7 +158,7 @@ public class JmsClient implements ExceptionListener {
 
             initialContext = null;
         }
-        
+
         connected.set(false);
     }
 
@@ -198,7 +198,7 @@ public class JmsClient implements ExceptionListener {
 
         return destination;
     }
-    
+
     /*
      * Whenever an exception occurs, we want to try to reconnect to the JMS broker.
      */
@@ -214,11 +214,12 @@ public class JmsClient implements ExceptionListener {
 
         beginReconnect(false);
     }
-    
+
     /**
      * Begin reconnect attempts if we've detected that the connect to the JMS broker is down.
      * 
-     * @param force If true, forces a reconnect attempt right now and returns the result.
+     * @param force
+     *            If true, forces a reconnect attempt right now and returns the result.
      * @return The result of the force reconnect attempt.
      */
     public synchronized boolean beginReconnect(boolean force) {
@@ -238,21 +239,21 @@ public class JmsClient implements ExceptionListener {
 
             if (force) {
                 reconnectThread.interrupt();
-                
+
                 try {
                     wait();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     return false;
                 }
-                
+
                 return connected.get();
             } else {
                 return false;
             }
         }
     }
-    
+
     private class ReconnectThread extends Thread {
         @Override
         public void run() {
@@ -281,7 +282,7 @@ public class JmsClient implements ExceptionListener {
 
             connector.onStart();
             logger.debug("reconnect successful");
-        } catch (StartException e) {
+        } catch (ConnectorTaskException e) {
             reportError("Failed to reconnect", e);
         } finally {
             attemptingReconnect.set(false);
@@ -292,7 +293,7 @@ public class JmsClient implements ExceptionListener {
             notify();
         }
     }
-    
+
     private void reportError(String errorMessage, Exception e) {
         String channelId = connector.getChannelId();
         logger.error(errorMessage + " (channel: " + ChannelController.getInstance().getDeployedChannelById(channelId).getName() + ")", e);

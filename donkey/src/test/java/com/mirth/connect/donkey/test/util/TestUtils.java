@@ -1340,7 +1340,7 @@ public class TestUtils {
 
         for (Channel channel : channels) {
             channel.deploy();
-            channel.start();
+            channel.start(null);
         }
 
         List<Long> times = new ArrayList<Long>();
@@ -1441,7 +1441,7 @@ public class TestUtils {
     public static void showContent(String testMessage, String channelId, String serverId, StorageSettings storageSettings) throws Exception {
         Channel channel = createDefaultChannel(channelId, serverId, true, 1, 1, storageSettings);
         channel.deploy();
-        channel.start();
+        channel.start(null);
 
         DispatchResult dispatchResult = null;
 

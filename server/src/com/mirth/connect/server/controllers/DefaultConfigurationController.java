@@ -511,8 +511,8 @@ public class DefaultConfigurationController extends ConfigurationController {
                 }
             }
 
-            // Redeploy all channels
-            engineController.redeployAllChannels();
+            // Deploy all channels
+            engineController.deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
         }
     }
 

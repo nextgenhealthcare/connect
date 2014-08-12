@@ -27,11 +27,7 @@ import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.HaltException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ConnectorCountEvent;
@@ -76,7 +72,7 @@ public class TcpDispatcher extends DestinationConnector {
     }
 
     @Override
-    public void onDeploy() throws DeployException {
+    public void onDeploy() throws ConnectorTaskException {
         connectorProperties = (TcpDispatcherProperties) getConnectorProperties();
 
         String pluginPointName = (String) connectorProperties.getTransmissionModeProperties().getPluginPointName();
@@ -87,7 +83,7 @@ public class TcpDispatcher extends DestinationConnector {
         }
 
         if (transmissionModeProvider == null) {
-            throw new DeployException("Unable to find transmission mode plugin: " + pluginPointName);
+            throw new ConnectorTaskException("Unable to find transmission mode plugin: " + pluginPointName);
         }
 
         connectedSockets = new ConcurrentHashMap<String, StateAwareSocket>();
@@ -100,13 +96,13 @@ public class TcpDispatcher extends DestinationConnector {
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {}
+    public void onUndeploy() throws ConnectorTaskException {}
 
     @Override
-    public void onStart() throws StartException {}
+    public void onStart() throws ConnectorTaskException {}
 
     @Override
-    public void onStop() throws StopException {
+    public void onStop() throws ConnectorTaskException {
         try {
             // Interrupt and join the connector timeout threads
             for (String socketKey : timeoutThreads.keySet().toArray(new String[timeoutThreads.size()])) {
@@ -114,10 +110,10 @@ public class TcpDispatcher extends DestinationConnector {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new StopException(e);
+            throw new ConnectorTaskException(e);
         }
 
-        StopException firstCause = null;
+        ConnectorTaskException firstCause = null;
 
         // Close the connector client sockets
         for (String socketKey : connectedSockets.keySet().toArray(new String[connectedSockets.size()])) {
@@ -125,7 +121,7 @@ public class TcpDispatcher extends DestinationConnector {
                 closeSocket(socketKey);
             } catch (IOException e) {
                 if (firstCause == null) {
-                    firstCause = new StopException("Error closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+                    firstCause = new ConnectorTaskException("Error closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
                 }
             }
         }
@@ -136,8 +132,8 @@ public class TcpDispatcher extends DestinationConnector {
     }
 
     @Override
-    public void onHalt() throws HaltException {
-        HaltException firstCause = null;
+    public void onHalt() throws ConnectorTaskException {
+        ConnectorTaskException firstCause = null;
 
         // Interrupt and join the connector timeout threads
         for (String socketKey : timeoutThreads.keySet().toArray(new String[timeoutThreads.size()])) {
@@ -145,7 +141,7 @@ public class TcpDispatcher extends DestinationConnector {
                 disposeThread(socketKey);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                firstCause = new HaltException("Thread join operation interrupted (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+                firstCause = new ConnectorTaskException("Thread join operation interrupted (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
             }
         }
 
@@ -155,7 +151,7 @@ public class TcpDispatcher extends DestinationConnector {
                 closeSocket(socketKey);
             } catch (IOException e) {
                 if (firstCause == null) {
-                    firstCause = new HaltException("Error closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+                    firstCause = new ConnectorTaskException("Error closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
                 }
             }
         }
