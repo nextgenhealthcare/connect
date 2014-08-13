@@ -212,7 +212,7 @@ public class DonkeyEngineController implements EngineController {
         if (CollectionUtils.isNotEmpty(undeployTasks)) {
             waitForTasks(submitTasks(undeployTasks));
             executeChannelPluginOnUndeploy(context);
-            executeGlobalShutdownScript();
+            executeGlobalUndeployScript();
         }
 
         if (CollectionUtils.isNotEmpty(deployTasks)) {
@@ -233,7 +233,7 @@ public class DonkeyEngineController implements EngineController {
         if (CollectionUtils.isNotEmpty(undeployTasks)) {
             waitForTasks(submitTasks(undeployTasks));
             executeChannelPluginOnUndeploy(context);
-            executeGlobalShutdownScript();
+            executeGlobalUndeployScript();
         }
     }
 
@@ -934,11 +934,11 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    protected void executeGlobalShutdownScript() {
+    protected void executeGlobalUndeployScript() {
         try {
-            scriptController.executeGlobalShutdownScript();
+            scriptController.executeGlobalUndeployScript();
         } catch (Exception e) {
-            logger.error("Error executing global shutdown script.", e);
+            logger.error("Error executing global undeploy script.", e);
         }
     }
 
@@ -1155,17 +1155,17 @@ public class DonkeyEngineController implements EngineController {
                     channelPlugin.undeploy(channelId, context);
                 }
 
-                // Execute channel shutdown script
+                // Execute channel undeploy script
                 try {
-                    scriptController.executeChannelShutdownScript(channelId);
+                    scriptController.executeChannelUndeployScript(channelId);
                 } catch (Exception e) {
                     Throwable t = e;
                     if (e instanceof JavaScriptExecutorException) {
                         t = e.getCause();
                     }
 
-                    eventController.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.SHUTDOWN_SCRIPT, null, null, "Error running channel shutdown script", t));
-                    logger.error("Error executing shutdown script for channel " + channelId + ".", e);
+                    eventController.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.UNDEPLOY_SCRIPT, null, null, "Error running channel undeploy script", t));
+                    logger.error("Error executing undeploy script for channel " + channelId + ".", e);
                 }
 
                 // Remove channel scripts

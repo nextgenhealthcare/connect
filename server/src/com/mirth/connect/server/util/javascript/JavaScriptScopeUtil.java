@@ -321,7 +321,7 @@ public class JavaScriptScopeUtil {
      * Since this method calls getContext(), anything calling it should wrap this method in a
      * try-finally with Context.exit() in the finally block.
      */
-    public static Scriptable getShutdownScope(Object logger, String channelId) {
+    public static Scriptable getUndeployScope(Object logger, String channelId) {
         return getBasicScope(getContext(), logger, channelId);
     }
 
@@ -329,7 +329,7 @@ public class JavaScriptScopeUtil {
      * Since this method calls getContext(), anything calling it should wrap this method in a
      * try-finally with Context.exit() in the finally block.
      */
-    public static Scriptable getShutdownScope(Object logger) {
+    public static Scriptable getUndeployScope(Object logger) {
         return getBasicScope(getContext(), logger);
     }
 

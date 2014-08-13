@@ -355,7 +355,7 @@ public class JavaScriptUtil {
     }
 
     /**
-     * Executes channel level shutdown scripts.
+     * Executes channel level undeploy scripts.
      * 
      * @param scriptId
      * @param scriptType
@@ -363,14 +363,14 @@ public class JavaScriptUtil {
      * @throws InterruptedException
      * @throws JavaScriptExecutorException
      */
-    public static void executeChannelShutdownScript(final String scriptId, final String scriptType, final String channelId) throws InterruptedException, JavaScriptExecutorException {
+    public static void executeChannelUndeployScript(final String scriptId, final String scriptType, final String channelId) throws InterruptedException, JavaScriptExecutorException {
         try {
             execute(new JavaScriptTask<Object>() {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
                     try {
-                        Scriptable scope = JavaScriptScopeUtil.getShutdownScope(scriptLogger, channelId);
+                        Scriptable scope = JavaScriptScopeUtil.getUndeployScope(scriptLogger, channelId);
                         JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
                         return null;
                     } finally {
@@ -413,20 +413,20 @@ public class JavaScriptUtil {
     }
 
     /**
-     * Executes global level shutdown scripts.
+     * Executes global level undeploy scripts.
      * 
      * @param scriptId
      * @throws InterruptedException
      * @throws JavaScriptExecutorException
      */
-    public static void executeGlobalShutdownScript(final String scriptId) throws InterruptedException, JavaScriptExecutorException {
+    public static void executeGlobalUndeployScript(final String scriptId) throws InterruptedException, JavaScriptExecutorException {
         try {
             execute(new JavaScriptTask<Object>() {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptId.toLowerCase());
                     try {
-                        Scriptable scope = JavaScriptScopeUtil.getShutdownScope(scriptLogger);
+                        Scriptable scope = JavaScriptScopeUtil.getUndeployScope(scriptLogger);
                         JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
                         return null;
                     } finally {
@@ -515,13 +515,13 @@ public class JavaScriptUtil {
     public static void compileChannelScripts(Channel channel) throws ScriptCompileException {
         try {
             String deployScriptId = ScriptController.getScriptId(ScriptController.DEPLOY_SCRIPT_KEY, channel.getId());
-            String shutdownScriptId = ScriptController.getScriptId(ScriptController.SHUTDOWN_SCRIPT_KEY, channel.getId());
+            String undeployScriptId = ScriptController.getScriptId(ScriptController.UNDEPLOY_SCRIPT_KEY, channel.getId());
             String preprocessorScriptId = ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, channel.getId());
             String postprocessorScriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channel.getId());
 
             if (channel.isEnabled()) {
                 compileAndAddScript(deployScriptId, channel.getDeployScript(), ContextType.CHANNEL_CONTEXT);
-                compileAndAddScript(shutdownScriptId, channel.getShutdownScript(), ContextType.CHANNEL_CONTEXT);
+                compileAndAddScript(undeployScriptId, channel.getUndeployScript(), ContextType.CHANNEL_CONTEXT);
 
                 // Only compile and run preprocessor if it's not the default
                 if (!compileAndAddScript(preprocessorScriptId, channel.getPreprocessingScript(), ContextType.CHANNEL_CONTEXT)) {
@@ -536,7 +536,7 @@ public class JavaScriptUtil {
                 }
             } else {
                 removeScriptFromCache(deployScriptId);
-                removeScriptFromCache(shutdownScriptId);
+                removeScriptFromCache(undeployScriptId);
                 removeScriptFromCache(postprocessorScriptId);
             }
         } catch (Exception e) {
@@ -626,7 +626,7 @@ public class JavaScriptUtil {
 
     public static void removeChannelScriptsFromCache(String channelId) {
         removeScriptFromCache(ScriptController.getScriptId(ScriptController.DEPLOY_SCRIPT_KEY, channelId));
-        removeScriptFromCache(ScriptController.getScriptId(ScriptController.SHUTDOWN_SCRIPT_KEY, channelId));
+        removeScriptFromCache(ScriptController.getScriptId(ScriptController.UNDEPLOY_SCRIPT_KEY, channelId));
         removeScriptFromCache(ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId));
         removeScriptFromCache(ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channelId));
         removeScriptFromCache(ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channelId));

@@ -9,18 +9,42 @@
 
 package com.mirth.connect.server.migration;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.util.MigrationException;
+import com.mirth.connect.server.tools.ClassPathResource;
 
 public class Migrate3_1_0 extends Migrator implements ConfigurationMigrator {
+    private Logger logger = Logger.getLogger(getClass());
 
     @Override
     public void migrate() throws MigrationException {
-    	executeScript(getDatabaseType() + "-3.0.0-3.1.0.sql");
+        executeScript(getDatabaseType() + "-3.0.0-3.1.0.sql");
+
+        PropertiesConfiguration log4jproperties = new PropertiesConfiguration();
+        log4jproperties.setDelimiterParsingDisabled(true);
+        log4jproperties.setFile(new File(ClassPathResource.getResourceURI("log4j.properties")));
+        try {
+            log4jproperties.load();
+
+            String level = (String) log4jproperties.getProperty("log4j.logger.shutdown");
+            if (level != null) {
+                log4jproperties.setProperty("log4j.logger.undeploy", level);
+                log4jproperties.clearProperty("log4j.logger.shutdown");
+                Logger.getLogger("undeploy").setLevel(Level.toLevel(level));
+            }
+
+            log4jproperties.save();
+        } catch (ConfigurationException e) {
+            logger.error("Failed to migrate log4j shutdown settings.");
+        }
     }
 
     @Override

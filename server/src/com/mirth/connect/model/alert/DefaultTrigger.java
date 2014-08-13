@@ -58,7 +58,17 @@ public class DefaultTrigger extends ChannelTrigger implements AlertTrigger, Migr
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        DonkeyElement eventTypes = element.getChildElement("errorEventTypes");
+
+        if (eventTypes != null) {
+            for (DonkeyElement eventType : eventTypes.getChildElements()) {
+                if (eventType.getNodeName().equals("errorEventType") && eventType.getTextContent().equals("SHUTDOWN_SCRIPT")) {
+                    eventType.setTextContent("UNDEPLOY_SCRIPT");
+                }
+            }
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {

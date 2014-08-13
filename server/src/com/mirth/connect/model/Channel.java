@@ -45,7 +45,7 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable {
     private String preprocessingScript;
     private String postprocessingScript;
     private String deployScript;
-    private String shutdownScript;
+    private String undeployScript;
     private ChannelProperties properties;
 
     public Channel() {
@@ -155,12 +155,12 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable {
         this.deployScript = deployScript;
     }
 
-    public String getShutdownScript() {
-        return this.shutdownScript;
+    public String getUndeployScript() {
+        return this.undeployScript;
     }
 
-    public void setShutdownScript(String shutdownScript) {
-        this.shutdownScript = shutdownScript;
+    public void setUndeployScript(String undeployScript) {
+        this.undeployScript = undeployScript;
     }
 
     public Calendar getLastModified() {
@@ -186,7 +186,7 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable {
 
         Channel channel = (Channel) that;
 
-        return ObjectUtils.equals(this.getId(), channel.getId()) && ObjectUtils.equals(this.getName(), channel.getName()) && ObjectUtils.equals(this.getDescription(), channel.getDescription()) && ObjectUtils.equals(this.isEnabled(), channel.isEnabled()) && ObjectUtils.equals(this.getLastModified(), channel.getLastModified()) && ObjectUtils.equals(this.getRevision(), channel.getRevision()) && ObjectUtils.equals(this.getSourceConnector(), channel.getSourceConnector()) && ObjectUtils.equals(this.getDestinationConnectors(), channel.getDestinationConnectors()) && ObjectUtils.equals(this.getShutdownScript(), channel.getShutdownScript()) && ObjectUtils.equals(this.getDeployScript(), channel.getDeployScript()) && ObjectUtils.equals(this.getPostprocessingScript(), channel.getPostprocessingScript()) && ObjectUtils.equals(this.getPreprocessingScript(), channel.getPreprocessingScript());
+        return ObjectUtils.equals(this.getId(), channel.getId()) && ObjectUtils.equals(this.getName(), channel.getName()) && ObjectUtils.equals(this.getDescription(), channel.getDescription()) && ObjectUtils.equals(this.isEnabled(), channel.isEnabled()) && ObjectUtils.equals(this.getLastModified(), channel.getLastModified()) && ObjectUtils.equals(this.getRevision(), channel.getRevision()) && ObjectUtils.equals(this.getSourceConnector(), channel.getSourceConnector()) && ObjectUtils.equals(this.getDestinationConnectors(), channel.getDestinationConnectors()) && ObjectUtils.equals(this.getUndeployScript(), channel.getUndeployScript()) && ObjectUtils.equals(this.getDeployScript(), channel.getDeployScript()) && ObjectUtils.equals(this.getPostprocessingScript(), channel.getPostprocessingScript()) && ObjectUtils.equals(this.getPreprocessingScript(), channel.getPreprocessingScript());
     }
 
     public String toString() {
@@ -204,7 +204,13 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable {
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        DonkeyElement shutdownScript = element.getChildElement("shutdownScript");
+        
+        if (shutdownScript != null) {
+            shutdownScript.setNodeName("undeployScript");
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
@@ -228,7 +234,7 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable {
         purgedProperties.put("preprocessingScriptLines", PurgeUtil.countLines(preprocessingScript));
         purgedProperties.put("postprocessingScript", PurgeUtil.countLines(postprocessingScript));
         purgedProperties.put("deployScriptLines", PurgeUtil.countLines(deployScript));
-        purgedProperties.put("shutdownScriptLines", PurgeUtil.countLines(shutdownScript));
+        purgedProperties.put("undeployScriptLines", PurgeUtil.countLines(undeployScript));
         purgedProperties.put("properties", properties.getPurgedProperties());
         purgedProperties.put("messageStatistics", PurgeUtil.getMessageStatistics(id, null));
         return purgedProperties;

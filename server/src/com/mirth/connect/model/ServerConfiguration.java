@@ -110,5 +110,16 @@ public class ServerConfiguration implements Serializable, Migratable {
     public void migrate3_0_2(DonkeyElement element) {}
 
     @Override
-    public void migrate3_1_0(DonkeyElement element) {}
+    public void migrate3_1_0(DonkeyElement element) {
+        DonkeyElement globalScripts = element.getChildElement("globalScripts");
+
+        if (globalScripts != null) {
+            for (DonkeyElement entry : globalScripts.getChildElements()) {
+                DonkeyElement keyString = entry.getChildElement("string");
+                if (keyString.getTextContent().equals("Shutdown")) {
+                    keyString.setTextContent("Undeploy");
+                }
+            }
+        }
+    }
 }

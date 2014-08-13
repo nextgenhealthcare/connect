@@ -96,8 +96,8 @@ public class JavaScriptBuilder {
         if (key.equals(ScriptController.DEPLOY_SCRIPT_KEY)) {
             appendDefaultDeployScript(builder, isGlobal);
             script = builder.toString();
-        } else if (key.equals(ScriptController.SHUTDOWN_SCRIPT_KEY)) {
-            appendDefaultShutdownScript(builder, isGlobal);
+        } else if (key.equals(ScriptController.UNDEPLOY_SCRIPT_KEY)) {
+            appendDefaultUndeployScript(builder, isGlobal);
             script = builder.toString();
         } else if (key.equals(ScriptController.PREPROCESSOR_SCRIPT_KEY)) {
             appendDefaultPreprocessorScript(builder, isGlobal);
@@ -212,11 +212,11 @@ public class JavaScriptBuilder {
         }
     }
 
-    private static void appendDefaultShutdownScript(StringBuilder builder, boolean isGlobal) {
+    private static void appendDefaultUndeployScript(StringBuilder builder, boolean isGlobal) {
         if (isGlobal) {
-            builder.append(JavaScriptConstants.DEFAULT_GLOBAL_SHUTDOWN_SCRIPT);
+            builder.append(JavaScriptConstants.DEFAULT_GLOBAL_UNDEPLOY_SCRIPT);
         } else {
-            builder.append(JavaScriptConstants.DEFAULT_CHANNEL_SHUTDOWN_SCRIPT);
+            builder.append(JavaScriptConstants.DEFAULT_CHANNEL_UNDEPLOY_SCRIPT);
         }
     }
 

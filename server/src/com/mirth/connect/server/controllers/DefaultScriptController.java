@@ -143,13 +143,13 @@ public class DefaultScriptController extends ScriptController {
     }
 
     @Override
-    public void executeGlobalShutdownScript() throws Exception {
-        JavaScriptUtil.executeGlobalShutdownScript(SHUTDOWN_SCRIPT_KEY);
+    public void executeGlobalUndeployScript() throws Exception {
+        JavaScriptUtil.executeGlobalUndeployScript(UNDEPLOY_SCRIPT_KEY);
     }
 
     @Override
-    public void executeChannelShutdownScript(String channelId) throws Exception {
-        JavaScriptUtil.executeChannelShutdownScript(getScriptId(SHUTDOWN_SCRIPT_KEY, channelId), SHUTDOWN_SCRIPT_KEY, channelId);
+    public void executeChannelUndeployScript(String channelId) throws Exception {
+        JavaScriptUtil.executeChannelUndeployScript(getScriptId(UNDEPLOY_SCRIPT_KEY, channelId), UNDEPLOY_SCRIPT_KEY, channelId);
     }
 
     @Override
@@ -157,7 +157,7 @@ public class DefaultScriptController extends ScriptController {
         Map<String, String> scripts = new HashMap<String, String>();
 
         String deployScript = getScript(GLOBAL_GROUP_ID, DEPLOY_SCRIPT_KEY);
-        String shutdownScript = getScript(GLOBAL_GROUP_ID, SHUTDOWN_SCRIPT_KEY);
+        String undeployScript = getScript(GLOBAL_GROUP_ID, UNDEPLOY_SCRIPT_KEY);
         String preprocessorScript = getScript(GLOBAL_GROUP_ID, PREPROCESSOR_SCRIPT_KEY);
         String postprocessorScript = getScript(GLOBAL_GROUP_ID, POSTPROCESSOR_SCRIPT_KEY);
 
@@ -165,8 +165,8 @@ public class DefaultScriptController extends ScriptController {
             deployScript = JavaScriptBuilder.generateDefaultKeyScript(DEPLOY_SCRIPT_KEY);
         }
 
-        if (StringUtils.isBlank(shutdownScript)) {
-            shutdownScript = JavaScriptBuilder.generateDefaultKeyScript(SHUTDOWN_SCRIPT_KEY);
+        if (StringUtils.isBlank(undeployScript)) {
+            undeployScript = JavaScriptBuilder.generateDefaultKeyScript(UNDEPLOY_SCRIPT_KEY);
         }
 
         if (StringUtils.isBlank(preprocessorScript)) {
@@ -178,7 +178,7 @@ public class DefaultScriptController extends ScriptController {
         }
 
         scripts.put(DEPLOY_SCRIPT_KEY, deployScript);
-        scripts.put(SHUTDOWN_SCRIPT_KEY, shutdownScript);
+        scripts.put(UNDEPLOY_SCRIPT_KEY, undeployScript);
         scripts.put(PREPROCESSOR_SCRIPT_KEY, preprocessorScript);
         scripts.put(POSTPROCESSOR_SCRIPT_KEY, postprocessorScript);
 

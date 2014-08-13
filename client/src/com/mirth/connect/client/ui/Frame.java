@@ -2106,6 +2106,11 @@ public class Frame extends JXFrame {
                     importScripts.put(globalScriptEntry.getKey(), globalScriptEntry.getValue().replaceAll("com.webreach.mirth", "com.mirth.connect"));
                 }
 
+                if (importScripts.containsKey("Shutdown") && !importScripts.containsKey("Undeploy")) {
+                    importScripts.put("Undeploy", importScripts.get("Shutdown"));
+                    importScripts.remove("Shutdown");
+                }
+
                 globalScriptsPanel.importAllScripts(importScripts);
             } catch (Exception e) {
                 alertException(this, e.getStackTrace(), "Invalid scripts file. " + e.getMessage());

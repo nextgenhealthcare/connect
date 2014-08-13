@@ -22,7 +22,7 @@ public abstract class ScriptController extends Controller {
     public static final String BATCH_SCRIPT_KEY = "Batch";
     public static final String POSTPROCESSOR_SCRIPT_KEY = "Postprocessor";
     public static final String PREPROCESSOR_SCRIPT_KEY = "Preprocessor";
-    public static final String SHUTDOWN_SCRIPT_KEY = "Shutdown";
+    public static final String UNDEPLOY_SCRIPT_KEY = "Undeploy";
     public static final String DEPLOY_SCRIPT_KEY = "Deploy";
 
     public static final String DELIMITER = "_";
@@ -104,9 +104,9 @@ public abstract class ScriptController extends Controller {
 
     public abstract void executeChannelDeployScript(String channelId) throws Exception;
 
-    // Shutdown Script Execution
+    // Undeploy Script Execution
 
-    public abstract void executeGlobalShutdownScript() throws Exception;
+    public abstract void executeGlobalUndeployScript() throws Exception;
 
-    public abstract void executeChannelShutdownScript(String channelId) throws Exception;
+    public abstract void executeChannelUndeployScript(String channelId) throws Exception;
 }

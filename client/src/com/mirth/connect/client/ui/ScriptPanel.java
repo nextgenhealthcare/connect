@@ -25,11 +25,11 @@ public class ScriptPanel extends javax.swing.JPanel {
     private String selectedItem = null;
     private int context;
     public static String DEPLOY_SCRIPT = "Deploy";
-    public static String SHUTDOWN_SCRIPT = "Shutdown";
+    public static String UNDEPLOY_SCRIPT = "Undeploy";
     public static String PREPROCESSOR_SCRIPT = "Preprocessor";
     public static String POSTPROCESSOR_SCRIPT = "Postprocessor";
     Map<String, String> loadedScripts;
-    private String[] scripts = new String[]{DEPLOY_SCRIPT, SHUTDOWN_SCRIPT, PREPROCESSOR_SCRIPT, POSTPROCESSOR_SCRIPT};
+    private String[] scripts = new String[]{DEPLOY_SCRIPT, UNDEPLOY_SCRIPT, PREPROCESSOR_SCRIPT, POSTPROCESSOR_SCRIPT};
 
     public ScriptPanel() {
         initComponents();

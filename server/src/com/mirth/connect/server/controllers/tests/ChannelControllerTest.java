@@ -55,7 +55,7 @@ public class ChannelControllerTest extends TestCase {
             sampleChannel.setPostprocessingScript("return 1;");
             sampleChannel.setDeployScript("return 1;");
             sampleChannel.setPreprocessingScript("return 1;");
-            sampleChannel.setShutdownScript("return 1;");
+            sampleChannel.setUndeployScript("return 1;");
 
             Connector sourceConnector = new Connector();
             sourceConnector.setMode(Connector.Mode.SOURCE);

@@ -696,10 +696,10 @@ public class ChannelSetup extends javax.swing.JPanel {
             scriptMap.put(ScriptPanel.DEPLOY_SCRIPT, JavaScriptConstants.DEFAULT_CHANNEL_DEPLOY_SCRIPT);
         }
 
-        if (currentChannel.getShutdownScript() != null) {
-            scriptMap.put(ScriptPanel.SHUTDOWN_SCRIPT, currentChannel.getShutdownScript());
+        if (currentChannel.getUndeployScript() != null) {
+            scriptMap.put(ScriptPanel.UNDEPLOY_SCRIPT, currentChannel.getUndeployScript());
         } else {
-            scriptMap.put(ScriptPanel.SHUTDOWN_SCRIPT, JavaScriptConstants.DEFAULT_CHANNEL_SHUTDOWN_SCRIPT);
+            scriptMap.put(ScriptPanel.UNDEPLOY_SCRIPT, JavaScriptConstants.DEFAULT_CHANNEL_UNDEPLOY_SCRIPT);
         }
 
         if (currentChannel.getPostprocessingScript() != null) {
@@ -965,7 +965,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     public void updateScripts() {
         currentChannel.setPreprocessingScript(scripts.getScripts().get(ScriptPanel.PREPROCESSOR_SCRIPT));
         currentChannel.setDeployScript(scripts.getScripts().get(ScriptPanel.DEPLOY_SCRIPT));
-        currentChannel.setShutdownScript(scripts.getScripts().get(ScriptPanel.SHUTDOWN_SCRIPT));
+        currentChannel.setUndeployScript(scripts.getScripts().get(ScriptPanel.UNDEPLOY_SCRIPT));
         currentChannel.setPostprocessingScript(scripts.getScripts().get(ScriptPanel.POSTPROCESSOR_SCRIPT));
     }
 
@@ -1544,9 +1544,9 @@ public class ChannelSetup extends javax.swing.JPanel {
             errors += "Error in channel script \"" + ScriptPanel.POSTPROCESSOR_SCRIPT + "\":\n" + validationMessage + "\n\n";
         }
 
-        validationMessage = this.scripts.validateScript(channel.getShutdownScript());
+        validationMessage = this.scripts.validateScript(channel.getUndeployScript());
         if (validationMessage != null) {
-            errors += "Error in channel script \"" + ScriptPanel.SHUTDOWN_SCRIPT + "\":\n" + validationMessage + "\n\n";
+            errors += "Error in channel script \"" + ScriptPanel.UNDEPLOY_SCRIPT + "\":\n" + validationMessage + "\n\n";
         }
 
         return errors;
