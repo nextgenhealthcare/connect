@@ -35,6 +35,7 @@ import java.util.prefs.Preferences;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 
@@ -132,6 +133,7 @@ public class EditMessageDialog extends MirthDialog implements DropTargetListener
 
         sourceMapTable.setDragEnabled(false);
         sourceMapTable.setRowSelectionAllowed(true);
+        sourceMapTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         sourceMapTable.setRowHeight(UIConstants.ROW_HEIGHT);
         sourceMapTable.setFocusable(false);
         sourceMapTable.setOpaque(true);
