@@ -391,15 +391,15 @@ public class JavaScriptUtil {
      * @throws InterruptedException
      * @throws JavaScriptExecutorException
      */
-    public static void executeGlobalDeployScript(final String scriptId, final String channelId) throws InterruptedException, JavaScriptExecutorException {
+    public static void executeGlobalDeployScript(final String scriptId) throws InterruptedException, JavaScriptExecutorException {
         try {
             execute(new JavaScriptTask<Object>() {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptId.toLowerCase());
                     try {
-                        Scriptable scope = JavaScriptScopeUtil.getDeployScope(scriptLogger, channelId);
-                        JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
+                        Scriptable scope = JavaScriptScopeUtil.getDeployScope(scriptLogger);
+                        JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
                         return null;
                     } finally {
                         Context.exit();
@@ -407,7 +407,7 @@ public class JavaScriptUtil {
                 }
             });
         } catch (JavaScriptExecutorException e) {
-            logScriptError(scriptId, channelId, e.getCause());
+            logScriptError(scriptId, null, e.getCause());
             throw e;
         }
     }
@@ -419,15 +419,15 @@ public class JavaScriptUtil {
      * @throws InterruptedException
      * @throws JavaScriptExecutorException
      */
-    public static void executeGlobalShutdownScript(final String scriptId, final String channelId) throws InterruptedException, JavaScriptExecutorException {
+    public static void executeGlobalShutdownScript(final String scriptId) throws InterruptedException, JavaScriptExecutorException {
         try {
             execute(new JavaScriptTask<Object>() {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptId.toLowerCase());
                     try {
-                        Scriptable scope = JavaScriptScopeUtil.getShutdownScope(scriptLogger, channelId);
-                        JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
+                        Scriptable scope = JavaScriptScopeUtil.getShutdownScope(scriptLogger);
+                        JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
                         return null;
                     } finally {
                         Context.exit();
@@ -435,7 +435,7 @@ public class JavaScriptUtil {
                 }
             });
         } catch (JavaScriptExecutorException e) {
-            logScriptError(scriptId, channelId, e.getCause());
+            logScriptError(scriptId, null, e.getCause());
             throw e;
         }
     }

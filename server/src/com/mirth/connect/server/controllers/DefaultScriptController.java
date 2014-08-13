@@ -133,8 +133,8 @@ public class DefaultScriptController extends ScriptController {
     }
 
     @Override
-    public void executeGlobalDeployScript(String channelId) throws Exception {
-        JavaScriptUtil.executeGlobalDeployScript(DEPLOY_SCRIPT_KEY, channelId);
+    public void executeGlobalDeployScript() throws Exception {
+        JavaScriptUtil.executeGlobalDeployScript(DEPLOY_SCRIPT_KEY);
     }
 
     @Override
@@ -143,8 +143,8 @@ public class DefaultScriptController extends ScriptController {
     }
 
     @Override
-    public void executeGlobalShutdownScript(String channelId) throws Exception {
-        JavaScriptUtil.executeGlobalShutdownScript(SHUTDOWN_SCRIPT_KEY, channelId);
+    public void executeGlobalShutdownScript() throws Exception {
+        JavaScriptUtil.executeGlobalShutdownScript(SHUTDOWN_SCRIPT_KEY);
     }
 
     @Override

@@ -212,9 +212,11 @@ public class DonkeyEngineController implements EngineController {
         if (CollectionUtils.isNotEmpty(undeployTasks)) {
             waitForTasks(submitTasks(undeployTasks));
             executeChannelPluginOnUndeploy(context);
+            executeGlobalShutdownScript();
         }
 
         if (CollectionUtils.isNotEmpty(deployTasks)) {
+            executeGlobalDeployScript();
             executeChannelPluginOnDeploy(context);
             waitForTasks(submitTasks(deployTasks));
         }
@@ -231,6 +233,7 @@ public class DonkeyEngineController implements EngineController {
         if (CollectionUtils.isNotEmpty(undeployTasks)) {
             waitForTasks(submitTasks(undeployTasks));
             executeChannelPluginOnUndeploy(context);
+            executeGlobalShutdownScript();
         }
     }
 
@@ -923,31 +926,19 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    protected void executeGlobalDeployScript(String channelId) throws DeployException {
+    protected void executeGlobalDeployScript() {
         try {
-            scriptController.executeGlobalDeployScript(channelId);
+            scriptController.executeGlobalDeployScript();
         } catch (Exception e) {
-            Throwable t = e;
-            if (e instanceof JavaScriptExecutorException) {
-                t = e.getCause();
-            }
-
-            eventController.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.DEPLOY_SCRIPT, null, null, "Error executing global deploy script.", t));
-            logger.error("Error executing global deploy script for channel " + channelId + ".", t);
+            logger.error("Error executing global deploy script.", e);
         }
     }
 
-    protected void executeGlobalShutdownDeployScript(String channelId) {
+    protected void executeGlobalShutdownScript() {
         try {
-            scriptController.executeGlobalShutdownScript(channelId);
+            scriptController.executeGlobalShutdownScript();
         } catch (Exception e) {
-            Throwable t = e;
-            if (e instanceof JavaScriptExecutorException) {
-                t = e.getCause();
-            }
-
-            eventController.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.SHUTDOWN_SCRIPT, null, null, "Error executing global shutdown script.", t));
-            logger.error("Error executing global shutdown script for channel " + channelId + ".", t);
+            logger.error("Error executing global shutdown script.", e);
         }
     }
 
@@ -1082,8 +1073,6 @@ public class DonkeyEngineController implements EngineController {
                 throw new DeployException(e.getMessage(), e);
             }
 
-            executeGlobalDeployScript(channelId);
-
             try {
                 scriptController.compileChannelScripts(channel);
             } catch (ScriptCompileException e) {
@@ -1183,8 +1172,6 @@ public class DonkeyEngineController implements EngineController {
                 scriptController.removeChannelScriptsFromCache(channelId);
 
                 channelController.removeDeployedChannelFromCache(channelId);
-
-                executeGlobalShutdownDeployScript(channelId);
             }
 
             return null;
