@@ -55,7 +55,9 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConfiguration;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
+import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelException;
+import com.mirth.connect.donkey.server.channel.Connector;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
@@ -81,10 +83,8 @@ import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
 import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
-import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.CodeTemplate.ContextType;
-import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
@@ -284,9 +284,9 @@ public class DonkeyEngineController implements EngineController {
     public void removeChannels(Set<String> channelIds, ServerEventContext context) {
         List<ChannelTask> tasks = new ArrayList<ChannelTask>();
 
-        for (Channel channel : channelController.getChannels(channelIds)) {
-            tasks.add(new UndeployTask(channel.getId(), context));
-            tasks.add(new RemoveTask(channel, context));
+        for (com.mirth.connect.model.Channel channelModel : channelController.getChannels(channelIds)) {
+            tasks.add(new UndeployTask(channelModel.getId(), context));
+            tasks.add(new RemoveTask(channelModel, context));
         }
 
         if (CollectionUtils.isNotEmpty(tasks)) {
@@ -325,9 +325,9 @@ public class DonkeyEngineController implements EngineController {
 
     @Override
     public DashboardStatus getChannelStatus(String channelId) {
-        com.mirth.connect.donkey.server.channel.Channel donkeyChannel = donkey.getDeployedChannels().get(channelId);
-        if (donkeyChannel != null) {
-            return getDashboardStatuses(Collections.singleton(donkeyChannel)).get(0);
+        Channel channel = donkey.getDeployedChannels().get(channelId);
+        if (channel != null) {
+            return getDashboardStatuses(Collections.singleton(channel)).get(0);
         }
         return null;
     }
@@ -339,24 +339,24 @@ public class DonkeyEngineController implements EngineController {
 
     @Override
     public List<DashboardStatus> getChannelStatusList(Set<String> channelIds) {
-        Collection<com.mirth.connect.donkey.server.channel.Channel> donkeyChannels = null;
+        Collection<Channel> channels = null;
 
         if (channelIds != null) {
-            donkeyChannels = new ArrayList<com.mirth.connect.donkey.server.channel.Channel>(channelIds.size());
+            channels = new ArrayList<Channel>(channelIds.size());
 
-            for (com.mirth.connect.donkey.server.channel.Channel donkeyChannel : donkey.getDeployedChannels().values()) {
-                if (channelIds.contains(donkeyChannel.getChannelId())) {
-                    donkeyChannels.add(donkeyChannel);
+            for (Channel channel : donkey.getDeployedChannels().values()) {
+                if (channelIds.contains(channel.getChannelId())) {
+                    channels.add(channel);
                 }
             }
         } else {
-            donkeyChannels = donkey.getDeployedChannels().values();
+            channels = donkey.getDeployedChannels().values();
         }
 
-        return getDashboardStatuses(donkeyChannels);
+        return getDashboardStatuses(channels);
     }
 
-    private List<DashboardStatus> getDashboardStatuses(Collection<com.mirth.connect.donkey.server.channel.Channel> donkeyChannels) {
+    private List<DashboardStatus> getDashboardStatuses(Collection<Channel> channels) {
         List<DashboardStatus> statuses = new ArrayList<DashboardStatus>();
 
         Map<String, Integer> channelRevisions = null;
@@ -366,50 +366,50 @@ public class DonkeyEngineController implements EngineController {
             logger.error("Error retrieving channel revisions", e);
         }
 
-        for (com.mirth.connect.donkey.server.channel.Channel donkeyChannel : donkeyChannels) {
-            String channelId = donkeyChannel.getChannelId();
-            Channel deployedChannel = channelController.getDeployedChannelById(channelId);
+        for (Channel channel : channels) {
+            String channelId = channel.getChannelId();
+            com.mirth.connect.model.Channel channelModel = channelController.getDeployedChannelById(channelId);
 
             // Make sure the channel is actually still deployed
-            if (deployedChannel != null) {
+            if (channelModel != null) {
                 Statistics stats = donkeyChannelController.getStatistics();
                 Statistics lifetimeStats = donkeyChannelController.getTotalStatistics();
 
                 DashboardStatus status = new DashboardStatus();
                 status.setStatusType(StatusType.CHANNEL);
                 status.setChannelId(channelId);
-                status.setName(donkeyChannel.getName());
-                status.setState(donkeyChannel.getCurrentState());
-                status.setDeployedDate(donkeyChannel.getDeployDate());
+                status.setName(channel.getName());
+                status.setState(channel.getCurrentState());
+                status.setDeployedDate(channel.getDeployDate());
 
                 int channelRevision = 0;
                 // Just in case the channel no longer exists
                 if (channelRevisions != null && channelRevisions.containsKey(channelId)) {
                     channelRevision = channelRevisions.get(channelId);
-                    status.setDeployedRevisionDelta(channelRevision - deployedChannel.getRevision());
+                    status.setDeployedRevisionDelta(channelRevision - channelModel.getRevision());
                 }
 
                 status.setStatistics(stats.getConnectorStats(channelId, null));
                 status.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, null));
-                status.setTags(deployedChannel.getProperties().getTags());
+                status.setTags(channelModel.getProperties().getTags());
 
                 DashboardStatus sourceStatus = new DashboardStatus();
                 sourceStatus.setStatusType(StatusType.SOURCE_CONNECTOR);
                 sourceStatus.setChannelId(channelId);
                 sourceStatus.setMetaDataId(0);
                 sourceStatus.setName("Source");
-                sourceStatus.setState(donkeyChannel.getSourceConnector().getCurrentState());
+                sourceStatus.setState(channel.getSourceConnector().getCurrentState());
                 sourceStatus.setStatistics(stats.getConnectorStats(channelId, 0));
                 sourceStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, 0));
-                sourceStatus.setTags(deployedChannel.getProperties().getTags());
-                sourceStatus.setQueueEnabled(!donkeyChannel.getSourceConnector().isRespondAfterProcessing());
-                sourceStatus.setQueued(new Long(donkeyChannel.getSourceQueue().size()));
+                sourceStatus.setTags(channelModel.getProperties().getTags());
+                sourceStatus.setQueueEnabled(!channel.getSourceConnector().isRespondAfterProcessing());
+                sourceStatus.setQueued(new Long(channel.getSourceQueue().size()));
 
                 status.setQueued(sourceStatus.getQueued());
 
                 status.getChildStatuses().add(sourceStatus);
 
-                for (DestinationChain chain : donkeyChannel.getDestinationChains()) {
+                for (DestinationChain chain : channel.getDestinationChains()) {
                     for (Entry<Integer, DestinationConnector> connectorEntry : chain.getDestinationConnectors().entrySet()) {
                         Integer metaDataId = connectorEntry.getKey();
                         DestinationConnector connector = connectorEntry.getValue();
@@ -422,7 +422,7 @@ public class DonkeyEngineController implements EngineController {
                         destinationStatus.setState(connector.getCurrentState());
                         destinationStatus.setStatistics(stats.getConnectorStats(channelId, metaDataId));
                         destinationStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, metaDataId));
-                        destinationStatus.setTags(deployedChannel.getProperties().getTags());
+                        destinationStatus.setTags(channelModel.getProperties().getTags());
                         destinationStatus.setQueueEnabled(connector.isQueueEnabled());
                         destinationStatus.setQueued(new Long(connector.getQueue().size()));
 
@@ -461,7 +461,7 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public com.mirth.connect.donkey.server.channel.Channel getDeployedChannel(String channelId) {
+    public Channel getDeployedChannel(String channelId) {
         return donkey.getDeployedChannels().get(channelId);
     }
 
@@ -500,37 +500,37 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    protected com.mirth.connect.donkey.server.channel.Channel convertToDonkeyChannel(Channel model) throws Exception {
-        String channelId = model.getId();
-        ChannelProperties channelProperties = model.getProperties();
+    protected Channel createChannelFromModel(com.mirth.connect.model.Channel channelModel) throws Exception {
+        String channelId = channelModel.getId();
+        ChannelProperties channelProperties = channelModel.getProperties();
         StorageSettings storageSettings = getStorageSettings(channelProperties.getMessageStorageMode(), channelProperties);
 
-        com.mirth.connect.donkey.server.channel.Channel channel = new com.mirth.connect.donkey.server.channel.Channel();
+        Channel channel = new Channel();
 
         Map<String, Integer> destinationIdMap = new LinkedHashMap<String, Integer>();
 
         channel.setChannelId(channelId);
         channel.setLocalChannelId(donkeyChannelController.getLocalChannelId(channelId));
         channel.setServerId(ConfigurationController.getInstance().getServerId());
-        channel.setName(model.getName());
-        channel.setEnabled(model.isEnabled());
-        channel.setRevision(model.getRevision());
+        channel.setName(channelModel.getName());
+        channel.setEnabled(channelModel.isEnabled());
+        channel.setRevision(channelModel.getRevision());
         channel.setInitialState(channelProperties.getInitialState());
         channel.setStorageSettings(storageSettings);
         channel.setMetaDataColumns(channelProperties.getMetaDataColumns());
         channel.setAttachmentHandler(createAttachmentHandler(channelId, channelProperties.getAttachmentProperties()));
-        channel.setPreProcessor(createPreProcessor(channelId, model.getPreprocessingScript(), destinationIdMap));
-        channel.setPostProcessor(createPostProcessor(channelId, model.getPostprocessingScript()));
-        channel.setSourceConnector(createSourceConnector(channel, model.getSourceConnector(), storageSettings, destinationIdMap));
+        channel.setPreProcessor(createPreProcessor(channelId, channelModel.getPreprocessingScript(), destinationIdMap));
+        channel.setPostProcessor(createPostProcessor(channelId, channelModel.getPostprocessingScript()));
+        channel.setSourceConnector(createSourceConnector(channel, channelModel.getSourceConnector(), storageSettings, destinationIdMap));
         channel.setResponseSelector(new ResponseSelector(channel.getSourceConnector().getInboundDataType()));
-        channel.setSourceFilterTransformer(createFilterTransformerExecutor(channelId, model.getSourceConnector(), destinationIdMap));
+        channel.setSourceFilterTransformer(createFilterTransformerExecutor(channelId, channelModel.getSourceConnector(), destinationIdMap));
 
         ConnectorMessageQueue sourceQueue = new ConnectorMessageQueue();
         sourceQueue.setBufferCapacity(queueBufferSize);
         channel.setSourceQueue(sourceQueue);
 
-        if (model.getSourceConnector().getProperties() instanceof SourceConnectorPropertiesInterface) {
-            SourceConnectorProperties sourceConnectorProperties = ((SourceConnectorPropertiesInterface) model.getSourceConnector().getProperties()).getSourceConnectorProperties();
+        if (channelModel.getSourceConnector().getProperties() instanceof SourceConnectorPropertiesInterface) {
+            SourceConnectorProperties sourceConnectorProperties = ((SourceConnectorPropertiesInterface) channelModel.getSourceConnector().getProperties()).getSourceConnectorProperties();
             channel.getResponseSelector().setRespondFromName(sourceConnectorProperties.getResponseVariable());
         }
 
@@ -545,25 +545,25 @@ public class DonkeyEngineController implements EngineController {
 
         DestinationChain chain = createDestinationChain(channel);
 
-        for (Connector connector : model.getDestinationConnectors()) {
-            if (connector.isEnabled()) {
+        for (com.mirth.connect.model.Connector connectorModel : channelModel.getDestinationConnectors()) {
+            if (connectorModel.isEnabled()) {
                 // read 'waitForPrevious' property and add new chains as needed
                 // if there are currently no chains, add a new one regardless of 'waitForPrevious'
-                if (!connector.isWaitForPrevious() || channel.getDestinationChains().size() == 0) {
+                if (!connectorModel.isWaitForPrevious() || channel.getDestinationChains().size() == 0) {
                     chain = createDestinationChain(channel);
                     channel.addDestinationChain(chain);
                 }
 
-                Integer metaDataId = connector.getMetaDataId();
-                destinationIdMap.put(connector.getName(), metaDataId);
+                Integer metaDataId = connectorModel.getMetaDataId();
+                destinationIdMap.put(connectorModel.getName(), metaDataId);
 
                 if (metaDataId == null) {
-                    metaDataId = model.getNextMetaDataId();
-                    model.setNextMetaDataId(metaDataId + 1);
-                    connector.setMetaDataId(metaDataId);
+                    metaDataId = channelModel.getNextMetaDataId();
+                    channelModel.setNextMetaDataId(metaDataId + 1);
+                    connectorModel.setMetaDataId(metaDataId);
                 }
 
-                chain.addDestination(connector.getMetaDataId(), createFilterTransformerExecutor(channelId, connector, destinationIdMap), createDestinationConnector(channel, connector, storageSettings, destinationIdMap));
+                chain.addDestination(connectorModel.getMetaDataId(), createFilterTransformerExecutor(channelId, connectorModel, destinationIdMap), createDestinationConnector(channel, connectorModel, storageSettings, destinationIdMap));
             }
         }
 
@@ -704,23 +704,23 @@ public class DonkeyEngineController implements EngineController {
         return new JavaScriptPostprocessor();
     }
 
-    private SourceConnector createSourceConnector(com.mirth.connect.donkey.server.channel.Channel donkeyChannel, Connector model, StorageSettings storageSettings, Map<String, Integer> destinationIdMap) throws Exception {
+    private SourceConnector createSourceConnector(Channel channel, com.mirth.connect.model.Connector connectorModel, StorageSettings storageSettings, Map<String, Integer> destinationIdMap) throws Exception {
         ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-        ConnectorProperties connectorProperties = model.getProperties();
+        ConnectorProperties connectorProperties = connectorModel.getProperties();
         ConnectorMetaData connectorMetaData = extensionController.getConnectorMetaData().get(connectorProperties.getName());
         SourceConnector sourceConnector = (SourceConnector) Class.forName(connectorMetaData.getServerClassName()).newInstance();
 
-        setCommonConnectorProperties(donkeyChannel.getChannelId(), sourceConnector, model, destinationIdMap);
+        setCommonConnectorProperties(channel.getChannelId(), sourceConnector, connectorModel, destinationIdMap);
 
-        sourceConnector.setMetaDataReplacer(createMetaDataReplacer(model));
-        sourceConnector.setChannel(donkeyChannel);
+        sourceConnector.setMetaDataReplacer(createMetaDataReplacer(connectorModel));
+        sourceConnector.setChannel(channel);
 
         if (connectorProperties instanceof SourceConnectorPropertiesInterface) {
             SourceConnectorProperties sourceConnectorProperties = ((SourceConnectorPropertiesInterface) connectorProperties).getSourceConnectorProperties();
             sourceConnector.setRespondAfterProcessing(sourceConnectorProperties.isRespondAfterProcessing());
 
-            DataTypeServerPlugin dataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(model.getTransformer().getInboundDataType());
-            DataTypeProperties dataTypeProperties = model.getTransformer().getInboundProperties();
+            DataTypeServerPlugin dataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(connectorModel.getTransformer().getInboundDataType());
+            DataTypeProperties dataTypeProperties = connectorModel.getTransformer().getInboundProperties();
             SerializerProperties serializerProperties = dataTypeProperties.getSerializerProperties();
             BatchProperties batchProperties = serializerProperties.getBatchProperties();
 
@@ -736,11 +736,11 @@ public class DonkeyEngineController implements EngineController {
         return sourceConnector;
     }
 
-    private FilterTransformerExecutor createFilterTransformerExecutor(String channelId, Connector connector, Map<String, Integer> destinationIdMap) throws Exception {
+    private FilterTransformerExecutor createFilterTransformerExecutor(String channelId, com.mirth.connect.model.Connector connectorModel, Map<String, Integer> destinationIdMap) throws Exception {
         boolean runFilterTransformer = false;
         String template = null;
-        Transformer transformer = connector.getTransformer();
-        Filter filter = connector.getFilter();
+        Transformer transformer = connectorModel.getTransformer();
+        Filter filter = connectorModel.getFilter();
 
         DataType inboundDataType = DataTypeFactory.getDataType(transformer.getInboundDataType(), transformer.getInboundProperties());
         DataType outboundDataType = DataTypeFactory.getDataType(transformer.getOutboundDataType(), transformer.getOutboundProperties());
@@ -776,7 +776,7 @@ public class DonkeyEngineController implements EngineController {
                 try {
                     template = serializer.toXML(transformer.getOutboundTemplate());
                 } catch (XmlSerializerException e) {
-                    throw new XmlSerializerException("Error serializing transformer outbound template for connector \"" + connector.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
+                    throw new XmlSerializerException("Error serializing transformer outbound template for connector \"" + connectorModel.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
                 }
             }
 
@@ -787,16 +787,16 @@ public class DonkeyEngineController implements EngineController {
 
         if (runFilterTransformer) {
             String script = JavaScriptBuilder.generateFilterTransformerScript(filter, transformer);
-            filterTransformerExecutor.setFilterTransformer(new JavaScriptFilterTransformer(channelId, connector.getName(), script, template, destinationIdMap));
+            filterTransformerExecutor.setFilterTransformer(new JavaScriptFilterTransformer(channelId, connectorModel.getName(), script, template, destinationIdMap));
         }
 
         return filterTransformerExecutor;
     }
 
-    private ResponseTransformerExecutor createResponseTransformerExecutor(String channelId, Connector connector, Map<String, Integer> destinationIdMap) throws Exception {
+    private ResponseTransformerExecutor createResponseTransformerExecutor(String channelId, com.mirth.connect.model.Connector connectorModel, Map<String, Integer> destinationIdMap) throws Exception {
         boolean runResponseTransformer = false;
         String template = null;
-        Transformer transformer = connector.getResponseTransformer();
+        Transformer transformer = connectorModel.getResponseTransformer();
 
         DataType inboundDataType = DataTypeFactory.getDataType(transformer.getInboundDataType(), transformer.getInboundProperties());
         DataType outboundDataType = DataTypeFactory.getDataType(transformer.getOutboundDataType(), transformer.getOutboundProperties());
@@ -832,7 +832,7 @@ public class DonkeyEngineController implements EngineController {
                 try {
                     template = serializer.toXML(transformer.getOutboundTemplate());
                 } catch (XmlSerializerException e) {
-                    throw new XmlSerializerException("Error serializing response transformer outbound template for connector \"" + connector.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
+                    throw new XmlSerializerException("Error serializing response transformer outbound template for connector \"" + connectorModel.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
                 }
             }
 
@@ -843,43 +843,43 @@ public class DonkeyEngineController implements EngineController {
 
         if (runResponseTransformer) {
             String script = JavaScriptBuilder.generateResponseTransformerScript(transformer);
-            responseTransformerExecutor.setResponseTransformer(new JavaScriptResponseTransformer(channelId, connector.getName(), script, template, destinationIdMap));
+            responseTransformerExecutor.setResponseTransformer(new JavaScriptResponseTransformer(channelId, connectorModel.getName(), script, template, destinationIdMap));
         }
 
         return responseTransformerExecutor;
     }
 
-    private DestinationChain createDestinationChain(com.mirth.connect.donkey.server.channel.Channel donkeyChannel) {
+    private DestinationChain createDestinationChain(Channel channel) {
         DestinationChain chain = new DestinationChain();
-        chain.setChannelId(donkeyChannel.getChannelId());
-        chain.setMetaDataReplacer(donkeyChannel.getSourceConnector().getMetaDataReplacer());
-        chain.setMetaDataColumns(donkeyChannel.getMetaDataColumns());
+        chain.setChannelId(channel.getChannelId());
+        chain.setMetaDataReplacer(channel.getSourceConnector().getMetaDataReplacer());
+        chain.setMetaDataColumns(channel.getMetaDataColumns());
 
         return chain;
     }
 
-    private DestinationConnector createDestinationConnector(com.mirth.connect.donkey.server.channel.Channel donkeyChannel, Connector model, StorageSettings storageSettings, Map<String, Integer> destinationIdMap) throws Exception {
+    private DestinationConnector createDestinationConnector(Channel channel, com.mirth.connect.model.Connector connectorModel, StorageSettings storageSettings, Map<String, Integer> destinationIdMap) throws Exception {
         ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-        ConnectorProperties connectorProperties = model.getProperties();
+        ConnectorProperties connectorProperties = connectorModel.getProperties();
         ConnectorMetaData connectorMetaData = extensionController.getConnectorMetaData().get(connectorProperties.getName());
         String className = connectorMetaData.getServerClassName();
         DestinationConnector destinationConnector = (DestinationConnector) Class.forName(className).newInstance();
 
-        setCommonConnectorProperties(donkeyChannel.getChannelId(), destinationConnector, model, destinationIdMap);
-        destinationConnector.setChannel(donkeyChannel);
+        setCommonConnectorProperties(channel.getChannelId(), destinationConnector, connectorModel, destinationIdMap);
+        destinationConnector.setChannel(channel);
 
-        destinationConnector.setDestinationName(model.getName());
+        destinationConnector.setDestinationName(connectorModel.getName());
 
         // Create the response validator
-        DataTypeServerPlugin dataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(model.getResponseTransformer().getInboundDataType());
-        DataTypeProperties dataTypeProperties = model.getResponseTransformer().getInboundProperties();
+        DataTypeServerPlugin dataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(connectorModel.getResponseTransformer().getInboundDataType());
+        DataTypeProperties dataTypeProperties = connectorModel.getResponseTransformer().getInboundProperties();
         SerializerProperties serializerProperties = dataTypeProperties.getSerializerProperties();
         ResponseValidator responseValidator = dataTypePlugin.getResponseValidator(serializerProperties.getSerializationProperties(), dataTypeProperties.getResponseValidationProperties());
         if (responseValidator == null) {
             responseValidator = new DefaultResponseValidator();
         }
         destinationConnector.setResponseValidator(responseValidator);
-        destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(donkeyChannel.getChannelId(), model, destinationIdMap));
+        destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(channel.getChannelId(), connectorModel, destinationIdMap));
 
         ConnectorMessageQueue queue = new ConnectorMessageQueue();
         queue.setBufferCapacity(queueBufferSize);
@@ -889,28 +889,28 @@ public class DonkeyEngineController implements EngineController {
         return destinationConnector;
     }
 
-    private void setCommonConnectorProperties(String channelId, com.mirth.connect.donkey.server.channel.Connector connector, Connector model, Map<String, Integer> destinationIdMap) {
+    private void setCommonConnectorProperties(String channelId, Connector connector, com.mirth.connect.model.Connector connectorModel, Map<String, Integer> destinationIdMap) {
         connector.setChannelId(channelId);
-        connector.setMetaDataId(model.getMetaDataId());
-        connector.setConnectorProperties(model.getProperties());
+        connector.setMetaDataId(connectorModel.getMetaDataId());
+        connector.setConnectorProperties(connectorModel.getProperties());
         connector.setDestinationIdMap(destinationIdMap);
 
-        Transformer transformerModel = model.getTransformer();
+        Transformer transformerModel = connectorModel.getTransformer();
 
         connector.setInboundDataType(DataTypeFactory.getDataType(transformerModel.getInboundDataType(), transformerModel.getInboundProperties()));
         connector.setOutboundDataType(DataTypeFactory.getDataType(transformerModel.getOutboundDataType(), transformerModel.getOutboundProperties()));
     }
 
-    private MetaDataReplacer createMetaDataReplacer(Connector connector) {
+    private MetaDataReplacer createMetaDataReplacer(com.mirth.connect.model.Connector connectorModel) {
         // TODO: Extract this from the Connector model based on the inbound data type
         return new MirthMetaDataReplacer();
     }
 
-    private void clearGlobalChannelMap(Channel channel) {
-        if (channel.getProperties().isClearGlobalChannelMap()) {
-            logger.debug("clearing global channel map for channel: " + channel.getId());
-            GlobalChannelVariableStoreFactory.getInstance().get(channel.getId()).clear();
-            GlobalChannelVariableStoreFactory.getInstance().get(channel.getId()).clearSync();
+    private void clearGlobalChannelMap(com.mirth.connect.model.Channel channelModel) {
+        if (channelModel.getProperties().isClearGlobalChannelMap()) {
+            logger.debug("clearing global channel map for channel: " + channelModel.getId());
+            GlobalChannelVariableStoreFactory.getInstance().get(channelModel.getId()).clear();
+            GlobalChannelVariableStoreFactory.getInstance().get(channelModel.getId()).clearSync();
         }
     }
 
@@ -1064,27 +1064,27 @@ public class DonkeyEngineController implements EngineController {
 
         @Override
         public Void call() throws Exception {
-            Channel channel = channelController.getChannelById(channelId);
+            com.mirth.connect.model.Channel channelModel = channelController.getChannelById(channelId);
 
-            if (channel == null || !channel.isEnabled() || isDeployed(channelId)) {
+            if (channelModel == null || !channelModel.isEnabled() || isDeployed(channelId)) {
                 return null;
             }
 
-            com.mirth.connect.donkey.server.channel.Channel donkeyChannel = null;
+            Channel channel = null;
 
             try {
-                donkeyChannel = convertToDonkeyChannel(channel);
+                channel = createChannelFromModel(channelModel);
             } catch (Exception e) {
                 throw new DeployException(e.getMessage(), e);
             }
 
             try {
-                scriptController.compileChannelScripts(channel);
+                scriptController.compileChannelScripts(channelModel);
             } catch (ScriptCompileException e) {
                 throw new DeployException("Failed to deploy channel " + channelId + ".", e);
             }
 
-            clearGlobalChannelMap(channel);
+            clearGlobalChannelMap(channelModel);
 
             try {
                 scriptController.executeChannelDeployScript(channelId);
@@ -1094,25 +1094,25 @@ public class DonkeyEngineController implements EngineController {
                     t = e.getCause();
                 }
 
-                eventController.dispatchEvent(new ErrorEvent(channel.getId(), null, ErrorEventType.DEPLOY_SCRIPT, null, null, "Error running channel deploy script", t));
+                eventController.dispatchEvent(new ErrorEvent(channelModel.getId(), null, ErrorEventType.DEPLOY_SCRIPT, null, null, "Error running channel deploy script", t));
                 throw new DeployException("Failed to deploy channel " + channelId + ".", e);
             }
 
-            channelController.putDeployedChannelInCache(channel);
+            channelController.putDeployedChannelInCache(channelModel);
 
             // Execute the individual channel plugin deploy hook
             for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
-                channelPlugin.deploy(channel, context);
+                channelPlugin.deploy(channelModel, context);
             }
 
-            donkeyChannel.setRevision(channel.getRevision());
+            channel.setRevision(channelModel.getRevision());
 
             try {
-                donkeyChannel.setDeployDate(Calendar.getInstance());
-                donkey.getDeployedChannels().put(channelId, donkeyChannel);
+                channel.setDeployDate(Calendar.getInstance());
+                donkey.getDeployedChannels().put(channelId, channel);
 
                 try {
-                    donkeyChannel.deploy();
+                    channel.deploy();
                 } catch (DeployException e) {
                     donkey.getDeployedChannels().remove(channelId);
                     throw e;
@@ -1120,12 +1120,12 @@ public class DonkeyEngineController implements EngineController {
 
                 // Use the initial state from the channel settings if none are provided
                 if (initialState == null) {
-                    initialState = donkeyChannel.getInitialState();
+                    initialState = channel.getInitialState();
                 }
 
                 // Use all connectors if none are provided
                 if (connectorsToStart == null) {
-                    connectorsToStart = new HashSet<Integer>(donkeyChannel.getMetaDataIds());
+                    connectorsToStart = new HashSet<Integer>(channel.getMetaDataIds());
                 }
 
                 if (initialState == DeployedState.PAUSED) {
@@ -1138,9 +1138,9 @@ public class DonkeyEngineController implements EngineController {
 
                 // For connectors that won't be started, update their state to stopped to dispatch their event
                 if (!connectorsToStart.contains(0)) {
-                    donkeyChannel.getSourceConnector().updateCurrentState(DeployedState.STOPPED);
+                    channel.getSourceConnector().updateCurrentState(DeployedState.STOPPED);
                 }
-                for (DestinationChain destinationChain : donkeyChannel.getDestinationChains()) {
+                for (DestinationChain destinationChain : channel.getDestinationChains()) {
                     for (Entry<Integer, DestinationConnector> entry : destinationChain.getDestinationConnectors().entrySet()) {
                         if (!connectorsToStart.contains(entry.getKey())) {
                             entry.getValue().updateCurrentState(DeployedState.STOPPED);
@@ -1150,10 +1150,10 @@ public class DonkeyEngineController implements EngineController {
 
                 if (initialState == DeployedState.STOPPED) {
                     // If the initial state is stopped, update the channel's state to dispatch its event
-                    donkeyChannel.updateCurrentState(DeployedState.STOPPED);
+                    channel.updateCurrentState(DeployedState.STOPPED);
                 } else {
                     // Unless the initial state is stopped, always start the channel
-                    donkeyChannel.start(connectorsToStart);
+                    channel.start(connectorsToStart);
                 }
             } catch (DeployException e) {
                 // Remove the channel from the deployed channel cache if an exception occurred on deploy.
@@ -1180,7 +1180,7 @@ public class DonkeyEngineController implements EngineController {
         @Override
         public Void call() throws Exception {
             // Get a reference to the deployed channel for later
-            com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
+            Channel channel = getDeployedChannel(channelId);
 
             if (channel != null) {
                 if (channel.isActive()) {
@@ -1245,7 +1245,7 @@ public class DonkeyEngineController implements EngineController {
 
         @Override
         public Void call() throws Exception {
-            com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
+            Channel channel = getDeployedChannel(channelId);
 
             if (channel != null) {
                 if (task == StatusTask.START) {
@@ -1276,7 +1276,7 @@ public class DonkeyEngineController implements EngineController {
 
         @Override
         public Void call() throws Exception {
-            com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
+            Channel channel = getDeployedChannel(channelId);
 
             if (channel != null) {
                 if (task == StatusTask.START) {
@@ -1298,7 +1298,7 @@ public class DonkeyEngineController implements EngineController {
 
         @Override
         public Void call() throws Exception {
-            com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
+            Channel channel = getDeployedChannel(channelId);
 
             if (channel != null) {
                 channel.halt();
@@ -1310,18 +1310,18 @@ public class DonkeyEngineController implements EngineController {
 
     protected class RemoveTask extends ChannelTask {
 
-        private Channel channel;
+        private com.mirth.connect.model.Channel channelModel;
         private ServerEventContext context;
 
-        public RemoveTask(Channel channel, ServerEventContext context) {
-            super(channel.getId());
-            this.channel = channel;
+        public RemoveTask(com.mirth.connect.model.Channel channelModel, ServerEventContext context) {
+            super(channelModel.getId());
+            this.channelModel = channelModel;
             this.context = context;
         }
 
         @Override
         public Void call() throws Exception {
-            channelController.removeChannel(channel, context);
+            channelController.removeChannel(channelModel, context);
 
             synchronized (DonkeyEngineController.this) {
                 ExecutorService engineExecutor = getEngineExecutor(channelId, false);
@@ -1359,7 +1359,7 @@ public class DonkeyEngineController implements EngineController {
                 Set<Integer> metaDataIds = result.getMetaDataIdSet();
                 boolean processed = result.isProcessed();
 
-                com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
+                Channel channel = getDeployedChannel(channelId);
                 // Allow unprocessed messages to be deleted only if the channel is undeployed or stopped.
                 if (channel != null && (channel.getCurrentState() == DeployedState.STOPPED || processed)) {
                     if (metaDataIds.contains(0)) {
@@ -1372,12 +1372,12 @@ public class DonkeyEngineController implements EngineController {
                 }
             }
 
-            com.mirth.connect.donkey.server.channel.Channel.DELETE_PERMIT.acquire();
+            Channel.DELETE_PERMIT.acquire();
 
             try {
                 com.mirth.connect.donkey.server.controllers.MessageController.getInstance().deleteMessages(channelId, messages);
             } finally {
-                com.mirth.connect.donkey.server.channel.Channel.DELETE_PERMIT.release();
+                Channel.DELETE_PERMIT.release();
             }
 
             return null;
@@ -1397,7 +1397,7 @@ public class DonkeyEngineController implements EngineController {
 
         @Override
         public Void call() throws Exception {
-            com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
+            Channel channel = getDeployedChannel(channelId);
 
             if (channel != null) {
                 channel.removeAllMessages(force, clearStatistics);
