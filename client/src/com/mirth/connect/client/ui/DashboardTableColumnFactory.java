@@ -55,9 +55,10 @@ public class DashboardTableColumnFactory extends ColumnFactory {
         switch (index) {
             case 0:
                 column.setCellRenderer(new ImageCellRenderer());
-                column.setMaxWidth(UIConstants.MIN_WIDTH);
+                column.setMaxWidth(UIConstants.MIN_WIDTH + 10);
                 column.setMinWidth(UIConstants.MIN_WIDTH);
-                column.setToolTipText("<html><body>The status of the deployed channel. Possible values are started, paused, and stopped.</body></html>");
+                column.setPreferredWidth(UIConstants.MIN_WIDTH);
+                column.setToolTipText("<html><body>The status of the deployed channel. Possible values are deploying, undeploying,<br>started, starting, pausing, paused, stopping, and stopped.</body></html>");
                 break;
 
             case 1:

@@ -31,6 +31,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -140,6 +141,8 @@ public class DonkeyEngineController implements EngineController {
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private int queueBufferSize = Constants.DEFAULT_QUEUE_BUFFER_SIZE;
     private Map<String, ExecutorService> engineExecutors = new HashMap<String, ExecutorService>();
+    private Set<Channel> deployingChannels = Collections.synchronizedSet(new HashSet<Channel>());
+    private Set<Channel> undeployingChannels = Collections.synchronizedSet(new HashSet<Channel>());
 
     private enum StatusTask {
         START, STOP, PAUSE, RESUME
@@ -339,21 +342,33 @@ public class DonkeyEngineController implements EngineController {
 
     @Override
     public List<DashboardStatus> getChannelStatusList(Set<String> channelIds) {
-        Collection<Channel> channels = null;
+        Map<String, Channel> channels = null;
 
         if (channelIds != null) {
-            channels = new ArrayList<Channel>(channelIds.size());
+            channels = new HashMap<String, Channel>();
 
             for (Channel channel : donkey.getDeployedChannels().values()) {
                 if (channelIds.contains(channel.getChannelId())) {
-                    channels.add(channel);
+                    channels.put(channel.getChannelId(), channel);
                 }
             }
         } else {
-            channels = donkey.getDeployedChannels().values();
+            channels = new HashMap<String, Channel>(donkey.getDeployedChannels());
         }
 
-        return getDashboardStatuses(channels);
+        for (Channel channel : deployingChannels) {
+            if (!channels.containsKey(channel.getChannelId())) {
+                channels.put(channel.getChannelId(), channel);
+            }
+        }
+
+        for (Channel channel : undeployingChannels) {
+            if (!channels.containsKey(channel.getChannelId())) {
+                channels.put(channel.getChannelId(), channel);
+            }
+        }
+
+        return getDashboardStatuses(channels.values());
     }
 
     private List<DashboardStatus> getDashboardStatuses(Collection<Channel> channels) {
@@ -401,7 +416,6 @@ public class DonkeyEngineController implements EngineController {
                 sourceStatus.setState(channel.getSourceConnector().getCurrentState());
                 sourceStatus.setStatistics(stats.getConnectorStats(channelId, 0));
                 sourceStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, 0));
-                sourceStatus.setTags(channelModel.getProperties().getTags());
                 sourceStatus.setQueueEnabled(!channel.getSourceConnector().isRespondAfterProcessing());
                 sourceStatus.setQueued(new Long(channel.getSourceQueue().size()));
 
@@ -422,7 +436,6 @@ public class DonkeyEngineController implements EngineController {
                         destinationStatus.setState(connector.getCurrentState());
                         destinationStatus.setStatistics(stats.getConnectorStats(channelId, metaDataId));
                         destinationStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(channelId, metaDataId));
-                        destinationStatus.setTags(channelModel.getProperties().getTags());
                         destinationStatus.setQueueEnabled(connector.isQueueEnabled());
                         destinationStatus.setQueued(new Long(connector.getQueue().size()));
 
@@ -442,7 +455,7 @@ public class DonkeyEngineController implements EngineController {
                 Calendar c1 = o1.getDeployedDate();
                 Calendar c2 = o2.getDeployedDate();
 
-                return c1.compareTo(c2);
+                return ObjectUtils.compare(c1, c2);
             }
 
         });
@@ -1080,35 +1093,38 @@ public class DonkeyEngineController implements EngineController {
             }
 
             try {
-                scriptController.compileChannelScripts(channelModel);
-            } catch (ScriptCompileException e) {
-                throw new DeployException("Failed to deploy channel " + channelId + ".", e);
-            }
+                channel.updateCurrentState(DeployedState.DEPLOYING);
+                deployingChannels.add(channel);
+                channelController.putDeployedChannelInCache(channelModel);
 
-            clearGlobalChannelMap(channelModel);
-
-            try {
-                scriptController.executeChannelDeployScript(channelId);
-            } catch (Exception e) {
-                Throwable t = e;
-                if (e instanceof JavaScriptExecutorException) {
-                    t = e.getCause();
+                try {
+                    scriptController.compileChannelScripts(channelModel);
+                } catch (ScriptCompileException e) {
+                    throw new DeployException("Failed to deploy channel " + channelId + ".", e);
                 }
 
-                eventController.dispatchEvent(new ErrorEvent(channelModel.getId(), null, ErrorEventType.DEPLOY_SCRIPT, null, null, "Error running channel deploy script", t));
-                throw new DeployException("Failed to deploy channel " + channelId + ".", e);
-            }
+                clearGlobalChannelMap(channelModel);
 
-            channelController.putDeployedChannelInCache(channelModel);
+                try {
+                    scriptController.executeChannelDeployScript(channelId);
+                } catch (Exception e) {
+                    Throwable t = e;
+                    if (e instanceof JavaScriptExecutorException) {
+                        t = e.getCause();
+                    }
 
-            // Execute the individual channel plugin deploy hook
-            for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
-                channelPlugin.deploy(channelModel, context);
-            }
+                    eventController.dispatchEvent(new ErrorEvent(channelModel.getId(), null, ErrorEventType.DEPLOY_SCRIPT, null, null, "Error running channel deploy script", t));
+                    throw new DeployException("Failed to deploy channel " + channelId + ".", e);
+                }
 
-            channel.setRevision(channelModel.getRevision());
+                // Execute the individual channel plugin deploy hook
+                for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+                    channelPlugin.deploy(channelModel, context);
+                }
 
-            try {
+                // TODO This may not be necessary anymore
+                channel.setRevision(channelModel.getRevision());
+
                 channel.setDeployDate(Calendar.getInstance());
                 donkey.getDeployedChannels().put(channelId, channel);
 
@@ -1163,6 +1179,8 @@ public class DonkeyEngineController implements EngineController {
                 scriptController.removeChannelScriptsFromCache(channelId);
 
                 throw e;
+            } finally {
+                deployingChannels.remove(channel);
             }
 
             return null;
@@ -1188,47 +1206,52 @@ public class DonkeyEngineController implements EngineController {
                     channel.stop();
                 }
 
-                donkey.getDeployedChannels().remove(channelId);
-                channel.undeploy();
-
-                // Remove connector scripts
-                if (channel.getSourceFilterTransformer().getFilterTransformer() != null) {
-                    channel.getSourceFilterTransformer().getFilterTransformer().dispose();
-                }
-
-                for (DestinationChain chain : channel.getDestinationChains()) {
-                    for (Integer metaDataId : chain.getDestinationConnectors().keySet()) {
-                        if (chain.getFilterTransformerExecutors().get(metaDataId).getFilterTransformer() != null) {
-                            chain.getFilterTransformerExecutors().get(metaDataId).getFilterTransformer().dispose();
-                        }
-                        if (chain.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer() != null) {
-                            chain.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer().dispose();
-                        }
-                    }
-                }
-
-                // Execute the individual channel plugin undeploy hook
-                for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
-                    channelPlugin.undeploy(channelId, context);
-                }
-
-                // Execute channel undeploy script
                 try {
-                    scriptController.executeChannelUndeployScript(channelId);
-                } catch (Exception e) {
-                    Throwable t = e;
-                    if (e instanceof JavaScriptExecutorException) {
-                        t = e.getCause();
+                    undeployingChannels.add(channel);
+                    donkey.getDeployedChannels().remove(channelId);
+                    channel.undeploy();
+
+                    // Remove connector scripts
+                    if (channel.getSourceFilterTransformer().getFilterTransformer() != null) {
+                        channel.getSourceFilterTransformer().getFilterTransformer().dispose();
                     }
 
-                    eventController.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.UNDEPLOY_SCRIPT, null, null, "Error running channel undeploy script", t));
-                    logger.error("Error executing undeploy script for channel " + channelId + ".", e);
+                    for (DestinationChain chain : channel.getDestinationChains()) {
+                        for (Integer metaDataId : chain.getDestinationConnectors().keySet()) {
+                            if (chain.getFilterTransformerExecutors().get(metaDataId).getFilterTransformer() != null) {
+                                chain.getFilterTransformerExecutors().get(metaDataId).getFilterTransformer().dispose();
+                            }
+                            if (chain.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer() != null) {
+                                chain.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer().dispose();
+                            }
+                        }
+                    }
+
+                    // Execute the individual channel plugin undeploy hook
+                    for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+                        channelPlugin.undeploy(channelId, context);
+                    }
+
+                    // Execute channel undeploy script
+                    try {
+                        scriptController.executeChannelUndeployScript(channelId);
+                    } catch (Exception e) {
+                        Throwable t = e;
+                        if (e instanceof JavaScriptExecutorException) {
+                            t = e.getCause();
+                        }
+
+                        eventController.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.UNDEPLOY_SCRIPT, null, null, "Error running channel undeploy script", t));
+                        logger.error("Error executing undeploy script for channel " + channelId + ".", e);
+                    }
+
+                    // Remove channel scripts
+                    scriptController.removeChannelScriptsFromCache(channelId);
+
+                    channelController.removeDeployedChannelFromCache(channelId);
+                } finally {
+                    undeployingChannels.remove(channel);
                 }
-
-                // Remove channel scripts
-                scriptController.removeChannelScriptsFromCache(channelId);
-
-                channelController.removeDeployedChannelFromCache(channelId);
             }
 
             return null;

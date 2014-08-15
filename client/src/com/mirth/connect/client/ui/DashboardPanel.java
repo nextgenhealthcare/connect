@@ -415,8 +415,13 @@ public class DashboardPanel extends javax.swing.JPanel {
 
                     if (isHaltable(node)) {
                         // Hide tasks that can not be performed on a channel that is haltable
-                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 3, 3, false);
-                        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 9, false);
+                        if (status.getState() == DeployedState.DEPLOYING || status.getState() == DeployedState.UNDEPLOYING) {
+                            // If the channel is still deploying or undeploying, don't show anything except refresh
+                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, 9, false);
+                        } else {
+                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 3, 3, false);
+                            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 9, false);
+                        }
 
                         if (singleChannel) {
                             // Show the halt task only if a single channel is selected
@@ -468,7 +473,7 @@ public class DashboardPanel extends javax.swing.JPanel {
     private boolean isHaltable(AbstractDashboardTableNode node) {
         DeployedState nodeState = node.getStatus().getState();
 
-        boolean haltable = (nodeState == DeployedState.STARTING || nodeState == DeployedState.STOPPING || nodeState == DeployedState.PAUSING);
+        boolean haltable = (nodeState == DeployedState.DEPLOYING || nodeState == DeployedState.UNDEPLOYING || nodeState == DeployedState.STARTING || nodeState == DeployedState.STOPPING || nodeState == DeployedState.PAUSING);
 
         if (haltable) {
             return true;

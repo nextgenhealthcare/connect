@@ -509,6 +509,7 @@ public class Channel implements Runnable {
     }
 
     public synchronized void undeploy() throws UndeployException {
+        updateCurrentState(DeployedState.UNDEPLOYING);
         // Call the connector onUndeploy() methods so they can run their onUndeploy logic
         Throwable firstCause = null;
 
@@ -570,7 +571,7 @@ public class Channel implements Runnable {
      * Start the channel and all of the channel's connectors.
      */
     public synchronized void start(Set<Integer> connectorsToStart) throws StartException {
-        if (currentState == DeployedState.STOPPED) {
+        if (currentState == DeployedState.DEPLOYING || currentState == DeployedState.STOPPED) {
             List<Integer> startedMetaDataIds = new ArrayList<Integer>();
 
             try {

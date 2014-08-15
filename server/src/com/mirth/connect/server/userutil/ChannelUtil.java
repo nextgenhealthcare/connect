@@ -156,10 +156,10 @@ public class ChannelUtil {
     }
 
     /**
-     * Get the current state of a deployed channel.
+     * Get the current state of a channel.
      * 
      * @param channelIdOrName
-     *            The channel id or current name of the deployed channel.
+     *            The channel id or current name of the channel.
      * @return The current DeployedState.
      */
     public static DeployedState getChannelState(String channelIdOrName) {
@@ -263,10 +263,10 @@ public class ChannelUtil {
     }
 
     /**
-     * Get the current state of a deployed connector.
+     * Get the current state of a connector.
      * 
      * @param channelIdOrName
-     *            The channel id or current name of the deployed channel.
+     *            The channel id or current name of the channel.
      * @param metaDataId
      *            The metadata id of the connector. Note that the source connector has a metadata id
      *            of 0.

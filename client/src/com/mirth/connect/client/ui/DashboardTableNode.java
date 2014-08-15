@@ -70,13 +70,21 @@ public class DashboardTableNode extends AbstractDashboardTableNode {
         }
 
         DeployedState state = status.getState();
-        
+
         if (state != null) {
             switch (state) {
+                case DEPLOYING:
+                    row[colOffset] = new CellData(UIConstants.ICON_BULLET_ORANGE, "Deploying");
+                    break;
+
+                case UNDEPLOYING:
+                    row[colOffset] = new CellData(UIConstants.ICON_BULLET_ORANGE, "Undeploying");
+                    break;
+
                 case STARTING:
                     row[colOffset] = new CellData(UIConstants.ICON_BULLET_ORANGE, "Starting");
                     break;
-                    
+
                 case STARTED:
                     if (isStarted(status.getChildStatuses())) {
                         row[colOffset] = new CellData(UIConstants.ICON_BULLET_GREEN, "Started");
@@ -84,23 +92,23 @@ public class DashboardTableNode extends AbstractDashboardTableNode {
                         row[colOffset] = new CellData(UIConstants.ICON_BULLET_ORANGE, "Started");
                     }
                     break;
-                    
+
                 case STOPPING:
                     row[colOffset] = new CellData(UIConstants.ICON_BULLET_ORANGE, "Stopping");
                     break;
-    
+
                 case STOPPED:
                     row[colOffset] = new CellData(UIConstants.ICON_BULLET_RED, "Stopped");
                     break;
-                    
+
                 case PAUSING:
                     row[colOffset] = new CellData(UIConstants.ICON_BULLET_ORANGE, "Pausing");
                     break;
-    
+
                 case PAUSED:
                     row[colOffset] = new CellData(UIConstants.ICON_BULLET_YELLOW, "Paused");
                     break;
-                    
+
                 case UNKNOWN:
                     row[colOffset] = new CellData(UIConstants.ICON_BULLET_BLACK, "Unknown");
                     break;
