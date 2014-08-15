@@ -193,7 +193,7 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public void startupDeploy() throws StartException, StopException, InterruptedException {
+    public void startupDeploy() {
         deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
     }
 
@@ -207,7 +207,7 @@ public class DonkeyEngineController implements EngineController {
                 undeployTasks.add(new UndeployTask(channelId, context));
             }
 
-            deployTasks.add(new DeployTask(channelId, context));
+            deployTasks.add(new DeployTask(channelId, null, null, context));
         }
 
         if (CollectionUtils.isNotEmpty(undeployTasks)) {
@@ -1051,10 +1051,14 @@ public class DonkeyEngineController implements EngineController {
 
     protected class DeployTask extends ChannelTask {
 
+        private DeployedState initialState;
+        private Set<Integer> connectorsToStart;
         private ServerEventContext context;
 
-        public DeployTask(String channelId, ServerEventContext context) {
+        public DeployTask(String channelId, DeployedState initialState, Set<Integer> connectorsToStart, ServerEventContext context) {
             super(channelId);
+            this.initialState = initialState;
+            this.connectorsToStart = connectorsToStart;
             this.context = context;
         }
 
@@ -1114,21 +1118,42 @@ public class DonkeyEngineController implements EngineController {
                     throw e;
                 }
 
-                if (donkeyChannel.getInitialState() == DeployedState.STARTED) {
-                    donkeyChannel.start(null);
-                } else if (donkeyChannel.getInitialState() == DeployedState.PAUSED) {
-                    Set<Integer> connectorsToStart = new HashSet<Integer>(donkeyChannel.getMetaDataIds());
-                    donkeyChannel.getSourceConnector().updateCurrentState(DeployedState.STOPPED);
+                // Use the initial state from the channel settings if none are provided
+                if (initialState == null) {
+                    initialState = donkeyChannel.getInitialState();
+                }
+
+                // Use all connectors if none are provided
+                if (connectorsToStart == null) {
+                    connectorsToStart = new HashSet<Integer>(donkeyChannel.getMetaDataIds());
+                }
+
+                if (initialState == DeployedState.PAUSED) {
+                    // If the initial state is paused, never start the source connector
                     connectorsToStart.remove(0);
-                    donkeyChannel.start(connectorsToStart);
-                } else {
-                    donkeyChannel.updateCurrentState(DeployedState.STOPPED);
+                } else if (initialState == DeployedState.STOPPED) {
+                    // If the initial state is stopped, never start any connector
+                    connectorsToStart.clear();
+                }
+
+                // For connectors that won't be started, update their state to stopped to dispatch their event
+                if (!connectorsToStart.contains(0)) {
                     donkeyChannel.getSourceConnector().updateCurrentState(DeployedState.STOPPED);
-                    for (DestinationChain destinationChain : donkeyChannel.getDestinationChains()) {
-                        for (DestinationConnector destinationConnector : destinationChain.getDestinationConnectors().values()) {
-                            destinationConnector.updateCurrentState(DeployedState.STOPPED);
+                }
+                for (DestinationChain destinationChain : donkeyChannel.getDestinationChains()) {
+                    for (Entry<Integer, DestinationConnector> entry : destinationChain.getDestinationConnectors().entrySet()) {
+                        if (!connectorsToStart.contains(entry.getKey())) {
+                            entry.getValue().updateCurrentState(DeployedState.STOPPED);
                         }
                     }
+                }
+
+                if (initialState == DeployedState.STOPPED) {
+                    // If the initial state is stopped, update the channel's state to dispatch its event
+                    donkeyChannel.updateCurrentState(DeployedState.STOPPED);
+                } else {
+                    // Unless the initial state is stopped, always start the channel
+                    donkeyChannel.start(connectorsToStart);
                 }
             } catch (DeployException e) {
                 // Remove the channel from the deployed channel cache if an exception occurred on deploy.
