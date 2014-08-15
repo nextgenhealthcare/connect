@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -103,6 +102,8 @@ import com.mirth.connect.server.attachments.JavaScriptAttachmentHandler;
 import com.mirth.connect.server.attachments.MirthAttachmentHandler;
 import com.mirth.connect.server.attachments.PassthruAttachmentHandler;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
+import com.mirth.connect.server.channel.ChannelFuture;
+import com.mirth.connect.server.channel.ChannelTask;
 import com.mirth.connect.server.channel.MirthMetaDataReplacer;
 import com.mirth.connect.server.message.DataTypeFactory;
 import com.mirth.connect.server.message.DefaultResponseValidator;
@@ -992,7 +993,7 @@ public class DonkeyEngineController implements EngineController {
         return tasks;
     }
 
-    private void waitForTasks(List<ChannelFuture> futures) {
+    protected void waitForTasks(List<ChannelFuture> futures) {
         for (ChannelFuture future : futures) {
             try {
                 future.get();
@@ -1006,7 +1007,7 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    private synchronized List<ChannelFuture> submitTasks(List<ChannelTask> tasks) {
+    protected synchronized List<ChannelFuture> submitTasks(List<ChannelTask> tasks) {
         List<ChannelFuture> futures = new ArrayList<ChannelFuture>();
         for (ChannelTask task : tasks) {
             ExecutorService engineExecutor = getEngineExecutor(task.getChannelId(), false);
@@ -1048,7 +1049,7 @@ public class DonkeyEngineController implements EngineController {
         return futures;
     }
 
-    private class DeployTask extends ChannelTask {
+    protected class DeployTask extends ChannelTask {
 
         private ServerEventContext context;
 
@@ -1142,7 +1143,7 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    private class UndeployTask extends ChannelTask {
+    protected class UndeployTask extends ChannelTask {
 
         private ServerEventContext context;
 
@@ -1208,7 +1209,7 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    private class ChannelStatusTask extends ChannelTask {
+    protected class ChannelStatusTask extends ChannelTask {
 
         private StatusTask task;
 
@@ -1237,7 +1238,7 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    private class ConnectorStatusTask extends ChannelTask {
+    protected class ConnectorStatusTask extends ChannelTask {
 
         private Integer metaDataId;
         private StatusTask task;
@@ -1264,7 +1265,7 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    private class HaltTask extends ChannelTask {
+    protected class HaltTask extends ChannelTask {
 
         public HaltTask(String channelId) {
             super(channelId);
@@ -1282,7 +1283,7 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    private class RemoveTask extends ChannelTask {
+    protected class RemoveTask extends ChannelTask {
 
         private Channel channel;
         private ServerEventContext context;
@@ -1313,7 +1314,7 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    private class RemoveMessagesTask extends ChannelTask {
+    protected class RemoveMessagesTask extends ChannelTask {
 
         private Map<Long, MessageSearchResult> results;
 
@@ -1358,7 +1359,7 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    private class RemoveAllMessagesTask extends ChannelTask {
+    protected class RemoveAllMessagesTask extends ChannelTask {
 
         private boolean force;
         private boolean clearStatistics;
@@ -1378,38 +1379,6 @@ public class DonkeyEngineController implements EngineController {
             }
 
             return null;
-        }
-    }
-
-    private abstract class ChannelTask implements Callable<Void> {
-
-        protected String channelId;
-
-        public ChannelTask(String channelId) {
-            this.channelId = channelId;
-        }
-
-        public String getChannelId() {
-            return channelId;
-        }
-    }
-
-    private class ChannelFuture {
-
-        private String channelId;
-        private Future<?> delegate;
-
-        public ChannelFuture(String channelId, Future<?> delegate) {
-            this.channelId = channelId;
-            this.delegate = delegate;
-        }
-
-        public String getChannelId() {
-            return channelId;
-        }
-
-        public Object get() throws InterruptedException, ExecutionException {
-            return delegate.get();
         }
     }
 }
