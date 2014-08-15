@@ -22,6 +22,8 @@ import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.ServerEventContext;
+import com.mirth.connect.server.channel.ChannelFuture;
+import com.mirth.connect.server.channel.ChannelTask;
 import com.mirth.connect.server.mybatis.MessageSearchResult;
 
 public interface EngineController {
@@ -30,6 +32,8 @@ public interface EngineController {
     public void stopEngine() throws StopException, InterruptedException;
 
     public boolean isRunning();
+
+    public List<ChannelFuture> submitTasks(List<ChannelTask> tasks);
 
     public void startupDeploy() throws StartException, StopException, InterruptedException;
 

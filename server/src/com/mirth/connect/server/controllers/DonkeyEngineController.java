@@ -993,21 +993,8 @@ public class DonkeyEngineController implements EngineController {
         return tasks;
     }
 
-    protected void waitForTasks(List<ChannelFuture> futures) {
-        for (ChannelFuture future : futures) {
-            try {
-                future.get();
-            } catch (InterruptedException e) {
-                logger.error(ExceptionUtils.getStackTrace(e));
-            } catch (ExecutionException e) {
-                logger.error(ExceptionUtils.getStackTrace(e.getCause()));
-            } catch (CancellationException e) {
-                logger.error("Task cancelled because the channel " + future.getChannelId() + " was halted or removed.", e);
-            }
-        }
-    }
-
-    protected synchronized List<ChannelFuture> submitTasks(List<ChannelTask> tasks) {
+    @Override
+    public synchronized List<ChannelFuture> submitTasks(List<ChannelTask> tasks) {
         List<ChannelFuture> futures = new ArrayList<ChannelFuture>();
         for (ChannelTask task : tasks) {
             ExecutorService engineExecutor = getEngineExecutor(task.getChannelId(), false);
@@ -1047,6 +1034,20 @@ public class DonkeyEngineController implements EngineController {
         }
 
         return futures;
+    }
+
+    protected void waitForTasks(List<ChannelFuture> futures) {
+        for (ChannelFuture future : futures) {
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                logger.error(ExceptionUtils.getStackTrace(e));
+            } catch (ExecutionException e) {
+                logger.error(ExceptionUtils.getStackTrace(e.getCause()));
+            } catch (CancellationException e) {
+                logger.error("Task cancelled because the channel " + future.getChannelId() + " was halted or removed.", e);
+            }
+        }
     }
 
     protected class DeployTask extends ChannelTask {
