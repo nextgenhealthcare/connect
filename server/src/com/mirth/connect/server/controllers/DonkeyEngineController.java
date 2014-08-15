@@ -1103,7 +1103,32 @@ public class DonkeyEngineController implements EngineController {
             donkeyChannel.setRevision(channel.getRevision());
 
             try {
-                donkey.deployChannel(donkeyChannel);
+                donkeyChannel.setDeployDate(Calendar.getInstance());
+                donkey.getDeployedChannels().put(channelId, donkeyChannel);
+
+                try {
+                    donkeyChannel.deploy();
+                } catch (DeployException e) {
+                    donkey.getDeployedChannels().remove(channelId);
+                    throw e;
+                }
+
+                if (donkeyChannel.getInitialState() == DeployedState.STARTED) {
+                    donkeyChannel.start(null);
+                } else if (donkeyChannel.getInitialState() == DeployedState.PAUSED) {
+                    Set<Integer> connectorsToStart = new HashSet<Integer>(donkeyChannel.getMetaDataIds());
+                    donkeyChannel.getSourceConnector().updateCurrentState(DeployedState.STOPPED);
+                    connectorsToStart.remove(0);
+                    donkeyChannel.start(connectorsToStart);
+                } else {
+                    donkeyChannel.updateCurrentState(DeployedState.STOPPED);
+                    donkeyChannel.getSourceConnector().updateCurrentState(DeployedState.STOPPED);
+                    for (DestinationChain destinationChain : donkeyChannel.getDestinationChains()) {
+                        for (DestinationConnector destinationConnector : destinationChain.getDestinationConnectors().values()) {
+                            destinationConnector.updateCurrentState(DeployedState.STOPPED);
+                        }
+                    }
+                }
             } catch (DeployException e) {
                 // Remove the channel from the deployed channel cache if an exception occurred on deploy.
                 channelController.removeDeployedChannelFromCache(channelId);
@@ -1132,7 +1157,12 @@ public class DonkeyEngineController implements EngineController {
             com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
 
             if (channel != null) {
-                donkey.undeployChannel(channel);
+                if (channel.isActive()) {
+                    channel.stop();
+                }
+
+                donkey.getDeployedChannels().remove(channelId);
+                channel.undeploy();
 
                 // Remove connector scripts
                 if (channel.getSourceFilterTransformer().getFilterTransformer() != null) {
@@ -1189,14 +1219,18 @@ public class DonkeyEngineController implements EngineController {
 
         @Override
         public Void call() throws Exception {
-            if (task == StatusTask.START) {
-                donkey.startChannel(channelId);
-            } else if (task == StatusTask.STOP) {
-                donkey.stopChannel(channelId);
-            } else if (task == StatusTask.PAUSE) {
-                donkey.pauseChannel(channelId);
-            } else if (task == StatusTask.RESUME) {
-                donkey.resumeChannel(channelId);
+            com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
+
+            if (channel != null) {
+                if (task == StatusTask.START) {
+                    channel.start(null);
+                } else if (task == StatusTask.STOP) {
+                    channel.stop();
+                } else if (task == StatusTask.PAUSE) {
+                    channel.pause();
+                } else if (task == StatusTask.RESUME) {
+                    channel.resume();
+                }
             }
 
             return null;
@@ -1216,10 +1250,14 @@ public class DonkeyEngineController implements EngineController {
 
         @Override
         public Void call() throws Exception {
-            if (task == StatusTask.START) {
-                donkey.startConnector(channelId, metaDataId);
-            } else if (task == StatusTask.STOP) {
-                donkey.stopConnector(channelId, metaDataId);
+            com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
+
+            if (channel != null) {
+                if (task == StatusTask.START) {
+                    channel.startConnector(metaDataId);
+                } else if (task == StatusTask.STOP) {
+                    channel.stopConnector(metaDataId);
+                }
             }
 
             return null;
@@ -1234,7 +1272,11 @@ public class DonkeyEngineController implements EngineController {
 
         @Override
         public Void call() throws Exception {
-            donkey.haltChannel(channelId);
+            com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
+
+            if (channel != null) {
+                channel.halt();
+            }
 
             return null;
         }
@@ -1329,7 +1371,11 @@ public class DonkeyEngineController implements EngineController {
 
         @Override
         public Void call() throws Exception {
-            donkey.removeAllMessages(channelId, force, clearStatistics);
+            com.mirth.connect.donkey.server.channel.Channel channel = getDeployedChannel(channelId);
+
+            if (channel != null) {
+                channel.removeAllMessages(force, clearStatistics);
+            }
 
             return null;
         }

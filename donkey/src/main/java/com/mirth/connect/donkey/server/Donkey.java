@@ -10,10 +10,8 @@
 package com.mirth.connect.donkey.server;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -23,10 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.server.channel.Channel;
-import com.mirth.connect.donkey.server.channel.DestinationChain;
-import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.data.jdbc.DBCPConnectionPool;
@@ -141,108 +136,6 @@ public class Donkey {
 
     public void stopEngine() {
         running = false;
-    }
-
-    public void deployChannel(Channel channel) throws DeployException, StartException {
-        channel.setDeployDate(Calendar.getInstance());
-        deployedChannels.put(channel.getChannelId(), channel);
-
-        try {
-            channel.deploy();
-        } catch (DeployException e) {
-            deployedChannels.remove(channel.getChannelId());
-            throw e;
-        }
-
-        if (channel.getInitialState() == DeployedState.STARTED) {
-            channel.start(null);
-        } else if (channel.getInitialState() == DeployedState.PAUSED) {
-            Set<Integer> connectorsToStart = new HashSet<Integer>(channel.getMetaDataIds());
-            channel.getSourceConnector().updateCurrentState(DeployedState.STOPPED);
-            connectorsToStart.remove(0);
-            channel.start(connectorsToStart);
-        } else {
-            channel.updateCurrentState(DeployedState.STOPPED);
-            channel.getSourceConnector().updateCurrentState(DeployedState.STOPPED);
-            for (DestinationChain destinationChain : channel.getDestinationChains()) {
-                for (DestinationConnector destinationConnector : destinationChain.getDestinationConnectors().values()) {
-                    destinationConnector.updateCurrentState(DeployedState.STOPPED);
-                }
-            }
-        }
-    }
-
-    public void undeployChannel(Channel channel) throws StopException, UndeployException {
-        if (channel.isActive()) {
-            channel.stop();
-        }
-
-        deployedChannels.remove(channel.getChannelId());
-        channel.undeploy();
-    }
-
-    public void startChannel(String channelId) throws StartException {
-        Channel channel = deployedChannels.get(channelId);
-
-        if (channel != null) {
-            channel.start(null);
-        }
-    }
-
-    public void stopChannel(String channelId) throws StopException {
-        Channel channel = deployedChannels.get(channelId);
-
-        if (channel != null) {
-            channel.stop();
-        }
-    }
-
-    public void pauseChannel(String channelId) throws PauseException {
-        Channel channel = deployedChannels.get(channelId);
-
-        if (channel != null) {
-            channel.pause();
-        }
-    }
-
-    public void resumeChannel(String channelId) throws ResumeException {
-        Channel channel = deployedChannels.get(channelId);
-
-        if (channel != null) {
-            channel.resume();
-        }
-    }
-
-    public void startConnector(String channelId, Integer metaDataId) throws StartException, ResumeException {
-        Channel channel = deployedChannels.get(channelId);
-
-        if (channel != null) {
-            channel.startConnector(metaDataId);
-        }
-    }
-
-    public void stopConnector(String channelId, Integer metaDataId) throws StopException, PauseException {
-        Channel channel = deployedChannels.get(channelId);
-
-        if (channel != null) {
-            channel.stopConnector(metaDataId);
-        }
-    }
-
-    public void haltChannel(String channelId) throws HaltException {
-        Channel channel = deployedChannels.get(channelId);
-
-        if (channel != null) {
-            channel.halt();
-        }
-    }
-
-    public void removeAllMessages(String channelId, boolean force, boolean clearStatistics) throws InterruptedException {
-        Channel channel = deployedChannels.get(channelId);
-
-        if (channel != null) {
-            channel.removeAllMessages(force, clearStatistics);
-        }
     }
 
     public Map<String, Channel> getDeployedChannels() {
