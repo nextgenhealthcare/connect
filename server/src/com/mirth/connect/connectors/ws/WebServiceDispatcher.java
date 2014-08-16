@@ -49,6 +49,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthSchemeProvider;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
@@ -58,7 +59,6 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.config.RegistryBuilder;
@@ -71,6 +71,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
+import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -84,6 +85,7 @@ import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -141,11 +143,21 @@ public class WebServiceDispatcher extends DestinationConnector {
 
     @Override
     public void onStop() throws ConnectorTaskException {
+        for (DispatchContainer dispatchContainer : dispatchContainers.values()) {
+            for (File tempFile : dispatchContainer.getTempFiles()) {
+                tempFile.delete();
+            }
+        }
         dispatchContainers.clear();
     }
 
     @Override
     public void onHalt() throws ConnectorTaskException {
+        for (DispatchContainer dispatchContainer : dispatchContainers.values().toArray(new DispatchContainer[dispatchContainers.size()])) {
+            for (File tempFile : dispatchContainer.getTempFiles().toArray(new File[dispatchContainer.getTempFiles().size()])) {
+                tempFile.delete();
+            }
+        }
         dispatchContainers.clear();
     }
 
@@ -178,7 +190,7 @@ public class WebServiceDispatcher extends DestinationConnector {
             dispatchContainer.setCurrentServiceName(serviceName);
             dispatchContainer.setCurrentPortName(portName);
 
-            URL endpointUrl = getWsdlUrl(wsdlUrl, username, password);
+            URL endpointUrl = getWsdlUrl(dispatchContainer);
             QName serviceQName = QName.valueOf(serviceName);
             QName portQName = QName.valueOf(portName);
 
@@ -210,8 +222,8 @@ public class WebServiceDispatcher extends DestinationConnector {
      * @return
      * @throws Exception
      */
-    private URL getWsdlUrl(String wsdlUrl, String username, String password) throws Exception {
-        URI uri = new URI(wsdlUrl);
+    private URL getWsdlUrl(DispatchContainer dispatchContainer) throws Exception {
+        URI uri = new URI(dispatchContainer.getCurrentWsdlUrl());
 
         // If the URL points to file, just return it
         if (!uri.getScheme().equalsIgnoreCase("file")) {
@@ -219,13 +231,12 @@ public class WebServiceDispatcher extends DestinationConnector {
             CloseableHttpClient client = HttpClients.custom().setConnectionManager(httpClientConnectionManager).build();
 
             try {
-                HttpRequestBase method = new HttpGet(wsdlUrl);
                 HttpClientContext context = HttpClientContext.create();
 
-                if (username != null && password != null) {
+                if (dispatchContainer.getCurrentUsername() != null && dispatchContainer.getCurrentPassword() != null) {
                     CredentialsProvider credsProvider = new BasicCredentialsProvider();
                     AuthScope authScope = new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM);
-                    Credentials credentials = new UsernamePasswordCredentials(username, password);
+                    Credentials credentials = new UsernamePasswordCredentials(dispatchContainer.getCurrentUsername(), dispatchContainer.getCurrentPassword());
                     credsProvider.setCredentials(authScope, credentials);
                     AuthCache authCache = new BasicAuthCache();
                     RegistryBuilder<AuthSchemeProvider> registryBuilder = RegistryBuilder.<AuthSchemeProvider> create();
@@ -236,37 +247,69 @@ public class WebServiceDispatcher extends DestinationConnector {
                     context.setAuthCache(authCache);
                 }
 
-                CloseableHttpResponse response = client.execute(method, context);
-
-                try {
-                    if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                        ContentType responseContentType = ContentType.get(response.getEntity());
-                        if (responseContentType == null) {
-                            responseContentType = ContentType.TEXT_XML;
-                        }
-
-                        Charset responseCharset = responseContentType.getCharset();
-                        if (responseContentType.getCharset() == null) {
-                            responseCharset = ContentType.TEXT_XML.getCharset();
-                        }
-
-                        String wsdl = IOUtils.toString(response.getEntity().getContent(), responseCharset);
-                        File tempFile = File.createTempFile("WebServiceSender", ".wsdl");
-                        tempFile.deleteOnExit();
-
-                        FileUtils.writeStringToFile(tempFile, wsdl);
-
-                        return tempFile.toURI().toURL();
-                    }
-                } finally {
-                    HttpClientUtils.closeQuietly(response);
-                }
+                return getWsdl(client, context, dispatchContainer, new HashMap<String, File>(), dispatchContainer.getCurrentWsdlUrl()).toURI().toURL();
             } finally {
                 HttpClientUtils.closeQuietly(client);
             }
         }
 
         return uri.toURL();
+    }
+
+    private File getWsdl(CloseableHttpClient client, HttpContext context, DispatchContainer dispatchContainer, Map<String, File> visitedUrls, String wsdlUrl) throws Exception {
+        if (visitedUrls.containsKey(wsdlUrl)) {
+            return visitedUrls.get(wsdlUrl);
+        }
+
+        String wsdl = null;
+        StatusLine responseStatusLine = null;
+        CloseableHttpResponse response = client.execute(new HttpGet(wsdlUrl), context);
+
+        try {
+            responseStatusLine = response.getStatusLine();
+
+            if (responseStatusLine.getStatusCode() == HttpStatus.SC_OK) {
+                ContentType responseContentType = ContentType.get(response.getEntity());
+                if (responseContentType == null) {
+                    responseContentType = ContentType.TEXT_XML;
+                }
+
+                Charset responseCharset = responseContentType.getCharset();
+                if (responseContentType.getCharset() == null) {
+                    responseCharset = ContentType.TEXT_XML.getCharset();
+                }
+
+                wsdl = IOUtils.toString(response.getEntity().getContent(), responseCharset);
+            }
+        } finally {
+            HttpClientUtils.closeQuietly(response);
+        }
+
+        if (StringUtils.isNotBlank(wsdl)) {
+            File tempFile = File.createTempFile("WebServiceSender", ".wsdl");
+            tempFile.deleteOnExit();
+            visitedUrls.put(wsdlUrl, tempFile);
+
+            try {
+                DonkeyElement element = new DonkeyElement(wsdl);
+                for (DonkeyElement child : element.getChildElements()) {
+                    if (child.getLocalName().equals("import") && child.hasAttribute("location")) {
+                        child.setAttribute("location", getWsdl(client, context, dispatchContainer, visitedUrls, child.getAttribute("location")).toURI().toURL().toString());
+                    }
+                }
+
+                wsdl = element.toXml();
+            } catch (Exception e) {
+                logger.warn("Unable to cache imports for WSDL at URL: " + wsdlUrl, e);
+            }
+
+            FileUtils.writeStringToFile(tempFile, wsdl);
+            dispatchContainer.getTempFiles().add(tempFile);
+
+            return tempFile;
+        } else {
+            throw new Exception("Unable to load WSDL at URL \"" + wsdlUrl + "\": " + String.valueOf(responseStatusLine));
+        }
     }
 
     @Override
@@ -474,6 +517,7 @@ public class WebServiceDispatcher extends DestinationConnector {
         private String currentPassword = null;
         private String currentServiceName = null;
         private String currentPortName = null;
+        private List<File> tempFiles = new ArrayList<File>();
 
         public Dispatch<SOAPMessage> getDispatch() {
             return dispatch;
@@ -521,6 +565,10 @@ public class WebServiceDispatcher extends DestinationConnector {
 
         public void setCurrentPortName(String currentPortName) {
             this.currentPortName = currentPortName;
+        }
+
+        public List<File> getTempFiles() {
+            return tempFiles;
         }
     }
 
