@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.DashboardStatus;
+import com.mirth.connect.server.channel.ErrorTaskHandler;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
@@ -72,7 +73,11 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.startChannels(Collections.singleton(convertId(channelIdOrName)));
+                ErrorTaskHandler handler = new ErrorTaskHandler();
+                engineController.startChannels(Collections.singleton(convertId(channelIdOrName)), handler);
+                if (handler.isErrored()) {
+                    throw handler.getError();
+                }
                 return null;
             }
         }));
@@ -92,7 +97,11 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.stopChannels(Collections.singleton(convertId(channelIdOrName)));
+                ErrorTaskHandler handler = new ErrorTaskHandler();
+                engineController.stopChannels(Collections.singleton(convertId(channelIdOrName)), handler);
+                if (handler.isErrored()) {
+                    throw handler.getError();
+                }
                 return null;
             }
         }));
@@ -112,7 +121,11 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.pauseChannels(Collections.singleton(convertId(channelIdOrName)));
+                ErrorTaskHandler handler = new ErrorTaskHandler();
+                engineController.pauseChannels(Collections.singleton(convertId(channelIdOrName)), handler);
+                if (handler.isErrored()) {
+                    throw handler.getError();
+                }
                 return null;
             }
         }));
@@ -129,7 +142,11 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.resumeChannels(Collections.singleton(convertId(channelIdOrName)));
+                ErrorTaskHandler handler = new ErrorTaskHandler();
+                engineController.resumeChannels(Collections.singleton(convertId(channelIdOrName)), handler);
+                if (handler.isErrored()) {
+                    throw handler.getError();
+                }
                 return null;
             }
         }));
@@ -149,7 +166,11 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.haltChannels(Collections.singleton(convertId(channelIdOrName)));
+                ErrorTaskHandler handler = new ErrorTaskHandler();
+                engineController.haltChannels(Collections.singleton(convertId(channelIdOrName)), handler);
+                if (handler.isErrored()) {
+                    throw handler.getError();
+                }
                 return null;
             }
         }));
@@ -180,7 +201,11 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.deployChannels(Collections.singleton(convertId(channelIdOrName)), null);
+                ErrorTaskHandler handler = new ErrorTaskHandler();
+                engineController.deployChannels(Collections.singleton(convertId(channelIdOrName)), null, handler);
+                if (handler.isErrored()) {
+                    throw handler.getError();
+                }
                 return null;
             }
         }));
@@ -199,7 +224,11 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.undeployChannels(Collections.singleton(convertId(channelIdOrName)), null);
+                ErrorTaskHandler handler = new ErrorTaskHandler();
+                engineController.undeployChannels(Collections.singleton(convertId(channelIdOrName)), null, handler);
+                if (handler.isErrored()) {
+                    throw handler.getError();
+                }
                 return null;
             }
         }));
@@ -233,7 +262,11 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.startConnector(Collections.singletonMap(convertId(channelIdOrName), Collections.singletonList(metaDataId)));
+                ErrorTaskHandler handler = new ErrorTaskHandler();
+                engineController.startConnector(Collections.singletonMap(convertId(channelIdOrName), Collections.singletonList(metaDataId)), handler);
+                if (handler.isErrored()) {
+                    throw handler.getError();
+                }
                 return null;
             }
         }));
@@ -256,7 +289,11 @@ public class ChannelUtil {
         return new Future<Void>(executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                engineController.stopConnector(Collections.singletonMap(convertId(channelIdOrName), Collections.singletonList(metaDataId)));
+                ErrorTaskHandler handler = new ErrorTaskHandler();
+                engineController.stopConnector(Collections.singletonMap(convertId(channelIdOrName), Collections.singletonList(metaDataId)), handler);
+                if (handler.isErrored()) {
+                    throw handler.getError();
+                }
                 return null;
             }
         }));

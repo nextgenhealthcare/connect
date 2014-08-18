@@ -108,7 +108,7 @@ public class ChannelServlet extends MirthServlet {
                             channelIds = redactChannelIds(request, channelIds);
                         }
 
-                        engineController.removeChannels(channelIds, context);
+                        engineController.removeChannels(channelIds, context, null);
                     }
                 } else if (operation.equals(Operations.CHANNEL_GET_SUMMARY)) {
                     response.setContentType(APPLICATION_XML);

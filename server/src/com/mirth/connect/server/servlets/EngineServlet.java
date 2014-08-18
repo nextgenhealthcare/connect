@@ -51,7 +51,7 @@ public class EngineServlet extends MirthServlet {
                     if (!isUserAuthorized(request, null) || doesUserHaveChannelRestrictions(request)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        engineController.redeployAllChannels(context);
+                        engineController.redeployAllChannels(context, null);
                     }
                 } else if (operation.equals(Operations.CHANNEL_DEPLOY)) {
                     @SuppressWarnings("unchecked")
@@ -61,7 +61,7 @@ public class EngineServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        engineController.deployChannels(channelIds, context);
+                        engineController.deployChannels(channelIds, context, null);
                     }
                 } else if (operation.equals(Operations.CHANNEL_UNDEPLOY)) {
                     @SuppressWarnings("unchecked")
@@ -71,7 +71,7 @@ public class EngineServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        engineController.undeployChannels(channelIds, context);
+                        engineController.undeployChannels(channelIds, context, null);
                     }
                 }
             } catch (RuntimeIOException rio) {

@@ -116,15 +116,15 @@ public class ChannelStatusServlet extends MirthServlet {
                 }
 
                 if (operation.equals(Operations.CHANNEL_START)) {
-                    engineController.startChannels(channelIds);
+                    engineController.startChannels(channelIds, null);
                 } else if (operation.equals(Operations.CHANNEL_STOP)) {
-                    engineController.stopChannels(channelIds);
+                    engineController.stopChannels(channelIds, null);
                 } else if (operation.equals(Operations.CHANNEL_HALT)) {
-                    engineController.haltChannels(channelIds);
+                    engineController.haltChannels(channelIds, null);
                 } else if (operation.equals(Operations.CHANNEL_PAUSE)) {
-                    engineController.pauseChannels(channelIds);
+                    engineController.pauseChannels(channelIds, null);
                 } else if (operation.equals(Operations.CHANNEL_RESUME)) {
-                    engineController.resumeChannels(channelIds);
+                    engineController.resumeChannels(channelIds, null);
                 }
             } else if (isConnectorOperation) {
                 if (doesUserHaveChannelRestrictions(request)) {
@@ -132,9 +132,9 @@ public class ChannelStatusServlet extends MirthServlet {
                 }
 
                 if (operation.equals(Operations.CHANNEL_START_CONNECTOR)) {
-                    engineController.startConnector(connectorInfo);
+                    engineController.startConnector(connectorInfo, null);
                 } else if (operation.equals(Operations.CHANNEL_STOP_CONNECTOR)) {
-                    engineController.stopConnector(connectorInfo);
+                    engineController.stopConnector(connectorInfo, null);
                 }
             }
         } catch (RuntimeIOException rio) {

@@ -149,7 +149,7 @@ public class MessageObjectServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap) || hasUnauthorizedChannels(request, channelIds, authorizedChannelIds)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        engineController.removeAllMessages(channelIds, restartRunningChannels, clearStatistics);
+                        engineController.removeAllMessages(channelIds, restartRunningChannels, clearStatistics, null);
                     }
                 } else if (operation.equals(Operations.MESSAGE_REPROCESS)) {
                     final String channelId = request.getParameter("channelId");

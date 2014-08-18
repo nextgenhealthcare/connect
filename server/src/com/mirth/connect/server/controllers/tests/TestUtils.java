@@ -285,7 +285,7 @@ public class TestUtils {
         com.mirth.connect.server.controllers.ChannelController.getInstance().updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
         Set<String> channelIds = new LinkedHashSet<String>();
         channelIds.add(channel.getId());
-        ControllerFactory.getFactory().createEngineController().deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+        ControllerFactory.getFactory().createEngineController().deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null);
     }
 
     public static Properties getSqlProperties() {

@@ -51,6 +51,7 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.filters.elements.ContentSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
+import com.mirth.connect.server.channel.ErrorTaskHandler;
 import com.mirth.connect.server.mybatis.MessageSearchResult;
 import com.mirth.connect.server.mybatis.MessageTextResult;
 import com.mirth.connect.server.util.DICOMMessageUtil;
@@ -307,10 +308,10 @@ public class DonkeyMessageController extends MessageController {
 
             Map<Long, MessageSearchResult> results = searchAll(session, params, filter, localChannelId, true, filterOptions);
 
-            try {
-                engineController.removeMessages(channelId, results);
-            } catch (Exception e) {
-                logger.error("Remove messages task terminated due to error or halt.", e);
+            ErrorTaskHandler handler = new ErrorTaskHandler();
+            engineController.removeMessages(channelId, results, handler);
+            if (handler.isErrored()) {
+                logger.error("Remove messages task terminated due to error or halt.", handler.getError());
                 break;
             }
         }

@@ -445,7 +445,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         synchronized (engineController) {
             if (serverConfiguration.getChannels() != null) {
                 // Undeploy all channels before updating or removing them
-                engineController.undeployChannels(engineController.getDeployedIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+                engineController.undeployChannels(engineController.getDeployedIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null);
 
                 // Remove channels that don't exist in the new configuration
                 for (Channel channel : channelController.getChannels(null)) {
@@ -512,7 +512,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
 
             // Deploy all channels
-            engineController.deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+            engineController.deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null);
         }
     }
 

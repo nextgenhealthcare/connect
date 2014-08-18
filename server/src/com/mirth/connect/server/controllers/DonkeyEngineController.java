@@ -16,24 +16,23 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Encryptor;
@@ -105,6 +104,8 @@ import com.mirth.connect.server.attachments.PassthruAttachmentHandler;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.channel.ChannelFuture;
 import com.mirth.connect.server.channel.ChannelTask;
+import com.mirth.connect.server.channel.ChannelTaskHandler;
+import com.mirth.connect.server.channel.LoggingTaskHandler;
 import com.mirth.connect.server.channel.MirthMetaDataReplacer;
 import com.mirth.connect.server.message.DataTypeFactory;
 import com.mirth.connect.server.message.DefaultResponseValidator;
@@ -186,7 +187,7 @@ public class DonkeyEngineController implements EngineController {
 
     @Override
     public void stopEngine() throws StopException, InterruptedException {
-        undeployChannels(getDeployedIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+        undeployChannels(getDeployedIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null);
         donkey.stopEngine();
     }
 
@@ -197,11 +198,11 @@ public class DonkeyEngineController implements EngineController {
 
     @Override
     public void startupDeploy() {
-        deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+        deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null);
     }
 
     @Override
-    public void deployChannels(Set<String> channelIds, ServerEventContext context) {
+    public void deployChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler) {
         List<ChannelTask> deployTasks = new ArrayList<ChannelTask>();
         List<ChannelTask> undeployTasks = new ArrayList<ChannelTask>();
 
@@ -214,7 +215,7 @@ public class DonkeyEngineController implements EngineController {
         }
 
         if (CollectionUtils.isNotEmpty(undeployTasks)) {
-            waitForTasks(submitTasks(undeployTasks));
+            waitForTasks(submitTasks(undeployTasks, handler));
             executeChannelPluginOnUndeploy(context);
             executeGlobalUndeployScript();
         }
@@ -222,12 +223,12 @@ public class DonkeyEngineController implements EngineController {
         if (CollectionUtils.isNotEmpty(deployTasks)) {
             executeGlobalDeployScript();
             executeChannelPluginOnDeploy(context);
-            waitForTasks(submitTasks(deployTasks));
+            waitForTasks(submitTasks(deployTasks, handler));
         }
     }
 
     @Override
-    public void undeployChannels(Set<String> channelIds, ServerEventContext context) {
+    public void undeployChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler) {
         List<ChannelTask> undeployTasks = new ArrayList<ChannelTask>();
 
         for (String channelId : channelIds) {
@@ -235,56 +236,56 @@ public class DonkeyEngineController implements EngineController {
         }
 
         if (CollectionUtils.isNotEmpty(undeployTasks)) {
-            waitForTasks(submitTasks(undeployTasks));
+            waitForTasks(submitTasks(undeployTasks, handler));
             executeChannelPluginOnUndeploy(context);
             executeGlobalUndeployScript();
         }
     }
 
     @Override
-    public void redeployAllChannels(ServerEventContext context) {
-        undeployChannels(getDeployedIds(), context);
+    public void redeployAllChannels(ServerEventContext context, ChannelTaskHandler handler) {
+        undeployChannels(getDeployedIds(), context, handler);
         clearGlobalMap();
-        deployChannels(channelController.getChannelIds(), context);
+        deployChannels(channelController.getChannelIds(), context, handler);
     }
 
     @Override
-    public void startChannels(Set<String> channelIds) {
-        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.START)));
+    public void startChannels(Set<String> channelIds, ChannelTaskHandler handler) {
+        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.START), handler));
     }
 
     @Override
-    public void stopChannels(Set<String> channelIds) {
-        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.STOP)));
+    public void stopChannels(Set<String> channelIds, ChannelTaskHandler handler) {
+        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.STOP), handler));
     }
 
     @Override
-    public void pauseChannels(Set<String> channelIds) {
-        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.PAUSE)));
+    public void pauseChannels(Set<String> channelIds, ChannelTaskHandler handler) {
+        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.PAUSE), handler));
     }
 
     @Override
-    public void resumeChannels(Set<String> channelIds) {
-        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.RESUME)));
+    public void resumeChannels(Set<String> channelIds, ChannelTaskHandler handler) {
+        waitForTasks(submitTasks(buildChannelStatusTasks(channelIds, StatusTask.RESUME), handler));
     }
 
     @Override
-    public void startConnector(Map<String, List<Integer>> connectorInfo) {
-        waitForTasks(submitTasks(buildConnectorStatusTasks(connectorInfo, StatusTask.START)));
+    public void startConnector(Map<String, List<Integer>> connectorInfo, ChannelTaskHandler handler) {
+        waitForTasks(submitTasks(buildConnectorStatusTasks(connectorInfo, StatusTask.START), handler));
     }
 
     @Override
-    public void stopConnector(Map<String, List<Integer>> connectorInfo) {
-        waitForTasks(submitTasks(buildConnectorStatusTasks(connectorInfo, StatusTask.STOP)));
+    public void stopConnector(Map<String, List<Integer>> connectorInfo, ChannelTaskHandler handler) {
+        waitForTasks(submitTasks(buildConnectorStatusTasks(connectorInfo, StatusTask.STOP), handler));
     }
 
     @Override
-    public void haltChannels(Set<String> channelIds) {
-        waitForTasks(submitHaltTasks(channelIds));
+    public void haltChannels(Set<String> channelIds, ChannelTaskHandler handler) {
+        waitForTasks(submitHaltTasks(channelIds, handler));
     }
 
     @Override
-    public void removeChannels(Set<String> channelIds, ServerEventContext context) {
+    public void removeChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler) {
         List<ChannelTask> tasks = new ArrayList<ChannelTask>();
 
         for (com.mirth.connect.model.Channel channelModel : channelController.getChannels(channelIds)) {
@@ -293,37 +294,29 @@ public class DonkeyEngineController implements EngineController {
         }
 
         if (CollectionUtils.isNotEmpty(tasks)) {
-            waitForTasks(submitTasks(tasks));
+            waitForTasks(submitTasks(tasks, handler));
             executeChannelPluginOnUndeploy(context);
         }
     }
 
     @Override
-    public void removeMessages(String channelId, Map<Long, MessageSearchResult> results) throws Exception {
+    public void removeMessages(String channelId, Map<Long, MessageSearchResult> results, ChannelTaskHandler handler) {
         List<ChannelTask> tasks = new ArrayList<ChannelTask>();
 
         tasks.add(new RemoveMessagesTask(channelId, results));
 
-        List<ChannelFuture> futures = submitTasks(tasks);
-        if (CollectionUtils.isEmpty(futures)) {
-            throw new InterruptedException();
-        }
-
-        // Don't use waitForTasks here because we want to throw any exceptions.
-        for (ChannelFuture future : futures) {
-            future.get();
-        }
+        waitForTasks(submitTasks(tasks, handler));
     };
 
     @Override
-    public void removeAllMessages(Set<String> channelIds, boolean force, boolean clearStatistics) {
+    public void removeAllMessages(Set<String> channelIds, boolean force, boolean clearStatistics, ChannelTaskHandler handler) {
         List<ChannelTask> tasks = new ArrayList<ChannelTask>();
 
         for (String channelId : channelIds) {
             tasks.add(new RemoveAllMessagesTask(channelId, force, clearStatistics));
         }
 
-        waitForTasks(submitTasks(tasks));
+        waitForTasks(submitTasks(tasks, handler));
     }
 
     @Override
@@ -1007,26 +1000,45 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public synchronized List<ChannelFuture> submitTasks(List<ChannelTask> tasks) {
+    public synchronized List<ChannelFuture> submitTasks(List<ChannelTask> tasks, ChannelTaskHandler handler) {
         List<ChannelFuture> futures = new ArrayList<ChannelFuture>();
+
+        /*
+         * If no handler is given then use the default handler to that at least errors will be
+         * logged out.
+         */
+        if (handler == null) {
+            handler = new LoggingTaskHandler();
+        }
+
         for (ChannelTask task : tasks) {
             ExecutorService engineExecutor = getEngineExecutor(task.getChannelId(), false);
 
+            task.setHandler(handler);
             try {
-                futures.add(new ChannelFuture(task.getChannelId(), engineExecutor.submit(task)));
+                futures.add(task.submitTo(engineExecutor));
             } catch (RejectedExecutionException e) {
                 /*
                  * This can happen if a channel was halted, in which case we don't want to perform
                  * whatever task this was anyway.
                  */
+                handler.taskErrored(task.getChannelId(), task.getMetaDataId(), e);
             }
         }
 
         return futures;
     }
 
-    private synchronized List<ChannelFuture> submitHaltTasks(Set<String> channelIds) {
+    private synchronized List<ChannelFuture> submitHaltTasks(Set<String> channelIds, ChannelTaskHandler handler) {
         List<ChannelFuture> futures = new ArrayList<ChannelFuture>();
+
+        /*
+         * If no handler is given then use the default handler to that at least errors will be
+         * logged out.
+         */
+        if (handler == null) {
+            handler = new LoggingTaskHandler();
+        }
 
         for (String channelId : channelIds) {
             ExecutorService engineExecutor = getEngineExecutor(channelId, false);
@@ -1043,22 +1055,57 @@ public class DonkeyEngineController implements EngineController {
              * the halt task.
              */
             engineExecutor = getEngineExecutor(channelId, true);
-            futures.add(new ChannelFuture(channelId, engineExecutor.submit(new HaltTask(channelId))));
+
+            ChannelTask haltTask = new HaltTask(channelId);
+            haltTask.setHandler(handler);
+            futures.add(haltTask.submitTo(engineExecutor));
         }
 
         return futures;
     }
 
     protected void waitForTasks(List<ChannelFuture> futures) {
-        for (ChannelFuture future : futures) {
-            try {
-                future.get();
-            } catch (InterruptedException e) {
-                logger.error(ExceptionUtils.getStackTrace(e));
-            } catch (ExecutionException e) {
-                logger.error(ExceptionUtils.getStackTrace(e.getCause()));
-            } catch (CancellationException e) {
-                logger.error("Task cancelled because the channel " + future.getChannelId() + " was halted or removed.", e);
+        /*
+         * Create a new list to prevent modifying the one that is passed in, in case it will be used
+         * afterwards.
+         */
+        List<ChannelFuture> remainingFutures = new ArrayList<ChannelFuture>(futures);
+
+        int attemptsUntilPause = 10;
+        while (CollectionUtils.isNotEmpty(remainingFutures)) {
+            if (attemptsUntilPause > 0) {
+                attemptsUntilPause--;
+            } else {
+                /*
+                 * After 10 attempts we will pause longer to lighten the CPU load during long
+                 * running tasks.
+                 */
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                }
+            }
+
+            Iterator<ChannelFuture> iterator = remainingFutures.iterator();
+            while (iterator.hasNext()) {
+                boolean finished = false;
+                ChannelFuture future = iterator.next();
+
+                try {
+                    if (remainingFutures.size() == 1) {
+                        // Wait indefinitely when only one future remains.
+                        future.get();
+                    } else {
+                        // When multiple futures remain, timeout the wait so we can check others in the meantime.
+                        future.get(50, TimeUnit.MILLISECONDS);
+                    }
+                    finished = true;
+                } catch (TimeoutException e) {
+                } finally {
+                    if (finished) {
+                        iterator.remove();
+                    }
+                }
             }
         }
     }
@@ -1077,7 +1124,7 @@ public class DonkeyEngineController implements EngineController {
         }
 
         @Override
-        public Void call() throws Exception {
+        public Void execute() throws Exception {
             com.mirth.connect.model.Channel channelModel = channelController.getChannelById(channelId);
 
             if (channelModel == null || !channelModel.isEnabled() || isDeployed(channelId)) {
@@ -1197,7 +1244,7 @@ public class DonkeyEngineController implements EngineController {
         }
 
         @Override
-        public Void call() throws Exception {
+        public Void execute() throws Exception {
             // Get a reference to the deployed channel for later
             Channel channel = getDeployedChannel(channelId);
 
@@ -1268,7 +1315,7 @@ public class DonkeyEngineController implements EngineController {
         }
 
         @Override
-        public Void call() throws Exception {
+        public Void execute() throws Exception {
             Channel channel = getDeployedChannel(channelId);
 
             if (channel != null) {
@@ -1289,17 +1336,15 @@ public class DonkeyEngineController implements EngineController {
 
     protected class ConnectorStatusTask extends ChannelTask {
 
-        private Integer metaDataId;
         private StatusTask task;
 
         public ConnectorStatusTask(String channelId, Integer metaDataId, StatusTask task) {
-            super(channelId);
-            this.metaDataId = metaDataId;
+            super(channelId, metaDataId);
             this.task = task;
         }
 
         @Override
-        public Void call() throws Exception {
+        public Void execute() throws Exception {
             Channel channel = getDeployedChannel(channelId);
 
             if (channel != null) {
@@ -1321,7 +1366,7 @@ public class DonkeyEngineController implements EngineController {
         }
 
         @Override
-        public Void call() throws Exception {
+        public Void execute() throws Exception {
             Channel channel = getDeployedChannel(channelId);
 
             if (channel != null) {
@@ -1344,7 +1389,7 @@ public class DonkeyEngineController implements EngineController {
         }
 
         @Override
-        public Void call() throws Exception {
+        public Void execute() throws Exception {
             channelController.removeChannel(channelModel, context);
 
             synchronized (DonkeyEngineController.this) {
@@ -1373,7 +1418,7 @@ public class DonkeyEngineController implements EngineController {
         }
 
         @Override
-        public Void call() throws Exception {
+        public Void execute() throws Exception {
             Map<Long, Set<Integer>> messages = new HashMap<Long, Set<Integer>>();
 
             // For each message that was retrieved
@@ -1420,7 +1465,7 @@ public class DonkeyEngineController implements EngineController {
         }
 
         @Override
-        public Void call() throws Exception {
+        public Void execute() throws Exception {
             Channel channel = getDeployedChannel(channelId);
 
             if (channel != null) {

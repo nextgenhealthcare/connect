@@ -24,6 +24,7 @@ import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.server.channel.ChannelFuture;
 import com.mirth.connect.server.channel.ChannelTask;
+import com.mirth.connect.server.channel.ChannelTaskHandler;
 import com.mirth.connect.server.mybatis.MessageSearchResult;
 
 public interface EngineController {
@@ -33,35 +34,35 @@ public interface EngineController {
 
     public boolean isRunning();
 
-    public List<ChannelFuture> submitTasks(List<ChannelTask> tasks);
+    public List<ChannelFuture> submitTasks(List<ChannelTask> tasks, ChannelTaskHandler handler);
 
     public void startupDeploy() throws StartException, StopException, InterruptedException;
 
-    public void deployChannels(Set<String> channelIds, ServerEventContext context);
+    public void deployChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler);
 
-    public void undeployChannels(Set<String> channelIds, ServerEventContext context);
+    public void undeployChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler);
 
-    public void redeployAllChannels(ServerEventContext context);
+    public void redeployAllChannels(ServerEventContext context, ChannelTaskHandler handler);
 
-    public void startChannels(Set<String> channelIds);
+    public void startChannels(Set<String> channelIds, ChannelTaskHandler handler);
 
-    public void stopChannels(Set<String> channelIds);
+    public void stopChannels(Set<String> channelIds, ChannelTaskHandler handler);
 
-    public void pauseChannels(Set<String> channelIds);
+    public void pauseChannels(Set<String> channelIds, ChannelTaskHandler handler);
 
-    public void resumeChannels(Set<String> channelIds);
+    public void resumeChannels(Set<String> channelIds, ChannelTaskHandler handler);
 
-    public void haltChannels(Set<String> channelIds);
+    public void haltChannels(Set<String> channelIds, ChannelTaskHandler handler);
 
-    public void removeChannels(Set<String> channelIds, ServerEventContext context);
+    public void removeChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler);
 
-    public void startConnector(Map<String, List<Integer>> connectorInfo);
+    public void startConnector(Map<String, List<Integer>> connectorInfo, ChannelTaskHandler handler);
 
-    public void stopConnector(Map<String, List<Integer>> connectorInfo);
+    public void stopConnector(Map<String, List<Integer>> connectorInfo, ChannelTaskHandler handler);
 
-    public void removeMessages(String channelId, Map<Long, MessageSearchResult> results) throws Exception;
+    public void removeMessages(String channelId, Map<Long, MessageSearchResult> results, ChannelTaskHandler handler);
 
-    public void removeAllMessages(Set<String> channelIds, boolean force, boolean clearStatistics);
+    public void removeAllMessages(Set<String> channelIds, boolean force, boolean clearStatistics, ChannelTaskHandler handler);
 
     public boolean isDeployed(String channelId);
 
