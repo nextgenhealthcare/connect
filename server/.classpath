@@ -16,7 +16,7 @@
 	<classpathentry kind="lib" path="lib/commons/commons-codec-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-configuration-1.7.jar"/>
-	<classpathentry kind="lib" path="lib/commons/commons-dbcp-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-dbcp-1.5-SNAPSHOT-20140818.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-dbutils-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-digester-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-fileupload-1.2.1.jar"/>

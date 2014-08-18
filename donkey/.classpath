@@ -48,7 +48,7 @@
 			<attribute name="javadoc_location" value="http://commons.apache.org/math/apidocs/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/commons/commons-dbcp-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-dbcp-1.5-SNAPSHOT-20140818.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-pool-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/database/derby-10.10.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/database/postgresql-9.1-902.jdbc4.jar">
