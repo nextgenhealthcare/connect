@@ -74,6 +74,7 @@ import com.mirth.connect.server.servlets.ChannelStatisticsServlet;
 import com.mirth.connect.server.servlets.ChannelStatusServlet;
 import com.mirth.connect.server.servlets.CodeTemplateServlet;
 import com.mirth.connect.server.servlets.ConfigurationServlet;
+import com.mirth.connect.server.servlets.DatabaseTaskServlet;
 import com.mirth.connect.server.servlets.EngineServlet;
 import com.mirth.connect.server.servlets.EventServlet;
 import com.mirth.connect.server.servlets.ExtensionServlet;
@@ -170,11 +171,9 @@ public class Mirth extends Thread {
     }
 
     /**
-     * Returns true if the resources required by the server have been
-     * successfully loaded
+     * Returns true if the resources required by the server have been successfully loaded
      * 
-     * @return true if the resources required by the server have been
-     *         successfully loaded
+     * @return true if the resources required by the server have been successfully loaded
      */
     public boolean initResources() {
         InputStream mirthPropertiesStream = null;
@@ -219,8 +218,8 @@ public class Mirth extends Thread {
         configurationController.initializeDatabaseSettings();
 
         /*
-         * This needs to happen before instantiating a SqlConfig object so that
-         * custom extension SQL maps can be loaded.
+         * This needs to happen before instantiating a SqlConfig object so that custom extension SQL
+         * maps can be loaded.
          */
         extensionController.loadExtensions();
 
@@ -238,7 +237,7 @@ public class Mirth extends Thread {
         }
 
         extensionController.removePropertiesForUninstalledExtensions();
-        
+
         try {
             migrationController.migrate();
         } catch (MigrationException e) {
@@ -247,7 +246,7 @@ public class Mirth extends Thread {
             running = false;
             return;
         }
-        
+
         configurationController.migrateKeystore();
         extensionController.setDefaultExtensionStatus();
         extensionController.uninstallExtensions();
@@ -256,7 +255,7 @@ public class Mirth extends Thread {
         migrationController.migrateSerializedData();
         userController.resetUserStatus();
         scriptController.compileGlobalScripts();
-        
+
         // disable the velocity logging
         Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
 
@@ -406,17 +405,17 @@ public class Mirth extends Thread {
 
             HandlerList handlers = new HandlerList();
             String contextPath = mirthProperties.getString("http.contextpath", "");
-            
+
             // Add a starting slash if one does not exist
             if (!contextPath.startsWith("/")) {
                 contextPath = "/" + contextPath;
             }
-            
+
             // Remove a trailing slash if one exists
             if (contextPath.endsWith("/")) {
                 contextPath = contextPath.substring(0, contextPath.length() - 1);
             }
-            
+
             // find the client-lib path
             String clientLibPath = null;
 
@@ -448,7 +447,7 @@ public class Mirth extends Thread {
             publicContextHandler.setResourceBase(publicPath);
             publicContextHandler.setHandler(new ResourceHandler());
             handlers.addHandler(publicContextHandler);
-            
+
             // Create the javadocs context
             ContextHandler javadocsContextHandler = new ContextHandler();
             javadocsContextHandler.setContextPath(contextPath + "/javadocs");
@@ -479,9 +478,8 @@ public class Mirth extends Thread {
             };
 
             /*
-             * If in an IDE, webapps will be on the classpath as a resource. If
-             * that's the case, use that directory. Otherwise, use the mirth
-             * home directory and append webapps.
+             * If in an IDE, webapps will be on the classpath as a resource. If that's the case, use
+             * that directory. Otherwise, use the mirth home directory and append webapps.
              */
             String webappsDir = null;
             if (ClassPathResource.getResourceURI("webapps") != null) {
@@ -530,12 +528,13 @@ public class Mirth extends Thread {
             sslServletContextHandler.addServlet(new ServletHolder(new EventServlet()), "/events");
             sslServletContextHandler.addServlet(new ServletHolder(new UserServlet()), "/users");
             sslServletContextHandler.addServlet(new ServletHolder(new UsageServlet()), "/usage");
+            sslServletContextHandler.addServlet(new ServletHolder(new DatabaseTaskServlet()), "/databasetasks");
             sslServletContextHandler.setConnectorNames(new String[] { "sslconnector" });
             handlers.addHandler(sslServletContextHandler);
 
             // add the default handler for misc requests (favicon, etc.)
             DefaultHandler defaultHandler = new DefaultHandler();
-            defaultHandler.setServeIcon(false);  // don't serve the Jetty favicon
+            defaultHandler.setServeIcon(false); // don't serve the Jetty favicon
             handlers.addHandler(defaultHandler);
 
             webServer.setHandler(handlers);
@@ -618,9 +617,8 @@ public class Mirth extends Thread {
     }
 
     /**
-     * Displays the splash screen information, including the server version and
-     * build date, to the system console.
-     * 
+     * Displays the splash screen information, including the server version and build date, to the
+     * system console.
      */
     private void printSplashScreen() {
         logger.info("Mirth Connect " + versionProperties.getString("mirth.version") + " (Built on " + versionProperties.getString("mirth.date") + ") server successfully started.");
@@ -701,9 +699,10 @@ public class Mirth extends Thread {
         // Route all java.util.logging.Logger output to log4j
         JuliToLog4JService.getInstance().start();
     }
-    
+
     private class UsageSenderTask extends TimerTask {
         private boolean firstTime = true;
+
         @Override
         public void run() {
             try {
@@ -714,7 +713,7 @@ public class Mirth extends Thread {
                     try {
                         configurationController.setUpdateSettings(settings);
                     } catch (ControllerException e) {
-                        
+
                     }
                 }
             } finally {

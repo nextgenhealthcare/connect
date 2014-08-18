@@ -32,6 +32,7 @@ public class SettingsPane extends javax.swing.JPanel {
         loadPanel(new SettingsPanelServer(SettingsPanelServer.TAB_NAME));
         loadPanel(new SettingsPanelAdministrator(SettingsPanelAdministrator.TAB_NAME));
         loadPanel(new SettingsPanelMap(SettingsPanelMap.TAB_NAME));
+        loadPanel(new SettingsPanelDatabaseTasks(SettingsPanelDatabaseTasks.TAB_NAME));
         loadPluginPanels();
 
         SingleSelectionModel model = new DefaultSingleSelectionModel() {
@@ -73,7 +74,7 @@ public class SettingsPane extends javax.swing.JPanel {
         parent.setFocus(currentSettingsPanel.getTaskPane());
         currentSettingsPanel.doRefresh();
     }
-    
+
     public void setSelectedSettingsPanel(int index) {
         // The custom SingleSelectionModel calls setCurrentSettingsPanel(index)
         // when tabbedPane.setSelectedIndex(0) is called.

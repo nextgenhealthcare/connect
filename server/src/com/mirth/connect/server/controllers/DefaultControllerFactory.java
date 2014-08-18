@@ -117,4 +117,8 @@ public class DefaultControllerFactory extends ControllerFactory {
     public UserController createUserController() {
         return DefaultUserController.create();
     }
+
+    public DatabaseTaskController createDatabaseTaskController() {
+        return DefaultDatabaseTaskController.create();
+    }
 }

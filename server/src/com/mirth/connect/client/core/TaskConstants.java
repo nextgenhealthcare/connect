@@ -50,6 +50,10 @@ public class TaskConstants {
     public static final String SETTINGS_CONFIGURATION_MAP_IMPORT = "doImportMap";
     public static final String SETTINGS_CONFIGURATION_MAP_EXPORT = "doExportMap";
 
+    // Migration Tasks
+    public static final String SETTINGS_RUN_DATABASE_TASK = "doRunDatabaseTask";
+    public static final String SETTINGS_CANCEL_DATABASE_TASK = "doCancelDatabaseTask";
+
     // Alert Tasks
     public static final String ALERT_REFRESH = "doRefreshAlerts";
     public static final String ALERT_NEW = "doNewAlert";

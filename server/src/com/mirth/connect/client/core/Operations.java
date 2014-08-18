@@ -128,9 +128,14 @@ public class Operations {
     public static final Operation USER_PREFERENCES_GET = new Operation("getUserPreferences", "Get user preferences", true);
     public static final Operation USER_PREFERENCES_SET = new Operation("setUserPreference", "Set user preferences", true);
     public static final Operation USER_PREFERENCE_GET = new Operation("getUserPreference", "Get user preference", true);
-    
+
     // Usage Data
     public static final Operation USAGE_DATA_GET = new Operation("getUsageData", "Get usage data", false);
+
+    // Database Tasks
+    public static final Operation DATABASE_TASKS_GET = new Operation("getDatabaseTasks", "Get database tasks", true);
+    public static final Operation DATABASE_TASK_RUN = new Operation("runDatabaseTask", "Run database task", true);
+    public static final Operation DATABASE_TASK_CANCEL = new Operation("cancelDatabaseTask", "Cancel database task", true);
 
     private static Map<String, Operation> operationMap = new HashMap<String, Operation>();
 
@@ -229,6 +234,9 @@ public class Operations {
         operationMap.put(USER_PREFERENCES_SET.getName(), USER_PREFERENCES_SET);
         operationMap.put(USER_PREFERENCE_GET.getName(), USER_PREFERENCE_GET);
         operationMap.put(USAGE_DATA_GET.getName(), USAGE_DATA_GET);
+        operationMap.put(DATABASE_TASKS_GET.getName(), DATABASE_TASKS_GET);
+        operationMap.put(DATABASE_TASK_RUN.getName(), DATABASE_TASK_RUN);
+        operationMap.put(DATABASE_TASK_CANCEL.getName(), DATABASE_TASK_CANCEL);
     }
 
     public static void addOperation(Operation operation) {

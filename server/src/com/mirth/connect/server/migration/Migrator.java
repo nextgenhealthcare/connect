@@ -11,9 +11,7 @@ package com.mirth.connect.server.migration;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +21,6 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.model.util.MigrationException;
 
 public abstract class Migrator {
@@ -137,29 +134,6 @@ public abstract class Migrator {
             if (scanner != null) {
                 scanner.close();
             }
-        }
-    }
-
-    /**
-     * Tell whether or not the given table exists in the database
-     */
-    protected boolean tableExists(String tableName) {
-        ResultSet resultSet = null;
-
-        try {
-            DatabaseMetaData metaData = connection.getMetaData();
-            resultSet = metaData.getTables(null, null, tableName.toUpperCase(), new String[] { "TABLE" });
-
-            if (resultSet.next()) {
-                return true;
-            }
-
-            resultSet = metaData.getTables(null, null, tableName.toLowerCase(), new String[] { "TABLE" });
-            return resultSet.next();
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            DbUtils.closeQuietly(resultSet);
         }
     }
 }

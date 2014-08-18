@@ -32,6 +32,7 @@ import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.MigrationException;
+import com.mirth.connect.server.util.DatabaseUtil;
 
 public class ServerMigrator extends Migrator {
     private Logger logger = Logger.getLogger(getClass());
@@ -178,7 +179,7 @@ public class ServerMigrator extends Migrator {
      */
     private void initDatabase(Connection connection) throws MigrationException {
         // If missing this table we can assume that they don't have the schema installed
-        if (!tableExists("CONFIGURATION")) {
+        if (!DatabaseUtil.tableExists(connection, "CONFIGURATION")) {
             executeScript("/" + getDatabaseType() + "/" + getDatabaseType() + "-database.sql");
 
             /*

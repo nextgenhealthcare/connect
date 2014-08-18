@@ -46,6 +46,7 @@ import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.MessageImportResult;
+import com.mirth.connect.model.DatabaseTask;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerConfiguration;
@@ -80,6 +81,7 @@ public class Client {
     public final static String EXTENSION_SERVLET = "/extensions";
     public final static String ENGINE_SERVLET = "/engine";
     public final static String USAGE_SERVLET = "/usage";
+    public final static String DATABASE_TASK_SERVLET = "/databasetasks";
 
     /**
      * Instantiates a new Mirth client with a connection to the specified server.
@@ -1228,5 +1230,20 @@ public class Client {
     public String getUsageData() throws ClientException {
         NameValuePair[] params = { new BasicNameValuePair("op", Operations.USAGE_DATA_GET.getName()) };
         return serializer.deserialize(serverConnection.executePostMethodAsync(USAGE_SERVLET, params), String.class);
+    }
+
+    public Map<String, DatabaseTask> getDatabaseTasks() throws ClientException {
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.DATABASE_TASKS_GET.getName()) };
+        return serializer.deserialize(serverConnection.executePostMethodAsync(DATABASE_TASK_SERVLET, params), Map.class);
+    }
+
+    public String runDatabaseTask(DatabaseTask databaseTask) throws ClientException {
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.DATABASE_TASK_RUN.getName()), new BasicNameValuePair("databaseTask", serializer.serialize(databaseTask)) };
+        return serverConnection.executePostMethodAsync(DATABASE_TASK_SERVLET, params);
+    }
+
+    public void cancelDatabaseTask(DatabaseTask databaseTask) throws ClientException {
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.DATABASE_TASK_CANCEL.getName()), new BasicNameValuePair("databaseTask", serializer.serialize(databaseTask)) };
+        serverConnection.executePostMethodAsync(DATABASE_TASK_SERVLET, params);
     }
 }

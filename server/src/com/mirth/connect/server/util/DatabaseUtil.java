@@ -10,6 +10,7 @@
 package com.mirth.connect.server.util;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -23,6 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.log4j.Logger;
+
+import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 
 public class DatabaseUtil {
     private static Logger logger = Logger.getLogger(DatabaseUtil.class);
@@ -197,5 +200,28 @@ public class DatabaseUtil {
         }
 
         return scriptList;
+    }
+
+    /**
+     * Tell whether or not the given table exists in the database
+     */
+    public static boolean tableExists(Connection connection, String tableName) {
+        ResultSet resultSet = null;
+
+        try {
+            DatabaseMetaData metaData = connection.getMetaData();
+            resultSet = metaData.getTables(null, null, tableName.toUpperCase(), new String[] { "TABLE" });
+
+            if (resultSet.next()) {
+                return true;
+            }
+
+            resultSet = metaData.getTables(null, null, tableName.toLowerCase(), new String[] { "TABLE" });
+            return resultSet.next();
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        } finally {
+            DbUtils.closeQuietly(resultSet);
+        }
     }
 }
