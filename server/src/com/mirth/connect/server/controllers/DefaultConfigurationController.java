@@ -700,8 +700,6 @@ public class DefaultConfigurationController extends ConfigurationController {
             FileOutputStream fos = new FileOutputStream(keyStoreFile);
             keyStore.store(fos, keyStorePassword);
             IOUtils.closeQuietly(fos);
-
-            generateDefaultTrustStore();
         } catch (Exception e) {
             logger.error("Could not initialize security settings.", e);
         }
@@ -936,24 +934,6 @@ public class DefaultConfigurationController extends ConfigurationController {
             keyStore.setKeyEntry(certificateAlias, sslKeyPair.getPrivate(), keyPassword, new Certificate[] { sslCert });
         } else {
             logger.debug("found certificate in keystore");
-        }
-    }
-
-    /**
-     * Checks for the existance of a trust store. If one does not exist, it will create a new one.
-     * 
-     */
-    private void generateDefaultTrustStore() throws Exception {
-        File trustStoreFile = new File(mirthConfig.getString("truststore.path"));
-        char[] trustStorePassword = mirthConfig.getString("truststore.storepass").toCharArray();
-        KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-
-        if (!trustStoreFile.exists()) {
-            trustStore.load(null, trustStorePassword);
-            trustStore.store(new FileOutputStream(trustStoreFile), trustStorePassword);
-            logger.debug("truststore file not found, creating new one");
-        } else {
-            logger.debug("truststore file found: " + trustStoreFile.getAbsolutePath());
         }
     }
 
