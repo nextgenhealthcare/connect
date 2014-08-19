@@ -141,7 +141,7 @@ public class VmDispatcher extends DestinationConnector {
                 rawSourceMap.put(SOURCE_CHANNEL_ID, currentChannelId);
                 rawSourceMap.put(SOURCE_MESSAGE_ID, message.getMessageId());
 
-                List<String> keys = vmDispatcherProperties.getSourceMap();
+                List<String> keys = vmDispatcherProperties.getMapVariables();
                 if (CollectionUtils.isNotEmpty(keys)) {
                     for (String key : keys) {
                         Object value = getMapValue(message, key);

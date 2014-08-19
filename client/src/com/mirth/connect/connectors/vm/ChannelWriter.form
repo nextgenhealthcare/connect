@@ -40,7 +40,7 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="sourceMapPane" max="32767" attributes="0"/>
+                      <Component id="mapVariablesPane" max="32767" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="deleteButton" max="32767" attributes="0"/>
@@ -75,7 +75,7 @@
                       <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="URL1" min="-2" max="-2" attributes="0"/>
-                  <Component id="sourceMapPane" min="-2" pref="80" max="-2" attributes="0"/>
+                  <Component id="mapVariablesPane" min="-2" pref="80" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -128,14 +128,14 @@
     </Component>
     <Component class="javax.swing.JTextField" name="channelIdField">
     </Component>
-    <Container class="javax.swing.JScrollPane" name="sourceMapPane">
+    <Container class="javax.swing.JScrollPane" name="mapVariablesPane">
       <AuxValues>
         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
       </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="sourceMapTable">
+        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="mapVariablesTable">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="1" rowCount="0">
@@ -161,7 +161,7 @@
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="sourceMapTableKeyTyped"/>
+            <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="mapVariablesTableKeyTyped"/>
           </Events>
         </Component>
       </SubComponents>

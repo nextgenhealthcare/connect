@@ -26,14 +26,14 @@ public class VmDispatcherProperties extends ConnectorProperties implements Desti
 
     private String channelId;
     private String channelTemplate;
-    private List<String> sourceMapVariables;
+    private List<String> mapVariables;
 
     public VmDispatcherProperties() {
         destinationConnectorProperties = new DestinationConnectorProperties(false);
 
         this.channelId = "none";
         this.channelTemplate = "${message.encodedData}";
-        this.sourceMapVariables = new ArrayList<String>();
+        this.mapVariables = new ArrayList<String>();
     }
 
     public VmDispatcherProperties(VmDispatcherProperties props) {
@@ -42,7 +42,7 @@ public class VmDispatcherProperties extends ConnectorProperties implements Desti
 
         channelId = props.getChannelId();
         channelTemplate = props.getChannelTemplate();
-        sourceMapVariables = props.getSourceMap();
+        mapVariables = props.getMapVariables();
     }
 
     public String getChannelId() {
@@ -61,12 +61,12 @@ public class VmDispatcherProperties extends ConnectorProperties implements Desti
         this.channelTemplate = channelTemplate;
     }
     
-    public List<String> getSourceMap() {
-        return sourceMapVariables;
+    public List<String> getMapVariables() {
+        return mapVariables;
     }
 
-    public void setSourceMap(List<String> sourceMap) {
-        this.sourceMapVariables = sourceMap;
+    public void setMapVariables(List<String> sourceMap) {
+        this.mapVariables = sourceMap;
     }
 
     @Override

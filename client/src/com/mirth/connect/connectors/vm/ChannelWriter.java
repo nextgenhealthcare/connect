@@ -83,8 +83,8 @@ public class ChannelWriter extends ConnectorSettingsPanel {
             protected boolean checkUniqueProperty(String property) {
                 boolean exists = false;
 
-                for (int rowIndex = 0; rowIndex < sourceMapTable.getRowCount(); rowIndex++) {
-                    if (sourceMapTable.getValueAt(rowIndex, 0) != null && ((String) sourceMapTable.getValueAt(rowIndex, 0)).equalsIgnoreCase(property)) {
+                for (int rowIndex = 0; rowIndex < mapVariablesTable.getRowCount(); rowIndex++) {
+                    if (mapVariablesTable.getValueAt(rowIndex, 0) != null && ((String) mapVariablesTable.getValueAt(rowIndex, 0)).equalsIgnoreCase(property)) {
                         exists = true;
                     }
                 }
@@ -93,14 +93,14 @@ public class ChannelWriter extends ConnectorSettingsPanel {
             }
         }
 
-        sourceMapTable.getColumnModel().getColumn(0).setCellEditor(new CustomTableCellEditor());
-        sourceMapTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        sourceMapTable.setToolTipText("The following map variables will be included in the source map of the destination channel's message.");
+        mapVariablesTable.getColumnModel().getColumn(0).setCellEditor(new CustomTableCellEditor());
+        mapVariablesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        mapVariablesTable.setToolTipText("The following map variables will be included in the source map of the destination channel's message.");
         
-        sourceMapTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        mapVariablesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
             public void valueChanged(ListSelectionEvent evt) {
-                if (sourceMapTable.getRowCount() > 0) {
+                if (mapVariablesTable.getRowCount() > 0) {
                     deleteButton.setEnabled(true);
                 } else {
                     deleteButton.setEnabled(false);
@@ -153,7 +153,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
         properties.setChannelId(StringUtils.isBlank(channelIdField.getText()) ? "none" : channelIdField.getText());
         properties.setChannelTemplate(template.getText());
-        properties.setSourceMap(getSourceMapVariables());
+        properties.setMapVariables(getMapVariableTableValues());
 
         return properties;
     }
@@ -193,7 +193,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
         channelNames.setSelectedItem(selectedChannelName);
         template.setText(props.getChannelTemplate());
         
-        setSourceMapTable(props.getSourceMap());
+        setMapVariableTableValues(props.getMapVariables());
 
         parent.setSaveEnabled(enabled);
     }
@@ -226,8 +226,8 @@ public class ChannelWriter extends ConnectorSettingsPanel {
         jLabel7 = new javax.swing.JLabel();
         template = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         channelIdField = new javax.swing.JTextField();
-        sourceMapPane = new javax.swing.JScrollPane();
-        sourceMapTable = new com.mirth.connect.client.ui.components.MirthTable();
+        mapVariablesPane = new javax.swing.JScrollPane();
+        mapVariablesTable = new com.mirth.connect.client.ui.components.MirthTable();
         newButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
         URL1 = new javax.swing.JLabel();
@@ -250,7 +250,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
         template.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         template.setToolTipText("<html>A Velocity enabled template for the actual message to be written to the channel.<br>In many cases, the default value of \"${message.encodedData}\" is sufficient.</html>");
 
-        sourceMapTable.setModel(new javax.swing.table.DefaultTableModel(
+        mapVariablesTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -258,15 +258,15 @@ public class ChannelWriter extends ConnectorSettingsPanel {
                 "Map Variable"
             }
         ));
-        sourceMapTable.setToolTipText("Query parameters are encoded as x=y pairs as part of the request URL, separated from it by a '?' and from each other by an '&'.");
-        sourceMapTable.setDragEnabled(false);
-        sourceMapTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
-        sourceMapTable.addKeyListener(new java.awt.event.KeyAdapter() {
+        mapVariablesTable.setToolTipText("Query parameters are encoded as x=y pairs as part of the request URL, separated from it by a '?' and from each other by an '&'.");
+        mapVariablesTable.setDragEnabled(false);
+        mapVariablesTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
+        mapVariablesTable.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                sourceMapTableKeyTyped(evt);
+                mapVariablesTableKeyTyped(evt);
             }
         });
-        sourceMapPane.setViewportView(sourceMapTable);
+        mapVariablesPane.setViewportView(mapVariablesTable);
 
         newButton.setText("New");
         newButton.addActionListener(new java.awt.event.ActionListener() {
@@ -297,7 +297,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(sourceMapPane)
+                        .addComponent(mapVariablesPane)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(deleteButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -324,7 +324,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(deleteButton))
                     .addComponent(URL1)
-                    .addComponent(sourceMapPane, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(mapVariablesPane, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(template, javax.swing.GroupLayout.DEFAULT_SIZE, 113, Short.MAX_VALUE)
@@ -357,15 +357,15 @@ public class ChannelWriter extends ConnectorSettingsPanel {
     }//GEN-LAST:event_channelNamesActionPerformed
 
     private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
-        DefaultTableModel model = (DefaultTableModel) sourceMapTable.getModel();
+        DefaultTableModel model = (DefaultTableModel) mapVariablesTable.getModel();
 
         Vector<String> row = new Vector<String>();
         String name = "Variable ";
 
-        for (int i = 1; i <= sourceMapTable.getRowCount() + 1; i++) {
+        for (int i = 1; i <= mapVariablesTable.getRowCount() + 1; i++) {
             boolean exists = false;
-            for (int index = 0; index < sourceMapTable.getRowCount(); index++) {
-                if (((String) sourceMapTable.getValueAt(index, 0)).equalsIgnoreCase(name + i)) {
+            for (int index = 0; index < mapVariablesTable.getRowCount(); index++) {
+                if (((String) mapVariablesTable.getValueAt(index, 0)).equalsIgnoreCase(name + i)) {
                     exists = true;
                 }
             }
@@ -378,8 +378,8 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
         model.addRow(row);
 
-        int rowSelectionNumber = sourceMapTable.getRowCount() - 1;
-        sourceMapTable.setRowSelectionInterval(rowSelectionNumber, rowSelectionNumber);
+        int rowSelectionNumber = mapVariablesTable.getRowCount() - 1;
+        mapVariablesTable.setRowSelectionInterval(rowSelectionNumber, rowSelectionNumber);
         
         Boolean enabled = deleteButton.isEnabled();
         if (!enabled) {
@@ -389,46 +389,49 @@ public class ChannelWriter extends ConnectorSettingsPanel {
     }//GEN-LAST:event_newButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-        int rowSelectionNumber = sourceMapTable.getSelectedModelIndex();
+        int rowSelectionNumber = mapVariablesTable.getSelectedModelIndex();
 
         if (rowSelectionNumber > -1) {
-            DefaultTableModel model = (DefaultTableModel) sourceMapTable.getModel();
-            int viewSelectionRow = sourceMapTable.convertRowIndexToView(rowSelectionNumber);
+            DefaultTableModel model = (DefaultTableModel) mapVariablesTable.getModel();
+            int viewSelectionRow = mapVariablesTable.convertRowIndexToView(rowSelectionNumber);
             model.removeRow(rowSelectionNumber);
 
-            if (sourceMapTable.getRowCount() != 0) {
+            if (mapVariablesTable.getRowCount() != 0) {
                 if (viewSelectionRow == 0) {
-                    sourceMapTable.setRowSelectionInterval(0, 0);
-                } else if (viewSelectionRow == sourceMapTable.getRowCount()) {
+                    mapVariablesTable.setRowSelectionInterval(0, 0);
+                } else if (viewSelectionRow == mapVariablesTable.getRowCount()) {
                     viewSelectionRow--;
-                    sourceMapTable.setRowSelectionInterval(viewSelectionRow, viewSelectionRow);
+                    mapVariablesTable.setRowSelectionInterval(viewSelectionRow, viewSelectionRow);
                 } else {
-                    sourceMapTable.setRowSelectionInterval(viewSelectionRow, viewSelectionRow);
+                    mapVariablesTable.setRowSelectionInterval(viewSelectionRow, viewSelectionRow);
                 }
             }
 
-            deleteButton.setEnabled((sourceMapTable.getRowCount() != 0));
+            deleteButton.setEnabled((mapVariablesTable.getRowCount() != 0));
             parent.setSaveEnabled(true);
         }
     }//GEN-LAST:event_deleteButtonActionPerformed
 
-    private void sourceMapTableKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_sourceMapTableKeyTyped
+    private void mapVariablesTableKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_mapVariablesTableKeyTyped
         parent.setSaveEnabled(true);
-    }//GEN-LAST:event_sourceMapTableKeyTyped
+    }//GEN-LAST:event_mapVariablesTableKeyTyped
 
-    private List<String> getSourceMapVariables() {
+    private List<String> getMapVariableTableValues() {
         List<String> sourceMap = new ArrayList<String>();
-        for (int rowIndex = 0; rowIndex < sourceMapTable.getRowCount(); rowIndex++) {
-            String key = sourceMapTable.getValueAt(rowIndex, 0).toString();
-            sourceMap.add(key);
+        for (int rowIndex = 0; rowIndex < mapVariablesTable.getRowCount(); rowIndex++) {
+            String key = mapVariablesTable.getValueAt(rowIndex, 0).toString();
+
+            if (!StringUtils.isBlank(key)) {
+                sourceMap.add(key);
+            }
         }
 
         return sourceMap;
     }
 
-    private void setSourceMapTable(List<String> sourceMap) {
-        ((DefaultTableModel) sourceMapTable.getModel()).setRowCount(0);
-        DefaultTableModel tableModel = (DefaultTableModel) sourceMapTable.getModel();
+    private void setMapVariableTableValues(List<String> sourceMap) {
+        ((DefaultTableModel) mapVariablesTable.getModel()).setRowCount(0);
+        DefaultTableModel tableModel = (DefaultTableModel) mapVariablesTable.getModel();
         for (String entry : sourceMap) {
             tableModel.addRow(new Object[] { entry});
         }
@@ -442,9 +445,9 @@ public class ChannelWriter extends ConnectorSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthComboBox channelNames;
     private javax.swing.JButton deleteButton;
     private javax.swing.JLabel jLabel7;
+    private com.mirth.connect.client.ui.components.MirthTable mapVariablesTable;
     private javax.swing.JButton newButton;
-    private javax.swing.JScrollPane sourceMapPane;
-    private com.mirth.connect.client.ui.components.MirthTable sourceMapTable;
+    private javax.swing.JScrollPane mapVariablesPane;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea template;
     // End of variables declaration//GEN-END:variables
 }
