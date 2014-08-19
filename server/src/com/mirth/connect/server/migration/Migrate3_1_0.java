@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -39,6 +40,13 @@ public class Migrate3_1_0 extends Migrator implements ConfigurationMigrator {
                 log4jproperties.setProperty("log4j.logger.undeploy", level);
                 log4jproperties.clearProperty("log4j.logger.shutdown");
                 Logger.getLogger("undeploy").setLevel(Level.toLevel(level));
+            }
+
+            level = (String) log4jproperties.getProperty("log4j.logger.com.mirth.connect.donkey.server.channel.RecoveryTask");
+            if (StringUtils.isBlank(level)) {
+                level = "INFO";
+                log4jproperties.setProperty("log4j.logger.com.mirth.connect.donkey.server.channel.RecoveryTask", level);
+                Logger.getLogger("com.mirth.connect.donkey.server.channel.RecoveryTask").setLevel(Level.toLevel(level));
             }
 
             log4jproperties.save();
