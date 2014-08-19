@@ -12,16 +12,25 @@ package com.mirth.connect.connectors.vm;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Vector;
 
+import javax.swing.ListSelectionModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.TextFieldCellEditor;
+import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Channel;
@@ -57,6 +66,46 @@ public class ChannelWriter extends ConnectorSettingsPanel {
                 updateField();
             }
 
+        });
+        
+        class CustomTableCellEditor extends TextFieldCellEditor {
+
+            @Override
+            protected boolean valueChanged(String value) {
+                if ((value.length() == 0 || checkUniqueProperty(value))) {
+                    return false;
+                }
+                
+                parent.setSaveEnabled(true);
+                return true;
+            }
+            
+            protected boolean checkUniqueProperty(String property) {
+                boolean exists = false;
+
+                for (int rowIndex = 0; rowIndex < sourceMapTable.getRowCount(); rowIndex++) {
+                    if (sourceMapTable.getValueAt(rowIndex, 0) != null && ((String) sourceMapTable.getValueAt(rowIndex, 0)).equalsIgnoreCase(property)) {
+                        exists = true;
+                    }
+                }
+
+                return exists;
+            }
+        }
+
+        sourceMapTable.getColumnModel().getColumn(0).setCellEditor(new CustomTableCellEditor());
+        sourceMapTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        sourceMapTable.setToolTipText("The following map variables will be included in the source map of the destination channel's message.");
+        
+        sourceMapTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            public void valueChanged(ListSelectionEvent evt) {
+                if (sourceMapTable.getRowCount() > 0) {
+                    deleteButton.setEnabled(true);
+                } else {
+                    deleteButton.setEnabled(false);
+                }
+            }
         });
     }
 
@@ -104,6 +153,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
         properties.setChannelId(StringUtils.isBlank(channelIdField.getText()) ? "none" : channelIdField.getText());
         properties.setChannelTemplate(template.getText());
+        properties.setSourceMap(getSourceMapVariables());
 
         return properties;
     }
@@ -142,6 +192,8 @@ public class ChannelWriter extends ConnectorSettingsPanel {
         channelIdField.setText((channelId.equals("none")) ? "" : channelId);
         channelNames.setSelectedItem(selectedChannelName);
         template.setText(props.getChannelTemplate());
+        
+        setSourceMapTable(props.getSourceMap());
 
         parent.setSaveEnabled(enabled);
     }
@@ -174,11 +226,16 @@ public class ChannelWriter extends ConnectorSettingsPanel {
         jLabel7 = new javax.swing.JLabel();
         template = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         channelIdField = new javax.swing.JTextField();
+        sourceMapPane = new javax.swing.JScrollPane();
+        sourceMapTable = new com.mirth.connect.client.ui.components.MirthTable();
+        newButton = new javax.swing.JButton();
+        deleteButton = new javax.swing.JButton();
+        URL1 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
-        URL.setText("Channel Id:");
+        URL.setText("Channel Name:");
 
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         channelNames.setToolTipText("<html>Select the channel to which messages accepted by this destination's filter should be written,<br> or none to not write the message at all.</html>");
@@ -193,23 +250,64 @@ public class ChannelWriter extends ConnectorSettingsPanel {
         template.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         template.setToolTipText("<html>A Velocity enabled template for the actual message to be written to the channel.<br>In many cases, the default value of \"${message.encodedData}\" is sufficient.</html>");
 
+        sourceMapTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Map Variable"
+            }
+        ));
+        sourceMapTable.setToolTipText("Query parameters are encoded as x=y pairs as part of the request URL, separated from it by a '?' and from each other by an '&'.");
+        sourceMapTable.setDragEnabled(false);
+        sourceMapTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
+        sourceMapTable.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                sourceMapTableKeyTyped(evt);
+            }
+        });
+        sourceMapPane.setViewportView(sourceMapTable);
+
+        newButton.setText("New");
+        newButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newButtonActionPerformed(evt);
+            }
+        });
+
+        deleteButton.setText("Delete");
+        deleteButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteButtonActionPerformed(evt);
+            }
+        });
+
+        URL1.setText("Message Metadata:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel7)
-                    .addComponent(URL))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(URL, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(URL1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(sourceMapPane)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(deleteButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(newButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addComponent(template, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(channelIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(channelNames, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 13, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -222,10 +320,17 @@ public class ChannelWriter extends ConnectorSettingsPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(newButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(deleteButton))
+                    .addComponent(URL1)
+                    .addComponent(sourceMapPane, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(template, javax.swing.GroupLayout.DEFAULT_SIZE, 113, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel7)
-                        .addGap(0, 133, Short.MAX_VALUE))
-                    .addComponent(template, javax.swing.GroupLayout.DEFAULT_SIZE, 149, Short.MAX_VALUE))
-                .addContainerGap())
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -251,12 +356,95 @@ public class ChannelWriter extends ConnectorSettingsPanel {
         }
     }//GEN-LAST:event_channelNamesActionPerformed
 
+    private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
+        DefaultTableModel model = (DefaultTableModel) sourceMapTable.getModel();
+
+        Vector<String> row = new Vector<String>();
+        String name = "Variable ";
+
+        for (int i = 1; i <= sourceMapTable.getRowCount() + 1; i++) {
+            boolean exists = false;
+            for (int index = 0; index < sourceMapTable.getRowCount(); index++) {
+                if (((String) sourceMapTable.getValueAt(index, 0)).equalsIgnoreCase(name + i)) {
+                    exists = true;
+                }
+            }
+
+            if (!exists) {
+                row.add(name + i);
+                break;
+            }
+        }
+
+        model.addRow(row);
+
+        int rowSelectionNumber = sourceMapTable.getRowCount() - 1;
+        sourceMapTable.setRowSelectionInterval(rowSelectionNumber, rowSelectionNumber);
+        
+        Boolean enabled = deleteButton.isEnabled();
+        if (!enabled) {
+            deleteButton.setEnabled(true);
+        }
+        parent.setSaveEnabled(true);
+    }//GEN-LAST:event_newButtonActionPerformed
+
+    private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
+        int rowSelectionNumber = sourceMapTable.getSelectedModelIndex();
+
+        if (rowSelectionNumber > -1) {
+            DefaultTableModel model = (DefaultTableModel) sourceMapTable.getModel();
+            int viewSelectionRow = sourceMapTable.convertRowIndexToView(rowSelectionNumber);
+            model.removeRow(rowSelectionNumber);
+
+            if (sourceMapTable.getRowCount() != 0) {
+                if (viewSelectionRow == 0) {
+                    sourceMapTable.setRowSelectionInterval(0, 0);
+                } else if (viewSelectionRow == sourceMapTable.getRowCount()) {
+                    viewSelectionRow--;
+                    sourceMapTable.setRowSelectionInterval(viewSelectionRow, viewSelectionRow);
+                } else {
+                    sourceMapTable.setRowSelectionInterval(viewSelectionRow, viewSelectionRow);
+                }
+            }
+
+            deleteButton.setEnabled((sourceMapTable.getRowCount() != 0));
+            parent.setSaveEnabled(true);
+        }
+    }//GEN-LAST:event_deleteButtonActionPerformed
+
+    private void sourceMapTableKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_sourceMapTableKeyTyped
+        parent.setSaveEnabled(true);
+    }//GEN-LAST:event_sourceMapTableKeyTyped
+
+    private List<String> getSourceMapVariables() {
+        List<String> sourceMap = new ArrayList<String>();
+        for (int rowIndex = 0; rowIndex < sourceMapTable.getRowCount(); rowIndex++) {
+            String key = sourceMapTable.getValueAt(rowIndex, 0).toString();
+            sourceMap.add(key);
+        }
+
+        return sourceMap;
+    }
+
+    private void setSourceMapTable(List<String> sourceMap) {
+        ((DefaultTableModel) sourceMapTable.getModel()).setRowCount(0);
+        DefaultTableModel tableModel = (DefaultTableModel) sourceMapTable.getModel();
+        for (String entry : sourceMap) {
+            tableModel.addRow(new Object[] { entry});
+        }
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL;
+    private javax.swing.JLabel URL1;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JTextField channelIdField;
     private com.mirth.connect.client.ui.components.MirthComboBox channelNames;
+    private javax.swing.JButton deleteButton;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JButton newButton;
+    private javax.swing.JScrollPane sourceMapPane;
+    private com.mirth.connect.client.ui.components.MirthTable sourceMapTable;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea template;
     // End of variables declaration//GEN-END:variables
 }

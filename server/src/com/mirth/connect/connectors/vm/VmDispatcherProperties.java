@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.vm;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -24,12 +26,14 @@ public class VmDispatcherProperties extends ConnectorProperties implements Desti
 
     private String channelId;
     private String channelTemplate;
+    private List<String> sourceMapVariables;
 
     public VmDispatcherProperties() {
         destinationConnectorProperties = new DestinationConnectorProperties(false);
 
         this.channelId = "none";
         this.channelTemplate = "${message.encodedData}";
+        this.sourceMapVariables = new ArrayList<String>();
     }
 
     public VmDispatcherProperties(VmDispatcherProperties props) {
@@ -38,6 +42,7 @@ public class VmDispatcherProperties extends ConnectorProperties implements Desti
 
         channelId = props.getChannelId();
         channelTemplate = props.getChannelTemplate();
+        sourceMapVariables = props.getSourceMap();
     }
 
     public String getChannelId() {
@@ -54,6 +59,14 @@ public class VmDispatcherProperties extends ConnectorProperties implements Desti
 
     public void setChannelTemplate(String channelTemplate) {
         this.channelTemplate = channelTemplate;
+    }
+    
+    public List<String> getSourceMap() {
+        return sourceMapVariables;
+    }
+
+    public void setSourceMap(List<String> sourceMap) {
+        this.sourceMapVariables = sourceMap;
     }
 
     @Override

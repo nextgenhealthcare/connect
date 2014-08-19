@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -29,9 +30,13 @@ import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ExtensionController;
+import com.mirth.connect.server.util.GlobalChannelVariableStore;
+import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
+import com.mirth.connect.server.util.GlobalVariableStore;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
@@ -44,11 +49,16 @@ public class VmDispatcher extends DestinationConnector {
     private VmDispatcherProperties connectorProperties;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private ConfigurationController configurationController = ConfigurationController.getInstance();
+    private GlobalVariableStore globalMap;
+    private GlobalChannelVariableStore globalChannelMap;
     private Logger logger = Logger.getLogger(getClass());
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (VmDispatcherProperties) getConnectorProperties();
+        globalMap = GlobalVariableStore.getInstance();
+        globalChannelMap = GlobalChannelVariableStoreFactory.getInstance().get(getChannelId());
     }
 
     @Override
@@ -130,6 +140,16 @@ public class VmDispatcher extends DestinationConnector {
                 // Always store the originating channelId and messageId
                 rawSourceMap.put(SOURCE_CHANNEL_ID, currentChannelId);
                 rawSourceMap.put(SOURCE_MESSAGE_ID, message.getMessageId());
+
+                List<String> keys = vmDispatcherProperties.getSourceMap();
+                if (CollectionUtils.isNotEmpty(keys)) {
+                    for (String key : keys) {
+                        Object value = getMapValue(message, key);
+                        if (value != null) {
+                            rawSourceMap.put(key, value);
+                        }
+                    }
+                }
 
                 // Remove the reference to the raw message so its doesn't hold the entire message in memory.
                 data = null;
@@ -221,5 +241,35 @@ public class VmDispatcher extends DestinationConnector {
         }
 
         return sourceMessageIds;
+    }
+
+    private Object getMapValue(ConnectorMessage connectorMessage, String key) {
+        Object value = null;
+
+        try {
+            if (connectorMessage.getResponseMap().containsKey(key)) {
+                value = connectorMessage.getResponseMap().get(key);
+            } else if (connectorMessage.getConnectorMap().containsKey(key)) {
+                value = connectorMessage.getConnectorMap().get(key);
+            } else if (connectorMessage.getChannelMap().containsKey(key)) {
+                value = connectorMessage.getChannelMap().get(key);
+            } else if (connectorMessage.getSourceMap().containsKey(key)) {
+                value = connectorMessage.getSourceMap().get(key);
+            } else if (globalChannelMap.containsKey(key)) {
+                value = globalChannelMap.get(key);
+            } else if (globalMap.containsKey(key)) {
+                value = globalMap.get(key);
+            } else {
+                /*
+                 * Only get the configuration map from the controller if it's needed because it is
+                 * volatile and retrieving it is more expensive.
+                 */
+                value = configurationController.getConfigurationMap().get(key);
+            }
+        } catch (Exception e) {
+            logger.warn("Unable to retrieve metadata value for " + key + ".", e);
+        }
+
+        return value;
     }
 }
