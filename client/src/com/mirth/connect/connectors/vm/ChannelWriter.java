@@ -432,8 +432,11 @@ public class ChannelWriter extends ConnectorSettingsPanel {
     private void setMapVariableTableValues(List<String> sourceMap) {
         ((DefaultTableModel) mapVariablesTable.getModel()).setRowCount(0);
         DefaultTableModel tableModel = (DefaultTableModel) mapVariablesTable.getModel();
-        for (String entry : sourceMap) {
-            tableModel.addRow(new Object[] { entry});
+
+        if (sourceMap != null) {
+            for (String entry : sourceMap) {
+                tableModel.addRow(new Object[] { entry });
+            }
         }
     }
 
