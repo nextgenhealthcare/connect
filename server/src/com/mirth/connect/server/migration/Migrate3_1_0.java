@@ -51,7 +51,7 @@ public class Migrate3_1_0 extends Migrator implements ConfigurationMigrator {
 
             log4jproperties.save();
         } catch (ConfigurationException e) {
-            logger.error("Failed to migrate log4j shutdown settings.");
+            logger.error("Failed to migrate log4j properties.");
         }
     }
 
