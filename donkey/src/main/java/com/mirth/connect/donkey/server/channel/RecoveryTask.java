@@ -40,6 +40,7 @@ public class RecoveryTask implements Callable<Void> {
         ThreadUtils.checkInterruptedStatus();
         DonkeyDao dao = channel.getDaoFactory().getDao();
         StorageSettings storageSettings = channel.getStorageSettings();
+        boolean recoveredMessages = false;
 
         try {
             // step 1: recover messages for each destination (RECEIVED or PENDING on destination)
@@ -55,6 +56,11 @@ public class RecoveryTask implements Callable<Void> {
                         List<ConnectorMessage> recoveredConnectorMessages = dao.getUnfinishedConnectorMessages(channel.getChannelId(), channel.getServerId(), metaDataId, Status.RECEIVED);
                         ThreadUtils.checkInterruptedStatus();
                         recoveredConnectorMessages.addAll(dao.getUnfinishedConnectorMessages(channel.getChannelId(), channel.getServerId(), metaDataId, Status.PENDING));
+
+                        if (!recoveredMessages && recoveredConnectorMessages.size() > 0) {
+                            recoveredMessages = true;
+                            logger.info("Recovering messages for " + channel.getName() + "(" + channel.getChannelId() + ")");
+                        }
 
                         for (ConnectorMessage recoveredConnectorMessage : recoveredConnectorMessages) {
                             long messageId = recoveredConnectorMessage.getMessageId();
@@ -112,6 +118,11 @@ public class RecoveryTask implements Callable<Void> {
             dao.close();
 
             for (Message message : unfinishedMessages) {
+                if (!recoveredMessages && unfinishedMessages.size() > 0) {
+                    recoveredMessages = true;
+                    logger.info("Recovering messages for " + channel.getName() + "(" + channel.getChannelId() + ")");
+                }
+                
                 try {
                     ConnectorMessage sourceMessage = message.getConnectorMessages().get(0);
                     boolean finished = true;
@@ -158,7 +169,15 @@ public class RecoveryTask implements Callable<Void> {
 
             // step 3: If source queuing is disabled, recover messages for each source (RECEIVED) and flush out the source queue.
             if (channel.getSourceConnector().isRespondAfterProcessing() && storageSettings.isMessageRecoveryEnabled()) {
+                if(!recoveredMessages && channel.getSourceQueue().size() > 0) {
+                    recoveredMessages = true;
+                    logger.info("Recovering messages for " + channel.getName() + "(" + channel.getChannelId() + ")");
+                }
                 channel.processSourceQueue(0);
+            }
+
+            if (recoveredMessages) {
+                logger.info("Recovery tasks for channel " + channel.getName() + "(" + channel.getChannelId() + ") completed.");
             }
 
             return null;
