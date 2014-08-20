@@ -154,12 +154,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             serverNameField.setText("");
         }
         
-        if (serverSettings.getOrganizationName() != null) {
-            organizationNameField.setText(serverSettings.getOrganizationName());
-        } else {
-            organizationNameField.setText("");
-        }
-        
         if (serverSettings.getSmtpHost() != null) {
             smtpHostField.setText(serverSettings.getSmtpHost());
         } else {
@@ -250,7 +244,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         ServerSettings serverSettings = new ServerSettings();
         
         serverSettings.setServerName(serverNameField.getText());
-        serverSettings.setOrganizationName(organizationNameField.getText());
 
         serverSettings.setClearGlobalMap(clearGlobalMapYesRadio.isSelected());
 
@@ -493,8 +486,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         provideUsageStatsYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         provideUsageStatsNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         provideUsageStatsMoreInfoLabel = new javax.swing.JLabel();
-        organizationNameLabel = new javax.swing.JLabel();
-        organizationNameField = new com.mirth.connect.client.ui.components.MirthTextField();
         serverNameField = new com.mirth.connect.client.ui.components.MirthTextField();
         serverNameLabel = new javax.swing.JLabel();
         channelPanel = new javax.swing.JPanel();
@@ -692,10 +683,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             }
         });
 
-        organizationNameLabel.setText("Organization name:");
-
-        organizationNameField.setToolTipText("");
-
         serverNameField.setToolTipText("");
 
         serverNameLabel.setText("Server name:");
@@ -708,18 +695,16 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 .addContainerGap()
                 .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(serverNameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(organizationNameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(provideUsageStatsLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(generalPanelLayout.createSequentialGroup()
                         .addComponent(provideUsageStatsYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(provideUsageStatsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(provideUsageStatsMoreInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(serverNameField, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
-                    .addComponent(organizationNameField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(serverNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(87, Short.MAX_VALUE))
         );
         generalPanelLayout.setVerticalGroup(
@@ -730,14 +715,11 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     .addComponent(serverNameLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(organizationNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(organizationNameLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(provideUsageStatsYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(provideUsageStatsLabel)
                     .addComponent(provideUsageStatsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(provideUsageStatsMoreInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(provideUsageStatsMoreInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(1, 1, 1))
         );
 
         channelPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -850,7 +832,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 .addComponent(channelPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(emailPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(41, Short.MAX_VALUE))
+                .addContainerGap(57, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -886,8 +868,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthCheckBox defaultMetaDataVersionCheckBox;
     private javax.swing.JPanel emailPanel;
     private javax.swing.JPanel generalPanel;
-    private com.mirth.connect.client.ui.components.MirthTextField organizationNameField;
-    private javax.swing.JLabel organizationNameLabel;
     private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
     private javax.swing.ButtonGroup provideUsageStatsButtonGroup;

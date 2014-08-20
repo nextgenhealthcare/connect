@@ -56,7 +56,7 @@
               <Component id="channelPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="emailPanel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="41" max="32767" attributes="0"/>
+              <EmptySpace pref="57" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -377,11 +377,10 @@
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="serverNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                      <Component id="organizationNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="provideUsageStatsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="provideUsageStatsYesRadio" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -389,8 +388,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="provideUsageStatsMoreInfoLabel" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="serverNameField" alignment="0" pref="168" max="32767" attributes="1"/>
-                      <Component id="organizationNameField" alignment="0" max="32767" attributes="0"/>
+                      <Component id="serverNameField" alignment="0" min="-2" pref="168" max="-2" attributes="1"/>
                   </Group>
                   <EmptySpace pref="87" max="32767" attributes="0"/>
               </Group>
@@ -405,16 +403,12 @@
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="organizationNameField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="organizationNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="provideUsageStatsYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="provideUsageStatsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="provideUsageStatsNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="provideUsageStatsMoreInfoLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -472,16 +466,6 @@
           <Events>
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="provideUsageStatsMoreInfoLabelMouseClicked"/>
           </Events>
-        </Component>
-        <Component class="javax.swing.JLabel" name="organizationNameLabel">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Organization name:"/>
-          </Properties>
-        </Component>
-        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="organizationNameField">
-          <Properties>
-            <Property name="toolTipText" type="java.lang.String" value=""/>
-          </Properties>
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="serverNameField">
           <Properties>

@@ -30,7 +30,6 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 public class ServerSettings extends AbstractSettings implements Serializable, Auditable, Purgable {
 
     private static final String SERVER_NAME = "server.name";
-    private static final String ORGANIZATION_NAME = "server.organization";
     private static final String CLEAR_GLOBAL_MAP = "server.resetglobalvariables";
     private static final String QUEUE_BUFFER_SIZE = "server.queuebuffersize";
     private static final String DEFAULT_METADATA_COLUMNS = "server.defaultmetadatacolumns";
@@ -45,7 +44,6 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
 
     // General
     private String serverName;
-    private String organizationName;
     private Boolean clearGlobalMap;
     private Integer queueBufferSize;
     private List<MetaDataColumn> defaultMetaDataColumns;
@@ -73,10 +71,6 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         
         if (getServerName() != null) {
             properties.put(SERVER_NAME, getServerName());
-        }
-        
-        if (getOrganizationName() != null) {
-            properties.put(ORGANIZATION_NAME, getOrganizationName());
         }
 
         if (getClearGlobalMap() != null) {
@@ -118,7 +112,6 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
 
     public void setProperties(Properties properties) {
         setServerName(properties.getProperty(SERVER_NAME));
-        setOrganizationName(properties.getProperty(ORGANIZATION_NAME));
         setClearGlobalMap(intToBooleanObject(properties.getProperty(CLEAR_GLOBAL_MAP)));
         setQueueBufferSize(toIntegerObject(properties.getProperty(QUEUE_BUFFER_SIZE)));
         setDefaultMetaDataColumns(toList(properties.getProperty(DEFAULT_METADATA_COLUMNS), MetaDataColumn.class, DefaultMetaData.DEFAULT_COLUMNS));
@@ -140,14 +133,6 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         this.serverName = serverName;
     }
     
-    public String getOrganizationName() {
-        return organizationName;
-    }
-    
-    public void setOrganizationName(String organizationName) {
-        this.organizationName = organizationName;
-    }
-
     public Boolean getClearGlobalMap() {
         return clearGlobalMap;
     }
