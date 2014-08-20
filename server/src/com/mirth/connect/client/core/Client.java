@@ -703,7 +703,7 @@ public class Client {
     public void haltChannels(Set<String> channelIds) throws ClientException {
         logger.debug("halting channels: channelIds=" + String.valueOf(channelIds));
         NameValuePair[] params = { new BasicNameValuePair("op", Operations.CHANNEL_HALT.getName()), new BasicNameValuePair("channelIds", serializer.serialize(channelIds)) };
-        serverConnection.executePostMethodAsync(CHANNEL_STATUS_SERVLET, params);
+        serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
     }
 
     /**

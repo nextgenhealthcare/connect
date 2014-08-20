@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -141,7 +142,7 @@ public class DonkeyEngineController implements EngineController {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private int queueBufferSize = Constants.DEFAULT_QUEUE_BUFFER_SIZE;
-    private Map<String, ExecutorService> engineExecutors = new HashMap<String, ExecutorService>();
+    private Map<String, ExecutorService> engineExecutors = new ConcurrentHashMap<String, ExecutorService>();
     private Set<Channel> deployingChannels = Collections.synchronizedSet(new HashSet<Channel>());
     private Set<Channel> undeployingChannels = Collections.synchronizedSet(new HashSet<Channel>());
 
@@ -963,15 +964,16 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    private synchronized ExecutorService getEngineExecutor(String channelId, boolean replace) {
+    private void shutdownExecutor(String channelId) {
         ExecutorService engineExecutor = engineExecutors.get(channelId);
 
-        if (engineExecutor == null || replace) {
-            engineExecutor = new ThreadPoolExecutor(0, 1, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-            engineExecutors.put(channelId, engineExecutor);
+        if (engineExecutor != null) {
+            List<Runnable> tasks = engineExecutor.shutdownNow();
+            // Cancel any tasks that had not yet started. Otherwise those tasks would be blocked at future.get() indefinitely.
+            for (Runnable task : tasks) {
+                ((Future<?>) task).cancel(true);
+            }
         }
-
-        return engineExecutor;
     }
 
     private List<ChannelTask> buildChannelStatusTasks(Set<String> channelIds, StatusTask task) {
@@ -1012,7 +1014,12 @@ public class DonkeyEngineController implements EngineController {
         }
 
         for (ChannelTask task : tasks) {
-            ExecutorService engineExecutor = getEngineExecutor(task.getChannelId(), false);
+            ExecutorService engineExecutor = engineExecutors.get(task.getChannelId());
+
+            if (engineExecutor == null) {
+                engineExecutor = new ThreadPoolExecutor(0, 1, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+                engineExecutors.put(task.getChannelId(), engineExecutor);
+            }
 
             task.setHandler(handler);
             try {
@@ -1029,7 +1036,7 @@ public class DonkeyEngineController implements EngineController {
         return futures;
     }
 
-    private synchronized List<ChannelFuture> submitHaltTasks(Set<String> channelIds, ChannelTaskHandler handler) {
+    private List<ChannelFuture> submitHaltTasks(Set<String> channelIds, ChannelTaskHandler handler) {
         List<ChannelFuture> futures = new ArrayList<ChannelFuture>();
 
         /*
@@ -1041,26 +1048,35 @@ public class DonkeyEngineController implements EngineController {
         }
 
         for (String channelId : channelIds) {
-            ExecutorService engineExecutor = getEngineExecutor(channelId, false);
-            // Shutdown the old executor to cancel existing tasks and prevent new tasks from being submitted to it.
-            List<Runnable> tasks = engineExecutor.shutdownNow();
-            // Cancel any tasks that had not yet started. Otherwise those tasks would be blocked at future.get() indefinitely.
-            for (Runnable task : tasks) {
-                ((Future<?>) task).cancel(true);
+            /*
+             * Shutdown the executor to prevent any new tasks from being submitted. This needs to be
+             * called once outside of the synchronized block in order to halt certain actions such
+             * as restoring server configuration.
+             */
+            shutdownExecutor(channelId);
+
+            synchronized (this) {
+                /*
+                 * Shutdown the executor to prevent any new tasks from being submitted. This needs
+                 * to be called once inside the synchronized block in case multiple halts were
+                 * performed.
+                 */
+                shutdownExecutor(channelId);
+
+                /*
+                 * Create a new executor to submit the halt task to. Since all the submit methods
+                 * are synchronized, it is not possible for any other tasks for this channel to
+                 * occur before the halt task.
+                 */
+                ExecutorService engineExecutor = new ThreadPoolExecutor(0, 1, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+                engineExecutors.put(channelId, engineExecutor);
+
+                ChannelTask haltTask = new HaltTask(channelId);
+                haltTask.setHandler(handler);
+                futures.add(haltTask.submitTo(engineExecutor));
             }
 
-            /*
-             * Create a new executor to submit the halt task to. Since all the submit methods are
-             * synchronized, it is not possible for any other tasks for this channel to occur before
-             * the halt task.
-             */
-            engineExecutor = getEngineExecutor(channelId, true);
-
-            ChannelTask haltTask = new HaltTask(channelId);
-            haltTask.setHandler(handler);
-            futures.add(haltTask.submitTo(engineExecutor));
         }
-
         return futures;
     }
 
@@ -1393,12 +1409,8 @@ public class DonkeyEngineController implements EngineController {
             channelController.removeChannel(channelModel, context);
 
             synchronized (DonkeyEngineController.this) {
-                ExecutorService engineExecutor = getEngineExecutor(channelId, false);
-                // Cancel any tasks that had not yet started. Otherwise those tasks would be blocked at future.get() indefinitely.
-                List<Runnable> tasks = engineExecutor.shutdownNow();
-                for (Runnable task : tasks) {
-                    ((Future<?>) task).cancel(true);
-                }
+                // Shutdown the executor to prevent any new tasks from being submitted.
+                shutdownExecutor(channelId);
 
                 // Remove the executor since it has been shutdown. If another task comes in for this channel Id, a new executor will be created.
                 engineExecutors.remove(channelId);
