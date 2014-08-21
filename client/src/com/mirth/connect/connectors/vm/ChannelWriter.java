@@ -235,7 +235,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
-        URL.setText("Channel Name:");
+        URL.setText("Channel Id:");
 
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         channelNames.setToolTipText("<html>Select the channel to which messages accepted by this destination's filter should be written,<br> or none to not write the message at all.</html>");
@@ -448,9 +448,9 @@ public class ChannelWriter extends ConnectorSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthComboBox channelNames;
     private javax.swing.JButton deleteButton;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JScrollPane mapVariablesPane;
     private com.mirth.connect.client.ui.components.MirthTable mapVariablesTable;
     private javax.swing.JButton newButton;
-    private javax.swing.JScrollPane mapVariablesPane;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea template;
     // End of variables declaration//GEN-END:variables
 }

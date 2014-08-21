@@ -92,7 +92,7 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="URL">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Channel Name:"/>
+        <Property name="text" type="java.lang.String" value="Channel Id:"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="channelNames">
