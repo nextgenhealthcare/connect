@@ -350,15 +350,19 @@ public class DonkeyEngineController implements EngineController {
             channels = new HashMap<String, Channel>(donkey.getDeployedChannels());
         }
 
-        for (Channel channel : deployingChannels) {
-            if (!channels.containsKey(channel.getChannelId())) {
-                channels.put(channel.getChannelId(), channel);
+        synchronized (deployingChannels) {
+            for (Channel channel : deployingChannels) {
+                if (!channels.containsKey(channel.getChannelId())) {
+                    channels.put(channel.getChannelId(), channel);
+                }
             }
         }
 
-        for (Channel channel : undeployingChannels) {
-            if (!channels.containsKey(channel.getChannelId())) {
-                channels.put(channel.getChannelId(), channel);
+        synchronized (undeployingChannels) {
+            for (Channel channel : undeployingChannels) {
+                if (!channels.containsKey(channel.getChannelId())) {
+                    channels.put(channel.getChannelId(), channel);
+                }
             }
         }
 
