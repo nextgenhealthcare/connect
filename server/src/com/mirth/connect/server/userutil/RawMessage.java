@@ -10,7 +10,9 @@
 package com.mirth.connect.server.userutil;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -41,8 +43,8 @@ public class RawMessage {
      *            A collection of integers (metadata IDs) representing which destinations to
      *            dispatch the message to. JavaScript arrays can be used.
      */
-    public RawMessage(String rawData, Collection<Integer> destinationMetaDataIds) {
-        rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawData, destinationMetaDataIds);
+    public RawMessage(String rawData, Collection<Number> destinationMetaDataIds) {
+        rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawData, convertCollection(destinationMetaDataIds));
     }
 
     /**
@@ -57,8 +59,8 @@ public class RawMessage {
      *            Any values placed in this map will be populated in the source map at the beginning
      *            of the message's lifecycle.
      */
-    public RawMessage(String rawData, Collection<Integer> destinationMetaDataIds, Map<String, Object> sourceMap) {
-        rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawData, destinationMetaDataIds, sourceMap);
+    public RawMessage(String rawData, Collection<Number> destinationMetaDataIds, Map<String, Object> sourceMap) {
+        rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawData, convertCollection(destinationMetaDataIds), sourceMap);
     }
 
     /**
@@ -80,8 +82,8 @@ public class RawMessage {
      *            A collection of integers (metadata IDs) representing which destinations to
      *            dispatch the message to. JavaScript arrays can be used.
      */
-    public RawMessage(byte[] rawBytes, Collection<Integer> destinationMetaDataIds) {
-        rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawBytes, destinationMetaDataIds);
+    public RawMessage(byte[] rawBytes, Collection<Number> destinationMetaDataIds) {
+        rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawBytes, convertCollection(destinationMetaDataIds));
     }
 
     /**
@@ -96,8 +98,8 @@ public class RawMessage {
      *            Any values placed in this map will be populated in the source map at the beginning
      *            of the message's lifecycle.
      */
-    public RawMessage(byte[] rawBytes, Collection<Integer> destinationMetaDataIds, Map<String, Object> sourceMap) {
-        rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawBytes, destinationMetaDataIds, sourceMap);
+    public RawMessage(byte[] rawBytes, Collection<Number> destinationMetaDataIds, Map<String, Object> sourceMap) {
+        rawMessage = new com.mirth.connect.donkey.model.message.RawMessage(rawBytes, convertCollection(destinationMetaDataIds), sourceMap);
     }
 
     /**
@@ -129,8 +131,8 @@ public class RawMessage {
      *            A list of integers (metadata IDs) representing which destinations to dispatch the
      *            message to.
      */
-    public void setDestinationMetaDataIds(Collection<Integer> destinationMetaDataIds) {
-        rawMessage.setDestinationMetaDataIds(destinationMetaDataIds);
+    public void setDestinationMetaDataIds(Collection<Number> destinationMetaDataIds) {
+        rawMessage.setDestinationMetaDataIds(convertCollection(destinationMetaDataIds));
     }
 
     /**
@@ -191,5 +193,19 @@ public class RawMessage {
      */
     public void clearMessage() {
         rawMessage.clearMessage();
+    }
+
+    /**
+     * Convert the values in the collection to Integer. This is needed since Rhino casts JavaScript
+     * numbers to Double
+     */
+    private Collection<Integer> convertCollection(Collection<Number> numbers) {
+        Set<Integer> set = new LinkedHashSet<Integer>();
+
+        for (Number number : numbers) {
+            set.add(number.intValue());
+        }
+
+        return set;
     }
 }

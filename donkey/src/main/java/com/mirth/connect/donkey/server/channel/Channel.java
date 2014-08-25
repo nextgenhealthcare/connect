@@ -1286,16 +1286,7 @@ public class Channel implements Runnable {
         Set<Integer> destinationSet = new LinkedHashSet<Integer>();
 
         if (destinationMetaDataIds != null) {
-            /*
-             * At runtime the values within the collection may not be integers, so we still need to
-             * check each of them. If they are a number, then we will will add the int value to the
-             * destination set. Otherwise we just discard the value.
-             */
-            for (Object destinationMetaDataId : destinationMetaDataIds) {
-                if (destinationMetaDataId instanceof Number) {
-                    destinationSet.add(((Number) destinationMetaDataId).intValue());
-                }
-            }
+            destinationSet.addAll(destinationMetaDataIds);
         } else {
             /*
              * If no destination metadata ids were passed into the raw message, then add all
