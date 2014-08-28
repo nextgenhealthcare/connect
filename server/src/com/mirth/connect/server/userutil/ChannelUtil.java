@@ -511,7 +511,7 @@ public class ChannelUtil {
     }
 
     /**
-     * Reset all statistics for the specified channel by name.
+     * Reset all statistics for a specific channel.
      * 
      * @param channelIdOrName
      *            The channel id or current name of the deployed channel.
