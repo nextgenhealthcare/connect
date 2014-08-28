@@ -369,6 +369,7 @@ public class HttpListener extends ConnectorSettingsPanel {
         }
 
         responseHeadersPane.setViewportView(responseHeadersTable);
+        responseHeadersDeleteButton.setEnabled(false);
     }
 
     public Map<String, String> getResponseHeaders() {
@@ -773,6 +774,8 @@ public class HttpListener extends ConnectorSettingsPanel {
                 ((AbstractTableModel) staticResourcesTable.getModel()).fireTableDataChanged();
             }
         });
+
+        staticResourcesDeleteButton.setEnabled(false);
     }
 
     private boolean checkStaticResourceContextPath(String contextPath) {
