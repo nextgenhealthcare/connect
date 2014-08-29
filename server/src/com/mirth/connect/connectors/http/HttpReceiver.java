@@ -343,6 +343,22 @@ public class HttpReceiver extends SourceConnector {
          */
         if (selectedResponse != null) {
             dispatchResult.setAttemptedResponse(true);
+
+            Status newMessageStatus = selectedResponse.getStatus();
+
+            /*
+             * If the status code is custom, use the entered/replaced string If is is not a
+             * variable, use the status of the destination's response (success = 200, failure = 500)
+             * Otherwise, return 200
+             */
+            if (statusCode != -1) {
+                servletResponse.setStatus(statusCode);
+            } else if (newMessageStatus != null && newMessageStatus.equals(Status.ERROR)) {
+                servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            } else {
+                servletResponse.setStatus(HttpStatus.SC_OK);
+            }
+
             String message = selectedResponse.getMessage();
 
             if (message != null) {
@@ -366,21 +382,6 @@ public class HttpReceiver extends SourceConnector {
                 }
 
                 // TODO include full HTTP payload in sentResponse
-            }
-
-            Status newMessageStatus = selectedResponse.getStatus();
-
-            /*
-             * If the status code is custom, use the entered/replaced string If is is not a
-             * variable, use the status of the destination's response (success = 200, failure = 500)
-             * Otherwise, return 200
-             */
-            if (statusCode != -1) {
-                servletResponse.setStatus(statusCode);
-            } else if (newMessageStatus != null && newMessageStatus.equals(Status.ERROR)) {
-                servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            } else {
-                servletResponse.setStatus(HttpStatus.SC_OK);
             }
         } else {
             /*
@@ -410,8 +411,8 @@ public class HttpReceiver extends SourceConnector {
         }
 
         servletResponse.setContentType("text/plain");
-        servletResponse.getOutputStream().write(responseError.getBytes());
         servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        servletResponse.getOutputStream().write(responseError.getBytes());
     }
 
     private Object getMessage(Request request, Map<String, Object> sourceMap) throws IOException, ChannelException, MessagingException, DonkeyElementException, ParserConfigurationException {
@@ -539,6 +540,7 @@ public class HttpReceiver extends SourceConnector {
                 }
 
                 servletResponse.setContentType(contentType.toString());
+                servletResponse.setStatus(HttpStatus.SC_OK);
 
                 OutputStream responseOutputStream = servletResponse.getOutputStream();
 
@@ -596,16 +598,14 @@ public class HttpReceiver extends SourceConnector {
                 if (responseOutputStream instanceof GZIPOutputStream) {
                     ((GZIPOutputStream) responseOutputStream).finish();
                 }
-
-                servletResponse.setStatus(HttpStatus.SC_OK);
             } catch (Throwable t) {
                 logger.error("Error handling static HTTP resource request (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
                 eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error handling static HTTP resource request", t));
 
                 servletResponse.reset();
                 servletResponse.setContentType(ContentType.TEXT_PLAIN.toString());
-                servletResponse.getOutputStream().write(ExceptionUtils.getStackTrace(t).getBytes());
                 servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                servletResponse.getOutputStream().write(ExceptionUtils.getStackTrace(t).getBytes());
             }
 
             baseRequest.setHandled(true);
