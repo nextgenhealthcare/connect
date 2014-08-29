@@ -46,6 +46,7 @@ public class SettingsPanelDatabaseTasks extends AbstractSettingsPanel implements
     public static final String TAB_NAME = "Database Tasks";
 
     private JXTable taskTable;
+    private JXTable channelsTable;
 
     public SettingsPanelDatabaseTasks(String tabName) {
         super(tabName);
@@ -252,12 +253,35 @@ public class SettingsPanelDatabaseTasks extends AbstractSettingsPanel implements
         JScrollPane taskTableScrollPane = new JScrollPane(taskTable);
         containerPanel.add(taskTableScrollPane, "grow");
 
-        add(containerPanel, "grow");
+        add(containerPanel, "grow, h 60%");
+
+        JPanel channelsPanel = new JPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
+        channelsPanel.setBackground(getBackground());
+        channelsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Affected Channels", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+
+        channelsTable = new MirthTable();
+        channelsTable.setModel(new RefreshTableModel(new Object[] { "Name", "Id" }, 0));
+        channelsTable.setDragEnabled(false);
+        channelsTable.setRowSelectionAllowed(false);
+        channelsTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        channelsTable.setFocusable(false);
+        channelsTable.setOpaque(true);
+        channelsTable.getTableHeader().setReorderingAllowed(false);
+        channelsTable.setEditable(false);
+
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            channelsTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
+        }
+
+        channelsPanel.add(new JScrollPane(channelsTable), "grow");
+
+        add(channelsPanel, "newline, grow, h 40%");
     }
 
     @Override
     public void valueChanged(ListSelectionEvent evt) {
         if (!evt.getValueIsAdjusting()) {
+            int selectedRow = taskTable.getSelectedRow();
             boolean showRun = evt.getFirstIndex() > -1;
             boolean showCancel = false;
 
@@ -265,7 +289,7 @@ public class SettingsPanelDatabaseTasks extends AbstractSettingsPanel implements
                 for (int row = 0; row < taskTable.getRowCount(); row++) {
                     if (((DatabaseTask) taskTable.getValueAt(row, 1)).getStatus() == Status.RUNNING) {
                         showRun = false;
-                        if (row == taskTable.getSelectedRow()) {
+                        if (row == selectedRow) {
                             showCancel = true;
                         }
                     }
@@ -274,6 +298,22 @@ public class SettingsPanelDatabaseTasks extends AbstractSettingsPanel implements
 
             setVisibleTasks(2, 2, showRun);
             setVisibleTasks(3, 3, showCancel);
+
+            Map<String, String> affectedChannels = new HashMap<String, String>();
+            if (selectedRow > -1) {
+                affectedChannels = ((DatabaseTask) taskTable.getValueAt(selectedRow, 1)).getAffectedChannels();
+            }
+
+            Object[][] data = new Object[affectedChannels.size()][2];
+            int i = 0;
+
+            for (String channelId : affectedChannels.keySet()) {
+                data[i][0] = affectedChannels.get(channelId);
+                data[i][1] = channelId;
+                i++;
+            }
+
+            ((RefreshTableModel) channelsTable.getModel()).refreshDataVector(data);
         }
     }
 }

@@ -11,6 +11,8 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.text.WordUtils;
 
@@ -30,6 +32,7 @@ public class DatabaseTask implements Serializable {
     private String name;
     private String description;
     private String confirmationMessage;
+    private Map<String, String> affectedChannels;
     private Calendar startDateTime;
 
     public DatabaseTask(String id, String name, String description) {
@@ -42,6 +45,7 @@ public class DatabaseTask implements Serializable {
         this.name = name;
         this.description = description;
         this.confirmationMessage = confirmationMessage;
+        this.affectedChannels = new HashMap<String, String>();
     }
 
     public String getId() {
@@ -82,6 +86,14 @@ public class DatabaseTask implements Serializable {
 
     public void setConfirmationMessage(String confirmationMessage) {
         this.confirmationMessage = confirmationMessage;
+    }
+
+    public Map<String, String> getAffectedChannels() {
+        return affectedChannels;
+    }
+
+    public void setAffectedChannels(Map<String, String> affectedChannels) {
+        this.affectedChannels = affectedChannels;
     }
 
     public Calendar getStartDateTime() {

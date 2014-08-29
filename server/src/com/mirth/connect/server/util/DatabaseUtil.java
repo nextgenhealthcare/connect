@@ -224,4 +224,40 @@ public class DatabaseUtil {
             DbUtils.closeQuietly(resultSet);
         }
     }
+
+    /**
+     * Tell whether or not the given index exists in the database
+     */
+    public static boolean indexExists(Connection connection, String tableName, String indexName) {
+        if (!tableExists(connection, tableName)) {
+            return false;
+        }
+
+        ResultSet resultSet = null;
+
+        try {
+            DatabaseMetaData metaData = connection.getMetaData();
+            resultSet = metaData.getIndexInfo(null, null, tableName.toUpperCase(), false, false);
+
+            while (resultSet.next()) {
+                if (indexName.equalsIgnoreCase(resultSet.getString("INDEX_NAME"))) {
+                    return true;
+                }
+            }
+
+            resultSet = metaData.getIndexInfo(null, null, tableName.toLowerCase(), false, false);
+
+            while (resultSet.next()) {
+                if (indexName.equalsIgnoreCase(resultSet.getString("INDEX_NAME"))) {
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        } finally {
+            DbUtils.closeQuietly(resultSet);
+        }
+    }
 }

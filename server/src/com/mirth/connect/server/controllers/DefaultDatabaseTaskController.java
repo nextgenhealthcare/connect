@@ -10,34 +10,55 @@
 package com.mirth.connect.server.controllers;
 
 import java.sql.Connection;
-import java.sql.Statement;
+import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.model.channel.DeployedState;
+import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.channel.Channel;
+import com.mirth.connect.donkey.server.data.DonkeyDao;
+import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
+import com.mirth.connect.donkey.server.data.jdbc.JdbcDaoFactory;
+import com.mirth.connect.donkey.server.data.jdbc.QuerySource;
 import com.mirth.connect.model.DatabaseTask;
 import com.mirth.connect.model.DatabaseTask.Status;
+import com.mirth.connect.server.channel.ChannelFuture;
+import com.mirth.connect.server.channel.ChannelTask;
+import com.mirth.connect.server.channel.ChannelTaskHandler;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 public class DefaultDatabaseTaskController implements DatabaseTaskController {
 
     private static final String TASK_REMOVE_OLD_CHANNEL = "removeOldChannelTable";
     private static final String TASK_REMOVE_OLD_MESSAGE = "removeOldMessageTable";
     private static final String TASK_REMOVE_OLD_ATTACHMENT = "removeOldAttachmentTable";
+    private static final String TASK_ADD_D_MM_INDEX3 = "addMetadataIndex3";
 
     private static DatabaseTaskController instance = null;
     private Logger logger = Logger.getLogger(getClass());
+    private EngineController engineController = ControllerFactory.getFactory().createEngineController();
+    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
 
     // Shared data
     private DatabaseTask currentTask;
+    private AtomicBoolean cancelled = new AtomicBoolean(false);
     private ReadWriteLock taskReadWriteLock = new ReentrantReadWriteLock(true);
     private Lock taskRunLock = new ReentrantLock(true);
 
@@ -56,10 +77,11 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
     @Override
     public Map<String, DatabaseTask> getDatabaseTasks() throws Exception {
         Map<String, DatabaseTask> tasks = new HashMap<String, DatabaseTask>();
-        SqlConfig.getSqlSessionManager().startManagedSession();
-        Connection connection = SqlConfig.getSqlSessionManager().getConnection();
+        SqlSession session = SqlConfig.getSqlSessionManager().openSession();
 
         try {
+            Connection connection = session.getConnection();
+
             if (DatabaseUtil.tableExists(connection, "OLD_CHANNEL")) {
                 DatabaseTask task = new DatabaseTask(TASK_REMOVE_OLD_CHANNEL, "Remove Old 2.x Channel Table", "Remove the OLD_CHANNEL table which was renamed as part of the upgrade from 2.x to 3.x.");
                 logger.debug("Adding database task: " + task.getName());
@@ -77,10 +99,36 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
                 logger.debug("Adding database task: " + task.getName());
                 tasks.put(task.getId(), task);
             }
-        } finally {
-            if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
-                SqlConfig.getSqlSessionManager().close();
+
+            DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+            try {
+                Map<String, Long> localChannelIdMap = dao.getLocalChannelIds();
+                Map<String, String> affectedChannels = new HashMap<String, String>();
+
+                for (String channelId : localChannelIdMap.keySet()) {
+                    long localChannelId = localChannelIdMap.get(channelId);
+                    String tableName = "D_MM" + localChannelId;
+
+                    if (!DatabaseUtil.indexExists(connection, tableName, tableName + "_INDEX3")) {
+                        affectedChannels.put(channelId, getChannelName(channelId));
+                    }
+                }
+
+                if (MapUtils.isNotEmpty(affectedChannels)) {
+                    StringBuilder confirmationMessage = new StringBuilder("This index will only be created on channels that are stopped. Are you sure you wish to continue?");
+
+                    DatabaseTask task = new DatabaseTask(TASK_ADD_D_MM_INDEX3, "Add Metadata Index", "Add index (ID, STATUS, SERVER_ID) on the message metadata table to improve queue performance.", confirmationMessage.toString());
+                    task.setAffectedChannels(affectedChannels);
+                    logger.debug("Adding migration task: " + task.getName());
+                    tasks.put(task.getId(), task);
+                }
+            } finally {
+                if (dao != null) {
+                    dao.close();
+                }
             }
+        } finally {
+            session.close();
         }
 
         DatabaseTask currentTask = getCurrentTask();
@@ -107,30 +155,147 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
         if (databaseTask == null && taskRunLock.tryLock()) {
             try {
                 startTask(task);
-                SqlConfig.getSqlSessionManager().startManagedSession();
-                Connection connection = SqlConfig.getSqlSessionManager().getConnection();
-                Statement statement = null;
 
-                try {
-                    statement = connection.createStatement();
+                if (task.getId().equals(TASK_REMOVE_OLD_CHANNEL)) {
+                    executeUpdate("DROP TABLE OLD_CHANNEL");
+                    return "Table OLD_CHANNEL successfully dropped.";
+                } else if (task.getId().equals(TASK_REMOVE_OLD_MESSAGE)) {
+                    executeUpdate("DROP TABLE OLD_MESSAGE");
+                    return "Table OLD_MESSAGE successfully dropped.";
+                } else if (task.getId().equals(TASK_REMOVE_OLD_ATTACHMENT)) {
+                    executeUpdate("DROP TABLE OLD_ATTACHMENT");
+                    return "Table OLD_ATTACHMENT successfully dropped.";
+                } else if (task.getId().equals(TASK_ADD_D_MM_INDEX3)) {
+                    DonkeyDaoFactory daoFactory = Donkey.getInstance().getDaoFactory();
 
-                    if (task.getId().equals(TASK_REMOVE_OLD_CHANNEL)) {
-                        statement.executeUpdate("DROP TABLE OLD_CHANNEL");
-                        return "Table OLD_CHANNEL successfully dropped.";
-                    } else if (task.getId().equals(TASK_REMOVE_OLD_MESSAGE)) {
-                        statement.executeUpdate("DROP TABLE OLD_MESSAGE");
-                        return "Table OLD_MESSAGE successfully dropped.";
-                    } else if (task.getId().equals(TASK_REMOVE_OLD_ATTACHMENT)) {
-                        statement.executeUpdate("DROP TABLE OLD_ATTACHMENT");
-                        return "Table OLD_ATTACHMENT successfully dropped.";
+                    if (daoFactory instanceof JdbcDaoFactory) {
+                        Map<String, Long> localChannelIds = new HashMap<String, Long>();
+                        DonkeyDao dao = daoFactory.getDao();
+                        try {
+                            localChannelIds = dao.getLocalChannelIds();
+                        } finally {
+                            if (dao != null) {
+                                dao.close();
+                            }
+                        }
+
+                        Map<String, Long> channelsToIndex = new HashMap<String, Long>();
+                        Map<String, String> affectedChannels = new HashMap<String, String>();
+
+                        SqlSession session = SqlConfig.getSqlSessionManager().openSession();
+
+                        try {
+                            Connection connection = session.getConnection();
+
+                            for (Entry<String, Long> entry : localChannelIds.entrySet()) {
+                                String channelId = entry.getKey();
+                                long localChannelId = entry.getValue();
+                                String tableName = "D_MM" + localChannelId;
+                                String indexName = tableName + "_INDEX3";
+
+                                if (!DatabaseUtil.indexExists(connection, tableName, indexName)) {
+                                    channelsToIndex.put(channelId, localChannelId);
+                                    affectedChannels.put(channelId, getChannelName(channelId));
+                                }
+                            }
+                        } finally {
+                            session.close();
+                        }
+
+                        taskReadWriteLock.writeLock().lock();
+                        try {
+                            currentTask.setAffectedChannels(new HashMap<String, String>(affectedChannels));
+                        } finally {
+                            taskReadWriteLock.writeLock().unlock();
+                        }
+
+                        class ChannelStoppedException extends Exception {
+                        }
+
+                        class AddIndexChannelTaskHandler extends ChannelTaskHandler {
+
+                            private Map<String, String> affectedChannels;
+
+                            public AddIndexChannelTaskHandler(Map<String, String> affectedChannels) {
+                                this.affectedChannels = affectedChannels;
+                            }
+
+                            @Override
+                            public void taskCompleted(String channelId, Integer metaDataId) {
+                                affectedChannels.remove(channelId);
+
+                                taskReadWriteLock.writeLock().lock();
+                                try {
+                                    currentTask.setAffectedChannels(new HashMap<String, String>(affectedChannels));
+                                } finally {
+                                    taskReadWriteLock.writeLock().unlock();
+                                }
+                            }
+
+                            @Override
+                            public void taskErrored(String channelId, Integer metaDataId, Exception e) {
+                                if (!(e instanceof ChannelStoppedException)) {
+                                    logger.error("Unable to add index to channel " + channelId + ".", e);
+                                }
+                            }
+
+                            @Override
+                            public void taskCancelled(String channelId, Integer metaDataId, CancellationException e) {
+                                logger.error("Unable to add index to channel " + channelId + ".", e);
+                            }
+                        }
+
+                        AddIndexChannelTaskHandler taskHandler = new AddIndexChannelTaskHandler(affectedChannels);
+                        final QuerySource querySource = ((JdbcDaoFactory) daoFactory).getQuerySource();
+
+                        for (Entry<String, Long> entry : channelsToIndex.entrySet()) {
+                            if (isCancelled()) {
+                                break;
+                            }
+
+                            final String channelId = entry.getKey();
+                            final long localChannelId = entry.getValue();
+                            final String tableName = "D_MM" + localChannelId;
+                            final String indexName = tableName + "_INDEX3";
+
+                            ChannelTask addIndexTask = new ChannelTask(channelId) {
+                                @Override
+                                public Void execute() throws Exception {
+                                    Channel channel = engineController.getDeployedChannel(channelId);
+                                    if (channel != null && channel.getCurrentState() != DeployedState.STOPPED) {
+                                        throw new ChannelStoppedException();
+                                    }
+
+                                    Map<String, Object> values = new HashMap<String, Object>();
+                                    values.put("localChannelId", localChannelId);
+                                    String query = querySource.getQuery("createConnectorMessageTableIndex3", values);
+
+                                    if (query != null) {
+                                        logger.debug("Adding index " + indexName + " on table " + tableName + ".");
+                                        executeUpdate(query);
+                                    } else {
+                                        throw new Exception("Error adding index: Update statement not found for database type: " + Donkey.getInstance().getConfiguration().getDatabaseProperties().getProperty("database"));
+                                    }
+
+                                    return null;
+                                }
+                            };
+
+                            List<ChannelFuture> futures = engineController.submitTasks(Collections.singletonList(addIndexTask), taskHandler);
+
+                            if (futures.size() > 0) {
+                                futures.get(0).get();
+                            }
+                        }
+
+                        int totalCount = channelsToIndex.size();
+                        int successCount = totalCount - affectedChannels.size();
+                        return "<html>" + successCount + " out of " + channelsToIndex.size() + " indices successfully added.</html>";
                     } else {
-                        throw new Exception("Unknown task ID: " + task.getId());
+                        throw new Exception("Unable to perform task: DAO type is not JDBC.");
                     }
-                } finally {
-                    DbUtils.closeQuietly(statement);
-                    if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
-                        SqlConfig.getSqlSessionManager().close();
-                    }
+                } else {
+                    throw new Exception("Unknown task ID: " + task.getId());
                 }
             } finally {
                 stopTask();
@@ -149,7 +314,7 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
 
         taskReadWriteLock.writeLock().lock();
         try {
-            // Nothing to do yet for cancelling
+            cancelled.set(true);
         } finally {
             taskReadWriteLock.writeLock().unlock();
         }
@@ -161,6 +326,7 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
             currentTask = task;
             currentTask.setStatus(Status.RUNNING);
             currentTask.setStartDateTime(Calendar.getInstance());
+            cancelled.set(false);
         } finally {
             taskReadWriteLock.writeLock().unlock();
         }
@@ -171,11 +337,38 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
             taskReadWriteLock.writeLock().lock();
             try {
                 currentTask = null;
+                cancelled.set(false);
             } finally {
                 taskReadWriteLock.writeLock().unlock();
             }
         } finally {
             taskRunLock.unlock();
         }
+    }
+
+    private boolean isCancelled() {
+        taskReadWriteLock.readLock().lock();
+        try {
+            return cancelled.get();
+        } finally {
+            taskReadWriteLock.readLock().unlock();
+        }
+    }
+
+    private void executeUpdate(String sql) throws SQLException {
+        SqlSession session = SqlConfig.getSqlSessionManager().openSession();
+        try {
+            session.getConnection().createStatement().executeUpdate(sql);
+        } finally {
+            session.close();
+        }
+    }
+
+    private String getChannelName(String channelId) {
+        com.mirth.connect.model.Channel model = channelController.getDeployedChannelById(channelId);
+        if (model == null) {
+            model = channelController.getChannelById(channelId);
+        }
+        return model != null ? model.getName() : null;
     }
 }

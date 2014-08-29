@@ -46,6 +46,10 @@
 	</query>
 	
 	<query id="createConnectorMessageTableIndex3">
+		CREATE INDEX D_MM${localChannelId}_INDEX3 ON D_MM${localChannelId}(ID, STATUS, SERVER_ID)
+	</query>
+	
+	<query id="createConnectorMessageTableIndex4">
 		CREATE INDEX D_MM${localChannelId}_FKI ON D_MM${localChannelId}(MESSAGE_ID)
 	</query>
 	
