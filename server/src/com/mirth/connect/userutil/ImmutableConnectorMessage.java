@@ -321,7 +321,7 @@ public class ImmutableConnectorMessage {
      */
     public Response getResponseData() {
         if (connectorMessage.getResponse() != null) {
-            return serializer.deserialize(connectorMessage.getResponse().getContent(), Response.class);
+            return new Response(serializer.deserialize(connectorMessage.getResponse().getContent(), com.mirth.connect.donkey.model.message.Response.class));
         } else {
             return null;
         }
@@ -373,7 +373,7 @@ public class ImmutableConnectorMessage {
      */
     public Response getProcessedResponseData() {
         if (connectorMessage.getProcessedResponse() != null) {
-            return serializer.deserialize(connectorMessage.getProcessedResponse().getContent(), Response.class);
+            return new Response(serializer.deserialize(connectorMessage.getProcessedResponse().getContent(), com.mirth.connect.donkey.model.message.Response.class));
         } else {
             return null;
         }
