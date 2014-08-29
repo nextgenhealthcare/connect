@@ -110,7 +110,7 @@ public class DestinationSettingsPanel extends javax.swing.JPanel {
             }
         }
 
-        if (properties.getRetryCount() < 0) {
+        if ((!properties.isQueueEnabled() || properties.isSendFirst()) && properties.getRetryCount() < 0) {
             valid = false;
 
             if (highlight) {
@@ -118,7 +118,7 @@ public class DestinationSettingsPanel extends javax.swing.JPanel {
             }
         }
 
-        if (properties.getThreadCount() < 1) {
+        if (properties.isQueueEnabled() && properties.getThreadCount() < 1) {
             valid = false;
 
             if (highlight) {
