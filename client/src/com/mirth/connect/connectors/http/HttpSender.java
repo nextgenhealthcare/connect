@@ -139,7 +139,7 @@ public class HttpSender extends ConnectorSettingsPanel {
 
         properties.setSocketTimeout(sendTimeoutField.getText());
 
-        properties.setUseAuthentication(dataTypeBinaryRadio.isSelected());
+        properties.setUseAuthentication(authenticationYesRadio.isSelected());
 
         if (authenticationTypeBasicRadio.isSelected()) {
             properties.setAuthenticationType("Basic");
@@ -213,7 +213,7 @@ public class HttpSender extends ConnectorSettingsPanel {
         sendTimeoutField.setText(props.getSocketTimeout());
 
         if (props.isUseAuthentication()) {
-            dataTypeBinaryRadio.setSelected(true);
+            authenticationYesRadio.setSelected(true);
             authenticationYesRadioActionPerformed(null);
         } else {
             authenticationNoRadio.setSelected(true);
