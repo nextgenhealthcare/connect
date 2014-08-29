@@ -85,6 +85,7 @@ import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.util.CharsetUtils;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 
@@ -367,7 +368,7 @@ public class HttpReceiver extends SourceConnector {
                 if (connectorProperties.isResponseDataTypeBinary()) {
                     responseBytes = Base64Util.decodeBase64(message.getBytes("US-ASCII"));
                 } else {
-                    responseBytes = message.getBytes(connectorProperties.getCharset());
+                    responseBytes = message.getBytes(CharsetUtils.getEncoding(connectorProperties.getCharset()));
                 }
 
                 // If the client accepts GZIP compression, compress the content
@@ -531,12 +532,12 @@ public class HttpReceiver extends SourceConnector {
                 try {
                     contentType = ContentType.parse(contentTypeString);
                 } catch (Exception e) {
-                    contentType = ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), connectorProperties.getCharset());
+                    contentType = ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), CharsetUtils.getEncoding(connectorProperties.getCharset()));
                 }
 
                 Charset charset = contentType.getCharset();
                 if (charset == null) {
-                    charset = Charset.forName(connectorProperties.getCharset());
+                    charset = Charset.forName(CharsetUtils.getEncoding(connectorProperties.getCharset()));
                 }
 
                 servletResponse.setContentType(contentType.toString());
