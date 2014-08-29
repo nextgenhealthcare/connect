@@ -330,15 +330,18 @@ public class HttpDispatcher extends DestinationConnector {
              * this could end up being a string encoded with the response charset, a byte array
              * representing the raw response payload, or a MimeMultipart object.
              */
-            Object responseBody;
+            Object responseBody = "";
 
-            // Only parse multipart if XML Body is selected and Parse Multipart is enabled
-            if (httpDispatcherProperties.isResponseXmlBody() && httpDispatcherProperties.isResponseParseMultipart() && responseContentType.getMimeType().startsWith(FileUploadBase.MULTIPART)) {
-                responseBody = new MimeMultipart(new ByteArrayDataSource(httpResponse.getEntity().getContent(), responseContentType.toString()));
-            } else if (isBinaryContentType(httpDispatcherProperties.getResponseBinaryMimeTypes(), responseContentType)) {
-                responseBody = IOUtils.toByteArray(httpResponse.getEntity().getContent());
-            } else {
-                responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), responseCharset);
+            // The entity could be null in certain cases such as 204 responses
+            if (httpResponse.getEntity() != null) {
+                // Only parse multipart if XML Body is selected and Parse Multipart is enabled
+                if (httpDispatcherProperties.isResponseXmlBody() && httpDispatcherProperties.isResponseParseMultipart() && responseContentType.getMimeType().startsWith(FileUploadBase.MULTIPART)) {
+                    responseBody = new MimeMultipart(new ByteArrayDataSource(httpResponse.getEntity().getContent(), responseContentType.toString()));
+                } else if (isBinaryContentType(httpDispatcherProperties.getResponseBinaryMimeTypes(), responseContentType)) {
+                    responseBody = IOUtils.toByteArray(httpResponse.getEntity().getContent());
+                } else {
+                    responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), responseCharset);
+                }
             }
 
             /*
