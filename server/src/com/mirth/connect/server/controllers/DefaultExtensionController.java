@@ -41,12 +41,8 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -69,6 +65,7 @@ import com.mirth.connect.plugins.ConnectorServicePlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.plugins.ServicePlugin;
+import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.migration.Migrator;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.ServerUUIDGenerator;
@@ -78,11 +75,6 @@ public class DefaultExtensionController extends ExtensionController {
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
-    // these maps store the metadata for all extensions
-    private Map<String, PluginMetaData> pluginMetaDataMap = new HashMap<String, PluginMetaData>();
-    private Map<String, ConnectorMetaData> connectorMetaDataMap = new HashMap<String, ConnectorMetaData>();
-    private Map<String, ConnectorMetaData> connectorProtocolsMap = new HashMap<String, ConnectorMetaData>();
-
     // these are plugins for specific extension points, keyed by plugin name
     // (not path)
     private List<ServerPlugin> serverPlugins = new ArrayList<ServerPlugin>();
@@ -91,18 +83,22 @@ public class DefaultExtensionController extends ExtensionController {
     private Map<String, DataTypeServerPlugin> dataTypePlugins = new LinkedHashMap<String, DataTypeServerPlugin>();
     private Map<String, ConnectorServicePlugin> connectorServicePlugins = new LinkedHashMap<String, ConnectorServicePlugin>();
     private AuthorizationPlugin authorizationPlugin = null;
-    private boolean loadedExtensions = false;
+    private ExtensionLoader extensionLoader = ExtensionLoader.getInstance();
 
     private static PropertiesConfiguration extensionProperties = null;
 
     // singleton pattern
-    private static DefaultExtensionController instance = null;
+    private static ExtensionController instance = null;
 
     public static ExtensionController create() {
         synchronized (DefaultExtensionController.class) {
             if (instance == null) {
-                instance = new DefaultExtensionController();
-                instance.initialize();
+                instance = ExtensionLoader.getInstance().getControllerInstance(ExtensionController.class);
+
+                if (instance == null) {
+                    instance = new DefaultExtensionController();
+                    ((DefaultExtensionController) instance).initialize();
+                }
             }
 
             return instance;
@@ -144,55 +140,6 @@ public class DefaultExtensionController extends ExtensionController {
             }
         } catch (Exception e) {
             logger.error("Error removing properties for uninstalled extensions.", e);
-        }
-    }
-
-    @Override
-    public synchronized void loadExtensions() {
-        if (!loadedExtensions) {
-            try {
-                // match all of the file names for the extension
-                IOFileFilter nameFileFilter = new NameFileFilter(new String[] { "plugin.xml",
-                        "source.xml", "destination.xml" });
-                // this is probably not needed, but we dont want to pick up directories,
-                // so we AND the two filters
-                IOFileFilter andFileFilter = new AndFileFilter(nameFileFilter, FileFilterUtils.fileFileFilter());
-                // this is directory where extensions are located
-                File extensionPath = new File(ExtensionController.getExtensionsPath());
-                // do a recursive scan for extension files
-                Collection<File> extensionFiles = FileUtils.listFiles(extensionPath, andFileFilter, FileFilterUtils.trueFileFilter());
-
-                for (File extensionFile : extensionFiles) {
-                    try {
-                        MetaData metaData = (MetaData) serializer.deserialize(FileUtils.readFileToString(extensionFile), MetaData.class);
-
-                        if (isExtensionCompatible(metaData)) {
-                            if (metaData instanceof ConnectorMetaData) {
-                                ConnectorMetaData connectorMetaData = (ConnectorMetaData) metaData;
-                                connectorMetaDataMap.put(connectorMetaData.getName(), connectorMetaData);
-
-                                if (StringUtils.contains(connectorMetaData.getProtocol(), ":")) {
-                                    for (String protocol : connectorMetaData.getProtocol().split(":")) {
-                                        connectorProtocolsMap.put(protocol, connectorMetaData);
-                                    }
-                                } else {
-                                    connectorProtocolsMap.put(connectorMetaData.getProtocol(), connectorMetaData);
-                                }
-                            } else if (metaData instanceof PluginMetaData) {
-                                pluginMetaDataMap.put(metaData.getName(), (PluginMetaData) metaData);
-                            }
-                        } else {
-                            logger.error("Extension \"" + metaData.getName() + "\" is not compatible with this version of Mirth Connect and was not loaded. Please install a compatible version.");
-                        }
-                    } catch (Exception e) {
-                        logger.error("Error reading or parsing extension metadata file: " + extensionFile.getName(), e);
-                    }
-                }
-
-                loadedExtensions = true;
-            } catch (Exception e) {
-                logger.error("Error loading extension metadata.", e);
-            }
         }
     }
 
@@ -244,7 +191,7 @@ public class DefaultExtensionController extends ExtensionController {
         // Order all the plugins by their weight before loading any of them.
         Map<String, String> pluginNameMap = new HashMap<String, String>();
         NavigableMap<Integer, List<String>> weightedPlugins = new TreeMap<Integer, List<String>>();
-        for (PluginMetaData pmd : pluginMetaDataMap.values()) {
+        for (PluginMetaData pmd : getPluginMetaData().values()) {
             if (isExtensionEnabled(pmd.getName())) {
                 if (pmd.getServerClasses() != null) {
                     for (PluginClass pluginClass : pmd.getServerClasses()) {
@@ -441,7 +388,7 @@ public class DefaultExtensionController extends ExtensionController {
 
     @Override
     public Object invokeConnectorService(String channelId, String name, String method, Object object, String sessionId) throws Exception {
-        ConnectorMetaData connectorMetaData = connectorMetaDataMap.get(name);
+        ConnectorMetaData connectorMetaData = getConnectorMetaData().get(name);
 
         if (StringUtils.isNotBlank(connectorMetaData.getServiceClassName())) {
             ConnectorService connectorService = (ConnectorService) Class.forName(connectorMetaData.getServiceClassName()).newInstance();
@@ -487,7 +434,7 @@ public class DefaultExtensionController extends ExtensionController {
                     // parse the extension metadata xml file
                     MetaData extensionMetaData = serializer.deserialize(IOUtils.toString(zipFile.getInputStream(entry)), MetaData.class);
 
-                    if (!isExtensionCompatible(extensionMetaData)) {
+                    if (!extensionLoader.isExtensionCompatible(extensionMetaData)) {
                         throw new VersionMismatchException("Extension \"" + entry.getName() + "\" is not compatible with this version of Mirth Connect.");
                     }
                 }
@@ -543,7 +490,7 @@ public class DefaultExtensionController extends ExtensionController {
     public void prepareExtensionForUninstallation(String pluginPath) throws ControllerException {
         addExtensionToUninstallFile(pluginPath);
 
-        for (PluginMetaData plugin : pluginMetaDataMap.values()) {
+        for (PluginMetaData plugin : getPluginMetaData().values()) {
             if (plugin.getPath().equals(pluginPath)) {
                 addExtensionToUninstallPropertiesFile(plugin.getName());
 
@@ -659,22 +606,22 @@ public class DefaultExtensionController extends ExtensionController {
 
     @Override
     public Map<String, ConnectorMetaData> getConnectorMetaData() {
-        return connectorMetaDataMap;
+        return extensionLoader.getConnectorMetaData();
     }
 
     @Override
     public Map<String, PluginMetaData> getPluginMetaData() {
-        return pluginMetaDataMap;
+        return extensionLoader.getPluginMetaData();
     }
 
     @Override
     public ConnectorMetaData getConnectorMetaDataByProtocol(String protocol) {
-        return connectorProtocolsMap.get(protocol);
+        return extensionLoader.getConnectorProtocols().get(protocol);
     }
 
     @Override
     public ConnectorMetaData getConnectorMetaDataByTransportName(String transportName) {
-        return connectorMetaDataMap.get(transportName);
+        return extensionLoader.getConnectorMetaData().get(transportName);
     }
 
     /**
@@ -717,26 +664,6 @@ public class DefaultExtensionController extends ExtensionController {
         }
 
         return scripts;
-    }
-
-    private boolean isExtensionCompatible(MetaData metaData) {
-        String serverMirthVersion = ControllerFactory.getFactory().createConfigurationController().getServerVersion();
-        String[] extensionMirthVersions = metaData.getMirthVersion().split(",");
-
-        logger.debug("checking extension \"" + metaData.getName() + "\" version compatability: versions=" + ArrayUtils.toString(extensionMirthVersions) + ", server=" + serverMirthVersion);
-
-        // if there is no build version, just use the patch version
-        if (serverMirthVersion.split("\\.").length == 4) {
-            serverMirthVersion = serverMirthVersion.substring(0, serverMirthVersion.lastIndexOf('.'));
-        }
-
-        for (int i = 0; i < extensionMirthVersions.length; i++) {
-            if (extensionMirthVersions[i].trim().equals(serverMirthVersion)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public List<String> getClientLibraries() {

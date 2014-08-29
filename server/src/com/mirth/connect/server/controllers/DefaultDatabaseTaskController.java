@@ -36,6 +36,7 @@ import com.mirth.connect.donkey.server.data.jdbc.JdbcDaoFactory;
 import com.mirth.connect.donkey.server.data.jdbc.QuerySource;
 import com.mirth.connect.model.DatabaseTask;
 import com.mirth.connect.model.DatabaseTask.Status;
+import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.channel.ChannelFuture;
 import com.mirth.connect.server.channel.ChannelTask;
 import com.mirth.connect.server.channel.ChannelTaskHandler;
@@ -67,7 +68,11 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
     public static DatabaseTaskController create() {
         synchronized (DefaultDatabaseTaskController.class) {
             if (instance == null) {
-                instance = new DefaultDatabaseTaskController();
+                instance = ExtensionLoader.getInstance().getControllerInstance(DatabaseTaskController.class);
+
+                if (instance == null) {
+                    instance = new DefaultDatabaseTaskController();
+                }
             }
 
             return instance;

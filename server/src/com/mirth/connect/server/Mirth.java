@@ -217,12 +217,6 @@ public class Mirth extends Thread {
         configurationController.initializeSecuritySettings();
         configurationController.initializeDatabaseSettings();
 
-        /*
-         * This needs to happen before instantiating a SqlConfig object so that custom extension SQL
-         * maps can be loaded.
-         */
-        extensionController.loadExtensions();
-
         try {
             SqlConfig.getSqlSessionManager().startManagedSession();
             SqlConfig.getSqlSessionManager().getConnection();

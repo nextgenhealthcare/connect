@@ -99,6 +99,7 @@ import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
+import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.attachments.JavaScriptAttachmentHandler;
 import com.mirth.connect.server.attachments.MirthAttachmentHandler;
 import com.mirth.connect.server.attachments.PassthruAttachmentHandler;
@@ -121,12 +122,16 @@ import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 
 public class DonkeyEngineController implements EngineController {
-    private static DonkeyEngineController instance = null;
+    private static EngineController instance = null;
 
-    public static DonkeyEngineController getInstance() {
+    public static EngineController getInstance() {
         synchronized (DonkeyEngineController.class) {
             if (instance == null) {
-                instance = new DonkeyEngineController();
+                instance = ExtensionLoader.getInstance().getControllerInstance(EngineController.class);
+
+                if (instance == null) {
+                    instance = new DonkeyEngineController();
+                }
             }
 
             return instance;
@@ -385,8 +390,8 @@ public class DonkeyEngineController implements EngineController {
 
             // Make sure the channel is actually still deployed
             if (channelModel != null) {
-                Statistics stats = donkeyChannelController.getStatistics();
-                Statistics lifetimeStats = donkeyChannelController.getTotalStatistics();
+                Statistics stats = channelController.getStatistics();
+                Statistics lifetimeStats = channelController.getTotalStatistics();
 
                 DashboardStatus status = new DashboardStatus();
                 status.setStatusType(StatusType.CHANNEL);

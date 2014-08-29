@@ -28,9 +28,9 @@ import org.eclipse.jetty.io.RuntimeIOException;
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 
 public class ChannelStatisticsServlet extends MirthServlet {

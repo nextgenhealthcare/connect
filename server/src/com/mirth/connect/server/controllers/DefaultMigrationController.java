@@ -18,17 +18,22 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.util.MigrationException;
+import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.migration.Migrator;
 import com.mirth.connect.server.migration.ServerMigrator;
 import com.mirth.connect.server.util.SqlConfig;
 
 public class DefaultMigrationController extends MigrationController {
-    private static DefaultMigrationController instance = null;
+    private static MigrationController instance = null;
 
     public static MigrationController create() {
         synchronized (DefaultMigrationController.class) {
             if (instance == null) {
-                instance = new DefaultMigrationController();
+                instance = ExtensionLoader.getInstance().getControllerInstance(MigrationController.class);
+
+                if (instance == null) {
+                    instance = new DefaultMigrationController();
+                }
             }
 
             return instance;

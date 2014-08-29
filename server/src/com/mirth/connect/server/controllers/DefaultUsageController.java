@@ -19,20 +19,26 @@ import com.mirth.connect.model.User;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.purged.PurgedDocument;
 import com.mirth.connect.plugins.ServerPlugin;
+import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.util.UsageUtil;
 
 public class DefaultUsageController extends UsageController {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
-    private static DefaultUsageController instance = null;
+    private static UsageController instance = null;
 
     private DefaultUsageController() {}
 
     public static UsageController create() {
         synchronized (DefaultUsageController.class) {
             if (instance == null) {
-                instance = new DefaultUsageController();
+                instance = ExtensionLoader.getInstance().getControllerInstance(UsageController.class);
+
+                if (instance == null) {
+                    instance = new DefaultUsageController();
+                }
             }
+
             return instance;
         }
     }

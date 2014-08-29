@@ -30,6 +30,9 @@ public class PluginMetaData extends MetaData implements Serializable, Purgable {
     @XStreamAlias("clientClasses")
     private List<PluginClass> clientClasses;
 
+    @XStreamAlias("controllerClasses")
+    private List<PluginClass> controllerClasses;
+
     private String migratorClass;
     private String sqlScript;
 
@@ -50,6 +53,14 @@ public class PluginMetaData extends MetaData implements Serializable, Purgable {
 
     public void setClientClasses(List<PluginClass> clientClasses) {
         this.clientClasses = clientClasses;
+    }
+
+    public List<PluginClass> getControllerClasses() {
+        return controllerClasses;
+    }
+
+    public void setControllerClasses(List<PluginClass> controllerClasses) {
+        this.controllerClasses = controllerClasses;
     }
 
     public String getMigratorClass() {

@@ -18,13 +18,14 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 
 public class DefaultScriptController extends ScriptController {
     private Logger logger = Logger.getLogger(this.getClass());
-    private static DefaultScriptController instance = null;
+    private static ScriptController instance = null;
 
     private DefaultScriptController() {
 
@@ -33,7 +34,11 @@ public class DefaultScriptController extends ScriptController {
     public static ScriptController create() {
         synchronized (DefaultScriptController.class) {
             if (instance == null) {
-                instance = new DefaultScriptController();
+                instance = ExtensionLoader.getInstance().getControllerInstance(ScriptController.class);
+
+                if (instance == null) {
+                    instance = new DefaultScriptController();
+                }
             }
 
             return instance;

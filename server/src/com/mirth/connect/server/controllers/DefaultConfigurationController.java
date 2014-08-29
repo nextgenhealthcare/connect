@@ -81,6 +81,7 @@ import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.mybatis.KeyValuePair;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.DatabaseUtil;
@@ -122,7 +123,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String CONFIGURATION_MAP_PATH = "configurationmap.path";
 
     // singleton pattern
-    private static DefaultConfigurationController instance = null;
+    private static ConfigurationController instance = null;
 
     private DefaultConfigurationController() {
 
@@ -131,8 +132,12 @@ public class DefaultConfigurationController extends ConfigurationController {
     public static ConfigurationController create() {
         synchronized (DefaultConfigurationController.class) {
             if (instance == null) {
-                instance = new DefaultConfigurationController();
-                instance.initialize();
+                instance = ExtensionLoader.getInstance().getControllerInstance(ConfigurationController.class);
+
+                if (instance == null) {
+                    instance = new DefaultConfigurationController();
+                    ((DefaultConfigurationController) instance).initialize();
+                }
             }
 
             return instance;

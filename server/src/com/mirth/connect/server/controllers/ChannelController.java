@@ -16,6 +16,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelSummary;
@@ -67,4 +69,12 @@ public abstract class ChannelController extends Controller {
     public abstract DeployedChannelInfo getDeployedChannelInfoById(String channelId);
 
     public abstract String getDeployedDestinationName(String channelId, int metaDataId);
+
+    public abstract Statistics getStatistics();
+
+    public abstract Statistics getTotalStatistics();
+
+    public abstract void resetStatistics(Map<String, List<Integer>> channelConnectorMap, Set<Status> statuses);
+
+    public abstract void resetAllStatistics();
 }

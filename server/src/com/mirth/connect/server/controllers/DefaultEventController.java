@@ -32,6 +32,7 @@ import com.mirth.connect.donkey.server.event.EventType;
 import com.mirth.connect.donkey.server.event.MessageEvent;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.filters.EventFilter;
+import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.event.AuditableEventListener;
 import com.mirth.connect.server.event.EventListener;
 import com.mirth.connect.server.util.DatabaseUtil;
@@ -40,7 +41,7 @@ import com.mirth.connect.server.util.SqlConfig;
 public class DefaultEventController extends EventController {
     private Logger logger = Logger.getLogger(this.getClass());
 
-    private static DefaultEventController instance = null;
+    private static EventController instance = null;
 
     private static Map<Object, BlockingQueue<Event>> messageEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
     private static Map<Object, BlockingQueue<Event>> errorEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
@@ -56,7 +57,11 @@ public class DefaultEventController extends EventController {
     public static EventController create() {
         synchronized (DefaultEventController.class) {
             if (instance == null) {
-                instance = new DefaultEventController();
+                instance = ExtensionLoader.getInstance().getControllerInstance(EventController.class);
+
+                if (instance == null) {
+                    instance = new DefaultEventController();
+                }
             }
 
             return instance;

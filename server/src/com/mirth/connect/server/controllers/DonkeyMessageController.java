@@ -51,6 +51,7 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.filters.elements.ContentSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
+import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.channel.ErrorTaskHandler;
 import com.mirth.connect.server.mybatis.MessageSearchResult;
 import com.mirth.connect.server.mybatis.MessageTextResult;
@@ -71,12 +72,16 @@ import com.mirth.connect.util.messagewriter.MessageWriterFactory;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DonkeyMessageController extends MessageController {
-    private static DonkeyMessageController instance = null;
+    private static MessageController instance = null;
 
     public static MessageController create() {
         synchronized (DonkeyMessageController.class) {
             if (instance == null) {
-                instance = new DonkeyMessageController();
+                instance = ExtensionLoader.getInstance().getControllerInstance(MessageController.class);
+
+                if (instance == null) {
+                    instance = new DonkeyMessageController();
+                }
             }
 
             return instance;

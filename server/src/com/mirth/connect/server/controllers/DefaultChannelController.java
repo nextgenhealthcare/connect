@@ -27,7 +27,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelHeader;
@@ -37,6 +39,7 @@ import com.mirth.connect.model.DeployedChannelInfo;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.plugins.ChannelPlugin;
+import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 
@@ -48,16 +51,20 @@ public class DefaultChannelController extends ChannelController {
     private DeployedChannelCache deployedChannelCache = new DeployedChannelCache();
     private Donkey donkey;
 
-    private static DefaultChannelController instance = null;
+    private static ChannelController instance = null;
 
-    private DefaultChannelController() {
+    protected DefaultChannelController() {
 
     }
 
     public static ChannelController create() {
         synchronized (DefaultChannelController.class) {
             if (instance == null) {
-                instance = new DefaultChannelController();
+                instance = ExtensionLoader.getInstance().getControllerInstance(ChannelController.class);
+
+                if (instance == null) {
+                    instance = new DefaultChannelController();
+                }
             }
 
             return instance;
@@ -461,6 +468,26 @@ public class DefaultChannelController extends ChannelController {
     @Override
     public String getDeployedDestinationName(String channelId, int metaDataId) {
         return deployedChannelCache.getDeployedDestinationName(channelId, metaDataId);
+    }
+
+    @Override
+    public Statistics getStatistics() {
+        return com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().getStatistics();
+    }
+
+    @Override
+    public Statistics getTotalStatistics() {
+        return com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().getTotalStatistics();
+    }
+
+    @Override
+    public void resetStatistics(Map<String, List<Integer>> channelConnectorMap, Set<Status> statuses) {
+        com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().resetStatistics(channelConnectorMap, statuses);
+    }
+
+    @Override
+    public void resetAllStatistics() {
+        com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().resetAllStatistics();
     }
 
     // ---------- CHANNEL CACHE ----------

@@ -63,6 +63,16 @@ public class PluginMetaDataConverter extends ReflectionConverter {
             }
         }
 
+        DonkeyElement controllerClassesElement = pluginMetaDataElement.getChildElement("controllerClasses");
+
+        if (controllerClassesElement != null) {
+            for (DonkeyElement childElement : controllerClassesElement.getChildElements()) {
+                if (childElement.getNodeName().equals("string")) {
+                    convertStringToPluginClass(childElement);
+                }
+            }
+        }
+
         return super.unmarshal(reader, context);
     }
 

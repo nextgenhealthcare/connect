@@ -58,13 +58,6 @@ public abstract class ExtensionController extends Controller {
      */
     public abstract List<String> getClientLibraries();
 
-    /**
-     * Loads the metadata files (plugin.xml, source.xml, destination.xml) for all extensions of the
-     * specified type. If this function fails to parse the metadata file for an extension, it will
-     * skip it and continue.
-     */
-    public abstract void loadExtensions();
-
     public abstract void setDefaultExtensionStatus();
 
     /**

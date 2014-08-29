@@ -14,10 +14,11 @@ import java.util.Map;
 
 import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.ServerEvent;
+import com.mirth.connect.server.ExtensionLoader;
 
 public class DefaultAuthorizationController extends AuthorizationController {
 
-    private static DefaultAuthorizationController instance = null;
+    private static AuthorizationController instance = null;
 
     private DefaultAuthorizationController() {
 
@@ -26,7 +27,11 @@ public class DefaultAuthorizationController extends AuthorizationController {
     public static AuthorizationController create() {
         synchronized (DefaultAuthorizationController.class) {
             if (instance == null) {
-                instance = new DefaultAuthorizationController();
+                instance = ExtensionLoader.getInstance().getControllerInstance(AuthorizationController.class);
+
+                if (instance == null) {
+                    instance = new DefaultAuthorizationController();
+                }
             }
 
             return instance;

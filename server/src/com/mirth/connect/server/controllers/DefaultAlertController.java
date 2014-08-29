@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.alert.Alert;
 import com.mirth.connect.server.alert.AlertWorker;
 import com.mirth.connect.server.alert.DefaultAlertWorker;
@@ -29,7 +30,7 @@ import com.mirth.connect.server.util.SqlConfig;
 public class DefaultAlertController extends AlertController {
     private Logger logger = Logger.getLogger(this.getClass());
 
-    private static DefaultAlertController instance = null;
+    private static AlertController instance = null;
     private static Map<Class<?>, AlertWorker> alertWorkers = new HashMap<Class<?>, AlertWorker>();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
 
@@ -40,7 +41,11 @@ public class DefaultAlertController extends AlertController {
     public static AlertController create() {
         synchronized (DefaultAlertController.class) {
             if (instance == null) {
-                instance = new DefaultAlertController();
+                instance = ExtensionLoader.getInstance().getControllerInstance(AlertController.class);
+
+                if (instance == null) {
+                    instance = new DefaultAlertController();
+                }
             }
 
             return instance;

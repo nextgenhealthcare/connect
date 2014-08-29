@@ -25,6 +25,7 @@ import com.mirth.connect.model.Credentials;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.User;
+import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.mybatis.KeyValuePair;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.LoginRequirementsChecker;
@@ -36,7 +37,7 @@ public class DefaultUserController extends UserController {
     private Logger logger = Logger.getLogger(this.getClass());
     private ExtensionController extensionController = null;
     
-    private static DefaultUserController instance = null;
+    private static UserController instance = null;
 
     private DefaultUserController() {
 
@@ -45,7 +46,11 @@ public class DefaultUserController extends UserController {
     public static UserController create() {
         synchronized (DefaultUserController.class) {
             if (instance == null) {
-                instance = new DefaultUserController();
+                instance = ExtensionLoader.getInstance().getControllerInstance(UserController.class);
+
+                if (instance == null) {
+                    instance = new DefaultUserController();
+                }
             }
 
             return instance;

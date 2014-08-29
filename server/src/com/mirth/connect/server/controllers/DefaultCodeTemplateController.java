@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 
@@ -31,7 +32,11 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
     public static CodeTemplateController create() {
         synchronized (DefaultCodeTemplateController.class) {
             if (instance == null) {
-                instance = new DefaultCodeTemplateController();
+                instance = ExtensionLoader.getInstance().getControllerInstance(CodeTemplateController.class);
+
+                if (instance == null) {
+                    instance = new DefaultCodeTemplateController();
+                }
             }
 
             return instance;

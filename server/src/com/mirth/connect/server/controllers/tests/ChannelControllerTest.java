@@ -26,7 +26,6 @@ import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.DefaultExtensionController;
 import com.mirth.connect.server.tools.ScriptRunner;
 
 public class ChannelControllerTest extends TestCase {
@@ -41,8 +40,6 @@ public class ChannelControllerTest extends TestCase {
         sampleChannelList = new ArrayList<Channel>();
 
         // TEST ADD
-        DefaultExtensionController.create().loadExtensions();
-
         for (int i = 0; i < 10; i++) {
             Channel sampleChannel = new Channel();
             sampleChannel.setId(configurationController.generateGuid());
