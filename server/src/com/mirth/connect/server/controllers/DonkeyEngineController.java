@@ -500,7 +500,7 @@ public class DonkeyEngineController implements EngineController {
                 ResponseHandler responseHandler = new SimpleResponseHandler();
                 sourceConnector.dispatchBatchMessage(batchRawMessage, responseHandler);
 
-                return responseHandler.getDispatchResult();
+                return responseHandler.getResultForResponse();
             }
         } else {
             DispatchResult dispatchResult = null;
