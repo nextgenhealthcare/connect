@@ -34,7 +34,7 @@ public class XMLBatchProperties extends BatchProperties {
 
     private SplitType splitType = SplitType.values()[0];
     private String elementName = "";
-    private int level = 0;
+    private int level = 1;
     private String query = "";
     private String batchScript = "";
 
