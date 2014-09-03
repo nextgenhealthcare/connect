@@ -973,7 +973,7 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    private void shutdownExecutor(String channelId) {
+    protected void shutdownExecutor(String channelId) {
         ExecutorService engineExecutor = engineExecutors.get(channelId);
 
         if (engineExecutor != null) {
@@ -983,6 +983,14 @@ public class DonkeyEngineController implements EngineController {
                 ((Future<?>) task).cancel(true);
             }
         }
+    }
+
+    protected synchronized void removeExecutor(String channelId) {
+        // Shutdown the executor to prevent any new tasks from being submitted.
+        shutdownExecutor(channelId);
+
+        // Remove the executor since it has been shutdown. If another task comes in for this channel Id, a new executor will be created.
+        engineExecutors.remove(channelId);
     }
 
     private List<ChannelTask> buildChannelStatusTasks(Set<String> channelIds, StatusTask task) {
@@ -1416,15 +1424,7 @@ public class DonkeyEngineController implements EngineController {
         @Override
         public Void execute() throws Exception {
             channelController.removeChannel(channelModel, context);
-
-            synchronized (DonkeyEngineController.this) {
-                // Shutdown the executor to prevent any new tasks from being submitted.
-                shutdownExecutor(channelId);
-
-                // Remove the executor since it has been shutdown. If another task comes in for this channel Id, a new executor will be created.
-                engineExecutors.remove(channelId);
-            }
-
+            removeExecutor(channelId);
             return null;
         }
     }
