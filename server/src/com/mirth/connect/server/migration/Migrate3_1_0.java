@@ -61,6 +61,9 @@ public class Migrate3_1_0 extends Migrator implements ConfigurationMigrator {
     @Override
     public Map<String, Object> getConfigurationPropertiesToAdd() {
         Map<String, Object> propertiesToAdd = new LinkedHashMap<String, Object>();
+
+        propertiesToAdd.put("configurationmap.path", "${dir.appdata}/configuration.properties");
+
         return propertiesToAdd;
     }
 
