@@ -128,26 +128,26 @@
 	
 	<select id='selectPreferencesForUser' parameterType='java.lang.String' resultType='KeyValuePair'>
 		SELECT NAME AS "key", VALUE AS "value"
-		FROM PERSON_PREFERENCES
+		FROM PERSON_PREFERENCE
 		WHERE PERSON_ID = #{value}
 	</select>
 	<select id='selectPreference' parameterType='java.util.Map' resultType='java.lang.String'>
 		SELECT VALUE
-		FROM PERSON_PREFERENCES
+		FROM PERSON_PREFERENCE
 		WHERE PERSON_ID = #{person_id} AND NAME = #{name}
 	</select>
 	<insert id='insertPreference' parameterType='java.util.Map'>
 		INSERT INTO
-		PERSON_PREFERENCES (PERSON_ID, NAME, VALUE)
+		PERSON_PREFERENCE (PERSON_ID, NAME, VALUE)
 		VALUES (#{person_id}, #{name}, #{value})
 	</insert>
 	<update id='updatePreference' parameterType='java.util.Map'>
-		UPDATE PERSON_PREFERENCES
+		UPDATE PERSON_PREFERENCE
 		SET VALUE = #{value}
 		WHERE PERSON_ID = #{person_id} AND NAME = #{name}
 	</update>
 	<delete id='deletePreference' parameterType='java.util.Map'>
-		DELETE FROM PERSON_PREFERENCES
+		DELETE FROM PERSON_PREFERENCE
 		WHERE PERSON_ID = #{person_id}
 		<if test='name != null'>
 			AND NAME = #{name}

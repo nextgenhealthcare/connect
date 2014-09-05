@@ -27,7 +27,7 @@ public class Migrate3_1_0 extends Migrator implements ConfigurationMigrator {
 
     @Override
     public void migrate() throws MigrationException {
-        executeScript(getDatabaseType() + "-3.0.0-3.1.0.sql");
+        executeScript(getDatabaseType() + "-3.0.3-3.1.0.sql");
 
         PropertiesConfiguration log4jproperties = new PropertiesConfiguration();
         log4jproperties.setDelimiterParsingDisabled(true);
