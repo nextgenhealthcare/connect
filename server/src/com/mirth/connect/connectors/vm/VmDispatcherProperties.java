@@ -89,12 +89,14 @@ public class VmDispatcherProperties extends ConnectorProperties implements Desti
 
         builder.append(newLine);
         builder.append("[MAP VARIABLES]");
-        for (String variable : mapVariables) {
-            builder.append(newLine);
-            builder.append(variable);
+        if (mapVariables != null) {
+            for (String variable : mapVariables) {
+                builder.append(newLine);
+                builder.append(variable);
+            }
         }
         builder.append(newLine);
-        
+
         builder.append(newLine);
         builder.append("[CONTENT]");
         builder.append(newLine);
