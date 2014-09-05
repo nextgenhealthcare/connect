@@ -135,7 +135,6 @@ public class VmDispatcherProperties extends ConnectorProperties implements Desti
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());
-        purgedProperties.put("channelId", channelId);
         purgedProperties.put("channelTemplateLines", PurgeUtil.countLines(channelTemplate));
         return purgedProperties;
     }

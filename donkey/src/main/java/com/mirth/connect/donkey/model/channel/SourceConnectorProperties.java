@@ -142,7 +142,6 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
-        purgedProperties.put("responseVariable", responseVariable);
         purgedProperties.put("respondAfterProcessing", respondAfterProcessing);
         purgedProperties.put("processBatch", processBatch);
         purgedProperties.put("firstResponse", firstResponse);

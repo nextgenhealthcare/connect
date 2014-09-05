@@ -230,7 +230,6 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("sourceConnectorProperties", sourceConnectorProperties.getPurgedProperties());
         purgedProperties.put("binaryMimeTypesRegex", binaryMimeTypesRegex);
-        purgedProperties.put("responseContentType", responseContentType);
         purgedProperties.put("responseDataTypeBinary", responseDataTypeBinary);
         purgedProperties.put("responseHeaderChars", responseHeaders.size());
         purgedProperties.put("charset", charset);
