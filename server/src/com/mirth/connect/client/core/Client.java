@@ -42,11 +42,11 @@ import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
+import com.mirth.connect.model.DatabaseTask;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.MessageImportResult;
-import com.mirth.connect.model.DatabaseTask;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerConfiguration;
@@ -1164,14 +1164,14 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    public Properties getUserPreferences(User user) throws ClientException {
+    public Properties getUserPreferences(User user, Set<String> names) throws ClientException {
         logger.debug("retrieving user preferences");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_PREFERENCES_GET.getName()), new BasicNameValuePair("user", serializer.serialize(user)) };
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_PREFERENCES_GET.getName()), new BasicNameValuePair("user", serializer.serialize(user)), new BasicNameValuePair("names", serializer.serialize(names)) };
         return serializer.deserialize(serverConnection.executePostMethod(USER_SERVLET, params), Properties.class);
     }
     
     public String getUserPreference(User user, String name) throws ClientException {
-        logger.debug("retrieving user preferences");
+        logger.debug("retrieving user preference");
         NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_PREFERENCE_GET.getName()), new BasicNameValuePair("user", serializer.serialize(user)), new BasicNameValuePair("name", name) };
         return serializer.deserialize(serverConnection.executePostMethod(USER_SERVLET, params), String.class);
     }
@@ -1184,7 +1184,13 @@ public class Client {
      */
     public void setUserPreference(User user, String name, String value) throws ClientException {
         logger.debug("setting user preference");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_PREFERENCES_SET.getName()), new BasicNameValuePair("user", serializer.serialize(user)), new BasicNameValuePair("name", name), new BasicNameValuePair("value", value) };
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_PREFERENCE_SET.getName()), new BasicNameValuePair("user", serializer.serialize(user)), new BasicNameValuePair("name", name), new BasicNameValuePair("value", value) };
+        serverConnection.executePostMethod(USER_SERVLET, params);
+    }
+    
+    public void setUserPreferences(User user, Properties properties) throws ClientException {
+        logger.debug("setting user preferences");
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.USER_PREFERENCES_SET.getName()), new BasicNameValuePair("user", serializer.serialize(user)), new BasicNameValuePair("properties", serializer.serialize(properties)) };
         serverConnection.executePostMethod(USER_SERVLET, params);
     }
 

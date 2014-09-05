@@ -1031,8 +1031,9 @@ public class Frame extends JXFrame {
         otherPane.setTitle("Other");
         otherPane.setName(TaskConstants.OTHER_KEY);
         otherPane.setFocusable(false);
-        addTask(TaskConstants.OTHER_HELP, "Help", "View the Mirth Connect wiki.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/help.png")), otherPane, null);
+        addTask(TaskConstants.OTHER_NOTIFICATIONS, UIConstants.VIEW_NOTIFICATIONS, "View notifications from Mirth.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/flag_red.png")), otherPane, null);
         addTask(TaskConstants.OTHER_VIEW_USER_API, "View User API", "View documentation for the Mirth Connect User API.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_text.png")), otherPane, null);
+        addTask(TaskConstants.OTHER_HELP, "Help", "View the Mirth Connect wiki.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/help.png")), otherPane, null);
         addTask(TaskConstants.OTHER_ABOUT, "About Mirth Connect", "View the about page for Mirth Connect.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/information.png")), otherPane, null);
         addTask(TaskConstants.OTHER_VISIT_MIRTH, "Visit mirthcorp.com", "View Mirth's homepage.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/house.png")), otherPane, null);
         addTask(TaskConstants.OTHER_REPORT_ISSUE, "Report Issue", "Visit Mirth's issue tracker.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bug.png")), otherPane, null);
@@ -1044,6 +1045,14 @@ public class Frame extends JXFrame {
 
     public JXTaskPane getOtherPane() {
         return otherPane;
+    }
+
+    public void updateNotificationTaskName(int notifications) {
+        String taskName = UIConstants.VIEW_NOTIFICATIONS;
+        if (notifications > 0) {
+            taskName += " (" + notifications + ")";
+        }
+        ((JXHyperlink) otherPane.getContentPane().getComponent(UIConstants.VIEW_NOTIFICATIONS_TASK_NUMBER)).setText(taskName);
     }
 
     /**
@@ -4739,6 +4748,10 @@ public class Frame extends JXFrame {
 
     public void doHelp() {
         BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION);
+    }
+
+    public void goToNotifications() {
+        new NotificationDialog();
     }
 
     public Map<String, PluginMetaData> getPluginMetaData() {

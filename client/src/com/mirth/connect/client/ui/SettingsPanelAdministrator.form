@@ -34,9 +34,12 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="clientSettings" max="32767" attributes="2"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="systemSettings" max="32767" attributes="2"/>
+                  <Component id="userSettings" alignment="0" max="32767" attributes="2"/>
+              </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -45,21 +48,23 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="clientSettings" min="-2" max="-2" attributes="0"/>
+              <Component id="systemSettings" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="userSettings" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Container class="javax.swing.JPanel" name="clientSettings">
+    <Container class="javax.swing.JPanel" name="systemSettings">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-            <TitledBorder title="Preferences">
+            <TitledBorder title="System Preferences">
               <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
                 <MatteColorBorder bottom="0" left="0" right="0" top="1">
                   <Color PropertyName="color" blue="cc" green="cc" red="cc" type="rgb"/>
@@ -76,38 +81,27 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="1" attributes="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="textSearchWarningLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="formatXmlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="eventBrowserPageSizeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="messageBrowserPageSizeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="dashboardRefreshIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="dashboardRefreshIntervalField" alignment="0" min="-2" pref="30" max="-2" attributes="0"/>
+                      <Component id="messageBrowserPageSizeField" min="-2" pref="30" max="-2" attributes="0"/>
                       <Group type="102" attributes="0">
-                          <Component id="checkForNotificationsLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="formatXmlYesRadio" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="checkForNotificationsYesRadio" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="checkForNotificationsNoRadio" min="-2" max="-2" attributes="0"/>
+                          <Component id="formatXmlNoRadio" min="-2" max="-2" attributes="0"/>
                       </Group>
+                      <Component id="eventBrowserPageSizeField" min="-2" pref="30" max="-2" attributes="0"/>
                       <Group type="102" attributes="0">
-                          <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="textSearchWarningLabel" min="-2" max="-2" attributes="0"/>
-                              <Component id="eventBrowserPageSizeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                              <Component id="formatXmlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                              <Component id="messageBrowserPageSizeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                              <Component id="dashboardRefreshIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          </Group>
+                          <Component id="textSearchWarningYesRadio" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="dashboardRefreshIntervalField" alignment="0" min="-2" pref="30" max="-2" attributes="0"/>
-                              <Component id="messageBrowserPageSizeField" min="-2" pref="30" max="-2" attributes="0"/>
-                              <Group type="102" attributes="0">
-                                  <Component id="formatXmlYesRadio" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="formatXmlNoRadio" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <Component id="eventBrowserPageSizeField" min="-2" pref="30" max="-2" attributes="0"/>
-                              <Group type="102" attributes="0">
-                                  <Component id="textSearchWarningYesRadio" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="textSearchWarningNoRadio" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
+                          <Component id="textSearchWarningNoRadio" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace pref="198" max="32767" attributes="0"/>
@@ -143,13 +137,6 @@
                       <Component id="textSearchWarningYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="textSearchWarningNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="checkForNotificationsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="checkForNotificationsYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="checkForNotificationsNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace pref="63" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -275,9 +262,58 @@
             </Property>
           </Properties>
         </Component>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPanel" name="userSettings">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+            <TitledBorder title="User Preferences">
+              <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
+                <MatteColorBorder bottom="0" left="0" right="0" top="1">
+                  <Color PropertyName="color" blue="cc" green="cc" red="cc" type="rgb"/>
+                </MatteColorBorder>
+              </Border>
+              <Font PropertyName="font" name="Tahoma" size="11" style="1"/>
+            </TitledBorder>
+          </Border>
+        </Property>
+      </Properties>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="checkForNotificationsLabel" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="checkForNotificationsYesRadio" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="checkForNotificationsNoRadio" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" attributes="0">
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="checkForNotificationsYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="checkForNotificationsNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="checkForNotificationsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
         <Component class="javax.swing.JLabel" name="checkForNotificationsLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Check for new notifications:"/>
+            <Property name="text" type="java.lang.String" value="Check for new notifications on login:"/>
           </Properties>
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="checkForNotificationsYesRadio">

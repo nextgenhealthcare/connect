@@ -14,6 +14,8 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -151,11 +153,12 @@ public class UserServlet extends MirthServlet {
                     // Check this first so a current user call is not audited.
                     if (isCurrentUser(request, user) || isUserAuthorized(request, parameterMap)) {
                         response.setContentType(TEXT_PLAIN);
-                        serializer.serialize(userController.getUserPreferences(user), out);
+                        Set<String> names = serializer.deserialize(request.getParameter("names"), Set.class);
+                        serializer.serialize(userController.getUserPreferences(user, names), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
-                } else if (operation.equals(Operations.USER_PREFERENCES_SET)) {
+                } else if (operation.equals(Operations.USER_PREFERENCE_SET)) {
                     User user = serializer.deserialize(request.getParameter("user"), User.class);
                     parameterMap.put("user", user);
 
@@ -177,6 +180,18 @@ public class UserServlet extends MirthServlet {
                     if (isCurrentUser(request, user) || isUserAuthorized(request, parameterMap)) {
                         String name = request.getParameter("name");
                         serializer.serialize(userController.getUserPreference(user, name), out);
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
+                } else if (operation.equals(Operations.USER_PREFERENCES_SET)) {
+                    User user = serializer.deserialize(request.getParameter("user"), User.class);
+                    parameterMap.put("user", user);
+
+                    // Allow if the user is setting his own preferences. Check
+                    // this first so a current user call is not audited.
+                    if (isCurrentUser(request, user) || isUserAuthorized(request, parameterMap)) {
+                        Properties properties = serializer.deserialize(request.getParameter("properties"), Properties.class);
+                        userController.setUserPreferences(user, properties);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }

@@ -115,7 +115,7 @@ public class UserControllerTest extends TestCase {
 
         User testUser = userController.getUser(null).get(0);
         userController.setUserPreference(testUser, "test.property", "Hello world!");
-        Properties preferences = userController.getUserPreferences(testUser);
+        Properties preferences = userController.getUserPreferences(testUser, null);
         assertFalse(preferences.isEmpty());
     }
 

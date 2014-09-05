@@ -11,6 +11,9 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
@@ -20,8 +23,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.util.NotificationUtil;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.User;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class LoginPanel extends javax.swing.JFrame {
 
@@ -59,13 +64,13 @@ public class LoginPanel extends javax.swing.JFrame {
                 BareBonesBrowserLaunch.openURL(UIConstants.MIRTHCORP_URL);
             }
         });
-        
+
         placeholderButton.setVisible(false);
-        
+
         errorTextArea.setBackground(Color.WHITE);
         errorTextArea.setDisabledTextColor(Color.RED);
     }
-    
+
     public static LoginPanel getInstance() {
         synchronized (LoginPanel.class) {
             if (instance == null) {
@@ -75,39 +80,39 @@ public class LoginPanel extends javax.swing.JFrame {
             return instance;
         }
     }
-    
+
     public void initialize(String mirthServer, String version, String user, String pass) {
-        synchronized(this) {
+        synchronized (this) {
             // Do not initialize another login window if one is already visible
             if (isVisible()) {
                 return;
             }
 
             PlatformUI.CLIENT_VERSION = version;
-            
+
             setTitle("Mirth Connect " + version + " - Login");
 
             serverName.setText(mirthServer);
-            
+
             // Make sure the login window is centered and not minimized
             setLocationRelativeTo(null);
             setState(Frame.NORMAL);
-            
+
             errorPane.setVisible(false);
             loggingIn.setVisible(false);
             loginMain.setVisible(true);
             loginProgress.setIndeterminate(false);
-            
+
             setStatus("Logging in...");
-            
+
             username.setText(user);
             password.setText(pass);
-            
+
             username.grabFocus();
-            
+
             setVisible(true);
         }
-        
+
         if (user.length() > 0 && pass.length() > 0) {
             loginButtonActionPerformed(null);
         }
@@ -406,7 +411,7 @@ public class LoginPanel extends javax.swing.JFrame {
                     String server = serverName.getText();
                     client = new Client(server);
                     PlatformUI.SERVER_URL = server;
-                    
+
                     // Attempt to login
                     LoginStatus loginStatus = null;
                     try {
@@ -414,7 +419,7 @@ public class LoginPanel extends javax.swing.JFrame {
                     } catch (ClientException ex) {
                         // Leave loginStatus null, the error message will be set to the default
                     }
-                    
+
                     // If SUCCESS or SUCCESS_GRACE_PERIOD
                     if ((loginStatus != null) && ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD))) {
                         String serverName = client.getServerSettings().getServerName();
@@ -423,25 +428,55 @@ public class LoginPanel extends javax.swing.JFrame {
                         } else {
                             PlatformUI.SERVER_NAME = null;
                         }
-                        
+
                         PlatformUI.USER_NAME = username.getText();
                         setStatus("Authenticated...");
                         new Mirth(client);
                         LoginPanel.getInstance().setVisible(false);
 
+                        User currentUser = PlatformUI.MIRTH_FRAME.getCurrentUser(PlatformUI.MIRTH_FRAME);
+                        Properties userPreferences = new Properties();
+                        Set<String> preferenceNames = new HashSet<String>();
+                        preferenceNames.add("firstlogin");
+                        preferenceNames.add("checkForNotifications");
+                        preferenceNames.add("showNotificationPopup");
+                        preferenceNames.add("archivedNotifications");
                         try {
-                            User currentUser = PlatformUI.MIRTH_FRAME.getCurrentUser(PlatformUI.MIRTH_FRAME);
-                            String firstlogin = client.getUserPreferences(currentUser).getProperty("firstlogin");
+                            userPreferences = client.getUserPreferences(currentUser, preferenceNames);
+                            
+                            // Display registration dialog if it's the user's first time logging in
+                            String firstlogin = userPreferences.getProperty("firstlogin");
                             if (firstlogin == null || BooleanUtils.toBoolean(firstlogin)) {
                                 new FirstLoginDialog(currentUser);
                             } else if (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD) {
                                 new ChangePasswordDialog(currentUser, loginStatus.getMessage());
                             }
+                            
+                            // Check for new notifications from update server if enabled
+                            String checkForNotifications = userPreferences.getProperty("checkForNotifications");
+                            if (checkForNotifications == null || BooleanUtils.toBoolean(checkForNotifications)) {
+                                Set<Integer> archivedNotifications = new HashSet<Integer>();
+                                String archivedNotificationString = userPreferences.getProperty("archivedNotifications");
+                                if (archivedNotificationString != null) {
+                                    archivedNotifications = ObjectXMLSerializer.getInstance().deserialize(archivedNotificationString, Set.class);
+                                }
+                                // Update the Other Tasks pane with the unarchived notification count
+                                int unarchivedNotifications = NotificationUtil.getNotificationCount(archivedNotifications);
+                                PlatformUI.MIRTH_FRAME.updateNotificationTaskName(unarchivedNotifications);
+                                
+                                // Display notification dialog if enabled and if there are new notifications
+                                String showNotificationPopup = userPreferences.getProperty("showNotificationPopup");
+                                if (showNotificationPopup == null || BooleanUtils.toBoolean(showNotificationPopup)) {
+                                    if (unarchivedNotifications > 0) {
+                                        new NotificationDialog();
+                                    }
+                                }
+                            }
                         } catch (ClientException e) {
                             PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                         }
 
-                        PlatformUI.MIRTH_FRAME.sendUsageStatistics();   
+                        PlatformUI.MIRTH_FRAME.sendUsageStatistics();
                     } else {
                         if (loginStatus != null) {
                             errorTextArea.setText(loginStatus.getMessage());
@@ -460,8 +495,7 @@ public class LoginPanel extends javax.swing.JFrame {
                 return null;
             }
 
-            public void done() {
-            }
+            public void done() {}
         };
         worker.execute();
 

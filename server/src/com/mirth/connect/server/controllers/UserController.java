@@ -11,6 +11,7 @@ package com.mirth.connect.server.controllers;
 
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import com.mirth.connect.model.Credentials;
 import com.mirth.connect.model.LoginStatus;
@@ -118,9 +119,9 @@ public abstract class UserController extends Controller {
      * @return a <code>Properties</code> that contains the name/value pairs of preferences
      * @throws ControllerException if the preferences could not be retrieved
      */
-    public abstract Properties getUserPreferences(User user) throws ControllerException;
+    public abstract String getUserPreference(User user, String name) throws ControllerException;
     
-    public abstract String getUserPreference(User user, String name);
+    public abstract Properties getUserPreferences(User user, Set<String> names) throws ControllerException;
 
     /**
      * Sets a user preference. For example, the dashboard refresh interval.
@@ -131,6 +132,8 @@ public abstract class UserController extends Controller {
      * @throws ControllerException if the preference could not be set
      */
     public abstract void setUserPreference(User user, String name, String value) throws ControllerException;
+    
+    public abstract void setUserPreferences(User user, Properties properties) throws ControllerException;
     
     public abstract void removePreferencesForUser(int id);
 

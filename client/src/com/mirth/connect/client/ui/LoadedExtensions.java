@@ -42,6 +42,7 @@ import com.mirth.connect.plugins.TransmissionModePlugin;
 
 public class LoadedExtensions {
 
+    private Map<String, String> extensionVersions = new HashMap<String, String>();
     private List<ClientPlugin> clientPlugins = new ArrayList<ClientPlugin>();
     private Map<String, SettingsPanelPlugin> settingsPanelPlugins = new LinkedHashMap<String, SettingsPanelPlugin>();
     private Map<String, ChannelPanelPlugin> channelPanelPlugins = new LinkedHashMap<String, ChannelPanelPlugin>();
@@ -87,6 +88,7 @@ public class LoadedExtensions {
         for (PluginMetaData metaData : PlatformUI.MIRTH_FRAME.getPluginMetaData().values()) {
             try {
                 if (PlatformUI.MIRTH_FRAME.mirthClient.isExtensionEnabled(metaData.getName())) {
+                    extensionVersions.put(metaData.getName(), metaData.getPluginVersion());
                     if (metaData.getClientClasses() != null) {
                         for (PluginClass pluginClass : metaData.getClientClasses()) {
                             String clazzName = pluginClass.getName();
@@ -123,14 +125,17 @@ public class LoadedExtensions {
         // Load connector code template plugins before anything else
         for (ConnectorMetaData metaData : PlatformUI.MIRTH_FRAME.getConnectorMetaData().values()) {
             try {
-                if (PlatformUI.MIRTH_FRAME.mirthClient.isExtensionEnabled(metaData.getName()) && StringUtils.isNotEmpty(metaData.getTemplateClassName())) {
-                    Class<?> clazz = Class.forName(metaData.getTemplateClassName());
+                if (PlatformUI.MIRTH_FRAME.mirthClient.isExtensionEnabled(metaData.getName())) {
+                    extensionVersions.put(metaData.getName(), metaData.getPluginVersion());
+                    if (StringUtils.isNotEmpty(metaData.getTemplateClassName())) {
+                        Class<?> clazz = Class.forName(metaData.getTemplateClassName());
 
-                    for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-                        if (constructor.getParameterTypes().length == 1) {
-                            CodeTemplatePlugin codeTemplatePlugin = (CodeTemplatePlugin) constructor.newInstance(new Object[] { metaData.getName() });
-                            addPluginPoints(codeTemplatePlugin);
-                            break;
+                        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+                            if (constructor.getParameterTypes().length == 1) {
+                                CodeTemplatePlugin codeTemplatePlugin = (CodeTemplatePlugin) constructor.newInstance(new Object[] { metaData.getName() });
+                                addPluginPoints(codeTemplatePlugin);
+                                break;
+                            }
                         }
                     }
                 }
@@ -365,5 +370,9 @@ public class LoadedExtensions {
 
     public Map<String, ConnectorSettingsPanel> getDestinationConnectors() {
         return destinationConnectors;
+    }
+
+    public Map<String, String> getExtensionVersions() {
+        return extensionVersions;
     }
 }

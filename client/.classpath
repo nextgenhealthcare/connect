@@ -100,5 +100,8 @@
 	<classpathentry kind="lib" path="lib/httpcore-4.3.2.jar"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.3.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.4.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

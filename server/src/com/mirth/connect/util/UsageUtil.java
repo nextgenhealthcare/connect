@@ -31,7 +31,7 @@ public class UsageUtil {
         boolean isSent = false;
         
         CloseableHttpClient client = null;
-        HttpPost post = new HttpPost();;
+        HttpPost post = new HttpPost();
         CloseableHttpResponse response = null;
         NameValuePair[] params = { new BasicNameValuePair("version", version), new BasicNameValuePair("data", data) };
         RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(TIMEOUT).setConnectionRequestTimeout(TIMEOUT).setSocketTimeout(TIMEOUT).build();

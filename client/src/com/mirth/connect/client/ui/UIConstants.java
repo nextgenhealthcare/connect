@@ -39,9 +39,11 @@ public class UIConstants {
     public static final String EDIT_FILTER = "Edit Filter";
     public static final String EDIT_TRANSFORMER = "Edit Transformer";
     public static final String EDIT_RESPONSE_TRANSFORMER = "Edit Response";
+    public static final String VIEW_NOTIFICATIONS = "Notifications";
     public static final int EDIT_FILTER_TASK_NUMBER = 9;
     public static final int EDIT_TRANSFORMER_TASK_NUMBER = 10;
     public static final int EDIT_RESPONSE_TRANSFORMER_TASK_NUMBER = 11;
+    public static final int VIEW_NOTIFICATIONS_TASK_NUMBER = 0;
     // for error checking
     public static final int ERROR_CONSTANT = -1;
     // for JXTables

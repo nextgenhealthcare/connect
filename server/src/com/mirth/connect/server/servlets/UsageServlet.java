@@ -17,7 +17,6 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.UsageController;
 
-
 public class UsageServlet extends MirthServlet {
     private Logger logger = Logger.getLogger(this.getClass());
     

@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,7 +37,7 @@ import com.mirth.connect.server.util.SqlConfig;
 public class DefaultUserController extends UserController {
     private Logger logger = Logger.getLogger(this.getClass());
     private ExtensionController extensionController = null;
-    
+
     private static UserController instance = null;
 
     private DefaultUserController() {
@@ -107,8 +108,7 @@ public class DefaultUserController extends UserController {
             }
 
             /*
-             * If no userId was passed in, stop here and don't try to add the
-             * password.
+             * If no userId was passed in, stop here and don't try to add the password.
              */
             if (userId == null) {
                 return null;
@@ -172,7 +172,7 @@ public class DefaultUserController extends UserController {
             if (extensionController == null) {
                 extensionController = ControllerFactory.getFactory().createExtensionController();
             }
-            
+
             if (extensionController.getAuthorizationPlugin() != null) {
                 LoginStatus loginStatus = extensionController.getAuthorizationPlugin().authorizeUser(username, plainPassword);
 
@@ -185,7 +185,7 @@ public class DefaultUserController extends UserController {
                     return loginStatus;
                 }
             }
-            
+
             Digester digester = ControllerFactory.getFactory().createConfigurationController().getDigester();
             LoginRequirementsChecker loginRequirementsChecker = new LoginRequirementsChecker(username);
             if (loginRequirementsChecker.isUserLockedOut()) {
@@ -261,10 +261,9 @@ public class DefaultUserController extends UserController {
                         }
 
                         /*
-                         * Reset the user's grace period if it isn't being used
-                         * but one was previously set. This should only happen
-                         * if a user is in a grace period before grace periods
-                         * are disabled.
+                         * Reset the user's grace period if it isn't being used but one was
+                         * previously set. This should only happen if a user is in a grace period
+                         * before grace periods are disabled.
                          */
                         if ((passwordRequirements.getGracePeriod() <= 0) && (validUser.getGracePeriodStart() != null)) {
                             SqlConfig.getSqlSessionManager().update("User.clearGracePeriod", validUser.getId());
@@ -358,6 +357,13 @@ public class DefaultUserController extends UserController {
         }
     }
 
+    @Override
+    public void setUserPreferences(User user, Properties properties) throws ControllerException {
+        for (String property : properties.stringPropertyNames()) {
+            setUserPreference(user, property, properties.getProperty(property));
+        }
+    }
+
     public void setUserPreference(User user, String name, String value) {
         logger.debug("storing preference: user id=" + user.getId() + ", name=" + name);
 
@@ -380,9 +386,9 @@ public class DefaultUserController extends UserController {
             logger.error("Could not store preference: user id=" + user.getId() + ", name=" + name, e);
         }
     }
-    
+
     @Override
-    public Properties getUserPreferences(User user) {
+    public Properties getUserPreferences(User user, Set<String> names) {
         int id = user.getId();
         logger.debug("retrieving preferences: user id=" + id);
         Properties properties = new Properties();
@@ -391,12 +397,14 @@ public class DefaultUserController extends UserController {
             List<KeyValuePair> result = SqlConfig.getSqlSessionManager().selectList("User.selectPreferencesForUser", id);
 
             for (KeyValuePair pair : result) {
-                properties.setProperty(pair.getKey(), StringUtils.defaultString(pair.getValue()));
+                if (names == null || names.contains(pair.getKey())) {
+                    properties.setProperty(pair.getKey(), StringUtils.defaultString(pair.getValue()));
+                }
             }
         } catch (Exception e) {
             logger.error("Could not retrieve preferences: user id=" + id, e);
         }
-        
+
         return properties;
     }
 
