@@ -213,7 +213,7 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
                 }
             }
         } else if (splitOption == SplitType.JavaScript) {
-            if (StringUtils.isEmpty(batchProperties.getBatchGroupingColumn())) {
+            if (StringUtils.isEmpty(batchProperties.getBatchScript())) {
                 throw new BatchMessageException("No batch script was set.");
             }
 
