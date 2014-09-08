@@ -11,10 +11,7 @@ package com.mirth.connect.client.core;
 
 import java.net.URI;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -35,21 +32,11 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.UsageUtil;
 
 public class UpdateClient {
-    private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private final static String URL_UPDATE_SERVER = "http://connect.mirthcorp.com";
     private final static String URL_REGISTRATION = "/RegistrationServlet";
-
     private final static int TIMEOUT = 10000;
 
-    private Client client;
-    private User requestUser;
-
-    public UpdateClient(Client client, User requestUser) {
-        this.client = client;
-        this.requestUser = requestUser;
-    }
-
-    public void sendUsageStatistics() throws ClientException {
+    public static void sendUsageStatistics(Client client) throws ClientException {
         String usageData = client.getUsageData();
         if (usageData == null) {
             return;
@@ -63,12 +50,12 @@ public class UpdateClient {
         }
     }
 
-    public void registerUser(User user) throws ClientException {
+    public static void registerUser(Client client, User user) throws ClientException {
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse httpResponse = null;
         NameValuePair[] params = { new BasicNameValuePair("serverId", client.getServerId()),
                 new BasicNameValuePair("version", client.getVersion()),
-                new BasicNameValuePair("user", serializer.serialize(user)) };
+                new BasicNameValuePair("user", ObjectXMLSerializer.getInstance().serialize(user)) };
 
         HttpPost post = new HttpPost();
         post.setURI(URI.create(URL_UPDATE_SERVER + URL_REGISTRATION));

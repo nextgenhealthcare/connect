@@ -1218,10 +1218,6 @@ public class Client {
         return serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params);
     }
 
-    public UpdateClient getUpdateClient(User requestUser) {
-        return new UpdateClient(this, requestUser);
-    }
-
     public PasswordRequirements getPasswordRequirements() throws ClientException {
         NameValuePair[] params = { new BasicNameValuePair("op", Operations.CONFIGURATION_PASSWORD_REQUIREMENTS_GET.getName()) };
         return serializer.deserialize(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params), PasswordRequirements.class);

@@ -1567,15 +1567,6 @@ public class Frame extends JXFrame {
         return currentUser;
     }
 
-    public UpdateClient getUpdateClient(Component parentComponent) {
-        if (updateClient == null) {
-            User currentUser = PlatformUI.MIRTH_FRAME.getCurrentUser(parentComponent);
-            updateClient = PlatformUI.MIRTH_FRAME.mirthClient.getUpdateClient(currentUser);
-        }
-
-        return updateClient;
-    }
-
     public void registerUser(final User user) {
         final String workingId = startWorking("Registering user...");
 
@@ -1583,7 +1574,7 @@ public class Frame extends JXFrame {
 
             public Void doInBackground() {
                 try {
-                    getUpdateClient(PlatformUI.MIRTH_FRAME).registerUser(user);
+                    UpdateClient.registerUser(mirthClient, user);
                 } catch (ClientException e) {
                     // ignore errors connecting to update/stats server
                 }
@@ -1608,16 +1599,11 @@ public class Frame extends JXFrame {
                 UpdateSettings updateSettings = null;
                 try {
                     updateSettings = mirthClient.getUpdateSettings();
-                } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                }
-
-                if ((updateSettings != null) && updateSettings.getStatsEnabled()) {
-                    try {
-                        getUpdateClient(PlatformUI.MIRTH_FRAME).sendUsageStatistics();
-                    } catch (ClientException e) {
-                        // ignore errors connecting to update/stats server
+                    if (updateSettings != null && updateSettings.getStatsEnabled()) {
+                        UpdateClient.sendUsageStatistics(mirthClient);
                     }
+                } catch (ClientException e) {
+                    // ignore errors connecting to update/stats server
                 }
 
                 return null;
