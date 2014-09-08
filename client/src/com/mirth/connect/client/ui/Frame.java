@@ -228,13 +228,15 @@ public class Frame extends JXFrame {
         taskPaneContainer = new JXTaskPaneContainer();
 
         StringBuilder titleText = new StringBuilder();
-        titleText.append(UIConstants.TITLE_TEXT + " - ");
 
         if (!StringUtils.isBlank(PlatformUI.SERVER_NAME)) {
             titleText.append(PlatformUI.SERVER_NAME);
         } else {
             titleText.append(PlatformUI.SERVER_URL);
         }
+
+        titleText.append(" - " + UIConstants.TITLE_TEXT);
+
         setTitle(titleText.toString());
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setIconImage(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/mirth_32_ico.png")).getImage());

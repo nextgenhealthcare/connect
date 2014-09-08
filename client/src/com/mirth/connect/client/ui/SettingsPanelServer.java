@@ -111,7 +111,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     String serverName = serverNameField.getText();
                     StringBuilder titleText = new StringBuilder();
                     StringBuilder statusBarText = new StringBuilder();
-                    titleText.append(UIConstants.TITLE_TEXT + " - ");
                     statusBarText.append("Connected to: ");
                     
                     if (!StringUtils.isBlank(serverNameField.getText())) {
@@ -121,6 +120,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     } else {
                         titleText.append(PlatformUI.SERVER_URL);
                     }
+                    titleText.append(" - " + UIConstants.TITLE_TEXT);
                     statusBarText.append(PlatformUI.SERVER_URL);
                     titleText.append(" - (" + PlatformUI.SERVER_VERSION + ")");
                     getFrame().setTitle(titleText.toString());
