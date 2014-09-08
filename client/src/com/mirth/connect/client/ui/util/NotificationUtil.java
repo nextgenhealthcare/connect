@@ -28,6 +28,7 @@ import org.apache.http.message.BasicNameValuePair;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.notification.Notification;
@@ -47,11 +48,11 @@ public class NotificationUtil {
         notificationMap.put("op", NOTIFICATION_GET);
         notificationMap.put("serverVersion", PlatformUI.SERVER_VERSION);
         notificationMap.put("extensionVersions", LoadedExtensions.getInstance().getExtensionVersions());
-        
+
         ObjectMapper mapper = new ObjectMapper();
         String notificationParams = null;
         List<Notification> allNotifications = new ArrayList<Notification>();
-        
+
         try {
             notificationParams = mapper.writeValueAsString(notificationMap);
             NameValuePair[] params = { new BasicNameValuePair("params", notificationParams) };
@@ -86,9 +87,11 @@ public class NotificationUtil {
                     notification.setContent(childNode.get("content").asText());
                     allNotifications.add(notification);
                 }
+            } else {
+                throw new ClientException("Status code: " + statusCode);
             }
         } catch (Exception e) {
-            PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), "Failed to retrieve notifications.");
+            PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, "Failed to retrieve notifications. Please try again later.");
         } finally {
             HttpClientUtils.closeQuietly(response);
             HttpClientUtils.closeQuietly(client);

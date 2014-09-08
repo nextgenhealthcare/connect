@@ -94,7 +94,6 @@ public class NotificationDialog extends MirthDialog {
         try {
             userPreferences = parent.mirthClient.getUserPreferences(parent.getCurrentUser(parent), preferenceNames);
         } catch (ClientException e) {
-            //TODO: Do something about this?
         }
         String archivedNotificationString = userPreferences.getProperty("archivedNotifications");
         if (archivedNotificationString != null) {
