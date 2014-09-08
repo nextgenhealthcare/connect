@@ -195,6 +195,11 @@ public class ChannelWriter extends ConnectorSettingsPanel {
         
         setMapVariableTableValues(props.getMapVariables());
 
+        if(mapVariablesTable.getRowCount() > 0) {
+            mapVariablesTable.setRowSelectionInterval(0, 0);
+        }
+        deleteButton.setEnabled(mapVariablesTable.getRowCount() > 0);
+        
         parent.setSaveEnabled(enabled);
     }
 
