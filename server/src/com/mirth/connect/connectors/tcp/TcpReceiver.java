@@ -601,7 +601,7 @@ public class TcpReceiver extends SourceConnector {
                                         streamHandler.commit(true);
 
                                         // Check to see if we have a response to send
-                                        if (dispatchResult.getSelectedResponse() != null) {
+                                        if (dispatchResult != null && dispatchResult.getSelectedResponse() != null) {
                                             try {
                                                 // If the response socket hasn't been initialized, do that now
                                                 if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {

@@ -11,6 +11,7 @@ package com.mirth.connect.server.userutil;
 
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
@@ -151,8 +152,14 @@ public class VMRouter {
      */
     public Response routeMessageByChannelId(String channelId, RawMessage rawMessage) {
         try {
-            com.mirth.connect.donkey.model.message.Response response = engineController.dispatchRawMessage(channelId, convertRawMessage(rawMessage), false, true).getSelectedResponse();
-            return response != null ? new Response(response) : null;
+            DispatchResult dispatchResult = engineController.dispatchRawMessage(channelId, convertRawMessage(rawMessage), false, true);
+
+            Response response = null;
+            if (dispatchResult != null && dispatchResult.getSelectedResponse() != null) {
+                response = new Response(dispatchResult.getSelectedResponse());
+            }
+
+            return response;
         } catch (Throwable e) {
             String message = "Error routing message to channel id: " + channelId;
             logger.error(message, e);

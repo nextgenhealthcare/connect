@@ -218,7 +218,7 @@ public class WebServiceReceiver extends SourceConnector {
 
                     DispatchResult dispatchResult = responseHandler.getResultForResponse();
                     if (dispatchResult != null && dispatchResult.getSelectedResponse() != null) {
-                        response = responseHandler.getResultForResponse().getSelectedResponse().getMessage();
+                        response = dispatchResult.getSelectedResponse().getMessage();
                     }
                 } catch (BatchMessageException e) {
                     logger.error("Error processing batch message", e);

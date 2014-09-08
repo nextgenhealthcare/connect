@@ -156,7 +156,7 @@ public class VmDispatcher extends DestinationConnector {
 
                 DispatchResult dispatchResult = ControllerFactory.getFactory().createEngineController().dispatchRawMessage(targetChannelId, rawMessage, false, true);
 
-                if (dispatchResult.getSelectedResponse() != null) {
+                if (dispatchResult != null && dispatchResult.getSelectedResponse() != null) {
                     // If a response was returned from the channel then use that message
                     responseData = dispatchResult.getSelectedResponse().getMessage();
                 }

@@ -337,14 +337,13 @@ public class HttpReceiver extends SourceConnector {
         // set the status code
         int statusCode = NumberUtils.toInt(replaceValues(connectorProperties.getResponseStatusCode(), dispatchResult), -1);
 
-        Response selectedResponse = dispatchResult.getSelectedResponse();
-
         /*
          * set the response body and status code (if we choose a response from the drop-down)
          */
-        if (selectedResponse != null) {
+        if (dispatchResult != null && dispatchResult.getSelectedResponse() != null) {
             dispatchResult.setAttemptedResponse(true);
 
+            Response selectedResponse = dispatchResult.getSelectedResponse();
             Status newMessageStatus = selectedResponse.getStatus();
 
             /*
@@ -616,7 +615,7 @@ public class HttpReceiver extends SourceConnector {
     private String replaceValues(String template, DispatchResult dispatchResult) {
         ConnectorMessage mergedConnectorMessage = null;
 
-        if (dispatchResult.getProcessedMessage() != null) {
+        if (dispatchResult != null && dispatchResult.getProcessedMessage() != null) {
             mergedConnectorMessage = dispatchResult.getProcessedMessage().getMergedConnectorMessage();
         }
 
