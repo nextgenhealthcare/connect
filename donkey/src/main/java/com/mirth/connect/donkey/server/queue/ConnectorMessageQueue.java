@@ -316,11 +316,11 @@ public class ConnectorMessageQueue {
                 }
             }
 
+            checkedOut.remove(connectorMessage.getMessageId());
+
             if (finished) {
                 eventDispatcher.dispatchEvent(new MessageEvent(channelId, metaDataId, MessageEventType.QUEUED, (long) size(), true));
             }
-
-            checkedOut.remove(connectorMessage.getMessageId());
         }
     }
 

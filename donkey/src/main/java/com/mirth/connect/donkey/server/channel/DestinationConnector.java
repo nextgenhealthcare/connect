@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.DonkeyException;
@@ -418,15 +419,14 @@ public abstract class DestinationConnector extends Connector implements Runnable
     @Override
     public void run() {
         DonkeyDao dao = null;
-        try {
-            Serializer serializer = channel.getSerializer();
-            ConnectorMessage connectorMessage = null;
-            int retryIntervalMillis = destinationConnectorProperties.getRetryIntervalMillis();
-            Long lastMessageId = null;
-            boolean canAcquire = true;
+        Serializer serializer = channel.getSerializer();
+        ConnectorMessage connectorMessage = null;
+        int retryIntervalMillis = destinationConnectorProperties.getRetryIntervalMillis();
+        Long lastMessageId = null;
+        boolean canAcquire = true;
 
-            do {
-
+        do {
+            try {
                 if (canAcquire) {
                     connectorMessage = queue.acquire();
                 }
@@ -575,15 +575,25 @@ public abstract class DestinationConnector extends Connector implements Runnable
                      */
                     Thread.sleep(Constants.DESTINATION_QUEUE_EMPTY_SLEEP_TIME);
                 }
-            } while (getCurrentState() == DeployedState.STARTED || getCurrentState() == DeployedState.STARTING);
-        } catch (InterruptedException e) {
-        } catch (Exception e) {
-            logger.error(e);
-        } finally {
-            if (dao != null) {
-                dao.close();
+            } catch (InterruptedException e) {
+                // Stop this thread if it was halted
+                return;
+            } catch (Exception e) {
+                logger.warn("Error in queue thread for channel " + channel.getName() + " (" + channel.getChannelId() + ") on destination " + destinationName + ".\n" + ExceptionUtils.getStackTrace(e));
+                try {
+                    Thread.sleep(retryIntervalMillis);
+
+                    /*
+                     * Since the thread already slept for the retry interval, set lastMessageId to
+                     * null to prevent sleeping again.
+                     */
+                    lastMessageId = null;
+                } catch (InterruptedException e1) {
+                    // Stop this thread if it was halted
+                    return;
+                }
             }
-        }
+        } while (getCurrentState() == DeployedState.STARTED || getCurrentState() == DeployedState.STARTING);
     }
 
     private Response handleSend(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException {
