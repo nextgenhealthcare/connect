@@ -33,7 +33,6 @@ public class XMLDataTypeProperties extends DataTypeProperties {
         DonkeyElement batchElement = element.addChildElement("batchProperties");
 
         batchElement.setAttribute("class", "com.mirth.connect.plugins.datatypes.xml.XMLBatchProperties");
-        batchElement.setAttribute("version", element.getAttribute("version"));
         batchElement.addChildElement("splitType", "Element_Name");
         batchElement.addChildElement("elementName");
         batchElement.addChildElement("level", "0");

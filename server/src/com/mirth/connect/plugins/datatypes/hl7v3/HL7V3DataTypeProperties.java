@@ -33,7 +33,6 @@ public class HL7V3DataTypeProperties extends DataTypeProperties {
         DonkeyElement batchElement = element.addChildElement("batchProperties");
 
         batchElement.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v3.HL7V3BatchProperties");
-        batchElement.setAttribute("version", element.getAttribute("version"));
         batchElement.addChildElement("splitType", "JavaScript");
         batchElement.addChildElement("batchScript");
     }

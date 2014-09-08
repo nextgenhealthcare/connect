@@ -34,7 +34,6 @@ public class NCPDPDataTypeProperties extends DataTypeProperties {
         DonkeyElement batchElement = element.addChildElement("batchProperties");
 
         batchElement.setAttribute("class", "com.mirth.connect.plugins.datatypes.ncpdp.NCPDPBatchProperties");
-        batchElement.setAttribute("version", element.getAttribute("version"));
         batchElement.addChildElement("splitType", "JavaScript");
         batchElement.addChildElement("batchScript");
     }

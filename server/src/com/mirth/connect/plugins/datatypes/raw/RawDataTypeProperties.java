@@ -32,7 +32,6 @@ public class RawDataTypeProperties extends DataTypeProperties {
         DonkeyElement batchElement = element.addChildElement("batchProperties");
 
         batchElement.setAttribute("class", "com.mirth.connect.plugins.datatypes.raw.RawBatchProperties");
-        batchElement.setAttribute("version", element.getAttribute("version"));
         batchElement.addChildElement("splitType", "JavaScript");
         batchElement.addChildElement("batchScript");
     }
