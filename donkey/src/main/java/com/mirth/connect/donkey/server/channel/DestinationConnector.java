@@ -383,7 +383,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                     dao.updateErrors(message);
                 }
             } catch (DonkeyException e) {
-                logger.error("Error executing response transformer for channel " + message.getChannelId() + " (" + destinationName + ").", e);
+                logger.error("Error executing response transformer for channel " + channel.getName() + " (" + channel.getChannelId() + ") on destination " + destinationName + ".", e);
                 response.setStatus(Status.ERROR);
                 response.setError(e.getFormattedError());
                 message.setProcessingError(message.getProcessingError() != null ? message.getProcessingError() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
@@ -519,11 +519,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
                                  * remove content operation failed. In this case just give up and
                                  * log an error.
                                  */
-                                logger.error("Error removing content for message " + lastMessageId + " for channel " + getChannelId() + " (" + destinationName + "). This error is expected if the message was manually removed from the queue.", e);
+                                logger.error("Error removing content for message " + lastMessageId + " for channel " + channel.getName() + " (" + channel.getChannelId() + ") on destination " + destinationName + ". This error is expected if the message was manually removed from the queue.", e);
                             }
                         }
                     } catch (RuntimeException e) {
-                        logger.error("Error processing queued " + (connectorMessage != null ? connectorMessage.toString() : "message (null)") + " for channel " + getChannelId() + " (" + destinationName + "). This error is expected if the message was manually removed from the queue.", e);
+                        logger.error("Error processing queued " + (connectorMessage != null ? connectorMessage.toString() : "message (null)") + " for channel " + channel.getName() + " (" + channel.getChannelId() + ") on destination " + destinationName + ". This error is expected if the message was manually removed from the queue.", e);
                         /*
                          * Invalidate the queue's buffer if any errors occurred. If the message
                          * being processed by the queue was deleted, this will prevent the queue
@@ -650,7 +650,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 dao.updateErrors(message);
             }
         } catch (DonkeyException e) {
-            logger.error("Error executing response transformer for channel " + message.getChannelId() + " (" + destinationName + ").", e);
+            logger.error("Error executing response transformer for channel " + channel.getName() + " (" + channel.getChannelId() + ") on destination " + destinationName + ".", e);
             response.setStatus(Status.ERROR);
             response.setError(e.getFormattedError());
             message.setStatus(response.getStatus());

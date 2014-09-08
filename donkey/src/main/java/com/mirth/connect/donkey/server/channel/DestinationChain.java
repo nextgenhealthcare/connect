@@ -140,7 +140,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
          * this chain, if it's not, we can't proceed.
          */
         if (startMetaDataId == -1) {
-            logger.error("The message's metadata ID is not in the destination chain's list of enabled metadata IDs");
+            logger.error("The message's metadata ID for channel " + channelId + " is not in the destination chain's list of enabled metadata IDs");
             return null;
         }
 
@@ -246,12 +246,12 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
 
                         default:
                             // the status should never be anything but one of the above statuses, but in case it's not, log an error
-                            logger.error("Received a message with an invalid status");
+                            logger.error("Received a message with an invalid status in channel " + channelId + ".");
                             break;
                     }
                 } catch (RuntimeException e) { // TODO: remove this catch since we can't determine an error code
                     // if an error occurred in processing the message through the current destination, then update the message status to ERROR and continue processing through the chain
-                    logger.error("Error processing destination " + destinationConnectors.get(metaDataId).getDestinationName() + ".", e);
+                    logger.error("Error processing destination " + destinationConnectors.get(metaDataId).getDestinationName() + " for channel " + channelId + ".", e);
                     stopChain = true;
                     dao.rollback();
                     message.setStatus(Status.ERROR);
@@ -301,7 +301,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                 messages.add(message);
             } catch (RuntimeException e) {
                 // An exception caught at this point either occurred when attempting to handle an exception in the above try/catch, or when attempting to create the next destination's message, the thread cannot continue running
-                logger.error("Error processing destination " + destinationConnectors.get(metaDataId).getDestinationName() + ".", e);
+                logger.error("Error processing destination " + destinationConnectors.get(metaDataId).getDestinationName() + " for channel " + channelId + ".", e);
                 throw e;
             } finally {
                 dao.close();

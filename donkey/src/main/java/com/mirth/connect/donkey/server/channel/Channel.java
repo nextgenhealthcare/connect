@@ -616,7 +616,7 @@ public class Channel implements Runnable {
                 try {
                     processUnfinishedMessages();
                 } catch (InterruptedException e) {
-                    logger.error("Startup recovery interrupted for channel " + name + "(" + channelId + ")", e);
+                    logger.error("Startup recovery interrupted for channel " + name + " (" + channelId + ")", e);
                     throw e;
                 } catch (Exception e) {
                     Throwable cause;
@@ -626,7 +626,7 @@ public class Channel implements Runnable {
                         cause = e;
                     }
 
-                    logger.error("Startup recovery failed for channel " + name + "(" + channelId + "): " + cause.getMessage(), cause);
+                    logger.error("Startup recovery failed for channel " + name + " (" + channelId + "): " + cause.getMessage(), cause);
                 }
 
                 ThreadUtils.checkInterruptedStatus();
@@ -843,11 +843,11 @@ public class Channel implements Runnable {
             try {
                 DonkeyDao dao = getDaoFactory().getDao();
                 try {
-                    logger.debug("Removing messages for channel \"" + name + "\"");
+                    logger.debug("Removing messages for channel " + name + " (" + channelId + ").");
                     dao.deleteAllMessages(channelId);
 
                     if (clearStatistics) {
-                        logger.debug("Clearing statistics for channel \"" + name + "\"");
+                        logger.debug("Clearing statistics for channel " + name + " (" + channelId + ").");
 
                         Set<Status> statuses = Statistics.getTrackedStatuses();
                         dao.resetStatistics(channelId, null, statuses);
@@ -870,7 +870,7 @@ public class Channel implements Runnable {
 
         if (startChannelAfter) {
             try {
-                logger.debug("Restarting channel \"" + name + "\" after removing all messages");
+                logger.debug("Restarting channel " + name + " (" + channelId + ") after removing all messages");
                 // Only start the source connector if the channel wasn't paused or pausing before
                 start(startMetaDataIds);
             } catch (StartException e) {
@@ -1178,10 +1178,10 @@ public class Channel implements Runnable {
             if (cause instanceof InterruptedException) {
                 channelException = new ChannelException(true, cause);
             } else if (cause instanceof ChannelException) {
-                logger.error("Runtime error in channel.", cause);
+                logger.error("Runtime error in channel " + name + " (" + channelId + ").", cause);
                 channelException = (ChannelException) cause;
             } else {
-                logger.error("Error processing message.", t);
+                logger.error("Error processing message in channel " + name + " (" + channelId + ").", t);
                 channelException = new ChannelException(false, t);
             }
 
@@ -1330,7 +1330,7 @@ public class Channel implements Runnable {
                 sourceMessage.getRaw().setContent(replacedMessage);
             } catch (AttachmentException e) {
                 eventDispatcher.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.ATTACHMENT_HANDLER, null, null, "Error processing attachments for channel " + channelId + ".", e));
-                logger.error("Error processing attachments for channel " + channelId + ".", e);
+                logger.error("Error processing attachments for channel " + name + " (" + channelId + ").", e);
                 throw new ChannelException(false, e);
             }
         } else {
@@ -1342,7 +1342,7 @@ public class Channel implements Runnable {
                     rawMessage.clearMessage();
                     sourceMessage.getRaw().setContent(org.apache.commons.codec.binary.StringUtils.newStringUsAscii(rawBytes));
                 } catch (IOException e) {
-                    logger.error("Error processing binary data for channel " + channelId + ".", e);
+                    logger.error("Error processing binary data for channel " + name + " (" + channelId + ").", e);
                     throw new ChannelException(false, e);
                 }
 
@@ -1853,7 +1853,7 @@ public class Channel implements Runnable {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("Error removing content for message " + messageId + " for channel " + channelId + ".", e);
+                    logger.error("Error removing content for message " + messageId + " for channel " + name + " (" + channelId + ").", e);
                 }
             } else if (!commit && message != null && messageController.isMessageCompleted(message)) {
                 if (storageSettings.isRemoveContentOnCompletion()) {

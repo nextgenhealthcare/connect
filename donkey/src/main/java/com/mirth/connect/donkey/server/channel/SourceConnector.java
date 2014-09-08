@@ -189,7 +189,7 @@ public abstract class SourceConnector extends Connector {
     public DispatchResult dispatchRawMessage(RawMessage rawMessage, boolean force) throws ChannelException {
         if (!force && getCurrentState() == DeployedState.STOPPED) {
             ChannelException e = new ChannelException(true);
-            logger.error("Source connector is currently stopped. Channel Id: " + channel.getChannelId(), e);
+            logger.error("Source connector is currently stopped for channel " + channel.getName() + " (" + channel.getChannelId() + ").", e);
             throw e;
         }
 
@@ -205,7 +205,7 @@ public abstract class SourceConnector extends Connector {
         // Throw an error if a new batch arrives when the connector is stopped
         if (getCurrentState() == DeployedState.STOPPED) {
             BatchMessageException e = new BatchMessageException();
-            logger.error("Source connector is currently stopped. Channel Id: " + channel.getChannelId(), e);
+            logger.error("Source connector is currently stopped for channel " + channel.getName() + " (" + channel.getChannelId() + ").", e);
             throw e;
         }
 
