@@ -36,6 +36,8 @@ import javax.swing.AbstractCellEditor;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 
@@ -145,6 +147,15 @@ public class EditMessageDialog extends MirthDialog implements DropTargetListener
             sourceMapTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
         }
 
+        sourceMapTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent evt) {
+                if (!evt.getValueIsAdjusting()) {
+                    deleteButton.setEnabled(sourceMapTable.getSelectedRow() > -1);
+                }
+            }
+        });
+
         class SourceMapTableCellEditor extends AbstractCellEditor implements TableCellEditor {
             private JTable table;
             private int column;
@@ -224,6 +235,7 @@ public class EditMessageDialog extends MirthDialog implements DropTargetListener
         sourceMapTable.getColumnModel().getColumn(1).setCellEditor(new SourceMapTableCellEditor(sourceMapTable, 1));
 
         sourceMapScrollPane.setViewportView(sourceMapTable);
+        deleteButton.setEnabled(false);
     }
 
     public void dragEnter(DropTargetDragEvent dtde) {
@@ -573,6 +585,8 @@ public class EditMessageDialog extends MirthDialog implements DropTargetListener
                 } else {
                     sourceMapTable.setRowSelectionInterval(selectedRow, selectedRow);
                 }
+            } else {
+                deleteButton.setEnabled(false);
             }
         }
     }//GEN-LAST:event_deleteButtonActionPerformed
