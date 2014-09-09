@@ -44,7 +44,7 @@
 	<classpathentry kind="lib" path="lib/mirth-vocab.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/file/webdavclient4j-core-0.92.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
-	<classpathentry kind="lib" path="lib/database/ojdbc6.jar"/>
+	<classpathentry kind="lib" path="lib/database/ojdbc6-12.1.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.50.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-core-2.0.28.jar"/>
@@ -75,8 +75,8 @@
 	<classpathentry kind="lib" path="lib/database/postgresql-9.3-1102.jdbc4.jar"/>
 	<classpathentry kind="lib" path="lib/database/sqlite-jdbc-3.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7R5-20120629.144839-4.jar"/>
-	<classpathentry kind="lib" path="lib/database/derby-10.10.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/database/derbytools-10.10.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/database/derby-10.10.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/database/derbytools-10.10.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/jms/geronimo-jms_1.1_spec-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jms/geronimo-j2ee-management_1.1_spec-1.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-vfs2-2.0.jar">
@@ -91,7 +91,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/xstream-1.4.7.jar"/>
-	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.1.25-bin.jar"/>
+	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.1.32-bin.jar"/>
 	<classpathentry kind="lib" path="lib/commons/httpclient-4.3.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons/httpcore-4.3.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons/httpmime-4.3.3.jar"/>
