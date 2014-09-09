@@ -930,8 +930,8 @@
 				<pathelement location="${setup.conf}" />
 				<fileset dir="${lib}">
 					<include name="log4j-1.2.16.jar" />
-					<include name="database/derby-10.10.1.1.jar" />
-					<include name="database/derbytools-10.10.1.1.jar" />
+					<include name="database/derby-10.10.2.0.jar" />
+					<include name="database/derbytools-10.10.2.0.jar" />
 					<include name="commons/commons-io-2.3.jar" />
 				</fileset>
 			</classpath>
