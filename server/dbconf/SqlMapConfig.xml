@@ -36,7 +36,8 @@
 				<property name="url" value="${database.url}" />
 				<property name="username" value="${database.username}" />
 				<property name="password" value="${database.password}" />
-				<property name="poolMaximumActiveConnections" value="32" />
+				<property name="poolMaximumActiveConnections" value="20" />
+				<property name="poolMaximumIdleConnections" value="10" />
 			</dataSource>
 		</environment>
 	</environments>

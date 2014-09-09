@@ -27,6 +27,7 @@ public class DBCPConnectionPool implements ConnectionPool {
         this.maxConnections = maxConnections;
         GenericObjectPool connectionPool = new GenericObjectPool(null);
         connectionPool.setMaxActive(maxConnections);
+        connectionPool.setMaxIdle(maxConnections);
         ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(url, username, password);
         PoolableConnectionFactory poolableConnectionFactory = new PoolableConnectionFactory(connectionFactory, connectionPool, null, null, false, false);
         dataSource = new PoolingDataSource(connectionPool);
