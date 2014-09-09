@@ -105,6 +105,9 @@ public class RecoveryTask implements Callable<Void> {
                                 throw e;
                             } catch (Exception e) {
                                 logger.error("Channel " + channel.getName() + "(" + channel.getChannelId() + ") failed to recover message ID " + messageId + ", connector ID " + metaDataId + ": " + e.getMessage());
+                            } finally {
+                                chain.getEnabledMetaDataIds().clear();
+                                chain.getEnabledMetaDataIds().addAll(chainMetaDataIds);
                             }
                         }
                     }
@@ -122,7 +125,7 @@ public class RecoveryTask implements Callable<Void> {
                     recoveredMessages = true;
                     logger.info("Recovering messages for " + channel.getName() + "(" + channel.getChannelId() + ")");
                 }
-                
+
                 try {
                     ConnectorMessage sourceMessage = message.getConnectorMessages().get(0);
                     boolean finished = true;
@@ -169,7 +172,7 @@ public class RecoveryTask implements Callable<Void> {
 
             // step 3: If source queuing is disabled, recover messages for each source (RECEIVED) and flush out the source queue.
             if (channel.getSourceConnector().isRespondAfterProcessing() && storageSettings.isMessageRecoveryEnabled()) {
-                if(!recoveredMessages && channel.getSourceQueue().size() > 0) {
+                if (!recoveredMessages && channel.getSourceQueue().size() > 0) {
                     recoveredMessages = true;
                     logger.info("Recovering messages for " + channel.getName() + "(" + channel.getChannelId() + ")");
                 }
