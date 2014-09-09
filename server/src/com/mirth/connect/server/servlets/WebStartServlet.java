@@ -35,11 +35,13 @@ import org.w3c.dom.Element;
 import com.mirth.connect.model.ExtensionLibrary;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.converters.DocumentSerializer;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.ResourceUtil;
 
 public class WebStartServlet extends HttpServlet {
     private Logger logger = Logger.getLogger(this.getClass());
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
     /*
      * Override last modified time to always be modified so it updates changes to JNLP.
@@ -92,13 +94,21 @@ public class WebStartServlet extends HttpServlet {
 
         Element informationElement = (Element) jnlpElement.getElementsByTagName("information").item(0);
         Element title = (Element) informationElement.getElementsByTagName("title").item(0);
-        title.setTextContent(title.getTextContent() + " " + version);
+        String titleText = title.getTextContent() + " " + version;
+
+        // If a server name is set, prepend the application title with it
+        String serverName = configurationController.getServerSettings().getServerName();
+        if (StringUtils.isNotBlank(serverName)) {
+            titleText = serverName + " - " + titleText;
+        }
+
+        title.setTextContent(titleText);
 
         String scheme = request.getScheme();
-        String serverName = request.getServerName();
+        String serverHostname = request.getServerName();
         int serverPort = request.getServerPort();
         String contextPath = request.getContextPath();
-        String codebase = scheme + "://" + serverName + ":" + serverPort + contextPath;
+        String codebase = scheme + "://" + serverHostname + ":" + serverPort + contextPath;
 
         PropertiesConfiguration mirthProperties = new PropertiesConfiguration();
         mirthProperties.setDelimiterParsingDisabled(true);
@@ -122,7 +132,7 @@ public class WebStartServlet extends HttpServlet {
                 contextPathProp = contextPathProp.substring(0, contextPathProp.length() - 1);
             }
 
-            server = "https://" + serverName + ":" + httpsPort + contextPathProp;
+            server = "https://" + serverHostname + ":" + httpsPort + contextPathProp;
         }
 
         jnlpElement.setAttribute("codebase", codebase);
