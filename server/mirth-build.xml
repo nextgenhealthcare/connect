@@ -16,6 +16,8 @@
 		<copy todir="${server}/lib/donkey">
 			<fileset dir="${donkey}/lib">
 				<exclude name="log4j-1.2.16.jar" />
+				<exclude name="HikariCP-java6-2.0.1.jar" />
+				<exclude name="javassist-3.18.2-GA.jar" />
 				<exclude name="xstream/**" />
 				<exclude name="commons/**" />
 				<exclude name="database/**" />

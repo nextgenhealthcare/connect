@@ -72,7 +72,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/database/jtds-1.2.8.jar"/>
-	<classpathentry kind="lib" path="lib/database/postgresql-9.1-902.jdbc4.jar"/>
+	<classpathentry kind="lib" path="lib/database/postgresql-9.3-1102.jdbc4.jar"/>
 	<classpathentry kind="lib" path="lib/database/sqlite-jdbc-3.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7R5-20120629.144839-4.jar"/>
 	<classpathentry kind="lib" path="lib/database/derby-10.10.1.1.jar"/>
@@ -128,5 +128,7 @@
 	<classpathentry kind="lib" path="lib/jackson-core-2.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-annotations-2.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-databind-2.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/HikariCP-java6-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/javassist-3.18.2-GA.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

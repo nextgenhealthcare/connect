@@ -19,12 +19,14 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.data.jdbc.DBCPConnectionPool;
+import com.mirth.connect.donkey.server.data.jdbc.HikariConnectionPool;
 import com.mirth.connect.donkey.server.data.jdbc.JdbcDao;
 import com.mirth.connect.donkey.server.data.jdbc.JdbcDaoFactory;
 import com.mirth.connect.donkey.server.data.jdbc.XmlQuerySource;
@@ -81,6 +83,8 @@ public class Donkey {
         String url = dbProperties.getProperty("database.url");
         String username = dbProperties.getProperty("database.username");
         String password = dbProperties.getProperty("database.password");
+        String pool = dbProperties.getProperty("database.pool");
+        String testQuery = dbProperties.getProperty("database.test-query");
         int maxConnections;
 
         try {
@@ -99,7 +103,15 @@ public class Donkey {
 
         JdbcDaoFactory jdbcDaoFactory = JdbcDaoFactory.getInstance(database);
         jdbcDaoFactory.setStatsServerId(donkeyConfiguration.getServerId());
-        jdbcDaoFactory.setConnectionPool(new DBCPConnectionPool(url, username, password, maxConnections));
+
+        if (StringUtils.equalsIgnoreCase(pool, "HikariCP")) {
+            logger.debug("Initializing HikariCP");
+            jdbcDaoFactory.setConnectionPool(new HikariConnectionPool(driver, url, username, password, maxConnections, testQuery));
+        } else {
+            logger.debug("Initializing DBCP");
+            jdbcDaoFactory.setConnectionPool(new DBCPConnectionPool(url, username, password, maxConnections));
+        }
+
         jdbcDaoFactory.setSerializer(serializer);
 
         XmlQuerySource xmlQuerySource = new XmlQuerySource();

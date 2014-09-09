@@ -51,7 +51,7 @@
 	<classpathentry kind="lib" path="lib/commons/commons-dbcp-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-pool-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/database/derby-10.10.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/database/postgresql-9.1-902.jdbc4.jar">
+	<classpathentry kind="lib" path="lib/database/postgresql-9.3-1102.jdbc4.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://jdbc.postgresql.org/documentation/publicapi/"/>
 		</attributes>
@@ -62,5 +62,7 @@
 	<classpathentry kind="lib" path="lib/commons/commons-beanutils-1.8.3.jar"/>
 	<classpathentry kind="lib" path="lib/database/jtds-1.2.8.jar"/>
 	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.1.25-bin.jar"/>
+	<classpathentry kind="lib" path="lib/HikariCP-java6-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/javassist-3.18.2-GA.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

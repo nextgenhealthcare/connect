@@ -33,10 +33,13 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
     private static final String DATABASE_USERNAME = "database.username";
     private static final String DATABASE_PASSWORD = "database.password";
     private static final String DATABASE_MAX_CONNECTIONS = "database.max-connections";
+    private static final String DATABASE_POOL = "database.pool";
+    private static final String DATABASE_TEST_QUERY = "database.test-query";
 
     private static final String DIR_BASE = "dir.base";
 
     private static Map<String, String> databaseDriverMap = null;
+    private static Map<String, String> databaseTestQueryMap = null;
 
     static {
         databaseDriverMap = new HashMap<String, String>();
@@ -45,6 +48,9 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
         databaseDriverMap.put("oracle", "oracle.jdbc.OracleDriver");
         databaseDriverMap.put("postgres", "org.postgresql.Driver");
         databaseDriverMap.put("sqlserver", "net.sourceforge.jtds.jdbc.Driver");
+
+        databaseTestQueryMap = new HashMap<String, String>();
+        databaseTestQueryMap.put("sqlserver", "SELECT 1");
     }
 
     private String database;
@@ -53,6 +59,7 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
     private String databaseUsername;
     private String databasePassword;
     private Integer databaseMaxConnections;
+    private String databasePool;
     private String dirBase;
 
     public DatabaseSettings() {
@@ -111,6 +118,14 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
         this.databaseMaxConnections = databaseMaxConnections;
     }
 
+    public String getDatabasePool() {
+        return databasePool;
+    }
+
+    public void setDatabasePool(String databasePool) {
+        this.databasePool = databasePool;
+    }
+
     public String getDirBase() {
         return dirBase;
     }
@@ -127,6 +142,10 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
         }
     }
 
+    private String getMappedTestQuery() {
+        return MapUtils.getString(databaseTestQueryMap, getDatabase());
+    }
+
     @Override
     public void setProperties(Properties properties) {
         setDatabase(properties.getProperty(DATABASE));
@@ -135,17 +154,18 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
         setDatabaseUsername(properties.getProperty(DATABASE_USERNAME));
         setDatabasePassword(properties.getProperty(DATABASE_PASSWORD));
         setDatabaseMaxConnections(Integer.parseInt(properties.getProperty(DATABASE_MAX_CONNECTIONS)));
+        setDatabasePool(properties.getProperty(DATABASE_POOL));
         setDirBase(properties.getProperty(DIR_BASE));
     }
 
     @Override
     public Properties getProperties() {
         PropertiesConfiguration configuration = new PropertiesConfiguration();
-        
+
         if (getDirBase() != null) {
             configuration.setProperty(DIR_BASE, getDirBase());
         }
-        
+
         if (getDatabase() != null) {
             configuration.setProperty(DATABASE, getDatabase());
         }
@@ -158,9 +178,16 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
             configuration.setProperty(DATABASE_DRIVER, getMappedDatabaseDriver());
         }
 
+        if (getDatabasePool() != null) {
+            configuration.setProperty(DATABASE_POOL, getDatabasePool());
+        }
+
+        if (getMappedTestQuery() != null) {
+            configuration.setProperty(DATABASE_TEST_QUERY, getMappedTestQuery());
+        }
+
         /*
-         * MIRTH-1749: in case someone comments out the username and
-         * password properties
+         * MIRTH-1749: in case someone comments out the username and password properties
          */
         if (getDatabaseUsername() != null) {
             configuration.setProperty(DATABASE_USERNAME, getDatabaseUsername());
@@ -173,7 +200,7 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
         } else {
             configuration.setProperty(DATABASE_PASSWORD, StringUtils.EMPTY);
         }
-        
+
         if (getDatabaseMaxConnections() != null) {
             configuration.setProperty(DATABASE_MAX_CONNECTIONS, getDatabaseMaxConnections().toString());
         } else {
