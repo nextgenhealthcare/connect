@@ -294,7 +294,8 @@ public class WebServiceDispatcher extends DestinationConnector {
                 DonkeyElement element = new DonkeyElement(wsdl);
                 for (DonkeyElement child : element.getChildElements()) {
                     if (child.getLocalName().equals("import") && child.hasAttribute("location")) {
-                        child.setAttribute("location", getWsdl(client, context, dispatchContainer, visitedUrls, child.getAttribute("location")).toURI().toURL().toString());
+                        String location = new URI(wsdlUrl).resolve(child.getAttribute("location")).toString();
+                        child.setAttribute("location", getWsdl(client, context, dispatchContainer, visitedUrls, location).toURI().toURL().toString());
                     }
                 }
 
