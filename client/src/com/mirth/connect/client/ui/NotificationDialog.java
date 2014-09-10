@@ -310,12 +310,14 @@ public class NotificationDialog extends MirthDialog {
     }
 
     private void archiveSelected() {
-        if (currentNotification.isArchived()) {
-            archiveLabel.setText("<html><u>Unarchive</u></html>");
-            archiveLabel.setToolTipText("Unarchive this notification.");
-        } else {
-            archiveLabel.setText("<html><u>Archive</u></html>");
-            archiveLabel.setToolTipText("Archive this notification.");
+        if (currentNotification != null) {
+            if (currentNotification.isArchived()) {
+                archiveLabel.setText("<html><u>Unarchive</u></html>");
+                archiveLabel.setToolTipText("Unarchive this notification.");
+            } else {
+                archiveLabel.setText("<html><u>Archive</u></html>");
+                archiveLabel.setToolTipText("Archive this notification.");
+            }
         }
     }
 

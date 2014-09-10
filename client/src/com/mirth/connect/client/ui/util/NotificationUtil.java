@@ -4,9 +4,7 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
@@ -44,18 +42,16 @@ public class NotificationUtil {
         CloseableHttpClient client = null;
         HttpPost post = new HttpPost();
         CloseableHttpResponse response = null;
-        Map<String, Object> notificationMap = new HashMap<String, Object>();
-        notificationMap.put("op", NOTIFICATION_GET);
-        notificationMap.put("serverVersion", PlatformUI.SERVER_VERSION);
-        notificationMap.put("extensionVersions", LoadedExtensions.getInstance().getExtensionVersions());
 
         ObjectMapper mapper = new ObjectMapper();
-        String notificationParams = null;
+        String extensionVersions = null;
         List<Notification> allNotifications = new ArrayList<Notification>();
 
         try {
-            notificationParams = mapper.writeValueAsString(notificationMap);
-            NameValuePair[] params = { new BasicNameValuePair("params", notificationParams) };
+            extensionVersions = mapper.writeValueAsString(LoadedExtensions.getInstance().getExtensionVersions());
+            NameValuePair[] params = { new BasicNameValuePair("op", NOTIFICATION_GET),
+                    new BasicNameValuePair("serverVersion", PlatformUI.SERVER_VERSION),
+                    new BasicNameValuePair("extensionVersions", extensionVersions) };
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(TIMEOUT).setConnectionRequestTimeout(TIMEOUT).setSocketTimeout(TIMEOUT).build();
 
             post.setURI(URI.create(URL_CONNECT_SERVER + URL_NOTIFICATION_SERVLET));
@@ -104,18 +100,16 @@ public class NotificationUtil {
         CloseableHttpClient client = null;
         HttpPost post = new HttpPost();
         CloseableHttpResponse response = null;
-        Map<String, Object> notificationMap = new HashMap<String, Object>();
-        notificationMap.put("op", NOTIFICATION_COUNT_GET);
-        notificationMap.put("serverVersion", PlatformUI.SERVER_VERSION);
-        notificationMap.put("extensionVersions", LoadedExtensions.getInstance().getExtensionVersions());
 
         ObjectMapper mapper = new ObjectMapper();
-        String notificationParams = null;
+        String extensionVersions = null;
         int notificationCount = 0;
 
         try {
-            notificationParams = mapper.writeValueAsString(notificationMap);
-            NameValuePair[] params = { new BasicNameValuePair("params", notificationParams) };
+            extensionVersions = mapper.writeValueAsString(LoadedExtensions.getInstance().getExtensionVersions());
+            NameValuePair[] params = { new BasicNameValuePair("op", NOTIFICATION_COUNT_GET),
+                    new BasicNameValuePair("serverVersion", PlatformUI.SERVER_VERSION),
+                    new BasicNameValuePair("extensionVersions", extensionVersions) };
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(TIMEOUT).setConnectionRequestTimeout(TIMEOUT).setSocketTimeout(TIMEOUT).build();
 
             post.setURI(URI.create(URL_CONNECT_SERVER + URL_NOTIFICATION_SERVLET));
