@@ -61,7 +61,6 @@ import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.util.ImportConverter3_0_0;
 import com.mirth.connect.util.MigrationUtil;
-import com.thoughtworks.xstream.io.xml.DomReader;
 
 public class ObjectXMLSerializer extends XStreamSerializer {
     public final static String VERSION_ATTRIBUTE_NAME = "version";
@@ -174,7 +173,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
                     element = ImportConverter3_0_0.migrate(element, expectedClass);
                 }
 
-                return (T) getXStream().unmarshal(new DomReader(element.getElement()));
+                return (T) getXStream().unmarshal(new MirthDomReader(element.getElement()));
             }
         } catch (LinkageError e) {
             return handleDeserializationException(element, e, expectedClass);
@@ -212,7 +211,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
                     for (DonkeyElement child : listElement.getChildElements()) {
                         try {
                             child = ImportConverter3_0_0.migrate(child, expectedListItemClass);
-                            list.add((T) getXStream().unmarshal(new DomReader(child.getElement())));
+                            list.add((T) getXStream().unmarshal(new MirthDomReader(child.getElement())));
                         } catch (LinkageError e) {
                             list.add(handleDeserializationException(child, e, expectedListItemClass));
                         } catch (Exception e) {
@@ -228,7 +227,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
                 if (skipMigration(expectedListItemClass)) {
                     object = (T) getXStream().fromXML(serializedObject);
                 } else {
-                    object = getXStream().unmarshal(new DomReader(new DonkeyElement(serializedObject).getElement()));
+                    object = getXStream().unmarshal(new MirthDomReader(new DonkeyElement(serializedObject).getElement()));
                 }
 
                 if (object == null) {

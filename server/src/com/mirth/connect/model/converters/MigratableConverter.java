@@ -86,6 +86,14 @@ public class MigratableConverter extends ReflectionConverter {
          */
         if (MigrationUtil.compareVersions(version, currentVersion) < 0 && context.getRequiredType() != null) {
             migrateElement(new DonkeyElement((Element) ((DocumentReader) reader).getCurrent()), version, context.getRequiredType());
+
+            /*
+             * MIRTH-3446: If any migration was performed, we need to tell the DomReader to reload
+             * its internal list of child elements (since children may have been added or removed).
+             */
+            if (reader instanceof MirthDomReader) {
+                ((MirthDomReader) reader).reloadCurrentElement();
+            }
         }
 
         return super.unmarshal(reader, context);
