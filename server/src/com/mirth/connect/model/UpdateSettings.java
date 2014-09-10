@@ -18,11 +18,13 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.purge.Purgable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("updateSettings")
-public class UpdateSettings extends AbstractSettings implements Serializable, Auditable, Purgable {
+public class UpdateSettings extends AbstractSettings implements Serializable, Auditable, Purgable, Migratable {
 
     private static final String STATS_ENABLED = "stats.enabled";
     private static final String LAST_STATS_TIME = "stats.time";
@@ -83,5 +85,18 @@ public class UpdateSettings extends AbstractSettings implements Serializable, Au
         purgedProperties.put("statsEnabled", statsEnabled);
         purgedProperties.put("lastStatsTime", lastStatsTime);
         return purgedProperties;
+    }
+
+    @Override
+    public void migrate3_0_1(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_0_2(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_1_0(DonkeyElement element) {
+        element.removeChild("firstLogin");
+        element.removeChild("updatesEnabled");
+        element.removeChild("updateUrl");
     }
 }
