@@ -87,14 +87,13 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
         try {
             Connection connection = session.getConnection();
 
-            if (DatabaseUtil.tableExists(connection, "OLD_CHANNEL")) {
-                DatabaseTask task = new DatabaseTask(TASK_REMOVE_OLD_CHANNEL, "Remove Old 2.x Channel Table", "Remove the OLD_CHANNEL table which was renamed as part of the upgrade from 2.x to 3.x.");
-                logger.debug("Adding database task: " + task.getName());
-                tasks.put(task.getId(), task);
-            }
-
+            // Only add the task to remove OLD_CHANNEL if OLD_MESSAGE has already been dropped
             if (DatabaseUtil.tableExists(connection, "OLD_MESSAGE")) {
                 DatabaseTask task = new DatabaseTask(TASK_REMOVE_OLD_MESSAGE, "Remove Old 2.x Message Table", "Remove the OLD_MESSAGE table which was renamed as part of the upgrade from 2.x to 3.x.");
+                logger.debug("Adding database task: " + task.getName());
+                tasks.put(task.getId(), task);
+            } else if (DatabaseUtil.tableExists(connection, "OLD_CHANNEL")) {
+                DatabaseTask task = new DatabaseTask(TASK_REMOVE_OLD_CHANNEL, "Remove Old 2.x Channel Table", "Remove the OLD_CHANNEL table which was renamed as part of the upgrade from 2.x to 3.x.");
                 logger.debug("Adding database task: " + task.getName());
                 tasks.put(task.getId(), task);
             }
