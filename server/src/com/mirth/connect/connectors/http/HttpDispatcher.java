@@ -454,7 +454,9 @@ public class HttpDispatcher extends DestinationConnector {
             setQueryString(uriBuilder, queryParameters);
             httpMethod = new HttpPut(uriBuilder.build());
 
-            if (content instanceof String) {
+            if (StringUtils.startsWithIgnoreCase(contentType.getMimeType(), ContentType.APPLICATION_FORM_URLENCODED.getMimeType())) {
+                httpEntity = new UrlEncodedFormEntity(queryParameters, contentType.getCharset());
+            } else if (content instanceof String) {
                 httpEntity = new StringEntity((String) content, contentType);
             } else {
                 httpEntity = new ByteArrayEntity((byte[]) content);
