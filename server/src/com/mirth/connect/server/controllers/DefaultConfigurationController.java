@@ -301,7 +301,9 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public ServerSettings getServerSettings() throws ControllerException {
-        return new ServerSettings(getPropertiesForGroup(PROPERTIES_CORE));
+        String serverName = getProperty(PROPERTIES_CORE + "." + serverId, "server.name");
+        Properties serverSettings = getPropertiesForGroup(PROPERTIES_CORE);
+        return new ServerSettings(serverName, serverSettings);
     }
 
     @Override
@@ -316,6 +318,11 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public void setServerSettings(ServerSettings settings) throws ControllerException {
+        String serverName = settings.getServerName();
+        if (serverName != null) {
+            saveProperty(PROPERTIES_CORE + "." + serverId, "server.name", serverName);
+        }
+        
         Properties properties = settings.getProperties();
         for (Object name : properties.keySet()) {
             saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));

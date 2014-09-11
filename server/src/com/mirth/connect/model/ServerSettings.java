@@ -29,7 +29,6 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("serverSettings")
 public class ServerSettings extends AbstractSettings implements Serializable, Auditable, Purgable {
 
-    private static final String SERVER_NAME = "server.name";
     private static final String CLEAR_GLOBAL_MAP = "server.resetglobalvariables";
     private static final String QUEUE_BUFFER_SIZE = "server.queuebuffersize";
     private static final String DEFAULT_METADATA_COLUMNS = "server.defaultmetadatacolumns";
@@ -62,17 +61,15 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
 
     }
 
-    public ServerSettings(Properties properties) {
+    public ServerSettings(String serverName, Properties properties) {
+        setServerName(serverName);
         setProperties(properties);
     }
 
+    @Override
     public Properties getProperties() {
         Properties properties = new Properties();
         
-        if (getServerName() != null) {
-            properties.put(SERVER_NAME, getServerName());
-        }
-
         if (getClearGlobalMap() != null) {
             properties.put(CLEAR_GLOBAL_MAP, BooleanUtils.toIntegerObject(getClearGlobalMap()).toString());
         }
@@ -110,8 +107,8 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         return properties;
     }
 
+    @Override
     public void setProperties(Properties properties) {
-        setServerName(properties.getProperty(SERVER_NAME));
         setClearGlobalMap(intToBooleanObject(properties.getProperty(CLEAR_GLOBAL_MAP)));
         setQueueBufferSize(toIntegerObject(properties.getProperty(QUEUE_BUFFER_SIZE)));
         setDefaultMetaDataColumns(toList(properties.getProperty(DEFAULT_METADATA_COLUMNS), MetaDataColumn.class, DefaultMetaData.DEFAULT_COLUMNS));
