@@ -14,7 +14,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -42,11 +41,7 @@ import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
-import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
-import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class HttpSender extends ConnectorSettingsPanel {
@@ -681,26 +676,39 @@ public class HttpSender extends ConnectorSettingsPanel {
     }
 
     private void checkContentEnabled() {
-        boolean usingEntityEnclosingRequest = postButton.isSelected() || putButton.isSelected();
-        boolean usingFormUrlEncoded = isUsingFormUrlEncoded();
-        boolean contentEnabled = usingEntityEnclosingRequest && !usingFormUrlEncoded;
+        if (postButton.isSelected() || putButton.isSelected()) {
+            contentTypeLabel.setEnabled(true);
+            contentTypeField.setEnabled(true);
 
-        contentTypeLabel.setEnabled(usingEntityEnclosingRequest);
-        contentTypeField.setEnabled(usingEntityEnclosingRequest);
-        dataTypeLabel.setEnabled(contentEnabled);
-        dataTypeBinaryRadio.setEnabled(contentEnabled);
-        dataTypeTextRadio.setEnabled(contentEnabled);
-        charsetEncodingLabel.setEnabled(contentEnabled);
-        charsetEncodingCombobox.setEnabled(contentEnabled);
-        contentLabel.setEnabled(contentEnabled);
-        contentTextArea.setEnabled(contentEnabled);
+            if (isUsingFormUrlEncoded()) {
+                dataTypeLabel.setEnabled(false);
+                dataTypeBinaryRadio.setEnabled(false);
+                dataTypeTextRadio.setEnabled(false);
+                dataTypeTextRadio.setSelected(true);
+            } else {
+                dataTypeLabel.setEnabled(true);
+                dataTypeBinaryRadio.setEnabled(true);
+                dataTypeTextRadio.setEnabled(true);
+            }
 
-        if (contentEnabled) {
             if (dataTypeBinaryRadio.isSelected()) {
                 dataTypeBinaryRadioActionPerformed(null);
             } else {
                 dataTypeTextRadioActionPerformed(null);
             }
+
+            contentLabel.setEnabled(true);
+            contentTextArea.setEnabled(true);
+        } else {
+            contentTypeLabel.setEnabled(false);
+            contentTypeField.setEnabled(false);
+            dataTypeLabel.setEnabled(false);
+            dataTypeBinaryRadio.setEnabled(false);
+            dataTypeTextRadio.setEnabled(false);
+            charsetEncodingLabel.setEnabled(false);
+            charsetEncodingCombobox.setEnabled(false);
+            contentLabel.setEnabled(false);
+            contentTextArea.setEnabled(false);
         }
     }
 
