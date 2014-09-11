@@ -681,14 +681,29 @@ public class HttpSender extends ConnectorSettingsPanel {
             contentTypeField.setEnabled(true);
 
             if (isUsingFormUrlEncoded()) {
+                multipartLabel.setEnabled(false);
+                multipartYesButton.setEnabled(false);
+                multipartNoButton.setEnabled(false);
+                multipartNoButton.setSelected(true);
+
                 dataTypeLabel.setEnabled(false);
                 dataTypeBinaryRadio.setEnabled(false);
                 dataTypeTextRadio.setEnabled(false);
                 dataTypeTextRadio.setSelected(true);
+
+                contentLabel.setEnabled(false);
+                contentTextArea.setEnabled(false);
             } else {
+                multipartLabel.setEnabled(postButton.isSelected());
+                multipartYesButton.setEnabled(postButton.isSelected());
+                multipartNoButton.setEnabled(postButton.isSelected());
+
                 dataTypeLabel.setEnabled(true);
                 dataTypeBinaryRadio.setEnabled(true);
                 dataTypeTextRadio.setEnabled(true);
+
+                contentLabel.setEnabled(true);
+                contentTextArea.setEnabled(true);
             }
 
             if (dataTypeBinaryRadio.isSelected()) {
@@ -696,10 +711,11 @@ public class HttpSender extends ConnectorSettingsPanel {
             } else {
                 dataTypeTextRadioActionPerformed(null);
             }
-
-            contentLabel.setEnabled(true);
-            contentTextArea.setEnabled(true);
         } else {
+            multipartLabel.setEnabled(postButton.isSelected());
+            multipartYesButton.setEnabled(postButton.isSelected());
+            multipartNoButton.setEnabled(postButton.isSelected());
+
             contentTypeLabel.setEnabled(false);
             contentTypeField.setEnabled(false);
             dataTypeLabel.setEnabled(false);
@@ -1388,26 +1404,26 @@ public class HttpSender extends ConnectorSettingsPanel {
     }//GEN-LAST:event_headersNewButtonActionPerformed
 
     private void postButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_postButtonActionPerformed
-        checkContentEnabled();
         checkMultipartEnabled();
+        checkContentEnabled();
         setQueryParametersEnabled(true);
     }//GEN-LAST:event_postButtonActionPerformed
 
     private void getButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getButtonActionPerformed
-        checkContentEnabled();
         checkMultipartEnabled();
+        checkContentEnabled();
         setQueryParametersEnabled(true);
     }//GEN-LAST:event_getButtonActionPerformed
 
     private void putButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_putButtonActionPerformed
-        checkContentEnabled();
         checkMultipartEnabled();
+        checkContentEnabled();
         setQueryParametersEnabled(true);
     }//GEN-LAST:event_putButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-        checkContentEnabled();
         checkMultipartEnabled();
+        checkContentEnabled();
         setQueryParametersEnabled(true);
     }//GEN-LAST:event_deleteButtonActionPerformed
 
