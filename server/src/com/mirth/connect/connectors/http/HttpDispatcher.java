@@ -479,7 +479,11 @@ public class HttpDispatcher extends DestinationConnector {
             logger.debug("setting method header: [" + headerEntry.getKey() + ", " + headerEntry.getValue() + "]");
             httpMethod.addHeader(headerEntry.getKey(), headerEntry.getValue());
         }
-        httpMethod.setHeader(HTTP.CONTENT_TYPE, contentType.toString());
+
+        // Only set the Content-Type for entity-enclosing methods
+        if ("POST".equalsIgnoreCase(method) || "PUT".equalsIgnoreCase(method)) {
+            httpMethod.setHeader(HTTP.CONTENT_TYPE, contentType.toString());
+        }
 
         return httpMethod;
     }
