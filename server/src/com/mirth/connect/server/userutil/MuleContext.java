@@ -22,7 +22,7 @@ import com.mirth.connect.userutil.ImmutableConnectorMessage;
  * This class allows extra message metadata to be passed in for use by the preprocessor script.
  * 
  * @deprecated This class is deprecated and will soon be removed; it exists only for preprocessor
- *             legacy support. Please retrieve values from the channel map instead.
+ *             legacy support. Please retrieve values from the source map instead.
  */
 public class MuleContext {
     private Logger logger = Logger.getLogger(getClass());
@@ -36,7 +36,7 @@ public class MuleContext {
      *            The connector message that this object will reference for retrieving data.
      * 
      * @deprecated This class is deprecated and will soon be removed. Please retrieve values from
-     *             the channel map instead.
+     *             the source map instead.
      */
     public MuleContext(ImmutableConnectorMessage connectorMessage) {
         this.connectorMessage = connectorMessage;
@@ -48,9 +48,9 @@ public class MuleContext {
      * @deprecated This class is deprecated and will soon be removed.
      */
     public Map<String, Object> getProperties() {
-        logger.error("The \"muleContext\" object is deprecated and will soon be removed. Please retrieve values from the channel map instead.");
+        logger.error("The \"muleContext\" object is deprecated and will soon be removed. Please retrieve values from the source map instead.");
         if (map == null) {
-            map = new MuleContextMap(connectorMessage.getChannelMap());
+            map = new MuleContextMap(connectorMessage.getSourceMap());
         }
         return map;
     }
