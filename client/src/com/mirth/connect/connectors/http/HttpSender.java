@@ -586,7 +586,7 @@ public class HttpSender extends ConnectorSettingsPanel {
                 }
             }
 
-            if (!isUsingFormUrlEncoded() && props.getContent().length() == 0) {
+            if (!isUsingFormUrlEncoded(props.getContentType()) && props.getContent().length() == 0) {
                 valid = false;
                 if (highlight) {
                     contentTextArea.setBackground(UIConstants.INVALID_COLOR);
@@ -671,8 +671,8 @@ public class HttpSender extends ConnectorSettingsPanel {
         }
     }
 
-    private boolean isUsingFormUrlEncoded() {
-        return StringUtils.startsWithIgnoreCase(contentTypeField.getText(), ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
+    private boolean isUsingFormUrlEncoded(String contentType) {
+        return StringUtils.startsWithIgnoreCase(contentType, ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
     }
 
     private void checkContentEnabled() {
@@ -680,7 +680,7 @@ public class HttpSender extends ConnectorSettingsPanel {
             contentTypeLabel.setEnabled(true);
             contentTypeField.setEnabled(true);
 
-            if (isUsingFormUrlEncoded()) {
+            if (isUsingFormUrlEncoded(contentTypeField.getText())) {
                 multipartLabel.setEnabled(false);
                 multipartYesButton.setEnabled(false);
                 multipartNoButton.setEnabled(false);
