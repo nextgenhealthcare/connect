@@ -114,11 +114,11 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
         
         // Change the current task to reflect the new status
         if (enabled) {
-            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, 2, false);
-            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 3, 3, true);
-        } else {
+            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 1, 1, false);
             parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, 2, true);
-            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 3, 3, false);
+        } else {
+            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 1, 1, true);
+            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, 2, false);
         }
     }
 
@@ -276,13 +276,13 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
         if (row >= 0 && row < loadedConnectorsTable.getRowCount()) {
             loadedPluginsTable.clearSelection();
 
-            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, -1, true);
+            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 1, -1, true);
 
             int columnNumber = loadedConnectorsTable.getColumnViewIndex(PLUGIN_STATUS_COLUMN_NAME);
             if (((CellData) loadedConnectorsTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS)) {
-                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, 2, false);
+                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 1, 1, false);
             } else {
-                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 3, 3, false);
+                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, 2, false);
             }
         }
     }
@@ -307,7 +307,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
 
     public void deselectConnectorRows() {
         loadedConnectorsTable.clearSelection();
-        parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, -1, false);
+        parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 1, -1, false);
     }
 
     public void makeLoadedPluginsTable() {
@@ -442,13 +442,13 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
         if (row >= 0 && row < loadedPluginsTable.getRowCount()) {
             loadedConnectorsTable.clearSelection();
 
-            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, -1, true);
+            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 1, -1, true);
 
             int columnNumber = loadedPluginsTable.getColumnViewIndex(PLUGIN_STATUS_COLUMN_NAME);
             if (((CellData) loadedPluginsTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS)) {
-                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, 2, false);
+                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 1, 1, false);
             } else {
-                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 3, 3, false);
+                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, 2, false);
             }
         }
     }
@@ -473,7 +473,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
 
     public void deselectPluginRows() {
         loadedPluginsTable.clearSelection();
-        parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, -1, false);
+        parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 1, -1, false);
     }
     
     public void setRestartRequired(boolean restartRequired) {

@@ -730,8 +730,7 @@ public class Frame extends JXFrame {
 
         // Extensions Pane
         setVisibleTasks(extensionsTasks, extensionsPopupMenu, 0, 0, true);
-        setVisibleTasks(extensionsTasks, extensionsPopupMenu, 1, 1, true);
-        setVisibleTasks(extensionsTasks, extensionsPopupMenu, 2, -1, false);
+        setVisibleTasks(extensionsTasks, extensionsPopupMenu, 1, -1, false);
 
         // Other Pane
         setVisibleTasks(otherPane, null, 0, -1, true);
