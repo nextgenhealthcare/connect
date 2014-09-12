@@ -451,15 +451,18 @@ public class HttpDispatcher extends DestinationConnector {
                 }
             }
         } else if ("PUT".equalsIgnoreCase(method)) {
-            setQueryString(uriBuilder, queryParameters);
-            httpMethod = new HttpPut(uriBuilder.build());
-
             if (StringUtils.startsWithIgnoreCase(contentType.getMimeType(), ContentType.APPLICATION_FORM_URLENCODED.getMimeType())) {
+                httpMethod = new HttpPut(uriBuilder.build());
                 httpEntity = new UrlEncodedFormEntity(queryParameters, contentType.getCharset());
-            } else if (content instanceof String) {
-                httpEntity = new StringEntity((String) content, contentType);
             } else {
-                httpEntity = new ByteArrayEntity((byte[]) content);
+                setQueryString(uriBuilder, queryParameters);
+                httpMethod = new HttpPut(uriBuilder.build());
+
+                if (content instanceof String) {
+                    httpEntity = new StringEntity((String) content, contentType);
+                } else {
+                    httpEntity = new ByteArrayEntity((byte[]) content);
+                }
             }
         } else if ("DELETE".equalsIgnoreCase(method)) {
             setQueryString(uriBuilder, queryParameters);
