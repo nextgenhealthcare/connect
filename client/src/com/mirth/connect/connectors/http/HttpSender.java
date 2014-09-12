@@ -28,6 +28,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -586,10 +587,16 @@ public class HttpSender extends ConnectorSettingsPanel {
                 }
             }
 
-            if (!isUsingFormUrlEncoded(props.getContentType()) && props.getContent().length() == 0) {
-                valid = false;
-                if (highlight) {
-                    contentTextArea.setBackground(UIConstants.INVALID_COLOR);
+            if (isUsingFormUrlEncoded(props.getContentType())) {
+                if (MapUtils.isEmpty(props.getParameters())) {
+                    valid = false;
+                }
+            } else {
+                if (props.getContent().length() == 0) {
+                    valid = false;
+                    if (highlight) {
+                        contentTextArea.setBackground(UIConstants.INVALID_COLOR);
+                    }
                 }
             }
         }
