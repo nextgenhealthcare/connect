@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +41,9 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.PropertiesConfigurationLayout;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +73,7 @@ import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
+import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.MessageExporter;
 import com.mirth.connect.util.MessageImporter;
 import com.mirth.connect.util.MessageImporter.MessageImportException;
@@ -288,6 +294,10 @@ public class CommandLineInterface {
                     commandImportMessages(arguments);
                 } else if (arg1 == Token.EXPORTMESSAGES) {
                     commandExportMessages(arguments);
+                } else if (arg1 == Token.IMPORTMAP) {
+                    commandImportMap(arguments);
+                } else if (arg1 == Token.EXPORTMAP) {
+                    commandExportMap(arguments);
                 } else if (arg1 == Token.STATUS) {
                     commandStatus(arguments);
                 } else if (arg1 == Token.EXPORT) {
@@ -456,6 +466,8 @@ public class CommandLineInterface {
         out.println("exportcodetemplates \"path\"\n\tExports code templates to <path>\n");
         out.println("importmessages \"path\" id\n\tImports messages specified by <path> into the channel specified by <id>\n");
         out.println("exportmessages \"path/file-pattern\" id [xml|raw|processedraw|transformed|encoded|response] [pageSize]\n\tExports all messages for channel specified by <id> to <path>\n");
+        out.println("importmap \"path\"\n\tImports configuration map specified by <path>\n");
+        out.println("exportmap \"path\"\n\tExports configuration map to <path>\n");
         out.println("channel undeploy|deploy|start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
         out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel\n");
         out.println("channel list\n\tLists all Channels\n");
@@ -942,6 +954,79 @@ public class CommandLineInterface {
         }
 
         out.println("Messages Export Complete. " + messageCount + " Messages Exported.");
+    }
+
+    private void commandImportMap(Token[] arguments) throws ClientException {
+        if (hasInvalidNumberOfArguments(arguments, 1)) {
+            return;
+        }
+
+        // file path
+        String path = arguments[1].getText();
+        File file = new File(path);
+
+        if (file != null && file.exists()) {
+            try {
+                PropertiesConfiguration properties = new PropertiesConfiguration(file);
+                Map<String, ConfigurationProperty> configurationMap = new HashMap<String, ConfigurationProperty>();
+                Iterator<String> iterator = properties.getKeys();
+
+                while (iterator.hasNext()) {
+                    String key = iterator.next();
+                    String value = properties.getString(key);
+                    String comment = properties.getLayout().getCanonicalComment(key, false);
+
+                    configurationMap.put(key, new ConfigurationProperty(value, comment));
+                }
+
+                client.setConfigurationMap(configurationMap);
+
+                out.println("Configuration map import complete");
+            } catch (ConfigurationException e) {
+                error("Unable to import configuration map", e);
+            }
+        } else {
+            error("Unable to read file " + path, null);
+        }
+    }
+
+    private void commandExportMap(Token[] arguments) throws ClientException {
+        if (hasInvalidNumberOfArguments(arguments, 1)) {
+            return;
+        }
+
+        // file path
+        String path = arguments[1].getText();
+        File file = new File(path);
+
+        if (file != null) {
+            try {
+                PropertiesConfiguration properties = new PropertiesConfiguration(file);
+                properties.clear();
+                PropertiesConfigurationLayout layout = properties.getLayout();
+
+                Map<String, ConfigurationProperty> configurationMap = client.getConfigurationMap();
+                Map<String, ConfigurationProperty> sortedMap = new TreeMap<String, ConfigurationProperty>(String.CASE_INSENSITIVE_ORDER);
+                sortedMap.putAll(configurationMap);
+
+                for (Entry<String, ConfigurationProperty> entry : sortedMap.entrySet()) {
+                    String key = entry.getKey();
+                    String value = entry.getValue().getValue();
+                    String comment = entry.getValue().getComment();
+
+                    if (StringUtils.isNotBlank(key)) {
+                        properties.setProperty(key, value);
+                        layout.setComment(key, StringUtils.isBlank(comment) ? null : comment);
+                    }
+                }
+
+                properties.save();
+
+                out.println("Configuration map export complete.");
+            } catch (ConfigurationException e) {
+                error("Unable to export configuration map.", e);
+            }
+        }
     }
 
     private void commandStatus(Token[] arguments) throws ClientException {
