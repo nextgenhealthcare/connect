@@ -249,14 +249,13 @@ public class HttpDispatcher extends DestinationConnector {
             Charset charset = null;
             if (contentType.getCharset() == null) {
                 charset = Charset.forName(CharsetUtils.getEncoding(httpDispatcherProperties.getCharset()));
-                contentType = contentType.withCharset(charset);
             } else {
                 charset = contentType.getCharset();
             }
 
             HttpHost target = new HttpHost(host, port, scheme);
 
-            httpMethod = buildHttpRequest(hostURI, httpDispatcherProperties, connectorMessage, tempFile, contentType);
+            httpMethod = buildHttpRequest(hostURI, httpDispatcherProperties, connectorMessage, tempFile, contentType, charset);
 
             HttpClientContext context = HttpClientContext.create();
 
@@ -392,7 +391,7 @@ public class HttpDispatcher extends DestinationConnector {
         return socketFactoryRegistry;
     }
 
-    private HttpRequestBase buildHttpRequest(URI hostURI, HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage, File tempFile, ContentType contentType) throws Exception {
+    private HttpRequestBase buildHttpRequest(URI hostURI, HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage, File tempFile, ContentType contentType, Charset charset) throws Exception {
         String method = httpDispatcherProperties.getMethod();
         boolean isMultipart = httpDispatcherProperties.isMultipart();
         Map<String, String> headers = httpDispatcherProperties.getHeaders();
@@ -403,6 +402,11 @@ public class HttpDispatcher extends DestinationConnector {
             content = getAttachmentHandler().reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage, null, true);
         } else {
             content = getAttachmentHandler().reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage);
+
+            // If text mode is used and a specific charset isn't already defined, use the one from the connector properties
+            if (contentType.getCharset() == null) {
+                contentType = contentType.withCharset(charset);
+            }
         }
 
         // populate the query parameters
