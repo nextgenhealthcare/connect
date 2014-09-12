@@ -327,7 +327,12 @@ public class HttpReceiver extends SourceConnector {
     }
 
     private void sendResponse(Request baseRequest, HttpServletResponse servletResponse, DispatchResult dispatchResult) throws Exception {
-        servletResponse.setContentType(replacer.replaceValues(connectorProperties.getResponseContentType(), getChannelId()));
+        ContentType contentType = ContentType.parse(replacer.replaceValues(connectorProperties.getResponseContentType(), getChannelId()));
+        if (!connectorProperties.isResponseDataTypeBinary() && contentType.getCharset() == null) {
+            // If text mode is used and a specific charset isn't already defined, use the one from the connector properties
+            contentType = contentType.withCharset(CharsetUtils.getEncoding(connectorProperties.getCharset()));
+        }
+        servletResponse.setContentType(contentType.toString());
 
         // set the response headers
         for (Entry<String, String> entry : connectorProperties.getResponseHeaders().entrySet()) {
