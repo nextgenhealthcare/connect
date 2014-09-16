@@ -495,8 +495,6 @@ public class WebServiceDispatcher extends DestinationConnector {
                 }
             } while (redirect && tryCount < MAX_REDIRECTS);
         } catch (Exception e) {
-            // Set the response status to ERROR if it failed to create the dispatch
-            responseStatus = Status.ERROR;
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error creating web service dispatch", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error creating web service dispatch", e);
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error creating web service dispatch.", e));
