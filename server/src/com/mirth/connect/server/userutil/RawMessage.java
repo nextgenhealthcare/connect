@@ -200,10 +200,14 @@ public class RawMessage {
      * numbers to Double
      */
     private Collection<Integer> convertCollection(Collection<Number> numbers) {
-        Set<Integer> set = new LinkedHashSet<Integer>();
+        Set<Integer> set = null;
 
-        for (Number number : numbers) {
-            set.add(number.intValue());
+        if (numbers != null) {
+            set = new LinkedHashSet<Integer>();
+
+            for (Number number : numbers) {
+                set.add(number.intValue());
+            }
         }
 
         return set;
