@@ -421,46 +421,7 @@ public class HttpReceiver extends SourceConnector {
     }
 
     private Object getMessage(Request request, Map<String, Object> sourceMap) throws IOException, ChannelException, MessagingException, DonkeyElementException, ParserConfigurationException {
-        HttpRequestMessage requestMessage = new HttpRequestMessage();
-        requestMessage.setMethod(request.getMethod());
-        requestMessage.setHeaders(HttpMessageConverter.convertFieldEnumerationToMap(request));
-        requestMessage.setParameters(extractParameters(request));
-
-        InputStream requestInputStream = request.getInputStream();
-
-        // If the request is GZIP encoded, uncompress the content
-        String contentEncoding = requestMessage.getCaseInsensitiveHeaders().get(HTTP.CONTENT_ENCODING);
-        if (contentEncoding != null && (contentEncoding.toLowerCase().equals("gzip") || contentEncoding.toLowerCase().equals("x-gzip"))) {
-            requestInputStream = new GZIPInputStream(requestInputStream);
-        }
-
-        ContentType contentType;
-        try {
-            contentType = ContentType.parse(request.getContentType());
-        } catch (RuntimeException e) {
-            contentType = ContentType.TEXT_PLAIN;
-        }
-        requestMessage.setContentType(contentType);
-
-        requestMessage.setRemoteAddress(StringUtils.trimToEmpty(request.getRemoteAddr()));
-        requestMessage.setQueryString(StringUtils.trimToEmpty(request.getQueryString()));
-        requestMessage.setRequestUrl(StringUtils.trimToEmpty(getRequestURL(request)));
-        requestMessage.setContextPath(StringUtils.trimToEmpty(new URL(requestMessage.getRequestUrl()).getPath()));
-
-        /*
-         * First parse out the body of the HTTP request. Depending on the connector settings, this
-         * could end up being a string encoded with the request charset, a byte array representing
-         * the raw request payload, or a MimeMultipart object.
-         */
-
-        // Only parse multipart if XML Body is selected and Parse Multipart is enabled
-        if (connectorProperties.isXmlBody() && connectorProperties.isParseMultipart() && ServletFileUpload.isMultipartContent(request)) {
-            requestMessage.setContent(new MimeMultipart(new ByteArrayDataSource(requestInputStream, contentType.toString())));
-        } else if (isBinaryContentType(contentType)) {
-            requestMessage.setContent(IOUtils.toByteArray(requestInputStream));
-        } else {
-            requestMessage.setContent(IOUtils.toString(requestInputStream, HttpMessageConverter.getDefaultHttpCharset(request.getCharacterEncoding())));
-        }
+        HttpRequestMessage requestMessage = createRequestMessage(request, false);
 
         /*
          * Now that we have the request body, we need to create the actual RawMessage message data.
@@ -478,6 +439,59 @@ public class HttpReceiver extends SourceConnector {
 
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.RECEIVING));
 
+        populateSourceMap(request, requestMessage, sourceMap);
+
+        return rawMessageContent;
+    }
+
+    private HttpRequestMessage createRequestMessage(Request request, boolean ignorePayload) throws IOException, MessagingException {
+        HttpRequestMessage requestMessage = new HttpRequestMessage();
+        requestMessage.setMethod(request.getMethod());
+        requestMessage.setHeaders(HttpMessageConverter.convertFieldEnumerationToMap(request));
+        requestMessage.setParameters(extractParameters(request));
+
+        ContentType contentType;
+        try {
+            contentType = ContentType.parse(request.getContentType());
+        } catch (RuntimeException e) {
+            contentType = ContentType.TEXT_PLAIN;
+        }
+        requestMessage.setContentType(contentType);
+
+        requestMessage.setRemoteAddress(StringUtils.trimToEmpty(request.getRemoteAddr()));
+        requestMessage.setQueryString(StringUtils.trimToEmpty(request.getQueryString()));
+        requestMessage.setRequestUrl(StringUtils.trimToEmpty(getRequestURL(request)));
+        requestMessage.setContextPath(StringUtils.trimToEmpty(new URL(requestMessage.getRequestUrl()).getPath()));
+
+        if (!ignorePayload) {
+            InputStream requestInputStream = request.getInputStream();
+
+            // If the request is GZIP encoded, uncompress the content
+            String contentEncoding = requestMessage.getCaseInsensitiveHeaders().get(HTTP.CONTENT_ENCODING);
+            if (contentEncoding != null && (contentEncoding.toLowerCase().equals("gzip") || contentEncoding.toLowerCase().equals("x-gzip"))) {
+                requestInputStream = new GZIPInputStream(requestInputStream);
+            }
+
+            /*
+             * First parse out the body of the HTTP request. Depending on the connector settings,
+             * this could end up being a string encoded with the request charset, a byte array
+             * representing the raw request payload, or a MimeMultipart object.
+             */
+
+            // Only parse multipart if XML Body is selected and Parse Multipart is enabled
+            if (connectorProperties.isXmlBody() && connectorProperties.isParseMultipart() && ServletFileUpload.isMultipartContent(request)) {
+                requestMessage.setContent(new MimeMultipart(new ByteArrayDataSource(requestInputStream, contentType.toString())));
+            } else if (isBinaryContentType(contentType)) {
+                requestMessage.setContent(IOUtils.toByteArray(requestInputStream));
+            } else {
+                requestMessage.setContent(IOUtils.toString(requestInputStream, HttpMessageConverter.getDefaultHttpCharset(request.getCharacterEncoding())));
+            }
+        }
+
+        return requestMessage;
+    }
+
+    private void populateSourceMap(Request request, HttpRequestMessage requestMessage, Map<String, Object> sourceMap) {
         sourceMap.put("remoteAddress", requestMessage.getRemoteAddress());
         sourceMap.put("remotePort", request.getRemotePort());
         sourceMap.put("localAddress", StringUtils.trimToEmpty(request.getLocalAddr()));
@@ -493,8 +507,6 @@ public class HttpReceiver extends SourceConnector {
 
         // Add custom source map variables from the configuration interface
         sourceMap.putAll(configuration.getRequestInformation(request));
-
-        return rawMessageContent;
     }
 
     private class StaticResourceHandler extends AbstractHandler {
@@ -513,14 +525,19 @@ public class HttpReceiver extends SourceConnector {
             }
 
             try {
-                String contextPath = URLDecoder.decode(new URL(getRequestURL(baseRequest)).getPath(), "US-ASCII");
+                HttpRequestMessage requestMessage = createRequestMessage(baseRequest, true);
+
+                String contextPath = URLDecoder.decode(requestMessage.getContextPath(), "US-ASCII");
                 if (contextPath.endsWith("/")) {
                     contextPath = contextPath.substring(0, contextPath.length() - 1);
                 }
                 logger.debug("Received static resource request at: " + contextPath);
 
-                String value = replacer.replaceValues(staticResource.getValue(), getChannelId());
-                String contentTypeString = replacer.replaceValues(staticResource.getContentType(), getChannelId());
+                Map<String, Object> sourceMap = new HashMap<String, Object>();
+                populateSourceMap(baseRequest, requestMessage, sourceMap);
+
+                String value = replacer.replaceValues(staticResource.getValue(), getChannelId(), sourceMap);
+                String contentTypeString = replacer.replaceValues(staticResource.getContentType(), getChannelId(), sourceMap);
 
                 // If we're not reading from a directory and the context path doesn't match, pass to the next request handler
                 if (staticResource.getResourceType() != ResourceType.DIRECTORY && !staticResource.getContextPath().equalsIgnoreCase(contextPath)) {
@@ -528,7 +545,7 @@ public class HttpReceiver extends SourceConnector {
                 }
 
                 // If the query parameters do not match, pass to the next request handler
-                if (!parametersEqual(staticResource.getQueryParameters(), extractParameters(baseRequest))) {
+                if (!parametersEqual(staticResource.getQueryParameters(), requestMessage.getParameters())) {
                     return;
                 }
 
@@ -550,7 +567,7 @@ public class HttpReceiver extends SourceConnector {
                 OutputStream responseOutputStream = servletResponse.getOutputStream();
 
                 // If the client accepts GZIP compression, compress the content
-                String acceptEncoding = baseRequest.getHeader("Accept-Encoding");
+                String acceptEncoding = requestMessage.getCaseInsensitiveHeaders().get("Accept-Encoding");
                 if (acceptEncoding != null && acceptEncoding.contains("gzip")) {
                     servletResponse.setHeader(HTTP.CONTENT_ENCODING, "gzip");
                     responseOutputStream = new GZIPOutputStream(responseOutputStream);
