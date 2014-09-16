@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.purge.Purgable;
 
@@ -52,7 +53,20 @@ public abstract class ConnectorProperties implements Serializable, Migratable, P
      */
     @Override
     public abstract boolean equals(Object obj);
-    
+
+    @Override
+    public void migrate3_1_0(DonkeyElement element) {
+        DonkeyElement responseProperties = element.getChildElement("responseConnectorProperties");
+        if (responseProperties != null) {
+            responseProperties.setNodeName("sourceConnectorProperties");
+        }
+
+        DonkeyElement queueProperties = element.getChildElement("queueConnectorProperties");
+        if (queueProperties != null) {
+            queueProperties.setNodeName("destinationConnectorProperties");
+        }
+    }
+
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();

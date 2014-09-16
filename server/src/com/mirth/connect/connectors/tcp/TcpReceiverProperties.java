@@ -262,6 +262,8 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {
+        super.migrate3_1_0(element);
+
         String processBatch = element.removeChild("processBatch").getTextContent();
         DonkeyElement sourcePropertiesElement = element.getChildElement("sourceConnectorProperties");
         if (sourcePropertiesElement != null) {

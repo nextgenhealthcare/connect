@@ -284,6 +284,8 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Dest
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {
+        super.migrate3_1_0(element);
+
         element.addChildElement("checkRemoteHost", "true");
 
         String processHL7ACK = element.removeChild("processHL7ACK").getTextContent();

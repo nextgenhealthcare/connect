@@ -370,6 +370,8 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {
+        super.migrate3_1_0(element);
+
         boolean responseXmlBody = Boolean.parseBoolean(element.removeChild("includeHeadersInResponse").getTextContent());
         element.addChildElement("responseXmlBody", Boolean.toString(responseXmlBody));
         element.addChildElement("responseParseMultipart", Boolean.toString(!responseXmlBody));

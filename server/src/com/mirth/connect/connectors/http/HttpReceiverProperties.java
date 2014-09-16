@@ -208,6 +208,8 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {
+        super.migrate3_1_0(element);
+
         boolean xmlBody = !Boolean.parseBoolean(element.removeChild("bodyOnly").getTextContent());
         element.addChildElement("xmlBody", Boolean.toString(xmlBody));
         element.addChildElement("parseMultipart", Boolean.toString(!xmlBody));

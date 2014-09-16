@@ -155,8 +155,6 @@ public class Connector implements Serializable, Migratable, Purgable {
 
         DonkeyElement responseProperties = properties.getChildElement("responseConnectorProperties");
         if (responseProperties != null) {
-            responseProperties.setNodeName("sourceConnectorProperties");
-
             DonkeyElement transformer = element.getChildElement("transformer");
             if (transformer != null) {
                 /*
@@ -187,11 +185,6 @@ public class Connector implements Serializable, Migratable, Purgable {
                     }
                 }
             }
-        }
-
-        DonkeyElement queueProperties = properties.getChildElement("queueConnectorProperties");
-        if (queueProperties != null) {
-            queueProperties.setNodeName("destinationConnectorProperties");
         }
     }
 
