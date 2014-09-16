@@ -1268,10 +1268,10 @@ public class Channel implements Runnable {
 
         sourceMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, null, sourceConnector.getInboundDataType().getType(), false));
 
-        Map<String, Object> sourceMap = rawMessage.getSourceMap();
-        if (sourceMap == null) {
-            sourceMap = new HashMap<String, Object>();
-        } else {
+        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        if (rawMessage.getSourceMap() != null) {
+            sourceMap.putAll(rawMessage.getSourceMap());
+
             // If this is a batch message, see if this is the first message in the batch
             if (sourceMap.containsKey(Constants.BATCH_SEQUENCE_ID_KEY)) {
                 Object batchIdObject = sourceMap.get(Constants.BATCH_SEQUENCE_ID_KEY);
