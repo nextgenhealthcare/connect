@@ -78,7 +78,7 @@ public class HTTPUtil {
             content = IOUtils.toString(httpBody, HttpMessageConverter.getDefaultHttpCharset(type.getCharset().name()));
         }
 
-        return HttpMessageConverter.contentToXml(content, type, true);
+        return HttpMessageConverter.contentToXml(content, type, true, null);
     }
 
     /**
@@ -105,7 +105,7 @@ public class HTTPUtil {
             content = httpBody;
         }
 
-        return HttpMessageConverter.contentToXml(content, type, true);
+        return HttpMessageConverter.contentToXml(content, type, true, null);
     }
 
     private static ContentType getContentType(String contentType) {

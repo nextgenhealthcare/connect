@@ -89,7 +89,7 @@ import com.mirth.connect.util.CharsetUtils;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 
-public class HttpReceiver extends SourceConnector {
+public class HttpReceiver extends SourceConnector implements BinaryContentTypeResolver {
     private Logger logger = Logger.getLogger(this.getClass());
     private HttpReceiverProperties connectorProperties;
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
@@ -432,7 +432,7 @@ public class HttpReceiver extends SourceConnector {
         Object rawMessageContent;
 
         if (connectorProperties.isXmlBody()) {
-            rawMessageContent = HttpMessageConverter.httpRequestToXml(requestMessage, connectorProperties.isParseMultipart(), connectorProperties.isIncludeMetadata());
+            rawMessageContent = HttpMessageConverter.httpRequestToXml(requestMessage, connectorProperties.isParseMultipart(), connectorProperties.isIncludeMetadata(), this);
         } else {
             rawMessageContent = requestMessage.getContent();
         }
@@ -741,7 +741,8 @@ public class HttpReceiver extends SourceConnector {
         return requestURL;
     }
 
-    private boolean isBinaryContentType(ContentType contentType) {
+    @Override
+    public boolean isBinaryContentType(ContentType contentType) {
         String mimeType = contentType.getMimeType();
 
         if (connectorProperties.isBinaryMimeTypesRegex()) {

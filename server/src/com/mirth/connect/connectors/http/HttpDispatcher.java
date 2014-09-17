@@ -324,6 +324,14 @@ public class HttpDispatcher extends DestinationConnector {
                 responseCharset = responseContentType.getCharset();
             }
 
+            final String responseBinaryMimeTypes = httpDispatcherProperties.getResponseBinaryMimeTypes();
+            BinaryContentTypeResolver binaryContentTypeResolver = new BinaryContentTypeResolver() {
+                @Override
+                public boolean isBinaryContentType(ContentType contentType) {
+                    return HttpDispatcher.this.isBinaryContentType(responseBinaryMimeTypes, contentType);
+                }
+            };
+
             /*
              * First parse out the body of the HTTP response. Depending on the connector settings,
              * this could end up being a string encoded with the response charset, a byte array
@@ -336,7 +344,7 @@ public class HttpDispatcher extends DestinationConnector {
                 // Only parse multipart if XML Body is selected and Parse Multipart is enabled
                 if (httpDispatcherProperties.isResponseXmlBody() && httpDispatcherProperties.isResponseParseMultipart() && responseContentType.getMimeType().startsWith(FileUploadBase.MULTIPART)) {
                     responseBody = new MimeMultipart(new ByteArrayDataSource(httpResponse.getEntity().getContent(), responseContentType.toString()));
-                } else if (isBinaryContentType(httpDispatcherProperties.getResponseBinaryMimeTypes(), responseContentType)) {
+                } else if (binaryContentTypeResolver.isBinaryContentType(responseContentType)) {
                     responseBody = IOUtils.toByteArray(httpResponse.getEntity().getContent());
                 } else {
                     responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), responseCharset);
@@ -350,7 +358,7 @@ public class HttpDispatcher extends DestinationConnector {
              * payload with the request charset.
              */
             if (httpDispatcherProperties.isResponseXmlBody()) {
-                responseData = HttpMessageConverter.httpResponseToXml(statusLine.toString(), headers, responseBody, responseContentType, httpDispatcherProperties.isResponseParseMultipart(), httpDispatcherProperties.isResponseIncludeMetadata());
+                responseData = HttpMessageConverter.httpResponseToXml(statusLine.toString(), headers, responseBody, responseContentType, httpDispatcherProperties.isResponseParseMultipart(), httpDispatcherProperties.isResponseIncludeMetadata(), binaryContentTypeResolver);
             } else if (responseBody instanceof byte[]) {
                 responseData = new String(Base64Util.encodeBase64((byte[]) responseBody), "US-ASCII");
             } else {
@@ -405,7 +413,7 @@ public class HttpDispatcher extends DestinationConnector {
 
             // If text mode is used and a specific charset isn't already defined, use the one from the connector properties
             if (contentType.getCharset() == null) {
-                contentType = contentType.withCharset(charset);
+                contentType = HttpMessageConverter.setCharset(contentType, charset);
             }
         }
 
@@ -489,8 +497,8 @@ public class HttpDispatcher extends DestinationConnector {
             httpMethod.addHeader(headerEntry.getKey(), headerEntry.getValue());
         }
 
-        // Only set the Content-Type for entity-enclosing methods
-        if ("POST".equalsIgnoreCase(method) || "PUT".equalsIgnoreCase(method)) {
+        // Only set the Content-Type for entity-enclosing methods, but not if multipart is used
+        if (("POST".equalsIgnoreCase(method) || "PUT".equalsIgnoreCase(method)) && !isMultipart) {
             httpMethod.setHeader(HTTP.CONTENT_TYPE, contentType.toString());
         }
 

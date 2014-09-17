@@ -11,8 +11,12 @@ package com.mirth.connect.connectors.http;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -24,8 +28,17 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HeaderElement;
+import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.entity.ContentType;
+import org.apache.http.message.BasicHeaderValueFormatter;
+import org.apache.http.message.BasicHeaderValueParser;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.message.ParserCursor;
+import org.apache.http.util.CharArrayBuffer;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
@@ -36,7 +49,15 @@ import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 public class HttpMessageConverter {
     private static Logger logger = Logger.getLogger(HttpMessageConverter.class);
 
-    public static String httpRequestToXml(HttpRequestMessage request, boolean parseMultipart, boolean includeMetadata) {
+    private static BinaryContentTypeResolver defaultResolver = new BinaryContentTypeResolver() {
+        @Override
+        public boolean isBinaryContentType(ContentType contentType) {
+            return StringUtils.startsWithAny(contentType.getMimeType(), new String[] {
+                    "application/", "image/", "video/", "audio/" });
+        }
+    };
+
+    public static String httpRequestToXml(HttpRequestMessage request, boolean parseMultipart, boolean includeMetadata, BinaryContentTypeResolver resolver) {
         try {
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             DonkeyElement requestElement = new DonkeyElement(document.createElement("HttpRequest"));
@@ -69,7 +90,7 @@ public class HttpMessageConverter {
                 }
             }
 
-            processContent(requestElement.addChildElement("Content"), request.getContent(), request.getContentType(), parseMultipart);
+            processContent(requestElement.addChildElement("Content"), request.getContent(), request.getContentType(), parseMultipart, resolver);
 
             return requestElement.toXml();
         } catch (Exception e) {
@@ -79,13 +100,17 @@ public class HttpMessageConverter {
         return null;
     }
 
-    public static String contentToXml(Object content, ContentType contentType, boolean parseMultipart) throws DonkeyElementException, MessagingException, IOException, ParserConfigurationException {
+    public static String contentToXml(Object content, ContentType contentType, boolean parseMultipart, BinaryContentTypeResolver resolver) throws DonkeyElementException, MessagingException, IOException, ParserConfigurationException {
         DonkeyElement contentElement = new DonkeyElement("<Content/>");
-        processContent(contentElement, content, contentType, parseMultipart);
+        processContent(contentElement, content, contentType, parseMultipart, resolver);
         return contentElement.toXml();
     }
 
-    private static void processContent(DonkeyElement contentElement, Object content, ContentType contentType, boolean parseMultipart) throws DonkeyElementException, MessagingException, IOException {
+    private static void processContent(DonkeyElement contentElement, Object content, ContentType contentType, boolean parseMultipart, BinaryContentTypeResolver resolver) throws DonkeyElementException, MessagingException, IOException {
+        if (resolver == null) {
+            resolver = defaultResolver;
+        }
+
         if (parseMultipart && content instanceof MimeMultipart) {
             contentElement.setAttribute("multipart", "yes");
             MimeMultipart multipart = (MimeMultipart) content;
@@ -109,7 +134,7 @@ public class HttpMessageConverter {
                     javax.mail.Header header = en.nextElement();
                     headersElement.addChildElement(header.getName(), header.getValue());
 
-                    if (header.getValue().equalsIgnoreCase("Content-Type")) {
+                    if (header.getName().equalsIgnoreCase("Content-Type")) {
                         try {
                             partContentType = ContentType.parse(header.getValue());
                         } catch (RuntimeException e) {
@@ -117,24 +142,39 @@ public class HttpMessageConverter {
                     }
                 }
 
-                processContent(partElement.addChildElement("Content"), part.getContent(), partContentType, true);
+                processContent(partElement.addChildElement("Content"), part.getContent(), partContentType, true, resolver);
             }
         } else {
             contentElement.setAttribute("multipart", "no");
+            String charset = getDefaultHttpCharset(contentType.getCharset() != null ? contentType.getCharset().name() : null);
 
-            if (content instanceof InputStream) {
+            // Call the resolver to determine if the content should be Base64 encoded
+            if (resolver.isBinaryContentType(contentType)) {
                 contentElement.setAttribute("encoding", "Base64");
-                contentElement.setTextContent(new String(Base64Util.encodeBase64(IOUtils.toByteArray((InputStream) content)), "US-ASCII"));
-            } else if (content instanceof byte[]) {
-                contentElement.setAttribute("encoding", "Base64");
-                contentElement.setTextContent(new String(Base64Util.encodeBase64((byte[]) content), "US-ASCII"));
+                byte[] contentByteArray;
+
+                if (content instanceof InputStream) {
+                    contentByteArray = IOUtils.toByteArray((InputStream) content);
+                } else if (content instanceof byte[]) {
+                    contentByteArray = (byte[]) content;
+                } else {
+                    contentByteArray = (content != null ? content.toString() : "").getBytes(charset);
+                }
+
+                contentElement.setTextContent(new String(Base64Util.encodeBase64(contentByteArray), "US-ASCII"));
             } else {
-                contentElement.setTextContent(content != null ? content.toString() : "");
+                if (content instanceof InputStream) {
+                    contentElement.setTextContent(IOUtils.toString((InputStream) content, charset));
+                } else if (content instanceof byte[]) {
+                    contentElement.setTextContent(new String((byte[]) content, charset));
+                } else {
+                    contentElement.setTextContent(content != null ? content.toString() : "");
+                }
             }
         }
     }
 
-    public static String httpResponseToXml(String status, Map<String, String> headers, Object content, ContentType contentType, boolean parseMultipart, boolean includeMetadata) {
+    public static String httpResponseToXml(String status, Map<String, String> headers, Object content, ContentType contentType, boolean parseMultipart, boolean includeMetadata, BinaryContentTypeResolver resolver) {
         try {
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             DonkeyElement requestElement = new DonkeyElement(document.createElement("HttpResponse"));
@@ -151,7 +191,7 @@ public class HttpMessageConverter {
                 }
             }
 
-            processContent(requestElement.addChildElement("Body"), content, contentType, parseMultipart);
+            processContent(requestElement.addChildElement("Body"), content, contentType, parseMultipart, resolver);
 
             return requestElement.toXml();
         } catch (Exception e) {
@@ -179,5 +219,56 @@ public class HttpMessageConverter {
         }
 
         return headers;
+    }
+
+    /**
+     * This method takes in a ContentType and returns an equivalent ContentType, only overriding the
+     * charset. This is needed because ContentType.withCharset(charset) does not correctly handle
+     * headers with multiple parameters. Parsing a ContentType from a String works, calling
+     * toString() to get the correct header value works, but there's no way from ContentType itself
+     * to update a specific parameter in-place.
+     */
+    public static ContentType setCharset(ContentType contentType, Charset charset) throws ParseException, UnsupportedCharsetException {
+        // Get the correct header value
+        String contentTypeString = contentType.toString();
+
+        // Parse the header manually the same way ContentType does it
+        CharArrayBuffer buffer = new CharArrayBuffer(contentTypeString.length());
+        buffer.append(contentTypeString);
+        ParserCursor cursor = new ParserCursor(0, contentTypeString.length());
+        HeaderElement[] elements = BasicHeaderValueParser.INSTANCE.parseElements(buffer, cursor);
+
+        if (ArrayUtils.isNotEmpty(elements)) {
+            String mimeType = elements[0].getName();
+            NameValuePair[] params = elements[0].getParameters();
+            List<NameValuePair> paramsList = new ArrayList<NameValuePair>();
+            boolean charsetFound = false;
+
+            // Iterate through each parameter and override the charset if present
+            if (ArrayUtils.isNotEmpty(params)) {
+                for (NameValuePair nvp : params) {
+                    if (nvp.getName().equalsIgnoreCase("charset")) {
+                        charsetFound = true;
+                        nvp = new BasicNameValuePair(nvp.getName(), charset.name());
+                    }
+                    paramsList.add(nvp);
+                }
+            }
+
+            // Add the charset at the end if it wasn't found before
+            if (!charsetFound) {
+                paramsList.add(new BasicNameValuePair("charset", charset.name()));
+            }
+
+            // Format the header the same way ContentType does it
+            CharArrayBuffer newBuffer = new CharArrayBuffer(64);
+            newBuffer.append(mimeType);
+            newBuffer.append("; ");
+            BasicHeaderValueFormatter.INSTANCE.formatParameters(newBuffer, paramsList.toArray(new NameValuePair[paramsList.size()]), false);
+            // Once we have the correct string, let ContentType do the rest
+            return ContentType.parse(newBuffer.toString());
+        } else {
+            throw new ParseException("Invalid content type: " + contentTypeString);
+        }
     }
 }
