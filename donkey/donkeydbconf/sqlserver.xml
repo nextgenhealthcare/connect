@@ -279,4 +279,36 @@
 		AND ID IN (${metaDataIds})
 		ORDER BY CHAIN_ID ASC, ORDER_ID ASC
 	</query>
+
+	<query id="updateChannelStatistics">
+		UPDATE D_MS${localChannelId}
+		WITH (TABLOCK)
+		SET RECEIVED = RECEIVED + ?,
+			RECEIVED_LIFETIME = RECEIVED_LIFETIME + ?,
+			FILTERED = FILTERED + ?,
+			FILTERED_LIFETIME = FILTERED_LIFETIME + ?,
+			SENT = SENT + ?,
+			SENT_LIFETIME = SENT_LIFETIME + ?,
+			ERROR = ERROR + ?,
+			ERROR_LIFETIME = ERROR_LIFETIME + ?
+		
+		WHERE METADATA_ID IS NULL
+		AND SERVER_ID = ?
+	</query>
+
+	<query id="updateConnectorStatistics">
+		UPDATE D_MS${localChannelId}
+		WITH (TABLOCK)
+		SET RECEIVED = RECEIVED + ?,
+			RECEIVED_LIFETIME = RECEIVED_LIFETIME + ?,
+			FILTERED = FILTERED + ?,
+			FILTERED_LIFETIME = FILTERED_LIFETIME + ?,
+			SENT = SENT + ?,
+			SENT_LIFETIME = SENT_LIFETIME + ?,
+			ERROR = ERROR + ?,
+			ERROR_LIFETIME = ERROR_LIFETIME + ?
+		
+		WHERE METADATA_ID = ?
+		AND SERVER_ID = ?
+	</query>
 </queries>
