@@ -8,6 +8,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.donkey.util.purge.Purgable;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.Channel;
@@ -20,7 +21,6 @@ import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.purged.PurgedDocument;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.server.ExtensionLoader;
-import com.mirth.connect.util.UsageUtil;
 
 public class DefaultUsageController extends UsageController {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
@@ -49,7 +49,7 @@ public class DefaultUsageController extends UsageController {
 
         if (lastUpdate != null) {
             long last = lastUpdate;
-            if ((now - last) < (UsageUtil.MILLIS_PER_DAY)) {
+            if ((now - last) < (ConnectServiceUtil.MILLIS_PER_DAY)) {
                 return false;
             }
         }

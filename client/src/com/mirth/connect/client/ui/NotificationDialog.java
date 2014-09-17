@@ -45,7 +45,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.client.ui.util.NotificationUtil;
+import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.notification.Notification;
 
@@ -112,7 +112,11 @@ public class NotificationDialog extends MirthDialog {
             List<Notification> notifications = new ArrayList<Notification>();
 
             public Void doInBackground() {
-                notifications = NotificationUtil.getNotifications();
+                try {
+                    notifications = ConnectServiceUtil.getNotifications(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, LoadedExtensions.getInstance().getExtensionVersions());
+                } catch (Exception e) {
+                    PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, "Failed to retrieve notifications. Please try again later.");
+                }
                 return null;
             }
 

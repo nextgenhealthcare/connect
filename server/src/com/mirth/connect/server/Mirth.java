@@ -49,6 +49,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 
+import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.UpdateSettings;
@@ -85,7 +86,6 @@ import com.mirth.connect.server.servlets.WebStartServlet;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
-import com.mirth.connect.util.UsageUtil;
 
 /**
  * Instantiate a Mirth server that listens for commands from the CommandQueue.
@@ -278,7 +278,7 @@ public class Mirth extends Thread {
 
         // Send usage stats once a day.
         Timer timer = new Timer();
-        timer.schedule(new UsageSenderTask(), 0, UsageUtil.MILLIS_PER_DAY);
+        timer.schedule(new UsageSenderTask(), 0, ConnectServiceUtil.MILLIS_PER_DAY);
     }
 
     /**
@@ -700,7 +700,7 @@ public class Mirth extends Thread {
         @Override
         public void run() {
             try {
-                boolean isSent = UsageUtil.sendStatistics(configurationController.getServerVersion(), usageController.createUsageStats(firstTime));
+                boolean isSent = ConnectServiceUtil.sendStatistics(configurationController.getServerId(), configurationController.getServerVersion(), true, usageController.createUsageStats(firstTime));
                 if (isSent) {
                     UpdateSettings settings = new UpdateSettings();
                     settings.setLastStatsTime(System.currentTimeMillis());

@@ -84,10 +84,10 @@ import org.syntax.jedit.JEditTextArea;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.client.core.RequestAbortedException;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.core.UnauthorizedException;
-import com.mirth.connect.client.core.UpdateClient;
 import com.mirth.connect.client.ui.alert.AlertEditPanel;
 import com.mirth.connect.client.ui.alert.AlertPanel;
 import com.mirth.connect.client.ui.alert.DefaultAlertEditPanel;
@@ -205,7 +205,6 @@ public class Frame extends JXFrame {
     public LinkedHashMap<String, String> displayNameToDataType;
     private Map<String, PluginMetaData> loadedPlugins;
     private Map<String, ConnectorMetaData> loadedConnectors;
-    private UpdateClient updateClient = null;
     private Map<String, Integer> safeErrorFailCountMap = new HashMap<String, Integer>();
     private Map<Component, String> componentTaskMap = new HashMap<Component, String>();
     private boolean acceleratorKeyPressed = false;
@@ -1519,7 +1518,6 @@ public class Frame extends JXFrame {
                 mirthClient.logout();
                 mirthClient.login(currentUser.getUsername(), newPassword, PlatformUI.CLIENT_VERSION);
                 PlatformUI.USER_NAME = currentUser.getUsername();
-                updateClient = null; // Reset the update client so it uses the new user next time it is called.
             } catch (ClientException e) {
                 alertException(parentComponent, e.getStackTrace(), e.getMessage());
             } finally {
@@ -1573,7 +1571,7 @@ public class Frame extends JXFrame {
 
             public Void doInBackground() {
                 try {
-                    UpdateClient.registerUser(mirthClient, user);
+                    ConnectServiceUtil.registerUser(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, user);
                 } catch (ClientException e) {
                     // ignore errors connecting to update/stats server
                 }
@@ -1599,7 +1597,16 @@ public class Frame extends JXFrame {
                 try {
                     updateSettings = mirthClient.getUpdateSettings();
                     if (updateSettings != null && updateSettings.getStatsEnabled()) {
-                        UpdateClient.sendUsageStatistics(mirthClient);
+                        String usageData = mirthClient.getUsageData();
+                        if (usageData != null) {
+                            boolean isSent = ConnectServiceUtil.sendStatistics(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, false, usageData);
+                            if (isSent) {
+                                Long now = System.currentTimeMillis();
+                                UpdateSettings settings = new UpdateSettings();
+                                settings.setLastStatsTime(now);
+                                mirthClient.setUpdateSettings(settings);
+                            }
+                        }
                     }
                 } catch (ClientException e) {
                     // ignore errors connecting to update/stats server

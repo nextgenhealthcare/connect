@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.client.ui.util.NotificationUtil;
+import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -443,7 +443,7 @@ public class LoginPanel extends javax.swing.JFrame {
                         preferenceNames.add("archivedNotifications");
                         try {
                             userPreferences = client.getUserPreferences(currentUser, preferenceNames);
-                            
+
                             // Display registration dialog if it's the user's first time logging in
                             String firstlogin = userPreferences.getProperty("firstlogin");
                             if (firstlogin == null || BooleanUtils.toBoolean(firstlogin)) {
@@ -451,7 +451,7 @@ public class LoginPanel extends javax.swing.JFrame {
                             } else if (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD) {
                                 new ChangePasswordDialog(currentUser, loginStatus.getMessage());
                             }
-                            
+
                             // Check for new notifications from update server if enabled
                             String checkForNotifications = userPreferences.getProperty("checkForNotifications");
                             if (checkForNotifications == null || BooleanUtils.toBoolean(checkForNotifications)) {
@@ -461,9 +461,9 @@ public class LoginPanel extends javax.swing.JFrame {
                                     archivedNotifications = ObjectXMLSerializer.getInstance().deserialize(archivedNotificationString, Set.class);
                                 }
                                 // Update the Other Tasks pane with the unarchived notification count
-                                int unarchivedNotifications = NotificationUtil.getNotificationCount(archivedNotifications);
+                                int unarchivedNotifications = ConnectServiceUtil.getNotificationCount(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, LoadedExtensions.getInstance().getExtensionVersions(), archivedNotifications);
                                 PlatformUI.MIRTH_FRAME.updateNotificationTaskName(unarchivedNotifications);
-                                
+
                                 // Display notification dialog if enabled and if there are new notifications
                                 String showNotificationPopup = userPreferences.getProperty("showNotificationPopup");
                                 if (showNotificationPopup == null || BooleanUtils.toBoolean(showNotificationPopup)) {
