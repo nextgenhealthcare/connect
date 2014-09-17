@@ -9,12 +9,15 @@
 
 package com.mirth.connect.server.migration;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import org.apache.commons.dbutils.DbUtils;
@@ -68,11 +71,15 @@ public abstract class Migrator {
      *            separator ('/'), the defaultScriptFolder is prepended.
      */
     protected void executeScript(String scriptFile) throws MigrationException {
+        executeScript(scriptFile, null);
+    }
+
+    protected void executeScript(String scriptFile, Map<String, Object> replacements) throws MigrationException {
         Statement statement = null;
         ResultSet resultSet = null;
 
         try {
-            List<String> statements = readStatements(scriptFile);
+            List<String> statements = readStatements(scriptFile, replacements);
 
             connection.setAutoCommit(true);
             statement = connection.createStatement();
@@ -88,6 +95,30 @@ public abstract class Migrator {
         }
     }
 
+    protected int executeStatement(String statementString) throws SQLException {
+        Statement statement = null;
+
+        try {
+            statement = getConnection().createStatement();
+            return statement.executeUpdate(statementString);
+        } finally {
+            DbUtils.close(statement);
+        }
+    }
+
+    protected boolean scriptExists(String scriptResourceName) {
+        if (scriptResourceName.charAt(0) != '/' && defaultScriptPath != null) {
+            scriptResourceName = defaultScriptPath + "/" + scriptResourceName;
+        }
+
+        try {
+            ResourceUtil.getResourceStream(getClass(), scriptResourceName);
+            return true;
+        } catch (FileNotFoundException e) {
+            return false;
+        }
+    }
+
     /**
      * Read statements from a SQL script
      * 
@@ -95,7 +126,7 @@ public abstract class Migrator {
      *            The resource name of the script file to execute. If scriptResourceName does not
      *            begin with '/', the defaultScriptPath string is prepended.
      */
-    protected List<String> readStatements(String scriptResourceName) throws IOException {
+    protected List<String> readStatements(String scriptResourceName, Map<String, Object> replacements) throws IOException {
         List<String> script = new ArrayList<String>();
         Scanner scanner = null;
 
@@ -125,6 +156,12 @@ public abstract class Migrator {
                 String statementString = StringUtils.removeEnd(stringBuilder.toString().trim(), ";");
 
                 if (statementString.length() > 0) {
+                    if (replacements != null && !replacements.isEmpty()) {
+                        for (String key : replacements.keySet()) {
+                            statementString = StringUtils.replace(statementString, "${" + key + "}", replacements.get(key).toString());
+                        }
+                    }
+
                     script.add(statementString);
                 }
             }

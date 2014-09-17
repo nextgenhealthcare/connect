@@ -119,7 +119,13 @@
 	</query>
 	
 	<query id="createMessageSequence">
-		INSERT INTO D_MESSAGE_SEQUENCES (LOCAL_CHANNEL_ID) VALUES (${localChannelId})
+		CREATE TABLE D_MSQ${localChannelId} (
+			ID BIGINT NOT NULL
+		)
+	</query>
+	
+	<query id="initMessageSequence">
+		INSERT INTO D_MSQ${localChannelId} VALUES (1)
 	</query>
 	
 	<query id="createChannelsTable">
@@ -129,14 +135,6 @@
 	        CONSTRAINT D_CHANNELS_PKEY PRIMARY KEY(LOCAL_CHANNEL_ID),
 	        CONSTRAINT UNIQUE_CHANNEL_ID UNIQUE (CHANNEL_ID)
         )
-	</query>
-	
-	<query id="createSequencesTable">
-		CREATE TABLE D_MESSAGE_SEQUENCES (
-			LOCAL_CHANNEL_ID BIGINT NOT NULL,
-			ID BIGINT NOT NULL DEFAULT 1,
-			CONSTRAINT D_MESSAGE_SEQUENCES_PKEY PRIMARY KEY(LOCAL_CHANNEL_ID)
-		)
 	</query>
 	
 	<query id="dropMessageTable">
@@ -164,7 +162,7 @@
 	</query>
 	
 	<query id="dropMessageSequence">
-		DELETE FROM D_MESSAGE_SEQUENCES WHERE LOCAL_CHANNEL_ID = ${localChannelId}
+		DROP TABLE D_MSQ${localChannelId}
 	</query>
 	
 	<query id="deleteChannel">
@@ -173,14 +171,13 @@
 	
 	<query id="getNextMessageId">
 		SELECT ID
-		FROM D_MESSAGE_SEQUENCES
-		WHERE LOCAL_CHANNEL_ID = ${localChannelId}
+		FROM D_MSQ${localChannelId}
+		WITH (UPDLOCK)
 	</query>
-	
+
 	<query id="incrementMessageIdSequence">
-		UPDATE D_MESSAGE_SEQUENCES
+		UPDATE D_MSQ${localChannelId}
 		SET ID = ID + 1
-		WHERE LOCAL_CHANNEL_ID = ${localChannelId}
 	</query>
 	
 	<query id="addMetaDataColumnString">

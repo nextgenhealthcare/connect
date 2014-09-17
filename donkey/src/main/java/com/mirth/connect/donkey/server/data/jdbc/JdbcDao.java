@@ -1507,7 +1507,7 @@ public class JdbcDao implements DonkeyDao {
     @Override
     public void createChannel(String channelId, long localChannelId) {
         logger.debug(channelId + ": creating channel");
-        Statement createTableStatement = null;
+        Statement initSequenceStatement = null;
         transactionAlteredChannels = true;
 
         try {
@@ -1526,10 +1526,15 @@ public class JdbcDao implements DonkeyDao {
             createTable("createMessageAttachmentTable", values);
             createTable("createMessageStatisticsTable", values);
             createTable("createMessageSequence", values);
+
+            if (querySource.queryExists("initMessageSequence")) {
+                initSequenceStatement = connection.createStatement();
+                initSequenceStatement.executeUpdate(querySource.getQuery("initMessageSequence", values));
+            }
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
-            close(createTableStatement);
+            close(initSequenceStatement);
         }
     }
 
@@ -1836,20 +1841,13 @@ public class JdbcDao implements DonkeyDao {
     }
 
     public boolean initTableStructure() {
-        boolean createChannelsTable = !tableExists("d_channels");
-        boolean createSequencesTable = (querySource.queryExists("createSequencesTable") && !tableExists("d_message_sequences"));
-
-        if (createChannelsTable) {
+        if (!tableExists("d_channels")) {
             logger.debug("Creating channels table");
             createTable("createChannelsTable", null);
+            return true;
+        } else {
+            return false;
         }
-
-        if (createSequencesTable) {
-            logger.debug("Creating sequences table");
-            createTable("createSequencesTable", null);
-        }
-
-        return (createChannelsTable || createSequencesTable);
     }
 
     private boolean tableExists(String tableName) {
