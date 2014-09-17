@@ -89,17 +89,20 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
 
             // Only add the task to remove OLD_CHANNEL if OLD_MESSAGE has already been dropped
             if (DatabaseUtil.tableExists(connection, "OLD_MESSAGE")) {
-                DatabaseTask task = new DatabaseTask(TASK_REMOVE_OLD_MESSAGE, "Remove Old 2.x Message Table", "Remove the OLD_MESSAGE table which was renamed as part of the upgrade from 2.x to 3.x.");
+                String confirmationMessage = "<html>This will remove all messages that existed prior to upgrading to 3.x.<br/>Are you sure you wish to continue?</html>";
+                DatabaseTask task = new DatabaseTask(TASK_REMOVE_OLD_MESSAGE, "Remove Old 2.x Message Table", "Remove the OLD_MESSAGE table which was renamed as part of the upgrade from 2.x to 3.x.", confirmationMessage);
                 logger.debug("Adding database task: " + task.getName());
                 tasks.put(task.getId(), task);
             } else if (DatabaseUtil.tableExists(connection, "OLD_CHANNEL")) {
-                DatabaseTask task = new DatabaseTask(TASK_REMOVE_OLD_CHANNEL, "Remove Old 2.x Channel Table", "Remove the OLD_CHANNEL table which was renamed as part of the upgrade from 2.x to 3.x.");
+                String confirmationMessage = "<html>This will remove the channel backups that were saved as part of migration to 3.x.<br/>Are you sure you wish to continue?</html>";
+                DatabaseTask task = new DatabaseTask(TASK_REMOVE_OLD_CHANNEL, "Remove Old 2.x Channel Table", "Remove the OLD_CHANNEL table which was renamed as part of the upgrade from 2.x to 3.x.", confirmationMessage);
                 logger.debug("Adding database task: " + task.getName());
                 tasks.put(task.getId(), task);
             }
 
             if (DatabaseUtil.tableExists(connection, "OLD_ATTACHMENT")) {
-                DatabaseTask task = new DatabaseTask(TASK_REMOVE_OLD_ATTACHMENT, "Remove Old 2.x Attachment Table", "Remove the OLD_ATTACHMENT table which was renamed as part of the upgrade from 2.x to 3.x.");
+                String confirmationMessage = "<html>This will remove all attachments that existed prior to upgrading to 3.x.<br/>Are you sure you wish to continue?</html>";
+                DatabaseTask task = new DatabaseTask(TASK_REMOVE_OLD_ATTACHMENT, "Remove Old 2.x Attachment Table", "Remove the OLD_ATTACHMENT table which was renamed as part of the upgrade from 2.x to 3.x.", confirmationMessage);
                 logger.debug("Adding database task: " + task.getName());
                 tasks.put(task.getId(), task);
             }
@@ -119,9 +122,9 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
                 }
 
                 if (MapUtils.isNotEmpty(affectedChannels)) {
-                    StringBuilder confirmationMessage = new StringBuilder("This index will only be created on channels that are stopped. Are you sure you wish to continue?");
+                    String confirmationMessage = "<html>This index will only be created on channels that are stopped. Make<br/>sure there is enough disk space on the server running the database.<br/>Are you sure you wish to continue?</html>";
 
-                    DatabaseTask task = new DatabaseTask(TASK_ADD_D_MM_INDEX3, "Add Metadata Index", "Add index (ID, STATUS, SERVER_ID) on the message metadata table to improve queue performance.", confirmationMessage.toString());
+                    DatabaseTask task = new DatabaseTask(TASK_ADD_D_MM_INDEX3, "Add Metadata Index", "Add index (ID, STATUS, SERVER_ID) on the message metadata table to improve queue performance.", confirmationMessage);
                     task.setAffectedChannels(affectedChannels);
                     logger.debug("Adding migration task: " + task.getName());
                     tasks.put(task.getId(), task);
