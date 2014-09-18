@@ -126,6 +126,10 @@ public abstract class Migrator {
      *            The resource name of the script file to execute. If scriptResourceName does not
      *            begin with '/', the defaultScriptPath string is prepended.
      */
+    protected List<String> readStatements(String scriptResourceName) throws IOException {
+        return readStatements(scriptResourceName, null);
+    }
+
     protected List<String> readStatements(String scriptResourceName, Map<String, Object> replacements) throws IOException {
         List<String> script = new ArrayList<String>();
         Scanner scanner = null;
