@@ -109,7 +109,7 @@ import com.mirth.connect.util.ErrorMessageBuilder;
 public class HttpDispatcher extends DestinationConnector {
 
     private static final String PROXY_CONTEXT_KEY = "dispatcherProxy";
-    private static final Pattern AUTH_HEADER_PATTERN = Pattern.compile("(\\S+)\\s*=\\s*([^=,;\"\\s]+|\"([^\"]|\\\\[\\s\\S])*(?<!\\\\)\")");
+    private static final Pattern AUTH_HEADER_PATTERN = Pattern.compile("([^\\s=,]+)\\s*=\\s*([^=,;\"\\s]+|\"([^\"]|\\\\[\\s\\S])*(?<!\\\\)\")");
     private static final int MAX_MAP_SIZE = 100;
 
     private Logger logger = Logger.getLogger(this.getClass());
