@@ -50,11 +50,11 @@ public class ConnectServiceUtil {
     private final static int TIMEOUT = 10000;
     public final static Integer MILLIS_PER_DAY = 86400000;
 
-    public static void registerUser(String serverId, String serverVersion, User user) throws ClientException {
+    public static void registerUser(String serverId, String mirthVersion, User user) throws ClientException {
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse httpResponse = null;
         NameValuePair[] params = { new BasicNameValuePair("serverId", serverId),
-                new BasicNameValuePair("serverVersion", serverVersion),
+                new BasicNameValuePair("version", mirthVersion),
                 new BasicNameValuePair("user", ObjectXMLSerializer.getInstance().serialize(user)) };
 
         HttpPost post = new HttpPost();
@@ -80,7 +80,7 @@ public class ConnectServiceUtil {
         }
     }
 
-    public static List<Notification> getNotifications(String serverId, String serverVersion, Map<String, String> extensionVersions) throws Exception {
+    public static List<Notification> getNotifications(String serverId, String mirthVersion, Map<String, String> extensionVersions) throws Exception {
         CloseableHttpClient client = null;
         HttpPost post = new HttpPost();
         CloseableHttpResponse response = null;
@@ -92,7 +92,7 @@ public class ConnectServiceUtil {
             String extensionVersionsJson = mapper.writeValueAsString(extensionVersions);
             NameValuePair[] params = { new BasicNameValuePair("op", NOTIFICATION_GET),
                     new BasicNameValuePair("serverId", serverId),
-                    new BasicNameValuePair("serverVersion", serverVersion),
+                    new BasicNameValuePair("version", mirthVersion),
                     new BasicNameValuePair("extensionVersions", extensionVersionsJson) };
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(TIMEOUT).setConnectionRequestTimeout(TIMEOUT).setSocketTimeout(TIMEOUT).build();
 
@@ -138,7 +138,7 @@ public class ConnectServiceUtil {
         return allNotifications;
     }
 
-    public static int getNotificationCount(String serverId, String serverVersion, Map<String, String> extensionVersions, Set<Integer> archivedNotifications) {
+    public static int getNotificationCount(String serverId, String mirthVersion, Map<String, String> extensionVersions, Set<Integer> archivedNotifications) {
         CloseableHttpClient client = null;
         HttpPost post = new HttpPost();
         CloseableHttpResponse response = null;
@@ -150,7 +150,7 @@ public class ConnectServiceUtil {
             String extensionVersionsJson = mapper.writeValueAsString(extensionVersions);
             NameValuePair[] params = { new BasicNameValuePair("op", NOTIFICATION_COUNT_GET),
                     new BasicNameValuePair("serverId", serverId),
-                    new BasicNameValuePair("serverVersion", serverVersion),
+                    new BasicNameValuePair("version", mirthVersion),
                     new BasicNameValuePair("extensionVersions", extensionVersionsJson) };
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(TIMEOUT).setConnectionRequestTimeout(TIMEOUT).setSocketTimeout(TIMEOUT).build();
 
@@ -188,7 +188,7 @@ public class ConnectServiceUtil {
         return notificationCount;
     }
 
-    public static boolean sendStatistics(String serverId, String serverVersion, boolean server, String data) {
+    public static boolean sendStatistics(String serverId, String mirthVersion, boolean server, String data) {
         if (data == null) {
             return false;
         }
@@ -199,7 +199,7 @@ public class ConnectServiceUtil {
         HttpPost post = new HttpPost();
         CloseableHttpResponse response = null;
         NameValuePair[] params = { new BasicNameValuePair("serverId", serverId),
-                new BasicNameValuePair("serverVersion", serverVersion),
+                new BasicNameValuePair("version", mirthVersion),
                 new BasicNameValuePair("server", Boolean.toString(server)),
                 new BasicNameValuePair("data", data) };
         RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(TIMEOUT).setConnectionRequestTimeout(TIMEOUT).setSocketTimeout(TIMEOUT).build();
