@@ -36,6 +36,8 @@ public class EDIBatchAdaptorFactory extends BatchAdaptorFactory {
     public BatchAdaptor createBatchAdaptor(BatchMessageSource batchMessageSource) {
         EDIBatchAdaptor batchAdaptor = new EDIBatchAdaptor(sourceConnector, batchMessageSource);
 
+        batchAdaptor.setBatchProperties(batchProperties);
+
         return batchAdaptor;
     }
 
