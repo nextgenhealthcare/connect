@@ -1158,10 +1158,13 @@ public class DonkeyEngineController implements EngineController {
 
         @Override
         public Void execute() throws Exception {
-            com.mirth.connect.model.Channel channelModel = channelController.getChannelById(channelId);
+            doDeploy(channelController.getChannelById(channelId));
+            return null;
+        }
 
+        protected void doDeploy(com.mirth.connect.model.Channel channelModel) throws Exception {
             if (channelModel == null || !channelModel.isEnabled() || isDeployed(channelId)) {
-                return null;
+                return;
             }
 
             Channel channel = null;
@@ -1262,8 +1265,6 @@ public class DonkeyEngineController implements EngineController {
             } finally {
                 deployingChannels.remove(channel);
             }
-
-            return null;
         }
     }
 
