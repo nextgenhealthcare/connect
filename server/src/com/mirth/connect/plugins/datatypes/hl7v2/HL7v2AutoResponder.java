@@ -101,7 +101,11 @@ public class HL7v2AutoResponder implements AutoResponder {
         String error = null;
 
         try {
-            // Check if we have to look at MSH15
+            // Check if we have to look at MSH15            
+            if (serializationProperties.isConvertLineBreaks() && !isXML) {
+                hl7Message = StringUtil.convertLineBreaks(hl7Message, serializationSegmentDelimiter);
+            }
+
             if (hl7v2Properties.isMsh15ACKAccept()) {
                 // MSH15 Dictionary:
                 // AL: Always
@@ -126,10 +130,6 @@ public class HL7v2AutoResponder implements AutoResponder {
 
                     Pattern fieldPattern = Pattern.compile(Pattern.quote(String.valueOf(fieldDelim)));
                     Pattern componentPattern = Pattern.compile(Pattern.quote(String.valueOf(componentDelim)));
-
-                    if (serializationProperties.isConvertLineBreaks()) {
-                        hl7Message = StringUtil.convertLineBreaks(hl7Message, serializationSegmentDelimiter);
-                    }
 
                     String mshString = StringUtils.split(hl7Message, serializationSegmentDelimiter)[0];
                     String[] mshFields = fieldPattern.split(mshString);
