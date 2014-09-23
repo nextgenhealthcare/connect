@@ -101,11 +101,11 @@ public class HL7v2AutoResponder implements AutoResponder {
         String error = null;
 
         try {
-            // Check if we have to look at MSH15            
             if (serializationProperties.isConvertLineBreaks() && !isXML) {
                 hl7Message = StringUtil.convertLineBreaks(hl7Message, serializationSegmentDelimiter);
             }
 
+            // Check if we have to look at MSH15     
             if (hl7v2Properties.isMsh15ACKAccept()) {
                 // MSH15 Dictionary:
                 // AL: Always
