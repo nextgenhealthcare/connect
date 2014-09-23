@@ -156,6 +156,7 @@ public class DefaultAlertTriggerPane extends AlertTriggerPane {
     public List<String> getVariables() {
         List<String> variables = new ArrayList<String>();
 
+        variables.add("systemTime");
         variables.add("error");
         variables.add("errorMessage");
         variables.add("errorType");
