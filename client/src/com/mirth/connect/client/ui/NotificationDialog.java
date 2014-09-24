@@ -139,6 +139,11 @@ public class NotificationDialog extends MirthDialog {
 
         worker.execute();
     }
+    
+    @Override
+    public void onCloseAction() {
+        doSave();
+    }
 
     private void initComponents() {
         setLayout(new MigLayout("insets 12", "[]", "[fill][]"));
