@@ -84,6 +84,11 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
     }
 
     @Override
+    public void addTriggerType(String name, AlertTriggerPane triggerPane) {
+        // This feature is not supported in this implementation.
+    }
+
+    @Override
     public String getAlertId() {
         if (alertModel != null) {
             return alertModel.getId();

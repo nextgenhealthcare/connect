@@ -23,6 +23,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("defaultTrigger")
 public class DefaultTrigger extends ChannelTrigger implements AlertTrigger, Migratable, Purgable {
 
+    public static final String TRIGGER_NAME = "Channel Error";
     private Set<ErrorEventType> errorEventTypes;
     private String regex;
 
@@ -49,6 +50,11 @@ public class DefaultTrigger extends ChannelTrigger implements AlertTrigger, Migr
 
     public void setRegex(String regex) {
         this.regex = regex;
+    }
+
+    @Override
+    public String getName() {
+        return TRIGGER_NAME;
     }
 
     @Override

@@ -17,6 +17,8 @@ public abstract class AlertEditPanel extends JPanel {
 
     public abstract String getAlertId();
 
+    public abstract void addTriggerType(String name, AlertTriggerPane triggerPane);
+
     public abstract void updateVariableList();
 
     public abstract void addAlert();
