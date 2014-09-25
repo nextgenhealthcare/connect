@@ -1115,10 +1115,6 @@ public class ChannelSetup extends javax.swing.JPanel {
         boolean updated = false;
 
         try {
-            if (!parent.channelStatuses.containsKey(currentChannel.getId())) {
-                currentChannel.setId(parent.mirthClient.getGuid());
-            }
-
             // Will throw exception if the connection died or there was an exception
             // saving the channel, skipping the rest of this code.
             updated = parent.updateChannel(currentChannel, false);
