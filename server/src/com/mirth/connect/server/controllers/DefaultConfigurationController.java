@@ -104,6 +104,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private String baseDir = null;
     private String configurationFile = null;
     private static String serverId = null;
+    private String serverName = null;
     private int status = ConfigurationController.STATUS_UNAVAILABLE;
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private PasswordRequirements passwordRequirements;
@@ -249,6 +250,11 @@ public class DefaultConfigurationController extends ConfigurationController {
         return serverId;
     }
 
+    @Override
+    public String getServerName() {
+        return serverName;
+    }
+
     /*
      * Return the server timezone in the following format: PDT (UTC -7)
      */
@@ -301,7 +307,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public ServerSettings getServerSettings() throws ControllerException {
-        String serverName = getProperty(PROPERTIES_CORE + "." + serverId, "server.name");
+        serverName = getProperty(PROPERTIES_CORE + "." + serverId, "server.name");
         Properties serverSettings = getPropertiesForGroup(PROPERTIES_CORE);
         return new ServerSettings(serverName, serverSettings);
     }
@@ -321,6 +327,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         String serverName = settings.getServerName();
         if (serverName != null) {
             saveProperty(PROPERTIES_CORE + "." + serverId, "server.name", serverName);
+            this.serverName = serverName;
         }
         
         Properties properties = settings.getProperties();

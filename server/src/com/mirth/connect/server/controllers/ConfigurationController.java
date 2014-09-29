@@ -94,6 +94,8 @@ public abstract class ConfigurationController extends Controller {
      */
     public abstract String getServerId();
 
+    public abstract String getServerName();
+
     public abstract String getServerTimezone(Locale locale);
 
     /**
