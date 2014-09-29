@@ -473,7 +473,7 @@ public class DashboardPanel extends javax.swing.JPanel {
     private boolean isHaltable(AbstractDashboardTableNode node) {
         DeployedState nodeState = node.getStatus().getState();
 
-        boolean haltable = (nodeState == DeployedState.DEPLOYING || nodeState == DeployedState.UNDEPLOYING || nodeState == DeployedState.STARTING || nodeState == DeployedState.STOPPING || nodeState == DeployedState.PAUSING);
+        boolean haltable = (nodeState == DeployedState.DEPLOYING || nodeState == DeployedState.UNDEPLOYING || nodeState == DeployedState.STARTING || nodeState == DeployedState.STOPPING || nodeState == DeployedState.PAUSING || nodeState == DeployedState.UNKNOWN);
 
         if (haltable) {
             return true;
