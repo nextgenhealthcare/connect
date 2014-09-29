@@ -475,7 +475,7 @@ public class TimedDao implements DonkeyDao {
         try {
             return dao.getMessageAttachment(channelId, messageId);
         } finally {
-            timer.log("getConnectorMessages", System.currentTimeMillis() - startTime);
+            timer.log("getMessageAttachment", System.currentTimeMillis() - startTime);
         }
     }
 
@@ -486,18 +486,18 @@ public class TimedDao implements DonkeyDao {
         try {
             return dao.getMessageAttachment(channelId, attachmentId);
         } finally {
-            timer.log("getConnectorMessages", System.currentTimeMillis() - startTime);
+            timer.log("getMessageAttachment", System.currentTimeMillis() - startTime);
         }
     }
 
     @Override
-    public List<ConnectorMessage> getUnfinishedConnectorMessages(String channelId, String serverId, int metaDataId, Status status) {
+    public List<Message> getPendingConnectorMessages(String channelId, String serverId, int limit, Long minMessageId) {
         long startTime = System.currentTimeMillis();
 
         try {
-            return dao.getUnfinishedConnectorMessages(channelId, serverId, metaDataId, status);
+            return dao.getPendingConnectorMessages(channelId, serverId, limit, minMessageId);
         } finally {
-            timer.log("getConnectorMessages", System.currentTimeMillis() - startTime);
+            timer.log("getPendingConnectorMessages", System.currentTimeMillis() - startTime);
         }
     }
 
@@ -552,7 +552,7 @@ public class TimedDao implements DonkeyDao {
         try {
             return dao.getConnectorMessageMaxMessageId(channelId, serverId, metaDataId, status);
         } finally {
-            timer.log("getConnectorMessageCount", System.currentTimeMillis() - startTime);
+            timer.log("getConnectorMessageMaxMessageId", System.currentTimeMillis() - startTime);
         }
     }
 
@@ -568,11 +568,11 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public List<Message> getUnfinishedMessages(String channelId, String serverId) {
+    public List<Message> getUnfinishedMessages(String channelId, String serverId, int limit, Long minMessageId) {
         long startTime = System.currentTimeMillis();
 
         try {
-            return dao.getUnfinishedMessages(channelId, serverId);
+            return dao.getUnfinishedMessages(channelId, serverId, limit, minMessageId);
         } finally {
             timer.log("getUnfinishedMessages", System.currentTimeMillis() - startTime);
         }

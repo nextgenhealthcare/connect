@@ -1255,27 +1255,110 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
-    public List<ConnectorMessage> getUnfinishedConnectorMessages(String channelId, String serverId, int metaDataId, Status status) {
+    public List<Message> getUnfinishedMessages(String channelId, String serverId, int limit, Long minMessageId) {
+        PreparedStatement statement = null;
         ResultSet resultSet = null;
 
         try {
-            PreparedStatement statement = prepareStatement("getUnfinishedConnectorMessages", channelId);
-            statement.setInt(1, metaDataId);
-            statement.setString(2, Character.toString(status.getStatusCode()));
-            statement.setString(3, serverId);
+            Map<Long, Message> messageMap = new HashMap<Long, Message>();
+            List<Message> messageList = new ArrayList<Message>();
+            List<Long> messageIds = new ArrayList<Long>();
+
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("localChannelId", getLocalChannelId(channelId));
+            params.put("limit", limit);
+
+            statement = connection.prepareStatement(querySource.getQuery("getUnfinishedMessages", params));
+            statement.setLong(1, minMessageId);
+            statement.setString(2, serverId);
             resultSet = statement.executeQuery();
 
-            List<ConnectorMessage> connectorMessages = new ArrayList<ConnectorMessage>();
-
             while (resultSet.next()) {
-                connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, true));
+                Message message = getMessageFromResultSet(channelId, resultSet);
+                messageMap.put(message.getMessageId(), message);
+                messageList.add(message);
+                messageIds.add(message.getMessageId());
             }
 
-            return connectorMessages;
+            close(resultSet);
+            close(statement);
+
+            if (!messageIds.isEmpty()) {
+                params = new HashMap<String, Object>();
+                params.put("localChannelId", getLocalChannelId(channelId));
+                params.put("messageIds", StringUtils.join(messageIds, ","));
+
+                statement = connection.prepareStatement(querySource.getQuery("getConnectorMessagesByMessageIds", params));
+                resultSet = statement.executeQuery();
+
+                while (resultSet.next()) {
+                    ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, true);
+                    messageMap.get(connectorMessage.getMessageId()).getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
+                }
+            }
+
+            return messageList;
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
             close(resultSet);
+            close(statement);
+        }
+    }
+
+    @Override
+    public List<Message> getPendingConnectorMessages(String channelId, String serverId, int limit, Long minMessageId) {
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            Map<Long, Message> messageMap = new HashMap<Long, Message>();
+            List<Message> messageList = new ArrayList<Message>();
+            List<Long> messageIds = new ArrayList<Long>();
+
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("localChannelId", getLocalChannelId(channelId));
+            params.put("limit", limit);
+
+            statement = connection.prepareStatement(querySource.getQuery("getPendingMessageIds", params));
+            statement.setLong(1, minMessageId);
+            statement.setString(2, serverId);
+
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                Message message = new Message();
+                message.setMessageId(resultSet.getLong(1));
+                messageMap.put(message.getMessageId(), message);
+                messageList.add(message);
+                messageIds.add(message.getMessageId());
+            }
+
+            close(resultSet);
+            close(statement);
+
+            if (!messageIds.isEmpty()) {
+                params = new HashMap<String, Object>();
+                params.put("localChannelId", getLocalChannelId(channelId));
+                params.put("messageIds", StringUtils.join(messageIds, ","));
+
+                statement = connection.prepareStatement(querySource.getQuery("getPendingConnectorMessages", params));
+                statement.setString(1, serverId);
+
+                resultSet = statement.executeQuery();
+
+                while (resultSet.next()) {
+                    ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, true);
+                    messageMap.get(connectorMessage.getMessageId()).getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
+                }
+            }
+
+            return messageList;
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        } finally {
+            close(resultSet);
+            close(statement);
         }
     }
 
@@ -1398,46 +1481,6 @@ public class JdbcDao implements DonkeyDao {
             throw new DonkeyDaoException(e);
         } finally {
             close(resultSet);
-        }
-    }
-
-    @Override
-    public List<Message> getUnfinishedMessages(String channelId, String serverId) {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-
-        try {
-            Map<Long, Message> messageMap = new HashMap<Long, Message>();
-            List<Message> messageList = new ArrayList<Message>();
-
-            statement = prepareStatement("getUnfinishedMessages", channelId);
-            statement.setString(1, serverId);
-            resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                Message message = getMessageFromResultSet(channelId, resultSet);
-                messageMap.put(message.getMessageId(), message);
-                messageList.add(message);
-            }
-
-            close(resultSet);
-            close(statement);
-
-            statement = prepareStatement("getUnfinishedMessageConnectorMessages", channelId);
-            statement.setString(1, serverId);
-            resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                ConnectorMessage connectorMessage = getConnectorMessageFromResultSet(channelId, resultSet, true);
-                messageMap.get(connectorMessage.getMessageId()).getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
-            }
-
-            return messageList;
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(resultSet);
-            close(statement);
         }
     }
 

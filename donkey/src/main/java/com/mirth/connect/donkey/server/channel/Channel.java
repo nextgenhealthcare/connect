@@ -600,7 +600,7 @@ public class Channel implements Runnable {
 
                 channelExecutor = Executors.newCachedThreadPool();
 
-                // start the destination connectors
+                // start the destination connectors but not the destination queues
                 for (DestinationChain chain : destinationChains) {
                     for (Integer metaDataId : chain.getMetaDataIds()) {
                         DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
@@ -630,6 +630,15 @@ public class Channel implements Runnable {
                 }
 
                 ThreadUtils.checkInterruptedStatus();
+
+                // start the destination queues
+                for (Integer metaDataId : startedMetaDataIds) {
+                    getDestinationConnector(metaDataId).startQueue();
+                }
+
+                // Remove any items in the queue's buffer because they may be outdated and refresh the queue size.
+                sourceQueue.invalidate(true, true);
+
                 // start up the worker thread that will process queued messages
                 if (!sourceConnector.isRespondAfterProcessing()) {
                     queueThread = new Thread(Channel.this);
@@ -1025,6 +1034,7 @@ public class Channel implements Runnable {
                 if (destinationConnector.getCurrentState() == DeployedState.STOPPED) {
                     try {
                         destinationConnector.start();
+                        destinationConnector.startQueue();
                     } catch (Throwable t) {
                         throw new StartException("Failed to stop connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "). ", t);
                     }

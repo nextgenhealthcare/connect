@@ -396,11 +396,11 @@ public class BufferedDao implements DonkeyDao {
     }
 
     @Override
-    public List<ConnectorMessage> getUnfinishedConnectorMessages(String channelId, String serverId, int metaDataId, Status status) {
+    public List<Message> getPendingConnectorMessages(String channelId, String serverId, int limit, Long minMessageId) {
         DonkeyDao dao = getDelegateDao();
 
         try {
-            return dao.getUnfinishedConnectorMessages(channelId, serverId, metaDataId, status);
+            return dao.getPendingConnectorMessages(channelId, serverId, limit, minMessageId);
         } finally {
             dao.close();
         }
@@ -472,11 +472,11 @@ public class BufferedDao implements DonkeyDao {
     }
 
     @Override
-    public List<Message> getUnfinishedMessages(String channelId, String serverId) {
+    public List<Message> getUnfinishedMessages(String channelId, String serverId, int limit, Long minMessageId) {
         DonkeyDao dao = getDelegateDao();
 
         try {
-            return dao.getUnfinishedMessages(channelId, serverId);
+            return dao.getUnfinishedMessages(channelId, serverId, limit, minMessageId);
         } finally {
             dao.close();
         }

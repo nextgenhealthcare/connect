@@ -228,19 +228,25 @@
 	</query>
 	
 	<query id="getUnfinishedMessages">
+		SELECT A.* FROM  (
+	
 		SELECT M.*
 		FROM D_M${localChannelId} M
 		JOIN D_MM${localChannelId} MM ON MM.MESSAGE_ID = M.ID AND MM.ID = 0
-		WHERE M.PROCESSED = 0 AND MM.SERVER_ID = ? AND MM.STATUS != 'R'
+		WHERE M.ID <![CDATA[ >= ]]> ? AND M.PROCESSED = 0 AND MM.SERVER_ID = ? AND MM.STATUS != 'R'
 		ORDER BY M.ID
+		
+		) A WHERE ROWNUM <![CDATA[ <= ]]> ${limit}
 	</query>
 	
-	<query id="getUnfinishedMessageConnectorMessages">
-		SELECT *
-		FROM D_MM${localChannelId} MM
-		JOIN D_M${localChannelId} M ON M.ID = MM.MESSAGE_ID
-		JOIN D_MM${localChannelId} MM0 ON MM0.MESSAGE_ID = MM.MESSAGE_ID AND MM0.ID = 0
-		WHERE M.PROCESSED = 0 AND MM0.SERVER_ID = ? AND MM0.STATUS != 'R'
-		ORDER BY M.ID, MM.ID
+	<query id="getPendingMessageIds">
+		SELECT A.* FROM  (
+		
+		SELECT DISTINCT MESSAGE_ID
+		FROM D_MM${localChannelId}
+		WHERE MESSAGE_ID <![CDATA[ >= ]]> ? AND ID > 0 AND STATUS = 'P' AND SERVER_ID = ?
+		ORDER BY MESSAGE_ID
+		
+		) A WHERE ROWNUM <![CDATA[ <= ]]> ${limit}
 	</query>
 </queries>

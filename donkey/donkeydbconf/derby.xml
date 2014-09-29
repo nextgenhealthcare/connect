@@ -268,4 +268,21 @@
 		WHERE MESSAGE_ID = ?
 		AND METADATA_ID IN (${metaDataIds})
 	</query>
+	
+	<query id="getUnfinishedMessages">
+		SELECT M.*
+		FROM D_M${localChannelId} M
+		JOIN D_MM${localChannelId} MM ON MM.MESSAGE_ID = M.ID AND MM.ID = 0
+		WHERE M.ID <![CDATA[ >= ]]> ? AND M.PROCESSED = FALSE AND MM.SERVER_ID = ? AND MM.STATUS != 'R'
+		ORDER BY M.ID
+		FETCH FIRST ${limit} ROWS ONLY
+	</query>
+	
+	<query id="getPendingMessageIds">
+		SELECT DISTINCT MESSAGE_ID
+		FROM D_MM${localChannelId}
+		WHERE MESSAGE_ID <![CDATA[ >= ]]> ? AND ID > 0 AND STATUS = 'P' AND SERVER_ID = ?
+		ORDER BY MESSAGE_ID
+		FETCH FIRST ${limit} ROWS ONLY
+	</query>
 </queries>

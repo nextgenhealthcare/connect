@@ -270,8 +270,8 @@ public class PassthruDao implements DonkeyDao {
     }
 
     @Override
-    public List<ConnectorMessage> getUnfinishedConnectorMessages(String channelId, String serverId, int metaDataId, Status status) {
-        return new ArrayList<ConnectorMessage>();
+    public List<Message> getPendingConnectorMessages(String channelId, String serverId, int limit, Long minMessageId) {
+        return new ArrayList<Message>();
     }
 
     @Override
@@ -285,7 +285,7 @@ public class PassthruDao implements DonkeyDao {
     }
 
     @Override
-    public List<Message> getUnfinishedMessages(String channelId, String serverId) {
+    public List<Message> getUnfinishedMessages(String channelId, String serverId, int limit, Long minMessageId) {
         return new ArrayList<Message>();
     }
 

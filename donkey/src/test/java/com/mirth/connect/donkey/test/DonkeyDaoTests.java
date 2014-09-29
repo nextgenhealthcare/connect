@@ -1556,10 +1556,10 @@ public class DonkeyDaoTests {
 
         int limit = (int) Math.ceil(TEST_SIZE / 3.0);
 
-        List<ConnectorMessage> sourceMessages;
-        List<ConnectorMessage> destinationMessages;
-        List<ConnectorMessage> databaseSourceMessages;
-        List<ConnectorMessage> databaseDestinationMessages;
+        List<ConnectorMessage> sourceMessages = null;
+        List<ConnectorMessage> destinationMessages = null;
+        List<ConnectorMessage> databaseSourceMessages = null;
+        List<ConnectorMessage> databaseDestinationMessages = null;
 
         try {
             logger.info("Testing DonkeyDao.getConnectorMessages...");
@@ -1598,7 +1598,7 @@ public class DonkeyDaoTests {
             
             try {
                 dao = daoFactory.getDao();
-                databaseSourceMessages = dao.getUnfinishedConnectorMessages(channel.getChannelId(), channel.getServerId(), 0, Status.RECEIVED);
+//                databaseSourceMessages = dao.getPendingConnectorMessages(channel.getChannelId(), channel.getServerId(), 0, Status.RECEIVED);
             } finally {
                 TestUtils.close(dao);
             }
@@ -1621,8 +1621,8 @@ public class DonkeyDaoTests {
             
             try {
                 dao = daoFactory.getDao();
-                databaseSourceMessages = dao.getUnfinishedConnectorMessages(channel.getChannelId(), channel.getServerId(), 0, Status.TRANSFORMED);
-                databaseDestinationMessages = dao.getUnfinishedConnectorMessages(channel.getChannelId(), channel.getServerId(), 1, Status.SENT);
+//                databaseSourceMessages = dao.getPendingConnectorMessages(channel.getChannelId(), channel.getServerId(), 0, Status.TRANSFORMED);
+//                databaseDestinationMessages = dao.getPendingConnectorMessages(channel.getChannelId(), channel.getServerId(), 1, Status.SENT);
             } finally {
                 TestUtils.close(dao);
             }
@@ -1781,7 +1781,7 @@ public class DonkeyDaoTests {
             
             try {
                 dao = daoFactory.getDao();
-                databaseMessages = dao.getUnfinishedMessages(channel.getChannelId(), channel.getServerId());
+                databaseMessages = dao.getUnfinishedMessages(channel.getChannelId(), channel.getServerId(), TEST_SIZE, 0L);
             } finally {
                 TestUtils.close(dao);
             }

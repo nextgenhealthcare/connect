@@ -125,26 +125,32 @@
 		SELECT M.*
 		FROM D_M${localChannelId} M
 		JOIN D_MM${localChannelId} MM ON MM.MESSAGE_ID = M.ID AND MM.ID = 0
-		WHERE M.PROCESSED = FALSE AND MM.SERVER_ID = ? AND MM.STATUS != 'R'
+		WHERE M.ID <![CDATA[ >= ]]> ? AND M.PROCESSED = FALSE AND MM.SERVER_ID = ? AND MM.STATUS != 'R'
 		ORDER BY M.ID
+		LIMIT ${limit}
 	</query>
 	
-	<query id="getUnfinishedMessageConnectorMessages">
+	<query id="getConnectorMessagesByMessageIds">
 		SELECT *
-		FROM D_MM${localChannelId} MM
-		JOIN D_M${localChannelId} M ON M.ID = MM.MESSAGE_ID
-		JOIN D_MM${localChannelId} MM0 ON MM0.MESSAGE_ID = MM.MESSAGE_ID AND MM0.ID = 0
-		WHERE M.PROCESSED = FALSE AND MM0.SERVER_ID = ? AND MM0.STATUS != 'R'
-		ORDER BY M.ID, MM.ID
+		FROM D_MM${localChannelId}
+		WHERE MESSAGE_ID IN (${messageIds})
+		ORDER BY MESSAGE_ID, ID
 	</query>
 	
-	<query id="getUnfinishedConnectorMessages">
-		SELECT *
+	<query id="getPendingMessageIds">
+		SELECT DISTINCT MESSAGE_ID
+		FROM D_MM${localChannelId}
+		WHERE MESSAGE_ID <![CDATA[ >= ]]> ? AND ID > 0 AND STATUS = 'P' AND SERVER_ID = ?
+		ORDER BY MESSAGE_ID
+		LIMIT ${limit}
+	</query>
+	
+	<query id="getPendingConnectorMessages">
+		SELECT MM.*
 		FROM D_MM${localChannelId} MM
-		JOIN D_M${localChannelId} M ON M.ID = MM.MESSAGE_ID
 		JOIN D_MM${localChannelId} MM0 ON MM0.MESSAGE_ID = MM.MESSAGE_ID AND MM0.ID = 0
-		WHERE MM.ID = ? AND MM.STATUS = ? AND MM0.SERVER_ID = ? AND MM.SERVER_ID = MM0.SERVER_ID
-		ORDER BY MM.MESSAGE_ID
+		WHERE MM.MESSAGE_ID IN (${messageIds}) AND MM.ID > 0 AND MM.STATUS = 'P' AND MM0.SERVER_ID = ? AND MM.SERVER_ID = MM0.SERVER_ID
+		ORDER BY MM.MESSAGE_ID, MM.ID
 	</query>
 	
 	<query id="getChannelStatistics">
@@ -290,7 +296,7 @@
 		SELECT *
 		FROM D_MM${localChannelId}
 		WHERE MESSAGE_ID = ?
-		ORDER BY MESSAGE_ID
+		ORDER BY ID
 	</query>
 	
 	<query id="getConnectorMessagesByMessageIdAndMetaDataIds">

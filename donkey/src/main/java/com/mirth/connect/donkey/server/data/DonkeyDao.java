@@ -92,8 +92,6 @@ public interface DonkeyDao {
 
     public long getNextMessageId(String channelId);
 
-    public List<ConnectorMessage> getUnfinishedConnectorMessages(String channelId, String serverId, int metaDataId, Status status);
-
     public List<ConnectorMessage> getConnectorMessages(String channelId, String serverId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId);
 
     public List<ConnectorMessage> getConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds, boolean includeContent);
@@ -106,7 +104,9 @@ public interface DonkeyDao {
 
     public Set<Status> getConnectorMessageStatuses(String channelId, long messageId, boolean checkProcessed);
 
-    public List<Message> getUnfinishedMessages(String channelId, String serverId);
+    public List<Message> getUnfinishedMessages(String channelId, String serverId, int limit, Long minMessageId);
+
+    public List<Message> getPendingConnectorMessages(String channelId, String serverId, int limit, Long minMessageId);
 
     public List<MetaDataColumn> getMetaDataColumns(String channelId);
 

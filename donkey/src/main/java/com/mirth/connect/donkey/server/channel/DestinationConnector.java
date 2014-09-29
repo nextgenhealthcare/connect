@@ -185,17 +185,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
     public void start() throws ConnectorTaskException, InterruptedException {
         updateCurrentState(DeployedState.STARTING);
 
-        if (isQueueEnabled()) {
-            // Remove any items in the queue's buffer because they may be outdated and refresh the queue size
-            queue.invalidate(true, true);
-
-            for (int i = 0; i < destinationConnectorProperties.getThreadCount(); i++) {
-                Thread thread = new Thread(this);
-                thread.start();
-                queueThreads.put(thread.getId(), thread);
-            }
-        }
-
         onStart();
 
         /*
@@ -206,6 +195,19 @@ public abstract class DestinationConnector extends Connector implements Runnable
         forceQueue.set(false);
 
         updateCurrentState(DeployedState.STARTED);
+    }
+
+    public void startQueue() {
+        if (isQueueEnabled()) {
+            // Remove any items in the queue's buffer because they may be outdated and refresh the queue size
+            queue.invalidate(true, true);
+
+            for (int i = 0; i < destinationConnectorProperties.getThreadCount(); i++) {
+                Thread thread = new Thread(this);
+                thread.start();
+                queueThreads.put(thread.getId(), thread);
+            }
+        }
     }
 
     public void stop() throws ConnectorTaskException, InterruptedException {
