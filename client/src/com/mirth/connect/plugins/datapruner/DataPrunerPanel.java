@@ -295,7 +295,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         if (properties.getProperty("pruningBlockSize") != null && !properties.getProperty("pruningBlockSize").equals("")) {
             blockSizeTextField.setText(properties.getProperty("pruningBlockSize"));
         } else {
-            blockSizeTextField.setText("1000");
+            blockSizeTextField.setText("50000");
         }
         
         if (Boolean.parseBoolean(properties.getProperty("pruneEvents", Boolean.FALSE.toString()))) {

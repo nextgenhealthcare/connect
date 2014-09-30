@@ -22,7 +22,7 @@ import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DataPrunerService implements ServicePlugin {
     public static final String PLUGINPOINT = "Data Pruner";
-    private static final int DEFAULT_PRUNING_BLOCK_SIZE = 0;
+    private static final int DEFAULT_PRUNING_BLOCK_SIZE = 50000;
 
     private DataPrunerController dataPrunerController = DataPrunerController.getInstance();
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
