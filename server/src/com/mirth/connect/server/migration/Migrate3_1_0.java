@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.util.MigrationException;
 import com.mirth.connect.server.tools.ClassPathResource;
+import com.mirth.connect.server.util.DatabaseUtil;
 
 public class Migrate3_1_0 extends Migrator implements ConfigurationMigrator {
     private Logger logger = Logger.getLogger(getClass());
@@ -64,10 +65,10 @@ public class Migrate3_1_0 extends Migrator implements ConfigurationMigrator {
     }
 
     private void migrateMessageSequences() throws MigrationException {
-        if (scriptExists(getDatabaseType() + "-3.0.3-3.1.0-create-msg-seq.sql")) {
-            logger.debug("Migrating message sequences for " + getDatabaseType());
+        try {
+            if (scriptExists(getDatabaseType() + "-3.0.3-3.1.0-create-msg-seq.sql") && DatabaseUtil.tableExists(getConnection(), "D_MESSAGE_SEQUENCES")) {
+                logger.debug("Migrating message sequences for " + getDatabaseType());
 
-            try {
                 PreparedStatement preparedStatement = null;
                 ResultSet resultSet = null;
 
@@ -90,9 +91,9 @@ public class Migrate3_1_0 extends Migrator implements ConfigurationMigrator {
 
                 logger.debug("Finished creating new message sequence tables, dropping old D_MESSAGE_SEQUENCES table");
                 executeStatement("DROP TABLE D_MESSAGE_SEQUENCES");
-            } catch (Exception e) {
-                throw new MigrationException("Failed to migrate message sequences.", e);
             }
+        } catch (Exception e) {
+            throw new MigrationException("An error occurred while migrating message sequences or checking to see if sequences need migration.", e);
         }
     }
 
