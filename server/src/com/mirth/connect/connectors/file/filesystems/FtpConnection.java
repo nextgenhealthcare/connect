@@ -119,6 +119,9 @@ public class FtpConnection implements FileSystemConnection {
             if (!client.setFileType(FTP.BINARY_FILE_TYPE)) {
                 throw new IOException("Ftp error");
             }
+
+            initialize();
+
             if (passive) {
                 client.enterLocalPassiveMode();
             }
@@ -129,6 +132,12 @@ public class FtpConnection implements FileSystemConnection {
             throw e;
         }
     }
+
+    /**
+     * This method allows subclasses of FtpConnection to issue additional commands after a
+     * connection is established.
+     */
+    protected void initialize() throws Exception {}
 
     @Override
     public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception {
