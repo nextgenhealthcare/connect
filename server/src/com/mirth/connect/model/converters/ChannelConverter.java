@@ -14,7 +14,6 @@ import java.io.StringReader;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Element;
 import org.xmlpull.mxp1.MXParser;
-import org.xmlpull.v1.XmlPullParser;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
@@ -32,7 +31,6 @@ import com.thoughtworks.xstream.mapper.Mapper;
 public class ChannelConverter extends MigratableConverter {
 
     private HierarchicalStreamCopier copier = new HierarchicalStreamCopier();
-    private XmlPullParser parser = new MXParser();
 
     public ChannelConverter(String currentVersion, Mapper mapper) {
         super(currentVersion, mapper);
@@ -55,7 +53,7 @@ public class ChannelConverter extends MigratableConverter {
                 }
 
                 for (DonkeyElement child : element.getChildElements()) {
-                    copier.copy(new XppReader(new StringReader(child.toXml()), parser), writer);
+                    copier.copy(new XppReader(new StringReader(child.toXml()), new MXParser()), writer);
                 }
             } catch (Exception e) {
                 throw new SerializerException(e);

@@ -13,7 +13,6 @@ import java.io.StringReader;
 
 import org.w3c.dom.Element;
 import org.xmlpull.mxp1.MXParser;
-import org.xmlpull.v1.XmlPullParser;
 
 import com.mirth.connect.donkey.model.message.MapContent;
 import com.mirth.connect.donkey.util.DonkeyElement;
@@ -34,7 +33,6 @@ import com.thoughtworks.xstream.mapper.Mapper;
 public class MapContentConverter extends ReflectionConverter {
 
     private HierarchicalStreamCopier copier = new HierarchicalStreamCopier();
-    private XmlPullParser parser = new MXParser();
 
     public MapContentConverter(Mapper mapper) {
         super(mapper, new JVM().bestReflectionProvider());
@@ -56,7 +54,7 @@ public class MapContentConverter extends ReflectionConverter {
                 DonkeyElement mapElement = new DonkeyElement(serializedMap);
                 mapElement.setNodeName("content");
                 mapElement.setAttribute("class", "map");
-                copier.copy(new XppReader(new StringReader(mapElement.toXml()), parser), writer);
+                copier.copy(new XppReader(new StringReader(mapElement.toXml()), new MXParser()), writer);
             } catch (DonkeyElementException e) {
                 throw new SerializerException(e);
             }

@@ -16,7 +16,6 @@ import java.util.Set;
 
 import org.w3c.dom.Element;
 import org.xmlpull.mxp1.MXParser;
-import org.xmlpull.v1.XmlPullParser;
 
 import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
@@ -34,7 +33,6 @@ import com.thoughtworks.xstream.mapper.Mapper;
 public class PluginPropertiesConverter extends MigratableConverter {
 
     private HierarchicalStreamCopier copier = new HierarchicalStreamCopier();
-    private XmlPullParser parser = new MXParser();
 
     public PluginPropertiesConverter(String currentVersion, Mapper mapper) {
         super(currentVersion, mapper);
@@ -61,7 +59,7 @@ public class PluginPropertiesConverter extends MigratableConverter {
                 propertiesXml = ObjectXMLSerializer.getInstance().serialize(properties);
             }
 
-            copier.copy(new XppReader(new StringReader(propertiesXml), parser), writer);
+            copier.copy(new XppReader(new StringReader(propertiesXml), new MXParser()), writer);
         }
     }
 
