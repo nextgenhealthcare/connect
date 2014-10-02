@@ -21,6 +21,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -198,6 +199,7 @@ public class SettingsPanelDatabaseTasks extends AbstractSettingsPanel implements
         JPanel containerPanel = new JPanel(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
         containerPanel.setBackground(getBackground());
         containerPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Database Tasks", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        containerPanel.add(new JLabel("Cleanup or optimization tasks for the internal database. If no tasks are present, no action is necessary."), "top, wrap");
 
         taskTable = new MirthTable();
         taskTable.setModel(new RefreshTableModel(new Object[] { "Status", "Name", "Description",
@@ -251,7 +253,7 @@ public class SettingsPanelDatabaseTasks extends AbstractSettingsPanel implements
         taskTable.getSelectionModel().addListSelectionListener(this);
 
         JScrollPane taskTableScrollPane = new JScrollPane(taskTable);
-        containerPanel.add(taskTableScrollPane, "grow");
+        containerPanel.add(taskTableScrollPane, "grow, push");
 
         add(containerPanel, "grow, h 60%");
 
