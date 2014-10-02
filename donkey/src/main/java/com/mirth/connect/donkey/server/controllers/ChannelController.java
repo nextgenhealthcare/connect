@@ -9,15 +9,19 @@
 
 package com.mirth.connect.donkey.server.controllers;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
+import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 
 public class ChannelController {
     private static ChannelController instance;
@@ -157,22 +161,47 @@ public class ChannelController {
     }
 
     private synchronized long createChannel(String channelId) {
-        DonkeyDao dao = donkey.getDaoFactory().getDao();
+        int attemptsRemaining = 3;
 
-        try {
-            Long localChannelId = dao.selectMaxLocalChannelId();
-            if (localChannelId == null) {
-                localChannelId = 1L;
-            } else {
-                localChannelId++;
+        while (true) {
+            DonkeyDao dao = donkey.getDaoFactory().getDao();
+
+            try {
+                Long localChannelId = dao.selectMaxLocalChannelId();
+                if (localChannelId == null) {
+                    localChannelId = 1L;
+                } else {
+                    localChannelId++;
+                }
+
+                dao.createChannel(channelId, localChannelId);
+                dao.commit();
+
+                return localChannelId;
+            } catch (DonkeyDaoException e) {
+                /*
+                 * MIRTH-3475 If two server instances connected to a shared database attempt to create
+                 * channels at the same time, they may both obtain the same next local channel
+                 * ID, which will result in a duplicate key error. In the rare case that this
+                 * happens, we retry 2 more times.
+                 */
+                if (e.getCause() instanceof SQLException) {
+                    SQLException sqlException = (SQLException) e.getCause();
+
+                    /*
+                     * The second part of this conditional tests if the SQLException was the result
+                     * of a duplicate key violation. MySQL, Oracle and SQL Server generate an
+                     * exception with SQLState == 23000, while Postgres returns SQLState == 23505.
+                     */
+                    if (--attemptsRemaining == 0 || !(StringUtils.equals(sqlException.getSQLState(), "23000") || StringUtils.equals(sqlException.getSQLState(), "23505") || StringUtils.containsIgnoreCase(sqlException.getMessage(), "duplicate") || StringUtils.containsIgnoreCase(sqlException.getMessage(), "unique constraint"))) {
+                        throw e;
+                    }
+                } else {
+                    throw e;
+                }
+            } finally {
+                dao.close();
             }
-
-            dao.createChannel(channelId, localChannelId);
-            dao.commit();
-
-            return localChannelId;
-        } finally {
-            dao.close();
         }
     }
 }
