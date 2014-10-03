@@ -422,10 +422,14 @@ public class LoginPanel extends javax.swing.JFrame {
 
                     // If SUCCESS or SUCCESS_GRACE_PERIOD
                     if ((loginStatus != null) && ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD))) {
-                        String serverName = client.getServerSettings().getServerName();
-                        if (!StringUtils.isBlank(serverName)) {
-                            PlatformUI.SERVER_NAME = serverName;
-                        } else {
+                        try {
+                            String serverName = client.getServerSettings().getServerName();
+                            if (!StringUtils.isBlank(serverName)) {
+                                PlatformUI.SERVER_NAME = serverName;
+                            } else {
+                                PlatformUI.SERVER_NAME = null;
+                            }
+                        } catch (ClientException e) {
                             PlatformUI.SERVER_NAME = null;
                         }
 
@@ -505,8 +509,8 @@ public class LoginPanel extends javax.swing.JFrame {
     }// GEN-LAST:event_loginButtonActionPerformed
 
     /**
-     * If the button is "Next" instead of "Finish" then it moves on to the next
-     * options. Otherwise, it creates the new channel.
+     * If the button is "Next" instead of "Finish" then it moves on to the next options. Otherwise,
+     * it creates the new channel.
      */
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_closeButtonActionPerformed
     {// GEN-HEADEREND:event_closeButtonActionPerformed
