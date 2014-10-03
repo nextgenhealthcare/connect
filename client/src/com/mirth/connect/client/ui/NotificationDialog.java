@@ -201,7 +201,7 @@ public class NotificationDialog extends MirthDialog {
         notificationNameTextField = new JTextField();
         notificationNameTextField.setFont(notificationNameTextField.getFont().deriveFont(Font.BOLD));
         notificationNameTextField.setEditable(false);
-        notificationNameTextField.setHighlighter(null);
+        notificationNameTextField.setFocusable(false);
         notificationNameTextField.setBorder(BorderFactory.createEmptyBorder());
         notificationNameTextField.setBackground(UIConstants.HIGHLIGHTER_COLOR);
         DefaultCaret nameCaret = (DefaultCaret) notificationNameTextField.getCaret();
