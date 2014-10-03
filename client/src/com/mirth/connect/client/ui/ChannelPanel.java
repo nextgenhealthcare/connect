@@ -11,6 +11,7 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,11 +22,15 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.prefs.Preferences;
 
 import javax.swing.DropMode;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
@@ -36,7 +41,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -46,7 +53,9 @@ import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jdesktop.swingx.table.TableColumnExt;
+import org.jdesktop.swingx.table.TableColumnModelExt;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.ChannelFilter.ChannelFilterSaveTask;
@@ -72,6 +81,7 @@ public class ChannelPanel extends javax.swing.JPanel {
     private final String LOCAL_CHANNEL_ID = "Local Id";
     private final int LOCAL_CHANNEL_ID_COLUMN_NUMBER = 4;
     private JMenuItem menuItem;
+    private Set<String> defaultVisibleColumns;
 
     private final String[] DEFAULT_COLUMNS = new String[] { STATUS_COLUMN_NAME,
             DATA_TYPE_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME, LOCAL_CHANNEL_ID,
@@ -97,6 +107,15 @@ public class ChannelPanel extends javax.swing.JPanel {
             }
         };
         tabs.addChangeListener(changeListener);
+
+        defaultVisibleColumns = new HashSet<String>();
+        defaultVisibleColumns.add(STATUS_COLUMN_NAME);
+        defaultVisibleColumns.add(DATA_TYPE_COLUMN_NAME);
+        defaultVisibleColumns.add(NAME_COLUMN_NAME);
+        defaultVisibleColumns.add(ID_COLUMN_NAME);
+        defaultVisibleColumns.add(DESCRIPTION_COLUMN_NAME);
+        defaultVisibleColumns.add(DEPLOYED_REVISION_DELTA_COLUMN_NAME);
+        defaultVisibleColumns.add(LAST_DEPLOYED_COLUMN_NAME);
 
         makeChannelTable();
 
@@ -212,8 +231,7 @@ public class ChannelPanel extends javax.swing.JPanel {
         channelTable.getColumnExt(LOCAL_CHANNEL_ID).setMinWidth(60);
         channelTable.getColumnExt(LOCAL_CHANNEL_ID).setMaxWidth(60);
         channelTable.getColumnExt(LOCAL_CHANNEL_ID).setCellRenderer(new NumberCellRenderer(SwingConstants.CENTER, false));
-        channelTable.getColumnExt(LOCAL_CHANNEL_ID).setToolTipText("<html><body>The local id of this channel used in the database.</body></html>");
-        channelTable.getColumnExt(LOCAL_CHANNEL_ID).setVisible(Frame.userPreferences.getBoolean("enableLocalColumn", false));
+        channelTable.getColumnExt(LOCAL_CHANNEL_ID).setToolTipText("<html><body>The local id of this channel used as part of the names for the message tables.</body></html>");
 
         for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
             if (!plugin.isDisplayFirst()) {
@@ -222,6 +240,13 @@ public class ChannelPanel extends javax.swing.JPanel {
                 channelTable.getColumnExt(columnName).setMinWidth(plugin.getMinWidth());
                 channelTable.getColumnExt(columnName).setCellRenderer(plugin.getCellRenderer());
             }
+        }
+
+        for (TableColumn column : ((TableColumnModelExt) channelTable.getColumnModel()).getColumns(true)) {
+            TableColumnExt columnExt = (TableColumnExt) column;
+            String columnName = columnExt.getTitle();
+            boolean enable = Preferences.userNodeForPackage(Mirth.class).getBoolean("channelTableVisibleColumn" + columnName, defaultVisibleColumns.contains(columnName));
+            columnExt.setVisible(enable);
         }
 
         channelTable.packTable(UIConstants.COL_MARGIN);
@@ -233,7 +258,7 @@ public class ChannelPanel extends javax.swing.JPanel {
         channelTable.setSortable(true);
 
         // Sort by Channel Name column
-        channelTable.getRowSorter().toggleSortOrder(channelTable.getColumnModelIndex(NAME_COLUMN_NAME));
+        channelTable.getRowSorter().toggleSortOrder(channelTable.getColumnExt(NAME_COLUMN_NAME).getModelIndex());
 
         channelPane.setViewportView(channelTable);
 
@@ -298,33 +323,73 @@ public class ChannelPanel extends javax.swing.JPanel {
                 }
             }
         });
+
+        channelTable.setColumnControlVisible(true);
+        final JButton columnControlButton = new JButton(new ColumnControlButton(channelTable).getIcon());
+
+        columnControlButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JPopupMenu columnMenu = getColumnMenu();
+                Dimension buttonSize = columnControlButton.getSize();
+                int xPos = columnControlButton.getComponentOrientation().isLeftToRight() ? buttonSize.width - columnMenu.getPreferredSize().width : 0;
+                columnMenu.show(columnControlButton, xPos, columnControlButton.getHeight());
+            }
+        });
+        channelTable.setColumnControl(columnControlButton);
     }
 
     private JPopupMenu getColumnMenu() {
         JPopupMenu columnMenu = new JPopupMenu();
-        TableColumnExt column = channelTable.getColumnExt(LOCAL_CHANNEL_ID);
-        Boolean visible = column.isVisible();
+        DefaultTableModel model = (DefaultTableModel) channelTable.getModel();
 
-        menuItem = new JMenuItem();
-        
-        if (visible) {
-            menuItem.setText("Hide Local Channel Id");
-        } else {
-            menuItem.setText("Show Local Channel Id");
+        for (int i = 0; i < model.getColumnCount(); i++) {
+            final String columnName = model.getColumnName(i);
+            // Get the column object by name. Using an index may not return the column object if the column is hidden
+            TableColumnExt column = channelTable.getColumnExt(columnName);
+
+            // Create the menu item
+            final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(columnName);
+            // Show or hide the checkbox
+            menuItem.setSelected(column.isVisible());
+
+            menuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent evt) {
+                    TableColumnExt column = channelTable.getColumnExt(menuItem.getText());
+                    // Determine whether to show or hide the selected column
+                    boolean enable = !column.isVisible();
+                    // Do not hide a column if it is the last remaining visible column              
+                    if (enable || channelTable.getColumnCount() > 1) {
+                        column.setVisible(enable);
+                        Preferences.userNodeForPackage(Mirth.class).putBoolean("channelTableVisibleColumn" + columnName, enable);
+                    }
+                }
+            });
+
+            columnMenu.add(menuItem);
         }
 
+        columnMenu.addSeparator();
+
+        menuItem = new JMenuItem("Restore Default");
         menuItem.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                TableColumnExt column = channelTable.getColumnExt(LOCAL_CHANNEL_ID);
-                
-                Boolean visible = !column.isVisible();
-                column.setVisible(visible);
-                Frame.userPreferences.putBoolean("enableLocalColumn", visible);
-            }
-        });
+                for (TableColumn column : ((TableColumnModelExt) channelTable.getColumnModel()).getColumns(true)) {
+                    TableColumnExt columnExt = (TableColumnExt) column;
+                    String columnName = columnExt.getTitle();
 
+                    boolean enable = defaultVisibleColumns.contains(columnName);
+                    columnExt.setVisible(enable);
+                    Preferences.userNodeForPackage(Mirth.class).putBoolean("channelTableVisibleColumn" + columnName, enable);
+                }
+            }
+
+        });
         columnMenu.add(menuItem);
+
         return columnMenu;
     }
 
@@ -424,16 +489,16 @@ public class ChannelPanel extends javax.swing.JPanel {
             }
 
             channelTable.setModel(new RefreshTableModel(tableData, columns.toArray(new String[0])) {
-                
+
                 @Override
                 public Class<?> getColumnClass(int columnIndex) {
                     if (columnIndex == LOCAL_CHANNEL_ID_COLUMN_NUMBER) {
                         return Long.class;
                     }
-                    
+
                     return super.getColumnClass(columnIndex);
                 }
-                
+
                 @Override
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return false;
@@ -453,7 +518,7 @@ public class ChannelPanel extends javax.swing.JPanel {
 
         HighlightPredicate revisionDeltaHighlighterPredicate = new HighlightPredicate() {
             public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
-                if (adapter.column == channelTable.getColumnViewIndex(DEPLOYED_REVISION_DELTA_COLUMN_NAME)) {
+                if (adapter.column == channelTable.convertColumnIndexToView(channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).getModelIndex())) {
                     if (channelTable.getValueAt(adapter.row, adapter.column) != null && ((Integer) channelTable.getValueAt(adapter.row, adapter.column)).intValue() > 0) {
                         return true;
                     }
@@ -465,7 +530,7 @@ public class ChannelPanel extends javax.swing.JPanel {
 
         HighlightPredicate lastDeployedHighlighterPredicate = new HighlightPredicate() {
             public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
-                if (adapter.column == channelTable.getColumnViewIndex(LAST_DEPLOYED_COLUMN_NAME)) {
+                if (adapter.column == channelTable.convertColumnIndexToView(channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).getModelIndex())) {
                     Calendar checkAfter = Calendar.getInstance();
                     checkAfter.add(Calendar.MINUTE, -2);
 
@@ -502,7 +567,7 @@ public class ChannelPanel extends javax.swing.JPanel {
     /** The action called when a Channel is selected. Sets tasks as well. */
     private void ChannelListSelected(ListSelectionEvent evt) {
         int[] rows = channelTable.getSelectedModelRows();
-        int column = channelTable.getColumnModelIndex(STATUS_COLUMN_NAME);
+        int column = channelTable.getColumnExt(STATUS_COLUMN_NAME).getModelIndex();
 
         if (rows.length > 0) {
             parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 2, 2, true);
@@ -541,7 +606,7 @@ public class ChannelPanel extends javax.swing.JPanel {
         int[] selectedRows = channelTable.getSelectedModelRows();
         List<Channel> selectedChannels = new ArrayList<Channel>();
         for (int i = 0; i < selectedRows.length; i++) {
-            String channelId = (String) channelTable.getModel().getValueAt(selectedRows[i], channelTable.getColumnModelIndex(ID_COLUMN_NAME));
+            String channelId = (String) channelTable.getModel().getValueAt(selectedRows[i], channelTable.getColumnExt(ID_COLUMN_NAME).getModelIndex());
             ChannelStatus selectedChannelStatus = parent.channelStatuses.get(channelId);
             if (selectedChannelStatus != null) {
                 selectedChannels.add(selectedChannelStatus.getChannel());
@@ -555,7 +620,7 @@ public class ChannelPanel extends javax.swing.JPanel {
     public void setSelectedChannels(List<String> channelIds) {
         TableModel model = channelTable.getModel();
         int rowCount = model.getRowCount();
-        int idColumn = channelTable.getColumnModelIndex(ID_COLUMN_NAME);
+        int idColumn = channelTable.getColumnExt(ID_COLUMN_NAME).getModelIndex();
 
         for (String channelId : channelIds) {
             for (int i = 0; i < rowCount; i++) {
@@ -582,7 +647,7 @@ public class ChannelPanel extends javax.swing.JPanel {
     public List<String> getVisibleChannelIds() {
         TableModel model = channelTable.getModel();
         int rowCount = model.getRowCount();
-        int idColumn = channelTable.getColumnModelIndex(ID_COLUMN_NAME);
+        int idColumn = channelTable.getColumnExt(ID_COLUMN_NAME).getModelIndex();
 
         List<String> channelIds = new ArrayList<String>();
 
