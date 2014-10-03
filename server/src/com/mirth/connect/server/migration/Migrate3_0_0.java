@@ -59,7 +59,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
     @Override
     public Map<String, Object> getConfigurationPropertiesToAdd() {
         Map<String, Object> propertiesToAdd = new LinkedHashMap<String, Object>();
-        propertiesToAdd.put("database.max-connections", 10);
+        propertiesToAdd.put("database.max-connections", 20);
         return propertiesToAdd;
     }
 
