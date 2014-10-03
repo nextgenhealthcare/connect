@@ -11,7 +11,6 @@ package com.mirth.connect.server.controllers;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;

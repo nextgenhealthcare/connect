@@ -9,7 +9,11 @@
 
 package com.mirth.connect.connectors.ws;
 
-import static com.mirth.connect.connectors.ws.WebServiceConnectorServiceMethods.*;
+import static com.mirth.connect.connectors.ws.WebServiceConnectorServiceMethods.CACHE_WSDL_FROM_URL;
+import static com.mirth.connect.connectors.ws.WebServiceConnectorServiceMethods.GENERATE_ENVELOPE;
+import static com.mirth.connect.connectors.ws.WebServiceConnectorServiceMethods.GET_DEFINITION;
+import static com.mirth.connect.connectors.ws.WebServiceConnectorServiceMethods.GET_SOAP_ACTION;
+import static com.mirth.connect.connectors.ws.WebServiceConnectorServiceMethods.IS_WSDL_CACHED;
 
 import java.awt.Color;
 import java.awt.Point;

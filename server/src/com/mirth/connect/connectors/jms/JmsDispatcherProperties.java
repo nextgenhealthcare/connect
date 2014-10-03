@@ -12,8 +12,8 @@ package com.mirth.connect.connectors.jms;
 import java.util.Map;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 
 public class JmsDispatcherProperties extends JmsConnectorProperties implements DestinationConnectorPropertiesInterface {

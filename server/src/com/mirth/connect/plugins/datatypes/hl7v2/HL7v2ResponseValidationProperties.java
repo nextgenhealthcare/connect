@@ -9,7 +9,6 @@
 
 package com.mirth.connect.plugins.datatypes.hl7v2;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

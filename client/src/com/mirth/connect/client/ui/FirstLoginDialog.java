@@ -9,7 +9,6 @@
 
 package com.mirth.connect.client.ui;
 
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
@@ -18,7 +17,6 @@ import java.awt.event.WindowEvent;
 import javax.swing.JDialog;
 
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
 
 /**

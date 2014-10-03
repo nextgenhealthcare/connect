@@ -9,9 +9,6 @@
 
 package com.mirth.connect.connectors.file;
 
-import java.util.ArrayList;
-import java.util.Map;
-
 import javax.swing.DefaultComboBoxModel;
 
 import org.apache.log4j.Logger;
@@ -22,11 +19,7 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
-import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
-import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class FileReader extends ConnectorSettingsPanel {
