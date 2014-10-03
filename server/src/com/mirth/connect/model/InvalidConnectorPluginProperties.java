@@ -69,7 +69,6 @@ public class InvalidConnectorPluginProperties extends ConnectorPluginProperties 
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
-        purgedProperties.put("name", name);
         return purgedProperties;
     }
 }

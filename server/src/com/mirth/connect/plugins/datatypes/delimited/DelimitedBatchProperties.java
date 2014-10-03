@@ -164,6 +164,7 @@ public class DelimitedBatchProperties extends BatchProperties {
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
+        purgedProperties.put("splitType", splitType);
         purgedProperties.put("batchSkipRecords", batchSkipRecords);
         purgedProperties.put("batchMessageDelimiterIncluded", batchMessageDelimiterIncluded);
         purgedProperties.put("batchScriptLines", PurgeUtil.countLines(batchScript));

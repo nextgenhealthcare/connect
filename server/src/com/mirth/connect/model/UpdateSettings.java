@@ -82,8 +82,6 @@ public class UpdateSettings extends AbstractSettings implements Serializable, Au
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
-        purgedProperties.put("statsEnabled", statsEnabled);
-        purgedProperties.put("lastStatsTime", lastStatsTime);
         return purgedProperties;
     }
 

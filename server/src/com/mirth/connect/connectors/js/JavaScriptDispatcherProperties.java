@@ -96,7 +96,7 @@ public class JavaScriptDispatcherProperties extends ConnectorProperties implemen
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());
-        purgedProperties.put("script", PurgeUtil.countLines(script));
+        purgedProperties.put("scriptLines", PurgeUtil.countLines(script));
         return purgedProperties;
     }
 }

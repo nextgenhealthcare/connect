@@ -376,7 +376,7 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("pollConnectorProperties", pollConnectorProperties.getPurgedProperties());
-        purgedProperties.put("resposeConnectorProperties", sourceConnectorProperties.getPurgedProperties());
+        purgedProperties.put("sourceConnectorProperties", sourceConnectorProperties.getPurgedProperties());
         purgedProperties.put("scheme", scheme);
         purgedProperties.put("regex", regex);
         purgedProperties.put("directoryRecursion", directoryRecursion);

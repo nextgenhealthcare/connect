@@ -188,6 +188,7 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
+        purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());
         purgedProperties.put("driver", driver);
         purgedProperties.put("queryLines", PurgeUtil.countLines(query));
         purgedProperties.put("useScript", useScript);

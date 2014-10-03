@@ -206,7 +206,7 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable {
     @Override
     public void migrate3_1_0(DonkeyElement element) {
         DonkeyElement shutdownScript = element.getChildElement("shutdownScript");
-        
+
         if (shutdownScript != null) {
             shutdownScript.setNodeName("undeployScript");
         }
@@ -232,7 +232,7 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable {
         }
         purgedProperties.put("destinationConnectors", purgedDestinationConnectors);
         purgedProperties.put("preprocessingScriptLines", PurgeUtil.countLines(preprocessingScript));
-        purgedProperties.put("postprocessingScript", PurgeUtil.countLines(postprocessingScript));
+        purgedProperties.put("postprocessingScriptLines", PurgeUtil.countLines(postprocessingScript));
         purgedProperties.put("deployScriptLines", PurgeUtil.countLines(deployScript));
         purgedProperties.put("undeployScriptLines", PurgeUtil.countLines(undeployScript));
         purgedProperties.put("properties", properties.getPurgedProperties());
