@@ -433,7 +433,7 @@
               <ComponentRef name="provideUsageStatsButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Yes"/>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Toggles sending usage statistics to Mirth.  These statistics &lt;br&gt;do not contain any PHI, and help Mirth determine which connectors &lt;br&gt;or areas of Mirth Connect are most widely used.&lt;/html&gt;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Toggles sending usage statistics to Mirth.  These statistics &lt;br&gt;do not contain any PHI or channel/script implementations,&lt;br&gt; and help Mirth determine which connectors or areas of&lt;br&gt;Mirth Connect are most widely used.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -453,7 +453,7 @@
               <ComponentRef name="provideUsageStatsButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="No"/>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Toggles sending usage statistics to Mirth.  These statistics &lt;br&gt;do not contain any PHI, and help Mirth determine which connectors &lt;br&gt;or areas of Mirth Connect are most widely used.&lt;/html&gt;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Toggles sending usage statistics to Mirth.  These statistics &lt;br&gt;do not contain any PHI or channel/script implementations,&lt;br&gt; and help Mirth determine which connectors or areas of&lt;br&gt;Mirth Connect are most widely used.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
