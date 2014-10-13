@@ -365,10 +365,10 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
     public void migrate3_1_0(DonkeyElement element) {
         super.migrate3_1_0(element);
 
-        String processBatch = element.removeChild("processBatch").getTextContent();
+        DonkeyElement processBatchElement = element.removeChild("processBatch");
         DonkeyElement sourcePropertiesElement = element.getChildElement("sourceConnectorProperties");
-        if (sourcePropertiesElement != null) {
-            sourcePropertiesElement.addChildElement("processBatch", processBatch);
+        if (processBatchElement != null && sourcePropertiesElement != null) {
+            sourcePropertiesElement.addChildElementIfNotExists("processBatch", processBatchElement.getTextContent());
         }
     }
 

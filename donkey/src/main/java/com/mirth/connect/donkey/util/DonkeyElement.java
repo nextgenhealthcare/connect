@@ -100,6 +100,26 @@ public class DonkeyElement implements Element {
         return new DonkeyElement(child);
     }
 
+    public DonkeyElement addChildElementIfNotExists(String name) {
+        DonkeyElement child = getChildElement(name);
+
+        if (child == null) {
+            child = addChildElement(name);
+        }
+
+        return child;
+    }
+
+    public DonkeyElement addChildElementIfNotExists(String name, String content) {
+        DonkeyElement child = getChildElement(name);
+
+        if (child == null) {
+            child = addChildElement(name, content);
+        }
+
+        return child;
+    }
+
     public DonkeyElement addChildElementFromXml(String xml) throws DonkeyElementException {
         Element child = fromXml(xml, element.getOwnerDocument());
         element.appendChild(child);

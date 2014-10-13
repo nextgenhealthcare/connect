@@ -342,7 +342,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         super.migrate3_1_0(element);
 
         element.removeChild("wsdlCacheId");
-        element.addChildElement("locationURI", "");
+        element.addChildElementIfNotExists("locationURI", "");
 
         DonkeyElement operations = element.removeChild("wsdlOperations");
         String service = element.getChildElement("service").getTextContent();
@@ -353,27 +353,33 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
             DefinitionPortMap portMap = new DefinitionPortMap();
             List<String> operationList = new ArrayList<String>();
 
-            for (DonkeyElement operation : operations.getChildElements()) {
-                operationList.add(operation.getTextContent());
+            if (operations != null) {
+                for (DonkeyElement operation : operations.getChildElements()) {
+                    operationList.add(operation.getTextContent());
+                }
             }
 
             portMap.getMap().put(port, new PortInformation(operationList));
             wsdlDefinitionMap.getMap().put(service, portMap);
 
             try {
-                DonkeyElement definitionMapElement = element.addChildElementFromXml(ObjectXMLSerializer.getInstance().serialize(wsdlDefinitionMap));
-                definitionMapElement.setNodeName("wsdlDefinitionMap");
+                if (element.getChildElement("wsdlDefinitionMap") == null) {
+                    DonkeyElement definitionMapElement = element.addChildElementFromXml(ObjectXMLSerializer.getInstance().serialize(wsdlDefinitionMap));
+                    definitionMapElement.setNodeName("wsdlDefinitionMap");
+                }
             } catch (DonkeyElementException e) {
                 throw new SerializerException("Failed to migrate Web Service Sender operation list.", e);
             }
         }
 
-        element.addChildElement("socketTimeout", "0");
+        element.addChildElementIfNotExists("socketTimeout", "0");
 
         Map<String, String> headers = new LinkedHashMap<String, String>();
         try {
-            DonkeyElement headersElement = element.addChildElementFromXml(ObjectXMLSerializer.getInstance().serialize(headers));
-            headersElement.setNodeName("headers");
+            if (element.getChildElement("headers") == null) {
+                DonkeyElement headersElement = element.addChildElementFromXml(ObjectXMLSerializer.getInstance().serialize(headers));
+                headersElement.setNodeName("headers");
+            }
         } catch (DonkeyElementException e) {
             throw new SerializerException("Failed to migrate Web Service Sender headers.", e);
         }

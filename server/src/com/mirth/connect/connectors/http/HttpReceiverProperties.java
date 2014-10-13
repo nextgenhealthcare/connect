@@ -210,21 +210,26 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     public void migrate3_1_0(DonkeyElement element) {
         super.migrate3_1_0(element);
 
-        boolean xmlBody = !Boolean.parseBoolean(element.removeChild("bodyOnly").getTextContent());
-        element.addChildElement("xmlBody", Boolean.toString(xmlBody));
-        element.addChildElement("parseMultipart", Boolean.toString(!xmlBody));
-        element.addChildElement("includeMetadata", Boolean.toString(xmlBody));
+        boolean xmlBody = false;
+        DonkeyElement bodyOnlyElement = element.removeChild("bodyOnly");
+        if (bodyOnlyElement != null) {
+            xmlBody = !Boolean.parseBoolean(bodyOnlyElement.getTextContent());
+        }
+
+        element.addChildElementIfNotExists("xmlBody", Boolean.toString(xmlBody));
+        element.addChildElementIfNotExists("parseMultipart", Boolean.toString(!xmlBody));
+        element.addChildElementIfNotExists("includeMetadata", Boolean.toString(xmlBody));
 
         if (xmlBody) {
-            element.addChildElement("binaryMimeTypes", "application/, image/, video/, audio/");
+            element.addChildElementIfNotExists("binaryMimeTypes", "application/, image/, video/, audio/");
         } else {
-            element.addChildElement("binaryMimeTypes");
+            element.addChildElementIfNotExists("binaryMimeTypes");
         }
-        element.addChildElement("binaryMimeTypesRegex", "false");
+        element.addChildElementIfNotExists("binaryMimeTypesRegex", "false");
 
-        element.addChildElement("responseDataTypeBinary", "false");
+        element.addChildElementIfNotExists("responseDataTypeBinary", "false");
 
-        element.addChildElement("staticResources");
+        element.addChildElementIfNotExists("staticResources");
     }
 
     @Override

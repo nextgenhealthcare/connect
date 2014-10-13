@@ -132,9 +132,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {
-        if (element.getChildElement("validateResponse") == null) {
-            element.addChildElement("validateResponse", "false");
-        }
+        element.addChildElementIfNotExists("validateResponse", "false");
     }
 
     @Override

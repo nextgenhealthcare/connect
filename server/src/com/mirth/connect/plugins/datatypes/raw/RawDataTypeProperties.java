@@ -29,11 +29,11 @@ public class RawDataTypeProperties extends DataTypeProperties {
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {
-        DonkeyElement batchElement = element.addChildElement("batchProperties");
+        DonkeyElement batchElement = element.addChildElementIfNotExists("batchProperties");
 
         batchElement.setAttribute("class", "com.mirth.connect.plugins.datatypes.raw.RawBatchProperties");
-        batchElement.addChildElement("splitType", "JavaScript");
-        batchElement.addChildElement("batchScript");
+        batchElement.addChildElementIfNotExists("splitType", "JavaScript");
+        batchElement.addChildElementIfNotExists("batchScript");
     }
 
     @Override

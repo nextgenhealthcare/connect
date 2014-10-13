@@ -127,13 +127,8 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {
-        if (element.getChildElement("processBatch") == null) {
-            element.addChildElement("processBatch", "false");
-        }
-
-        if (element.getChildElement("firstResponse") == null) {
-            element.addChildElement("firstResponse", "false");
-        }
+        element.addChildElementIfNotExists("processBatch", "false");
+        element.addChildElementIfNotExists("firstResponse", "false");
 
         element.removeChild("defaultQueueOffResponses");
         element.removeChild("defaultQueueOnResponses");

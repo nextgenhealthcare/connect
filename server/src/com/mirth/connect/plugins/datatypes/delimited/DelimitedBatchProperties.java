@@ -147,7 +147,9 @@ public class DelimitedBatchProperties extends BatchProperties {
     @Override
     public void migrate3_1_0(DonkeyElement element) {
         String splitType = "Record";
-        if (StringUtils.equalsIgnoreCase(element.getChildElement("batchSplitByRecord").getTextContent(), "false")) {
+
+        DonkeyElement splitByRecordElement = element.removeChild("batchSplitByRecord");
+        if (splitByRecordElement != null && StringUtils.equalsIgnoreCase(splitByRecordElement.getTextContent(), "false")) {
             if (StringUtils.isNotEmpty(element.getChildElement("batchMessageDelimiter").getTextContent())) {
                 splitType = "Delimiter";
             } else if (StringUtils.isNotEmpty(element.getChildElement("batchGroupingColumn").getTextContent())) {
@@ -157,8 +159,7 @@ public class DelimitedBatchProperties extends BatchProperties {
             }
         }
 
-        element.addChildElement("splitType", splitType);
-        element.removeChild("batchSplitByRecord");
+        element.addChildElementIfNotExists("splitType", splitType);
     }
 
     @Override

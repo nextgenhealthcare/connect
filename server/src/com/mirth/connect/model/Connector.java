@@ -165,22 +165,27 @@ public class Connector implements Serializable, Migratable, Purgable {
                  */
                 if (StringUtils.equals(properties.getAttribute("class"), "com.mirth.connect.connectors.file.FileReceiverProperties")) {
                     DonkeyElement processBatchElement = properties.getChildElement("processBatch");
-                    boolean processBatch = StringUtils.equals(processBatchElement.getTextContent(), "true");
+                    if (processBatchElement != null) {
+                        boolean processBatch = StringUtils.equals(processBatchElement.getTextContent(), "true");
 
-                    DonkeyElement inboundProperties = transformer.getChildElement("inboundProperties");
-                    boolean delimitedDataType = StringUtils.equals(inboundProperties.getAttribute("class"), "com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties");
+                        DonkeyElement inboundProperties = transformer.getChildElement("inboundProperties");
+                        boolean delimitedDataType = StringUtils.equals(inboundProperties.getAttribute("class"), "com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties");
 
-                    if (delimitedDataType && processBatch) {
-                        DonkeyElement batchProperties = inboundProperties.getChildElement("batchProperties");
+                        if (delimitedDataType && processBatch) {
+                            DonkeyElement batchProperties = inboundProperties.getChildElement("batchProperties");
+                            DonkeyElement splitByRecordElement = batchProperties.getChildElement("batchSplitByRecord");
 
-                        boolean splitByRecord = StringUtils.equalsIgnoreCase(batchProperties.getChildElement("batchSplitByRecord").getTextContent(), "true");
-                        boolean splitByDelimiter = StringUtils.isNotEmpty(batchProperties.getChildElement("batchMessageDelimiter").getTextContent());
-                        boolean splitByGroupingColumn = StringUtils.isNotEmpty(batchProperties.getChildElement("batchGroupingColumn").getTextContent());
-                        boolean splitByJavaScript = StringUtils.isNotEmpty(batchProperties.getChildElement("batchScript").getTextContent());
+                            if (splitByRecordElement != null) {
+                                boolean splitByRecord = StringUtils.equalsIgnoreCase(batchProperties.getChildElement("batchSplitByRecord").getTextContent(), "true");
+                                boolean splitByDelimiter = StringUtils.isNotEmpty(batchProperties.getChildElement("batchMessageDelimiter").getTextContent());
+                                boolean splitByGroupingColumn = StringUtils.isNotEmpty(batchProperties.getChildElement("batchGroupingColumn").getTextContent());
+                                boolean splitByJavaScript = StringUtils.isNotEmpty(batchProperties.getChildElement("batchScript").getTextContent());
 
-                        // If no split method is set then disable batch processing
-                        if (!splitByRecord && !splitByDelimiter && !splitByGroupingColumn && !splitByJavaScript) {
-                            processBatchElement.setTextContent("false");
+                                // If no split method is set then disable batch processing
+                                if (!splitByRecord && !splitByDelimiter && !splitByGroupingColumn && !splitByJavaScript) {
+                                    processBatchElement.setTextContent("false");
+                                }
+                            }
                         }
                     }
                 }

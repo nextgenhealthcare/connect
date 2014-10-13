@@ -30,14 +30,14 @@ public class XMLDataTypeProperties extends DataTypeProperties {
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {
-        DonkeyElement batchElement = element.addChildElement("batchProperties");
+        DonkeyElement batchElement = element.addChildElementIfNotExists("batchProperties");
 
         batchElement.setAttribute("class", "com.mirth.connect.plugins.datatypes.xml.XMLBatchProperties");
-        batchElement.addChildElement("splitType", "Element_Name");
-        batchElement.addChildElement("elementName");
-        batchElement.addChildElement("level", "0");
-        batchElement.addChildElement("query");
-        batchElement.addChildElement("batchScript");
+        batchElement.addChildElementIfNotExists("splitType", "Element_Name");
+        batchElement.addChildElementIfNotExists("elementName");
+        batchElement.addChildElementIfNotExists("level", "1");
+        batchElement.addChildElementIfNotExists("query");
+        batchElement.addChildElementIfNotExists("batchScript");
     }
 
     @Override

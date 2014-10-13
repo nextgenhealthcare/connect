@@ -33,11 +33,11 @@ public class HL7v2DataTypeProperties extends DataTypeProperties {
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {
-        DonkeyElement batchElement = element.addChildElement("batchProperties");
+        DonkeyElement batchElement = element.addChildElementIfNotExists("batchProperties");
 
         batchElement.setAttribute("class", "com.mirth.connect.plugins.datatypes.hl7v2.HL7v2BatchProperties");
-        batchElement.addChildElement("splitType", "MSH_Segment");
-        batchElement.addChildElement("batchScript");
+        batchElement.addChildElementIfNotExists("splitType", "MSH_Segment");
+        batchElement.addChildElementIfNotExists("batchScript");
     }
 
     @Override

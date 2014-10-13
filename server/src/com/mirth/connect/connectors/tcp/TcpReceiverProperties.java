@@ -255,20 +255,20 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
             port.setTextContent("0");
         }
 
-        element.addChildElement("remoteAddress", remoteAddress);
-        element.addChildElement("remotePort", remotePort);
-        element.addChildElement("overrideLocalBinding", "false");
+        element.addChildElementIfNotExists("remoteAddress", remoteAddress);
+        element.addChildElementIfNotExists("remotePort", remotePort);
+        element.addChildElementIfNotExists("overrideLocalBinding", "false");
     }
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {
         super.migrate3_1_0(element);
 
-        String processBatch = element.removeChild("processBatch").getTextContent();
+        DonkeyElement processBatchElement = element.removeChild("processBatch");
         DonkeyElement sourcePropertiesElement = element.getChildElement("sourceConnectorProperties");
-        if (sourcePropertiesElement != null) {
-            sourcePropertiesElement.addChildElement("processBatch", processBatch);
-            sourcePropertiesElement.addChildElement("firstResponse", "true");
+        if (processBatchElement != null && sourcePropertiesElement != null) {
+            sourcePropertiesElement.addChildElementIfNotExists("processBatch", processBatchElement.getTextContent());
+            sourcePropertiesElement.addChildElementIfNotExists("firstResponse", "true");
         }
     }
 

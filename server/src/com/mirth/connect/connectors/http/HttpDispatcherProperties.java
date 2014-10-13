@@ -372,26 +372,35 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
     public void migrate3_1_0(DonkeyElement element) {
         super.migrate3_1_0(element);
 
-        boolean responseXmlBody = Boolean.parseBoolean(element.removeChild("includeHeadersInResponse").getTextContent());
-        element.addChildElement("responseXmlBody", Boolean.toString(responseXmlBody));
-        element.addChildElement("responseParseMultipart", Boolean.toString(!responseXmlBody));
-        element.addChildElement("responseIncludeMetadata", Boolean.toString(responseXmlBody));
+        element.addChildElementIfNotExists("useProxyServer", "false");
+        element.addChildElementIfNotExists("proxyAddress", "");
+        element.addChildElementIfNotExists("proxyPort", "");
 
-        element.addChildElement("useProxyServer", "false");
-        element.addChildElement("proxyAddress", "");
-        element.addChildElement("proxyPort", "");
+        boolean responseXmlBody = false;
+        DonkeyElement includeHeadersElement = element.removeChild("includeHeadersInResponse");
+        if (includeHeadersElement != null) {
+            responseXmlBody = Boolean.parseBoolean(includeHeadersElement.getTextContent());
+        }
+
+        element.addChildElementIfNotExists("responseXmlBody", Boolean.toString(responseXmlBody));
+        element.addChildElementIfNotExists("responseParseMultipart", Boolean.toString(!responseXmlBody));
+        element.addChildElementIfNotExists("responseIncludeMetadata", Boolean.toString(responseXmlBody));
 
         if (responseXmlBody) {
-            element.addChildElement("responseBinaryMimeTypes", "application/, image/, video/, audio/");
+            element.addChildElementIfNotExists("responseBinaryMimeTypes", "application/, image/, video/, audio/");
         } else {
-            element.addChildElement("responseBinaryMimeTypes");
+            element.addChildElementIfNotExists("responseBinaryMimeTypes");
         }
-        element.addChildElement("responseBinaryMimeTypesRegex", "false");
+        element.addChildElementIfNotExists("responseBinaryMimeTypesRegex", "false");
 
-        boolean useAuthentication = Boolean.parseBoolean(element.getChildElement("useAuthentication").getTextContent());
-        element.addChildElement("usePreemptiveAuthentication", Boolean.toString(useAuthentication));
+        boolean useAuthentication = false;
+        DonkeyElement useAuthenticationElement = element.getChildElement("useAuthentication");
+        if (useAuthenticationElement != null) {
+            useAuthentication = Boolean.parseBoolean(useAuthenticationElement.getTextContent());
+        }
+        element.addChildElementIfNotExists("usePreemptiveAuthentication", Boolean.toString(useAuthentication));
 
-        element.addChildElement("dataTypeBinary", "false");
+        element.addChildElementIfNotExists("dataTypeBinary", "false");
     }
 
     @Override

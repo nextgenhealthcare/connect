@@ -286,12 +286,12 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Dest
     public void migrate3_1_0(DonkeyElement element) {
         super.migrate3_1_0(element);
 
-        element.addChildElement("checkRemoteHost", "true");
+        element.addChildElementIfNotExists("checkRemoteHost", "true");
 
-        String processHL7ACK = element.removeChild("processHL7ACK").getTextContent();
+        DonkeyElement processHL7ACKElement = element.removeChild("processHL7ACK");
         DonkeyElement destinationPropertiesElement = element.getChildElement("destinationConnectorProperties");
-        if (destinationPropertiesElement != null) {
-            destinationPropertiesElement.addChildElement("validateResponse", processHL7ACK);
+        if (processHL7ACKElement != null && destinationPropertiesElement != null) {
+            destinationPropertiesElement.addChildElement("validateResponse", processHL7ACKElement.getTextContent());
         }
     }
 
