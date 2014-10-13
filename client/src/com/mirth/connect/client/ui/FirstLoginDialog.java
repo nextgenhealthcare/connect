@@ -119,7 +119,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
             mirthHeadingPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mirthHeadingPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
+                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 27, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -133,7 +133,8 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
         registerCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         registerCheckBox.setSelected(true);
-        registerCheckBox.setText("Register user information");
+        registerCheckBox.setText("Register user with Mirth");
+        registerCheckBox.setToolTipText("<html>Register your user information with Mirth to help us<br>improve the product and provide better service.</html>");
         registerCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 registerCheckBoxActionPerformed(evt);
@@ -148,21 +149,18 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
                 .addContainerGap(305, Short.MAX_VALUE)
                 .addComponent(finishButton)
                 .addGap(9, 9, 9))
-            .addComponent(mirthHeadingPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
+            .addComponent(mirthHeadingPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE)
             .addGroup(channelOverviewLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(channelOverviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, channelOverviewLayout.createSequentialGroup()
-                        .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(channelOverviewLayout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)
-                        .addContainerGap())
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)
                     .addGroup(channelOverviewLayout.createSequentialGroup()
                         .addGroup(channelOverviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(registerCheckBox)
                             .addComponent(userEditPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(31, Short.MAX_VALUE))))
+                        .addGap(0, 19, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         channelOverviewLayout.setVerticalGroup(
             channelOverviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
