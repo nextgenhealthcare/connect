@@ -16,6 +16,7 @@ import org.w3c.dom.Element;
 import org.xmlpull.mxp1.MXParser;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.InvalidChannel;
@@ -68,13 +69,19 @@ public class ChannelConverter extends MigratableConverter {
         if (reader instanceof DocumentReader) {
             DocumentReader documentReader = (DocumentReader) reader;
             DonkeyElement channel = new DonkeyElement((Element) documentReader.getCurrent());
+            String preUnmarshalXml = null;
 
             try {
+                try {
+                    preUnmarshalXml = channel.toXml();
+                } catch (DonkeyElementException e) {
+                }
+
                 return super.unmarshal(documentReader, context);
             } catch (LinkageError e) {
-                return new InvalidChannel(channel, e, documentReader);
+                return new InvalidChannel(preUnmarshalXml, channel, e, documentReader);
             } catch (Exception e) {
-                return new InvalidChannel(channel, e, documentReader);
+                return new InvalidChannel(preUnmarshalXml, channel, e, documentReader);
             }
         } else {
             return super.unmarshal(reader, context);

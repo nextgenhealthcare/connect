@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 import com.mirth.connect.model.ArchiveMetaData;
@@ -158,6 +159,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
     @Override
     public <T> T deserialize(String serializedObject, Class<T> expectedClass) {
         DonkeyElement element = null;
+        String preUnmarshalXml = null;
 
         try {
             if (skipMigration(expectedClass)) {
@@ -165,16 +167,30 @@ public class ObjectXMLSerializer extends XStreamSerializer {
             } else {
                 element = new DonkeyElement(serializedObject);
 
+                if (expectedClass == Channel.class) {
+                    try {
+                        preUnmarshalXml = element.toXml();
+                    } catch (DonkeyElementException e) {
+                    }
+                }
+
                 if (ImportConverter3_0_0.isMigratable(expectedClass)) {
                     element = ImportConverter3_0_0.migrate(element, expectedClass);
+                }
+
+                if (expectedClass == Channel.class) {
+                    try {
+                        preUnmarshalXml = element.toXml();
+                    } catch (DonkeyElementException e) {
+                    }
                 }
 
                 return (T) getXStream().unmarshal(new MirthDomReader(element.getElement()));
             }
         } catch (LinkageError e) {
-            return handleDeserializationException(element, e, expectedClass);
+            return handleDeserializationException(preUnmarshalXml, element, e, expectedClass);
         } catch (Exception e) {
-            return handleDeserializationException(element, e, expectedClass);
+            return handleDeserializationException(preUnmarshalXml, element, e, expectedClass);
         }
     }
 
@@ -205,13 +221,29 @@ public class ObjectXMLSerializer extends XStreamSerializer {
                     List<T> list = new ArrayList<T>();
 
                     for (DonkeyElement child : listElement.getChildElements()) {
+                        String preUnmarshalXml = null;
                         try {
+                            if (expectedListItemClass == Channel.class) {
+                                try {
+                                    preUnmarshalXml = child.toXml();
+                                } catch (DonkeyElementException e) {
+                                }
+                            }
+
                             child = ImportConverter3_0_0.migrate(child, expectedListItemClass);
+
+                            if (expectedListItemClass == Channel.class) {
+                                try {
+                                    preUnmarshalXml = child.toXml();
+                                } catch (DonkeyElementException e) {
+                                }
+                            }
+
                             list.add((T) getXStream().unmarshal(new MirthDomReader(child.getElement())));
                         } catch (LinkageError e) {
-                            list.add(handleDeserializationException(child, e, expectedListItemClass));
+                            list.add(handleDeserializationException(preUnmarshalXml, child, e, expectedListItemClass));
                         } catch (Exception e) {
-                            list.add(handleDeserializationException(child, e, expectedListItemClass));
+                            list.add(handleDeserializationException(preUnmarshalXml, child, e, expectedListItemClass));
                         }
                     }
 
@@ -259,10 +291,10 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         return (expectedClass.equals(String.class) || expectedClass.equals(Integer.class) || expectedClass.equals(Long.class) || expectedClass.equals(Float.class) || expectedClass.equals(Double.class));
     }
 
-    private <T> T handleDeserializationException(DonkeyElement element, Throwable e, Class<T> expectedClass) {
+    private <T> T handleDeserializationException(String preUnmarshalXml, DonkeyElement element, Throwable e, Class<T> expectedClass) {
         if (expectedClass == Channel.class) {
             logger.error("Error deserializing channel.", e);
-            return (T) new InvalidChannel(element, e, null);
+            return (T) new InvalidChannel(preUnmarshalXml, element, e, null);
         }
 
         throw new SerializerException(e);

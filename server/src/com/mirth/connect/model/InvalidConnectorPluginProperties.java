@@ -22,17 +22,12 @@ public class InvalidConnectorPluginProperties extends ConnectorPluginProperties 
     private Throwable cause;
     private String name;
 
-    public InvalidConnectorPluginProperties(DonkeyElement properties, Throwable cause) {
-        if (properties == null) {
-            throw new SerializerException("Could not create invalid connector plugin properties. The properties element is null.");
+    public InvalidConnectorPluginProperties(String preUnmarshalXml, DonkeyElement properties, Throwable cause) {
+        if (preUnmarshalXml == null || properties == null) {
+            throw new SerializerException("Could not create invalid connector plugin properties. The properties element or XML is null.");
         }
 
-        try {
-            this.propertiesXml = properties.toXml();
-        } catch (Exception e) {
-            throw new SerializerException(e);
-        }
-
+        this.propertiesXml = preUnmarshalXml;
         this.cause = cause;
         this.name = properties.getNodeName();
     }

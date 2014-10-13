@@ -22,22 +22,14 @@ public class InvalidChannel extends Channel {
     private Throwable cause;
     private String channelXml;
 
-    public InvalidChannel(String id, String name, Integer revision, Throwable cause, String channelXml) {
-        init(id, name, revision, cause, channelXml);
-    }
-
-    public InvalidChannel(DonkeyElement channel, Throwable cause) {
-        this(channel, cause, null);
-    }
-
-    public InvalidChannel(DonkeyElement channel, Throwable cause, DocumentReader reader) {
+    public InvalidChannel(String preUnmarshalXml, DonkeyElement channel, Throwable cause, DocumentReader reader) {
         // Reset the stream reader to the channel element
         while (reader != null && reader.getCurrent() instanceof Element && !reader.getCurrent().equals(channel.getElement())) {
             reader.moveUp();
         }
 
-        if (channel == null) {
-            throw new SerializerException("Could not create invalid channel. The channel element is null.");
+        if (preUnmarshalXml == null || channel == null) {
+            throw new SerializerException("Could not create invalid channel. The channel element or XML is null.");
         }
 
         DonkeyElement id = channel.getChildElement("id");
@@ -49,7 +41,7 @@ public class InvalidChannel extends Channel {
         }
 
         try {
-            init(id.getTextContent(), name.getTextContent(), Integer.valueOf(revision.getTextContent()), cause, channel.toXml());
+            init(id.getTextContent(), name.getTextContent(), Integer.valueOf(revision.getTextContent()), cause, preUnmarshalXml);
         } catch (Exception e) {
             throw new SerializerException(e);
         }

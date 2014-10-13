@@ -19,6 +19,7 @@ import org.xmlpull.mxp1.MXParser;
 
 import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.InvalidConnectorPluginProperties;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -72,13 +73,19 @@ public class PluginPropertiesConverter extends MigratableConverter {
 
             for (DonkeyElement child : element.getChildElements()) {
                 ConnectorPluginProperties properties;
+                String preUnmarshalXml = null;
 
                 try {
-                    properties = ObjectXMLSerializer.getInstance().deserialize(child.toXml(), ConnectorPluginProperties.class);
+                    try {
+                        preUnmarshalXml = child.toXml();
+                    } catch (DonkeyElementException e) {
+                    }
+
+                    properties = ObjectXMLSerializer.getInstance().deserialize(preUnmarshalXml, ConnectorPluginProperties.class);
                 } catch (LinkageError e) {
-                    properties = new InvalidConnectorPluginProperties(child, e);
+                    properties = new InvalidConnectorPluginProperties(preUnmarshalXml, child, e);
                 } catch (Exception e) {
-                    properties = new InvalidConnectorPluginProperties(child, e);
+                    properties = new InvalidConnectorPluginProperties(preUnmarshalXml, child, e);
                 }
 
                 propertiesSet.add(properties);
