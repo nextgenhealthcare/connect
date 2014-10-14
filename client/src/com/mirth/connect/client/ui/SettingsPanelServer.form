@@ -469,7 +469,7 @@
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="serverNameField">
           <Properties>
-            <Property name="toolTipText" type="java.lang.String" value=""/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The server name which will appear in the Administrator title, taskbar/dock&lt;br&gt;and desktop shortcut. This setting applies for all users on this server.&lt;/html&gt;"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="serverNameLabel">
@@ -663,7 +663,7 @@
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="queueBufferSizeField">
           <Properties>
-            <Property name="toolTipText" type="java.lang.String" value="SMTP port used for global SMTP settings."/>
+            <Property name="toolTipText" type="java.lang.String" value="The buffer size for source and destination queues."/>
           </Properties>
         </Component>
       </SubComponents>

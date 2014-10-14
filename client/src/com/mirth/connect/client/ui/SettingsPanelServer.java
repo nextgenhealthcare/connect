@@ -683,7 +683,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             }
         });
 
-        serverNameField.setToolTipText("");
+        serverNameField.setToolTipText("<html>The server name which will appear in the Administrator title, taskbar/dock<br>and desktop shortcut. This setting applies for all users on this server.</html>");
 
         serverNameLabel.setText("Server name:");
 
@@ -764,7 +764,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         defaultMetaDataVersionCheckBox.setToolTipText("<html>If checked, the Version metadata column will be added by<br/>default when a user creates a new channel. The user can<br/>choose to remove the column on the channel's Summary tab.</html>");
         defaultMetaDataVersionCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        queueBufferSizeField.setToolTipText("SMTP port used for global SMTP settings.");
+        queueBufferSizeField.setToolTipText("The buffer size for source and destination queues.");
 
         javax.swing.GroupLayout channelPanelLayout = new javax.swing.GroupLayout(channelPanel);
         channelPanel.setLayout(channelPanelLayout);
