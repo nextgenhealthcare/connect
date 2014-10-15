@@ -1413,54 +1413,56 @@ public class Frame extends JXFrame {
     public boolean updateUser(final Component parentComponent, final User updateUser, final String newPassword) {
         final String workingId = startWorking("Saving user...");
 
-        if (StringUtils.isNotEmpty(newPassword)) {
-            /*
-             * If a new user is being passed in (null user id), the password will only be checked
-             * right now.
-             */
-            if (!checkOrUpdateUserPassword(parentComponent, updateUser, newPassword)) {
-                stopWorking(workingId);
-                return false;
+        try {
+            if (StringUtils.isNotEmpty(newPassword)) {
+                /*
+                 * If a new user is being passed in (null user id), the password will only be
+                 * checked right now.
+                 */
+                if (!checkOrUpdateUserPassword(parentComponent, updateUser, newPassword)) {
+                    return false;
+                }
             }
-        }
 
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                try {
-                    mirthClient.updateUser(updateUser);
-                    retrieveUsers();
-
-                    /*
-                     * If the user id was null, a new user was being created and the password was
-                     * only checked. Get the created user with the id and then update the password.
-                     */
-                    if (updateUser.getId() == null) {
-                        User newUser = null;
-                        for (User user : users) {
-                            if (user.getUsername().equals(updateUser.getUsername())) {
-                                newUser = user;
-                            }
-                        }
-                        checkOrUpdateUserPassword(parentComponent, newUser, newPassword);
-                    }
-                } catch (ClientException e) {
+            try {
+                mirthClient.updateUser(updateUser);
+            } catch (ClientException e) {
+                if (e.getMessage() != null && e.getMessage().contains("username must be unique")) {
+                    alertWarning(parentComponent, "This username already exists. Please choose another one.");
+                } else {
                     alertException(parentComponent, e.getStackTrace(), e.getMessage());
                 }
-                return null;
+
+                return false;
             }
 
-            public void done() {
+            try {
+                retrieveUsers();
+
+                /*
+                 * If the user id was null, a new user was being created and the password was only
+                 * checked. Get the created user with the id and then update the password.
+                 */
+                if (updateUser.getId() == null) {
+                    User newUser = null;
+                    for (User user : users) {
+                        if (user.getUsername().equals(updateUser.getUsername())) {
+                            newUser = user;
+                        }
+                    }
+                    checkOrUpdateUserPassword(parentComponent, newUser, newPassword);
+                }
+            } catch (ClientException e) {
+                alertException(parentComponent, e.getStackTrace(), e.getMessage());
+            } finally {
                 // The userPanel will be null if the user panel has not been viewed (i.e. registration).
                 if (userPanel != null) {
                     userPanel.updateUserTable();
                 }
-
-                stopWorking(workingId);
             }
-        };
-
-        worker.execute();
+        } finally {
+            stopWorking(workingId);
+        }
 
         return true;
     }
@@ -1475,37 +1477,49 @@ public class Frame extends JXFrame {
      * @return
      */
     public boolean updateCurrentUser(Component parentComponent, final User currentUser, String newPassword) {
-        final String workingId = startWorking("Saving user...");
-
         // Find out if the username is being changed so that we can login again.
         boolean changingUsername = !currentUser.getUsername().equals(PlatformUI.USER_NAME);
 
-        /*
-         * If there is a new password, update it. If not, make sure that the username is not being
-         * changed, since the password must be updated when the username is changed.
-         */
-        if (StringUtils.isNotEmpty(newPassword)) {
-            if (!checkOrUpdateUserPassword(parentComponent, currentUser, newPassword)) {
-                stopWorking(workingId);
-                return false;
-            }
-        } else if (changingUsername) {
-            alertWarning(parentComponent, "If you are changing your username, you must also update your password.");
-            stopWorking(workingId);
-            return false;
-        }
+        final String workingId = startWorking("Saving user...");
 
         try {
-            mirthClient.updateUser(currentUser);
-            retrieveUsers();
-        } catch (ClientException e) {
-            alertException(parentComponent, e.getStackTrace(), e.getMessage());
-        } finally {
-            // The userPanel will be null if the user panel has not been viewed (i.e. registration).
-            if (userPanel != null) {
-                userPanel.updateUserTable();
+
+            /*
+             * If there is a new password, update it. If not, make sure that the username is not
+             * being changed, since the password must be updated when the username is changed.
+             */
+            if (StringUtils.isNotEmpty(newPassword)) {
+                if (!checkOrUpdateUserPassword(parentComponent, currentUser, newPassword)) {
+                    return false;
+                }
+            } else if (changingUsername) {
+                alertWarning(parentComponent, "If you are changing your username, you must also update your password.");
+                return false;
             }
 
+            try {
+                mirthClient.updateUser(currentUser);
+            } catch (ClientException e) {
+                if (e.getMessage() != null && e.getMessage().contains("username must be unique")) {
+                    alertWarning(parentComponent, "This username already exists. Please choose another one.");
+                } else {
+                    alertException(parentComponent, e.getStackTrace(), e.getMessage());
+                }
+
+                return false;
+            }
+
+            try {
+                retrieveUsers();
+            } catch (ClientException e) {
+                alertException(parentComponent, e.getStackTrace(), e.getMessage());
+            } finally {
+                // The userPanel will be null if the user panel has not been viewed (i.e. registration).
+                if (userPanel != null) {
+                    userPanel.updateUserTable();
+                }
+            }
+        } finally {
             stopWorking(workingId);
         }
 

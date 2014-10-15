@@ -76,20 +76,28 @@ public class DefaultUserController extends UserController {
         }
     }
 
-    public void updateUser(User user) throws ControllerException {
+    public synchronized void updateUser(User user) throws ControllerException {
         try {
+            User checkUserName = new User();
+            checkUserName.setUsername(user.getUsername());
+            List<User> existingUsers = getUser(checkUserName);
+
             if (user.getId() == null) {
-
-                User checkUserName = new User();
-                checkUserName.setUsername(user.getUsername());
-
-                if (getUser(checkUserName).size() != 0) {
+                if (existingUsers.size() != 0) {
                     throw new ControllerException("Error adding user: username must be unique");
                 }
 
                 logger.debug("adding user: " + user);
                 SqlConfig.getSqlSessionManager().insert("User.insertUser", getUserMap(user));
             } else {
+                if (existingUsers.size() != 0) {
+                    for (User existingUser : existingUsers) {
+                        if (!user.getId().equals(existingUser.getId())) {
+                            throw new ControllerException("Error updating user: username must be unique");
+                        }
+                    }
+                }
+
                 logger.debug("updating user: " + user);
                 SqlConfig.getSqlSessionManager().update("User.updateUser", getUserMap(user));
             }
@@ -144,7 +152,7 @@ public class DefaultUserController extends UserController {
         }
     }
 
-    public void removeUser(User user, Integer currentUserId) throws ControllerException {
+    public synchronized void removeUser(User user, Integer currentUserId) throws ControllerException {
         logger.debug("removing user: " + user);
 
         if (user.getId() == null) {

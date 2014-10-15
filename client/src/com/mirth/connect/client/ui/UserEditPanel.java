@@ -139,7 +139,7 @@ public class UserEditPanel extends javax.swing.JPanel {
         if (user.getId() == null || !user.getUsername().equals(username.getText())) {
             for (int i = 0; i < parent.users.size(); i++) {
                 if (parent.users.get(i).getUsername().equals(username.getText())) {
-                    return "Username already exists.";
+                    return "This username already exists. Please choose another one.";
                 }
             }
         }
