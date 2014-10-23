@@ -1030,6 +1030,11 @@ public class ChannelSetup extends javax.swing.JPanel {
                     return false;
                 }
 
+                if (columnName.equalsIgnoreCase("MESSAGE_ID") || columnName.equalsIgnoreCase("METADATA_ID")) {
+                    parent.alertWarning(parent, columnName + " is a reserved keyword and cannot be used as a column name in the custom metadata table.");
+                    return false;
+                }
+
                 // Add the column name to a set so it can be checked for duplicates
                 columnNames.add(columnName);
             }
