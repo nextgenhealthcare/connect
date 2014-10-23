@@ -2,7 +2,7 @@
 	<name>DICOM Sender</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.1.0</mirthVersion>
+	<mirthVersion>3.2.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send messages using DICOM protocol.</description>
 	<clientClassName>com.mirth.connect.connectors.dimse.DICOMSender</clientClassName>

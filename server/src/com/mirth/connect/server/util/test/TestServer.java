@@ -25,7 +25,7 @@ import com.mirth.connect.server.controllers.tests.TestUtils;
 
 public class TestServer {
     private final static String CLIENT_ADDRESS = "https://localhost:8443";
-    private final static String VERSION = "3.1.0";
+    private final static String VERSION = "3.2.0";
 
     @Test
     public final void test() throws Exception {

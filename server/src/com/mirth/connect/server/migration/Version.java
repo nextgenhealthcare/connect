@@ -36,7 +36,8 @@ public enum Version {
     V3_0_1("3.0.1"),
     V3_0_2("3.0.2"),
     V3_0_3("3.0.3"),
-    V3_1_0("3.1.0");
+    V3_1_0("3.1.0"),
+    V3_2_0("3.2.0");
     
     // @formatter:on
 
@@ -47,7 +48,7 @@ public enum Version {
         this.schemaVersion = schemaVersion;
         this.versionString = schemaVersion;
     }
-    
+
     private Version(String schemaVersion, String versionString) {
         this.schemaVersion = schemaVersion;
         this.versionString = versionString;
@@ -65,7 +66,7 @@ public enum Version {
     public String toString() {
         return versionString;
     }
-    
+
     public String getSchemaVersion() {
         return schemaVersion;
     }
