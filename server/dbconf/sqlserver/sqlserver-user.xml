@@ -22,7 +22,7 @@
 	</resultMap>
 
 	<select id="getUser" parameterType="com.mirth.connect.model.User" resultMap="get-user-result">
-		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, INDUSTRY,
+		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL,
 		PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, DESCRIPTION
 		FROM PERSON
 		<where>
