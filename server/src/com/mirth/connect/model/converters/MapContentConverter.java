@@ -35,7 +35,7 @@ public class MapContentConverter extends ReflectionConverter {
     private HierarchicalStreamCopier copier = new HierarchicalStreamCopier();
 
     public MapContentConverter(Mapper mapper) {
-        super(mapper, new JVM().bestReflectionProvider());
+        super(mapper, JVM.newReflectionProvider());
     }
 
     @Override
