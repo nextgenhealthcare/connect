@@ -80,12 +80,13 @@ public class ChannelPanel extends javax.swing.JPanel {
     private final String ENABLED_STATUS = "Enabled";
     private final String LOCAL_CHANNEL_ID = "Local Id";
     private final int LOCAL_CHANNEL_ID_COLUMN_NUMBER = 4;
+    private final String LAST_MODIFIED_COLUMN_NAME = "Last Modified";
     private JMenuItem menuItem;
     private Set<String> defaultVisibleColumns;
 
     private final String[] DEFAULT_COLUMNS = new String[] { STATUS_COLUMN_NAME,
             DATA_TYPE_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME, LOCAL_CHANNEL_ID,
-            DESCRIPTION_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME };
+            DESCRIPTION_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME, LAST_MODIFIED_COLUMN_NAME };
 
     private Frame parent;
 
@@ -227,6 +228,12 @@ public class ChannelPanel extends javax.swing.JPanel {
         channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setCellRenderer(new DateCellRenderer());
         channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setResizable(false);
         channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setToolTipText("<html><body>The time this channel was last deployed.<br>This value will be highlighted if it is within the last two minutes.</body></html>");
+
+        channelTable.getColumnExt(LAST_MODIFIED_COLUMN_NAME).setMinWidth(95);
+        channelTable.getColumnExt(LAST_MODIFIED_COLUMN_NAME).setMaxWidth(95);
+        channelTable.getColumnExt(LAST_MODIFIED_COLUMN_NAME).setCellRenderer(new DateCellRenderer());
+        channelTable.getColumnExt(LAST_MODIFIED_COLUMN_NAME).setResizable(false);
+        channelTable.getColumnExt(LAST_MODIFIED_COLUMN_NAME).setToolTipText("<html><body>The time this channel was last modified.</body></html>");
 
         channelTable.getColumnExt(LOCAL_CHANNEL_ID).setMinWidth(60);
         channelTable.getColumnExt(LOCAL_CHANNEL_ID).setMaxWidth(60);
@@ -456,6 +463,7 @@ public class ChannelPanel extends javax.swing.JPanel {
 
                 tableData[i][j++] = channelStatus.getDeployedRevisionDelta();
                 tableData[i][j++] = channelStatus.getDeployedDate();
+                tableData[i][j++] = channel.getLastModified();
 
                 for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
                     if (!plugin.isDisplayFirst()) {
