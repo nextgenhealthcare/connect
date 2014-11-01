@@ -39,7 +39,8 @@ public class Token {
 	static Token CHANGEPW = addKeyword("changepw");
 	static Token START = addKeyword("start");
 	static Token STOP = addKeyword("stop");
-	static Token PAUSE = addKeyword("pause");
+	static Token HALT = addKeyword("halt");
+    static Token PAUSE = addKeyword("pause");
 	static Token RESUME = addKeyword("resume");
 	static Token DEPLOY = addKeyword("deploy");
 	static Token UNDEPLOY = addKeyword("undeploy");

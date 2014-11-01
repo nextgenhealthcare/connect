@@ -328,6 +328,8 @@ public class CommandLineInterface {
                         commandChannelStart(arguments);
                     } else if (comm == Token.STOP) {
                         commandChannelStop(arguments);
+                    } else if (comm == Token.HALT) {
+                        commandChannelHalt(arguments);
                     } else if (comm == Token.PAUSE) {
                         commandChannelPause(arguments);
                     } else if (comm == Token.RESUME) {
@@ -468,7 +470,7 @@ public class CommandLineInterface {
         out.println("exportmessages \"path/file-pattern\" id [xml|raw|processedraw|transformed|encoded|response] [pageSize]\n\tExports all messages for channel specified by <id> to <path>\n");
         out.println("importmap \"path\"\n\tImports configuration map specified by <path>\n");
         out.println("exportmap \"path\"\n\tExports configuration map to <path>\n");
-        out.println("channel undeploy|deploy|start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
+        out.println("channel undeploy|deploy|start|stop|halt|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
         out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel\n");
         out.println("channel list\n\tLists all Channels\n");
         out.println("clearallmessages\n\tRemoves all messages from all Channels (running channels will be restarted)\n");
@@ -1158,6 +1160,13 @@ public class CommandLineInterface {
                 client.stopChannel(channel.getChannelId());
                 out.println("Channel '" + channel.getName() + "' Stopped");
             }
+        }
+    }
+
+    private void commandChannelHalt(Token[] arguments) throws ClientException {
+        for (DashboardStatus channel : getMatchingChannelStatuses(arguments[2])) {
+            client.haltChannel(channel.getChannelId());
+            out.println("Channel '" + channel.getName() + "' Halted");
         }
     }
 
