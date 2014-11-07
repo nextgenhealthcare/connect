@@ -9,6 +9,11 @@
 
 package com.mirth.connect.connectors.dimse;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
@@ -21,13 +26,16 @@ import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.util.MirthSSLUtil;
 
 public class DICOMReceiver extends SourceConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     private DICOMReceiverProperties connectorProperties;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private DcmRcv dcmrcv;
 
     @Override
@@ -171,9 +179,21 @@ public class DICOMReceiver extends SourceConnector {
 
                 dcmrcv.setTlsNeedClientAuth(connectorProperties.isNoClientAuth());
 
-                if (!connectorProperties.isNossl2()) {
-                    dcmrcv.setTlsProtocol(new String[] { "TLSv1", "SSLv3" });
+                String[] protocols = configurationController.getHttpsProtocols();
+
+                if (connectorProperties.isNossl2()) {
+                    if (ArrayUtils.contains(protocols, "SSLv2Hello")) {
+                        List<String> protocolsList = new ArrayList<String>(Arrays.asList(protocols));
+                        protocolsList.remove("SSLv2Hello");
+                        protocols = protocolsList.toArray(new String[protocolsList.size()]);
+                    }
+                } else if (!ArrayUtils.contains(protocols, "SSLv2Hello")) {
+                    List<String> protocolsList = new ArrayList<String>(Arrays.asList(protocols));
+                    protocolsList.add("SSLv2Hello");
+                    protocols = protocolsList.toArray(new String[protocolsList.size()]);
                 }
+
+                dcmrcv.setTlsProtocol(MirthSSLUtil.getEnabledHttpsProtocols(protocols));
 
                 dcmrcv.initTLS();
             }

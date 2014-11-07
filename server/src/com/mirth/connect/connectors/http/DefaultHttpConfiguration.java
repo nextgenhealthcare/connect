@@ -18,13 +18,20 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.bio.SocketConnector;
 
 import com.mirth.connect.donkey.server.channel.Connector;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.util.MirthSSLUtil;
 
 public class DefaultHttpConfiguration implements HttpConfiguration {
+
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
     @Override
     public void configureConnectorDeploy(Connector connector) throws Exception {
         if (connector instanceof HttpDispatcher) {
-            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(SSLContexts.createDefault(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            String[] enabledProtocols = MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsProtocols());
+            String[] enabledCipherSuites = MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites());
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(SSLContexts.createDefault(), enabledProtocols, enabledCipherSuites, SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
             ((HttpDispatcher) connector).getSocketFactoryRegistry().register("https", sslConnectionSocketFactory);
         }
     }

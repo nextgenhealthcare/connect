@@ -86,6 +86,7 @@ import com.mirth.connect.server.servlets.WebStartServlet;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.MirthSSLUtil;
 
 /**
  * Instantiate a Mirth server that listens for commands from the CommandQueue.
@@ -390,12 +391,14 @@ public class Mirth extends Thread {
             contextFactory.setKeyStore(keyStore);
             contextFactory.setCertAlias("mirthconnect");
             contextFactory.setKeyManagerPassword(mirthProperties.getString("keystore.keypass"));
-            // disabling low and medium strength cipers (see MIRTH-1924)
-            contextFactory.setExcludeCipherSuites(new String[] { "SSL_RSA_WITH_DES_CBC_SHA",
-                    "SSL_DHE_RSA_WITH_DES_CBC_SHA", "SSL_DHE_DSS_WITH_DES_CBC_SHA",
-                    "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
-                    "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA",
-                    "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA" });
+
+            /*
+             * We were previously disabling low and medium strength ciphers (MIRTH-1924). However
+             * with MIRTH-3492, we're now always specifying an include list everywhere rather than
+             * an exclude list.
+             */
+            contextFactory.setIncludeProtocols(MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsProtocols()));
+            contextFactory.setIncludeCipherSuites(MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites()));
 
             HandlerList handlers = new HandlerList();
             String contextPath = mirthProperties.getString("http.contextpath", "");

@@ -50,6 +50,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.PropertiesConfigurationLayout;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
@@ -90,6 +91,7 @@ import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.MigrationUtil;
+import com.mirth.connect.util.MirthSSLUtil;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.
@@ -108,6 +110,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     private int status = ConfigurationController.STATUS_UNAVAILABLE;
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private PasswordRequirements passwordRequirements;
+    private String[] httpsProtocols;
+    private String[] httpsCipherSuites;
     private volatile Map<String, String> configurationMap = Collections.unmodifiableMap(new HashMap<String, String>());
     private volatile Map<String, String> commentMap = Collections.unmodifiableMap(new HashMap<String, String>());
     private static PropertiesConfiguration versionConfig = new PropertiesConfiguration();
@@ -122,6 +126,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String PROPERTY_TEMP_DIR = "dir.tempdata";
     private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
     private static final String CONFIGURATION_MAP_PATH = "configurationmap.path";
+    private static final String HTTPS_PROTOCOLS = "https.protocols";
+    private static final String HTTPS_CIPHER_SUITES = "https.ciphersuites";
 
     // singleton pattern
     private static ConfigurationController instance = null;
@@ -200,6 +206,20 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             if (mirthConfig.getString(CHARSET) != null) {
                 System.setProperty(CHARSET, mirthConfig.getString(CHARSET));
+            }
+
+            String httpsProtocolsString = mirthConfig.getString(HTTPS_PROTOCOLS);
+            if (StringUtils.isNotBlank(httpsProtocolsString)) {
+                httpsProtocols = StringUtils.split(httpsProtocolsString, ',');
+            } else {
+                httpsProtocols = MirthSSLUtil.DEFAULT_HTTPS_PROTOCOLS;
+            }
+
+            String httpsCipherSuitesString = mirthConfig.getString(HTTPS_CIPHER_SUITES);
+            if (StringUtils.isNotBlank(httpsCipherSuitesString)) {
+                httpsCipherSuites = StringUtils.split(httpsCipherSuitesString, ',');
+            } else {
+                httpsCipherSuites = MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES;
             }
 
             // Check for server GUID and generate a new one if it doesn't exist
@@ -329,7 +349,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             saveProperty(PROPERTIES_CORE + "." + serverId, "server.name", serverName);
             this.serverName = serverName;
         }
-        
+
         Properties properties = settings.getProperties();
         for (Object name : properties.keySet()) {
             saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));
@@ -404,6 +424,16 @@ public class DefaultConfigurationController extends ConfigurationController {
     @Override
     public String getBuildDate() {
         return versionConfig.getString("mirth.date");
+    }
+
+    @Override
+    public String[] getHttpsProtocols() {
+        return ArrayUtils.clone(httpsProtocols);
+    }
+
+    @Override
+    public String[] getHttpsCipherSuites() {
+        return ArrayUtils.clone(httpsCipherSuites);
     }
 
     @Override

@@ -10,8 +10,12 @@
 package com.mirth.connect.connectors.dimse;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.dcm4che2.net.UserIdentity;
@@ -27,21 +31,41 @@ import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorMessageBuilder;
+import com.mirth.connect.util.MirthSSLUtil;
 
 public class DICOMDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     private DICOMDispatcherProperties connectorProperties;
 
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    private String[] protocols;
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (DICOMDispatcherProperties) getConnectorProperties();
+
+        protocols = configurationController.getHttpsProtocols();
+
+        if (connectorProperties.isNossl2()) {
+            if (ArrayUtils.contains(protocols, "SSLv2Hello")) {
+                List<String> protocolsList = new ArrayList<String>(Arrays.asList(protocols));
+                protocolsList.remove("SSLv2Hello");
+                protocols = protocolsList.toArray(new String[protocolsList.size()]);
+            }
+        } else if (!ArrayUtils.contains(protocols, "SSLv2Hello")) {
+            List<String> protocolsList = new ArrayList<String>(Arrays.asList(protocols));
+            protocolsList.add("SSLv2Hello");
+            protocols = protocolsList.toArray(new String[protocolsList.size()]);
+        }
+
+        protocols = MirthSSLUtil.getEnabledHttpsProtocols(protocols);
     }
 
     @Override
@@ -193,8 +217,9 @@ public class DICOMDispatcher extends DestinationConnector {
                 if (dicomDispatcherProperties.getKeyStorePW() != null && !dicomDispatcherProperties.getKeyStorePW().equals(""))
                     dcmSnd.setKeyStorePassword(dicomDispatcherProperties.getKeyStorePW());
                 dcmSnd.setTlsNeedClientAuth(dicomDispatcherProperties.isNoClientAuth());
-                if (!dicomDispatcherProperties.isNossl2())
-                    dcmSnd.setTlsProtocol(new String[] { "TLSv1", "SSLv3" });
+
+                dcmSnd.setTlsProtocol(protocols);
+
                 dcmSnd.initTLS();
             }
 

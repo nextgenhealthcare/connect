@@ -11,9 +11,10 @@ package com.mirth.connect.client.ui;
 
 import javax.swing.ImageIcon;
 
+import com.mirth.connect.util.MirthSSLUtil;
+
 /**
- * A class of static variables that need to be referenced from multiple
- * locations.
+ * A class of static variables that need to be referenced from multiple locations.
  */
 public class PlatformUI {
 
@@ -27,4 +28,6 @@ public class PlatformUI {
     public static String CLIENT_VERSION;
     public static String SERVER_VERSION;
     public static String BUILD_DATE;
+    public static String[] HTTPS_PROTOCOLS = MirthSSLUtil.DEFAULT_HTTPS_PROTOCOLS;
+    public static String[] HTTPS_CIPHER_SUITES = MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES;
 }

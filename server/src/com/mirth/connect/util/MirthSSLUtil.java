@@ -1,0 +1,77 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * 
+ * http://www.mirthcorp.com
+ * 
+ * The software in this package is published under the terms of the MPL license a copy of which has
+ * been included with this distribution in the LICENSE.txt file.
+ */
+
+package com.mirth.connect.util;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.net.ssl.SSLContext;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.http.conn.ssl.SSLContexts;
+
+public class MirthSSLUtil {
+
+    public static final String[] DEFAULT_HTTPS_PROTOCOLS = new String[] { "TLSv1.2", "TLSv1.1", "TLSv1" };
+    public static final String[] DEFAULT_HTTPS_CIPHER_SUITES = new String[] {
+            "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+            "TLS_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384",
+            "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384", "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+            "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+            "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "TLS_RSA_WITH_AES_128_GCM_SHA256",
+            "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256",
+            "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256", "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+            "TLS_RSA_WITH_AES_256_CBC_SHA256", "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
+            "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256", "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA",
+            "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA", "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA",
+            "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA", "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA", "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
+            "SSL_RSA_WITH_3DES_EDE_CBC_SHA", "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
+            "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
+            "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA" };
+
+    public static String[] getEnabledHttpsProtocols(String[] requestedProtocols) {
+        SSLContext sslContext = SSLContexts.createDefault();
+        String[] supportedProtocols = sslContext.getSupportedSSLParameters().getProtocols();
+        Set<String> enabledProtocols = new HashSet<String>();
+
+        for (String protocol : requestedProtocols) {
+            if (ArrayUtils.contains(supportedProtocols, protocol)) {
+                enabledProtocols.add(protocol);
+            }
+        }
+
+        return enabledProtocols.toArray(new String[enabledProtocols.size()]);
+    }
+
+    public static String[] getEnabledHttpsCipherSuites(String[] requestedCipherSuites) {
+        SSLContext sslContext = SSLContexts.createDefault();
+        String[] supportedCipherSuites = sslContext.getSupportedSSLParameters().getCipherSuites();
+        Set<String> enabledCipherSuites = new HashSet<String>();
+
+        for (String cipherSuite : requestedCipherSuites) {
+            if (ArrayUtils.contains(supportedCipherSuites, cipherSuite)) {
+                enabledCipherSuites.add(cipherSuite);
+            }
+        }
+
+        return enabledCipherSuites.toArray(new String[enabledCipherSuites.size()]);
+    }
+}

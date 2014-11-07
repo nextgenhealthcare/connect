@@ -17,4 +17,12 @@ public class ServerConnectionFactory {
     public static ServerConnection createServerConnection(String address, int timeout) {
         return new ServerConnection(address, timeout);
     }
+
+    public static ServerConnection createServerConnection(String address, String[] httpsProtocols, String[] httpsCipherSuites) {
+        return new ServerConnection(address, httpsProtocols, httpsCipherSuites);
+    }
+
+    public static ServerConnection createServerConnection(String address, int timeout, String[] httpsProtocols, String[] httpsCipherSuites) {
+        return new ServerConnection(address, timeout, httpsProtocols, httpsCipherSuites);
+    }
 }

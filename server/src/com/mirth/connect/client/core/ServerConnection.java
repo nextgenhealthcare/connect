@@ -48,7 +48,10 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.util.MirthSSLUtil;
+
 public final class ServerConnection {
+
     private Logger logger = Logger.getLogger(this.getClass());
     private CloseableHttpClient client;
     private RequestConfig requestConfig;
@@ -69,6 +72,15 @@ public final class ServerConnection {
     }
 
     public ServerConnection(String address, int timeout) {
+        this(address, timeout, MirthSSLUtil.DEFAULT_HTTPS_PROTOCOLS, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES);
+    }
+
+    public ServerConnection(String address, String[] httpsProtocols, String[] httpsCipherSuites) {
+        // Default timeout is infinite.
+        this(address, 0, httpsProtocols, httpsCipherSuites);
+    }
+
+    public ServerConnection(String address, int timeout, String[] httpsProtocols, String[] httpsCipherSuites) {
         this.address = address;
 
         SSLContext sslContext = null;
@@ -77,7 +89,10 @@ public final class ServerConnection {
         } catch (Exception e) {
             logger.error("Unable to build SSL context.", e);
         }
-        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+
+        String[] enabledProtocols = MirthSSLUtil.getEnabledHttpsProtocols(httpsProtocols);
+        String[] enabledCipherSuites = MirthSSLUtil.getEnabledHttpsCipherSuites(httpsCipherSuites);
+        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, enabledProtocols, enabledCipherSuites, SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
         Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("https", sslConnectionSocketFactory).build();
 
         PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
