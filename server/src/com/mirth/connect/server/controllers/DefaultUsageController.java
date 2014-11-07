@@ -25,6 +25,7 @@ import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.purged.PurgedDocument;
@@ -54,26 +55,26 @@ public class DefaultUsageController extends UsageController {
 
     private boolean canSendStats() throws ControllerException {
         long now = System.currentTimeMillis();
-        Long lastUpdate = configurationController.getUpdateSettings().getLastStatsTime();
+        UpdateSettings updateSettings = configurationController.getUpdateSettings();
 
-        if (lastUpdate != null) {
-            long last = lastUpdate;
-            if ((now - last) < (ConnectServiceUtil.MILLIS_PER_DAY)) {
-                return false;
+        if (updateSettings.getStatsEnabled()) {
+            Long lastUpdate = updateSettings.getLastStatsTime();
+            if (lastUpdate == null || (now - lastUpdate) > ConnectServiceUtil.MILLIS_PER_DAY) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     /**
      * Generates purged data of this server instance and serializes into JSON.
      */
     @Override
-    public String createUsageStats(boolean checkLastStatsTime) {
+    public String createUsageStats() {
         PurgedDocument purgedDocument = new PurgedDocument();
         String usageData = null;
         try {
-            if (!checkLastStatsTime || canSendStats()) {
+            if (canSendStats()) {
                 getServerSpecs(purgedDocument);
                 getConfigurationData(purgedDocument);
                 getChannelData(purgedDocument);

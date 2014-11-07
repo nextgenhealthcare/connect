@@ -698,23 +698,16 @@ public class Mirth extends Thread {
     }
 
     private class UsageSenderTask extends TimerTask {
-        private boolean firstTime = true;
-
         @Override
         public void run() {
-            try {
-                boolean isSent = ConnectServiceUtil.sendStatistics(configurationController.getServerId(), configurationController.getServerVersion(), true, usageController.createUsageStats(firstTime));
-                if (isSent) {
-                    UpdateSettings settings = new UpdateSettings();
-                    settings.setLastStatsTime(System.currentTimeMillis());
-                    try {
-                        configurationController.setUpdateSettings(settings);
-                    } catch (ControllerException e) {
-
-                    }
+            boolean isSent = ConnectServiceUtil.sendStatistics(configurationController.getServerId(), configurationController.getServerVersion(), true, usageController.createUsageStats());
+            if (isSent) {
+                UpdateSettings settings = new UpdateSettings();
+                settings.setLastStatsTime(System.currentTimeMillis());
+                try {
+                    configurationController.setUpdateSettings(settings);
+                } catch (ControllerException e) {
                 }
-            } finally {
-                firstTime = false;
             }
         }
     }
