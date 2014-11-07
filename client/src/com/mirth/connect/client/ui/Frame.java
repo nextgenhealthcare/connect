@@ -4851,7 +4851,7 @@ public class Frame extends JXFrame {
     /**
      * Checks to see if the serialized object version is current, and prompts the user if it is not.
      */
-    private boolean promptObjectMigration(String content, String objectName) {
+    public boolean promptObjectMigration(String content, String objectName) {
         String version = null;
 
         try {
