@@ -11,18 +11,31 @@ package com.mirth.connect.connectors.ws;
 
 import java.util.Map;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 
 import com.mirth.connect.donkey.server.channel.Connector;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.util.MirthSSLUtil;
 import com.sun.net.httpserver.HttpServer;
 
 public class DefaultWebServiceConfiguration implements WebServiceConfiguration {
 
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private SSLContext sslContext;
+    private String[] enabledProtocols;
+    private String[] enabledCipherSuites;
+
     @Override
     public void configureConnectorDeploy(Connector connector) throws Exception {
         if (connector instanceof WebServiceDispatcher) {
-            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(SSLContexts.createDefault(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            sslContext = SSLContexts.createDefault();
+            enabledProtocols = MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsProtocols());
+            enabledCipherSuites = MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites());
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, enabledProtocols, enabledCipherSuites, SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
             ((WebServiceDispatcher) connector).getSocketFactoryRegistry().register("https", sslConnectionSocketFactory);
         }
     }
@@ -36,5 +49,7 @@ public class DefaultWebServiceConfiguration implements WebServiceConfiguration {
     }
 
     @Override
-    public void configureDispatcher(WebServiceDispatcher connector, WebServiceDispatcherProperties connectorProperties, Map<String, Object> requestContext) throws Exception {}
+    public void configureDispatcher(WebServiceDispatcher connector, WebServiceDispatcherProperties connectorProperties, Map<String, Object> requestContext) throws Exception {
+        requestContext.put("com.sun.xml.internal.ws.transport.https.client.SSLSocketFactory", new SSLSocketFactoryWrapper(sslContext.getSocketFactory(), enabledProtocols, enabledCipherSuites));
+    }
 }

@@ -28,6 +28,7 @@ import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.JTextComponent.KeyBinding;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -39,8 +40,8 @@ import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
 import com.mirth.connect.client.core.Client;
 
 /**
- * The main mirth class. Sets up the login and then authenticates the login
- * information and sets up Frame (the main application window).
+ * The main mirth class. Sets up the login and then authenticates the login information and sets up
+ * Frame (the main application window).
  */
 public class Mirth {
 
@@ -109,42 +110,39 @@ public class Mirth {
     public static void aboutMac() {
         new AboutMirth();
     }
-    
-	/**
-	 * Quit menu item on Mac OS X. Only exit if on the login window, or if
-	 * logout is successful
-	 * 
-	 * @return quit
-	 */
+
+    /**
+     * Quit menu item on Mac OS X. Only exit if on the login window, or if logout is successful
+     * 
+     * @return quit
+     */
     public static boolean quitMac() {
-    	return (LoginPanel.getInstance().isVisible() || (PlatformUI.MIRTH_FRAME != null && PlatformUI.MIRTH_FRAME.logout(true)));
+        return (LoginPanel.getInstance().isVisible() || (PlatformUI.MIRTH_FRAME != null && PlatformUI.MIRTH_FRAME.logout(true)));
     }
 
     /**
-     * Create the alternate key bindings for the menu shortcut key mask. This is
-     * called if the menu shortcut key mask is not the CTRL key (i.e. COMMAND on
-     * OSX)
+     * Create the alternate key bindings for the menu shortcut key mask. This is called if the menu
+     * shortcut key mask is not the CTRL key (i.e. COMMAND on OSX)
      */
     private static void createAlternateKeyBindings() {
         int acceleratorKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
         // Add the common KeyBindings for macs
         KeyBinding[] defaultBindings = {
-            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_C, acceleratorKey), DefaultEditorKit.copyAction),
-            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_V, acceleratorKey), DefaultEditorKit.pasteAction),
-            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_X, acceleratorKey), DefaultEditorKit.cutAction),
-            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_A, acceleratorKey), DefaultEditorKit.selectAllAction),
-            // deleteNextWordAction and deletePrevWordAction were not available in Java 1.5
-            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, acceleratorKey), DefaultEditorKit.deleteNextWordAction),
-            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, acceleratorKey), DefaultEditorKit.deletePrevWordAction),
-            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, acceleratorKey), DefaultEditorKit.nextWordAction),
-            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_KP_RIGHT, acceleratorKey), DefaultEditorKit.nextWordAction),
-            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, acceleratorKey), DefaultEditorKit.previousWordAction),
-            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, acceleratorKey), DefaultEditorKit.previousWordAction),
-            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, acceleratorKey | InputEvent.SHIFT_MASK), DefaultEditorKit.selectionNextWordAction),
-            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_KP_RIGHT, acceleratorKey | InputEvent.SHIFT_MASK), DefaultEditorKit.selectionNextWordAction),
-            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, acceleratorKey | InputEvent.SHIFT_MASK), DefaultEditorKit.selectionPreviousWordAction),
-            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, acceleratorKey | InputEvent.SHIFT_MASK), DefaultEditorKit.selectionPreviousWordAction)
-        };
+                new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_C, acceleratorKey), DefaultEditorKit.copyAction),
+                new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_V, acceleratorKey), DefaultEditorKit.pasteAction),
+                new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_X, acceleratorKey), DefaultEditorKit.cutAction),
+                new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_A, acceleratorKey), DefaultEditorKit.selectAllAction),
+                // deleteNextWordAction and deletePrevWordAction were not available in Java 1.5
+                new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, acceleratorKey), DefaultEditorKit.deleteNextWordAction),
+                new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, acceleratorKey), DefaultEditorKit.deletePrevWordAction),
+                new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, acceleratorKey), DefaultEditorKit.nextWordAction),
+                new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_KP_RIGHT, acceleratorKey), DefaultEditorKit.nextWordAction),
+                new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, acceleratorKey), DefaultEditorKit.previousWordAction),
+                new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, acceleratorKey), DefaultEditorKit.previousWordAction),
+                new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, acceleratorKey | InputEvent.SHIFT_MASK), DefaultEditorKit.selectionNextWordAction),
+                new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_KP_RIGHT, acceleratorKey | InputEvent.SHIFT_MASK), DefaultEditorKit.selectionNextWordAction),
+                new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, acceleratorKey | InputEvent.SHIFT_MASK), DefaultEditorKit.selectionPreviousWordAction),
+                new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, acceleratorKey | InputEvent.SHIFT_MASK), DefaultEditorKit.selectionPreviousWordAction) };
 
         keyMapBindings(new javax.swing.JTextField(), defaultBindings);
         keyMapBindings(new javax.swing.JPasswordField(), defaultBindings);
@@ -159,7 +157,7 @@ public class Mirth {
     private static void keyMapBindings(JTextComponent comp, KeyBinding[] bindings) {
         JTextComponent.loadKeymap(comp.getKeymap(), bindings, comp.getActions());
     }
-    
+
     public static void initUIManager() {
         try {
             PlasticLookAndFeel.setPlasticTheme(new MirthTheme());
@@ -167,16 +165,15 @@ public class Mirth {
             UIManager.setLookAndFeel(look);
             UIManager.put("win.xpstyle.name", "metallic");
             LookAndFeelAddons.setAddon(WindowsLookAndFeelAddons.class);
-            
+
             /*
-             * MIRTH-1225 and MIRTH-2019: Create alternate key bindings
-             * if CTRL is not the same as the menu shortcut key (i.e.
-             * COMMAND on OSX)
+             * MIRTH-1225 and MIRTH-2019: Create alternate key bindings if CTRL is not the same as
+             * the menu shortcut key (i.e. COMMAND on OSX)
              */
             if (InputEvent.CTRL_MASK != Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) {
                 createAlternateKeyBindings();
             }
-            
+
             if (SystemUtils.IS_OS_MAC) {
                 OSXAdapter.setAboutHandler(Mirth.class, Mirth.class.getDeclaredMethod("aboutMac", (Class[]) null));
                 OSXAdapter.setQuitHandler(Mirth.class, Mirth.class.getDeclaredMethod("quitMac", (Class[]) null));
@@ -184,10 +181,10 @@ public class Mirth {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
-     // keep the tooltips from disappearing
+
+        // keep the tooltips from disappearing
         ToolTipManager.sharedInstance().setDismissDelay(3600000);
-        
+
         // TabbedPane defaults
         // UIManager.put("TabbedPane.selected", new Color(0xffffff));
         // UIManager.put("TabbedPane.background",new Color(225,225,225));
@@ -238,7 +235,7 @@ public class Mirth {
         UIManager.put("ComboBox.font", UIConstants.TEXTFIELD_PLAIN_FONT);
         UIManager.put("JXLoginPanel.banner.font", UIConstants.BANNER_FONT);
         UIManager.put("List.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-        
+
         InputMap im = (InputMap) UIManager.get("Button.focusInputMap");
         im.put(KeyStroke.getKeyStroke("pressed ENTER"), "pressed");
         im.put(KeyStroke.getKeyStroke("released ENTER"), "released");
@@ -257,36 +254,65 @@ public class Mirth {
      *            String[]
      */
     public static void main(String[] args) {
-        final String server;
-        final String version;
-        final String username;
-        final String password;
+        String server = "https://localhost:8443";
+        String version = "";
+        String username = "";
+        String password = "";
+        String protocols = "";
+        String cipherSuites = "";
 
-        if (args.length == 2) {
+        if (args.length > 0) {
             server = args[0];
-            version = args[1];
-            username = "";
-            password = "";
-        } else if (args.length == 3) {
-            server = args[0];
-            version = args[1];
-            username = args[2];
-            password = "";
-        } else if (args.length == 4) {
-            server = args[0];
-            version = args[1];
-            username = args[2];
-            password = args[3];
-        } else {
-            server = "https://localhost:8443";
-            version = "";
-            username = "";
-            password = "";
         }
-        
+        if (args.length > 1) {
+            version = args[1];
+        }
+        if (args.length > 2) {
+            if (StringUtils.equalsIgnoreCase(args[2], "-ssl")) {
+                // <server> <version> -ssl [<protocols> [<ciphersuites> [<username> [<password>]]]]
+                if (args.length > 3) {
+                    protocols = args[3];
+                }
+                if (args.length > 4) {
+                    cipherSuites = args[4];
+                }
+                if (args.length > 5) {
+                    username = args[5];
+                }
+                if (args.length > 6) {
+                    password = args[6];
+                }
+            } else {
+                // <server> <version> <username> [<password> [-ssl [<protocols> [<ciphersuites>]]]]
+                username = args[2];
+                if (args.length > 3) {
+                    password = args[3];
+                }
+                if (args.length > 4 && StringUtils.equalsIgnoreCase(args[4], "-ssl")) {
+                    if (args.length > 5) {
+                        protocols = args[5];
+                    }
+                    if (args.length > 6) {
+                        cipherSuites = args[6];
+                    }
+                }
+            }
+        }
+
+        if (StringUtils.isNotBlank(protocols)) {
+            PlatformUI.HTTPS_PROTOCOLS = StringUtils.split(protocols, ',');
+        }
+        if (StringUtils.isNotBlank(cipherSuites)) {
+            PlatformUI.HTTPS_CIPHER_SUITES = StringUtils.split(cipherSuites, ',');
+        }
+
+        start(server, version, username, password);
+    }
+
+    private static void start(final String server, final String version, final String username, final String password) {
         // disable the velocity logging
         Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
-        
+
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 initUIManager();

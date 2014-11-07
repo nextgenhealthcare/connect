@@ -99,6 +99,17 @@ public class Client {
         serverConnection = ServerConnectionFactory.createServerConnection(address, this.timeout);
     }
 
+    public Client(String address, String[] httpsProtocols, String[] httpsCipherSuites) {
+        this.address = address;
+        serverConnection = ServerConnectionFactory.createServerConnection(address, httpsProtocols, httpsCipherSuites);
+    }
+
+    public Client(String address, int timeout, String[] httpsProtocols, String[] httpsCipherSuites) {
+        this.address = address;
+        this.timeout = timeout;
+        serverConnection = ServerConnectionFactory.createServerConnection(address, this.timeout, httpsProtocols, httpsCipherSuites);
+    }
+
     public void setTimeout(int timeout) {
         this.timeout = timeout;
         serverConnection = ServerConnectionFactory.createServerConnection(address, this.timeout);

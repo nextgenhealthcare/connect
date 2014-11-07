@@ -209,6 +209,10 @@ public abstract class ConfigurationController extends Controller {
      */
     public abstract String getBuildDate();
 
+    public abstract String[] getHttpsProtocols();
+
+    public abstract String[] getHttpsCipherSuites();
+
     /**
      * Returns the server configuration, which contains:
      * <ul>

@@ -28,6 +28,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
+import org.bouncycastle.util.Arrays;
 import org.eclipse.jetty.io.RuntimeIOException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -38,6 +39,7 @@ import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.ResourceUtil;
+import com.mirth.connect.util.MirthSSLUtil;
 
 public class WebStartServlet extends HttpServlet {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -203,6 +205,25 @@ public class WebStartServlet extends HttpServlet {
         Element versionArgumentElement = document.createElement("argument");
         versionArgumentElement.setTextContent(version);
         applicationDescElement.appendChild(versionArgumentElement);
+
+        String[] protocols = configurationController.getHttpsProtocols();
+        String[] cipherSuites = configurationController.getHttpsCipherSuites();
+
+        // Only add arguments for the protocols / cipher suites if they are non-default
+        if (!Arrays.areEqual(protocols, MirthSSLUtil.DEFAULT_HTTPS_PROTOCOLS) || !Arrays.areEqual(cipherSuites, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES)) {
+            Element sslArgumentElement = document.createElement("argument");
+            sslArgumentElement.setTextContent("-ssl");
+            applicationDescElement.appendChild(sslArgumentElement);
+
+            Element protocolsArgumentElement = document.createElement("argument");
+            protocolsArgumentElement.setTextContent(StringUtils.join(configurationController.getHttpsProtocols(), ','));
+            applicationDescElement.appendChild(protocolsArgumentElement);
+
+            Element cipherSuitesArgumentElement = document.createElement("argument");
+            cipherSuitesArgumentElement.setTextContent(StringUtils.join(configurationController.getHttpsCipherSuites(), ','));
+            applicationDescElement.appendChild(cipherSuitesArgumentElement);
+        }
+
         return document;
     }
 

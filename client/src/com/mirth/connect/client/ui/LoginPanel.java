@@ -409,7 +409,7 @@ public class LoginPanel extends javax.swing.JFrame {
             public Void doInBackground() {
                 try {
                     String server = serverName.getText();
-                    client = new Client(server);
+                    client = new Client(server, PlatformUI.HTTPS_PROTOCOLS, PlatformUI.HTTPS_CIPHER_SUITES);
                     PlatformUI.SERVER_URL = server;
 
                     // Attempt to login
