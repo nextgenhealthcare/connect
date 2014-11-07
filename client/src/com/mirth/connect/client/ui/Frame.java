@@ -1602,39 +1602,42 @@ public class Frame extends JXFrame {
     }
 
     public void sendUsageStatistics() {
-        final String workingId = startWorking("Sending usage statistics...");
+        UpdateSettings updateSettings = null;
+        try {
+            updateSettings = mirthClient.getUpdateSettings();
+        } catch (Exception e) {
+        }
+        
+        if (updateSettings != null && updateSettings.getStatsEnabled()) {
+            final String workingId = startWorking("Sending usage statistics...");
 
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
-            public Void doInBackground() {
-                UpdateSettings updateSettings = null;
-                try {
-                    updateSettings = mirthClient.getUpdateSettings();
-                    if (updateSettings != null && updateSettings.getStatsEnabled()) {
+                public Void doInBackground() {
+                    try {
                         String usageData = mirthClient.getUsageData();
                         if (usageData != null) {
                             boolean isSent = ConnectServiceUtil.sendStatistics(PlatformUI.SERVER_ID, PlatformUI.SERVER_VERSION, false, usageData);
                             if (isSent) {
-                                Long now = System.currentTimeMillis();
                                 UpdateSettings settings = new UpdateSettings();
-                                settings.setLastStatsTime(now);
+                                settings.setLastStatsTime(System.currentTimeMillis());
                                 mirthClient.setUpdateSettings(settings);
                             }
                         }
+                    } catch (ClientException e) {
+                        // ignore errors connecting to update/stats server
                     }
-                } catch (ClientException e) {
-                    // ignore errors connecting to update/stats server
+
+                    return null;
                 }
 
-                return null;
-            }
+                public void done() {
+                    stopWorking(workingId);
+                }
+            };
 
-            public void done() {
-                stopWorking(workingId);
-            }
-        };
-
-        worker.execute();
+            worker.execute();
+        }
     }
 
     /**

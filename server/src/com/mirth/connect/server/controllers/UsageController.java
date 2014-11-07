@@ -14,5 +14,5 @@ public abstract class UsageController extends Controller {
         return ControllerFactory.getFactory().createUsageController();
     }
     
-    public abstract String createUsageStats(boolean checkLastStatsTime);
+    public abstract String createUsageStats();
 }

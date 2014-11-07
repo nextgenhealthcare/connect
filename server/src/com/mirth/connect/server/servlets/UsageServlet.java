@@ -42,7 +42,7 @@ public class UsageServlet extends MirthServlet {
                 if (operation.equals(Operations.USAGE_DATA_GET)) {
                     response.setContentType(TEXT_PLAIN);
                     if (isUserAuthorized(request, null)) {
-                        serializer.serialize(usageController.createUsageStats(true), out);
+                        serializer.serialize(usageController.createUsageStats(), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
