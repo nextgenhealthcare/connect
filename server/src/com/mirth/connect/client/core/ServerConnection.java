@@ -355,10 +355,18 @@ public final class ServerConnection {
 
         HttpEntity responseEntity = response.getEntity();
         Charset responseCharset = null;
+
         try {
-            responseCharset = ContentType.getOrDefault(responseEntity).getCharset();
+            ContentType responseContentType = ContentType.get(responseEntity);
+            if (responseContentType != null) {
+                responseCharset = responseContentType.getCharset();
+            }
         } catch (Exception e) {
-            responseCharset = ContentType.TEXT_PLAIN.getCharset();
+        }
+
+        // If the charset couldn't be inferred from the response, use the default
+        if (responseCharset == null) {
+            responseCharset = CONTENT_CHARSET;
         }
 
         return IOUtils.toString(responseEntity.getContent(), responseCharset).trim();
