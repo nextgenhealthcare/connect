@@ -42,11 +42,12 @@
           <Group type="102" attributes="0">
               <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="validateResponseLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="queueThreadsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="retryIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="retryCountLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="queueMessagesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="threadAssignmentVariableLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="validateResponseLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -70,7 +71,8 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="rotateCheckbox" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Component id="threadAssignmentVariableField" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
                       <Component id="validateResponseYesRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="validateResponseNoRadio" min="-2" max="-2" attributes="0"/>
@@ -115,10 +117,15 @@
                   <Component id="queueThreadsField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="2" attributes="0">
-                  <Component id="validateResponseNoRadio" alignment="2" min="-2" max="-2" attributes="0"/>
-                  <Component id="validateResponseYesRadio" alignment="2" min="-2" max="-2" attributes="0"/>
-                  <Component id="validateResponseLabel" alignment="2" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="threadAssignmentVariableLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="threadAssignmentVariableField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="validateResponseLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="validateResponseYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="validateResponseNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
           </Group>
       </Group>
@@ -254,7 +261,7 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="queueThreadsField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;The number of threads that will read from the queue and dispatch&lt;br/&gt;&#xa;messages simultaneously. Message order is NOT guaranteed if this&lt;br/&gt;&#xa;value is greater than one.&#xa;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The number of threads that will read from the queue and dispatch&lt;br/&gt;messages simultaneously. Message order is NOT guaranteed if this&lt;br/&gt;value is greater than one, unless an assignment variable is used below.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="queueThreadsLabel">
@@ -308,6 +315,17 @@
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="threadAssignmentVariableLabel">
+      <Properties>
+        <Property name="horizontalAlignment" type="int" value="4"/>
+        <Property name="text" type="java.lang.String" value="Thread Assignment Variable:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="threadAssignmentVariableField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When using multiple queue threads, this map variable&lt;br/&gt;determines how to assign messages to specific threads.&lt;br/&gt;If rotation is disabled, messages with the same thread&lt;br/&gt;assignment value will always be processed in order.&lt;/html&gt;"/>
       </Properties>
     </Component>
   </SubComponents>

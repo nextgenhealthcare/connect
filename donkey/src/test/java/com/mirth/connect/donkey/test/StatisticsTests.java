@@ -34,8 +34,8 @@ import com.mirth.connect.donkey.server.channel.FilterTransformerResult;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
-import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
+import com.mirth.connect.donkey.server.queue.DestinationQueue;
 import com.mirth.connect.donkey.test.util.TestChannel;
 import com.mirth.connect.donkey.test.util.TestDataType;
 import com.mirth.connect.donkey.test.util.TestDispatcher;
@@ -220,7 +220,7 @@ public class StatisticsTests {
             destinationConnector.setOutboundDataType(new TestDataType());
             destinationConnector.setResponseTransformerExecutor(TestUtils.createDefaultResponseTransformerExecutor());
 
-            ConnectorMessageQueue destinationConnectorQueue = new ConnectorMessageQueue();
+            DestinationQueue destinationConnectorQueue = new DestinationQueue(connectorProperties.getDestinationConnectorProperties().getThreadAssignmentVariable(), connectorProperties.getDestinationConnectorProperties().getThreadCount(), connectorProperties.getDestinationConnectorProperties().isRegenerateTemplate(), destinationConnector.getSerializer(), destinationConnector.getMessageMaps());
             destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channel.getChannelId(), channel.getServerId(), i, Status.QUEUED, false, daoFactory));
             destinationConnectorQueue.updateSize();
             destinationConnector.setQueue(destinationConnectorQueue);
@@ -373,7 +373,7 @@ public class StatisticsTests {
         params.put("metaDataId", 1);
         params.put("status", Status.QUEUED);
 
-        ConnectorMessageQueue destinationConnectorQueue = new ConnectorMessageQueue();
+        DestinationQueue destinationConnectorQueue = new DestinationQueue(connectorProperties.getDestinationConnectorProperties().getThreadAssignmentVariable(), connectorProperties.getDestinationConnectorProperties().getThreadCount(), connectorProperties.getDestinationConnectorProperties().isRegenerateTemplate(), destinationConnector.getSerializer(), destinationConnector.getMessageMaps());
         destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channel.getChannelId(), channel.getServerId(), 1, Status.QUEUED, false, daoFactory));
         destinationConnector.setQueue(destinationConnectorQueue);
 

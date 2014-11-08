@@ -42,7 +42,8 @@ import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.DeployedStateEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.message.ResponseValidator;
-import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
+import com.mirth.connect.donkey.server.queue.DestinationQueue;
+import com.mirth.connect.donkey.util.MessageMaps;
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
@@ -53,7 +54,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private Integer orderId;
     private Map<Long, Thread> queueThreads = new HashMap<Long, Thread>();
     private DestinationConnectorProperties destinationConnectorProperties;
-    private ConnectorMessageQueue queue = new ConnectorMessageQueue();
+    private DestinationQueue queue;
     private String destinationName;
     private boolean enabled;
     private AtomicBoolean forceQueue = new AtomicBoolean(false);
@@ -68,12 +69,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     public abstract Response send(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException;
 
-    public ConnectorMessageQueue getQueue() {
+    public DestinationQueue getQueue() {
         return queue;
     }
 
-    public void setQueue(ConnectorMessageQueue connectorMessages) {
-        this.queue = connectorMessages;
+    public void setQueue(DestinationQueue queue) {
+        this.queue = queue;
     }
 
     /**
@@ -124,6 +125,14 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     public void setOrderId(Integer orderId) {
         this.orderId = orderId;
+    }
+
+    public Serializer getSerializer() {
+        return channel.getSerializer();
+    }
+
+    public MessageMaps getMessageMaps() {
+        return channel.getMessageMaps();
     }
 
     @Override
@@ -306,6 +315,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
         // have the connector generate the connector envelope and store it in the message
         connectorProperties = ((DestinationConnectorPropertiesInterface) getConnectorProperties()).clone();
         replaceConnectorProperties(connectorProperties, message);
+        // Cache the replaced connector properties here so that the queue can use it later
+        message.setSentProperties(connectorProperties);
 
         if (storageSettings.isStoreSent()) {
             ThreadUtils.checkInterruptedStatus();
@@ -426,6 +437,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
         int retryIntervalMillis = destinationConnectorProperties.getRetryIntervalMillis();
         Long lastMessageId = null;
         boolean canAcquire = true;
+        queue.registerThreadId();
 
         do {
             try {
@@ -479,7 +491,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
                                 }
                             }
                         } else {
-                            connectorProperties = serializer.deserialize(connectorMessage.getSent().getContent(), ConnectorProperties.class);
+                            // Attempt to get the sent properties from the in-memory cache. If it doesn't exist, deserialize from the actual sent content.
+                            connectorProperties = connectorMessage.getSentProperties();
+                            if (connectorProperties == null) {
+                                connectorProperties = serializer.deserialize(connectorMessage.getSent().getContent(), ConnectorProperties.class);
+                                connectorMessage.setSentProperties(connectorProperties);
+                            }
 
                             serializedPropertiesClass = connectorProperties.getClass();
                         }

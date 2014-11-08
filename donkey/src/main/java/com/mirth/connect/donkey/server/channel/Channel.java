@@ -73,9 +73,10 @@ import com.mirth.connect.donkey.server.event.DeployedStateEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
-import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
+import com.mirth.connect.donkey.server.queue.SourceQueue;
 import com.mirth.connect.donkey.util.Base64Util;
+import com.mirth.connect.donkey.util.MessageMaps;
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
@@ -95,11 +96,12 @@ public class Channel implements Runnable {
     private DonkeyDaoFactory daoFactory;
     private EventDispatcher eventDispatcher = Donkey.getInstance().getEventDispatcher();
     private Serializer serializer = Donkey.getInstance().getSerializer();
+    private MessageMaps messageMaps;
 
     private AttachmentHandler attachmentHandler;
     private List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
     private SourceConnector sourceConnector;
-    private ConnectorMessageQueue sourceQueue = new ConnectorMessageQueue();
+    private SourceQueue sourceQueue;
     private FilterTransformerExecutor sourceFilterTransformerExecutor;
     private PreProcessor preProcessor;
     private PostProcessor postProcessor;
@@ -222,6 +224,14 @@ public class Channel implements Runnable {
         return serializer;
     }
 
+    public MessageMaps getMessageMaps() {
+        return messageMaps;
+    }
+
+    public void setMessageMaps(MessageMaps messageMaps) {
+        this.messageMaps = messageMaps;
+    }
+
     public AttachmentHandler getAttachmentHandler() {
         return attachmentHandler;
     }
@@ -249,11 +259,11 @@ public class Channel implements Runnable {
     /**
      * Get the queue that holds messages waiting to be processed
      */
-    public ConnectorMessageQueue getSourceQueue() {
+    public SourceQueue getSourceQueue() {
         return sourceQueue;
     }
 
-    public void setSourceQueue(ConnectorMessageQueue sourceQueue) {
+    public void setSourceQueue(SourceQueue sourceQueue) {
         this.sourceQueue = sourceQueue;
     }
 

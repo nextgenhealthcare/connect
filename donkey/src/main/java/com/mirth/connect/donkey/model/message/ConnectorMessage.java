@@ -14,6 +14,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("connectorMessage")
@@ -47,6 +48,9 @@ public class ConnectorMessage implements Serializable {
     private Calendar responseDate;
     private int chainId;
     private int orderId;
+
+    private transient ConnectorProperties sentProperties;
+    private transient Integer queueBucket;
 
     public ConnectorMessage() {}
 
@@ -444,6 +448,22 @@ public class ConnectorMessage implements Serializable {
 
     public void setOrderId(int orderId) {
         this.orderId = orderId;
+    }
+
+    public ConnectorProperties getSentProperties() {
+        return sentProperties;
+    }
+
+    public void setSentProperties(ConnectorProperties sentProperties) {
+        this.sentProperties = sentProperties;
+    }
+
+    public Integer getQueueBucket() {
+        return queueBucket;
+    }
+
+    public void setQueueBucket(Integer queueBucket) {
+        this.queueBucket = queueBucket;
     }
 
     public String toString() {

@@ -20,6 +20,7 @@ APACHE-LICENSE-2.0.txt):
 	Quartz Scheduler 2.1.7 [Mirth Connect only]
 	SQLite JDBC Driver 3.7.2 [Mirth Connect only] (https://bitbucket.org/xerial/sqlite-jdbc)
 	webdavclient4j 0.92 [Mirth Connect only] (http://sourceforge.net/projects/webdavclient4j/)
+	Guava 18.0 [Mirth Connect only] (https://code.google.com/p/guava-libraries)
 
 
 --------------------------------------------------------------------------------

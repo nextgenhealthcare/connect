@@ -64,5 +64,6 @@
 	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.1.32-bin.jar"/>
 	<classpathentry kind="lib" path="lib/HikariCP-java6-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.18.2-GA.jar"/>
+	<classpathentry kind="lib" path="lib/guava-18.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
