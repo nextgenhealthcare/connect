@@ -9,17 +9,20 @@
 
 package com.mirth.connect.util;
 
-import java.util.HashSet;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.log4j.Logger;
 
 public class MirthSSLUtil {
 
-    public static final String[] DEFAULT_HTTPS_PROTOCOLS = new String[] { "TLSv1.2", "TLSv1.1", "TLSv1" };
+    public static final String[] DEFAULT_HTTPS_PROTOCOLS = new String[] { "TLSv1.2", "TLSv1.1",
+            "TLSv1", "SSLv2Hello" };
     public static final String[] DEFAULT_HTTPS_CIPHER_SUITES = new String[] {
             "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
             "TLS_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384",
@@ -45,12 +48,15 @@ public class MirthSSLUtil {
             "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA", "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
             "SSL_RSA_WITH_3DES_EDE_CBC_SHA", "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
             "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
-            "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA" };
+            "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA", "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" };
+
+    private static Logger logger = Logger.getLogger(MirthSSLUtil.class);
 
     public static String[] getEnabledHttpsProtocols(String[] requestedProtocols) {
+        logger.debug("Requested SSL protocols: " + Arrays.toString(requestedProtocols));
         SSLContext sslContext = SSLContexts.createDefault();
         String[] supportedProtocols = sslContext.getSupportedSSLParameters().getProtocols();
-        Set<String> enabledProtocols = new HashSet<String>();
+        Set<String> enabledProtocols = new LinkedHashSet<String>();
 
         for (String protocol : requestedProtocols) {
             if (ArrayUtils.contains(supportedProtocols, protocol)) {
@@ -58,13 +64,15 @@ public class MirthSSLUtil {
             }
         }
 
+        logger.debug("Enabled SSL protocols: " + String.valueOf(enabledProtocols));
         return enabledProtocols.toArray(new String[enabledProtocols.size()]);
     }
 
     public static String[] getEnabledHttpsCipherSuites(String[] requestedCipherSuites) {
+        logger.debug("Requested SSL cipher suites: " + Arrays.toString(requestedCipherSuites));
         SSLContext sslContext = SSLContexts.createDefault();
         String[] supportedCipherSuites = sslContext.getSupportedSSLParameters().getCipherSuites();
-        Set<String> enabledCipherSuites = new HashSet<String>();
+        Set<String> enabledCipherSuites = new LinkedHashSet<String>();
 
         for (String cipherSuite : requestedCipherSuites) {
             if (ArrayUtils.contains(supportedCipherSuites, cipherSuite)) {
@@ -72,6 +80,7 @@ public class MirthSSLUtil {
             }
         }
 
+        logger.debug("Enabled SSL cipher suites: " + String.valueOf(enabledCipherSuites));
         return enabledCipherSuites.toArray(new String[enabledCipherSuites.size()]);
     }
 }
