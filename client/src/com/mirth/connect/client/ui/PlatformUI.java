@@ -28,6 +28,6 @@ public class PlatformUI {
     public static String CLIENT_VERSION;
     public static String SERVER_VERSION;
     public static String BUILD_DATE;
-    public static String[] HTTPS_PROTOCOLS = MirthSSLUtil.DEFAULT_HTTPS_PROTOCOLS;
+    public static String[] HTTPS_PROTOCOLS = MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS;
     public static String[] HTTPS_CIPHER_SUITES = MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES;
 }

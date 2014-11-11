@@ -397,7 +397,7 @@ public class Mirth extends Thread {
              * with MIRTH-3492, we're now always specifying an include list everywhere rather than
              * an exclude list.
              */
-            contextFactory.setIncludeProtocols(MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsProtocols()));
+            contextFactory.setIncludeProtocols(MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsServerProtocols()));
             contextFactory.setIncludeCipherSuites(MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites()));
 
             HandlerList handlers = new HandlerList();

@@ -51,7 +51,7 @@ public class DICOMDispatcher extends DestinationConnector {
     public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (DICOMDispatcherProperties) getConnectorProperties();
 
-        protocols = configurationController.getHttpsProtocols();
+        protocols = configurationController.getHttpsClientProtocols();
 
         if (connectorProperties.isNossl2()) {
             if (ArrayUtils.contains(protocols, "SSLv2Hello")) {

@@ -72,7 +72,7 @@ public final class ServerConnection {
     }
 
     public ServerConnection(String address, int timeout) {
-        this(address, timeout, MirthSSLUtil.DEFAULT_HTTPS_PROTOCOLS, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES);
+        this(address, timeout, MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES);
     }
 
     public ServerConnection(String address, String[] httpsProtocols, String[] httpsCipherSuites) {
