@@ -209,7 +209,9 @@ public abstract class ConfigurationController extends Controller {
      */
     public abstract String getBuildDate();
 
-    public abstract String[] getHttpsProtocols();
+    public abstract String[] getHttpsClientProtocols();
+
+    public abstract String[] getHttpsServerProtocols();
 
     public abstract String[] getHttpsCipherSuites();
 

@@ -21,8 +21,10 @@ import org.apache.log4j.Logger;
 
 public class MirthSSLUtil {
 
-    public static final String[] DEFAULT_HTTPS_PROTOCOLS = new String[] { "TLSv1.2", "TLSv1.1",
-            "TLSv1", "SSLv2Hello" };
+    public static final String[] DEFAULT_HTTPS_CLIENT_PROTOCOLS = new String[] { "TLSv1.2",
+            "TLSv1.1", "TLSv1" };
+    public static final String[] DEFAULT_HTTPS_SERVER_PROTOCOLS = new String[] { "TLSv1.2",
+            "TLSv1.1", "TLSv1", "SSLv2Hello" };
     public static final String[] DEFAULT_HTTPS_CIPHER_SUITES = new String[] {
             "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
             "TLS_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384",

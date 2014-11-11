@@ -110,7 +110,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     private int status = ConfigurationController.STATUS_UNAVAILABLE;
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private PasswordRequirements passwordRequirements;
-    private String[] httpsProtocols;
+    private String[] httpsClientProtocols;
+    private String[] httpsServerProtocols;
     private String[] httpsCipherSuites;
     private volatile Map<String, String> configurationMap = Collections.unmodifiableMap(new HashMap<String, String>());
     private volatile Map<String, String> commentMap = Collections.unmodifiableMap(new HashMap<String, String>());
@@ -126,7 +127,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String PROPERTY_TEMP_DIR = "dir.tempdata";
     private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
     private static final String CONFIGURATION_MAP_PATH = "configurationmap.path";
-    private static final String HTTPS_PROTOCOLS = "https.protocols";
+    private static final String HTTPS_CLIENT_PROTOCOLS = "https.client.protocols";
+    private static final String HTTPS_SERVER_PROTOCOLS = "https.server.protocols";
     private static final String HTTPS_CIPHER_SUITES = "https.ciphersuites";
 
     // singleton pattern
@@ -208,11 +210,18 @@ public class DefaultConfigurationController extends ConfigurationController {
                 System.setProperty(CHARSET, mirthConfig.getString(CHARSET));
             }
 
-            String httpsProtocolsString = mirthConfig.getString(HTTPS_PROTOCOLS);
-            if (StringUtils.isNotBlank(httpsProtocolsString)) {
-                httpsProtocols = StringUtils.split(httpsProtocolsString, ',');
+            String httpsClientProtocolsString = mirthConfig.getString(HTTPS_CLIENT_PROTOCOLS);
+            if (StringUtils.isNotBlank(httpsClientProtocolsString)) {
+                httpsClientProtocols = StringUtils.split(httpsClientProtocolsString, ',');
             } else {
-                httpsProtocols = MirthSSLUtil.DEFAULT_HTTPS_PROTOCOLS;
+                httpsClientProtocols = MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS;
+            }
+
+            String httpsServerProtocolsString = mirthConfig.getString(HTTPS_SERVER_PROTOCOLS);
+            if (StringUtils.isNotBlank(httpsServerProtocolsString)) {
+                httpsServerProtocols = StringUtils.split(httpsServerProtocolsString, ',');
+            } else {
+                httpsServerProtocols = MirthSSLUtil.DEFAULT_HTTPS_SERVER_PROTOCOLS;
             }
 
             String httpsCipherSuitesString = mirthConfig.getString(HTTPS_CIPHER_SUITES);
@@ -427,8 +436,13 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     @Override
-    public String[] getHttpsProtocols() {
-        return ArrayUtils.clone(httpsProtocols);
+    public String[] getHttpsClientProtocols() {
+        return ArrayUtils.clone(httpsClientProtocols);
+    }
+
+    @Override
+    public String[] getHttpsServerProtocols() {
+        return ArrayUtils.clone(httpsServerProtocols);
     }
 
     @Override

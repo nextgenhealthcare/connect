@@ -206,21 +206,21 @@ public class WebStartServlet extends HttpServlet {
         versionArgumentElement.setTextContent(version);
         applicationDescElement.appendChild(versionArgumentElement);
 
-        String[] protocols = configurationController.getHttpsProtocols();
+        String[] protocols = configurationController.getHttpsClientProtocols();
         String[] cipherSuites = configurationController.getHttpsCipherSuites();
 
         // Only add arguments for the protocols / cipher suites if they are non-default
-        if (!Arrays.areEqual(protocols, MirthSSLUtil.DEFAULT_HTTPS_PROTOCOLS) || !Arrays.areEqual(cipherSuites, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES)) {
+        if (!Arrays.areEqual(protocols, MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS) || !Arrays.areEqual(cipherSuites, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES)) {
             Element sslArgumentElement = document.createElement("argument");
             sslArgumentElement.setTextContent("-ssl");
             applicationDescElement.appendChild(sslArgumentElement);
 
             Element protocolsArgumentElement = document.createElement("argument");
-            protocolsArgumentElement.setTextContent(StringUtils.join(configurationController.getHttpsProtocols(), ','));
+            protocolsArgumentElement.setTextContent(StringUtils.join(protocols, ','));
             applicationDescElement.appendChild(protocolsArgumentElement);
 
             Element cipherSuitesArgumentElement = document.createElement("argument");
-            cipherSuitesArgumentElement.setTextContent(StringUtils.join(configurationController.getHttpsCipherSuites(), ','));
+            cipherSuitesArgumentElement.setTextContent(StringUtils.join(cipherSuites, ','));
             applicationDescElement.appendChild(cipherSuitesArgumentElement);
         }
 

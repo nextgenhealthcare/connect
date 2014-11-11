@@ -179,7 +179,7 @@ public class DICOMReceiver extends SourceConnector {
 
                 dcmrcv.setTlsNeedClientAuth(connectorProperties.isNoClientAuth());
 
-                String[] protocols = configurationController.getHttpsProtocols();
+                String[] protocols = configurationController.getHttpsServerProtocols();
 
                 if (connectorProperties.isNossl2()) {
                     if (ArrayUtils.contains(protocols, "SSLv2Hello")) {
