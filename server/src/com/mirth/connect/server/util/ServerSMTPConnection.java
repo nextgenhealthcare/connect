@@ -14,6 +14,10 @@ import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.util.MirthSSLUtil;
+
 public class ServerSMTPConnection {
     private String host;
     private String port;
@@ -126,6 +130,11 @@ public class ServerSMTPConnection {
             email.setSSLOnConnect(true);
             email.setSslSmtpPort(port);
         }
+
+        // These have to be set after the authenticator, so that a new mail session isn't created
+        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+        email.getMailSession().getProperties().setProperty("mail.smtp.ssl.protocols", StringUtils.join(MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols()), ' '));
+        email.getMailSession().getProperties().setProperty("mail.smtp.ssl.ciphersuites", StringUtils.join(MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites()), ' '));
 
         for (String to : StringUtils.split(toList, ",")) {
             email.addTo(to);

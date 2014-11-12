@@ -29,19 +29,24 @@ import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorMessageBuilder;
+import com.mirth.connect.util.MirthSSLUtil;
 
 public class SmtpDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     private SmtpDispatcherProperties connectorProperties;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     private String charsetEncoding;
+    private String protocols;
+    private String cipherSuites;
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
@@ -49,6 +54,8 @@ public class SmtpDispatcher extends DestinationConnector {
 
         // TODO remove hardcoded HL7v2 reference?
         this.charsetEncoding = CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding(), System.getProperty("ca.uhn.hl7v2.llp.charset"));
+        protocols = StringUtils.join(MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols()), ' ');
+        cipherSuites = StringUtils.join(MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites()), ' ');
     }
 
     @Override
@@ -144,6 +151,10 @@ public class SmtpDispatcher extends DestinationConnector {
             if (smtpDispatcherProperties.isAuthentication()) {
                 email.setAuthentication(smtpDispatcherProperties.getUsername(), smtpDispatcherProperties.getPassword());
             }
+
+            // These have to be set after the authenticator, so that a new mail session isn't created
+            email.getMailSession().getProperties().setProperty("mail.smtp.ssl.protocols", protocols);
+            email.getMailSession().getProperties().setProperty("mail.smtp.ssl.ciphersuites", cipherSuites);
 
             /*
              * NOTE: There seems to be a bug when calling setTo with a List (throws a
