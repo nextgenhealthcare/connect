@@ -15,8 +15,11 @@ import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 
 import com.mirth.connect.connectors.ConnectorService;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ConnectionTestResponse;
+import com.mirth.connect.util.MirthSSLUtil;
 
 public class SmtpSenderService implements ConnectorService {
 
@@ -69,6 +72,11 @@ public class SmtpSenderService implements ConnectorService {
             if (authentication) {
                 email.setAuthentication(username, password);
             }
+
+            // These have to be set after the authenticator, so that a new mail session isn't created
+            ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+            email.getMailSession().getProperties().setProperty("mail.smtp.ssl.protocols", StringUtils.join(MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols()), ' '));
+            email.getMailSession().getProperties().setProperty("mail.smtp.ssl.ciphersuites", StringUtils.join(MirthSSLUtil.getEnabledHttpsCipherSuites(configurationController.getHttpsCipherSuites()), ' '));
 
             email.setSubject("Mirth Connect Test Email");
 
