@@ -11,20 +11,20 @@ package com.mirth.connect.server.userutil;
 
 import java.util.Map;
 
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.ExtensionController;
 
 /**
  * Used to create a serializer for a specific data type for conversion to and from XML.
  */
 public class SerializerFactory {
     private static Logger logger = Logger.getLogger(SerializerFactory.class);
-    private static ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+    private static Map<String, DataTypeServerPlugin> dataPlugins = new CaseInsensitiveMap(ControllerFactory.getFactory().createExtensionController().getDataTypePlugins());
 
     private SerializerFactory() {}
 
@@ -54,7 +54,7 @@ public class SerializerFactory {
      * @return The instantiated IXMLSerializer object.
      */
     public static IXMLSerializer getSerializer(String dataType, Map<String, Object> serializationPropertiesMap, Map<String, Object> deserializationPropertiesMap) {
-        DataTypeServerPlugin plugin = extensionController.getDataTypePlugins().get(dataType);
+        DataTypeServerPlugin plugin = dataPlugins.get(dataType);
         if (plugin != null) {
             if (serializationPropertiesMap == null) {
                 serializationPropertiesMap = getDefaultSerializationProperties(dataType);
@@ -87,7 +87,7 @@ public class SerializerFactory {
      * @return The map of default serialization properties.
      */
     public static Map<String, Object> getDefaultSerializationProperties(String dataType) {
-        DataTypeServerPlugin plugin = extensionController.getDataTypePlugins().get(dataType);
+        DataTypeServerPlugin plugin = dataPlugins.get(dataType);
         if (plugin != null && plugin.getDefaultProperties().getSerializationProperties() != null) {
             return plugin.getDefaultProperties().getSerializationProperties().getProperties();
         } else {
@@ -104,7 +104,7 @@ public class SerializerFactory {
      * @return The map of default deserialization properties.
      */
     public static Map<String, Object> getDefaultDeserializationProperties(String dataType) {
-        DataTypeServerPlugin plugin = extensionController.getDataTypePlugins().get(dataType);
+        DataTypeServerPlugin plugin = dataPlugins.get(dataType);
         if (plugin != null && plugin.getDefaultProperties().getDeserializationProperties() != null) {
             return plugin.getDefaultProperties().getDeserializationProperties().getProperties();
         } else {
