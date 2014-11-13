@@ -16,6 +16,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
@@ -75,6 +76,15 @@ public class XsltStepPanel extends BasePanel {
                 }
             });
         }
+    }
+
+    @Override
+    public boolean isModified() {
+        if (StringUtils.isNotBlank(sourceVariableField.getText()) || StringUtils.isNotBlank(resultVariableField.getText()) || StringUtils.isNotBlank(xsltTemplateTextPane.getText())) {
+            return true;
+        }
+
+        return false;
     }
 
     public Map<Object, Object> getData() {

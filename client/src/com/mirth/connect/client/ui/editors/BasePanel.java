@@ -10,6 +10,7 @@
 package com.mirth.connect.client.ui.editors;
 
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.util.Map;
 
 import javax.swing.JPanel;
@@ -44,6 +45,16 @@ public class BasePanel extends javax.swing.JPanel {
     // set the data object
     public void setData(Map<Object, Object> data) {
         this.data = data;
+    }
+
+    public boolean isModified() {
+        for (Component component : this.getComponents()) {
+            if (component.isVisible()) {
+                return ((BasePanel) component).isModified();
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -23,6 +23,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -144,6 +145,14 @@ public class RuleBuilderPanel extends BasePanel {
                 }
             });
         }
+    }
+    
+    public boolean isModified() {
+        if(StringUtils.isNotBlank(fieldTextField.getText()) || !exists.isSelected() || valuesTable.getRowCount() > 0) {
+            return true;
+        }
+        
+        return false;
     }
 
     public Map<Object, Object> getData() {

@@ -490,25 +490,32 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             @Override
             public void actionPerformed(ActionEvent evt) {
                 if (transformerTable.getEditingRow() != -1) {
-                    String type = ((JComboBox) evt.getSource()).getSelectedItem().toString();
                     int row = getSelectedRow();
+                    String selectedType = ((JComboBox) evt.getSource()).getSelectedItem().toString();
+                    String previousType = (String) transformerTable.getValueAt(row, STEP_TYPE_COL);
 
-                    if (type.equalsIgnoreCase((String) transformerTable.getValueAt(row, STEP_TYPE_COL))) {
+                    if (selectedType.equalsIgnoreCase(previousType)) {
                         return;
                     }
+
                     modified = true;
                     invalidVar = false;
-                    TransformerStepPlugin plugin;
+                    TransformerStepPlugin plugin = null;
                     try {
-                        plugin = getPlugin(type);
+
+                        if (stepPanel.isModified() && !PlatformUI.MIRTH_FRAME.alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you would like to change this transformer step and lose all of the current transformer data?")) {
+                            ((JComboBox) evt.getSource()).getModel().setSelectedItem(previousType);
+                            return;
+                        }
+
+                        plugin = getPlugin(selectedType);
                         plugin.initData();
                         transformerTableModel.setValueAt(plugin.getNewName(), row, STEP_NAME_COL);
-                        stepPanel.showCard(type);
-                        updateTaskPane(type);
+                        stepPanel.showCard(selectedType);
+                        updateTaskPane(selectedType);
                     } catch (Exception e) {
                         parent.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
-
                 }
             }
         });

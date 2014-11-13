@@ -492,21 +492,27 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 if (filterTable.getEditingRow() != -1) {
-                    String type = ((JComboBox) evt.getSource()).getSelectedItem().toString();
                     int row = getSelectedRow();
+                    String selectedType = ((JComboBox) evt.getSource()).getSelectedItem().toString();
+                    String previousType = (String) filterTable.getValueAt(row, RULE_TYPE_COL);
 
-                    if (type.equalsIgnoreCase((String) filterTable.getValueAt(row, RULE_TYPE_COL))) {
+                    if (selectedType.equalsIgnoreCase(previousType)) {
                         return;
                     }
 
                     modified = true;
                     FilterRulePlugin plugin;
                     try {
-                        plugin = getPlugin(type);
+                        if (rulePanel.isModified() && !PlatformUI.MIRTH_FRAME.alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you would like to change this filter rule and lose all of the current filter data?")) {
+                            ((JComboBox) evt.getSource()).getModel().setSelectedItem(previousType);
+                            return;
+                        }
+
+                        plugin = getPlugin(selectedType);
                         plugin.initData();
                         filterTableModel.setValueAt(plugin.getNewName(), row, RULE_NAME_COL);
-                        rulePanel.showCard(type);
-                        updateTaskPane(type);
+                        rulePanel.showCard(selectedType);
+                        updateTaskPane(selectedType);
                     } catch (Exception e) {
                         parent.alertException(parent, e.getStackTrace(), e.getMessage());
                     }

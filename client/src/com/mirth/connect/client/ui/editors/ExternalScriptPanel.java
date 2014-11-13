@@ -16,6 +16,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class ExternalScriptPanel extends BasePanel {
 
     protected MirthEditorPane parent;
@@ -56,6 +58,11 @@ public class ExternalScriptPanel extends BasePanel {
                 }
             });
         }
+    }
+
+    @Override
+    public boolean isModified() {
+        return StringUtils.isNotBlank(variableTextField.getText());
     }
 
     public Map<Object, Object> getData() {

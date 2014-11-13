@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.TokenMarker;
 
@@ -45,6 +46,11 @@ public class ScriptPanel extends BasePanel {
                 parent.modified = true;
             }
         });
+    }
+
+    @Override
+    public boolean isModified() {
+        return StringUtils.isNotEmpty(scriptTextPane.getText());
     }
 
     public Map<Object, Object> getData() {

@@ -23,6 +23,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.syntax.jedit.SyntaxDocument;
@@ -129,6 +130,15 @@ public class MapperPanel extends BasePanel {
                 }
             });
         }
+    }
+
+    @Override
+    public boolean isModified() {
+        if (StringUtils.isNotBlank(variableTextField.getText()) || StringUtils.isNotBlank(mappingTextField.getText()) || StringUtils.isNotBlank(defaultValueTextField.getText()) || regularExpressionsTable.getRowCount() > 0 || !addTo.getSelectedItem().toString().equals("Channel Map")) {
+            return true;
+        }
+
+        return false;
     }
 
     public Map<Object, Object> getData() {
