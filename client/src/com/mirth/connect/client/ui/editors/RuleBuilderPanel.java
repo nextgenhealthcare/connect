@@ -194,6 +194,13 @@ public class RuleBuilderPanel extends BasePanel {
             data.put("OriginalField", "");
         }
 
+        ArrayList<String> values = (ArrayList<String>) data.get("Values");
+        if (values != null) {
+            setValues(values);
+        } else {
+            setValues(new ArrayList<String>());
+        }
+
         // Must set the text last so that the text field change action is
         // not called before the new button values are set.
         if (((String) data.get("Equals")).equals(UIConstants.YES_OPTION)) {
@@ -214,13 +221,6 @@ public class RuleBuilderPanel extends BasePanel {
         } else if (((String) data.get("Equals")).equals(UIConstants.DOES_NOT_CONTAIN_OPTION)) {
             doesNotContainActionPerformed(null);
             doesNotContain.setSelected(true);
-        }
-
-        ArrayList<String> values = (ArrayList<String>) data.get("Values");
-        if (values != null) {
-            setValues(values);
-        } else {
-            setValues(new ArrayList<String>());
         }
 
         originalField = (String) data.get("OriginalField");
