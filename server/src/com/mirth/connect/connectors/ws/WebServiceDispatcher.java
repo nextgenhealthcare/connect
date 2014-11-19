@@ -327,7 +327,12 @@ public class WebServiceDispatcher extends DestinationConnector {
 
         webServiceDispatcherProperties.setSoapAction(replacer.replaceValues(webServiceDispatcherProperties.getSoapAction(), connectorMessage));
         webServiceDispatcherProperties.setEnvelope(replacer.replaceValues(webServiceDispatcherProperties.getEnvelope(), connectorMessage));
-        webServiceDispatcherProperties.setHeaders(replacer.replaceValuesInMap(webServiceDispatcherProperties.getHeaders(), connectorMessage));
+
+        Map<String, List<String>> headers = webServiceDispatcherProperties.getHeaders();
+        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+            replacer.replaceValuesInList(entry.getValue(), connectorMessage);
+        }
+        webServiceDispatcherProperties.setHeaders(headers);
 
         if (webServiceDispatcherProperties.isUseMtom()) {
             replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentNames(), connectorMessage);
@@ -391,15 +396,16 @@ public class WebServiceDispatcher extends DestinationConnector {
                     requestHeaders = new HashMap<String, List<String>>();
                 }
 
-                for (Entry<String, String> entry : webServiceDispatcherProperties.getHeaders().entrySet()) {
+                for (Entry<String, List<String>> entry : webServiceDispatcherProperties.getHeaders().entrySet()) {
                     List<String> valueList = requestHeaders.get(entry.getKey());
+                    
                     if (valueList == null) {
                         valueList = new ArrayList<String>();
                         requestHeaders.put(entry.getKey(), valueList);
                     }
-                    valueList.add(entry.getValue());
-                }
 
+                   valueList.addAll(entry.getValue());
+                }
                 dispatch.getRequestContext().put(MessageContext.HTTP_REQUEST_HEADERS, requestHeaders);
             }
 

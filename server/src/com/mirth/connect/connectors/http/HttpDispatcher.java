@@ -13,7 +13,6 @@ import java.io.File;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +101,7 @@ import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.userutil.MessageHeaders;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorMessageBuilder;
@@ -188,8 +188,15 @@ public class HttpDispatcher extends DestinationConnector {
         httpDispatcherProperties.setProxyAddress(replacer.replaceValues(httpDispatcherProperties.getProxyAddress(), connectorMessage));
         httpDispatcherProperties.setProxyPort(replacer.replaceValues(httpDispatcherProperties.getProxyPort(), connectorMessage));
         httpDispatcherProperties.setResponseBinaryMimeTypes(replacer.replaceValues(httpDispatcherProperties.getResponseBinaryMimeTypes(), connectorMessage));
-        httpDispatcherProperties.setHeaders(replacer.replaceValuesInMap(httpDispatcherProperties.getHeaders(), connectorMessage));
-        httpDispatcherProperties.setParameters(replacer.replaceValuesInMap(httpDispatcherProperties.getParameters(), connectorMessage));
+
+        for (List<String> list : httpDispatcherProperties.getHeaders().values()) {
+            replacer.replaceValuesInList(list, connectorMessage);
+        }
+
+        for (List<String> list : httpDispatcherProperties.getParameters().values()) {
+            replacer.replaceValuesInList(list, connectorMessage);
+        }
+
         httpDispatcherProperties.setUsername(replacer.replaceValues(httpDispatcherProperties.getUsername(), connectorMessage));
         httpDispatcherProperties.setPassword(replacer.replaceValues(httpDispatcherProperties.getPassword(), connectorMessage));
         httpDispatcherProperties.setContent(replacer.replaceValues(httpDispatcherProperties.getContent(), connectorMessage));
@@ -306,13 +313,20 @@ public class HttpDispatcher extends DestinationConnector {
             int statusCode = statusLine.getStatusCode();
             logger.debug("received status code: " + statusCode);
 
-            Map<String, String> headers = new HashMap<String, String>();
+            Map<String, List<String>> headers = new HashMap<String, List<String>>();
             for (Header header : httpResponse.getAllHeaders()) {
-                headers.put(header.getName(), header.getValue());
+                List<String> list = headers.get(header.getName());
+
+                if (list == null) {
+                    list = new ArrayList<String>();
+                    headers.put(header.getName(), list);
+                }
+
+                list.add(header.getValue());
             }
 
             connectorMessage.getConnectorMap().put("responseStatusLine", statusLine.toString());
-            connectorMessage.getConnectorMap().put("responseHeaders", Collections.unmodifiableMap(new CaseInsensitiveMap(headers)));
+            connectorMessage.getConnectorMap().put("responseHeaders", new MessageHeaders(new CaseInsensitiveMap(headers)));
 
             ContentType responseContentType = ContentType.get(httpResponse.getEntity());
             if (responseContentType == null) {
@@ -402,8 +416,8 @@ public class HttpDispatcher extends DestinationConnector {
     private HttpRequestBase buildHttpRequest(URI hostURI, HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage, File tempFile, ContentType contentType, Charset charset) throws Exception {
         String method = httpDispatcherProperties.getMethod();
         boolean isMultipart = httpDispatcherProperties.isMultipart();
-        Map<String, String> headers = httpDispatcherProperties.getHeaders();
-        Map<String, String> parameters = httpDispatcherProperties.getParameters();
+        Map<String, List<String>> headers = httpDispatcherProperties.getHeaders();
+        Map<String, List<String>> parameters = httpDispatcherProperties.getParameters();
 
         Object content = null;
         if (httpDispatcherProperties.isDataTypeBinary()) {
@@ -420,9 +434,11 @@ public class HttpDispatcher extends DestinationConnector {
         // populate the query parameters
         List<NameValuePair> queryParameters = new ArrayList<NameValuePair>(parameters.size());
 
-        for (Entry<String, String> parameterEntry : parameters.entrySet()) {
-            logger.debug("setting query parameter: [" + parameterEntry.getKey() + ", " + parameterEntry.getValue() + "]");
-            queryParameters.add(new BasicNameValuePair(parameterEntry.getKey(), parameterEntry.getValue()));
+        for (Entry<String, List<String>> parameterEntry : parameters.entrySet()) {
+            for (String value : parameterEntry.getValue()) {
+                logger.debug("setting query parameter: [" + parameterEntry.getKey() + ", " + value + "]");
+                queryParameters.add(new BasicNameValuePair(parameterEntry.getKey(), value));
+            }
         }
 
         HttpRequestBase httpMethod = null;
@@ -492,9 +508,11 @@ public class HttpDispatcher extends DestinationConnector {
         }
 
         // set the headers
-        for (Entry<String, String> headerEntry : headers.entrySet()) {
-            logger.debug("setting method header: [" + headerEntry.getKey() + ", " + headerEntry.getValue() + "]");
-            httpMethod.addHeader(headerEntry.getKey(), headerEntry.getValue());
+        for (Entry<String, List<String>> headerEntry : headers.entrySet()) {
+            for (String value : headerEntry.getValue()) {
+                logger.debug("setting method header: [" + headerEntry.getKey() + ", " + value + "]");
+                httpMethod.addHeader(headerEntry.getKey(), value);
+            }
         }
 
         // Only set the Content-Type for entity-enclosing methods, but not if multipart is used

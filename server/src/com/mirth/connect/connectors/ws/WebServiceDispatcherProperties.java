@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
@@ -43,7 +45,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     private String password;
     private String envelope;
     private boolean oneWay;
-    private Map<String, String> headers;
+    private Map<String, List<String>> headers;
     private boolean useMtom;
     private List<String> attachmentNames;
     private List<String> attachmentContents;
@@ -68,7 +70,7 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         this.password = "";
         this.envelope = "";
         this.oneWay = false;
-        this.headers = new LinkedHashMap<String, String>();
+        this.headers = new LinkedHashMap<String, List<String>>();
         this.useMtom = false;
         this.attachmentNames = new ArrayList<String>();
         this.attachmentContents = new ArrayList<String>();
@@ -92,7 +94,13 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         password = props.getPassword();
         envelope = props.getEnvelope();
         oneWay = props.isOneWay();
-        headers = new LinkedHashMap<String, String>(props.getHeaders());
+        
+        Map<String, List<String>> headerCopy = new LinkedHashMap<String, List<String>>();
+        for(Entry<String, List<String>> entry : props.getHeaders().entrySet()) {
+            headerCopy.put(entry.getKey(), new ArrayList<String>(entry.getValue()));
+        }
+        headers = headerCopy;
+        
         useMtom = props.isUseMtom();
         attachmentNames = new ArrayList<String>(props.getAttachmentNames());
         attachmentContents = new ArrayList<String>(props.getAttachmentContents());
@@ -188,11 +196,11 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         this.oneWay = oneWay;
     }
 
-    public Map<String, String> getHeaders() {
+    public Map<String, List<String>> getHeaders() {
         return headers;
     }
 
-    public void setHeaders(Map<String, String> headers) {
+    public void setHeaders(Map<String, List<String>> headers) {
         this.headers = headers;
     }
 
@@ -291,6 +299,20 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
             builder.append("SOAP ACTION: ");
             builder.append(soapAction);
             builder.append(newLine);
+        }
+
+        if (MapUtils.isNotEmpty(headers)) {
+            builder.append(newLine);
+            builder.append("[HEADERS]");
+            builder.append(newLine);
+            for (Map.Entry<String, List<String>> header : headers.entrySet()) {
+                for (String value : (ArrayList<String>) header.getValue()) {
+                    builder.append(header.getKey().toString());
+                    builder.append(": ");
+                    builder.append(value.toString());
+                    builder.append(newLine);
+                }
+            }
         }
 
         builder.append(newLine);

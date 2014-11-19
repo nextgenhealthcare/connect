@@ -19,7 +19,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,12 +38,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.NameValuePair;
@@ -84,10 +83,10 @@ import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.userutil.MessageHeaders;
+import com.mirth.connect.server.userutil.MessageParameters;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 public class HttpReceiver extends SourceConnector implements BinaryContentTypeResolver {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -178,7 +177,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                 // Add each static resource to a map first to allow sorting and deduplication
                 for (HttpStaticResource staticResource : connectorProperties.getStaticResources()) {
                     String resourceContextPath = replacer.replaceValues(staticResource.getContextPath(), getChannelId());
-                    Map<String, Object> queryParameters = new HashMap<String, Object>();
+                    Map<String, List<String>> queryParameters = new HashMap<String, List<String>>();
 
                     // If query parameters were specified, extract them here
                     int queryIndex = resourceContextPath.indexOf('?');
@@ -187,17 +186,14 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                         resourceContextPath = resourceContextPath.substring(0, queryIndex);
 
                         for (NameValuePair param : URLEncodedUtils.parse(query, Charset.defaultCharset())) {
-                            Object currentValue = queryParameters.get(param.getName());
+                            List<String> currentValue = queryParameters.get(param.getName());
                             String value = StringUtils.defaultString(param.getValue());
 
                             if (currentValue == null) {
-                                queryParameters.put(param.getName(), value);
-                            } else if (currentValue instanceof String[]) {
-                                queryParameters.put(param.getName(), ArrayUtils.add((String[]) currentValue, value));
-                            } else {
-                                queryParameters.put(param.getName(), new String[] {
-                                        (String) currentValue, value });
+                                currentValue = new ArrayList<String>();
+                                queryParameters.put(param.getName(), currentValue);
                             }
+                            currentValue.add(value);
                         }
                     }
 
@@ -335,8 +331,10 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         servletResponse.setContentType(contentType.toString());
 
         // set the response headers
-        for (Entry<String, String> entry : connectorProperties.getResponseHeaders().entrySet()) {
-            servletResponse.setHeader(entry.getKey(), replaceValues(entry.getValue(), dispatchResult));
+        for (Entry<String, List<String>> entry : connectorProperties.getResponseHeaders().entrySet()) {
+            for (String headerValue : entry.getValue()) {
+                servletResponse.addHeader(entry.getKey(), replaceValues(headerValue, dispatchResult));
+            }
         }
 
         // set the status code
@@ -467,8 +465,9 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
             InputStream requestInputStream = request.getInputStream();
 
             // If the request is GZIP encoded, uncompress the content
-            String contentEncoding = requestMessage.getCaseInsensitiveHeaders().get(HTTP.CONTENT_ENCODING);
-            if (contentEncoding != null && (contentEncoding.toLowerCase().equals("gzip") || contentEncoding.toLowerCase().equals("x-gzip"))) {
+            List<String> contentEncodingList = requestMessage.getCaseInsensitiveHeaders().get(HTTP.CONTENT_ENCODING);
+            String contentEncoding = CollectionUtils.isNotEmpty(contentEncodingList) ? contentEncodingList.get(0) : null;
+            if (contentEncoding != null && (contentEncoding.equalsIgnoreCase("gzip") || contentEncoding.equalsIgnoreCase("x-gzip"))) {
                 requestInputStream = new GZIPInputStream(requestInputStream);
             }
 
@@ -502,8 +501,8 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         sourceMap.put("protocol", StringUtils.trimToEmpty(request.getProtocol()));
         sourceMap.put("query", requestMessage.getQueryString());
         sourceMap.put("contextPath", requestMessage.getContextPath());
-        sourceMap.put("headers", Collections.unmodifiableMap(requestMessage.getCaseInsensitiveHeaders()));
-        sourceMap.put("parameters", Collections.unmodifiableMap(requestMessage.getParameters()));
+        sourceMap.put("headers", new MessageHeaders(requestMessage.getCaseInsensitiveHeaders()));
+        sourceMap.put("parameters", new MessageParameters(requestMessage.getParameters()));
 
         // Add custom source map variables from the configuration interface
         sourceMap.putAll(configuration.getRequestInformation(request));
@@ -567,7 +566,8 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                 OutputStream responseOutputStream = servletResponse.getOutputStream();
 
                 // If the client accepts GZIP compression, compress the content
-                String acceptEncoding = requestMessage.getCaseInsensitiveHeaders().get("Accept-Encoding");
+                List<String> acceptEncodingList = requestMessage.getCaseInsensitiveHeaders().get("Accept-Encoding");
+                String acceptEncoding = CollectionUtils.isNotEmpty(acceptEncodingList) ? acceptEncodingList.get(0) : null;
                 if (acceptEncoding != null && acceptEncoding.contains("gzip")) {
                     servletResponse.setHeader(HTTP.CONTENT_ENCODING, "gzip");
                     responseOutputStream = new GZIPOutputStream(responseOutputStream);
@@ -665,48 +665,40 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
         return timeout;
     }
 
-    private Map<String, Object> extractParameters(Request request) {
+    private Map<String, List<String>> extractParameters(Request request) {
         /*
          * XXX: extractParameters must be called before the parameters are accessed, otherwise the
          * map will be null.
          */
         request.extractParameters();
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        Map<String, List<String>> parameterMap = new HashMap<String, List<String>>();
 
         for (Entry<String, Object> entry : request.getParameters().entrySet()) {
-            if (entry.getValue() instanceof List<?>) {
-                String name = entry.getKey();
-                int index = name.indexOf("[]");
-                if (index >= 0) {
-                    name = name.substring(0, index);
-                }
-                List<String> list = (List<String>) entry.getValue();
-                parameterMap.put(name, list.toArray(new String[list.size()]));
+            List<String> list = parameterMap.get(entry.getKey());
+
+            if (list == null) {
+                list = new ArrayList<String>();
+                parameterMap.put(entry.getKey(), list);
+            }
+
+            if (entry.getValue() instanceof List) {
+                list.addAll((List<String>) entry.getValue());
             } else {
-                parameterMap.put(entry.getKey(), entry.getValue().toString());
+                list.add((String) entry.getValue());
             }
         }
 
         return parameterMap;
     }
 
-    private boolean parametersEqual(Map<String, Object> params1, Map<String, Object> params2) {
+    private boolean parametersEqual(Map<String, List<String>> params1, Map<String, List<String>> params2) {
         if (!params1.keySet().equals(params2.keySet())) {
             return false;
         }
 
-        for (Entry<String, Object> entry : params1.entrySet()) {
-            Object value1 = entry.getValue();
-            Object value2 = params2.get(entry.getKey());
-
-            if (value1 != null && value1 instanceof String[] && value2 != null && value2 instanceof String[]) {
-                if (!Arrays.equals((String[]) value1, (String[]) value2)) {
-                    return false;
-                }
-            } else {
-                if (!ObjectUtils.equals(value1, value2)) {
-                    return false;
-                }
+        for (Entry<String, List<String>> entry : params1.entrySet()) {
+            if (!ListUtils.isEqualList(entry.getValue(), params2.get(entry.getKey()))) {
+                return false;
             }
         }
 

@@ -72,21 +72,19 @@ public class HttpMessageConverter {
                 if (!request.getParameters().isEmpty()) {
                     DonkeyElement parametersElement = requestElement.addChildElement("Parameters");
 
-                    for (Entry<String, Object> entry : request.getParameters().entrySet()) {
-                        if (entry.getValue() instanceof String[]) {
-                            for (String value : (String[]) entry.getValue()) {
-                                parametersElement.addChildElement(entry.getKey(), value);
-                            }
-                        } else {
-                            parametersElement.addChildElement(entry.getKey(), entry.getValue().toString());
+                    for (Entry<String, List<String>> entry : request.getParameters().entrySet()) {
+                        for (String value : entry.getValue()) {
+                            parametersElement.addChildElement(entry.getKey(), value);
                         }
                     }
                 }
 
                 DonkeyElement headerElement = requestElement.addChildElement("Header");
 
-                for (Entry<String, String> entry : request.getHeaders().entrySet()) {
-                    headerElement.addChildElement(entry.getKey(), entry.getValue());
+                for (Entry<String, List<String>> entry : request.getHeaders().entrySet()) {
+                    for (String value : entry.getValue()) {
+                        headerElement.addChildElement(entry.getKey(), value);
+                    }
                 }
             }
 
@@ -174,7 +172,7 @@ public class HttpMessageConverter {
         }
     }
 
-    public static String httpResponseToXml(String status, Map<String, String> headers, Object content, ContentType contentType, boolean parseMultipart, boolean includeMetadata, BinaryContentTypeResolver resolver) {
+    public static String httpResponseToXml(String status, Map<String, List<String>> headers, Object content, ContentType contentType, boolean parseMultipart, boolean includeMetadata, BinaryContentTypeResolver resolver) {
         try {
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             DonkeyElement requestElement = new DonkeyElement(document.createElement("HttpResponse"));
@@ -184,10 +182,12 @@ public class HttpMessageConverter {
 
                 DonkeyElement headerElement = requestElement.addChildElement("Header");
 
-                for (Entry<String, String> entry : headers.entrySet()) {
-                    DonkeyElement fieldElement = headerElement.addChildElement("Field");
-                    fieldElement.addChildElement("Name", entry.getKey());
-                    fieldElement.addChildElement("Value", entry.getValue());
+                for (Entry<String, List<String>> entry : headers.entrySet()) {
+                    for (String value : entry.getValue()) {
+                        DonkeyElement fieldElement = headerElement.addChildElement("Field");
+                        fieldElement.addChildElement("Name", entry.getKey());
+                        fieldElement.addChildElement("Value", value);
+                    }
                 }
             }
 
@@ -209,13 +209,23 @@ public class HttpMessageConverter {
         }
     }
 
-    public static Map<String, String> convertFieldEnumerationToMap(HttpServletRequest request) {
-        Map<String, String> headers = new HashMap<String, String>();
+    public static Map<String, List<String>> convertFieldEnumerationToMap(HttpServletRequest request) {
+        Map<String, List<String>> headers = new HashMap<String, List<String>>();
 
         for (Enumeration<String> enumeration = request.getHeaderNames(); enumeration.hasMoreElements();) {
             String name = enumeration.nextElement();
-            String value = request.getHeader(name);
-            headers.put(name, value);
+            Enumeration headerNames = request.getHeaders(name);
+
+            while (headerNames.hasMoreElements()) {
+                List<String> list = headers.get(name);
+
+                if (list == null) {
+                    list = new ArrayList<String>();
+                    headers.put(name, list);
+                }
+
+                list.add((String) headerNames.nextElement());
+            }
         }
 
         return headers;

@@ -29,6 +29,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.EventObject;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -207,7 +208,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         if (props.getHeaders() != null) {
             setHeaderProperties(props.getHeaders());
         } else {
-            setHeaderProperties(new LinkedHashMap<String, String>());
+            setHeaderProperties(new LinkedHashMap<String, List<String>>());
         }
 
         List<List<String>> attachments = new ArrayList<List<String>>();
@@ -388,8 +389,13 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         return (operationComboBox.getItemCount() == 1 && operationComboBox.getItemAt(0).equals(WebServiceDispatcherProperties.WEBSERVICE_DEFAULT_DROPDOWN));
     }
 
-    public void setHeaderProperties(Map<String, String> properties) {
-        Object[][] tableData = new Object[properties.size()][2];
+    public void setHeaderProperties(Map<String, List<String>> properties) {
+        int size = 0;
+        for (List<String> list : properties.values()) {
+            size += list.size();
+        }
+
+        Object[][] tableData = new Object[size][2];
 
         headersTable = new MirthTable();
 
@@ -397,9 +403,11 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         Iterator i = properties.entrySet().iterator();
         while (i.hasNext()) {
             Map.Entry entry = (Map.Entry) i.next();
-            tableData[j][NAME_COLUMN] = (String) entry.getKey();
-            tableData[j][VALUE_COLUMN] = (String) entry.getValue();
-            j++;
+            for (String keyValue : (List<String>) entry.getValue()) {
+                tableData[j][NAME_COLUMN] = (String) entry.getKey();
+                tableData[j][VALUE_COLUMN] = keyValue;
+                j++;
+            }
         }
 
         headersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
@@ -432,18 +440,6 @@ public class WebServiceSender extends ConnectorSettingsPanel {
                 this.checkProperties = checkProperties;
             }
 
-            public boolean checkUniqueProperty(String property) {
-                boolean exists = false;
-
-                for (int i = 0; i < headersTable.getRowCount(); i++) {
-                    if (headersTable.getValueAt(i, NAME_COLUMN) != null && ((String) headersTable.getValueAt(i, NAME_COLUMN)).equalsIgnoreCase(property)) {
-                        exists = true;
-                    }
-                }
-
-                return exists;
-            }
-
             @Override
             public boolean isCellEditable(EventObject evt) {
                 boolean editable = super.isCellEditable(evt);
@@ -459,7 +455,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             protected boolean valueChanged(String value) {
                 headersDeleteButton.setEnabled(true);
 
-                if (checkProperties && (value.length() == 0 || checkUniqueProperty(value))) {
+                if (checkProperties && (value.length() == 0)) {
                     return false;
                 }
 
@@ -488,13 +484,20 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         headersPane.setViewportView(headersTable);
     }
 
-    public Map<String, String> getHeaderProperties() {
-        Map<String, String> properties = new LinkedHashMap<String, String>();
+    public Map<String, List<String>> getHeaderProperties() {
+        Map<String, List<String>> properties = new HashMap<String, List<String>>();
 
         for (int i = 0; i < headersTable.getRowCount(); i++) {
-            if (((String) headersTable.getValueAt(i, NAME_COLUMN)).length() > 0) {
-                properties.put(((String) headersTable.getValueAt(i, NAME_COLUMN)), ((String) headersTable.getValueAt(i, VALUE_COLUMN)));
+            String key = (String) headersTable.getValueAt(i, NAME_COLUMN);
+
+            List<String> headers = properties.get(key);
+
+            if (headers == null) {
+                headers = new ArrayList<String>();
+                properties.put(key, headers);
             }
+
+            headers.add((String) headersTable.getValueAt(i, VALUE_COLUMN));
         }
 
         return properties;

@@ -36,7 +36,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     private String responseContentType;
     private boolean responseDataTypeBinary;
     private String responseStatusCode;
-    private Map<String, String> responseHeaders;
+    private Map<String, List<String>> responseHeaders;
     private String charset;
     private String contextPath;
     private String timeout;
@@ -54,7 +54,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         this.responseContentType = "text/plain";
         this.responseDataTypeBinary = false;
         this.responseStatusCode = "";
-        this.responseHeaders = new LinkedHashMap<String, String>();
+        this.responseHeaders = new LinkedHashMap<String, List<String>>();
         this.charset = "UTF-8";
         this.contextPath = "";
         this.timeout = "0";
@@ -125,11 +125,11 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
         this.responseStatusCode = responseStatusCode;
     }
 
-    public Map<String, String> getResponseHeaders() {
+    public Map<String, List<String>> getResponseHeaders() {
         return responseHeaders;
     }
 
-    public void setResponseHeaders(Map<String, String> responseHeaders) {
+    public void setResponseHeaders(Map<String, List<String>> responseHeaders) {
         this.responseHeaders = responseHeaders;
     }
 

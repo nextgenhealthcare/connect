@@ -14,14 +14,17 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JTable;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
@@ -157,8 +160,8 @@ public class HttpSender extends ConnectorSettingsPanel {
         properties.setDataTypeBinary(dataTypeBinaryRadio.isSelected());
         properties.setCharset(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
-        properties.setParameters(getAdditionalProperties());
-        properties.setHeaders(getHeaderProperties());
+        properties.setParameters(getProperties(queryParametersTable));
+        properties.setHeaders(getProperties(headersTable));
 
         properties.setContentType(contentTypeField.getText());
         properties.setContent(contentTextArea.getText());
@@ -251,15 +254,15 @@ public class HttpSender extends ConnectorSettingsPanel {
         responseBinaryMimeTypesRegexCheckBox.setSelected(props.isResponseBinaryMimeTypesRegex());
 
         if (props.getParameters() != null) {
-            setAdditionalProperties(props.getParameters());
+            setParameters(props.getParameters());
         } else {
-            setAdditionalProperties(new LinkedHashMap<String, String>());
+            setParameters(new LinkedHashMap<String, List<String>>());
         }
 
         if (props.getHeaders() != null) {
-            setHeaderProperties(props.getHeaders());
+            setHeaders(props.getHeaders());
         } else {
-            setHeaderProperties(new LinkedHashMap<String, String>());
+            setHeaders(new LinkedHashMap<String, List<String>>());
         }
 
         contentTypeField.setText(props.getContentType());
@@ -284,8 +287,13 @@ public class HttpSender extends ConnectorSettingsPanel {
         return new HttpDispatcherProperties();
     }
 
-    public void setAdditionalProperties(Map<String, String> properties) {
-        Object[][] tableData = new Object[properties.size()][2];
+	public void setParameters(Map<String, List<String>> properties) {
+		int size = 0;
+		for (List<String> property : properties.values()) {
+			size += property.size();
+		}
+
+        Object[][] tableData = new Object[size][2];
 
         queryParametersTable = new MirthTable();
 
@@ -293,9 +301,12 @@ public class HttpSender extends ConnectorSettingsPanel {
         Iterator i = properties.entrySet().iterator();
         while (i.hasNext()) {
             Map.Entry entry = (Map.Entry) i.next();
-            tableData[j][NAME_COLUMN] = (String) entry.getKey();
-            tableData[j][VALUE_COLUMN] = (String) entry.getValue();
-            j++;
+
+            for (String keyValue : (ArrayList<String>) entry.getValue()) {
+                tableData[j][NAME_COLUMN] = (String) entry.getKey();
+                tableData[j][VALUE_COLUMN] = keyValue;
+                j++;
+            }
         }
 
         queryParametersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
@@ -328,18 +339,6 @@ public class HttpSender extends ConnectorSettingsPanel {
                 this.checkProperties = checkProperties;
             }
 
-            public boolean checkUniqueProperty(String property) {
-                boolean exists = false;
-
-                for (int i = 0; i < queryParametersTable.getRowCount(); i++) {
-                    if (queryParametersTable.getValueAt(i, NAME_COLUMN) != null && ((String) queryParametersTable.getValueAt(i, NAME_COLUMN)).equalsIgnoreCase(property)) {
-                        exists = true;
-                    }
-                }
-
-                return exists;
-            }
-
             @Override
             public boolean isCellEditable(EventObject evt) {
                 boolean editable = super.isCellEditable(evt);
@@ -355,7 +354,7 @@ public class HttpSender extends ConnectorSettingsPanel {
             protected boolean valueChanged(String value) {
                 queryParametersDeleteButton.setEnabled(true);
 
-                if (checkProperties && (value.length() == 0 || checkUniqueProperty(value))) {
+                if (checkProperties && (value.length() == 0)) {
                     return false;
                 }
 
@@ -384,21 +383,28 @@ public class HttpSender extends ConnectorSettingsPanel {
         queryParametersPane.setViewportView(queryParametersTable);
     }
 
-    public void setHeaderProperties(Map<String, String> properties) {
-        Object[][] tableData = new Object[properties.size()][2];
+	public void setHeaders(Map<String, List<String>> properties) {
+		int size = 0;
+		for (List<String> property : properties.values()) {
+			size += property.size();
+		}
 
-        headersTable = new MirthTable();
+        Object[][] tableData = new Object[size][2];
 
-        int j = 0;
-        Iterator i = properties.entrySet().iterator();
-        while (i.hasNext()) {
-            Map.Entry entry = (Map.Entry) i.next();
-            tableData[j][NAME_COLUMN] = (String) entry.getKey();
-            tableData[j][VALUE_COLUMN] = (String) entry.getValue();
-            j++;
-        }
+		headersTable = new MirthTable();
 
-        headersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
+		int j = 0;
+		Iterator i = properties.entrySet().iterator();
+		while (i.hasNext()) {
+			Map.Entry entry = (Map.Entry) i.next();
+			for (String keyValue : (List<String>) entry.getValue()) {
+				tableData[j][NAME_COLUMN] = (String) entry.getKey();
+				tableData[j][VALUE_COLUMN] = keyValue;
+				j++;
+			}
+		}
+
+		headersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
                 NAME_COLUMN_NAME, VALUE_COLUMN_NAME }) {
 
             boolean[] canEdit = new boolean[] { true, true };
@@ -455,7 +461,7 @@ public class HttpSender extends ConnectorSettingsPanel {
             protected boolean valueChanged(String value) {
                 headersDeleteButton.setEnabled(true);
 
-                if (checkProperties && (value.length() == 0 || checkUniqueProperty(value))) {
+                if (checkProperties && (value.length() == 0)) {
                     return false;
                 }
 
@@ -482,27 +488,22 @@ public class HttpSender extends ConnectorSettingsPanel {
         }
 
         headersPane.setViewportView(headersTable);
-    }
+	}
 
-    public Map<String, String> getAdditionalProperties() {
-        Map<String, String> properties = new LinkedHashMap<String, String>();
+    private Map<String, List<String>> getProperties(JTable table) {
+        Map<String, List<String>> properties = new LinkedHashMap<String, List<String>>();
 
-        for (int i = 0; i < queryParametersTable.getRowCount(); i++) {
-            if (((String) queryParametersTable.getValueAt(i, NAME_COLUMN)).length() > 0) {
-                properties.put(((String) queryParametersTable.getValueAt(i, NAME_COLUMN)), ((String) queryParametersTable.getValueAt(i, VALUE_COLUMN)));
+        for (int i = 0; i < table.getRowCount(); i++) {
+            String key = (String) table.getValueAt(i, NAME_COLUMN);
+
+            List<String> propertiesList = properties.get(key);
+
+            if (propertiesList == null) {
+                propertiesList = new ArrayList<String>();
+                properties.put(key, propertiesList);
             }
-        }
 
-        return properties;
-    }
-
-    public Map<String, String> getHeaderProperties() {
-        Map<String, String> properties = new LinkedHashMap<String, String>();
-
-        for (int i = 0; i < headersTable.getRowCount(); i++) {
-            if (((String) headersTable.getValueAt(i, NAME_COLUMN)).length() > 0) {
-                properties.put(((String) headersTable.getValueAt(i, NAME_COLUMN)), ((String) headersTable.getValueAt(i, VALUE_COLUMN)));
-            }
+            propertiesList.add((String) table.getValueAt(i, VALUE_COLUMN));
         }
 
         return properties;

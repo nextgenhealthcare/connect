@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.http;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.map.CaseInsensitiveMap;
@@ -17,9 +18,9 @@ import org.apache.http.entity.ContentType;
 public class HttpRequestMessage {
     private String method;
     private Object content;
-    private Map<String, String> headers;
+    private Map<String, List<String>> headers;
     private CaseInsensitiveMap caseInsensitiveHeaders;
-    private Map<String, Object> parameters;
+    private Map<String, List<String>> parameters;
     private ContentType contentType;
     private String remoteAddress;
     private String queryString;
@@ -42,24 +43,24 @@ public class HttpRequestMessage {
         this.content = content;
     }
 
-    public Map<String, String> getHeaders() {
+    public Map<String, List<String>> getHeaders() {
         return headers;
     }
 
-    public Map<String, String> getCaseInsensitiveHeaders() {
+    public Map<String, List<String>> getCaseInsensitiveHeaders() {
         return caseInsensitiveHeaders;
     }
 
-    public void setHeaders(Map<String, String> headers) {
+    public void setHeaders(Map<String, List<String>> headers) {
         this.headers = headers;
         caseInsensitiveHeaders = new CaseInsensitiveMap(headers);
     }
 
-    public Map<String, Object> getParameters() {
+    public Map<String, List<String>> getParameters() {
         return parameters;
     }
 
-    public void setParameters(Map<String, Object> parameters) {
+    public void setParameters(Map<String, List<String>> parameters) {
         this.parameters = parameters;
     }
 

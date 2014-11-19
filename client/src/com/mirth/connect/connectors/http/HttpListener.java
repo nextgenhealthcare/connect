@@ -194,7 +194,7 @@ public class HttpListener extends ConnectorSettingsPanel {
         if (props.getResponseHeaders() != null) {
             setResponseHeaders(props.getResponseHeaders());
         } else {
-            setResponseHeaders(new LinkedHashMap<String, String>());
+            setResponseHeaders(new LinkedHashMap<String, List<String>>());
         }
 
         if (props.getStaticResources() != null) {
@@ -265,8 +265,13 @@ public class HttpListener extends ConnectorSettingsPanel {
         httpUrlField.setText("http" + (usingHttps ? "s" : "") + "://" + server + ":" + ((HttpReceiverProperties) getFilledProperties()).getListenerConnectorProperties().getPort() + (contextPathField.getText().startsWith("/") ? "" : "/") + contextPathField.getText() + ((StringUtils.isBlank(contextPathField.getText()) || contextPathField.getText().endsWith("/")) ? "" : "/"));
     }
 
-    public void setResponseHeaders(Map<String, String> responseHeaders) {
-        Object[][] tableData = new Object[responseHeaders.size()][2];
+	public void setResponseHeaders(Map<String, List<String>> responseHeaders) {
+        int size = 0;
+        for (List<String> property : responseHeaders.values()) {
+            size += property.size();
+        }
+
+        Object[][] tableData = new Object[size][2];
 
         responseHeadersTable = new MirthTable();
 
@@ -274,9 +279,11 @@ public class HttpListener extends ConnectorSettingsPanel {
         Iterator i = responseHeaders.entrySet().iterator();
         while (i.hasNext()) {
             Map.Entry entry = (Map.Entry) i.next();
-            tableData[j][NAME_COLUMN] = (String) entry.getKey();
-            tableData[j][VALUE_COLUMN] = (String) entry.getValue();
-            j++;
+            for (String keyValue : (List<String>) entry.getValue()) {
+                tableData[j][NAME_COLUMN] = (String) entry.getKey();
+                tableData[j][VALUE_COLUMN] = keyValue;
+                j++;
+            }
         }
 
         responseHeadersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
@@ -311,18 +318,6 @@ public class HttpListener extends ConnectorSettingsPanel {
                 this.checkProperties = checkProperties;
             }
 
-            public boolean checkUniqueProperty(String property) {
-                boolean exists = false;
-
-                for (int i = 0; i < responseHeadersTable.getRowCount(); i++) {
-                    if (responseHeadersTable.getValueAt(i, NAME_COLUMN) != null && ((String) responseHeadersTable.getValueAt(i, NAME_COLUMN)).equalsIgnoreCase(property)) {
-                        exists = true;
-                    }
-                }
-
-                return exists;
-            }
-
             @Override
             public boolean isCellEditable(EventObject evt) {
                 boolean editable = super.isCellEditable(evt);
@@ -338,7 +333,7 @@ public class HttpListener extends ConnectorSettingsPanel {
             protected boolean valueChanged(String value) {
                 responseHeadersDeleteButton.setEnabled(true);
 
-                if (checkProperties && (value.length() == 0 || checkUniqueProperty(value))) {
+                if (checkProperties && (value.length() == 0)) {
                     return false;
                 }
 
@@ -368,16 +363,23 @@ public class HttpListener extends ConnectorSettingsPanel {
         responseHeadersDeleteButton.setEnabled(false);
     }
 
-    public Map<String, String> getResponseHeaders() {
-        LinkedHashMap<String, String> responseHeaders = new LinkedHashMap<String, String>();
+    public Map<String, List<String>> getResponseHeaders() {
+        Map<String, List<String>> properties = new LinkedHashMap<String, List<String>>();
 
         for (int i = 0; i < responseHeadersTable.getRowCount(); i++) {
-            if (((String) responseHeadersTable.getValueAt(i, NAME_COLUMN)).length() > 0) {
-                responseHeaders.put(((String) responseHeadersTable.getValueAt(i, NAME_COLUMN)), ((String) responseHeadersTable.getValueAt(i, VALUE_COLUMN)));
+            String key = (String) responseHeadersTable.getValueAt(i, NAME_COLUMN);
+
+            List<String> headers = properties.get(key);
+
+            if (headers == null) {
+                headers = new ArrayList<String>();
+                properties.put(key, headers);
             }
+
+            headers.add((String) responseHeadersTable.getValueAt(i, VALUE_COLUMN));
         }
 
-        return responseHeaders;
+        return properties;
     }
 
     /** Get the currently selected table index */

@@ -10,6 +10,7 @@
 package com.mirth.connect.connectors.http;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.text.WordUtils;
@@ -47,13 +48,13 @@ public class HttpStaticResource implements Serializable {
     private ResourceType resourceType;
     private String value;
     private String contentType;
-    private Map<String, Object> queryParameters;
+    private Map<String, List<String>> queryParameters;
     
     public HttpStaticResource(String contextPath, ResourceType resourceType, String value, String contentType) {
         this(contextPath, resourceType, value, contentType, null);
     }
 
-    public HttpStaticResource(String contextPath, ResourceType resourceType, String value, String contentType, Map<String, Object> queryParameters) {
+    public HttpStaticResource(String contextPath, ResourceType resourceType, String value, String contentType, Map<String, List<String>> queryParameters) {
         this.contextPath = contextPath;
         this.resourceType = resourceType;
         this.value = value;
@@ -93,11 +94,11 @@ public class HttpStaticResource implements Serializable {
         this.contentType = contentType;
     }
 
-    public Map<String, Object> getQueryParameters() {
+    public Map<String, List<String>> getQueryParameters() {
         return queryParameters;
     }
 
-    public void setQueryParameters(Map<String, Object> queryParameters) {
+    public void setQueryParameters(Map<String, List<String>> queryParameters) {
         this.queryParameters = queryParameters;
     }
 }
