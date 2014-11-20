@@ -9,6 +9,8 @@
 
 package com.mirth.connect.client.ui.components;
 
+import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -24,6 +26,8 @@ import com.mirth.connect.client.ui.PlatformUI;
 public class MirthComboBox extends javax.swing.JComboBox {
 
     private Frame parent;
+    private boolean autoResizeDropdown = false;
+    private boolean canEnableSave = true;
 
     public MirthComboBox() {
         super();
@@ -51,6 +55,39 @@ public class MirthComboBox extends javax.swing.JComboBox {
     }
 
     public void comboBoxChanged(java.awt.event.ActionEvent evt) {
-        parent.setSaveEnabled(true);
+        if (canEnableSave) {
+            parent.setSaveEnabled(true);
+        }
+    }
+
+    public void setCanEnableSave(boolean canEnableSave) {
+        this.canEnableSave = canEnableSave;
+    }
+
+    @Override
+    public Dimension getSize() {
+        Dimension dimension = super.getSize();
+
+        if (autoResizeDropdown) {
+            FontMetrics fontMetrics = getFontMetrics(this.getFont());
+            int maxWidth = 0;
+
+            for (int index = 0; index < this.getItemCount(); index++) {
+                String entry = this.getItemAt(index).toString();
+                int width = fontMetrics.stringWidth(entry);
+
+                if (width > maxWidth) {
+                    maxWidth = width;
+                }
+            }
+
+            dimension.setSize(maxWidth > dimension.getWidth() ? maxWidth + 4 : dimension.getWidth(), dimension.getHeight());
+        }
+
+        return dimension;
+    }
+
+    public void setAutoResizeDropdown(boolean autoResizeDropdown) {
+        this.autoResizeDropdown = autoResizeDropdown;
     }
 }

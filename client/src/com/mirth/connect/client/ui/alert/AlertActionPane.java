@@ -148,9 +148,7 @@ public class AlertActionPane extends JPanel {
             }
         }
 
-        // Update the recipient column renderer and editor with the current channel names
-        ((RecipientCellRenderer) actionTable.getColumnExt(RECIPIENT_COLUMN_INDEX).getCellRenderer()).setChannelCellRenderer(new MirthComboBoxTableCellRenderer(channelMap.keySet().toArray()));
-        ((RecipientCellEditor) actionTable.getColumnExt(RECIPIENT_COLUMN_NAME).getCellEditor()).setChannelCellEditor(new MirthComboBoxTableCellEditor(actionTable, channelMap.keySet().toArray(), 1, false, new ActionListener() {
+        MirthComboBoxTableCellEditor editor = new MirthComboBoxTableCellEditor(actionTable, channelMap.keySet().toArray(), 1, false, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -161,7 +159,14 @@ public class AlertActionPane extends JPanel {
                 }
             }
 
-        }));
+        });
+
+        editor.getComboBox().setCanEnableSave(false);
+        editor.getComboBox().setAutoResizeDropdown(true);
+
+        // Update the recipient column renderer and editor with the current channel names
+        ((RecipientCellRenderer) actionTable.getColumnExt(RECIPIENT_COLUMN_INDEX).getCellRenderer()).setChannelCellRenderer(new MirthComboBoxTableCellRenderer(channelMap.keySet().toArray()));
+        ((RecipientCellEditor) actionTable.getColumnExt(RECIPIENT_COLUMN_NAME).getCellEditor()).setChannelCellEditor(editor);
 
         // Generate the channel name values for the model
         List<String> channelNames = new ArrayList<String>();

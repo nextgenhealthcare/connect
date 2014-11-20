@@ -17,8 +17,8 @@ import java.util.EventObject;
 
 import javax.swing.AbstractButton;
 import javax.swing.AbstractCellEditor;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
@@ -27,13 +27,14 @@ import com.mirth.connect.client.ui.UIConstants;
 
 public class MirthComboBoxTableCellEditor extends AbstractCellEditor implements TableCellEditor {
 
-    protected JComboBox comboBox;
+    protected MirthComboBox comboBox;
     private int clickCount;
 
     public MirthComboBoxTableCellEditor(JTable table, Object[] items, int clickCount, boolean focusable, final ActionListener actionListener) {
         this.clickCount = clickCount;
 
-        comboBox = new JComboBox(items);
+        comboBox = new MirthComboBox();
+        comboBox.setModel(new DefaultComboBoxModel(items));
         comboBox.setFocusable(focusable);
         comboBox.setMaximumRowCount(20);
         comboBox.setForeground(table.getForeground());
@@ -111,4 +112,7 @@ public class MirthComboBoxTableCellEditor extends AbstractCellEditor implements 
         }
     }
 
+    public MirthComboBox getComboBox() {
+        return comboBox;
+    }
 }
