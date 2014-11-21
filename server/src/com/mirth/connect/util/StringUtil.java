@@ -9,6 +9,10 @@
 
 package com.mirth.connect.util;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -114,5 +118,41 @@ public class StringUtil {
         }
 
         return s;
+    }
+    
+    /**
+     * A glorified version of String.valueOf that calls Arrays.toString for arrays (and arrays
+     * within maps).
+     */
+    public static String valueOf(Object object) {
+        if (object != null) {
+            if (object instanceof Object[]) {
+                // Convert using Arrays.toString so that it will show up as "[a,b,c]", instead of the object hash code.
+                return Arrays.toString((Object[]) object);
+            } else if (object instanceof Map) {
+                // Build a custom string representation of the map that also converts arrays using Arrays.toString. 
+                Map<?, ?> map = (Map<?, ?>) object;
+                StringBuilder builder = new StringBuilder("{");
+
+                for (Iterator<?> it = map.entrySet().iterator(); it.hasNext();) {
+                    Entry<?, ?> entry = (Entry<?, ?>) it.next();
+                    Object key = entry.getKey();
+                    Object value = entry.getValue();
+
+                    builder.append(key == map ? "(this Map)" : valueOf(key));
+                    builder.append('=');
+                    builder.append(value == map ? "(this Map)" : valueOf(value));
+
+                    if (it.hasNext()) {
+                        builder.append(", ");
+                    }
+                }
+
+                builder.append('}');
+                return builder.toString();
+            }
+        }
+
+        return String.valueOf(object);
     }
 }

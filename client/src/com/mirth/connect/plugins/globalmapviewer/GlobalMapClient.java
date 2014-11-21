@@ -29,6 +29,7 @@ import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.DashboardTabPlugin;
+import com.mirth.connect.util.StringUtil;
 
 public class GlobalMapClient extends DashboardTabPlugin {
 
@@ -123,8 +124,8 @@ public class GlobalMapClient extends DashboardTabPlugin {
                     for (Entry<String, Object> entry : sortedMap.entrySet()) {
                         Vector<Object> row = new Vector<Object>();
                         row.add(channelName);
-                        row.add(String.valueOf(entry.getKey()));
-                        row.add(String.valueOf(entry.getValue()));
+                        row.add(StringUtil.valueOf(entry.getKey()));
+                        row.add(StringUtil.valueOf(entry.getValue()));
 
                         data.add(row);
                     }
@@ -139,8 +140,8 @@ public class GlobalMapClient extends DashboardTabPlugin {
 
                         Vector<Object> row = new Vector<Object>();
                         row.add("<Global Map>");
-                        row.add(String.valueOf(entry.getKey()));
-                        row.add(String.valueOf(entry.getValue()));
+                        row.add(StringUtil.valueOf(entry.getKey()));
+                        row.add(StringUtil.valueOf(entry.getValue()));
 
                         data.add(row);
                     }
