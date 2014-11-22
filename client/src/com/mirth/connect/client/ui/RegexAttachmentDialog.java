@@ -156,7 +156,7 @@ public class RegexAttachmentDialog extends MirthDialog {
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Regular Expression"));
 
         exampleTextField.setEditable(false);
-        exampleTextField.setText("Example for OBX 5.5: (?:OBX\\|(?:[^|]*?\\|){4}(?:[^|^]*?\\^){4})([^|^]*)[|^]");
+        exampleTextField.setText("Example for OBX 5.5: (?:OBX\\|(?:[^|]*\\|){4}(?:[^|^]*\\^){4})([^|^\\r\\n]*)(?:[|^\\r\\n]|$)");
         exampleTextField.setBorder(null);
         exampleTextField.setOpaque(false);
 
