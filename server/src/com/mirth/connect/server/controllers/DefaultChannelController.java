@@ -113,6 +113,11 @@ public class DefaultChannelController extends ChannelController {
     }
 
     @Override
+    public Set<String> getChannelNames() {
+        return channelCache.getCachedChannelNames();
+    }
+
+    @Override
     public List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> clientChannels) throws ControllerException {
         logger.debug("getting channel summary");
         List<ChannelSummary> channelSummaries = new ArrayList<ChannelSummary>();
@@ -490,6 +495,11 @@ public class DefaultChannelController extends ChannelController {
         com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().resetAllStatistics();
     }
 
+    @Override
+    public List<Channel> getDeployedChannels(Set<String> channelIds) {
+        return deployedChannelCache.getDeployedChannels(channelIds);
+    }
+
     // ---------- CHANNEL CACHE ----------
 
     /**
@@ -604,6 +614,12 @@ public class DefaultChannelController extends ChannelController {
 
             return new LinkedHashSet<String>(channelCacheById.keySet());
         }
+
+        private Set<String> getCachedChannelNames() {
+            refreshCache();
+
+            return new LinkedHashSet<String>(channelCacheByName.keySet());
+        }
     }
 
     // ---------- DEPLOYED CHANNEL CACHE ----------
@@ -708,6 +724,28 @@ public class DefaultChannelController extends ChannelController {
                 }
 
                 return null;
+            } finally {
+                readLock.unlock();
+            }
+        }
+
+        private List<Channel> getDeployedChannels(Set<String> channelIds) {
+            try {
+                readLock.lock();
+
+                List<Channel> channels = new ArrayList<Channel>();
+
+                if (channelIds == null) {
+                    channels.addAll(deployedChannelCacheById.values());
+                } else {
+                    for (String channelId : channelIds) {
+                        if (deployedChannelCacheById.containsKey(channelId)) {
+                            channels.add(deployedChannelCacheById.get(channelId));
+                        }
+                    }
+                }
+
+                return channels;
             } finally {
                 readLock.unlock();
             }

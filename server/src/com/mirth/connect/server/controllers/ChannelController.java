@@ -42,6 +42,8 @@ public abstract class ChannelController extends Controller {
 
     public abstract Set<String> getChannelIds();
 
+    public abstract Set<String> getChannelNames();
+
     public abstract List<ChannelSummary> getChannelSummary(Map<String, ChannelHeader> cachedChannels) throws ControllerException;
 
     public abstract void setChannelEnabled(Set<String> channelIds, ServerEventContext context, boolean enabled) throws ControllerException;
@@ -77,4 +79,6 @@ public abstract class ChannelController extends Controller {
     public abstract void resetStatistics(Map<String, List<Integer>> channelConnectorMap, Set<Status> statuses);
 
     public abstract void resetAllStatistics();
+
+    public abstract List<Channel> getDeployedChannels(Set<String> channelIds);
 }

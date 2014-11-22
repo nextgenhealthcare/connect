@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.userutil;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,7 +43,55 @@ public class ChannelUtil {
     private ChannelUtil() {}
 
     /**
-     * Get the name for a specified channel.
+     * Get all channels names.
+     * 
+     * @return A list of all channel names.
+     */
+    public static List<String> getChannelNames() {
+        return new ArrayList<String>(channelController.getChannelNames());
+    }
+
+    /**
+     * Get all channel Ids.
+     * 
+     * @return A list of all channel Ids.
+     */
+    public static List<String> getChannelIds() {
+        return new ArrayList<String>(channelController.getChannelIds());
+    }
+
+    /**
+     * Get all deployed channels names.
+     * 
+     * @return A list of all deployed channel names.
+     */
+    public static List<String> getDeployedChannelNames() {
+        List<String> channelNames = new ArrayList<String>();
+
+        for (Channel channel : channelController.getDeployedChannels(null)) {
+            channelNames.add(channel.getName());
+        }
+
+        return channelNames;
+    }
+
+    /**
+     * Get all deployed channel Ids.
+     * 
+     * @return A list of all deployed channel Ids.
+     */
+    public static List<String> getDeployedChannelIds() {
+        List<String> channelIds = new ArrayList<String>();
+
+        for (Channel channel : channelController.getDeployedChannels(null)) {
+            channelIds.add(channel.getId());
+        }
+
+        return channelIds;
+    }
+
+    /**
+     * Get the name for a deployed channel.
      * 
      * @param channelId
      *            The channel id of the deployed channel.
@@ -57,6 +106,24 @@ public class ChannelUtil {
         }
 
         return channelName;
+    }
+
+    /**
+     * Get the id for a deployed channel.
+     * 
+     * @param channelName
+     *            The channel name of the deployed channel.
+     * @return The channel Id of the specified channel.
+     */
+    public static String getDeployedChannelId(String channelName) {
+        String channelId = null;
+
+        Channel channel = channelController.getDeployedChannelByName(channelName);
+        if (channel != null) {
+            channelId = channel.getId();
+        }
+
+        return channelId;
     }
 
     /**
