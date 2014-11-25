@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -858,6 +859,7 @@ public class Frame extends JXFrame {
         addTask(TaskConstants.CHANNEL_EDIT_EXPORT_CONNECTOR, "Export Connector", "Export the currently displayed connector to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), channelEditTasks, channelEditPopupMenu);
         addTask(TaskConstants.CHANNEL_EDIT_EXPORT, "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), channelEditTasks, channelEditPopupMenu);
         addTask(TaskConstants.CHANNEL_EDIT_VALIDATE_SCRIPT, "Validate Script", "Validate the currently viewed script.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
+        addTask(TaskConstants.CHANNEL_EDIT_DEPLOY, "Deploy Channel", "Deploy the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelEditTasks, channelEditPopupMenu);
 
         setNonFocusable(channelEditTasks);
         taskPaneContainer.add(channelEditTasks);
@@ -2955,7 +2957,44 @@ public class Frame extends JXFrame {
             alertWarning(this, "Disabled channels will not be deployed.");
         }
 
-        String plural = (selectedChannels.size() > 1) ? "s" : "";
+        deployChannel(selectedEnabledChannelIds);
+    }
+
+    public void doDeployFromChannelView() {
+        String channelId = channelEditPanel.currentChannel.getId();
+
+        if (isSaveEnabled()) {
+            if (alertOption(PlatformUI.MIRTH_FRAME, "<html>This channel will be saved before it is deployed.<br/>Are you sure you want to save and deploy this channel?</html>")) {
+                if (channelEditPanel.saveChanges()) {
+                    setSaveEnabled(false);
+                } else {
+                    return;
+                }
+            } else {
+                return;
+            }
+        } else {
+            if(!alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you want to deploy this channel?")) {
+                return;
+            }
+        }
+
+        ChannelStatus channelStatus = channelStatuses.get(channelId);
+        if (channelStatus == null) {
+            alertWarning(this, "The channel cannot be found and will not be deployed.");
+            return;
+        }
+
+        if (!channelStatus.getChannel().isEnabled()) {
+            alertWarning(this, "The channel is disabled and will not be deployed.");
+            return;
+        }
+
+        deployChannel(Collections.singleton(channelId));
+    }
+
+    private void deployChannel(final Set<String> selectedChannelIds) {
+        String plural = (selectedChannelIds.size() > 1) ? "s" : "";
         final String workingId = startWorking("Deploying channel" + plural + "...");
 
         dashboardPanel.deselectRows(false);
@@ -2965,7 +3004,7 @@ public class Frame extends JXFrame {
 
             public Void doInBackground() {
                 try {
-                    mirthClient.deployChannels(selectedEnabledChannelIds);
+                    mirthClient.deployChannels(selectedChannelIds);
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }

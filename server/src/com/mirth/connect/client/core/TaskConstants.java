@@ -102,6 +102,7 @@ public class TaskConstants {
     public static final String CHANNEL_EDIT_EXPORT_CONNECTOR = "doExportConnector";
     public static final String CHANNEL_EDIT_EXPORT = "doExportChannel";
     public static final String CHANNEL_EDIT_VALIDATE_SCRIPT = "doValidateChannelScripts";
+    public static final String CHANNEL_EDIT_DEPLOY ="doDeployFromChannelView";
 
     // Dashboard Tasks
     public static final String DASHBOARD_REFRESH = "doRefreshStatuses";
