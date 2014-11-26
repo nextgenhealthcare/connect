@@ -723,11 +723,13 @@ public class Channel implements Runnable {
          * may be stuck. They will be terminated again after the synchronization lock is obtained.
          */
 
-        List<Runnable> tasks = channelExecutor.shutdownNow();
-        // If any tasks had not started yet, they need to be cancaelled, otherwise they will be stuck at future.get().
-        for (Runnable task : tasks) {
-            if (task instanceof Future) {
-                ((Future<?>) task).cancel(true);
+        if (channelExecutor != null) {
+            List<Runnable> tasks = channelExecutor.shutdownNow();
+            // If any tasks had not started yet, they need to be cancaelled, otherwise they will be stuck at future.get().
+            for (Runnable task : tasks) {
+                if (task instanceof Future) {
+                    ((Future<?>) task).cancel(true);
+                }
             }
         }
 
