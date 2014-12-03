@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.mail.internet.InternetAddress;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
@@ -100,6 +101,16 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             return false;
         }
 
+        try {
+            String emailAddress = serverSettings.getSmtpFrom();
+            if (emailAddress != null) {
+                new InternetAddress(emailAddress).validate();
+            }
+        } catch (Exception e) {
+            PlatformUI.MIRTH_FRAME.alertWarning(PlatformUI.MIRTH_FRAME, "The Default From Address is invalid: " + e.getMessage());
+            return false;
+        }
+
         final String workingId = getFrame().startWorking("Saving " + getTabName() + " settings...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -107,12 +118,12 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             public Void doInBackground() {
                 try {
                     getFrame().mirthClient.setServerSettings(serverSettings);
-                    
+
                     String serverName = serverNameField.getText();
                     StringBuilder titleText = new StringBuilder();
                     StringBuilder statusBarText = new StringBuilder();
                     statusBarText.append("Connected to: ");
-                    
+
                     if (!StringUtils.isBlank(serverNameField.getText())) {
                         titleText.append(serverName);
                         statusBarText.append(serverName + " | ");
@@ -125,7 +136,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     titleText.append(" - (" + PlatformUI.SERVER_VERSION + ")");
                     getFrame().setTitle(titleText.toString());
                     getFrame().statusBar.setServerText(statusBarText.toString());
-                    
+
                     getFrame().mirthClient.setUpdateSettings(updateSettings);
                 } catch (ClientException e) {
                     getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());

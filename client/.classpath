@@ -103,5 +103,6 @@
 	<classpathentry kind="lib" path="lib/jackson-annotations-2.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-2.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-databind-2.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/javax.mail-1.5.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

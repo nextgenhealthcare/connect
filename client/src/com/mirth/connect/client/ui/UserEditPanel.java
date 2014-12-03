@@ -12,6 +12,8 @@ package com.mirth.connect.client.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.mail.internet.InternetAddress;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
@@ -146,6 +148,15 @@ public class UserEditPanel extends javax.swing.JPanel {
 
         if (!String.valueOf(password.getPassword()).equals(String.valueOf(confirmPassword.getPassword()))) {
             return "Passwords must be the same.";
+        }
+
+        try {
+            String emailAddress = email.getText();
+            if (emailAddress != null) {
+                new InternetAddress(emailAddress).validate();
+            }
+        } catch (Exception e) {
+            return "The email address is invalid: " + e.getMessage();
         }
 
         return null;
