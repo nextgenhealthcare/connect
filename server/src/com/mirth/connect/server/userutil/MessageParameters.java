@@ -22,7 +22,7 @@ public class MessageParameters {
      * @param key
      *            The name of the parameter key.
      * @return The associated value or null if no value exists.
-     * @Deprecated This method is deprecated and will soon be removed. Please use getParameter(key)
+     * @deprecated This method is deprecated and will soon be removed. Please use getParameter(key)
      *             instead.
      */
     @Deprecated

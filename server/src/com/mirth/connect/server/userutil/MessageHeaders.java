@@ -22,7 +22,7 @@ public class MessageHeaders {
      * @param key
      *            The name of the header key.
      * @return The associated value or null if no value exists.
-     * @Deprecated This method is deprecated and will soon be removed. Please use getHeader(key)
+     * @deprecated This method is deprecated and will soon be removed. Please use getHeader(key)
      *             instead.
      */
     @Deprecated
