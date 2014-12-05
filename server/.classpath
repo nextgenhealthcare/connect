@@ -55,7 +55,6 @@
 	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/policy-xmlbeans-1.5.jar"/>
-	<classpathentry kind="lib" path="lib/bcprov-jdk15on-150.jar"/>
 	<classpathentry kind="lib" path="lib/hapi-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-crypto.jar"/>
 	<classpathentry kind="lib" path="lib/mybatis-3.1.1.jar"/>
@@ -130,7 +129,9 @@
 	<classpathentry kind="lib" path="lib/jackson-databind-2.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/HikariCP-java6-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.18.2-GA.jar"/>
-	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-150.jar"/>
-	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-150.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/SSL Plugin"/>
+	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-151.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-jdk15on-151.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-151.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
