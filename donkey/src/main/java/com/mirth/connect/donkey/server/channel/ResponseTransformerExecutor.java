@@ -128,7 +128,8 @@ public class ResponseTransformerExecutor {
                  */
                 String content = inbound.getSerializer().transformWithoutSerializing(response.getMessage(), outbound.getSerializer());
                 // transformWithoutSerializing should return null if it has no effect.
-                if (content != null) {
+                // MIRTH-3543 - Don't store processedResponse if it's the same as response
+                if (content != null && !StringUtils.equals(response.getMessage(), content)) {
                     processedResponseContent = content;
                     setProcessedResponse(dao, response, connectorMessage, processedResponseContent, storageSettings, serializer);
                 }
