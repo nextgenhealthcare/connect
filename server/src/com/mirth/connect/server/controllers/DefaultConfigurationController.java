@@ -19,7 +19,10 @@ import java.nio.charset.Charset;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.PrivateKey;
 import java.security.Provider;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
@@ -34,14 +37,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Random;
 import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.UUID;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import javax.security.auth.x500.X500Principal;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.collections.MapUtils;
@@ -54,11 +55,16 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
 import org.bouncycastle.asn1.x509.BasicConstraints;
-import org.bouncycastle.asn1.x509.X509Extensions;
-import org.bouncycastle.x509.X509V3CertificateGenerator;
-import org.bouncycastle.x509.extension.AuthorityKeyIdentifierStructure;
-import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
+import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -956,41 +962,27 @@ public class DefaultConfigurationController extends ConfigurationController {
             logger.debug("generated new key pair for CA cert using provider: " + provider.getName());
 
             // Generate CA cert
-            X509V3CertificateGenerator caCertGen = new X509V3CertificateGenerator();
-            X500Principal caSubjectName = new X500Principal("CN=Mirth Connect Certificate Authority");
-
-            caCertGen.setSerialNumber(BigInteger.ONE);
-            caCertGen.setIssuerDN(caSubjectName);
-            caCertGen.setNotBefore(startDate);
-            caCertGen.setNotAfter(expiryDate);
-            caCertGen.setSubjectDN(caSubjectName); // same as issuer
-            caCertGen.setPublicKey(caKeyPair.getPublic());
-            caCertGen.setSignatureAlgorithm("SHA1withRSA");
-
-            caCertGen.addExtension(X509Extensions.BasicConstraints, true, new BasicConstraints(0)); // CA:TRUE
-
-            X509Certificate caCert = caCertGen.generate(caKeyPair.getPrivate()); // note: private key of CA
+            X500Name caSubjectName = new X500Name("CN=Mirth Connect Certificate Authority");
+            SubjectPublicKeyInfo caSubjectKey = new SubjectPublicKeyInfo(ASN1Sequence.getInstance(caKeyPair.getPublic().getEncoded()));
+            X509v3CertificateBuilder certBuilder = new X509v3CertificateBuilder(caSubjectName, BigInteger.ONE, startDate, expiryDate, caSubjectName, caSubjectKey);
+            certBuilder.addExtension(org.bouncycastle.asn1.x509.Extension.basicConstraints, true, new BasicConstraints(0));
+            ContentSigner sigGen = new JcaContentSignerBuilder("SHA256withRSA").setProvider(provider).build(caKeyPair.getPrivate());
+            Certificate caCert = new JcaX509CertificateConverter().setProvider(provider).getCertificate(certBuilder.build(sigGen));
 
             // Generate SSL cert
             KeyPair sslKeyPair = keyPairGenerator.generateKeyPair();
             logger.debug("generated new key pair for SSL cert using provider: " + provider.getName());
 
-            X509V3CertificateGenerator sslCertGen = new X509V3CertificateGenerator();
-            X500Principal sslSubjectName = new X500Principal("CN=mirth-connect");
+            X500Name sslSubjectName = new X500Name("CN=mirth-connect");
+            SubjectPublicKeyInfo sslSubjectKey = new SubjectPublicKeyInfo(ASN1Sequence.getInstance(sslKeyPair.getPublic().getEncoded()));
+            X509v3CertificateBuilder sslCertBuilder = new X509v3CertificateBuilder(caSubjectName, new BigInteger(50, new SecureRandom()), startDate, expiryDate, sslSubjectName, sslSubjectKey);
+            sslCertBuilder.addExtension(org.bouncycastle.asn1.x509.Extension.authorityKeyIdentifier, false, new AuthorityKeyIdentifier(caCert.getEncoded()));
+            sslCertBuilder.addExtension(org.bouncycastle.asn1.x509.Extension.subjectKeyIdentifier, false, new SubjectKeyIdentifier(sslKeyPair.getPublic().getEncoded()));
 
-            sslCertGen.setSerialNumber(new BigInteger(50, new Random())); // serial number for certificate
-            sslCertGen.setIssuerDN(caCert.getSubjectX500Principal());
-            sslCertGen.setNotBefore(startDate);
-            sslCertGen.setNotAfter(expiryDate);
-            sslCertGen.setSubjectDN(sslSubjectName);
-            sslCertGen.setPublicKey(sslKeyPair.getPublic());
-            sslCertGen.setSignatureAlgorithm("SHA1withRSA");
+            sigGen = new JcaContentSignerBuilder("SHA256withRSA").setProvider(provider).build(caKeyPair.getPrivate());
+            Certificate sslCert = new JcaX509CertificateConverter().setProvider(provider).getCertificate(sslCertBuilder.build(sigGen));
 
-            sslCertGen.addExtension(X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure(caCert));
-            sslCertGen.addExtension(X509Extensions.SubjectKeyIdentifier, false, new SubjectKeyIdentifierStructure(sslKeyPair.getPublic()));
-
-            X509Certificate sslCert = sslCertGen.generate(caKeyPair.getPrivate()); // note: private key of CA
-            logger.debug("generated new certificate with serial number: " + sslCert.getSerialNumber());
+            logger.debug("generated new certificate with serial number: " + ((X509Certificate) sslCert).getSerialNumber());
 
             // add the generated SSL cert to the keystore using the key password
             keyStore.setKeyEntry(certificateAlias, sslKeyPair.getPrivate(), keyPassword, new Certificate[] { sslCert });

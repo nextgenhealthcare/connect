@@ -130,5 +130,7 @@
 	<classpathentry kind="lib" path="lib/jackson-databind-2.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/HikariCP-java6-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.18.2-GA.jar"/>
+	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-150.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-150.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
