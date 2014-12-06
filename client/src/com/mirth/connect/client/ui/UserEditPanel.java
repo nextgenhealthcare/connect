@@ -152,7 +152,7 @@ public class UserEditPanel extends javax.swing.JPanel {
 
         try {
             String emailAddress = email.getText();
-            if (emailAddress != null) {
+            if (StringUtils.isNotEmpty(emailAddress)) {
                 new InternetAddress(emailAddress).validate();
             }
         } catch (Exception e) {
