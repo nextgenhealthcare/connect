@@ -60,7 +60,7 @@ public class VmDispatcherProperties extends ConnectorProperties implements Desti
     public void setChannelTemplate(String channelTemplate) {
         this.channelTemplate = channelTemplate;
     }
-    
+
     public List<String> getMapVariables() {
         return mapVariables;
     }
@@ -134,6 +134,9 @@ public class VmDispatcherProperties extends ConnectorProperties implements Desti
     public void migrate3_1_0(DonkeyElement element) {
         super.migrate3_1_0(element);
     }
+
+    @Override
+    public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
     public Map<String, Object> getPurgedProperties() {

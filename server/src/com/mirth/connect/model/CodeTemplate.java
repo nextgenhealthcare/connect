@@ -39,7 +39,8 @@ public class CodeTemplate implements Serializable, Migratable, Purgable {
     }
 
     public enum ContextType {
-        GLOBAL_CONTEXT("Global", 0), GLOBAL_CHANNEL_CONTEXT("Global Channel", 1), CHANNEL_CONTEXT("Channel", 2), MESSAGE_CONTEXT("Message", 3);
+        GLOBAL_CONTEXT("Global", 0), GLOBAL_CHANNEL_CONTEXT("Global Channel", 1), CHANNEL_CONTEXT(
+                "Channel", 2), MESSAGE_CONTEXT("Message", 3);
 
         private String value;
         private int context;
@@ -161,6 +162,9 @@ public class CodeTemplate implements Serializable, Migratable, Purgable {
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
     public Map<String, Object> getPurgedProperties() {

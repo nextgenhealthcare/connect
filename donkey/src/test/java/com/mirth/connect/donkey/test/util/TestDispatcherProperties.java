@@ -38,12 +38,12 @@ public class TestDispatcherProperties extends ConnectorProperties implements Des
     public DestinationConnectorProperties getDestinationConnectorProperties() {
         return destinationConnectorProperties;
     }
-    
+
     @Override
     public ConnectorProperties clone() {
         return this;
     }
-    
+
     @Override
     public boolean canValidateResponse() {
         return false;
@@ -77,6 +77,9 @@ public class TestDispatcherProperties extends ConnectorProperties implements Des
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
     public Map<String, Object> getPurgedProperties() {

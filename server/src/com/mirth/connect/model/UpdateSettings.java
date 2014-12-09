@@ -97,4 +97,7 @@ public class UpdateSettings extends AbstractSettings implements Serializable, Au
         element.removeChild("updatesEnabled");
         element.removeChild("updateUrl");
     }
+
+    @Override
+    public void migrate3_2_0(DonkeyElement element) {}
 }

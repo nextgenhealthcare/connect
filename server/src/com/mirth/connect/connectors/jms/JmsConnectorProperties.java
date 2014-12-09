@@ -216,6 +216,9 @@ public class JmsConnectorProperties extends ConnectorProperties {
     }
 
     @Override
+    public void migrate3_2_0(DonkeyElement element) {}
+
+    @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("useJndi", useJndi);

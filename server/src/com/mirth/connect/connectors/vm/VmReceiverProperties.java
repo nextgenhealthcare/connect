@@ -67,6 +67,9 @@ public class VmReceiverProperties extends ConnectorProperties implements SourceC
     }
 
     @Override
+    public void migrate3_2_0(DonkeyElement element) {}
+
+    @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("sourceConnectorProperties", sourceConnectorProperties.getPurgedProperties());

@@ -90,6 +90,9 @@ public class HL7v2ResponseValidationProperties extends ResponseValidationPropert
     public void migrate3_1_0(DonkeyElement element) {}
 
     @Override
+    public void migrate3_2_0(DonkeyElement element) {}
+
+    @Override
     public Map<String, Object> getPurgedProperties() {
         return null;
     }

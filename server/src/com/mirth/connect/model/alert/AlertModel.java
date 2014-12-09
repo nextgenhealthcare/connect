@@ -98,13 +98,16 @@ public class AlertModel implements Migratable, Purgable {
     public void migrate3_1_0(DonkeyElement element) {}
 
     @Override
+    public void migrate3_2_0(DonkeyElement element) {}
+
+    @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("id", id);
         purgedProperties.put("nameChars", PurgeUtil.countChars(name));
         purgedProperties.put("enabled", enabled);
         if (trigger instanceof Purgable) {
-            purgedProperties.put("trigger", ((Purgable)trigger).getPurgedProperties());
+            purgedProperties.put("trigger", ((Purgable) trigger).getPurgedProperties());
         }
         purgedProperties.put("actionGroups", PurgeUtil.purgeList(actionGroups));
         return purgedProperties;

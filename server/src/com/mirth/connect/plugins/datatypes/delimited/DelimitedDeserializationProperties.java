@@ -31,7 +31,7 @@ public class DelimitedDeserializationProperties extends DeserializationPropertie
     private String quoteChar = "\"";
     private boolean escapeWithDoubleQuote = true;
     private String quoteEscapeChar = "\\";
-   
+
     @Override
     public Map<String, DataTypePropertyDescriptor> getPropertyDescriptors() {
         Map<String, DataTypePropertyDescriptor> properties = new LinkedHashMap<String, DataTypePropertyDescriptor>();
@@ -180,6 +180,9 @@ public class DelimitedDeserializationProperties extends DeserializationPropertie
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
     public Map<String, Object> getPurgedProperties() {

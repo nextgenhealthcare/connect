@@ -16,7 +16,7 @@ import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class DelimitedDataTypeProperties extends DataTypeProperties {
-    
+
     public DelimitedDataTypeProperties() {
         serializationProperties = new DelimitedSerializationProperties();
         deserializationProperties = new DelimitedDeserializationProperties();
@@ -31,6 +31,9 @@ public class DelimitedDataTypeProperties extends DataTypeProperties {
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
     public Map<String, Object> getPurgedProperties() {

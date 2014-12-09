@@ -94,13 +94,13 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
         password = props.getPassword();
         envelope = props.getEnvelope();
         oneWay = props.isOneWay();
-        
+
         Map<String, List<String>> headerCopy = new LinkedHashMap<String, List<String>>();
-        for(Entry<String, List<String>> entry : props.getHeaders().entrySet()) {
+        for (Entry<String, List<String>> entry : props.getHeaders().entrySet()) {
             headerCopy.put(entry.getKey(), new ArrayList<String>(entry.getValue()));
         }
         headers = headerCopy;
-        
+
         useMtom = props.isUseMtom();
         attachmentNames = new ArrayList<String>(props.getAttachmentNames());
         attachmentContents = new ArrayList<String>(props.getAttachmentContents());
@@ -406,6 +406,9 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
             throw new SerializerException("Failed to migrate Web Service Sender headers.", e);
         }
     }
+
+    @Override
+    public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
     public Map<String, Object> getPurgedProperties() {

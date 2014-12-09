@@ -27,8 +27,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 
 /**
- * A Transformer represents a script which is executed on each message passing
- * through the Connector with which the transformer is associated.
+ * A Transformer represents a script which is executed on each message passing through the Connector
+ * with which the transformer is associated.
  * 
  */
 
@@ -132,6 +132,9 @@ public class Transformer implements Serializable, Migratable, Purgable {
 
     @Override
     public void migrate3_1_0(DonkeyElement element) {}
+
+    @Override
+    public void migrate3_2_0(DonkeyElement element) {}
 
     @Override
     public Map<String, Object> getPurgedProperties() {
