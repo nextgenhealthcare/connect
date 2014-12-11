@@ -838,7 +838,7 @@
 		<!-- don't modify bcprov, since it already has the manifest changes and is signed by BC -->
 		<echo message="[Thread Count: ${manifest_thread_count}] Modifying jar manifests to add Permissions: all-permissions; Codebase: *; Application-Name: Mirth Connect" />
 		<for param="jarFile" parallel="true" threadCount="${manifest_thread_count}">
-	    	<fileset dir="${setup.client.lib}" includes="**/*.jar" excludes="bcprov*.jar"/>
+	    	<fileset dir="${setup.client.lib}" includes="**/*.jar" excludes="bcp*.jar"/>
 	    	<fileset dir="${setup.extensions}" includes="**/*.jar" />
 			<sequential>
 				<apply executable="jar">
@@ -854,8 +854,19 @@
 		<echo message="[Thread Count: ${signjar_thread_count}] Signing jars for Java Web Start" />
 		<property file="${keystore_property_file}" />
 		
+		<!-- bouncy castle jars must be signed with SHA1 digestalg -->
 		<for param="jarFile" parallel="true" threadCount="${signjar_thread_count}">
-			<fileset dir="${setup.client.lib}" includes="**/*.jar" />
+			<fileset dir="${setup.client.lib}" includes="bcp*.jar" />
+			<sequential>
+				<signjar jar="@{jarFile}" alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa" digestalg="SHA1">
+					<!-- http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7127374 -->
+					<sysproperty key="jsse.enableSNIExtension" value="false" />
+				</signjar>
+			</sequential>
+		</for>
+		
+		<for param="jarFile" parallel="true" threadCount="${signjar_thread_count}">
+			<fileset dir="${setup.client.lib}" includes="**/*.jar" excludes="bcp*.jar" />
 			<fileset dir="${setup.extensions}" includes="**/*.jar" />
 			<sequential>
 				<signjar jar="@{jarFile}" alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
