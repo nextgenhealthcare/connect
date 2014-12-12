@@ -34,6 +34,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -47,6 +49,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.mozilla.javascript.Context;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
@@ -98,6 +101,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     private static final String DESTINATION_CHAIN_COLUMN_NAME = "Chain";
     private static final int SOURCE_TAB_INDEX = 1;
     private static final int DESTINATIONS_TAB_INDEX = 2;
+    private static final int SCRIPTS_TAB_INDEX = 3;
 
     public Channel currentChannel;
     public int lastModelIndex = -1;
@@ -109,11 +113,13 @@ public class ChannelSetup extends javax.swing.JPanel {
     private boolean loadingChannel = false;
     private boolean channelValidationFailed = false;
 
+    private int previousTab = -1;
+
     /**
      * Creates the Channel Editor panel. Calls initComponents() and sets up the model, dropdowns,
      * and mouse listeners.
      */
-    public ChannelSetup() {
+    public ChannelSetup() {                                                                                                                                                                                                                                                                                                                          
         this.parent = PlatformUI.MIRTH_FRAME;
 
         initComponents();
@@ -135,6 +141,25 @@ public class ChannelSetup extends javax.swing.JPanel {
 
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 showChannelEditPopupMenu(evt);
+            }
+        });
+
+        channelView.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent event) {
+                int selectedTab = channelView.getSelectedIndex();
+
+                if (previousTab == SCRIPTS_TAB_INDEX && selectedTab != SCRIPTS_TAB_INDEX) {
+                    LinkedHashMap<String, String> scriptMap = new LinkedHashMap<String, String>();
+                    scriptMap.put(ScriptPanel.PREPROCESSOR_SCRIPT, scripts.getScripts().get(ScriptPanel.PREPROCESSOR_SCRIPT));
+                    scriptMap.put(ScriptPanel.POSTPROCESSOR_SCRIPT, scripts.getScripts().get(ScriptPanel.POSTPROCESSOR_SCRIPT));
+                    scriptMap.put(ScriptPanel.DEPLOY_SCRIPT, scripts.getScripts().get(ScriptPanel.DEPLOY_SCRIPT));
+                    scriptMap.put(ScriptPanel.UNDEPLOY_SCRIPT, scripts.getScripts().get(ScriptPanel.UNDEPLOY_SCRIPT));
+                    
+                    updateScriptsPanel(scriptMap);
+                }
+
+                previousTab = selectedTab;
             }
         });
 
@@ -709,6 +734,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
 
         scripts.setScripts(scriptMap);
+        updateScriptsPanel(scriptMap);
 
 //        PropertyVerifier.checkChannelProperties(currentChannel);
 
@@ -760,6 +786,47 @@ public class ChannelSetup extends javax.swing.JPanel {
         attachmentStoreCheckBox.setSelected(currentChannel.getProperties().isStoreAttachments());
 
         parent.setSaveEnabled(enabled);
+    }
+
+    private void updateScriptsPanel(Map<String, String> scriptMap) {
+        int nonDefaultCount = 0;
+        if (!compareScripts(scriptMap.get(ScriptPanel.PREPROCESSOR_SCRIPT), JavaScriptConstants.DEFAULT_CHANNEL_PREPROCESSOR_SCRIPT)) {
+            nonDefaultCount++;
+        }
+
+        if (!compareScripts(scriptMap.get(ScriptPanel.POSTPROCESSOR_SCRIPT), JavaScriptConstants.DEFAULT_CHANNEL_POSTPROCESSOR_SCRIPT)) {
+            nonDefaultCount++;
+        }
+
+        if (!compareScripts(scriptMap.get(ScriptPanel.DEPLOY_SCRIPT), JavaScriptConstants.DEFAULT_CHANNEL_DEPLOY_SCRIPT)) {
+            nonDefaultCount++;
+        }
+
+        if (!compareScripts(scriptMap.get(ScriptPanel.UNDEPLOY_SCRIPT), JavaScriptConstants.DEFAULT_CHANNEL_UNDEPLOY_SCRIPT)) {
+            nonDefaultCount++;
+        }
+
+        channelView.setTitleAt(SCRIPTS_TAB_INDEX, nonDefaultCount > 0 ? "Scripts (" + nonDefaultCount + ")" : "Scripts");
+    }
+
+    private boolean compareScripts(String savedScript, String defualtScript) {
+        Context context = Context.enter();
+        try {
+            String decompiledSavedScript = "";
+            String decompiledDefaultScript = "";
+
+            try {
+                decompiledSavedScript = context.decompileScript(context.compileString("function doScript() {" + savedScript + "}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null), 1);
+                decompiledDefaultScript = context.decompileScript(context.compileString("function doScript() {" + defualtScript + "}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null), 1);
+            } catch (Exception e) {
+                //If any script fails to compile for any reason, we can just assume they aren't equal.
+                return false;
+            }
+
+            return decompiledSavedScript.equals(decompiledDefaultScript);
+        } finally {
+            Context.exit();
+        }
     }
 
     public void decorateConnectorType(ConnectorTypeDecoration connectorTypeDecoration) {
