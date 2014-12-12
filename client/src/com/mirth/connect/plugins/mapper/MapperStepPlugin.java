@@ -110,9 +110,9 @@ public class MapperStepPlugin extends TransformerStepPlugin {
 
         StringBuilder script = new StringBuilder();
 
-        script.append("var mapping;");
-        script.append("try { mapping = " + (String) map.get("Mapping") + "; }");
-        script.append("catch (e) { logger.error(e);  mapping = '';}");
+        script.append("var mapping;\n\n");
+        script.append("try {\n\tmapping = " + (String) map.get("Mapping") + "; \n} ");
+        script.append("catch (e) {\n\tlogger.error(e);\n\tmapping = '';\n}\n\n");
 
         if (map.get(UIConstants.IS_GLOBAL) != null) {
             script.append((String) map.get(UIConstants.IS_GLOBAL) + "Map.put(");
@@ -130,6 +130,11 @@ public class MapperStepPlugin extends TransformerStepPlugin {
 
         script.append("validate( mapping , " + defaultValue + ", " + regexArray + "));");
         return script.toString();
+    }
+    
+    @Override
+    public String getGeneratedScript(Map<Object, Object> data) {
+        return getScript(data);
     }
 
     private String buildRegexArray(Map<Object, Object> map) {

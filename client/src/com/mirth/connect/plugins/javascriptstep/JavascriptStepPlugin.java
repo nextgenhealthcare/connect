@@ -92,6 +92,11 @@ public class JavascriptStepPlugin extends TransformerStepPlugin {
         return data.get("Script").toString();
     }
 
+    @Override
+    public String getGeneratedScript(Map<Object, Object> data) {
+        return getScript(data);
+    }
+
     public boolean showValidateTask() {
         return true;
     }

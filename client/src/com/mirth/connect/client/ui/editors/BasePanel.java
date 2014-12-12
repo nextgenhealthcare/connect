@@ -37,9 +37,15 @@ public class BasePanel extends javax.swing.JPanel {
         cl.show(this, type);
     }
 
-    // return the data object
+    //TODO: Plugin panels should no longer extend this class
     public Map<Object, Object> getData() {
-        return data;
+        for (Component component : this.getComponents()) {
+            if (component.isVisible()) {
+                return ((BasePanel) component).getData();
+            }
+        }
+
+        return null;
     }
 
     // set the data object

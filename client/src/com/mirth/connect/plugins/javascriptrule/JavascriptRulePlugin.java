@@ -89,6 +89,11 @@ public class JavascriptRulePlugin extends FilterRulePlugin {
         return data.get("Script").toString();
     }
 
+    @Override
+    public String getGeneratedScript(Map<Object, Object> data) {
+        return getScript(data);
+    }
+
     public boolean showValidateTask() {
         return true;
     }

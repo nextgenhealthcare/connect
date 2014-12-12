@@ -10,6 +10,8 @@
 package com.mirth.connect.client.ui.editors.transformer;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
@@ -47,6 +49,9 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -57,6 +62,7 @@ import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.BoundAction;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.mirth.connect.client.ui.CenterCellRenderer;
 import com.mirth.connect.client.ui.Frame;
@@ -69,6 +75,7 @@ import com.mirth.connect.client.ui.TreeTransferable;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
+import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.editors.BasePanel;
@@ -108,6 +115,11 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     public static final int NUMBER_OF_COLUMNS = 4;
     private DropTarget dropTarget;
     private boolean isResponse = false;
+
+    private JTabbedPane tabbedPane;
+    private MirthSyntaxTextArea codeTextArea;
+
+    private static int CODE_TAB = 1;
 
     /**
      * CONSTRUCTOR
@@ -312,6 +324,28 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         stepPanel = new BasePanel();
         blankPanel = new BasePanel();
 
+        codeTextArea = new MirthSyntaxTextArea(true, true, -1);
+        codeTextArea.setTokenMarker(new JavaScriptTokenMarker());
+        codeTextArea.setBorder(BorderFactory.createEtchedBorder());
+        codeTextArea.setEditable(false);
+        codeTextArea.setDropTarget(null);
+
+        JPanel codePanel = new JPanel();
+        codePanel.setBackground(Color.white);
+        codePanel.setLayout(new CardLayout());
+        codePanel.add(codeTextArea, "");
+
+        tabbedPane = new JTabbedPane();
+        tabbedPane.addTab("Step", stepPanel);
+        tabbedPane.addTab("Code", codePanel);
+
+        tabbedPane.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent event) {
+                updateCodePanel(null);
+            }
+        });
+
         for (TransformerStepPlugin transformerStepPlugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
             transformerStepPlugin.initialize(this);
         }
@@ -432,7 +466,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         transformerTablePane.setMinimumSize(new Dimension(0, 40));
         stepPanel.setBorder(BorderFactory.createEmptyBorder());
 
-        hSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, transformerTablePane, stepPanel);
+        hSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, transformerTablePane, tabbedPane);
         hSplitPane.setContinuousLayout(true);
         // hSplitPane.setDividerSize(6);
         hSplitPane.setOneTouchExpandable(true);
@@ -513,6 +547,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                         transformerTableModel.setValueAt(plugin.getNewName(), row, STEP_NAME_COL);
                         stepPanel.showCard(selectedType);
                         updateTaskPane(selectedType);
+                        updateCodePanel(selectedType);
                     } catch (Exception e) {
                         parent.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
@@ -643,6 +678,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             updateTaskPane(type);
         }
 
+        updateCodePanel(null);
         updating = false;
     }
 
@@ -787,6 +823,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
      */
     public void addNewStep() {
         addNewStep("", "", "", MAPPER);
+        updateCodePanel(null);
     }
 
     /**
@@ -882,6 +919,10 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             }
         }
         updateStepNumbers();
+
+        if (transformerTable.getRowCount() == 0) {
+            codeTextArea.setText("");
+        }
 
         invalidVar = false;
     }
@@ -1279,5 +1320,25 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
     public void setInvalidVar(boolean invalidVar) {
         this.invalidVar = invalidVar;
+    }
+
+    private void updateCodePanel(String stepType) {
+        int selectedTab = tabbedPane.getSelectedIndex();
+        int row = transformerTable.getSelectedRow();
+
+        if (selectedTab == CODE_TAB) {
+            if (row != -1) {
+                String type = StringUtils.isNotEmpty(stepType) ? stepType : (String) transformerTable.getValueAt(row, STEP_TYPE_COL);
+
+                TransformerStepPlugin plugin = null;
+                try {
+                    plugin = getPlugin(type);
+                    Map<Object, Object> dataMap = stepPanel.getData();
+                    codeTextArea.setText(dataMap != null ? plugin.getGeneratedScript(dataMap) : "");
+                } catch (Exception e) {
+                    codeTextArea.setText("");
+                }
+            }
+        }
     }
 }

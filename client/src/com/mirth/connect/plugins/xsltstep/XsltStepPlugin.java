@@ -99,15 +99,20 @@ public class XsltStepPlugin extends TransformerStepPlugin {
 
         StringBuilder script = new StringBuilder();
 
-        script.append("tFactory = Packages.javax.xml.transform.TransformerFactory.newInstance();");
-        script.append("xsltTemplate = new Packages.java.io.StringReader(" + data.get("XsltTemplate") + ");");
-        script.append("transformer = tFactory.newTransformer(new Packages.javax.xml.transform.stream.StreamSource(xsltTemplate));");
-        script.append("sourceVar = new Packages.java.io.StringReader(" + data.get("Source") + ");");
-        script.append("resultVar = new Packages.java.io.StringWriter();");
-        script.append("transformer.transform(new Packages.javax.xml.transform.stream.StreamSource(sourceVar), new Packages.javax.xml.transform.stream.StreamResult(resultVar));");
-        script.append("channelMap.put('" + data.get("Result") + "', resultVar)");
+        script.append("tFactory = Packages.javax.xml.transform.TransformerFactory.newInstance();\n");
+        script.append("xsltTemplate = new Packages.java.io.StringReader(" + data.get("XsltTemplate") + ");\n");
+        script.append("transformer = tFactory.newTransformer(new Packages.javax.xml.transform.stream.StreamSource(xsltTemplate));\n");
+        script.append("sourceVar = new Packages.java.io.StringReader(" + data.get("Source") + ");\n");
+        script.append("resultVar = new Packages.java.io.StringWriter();\n");
+        script.append("transformer.transform(new Packages.javax.xml.transform.stream.StreamSource(sourceVar), new Packages.javax.xml.transform.stream.StreamResult(resultVar));\n");
+        script.append("channelMap.put('" + data.get("Result") + "', resultVar);\n");
 
         return script.toString();
+    }
+
+    @Override
+    public String getGeneratedScript(Map<Object, Object> data) {
+        return getScript(data);
     }
 
     @Override

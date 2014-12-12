@@ -33,6 +33,8 @@ public abstract class MirthEditorPanePlugin extends ClientPlugin {
 
     public abstract void setData(Map<Object, Object> data);
 
+    public abstract String getGeneratedScript(Map<Object, Object> data);
+
     public String getStepName() {
         return null;
     }

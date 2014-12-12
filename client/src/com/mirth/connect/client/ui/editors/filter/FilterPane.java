@@ -10,6 +10,8 @@
 package com.mirth.connect.client.ui.editors.filter;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
@@ -47,7 +49,10 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -58,6 +63,7 @@ import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.BoundAction;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.mirth.connect.client.ui.CenterCellRenderer;
 import com.mirth.connect.client.ui.Frame;
@@ -69,6 +75,7 @@ import com.mirth.connect.client.ui.TreeTransferable;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
 import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
+import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.editors.BasePanel;
@@ -116,6 +123,11 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     private Channel channel;
     private DropTarget dropTarget;
 
+    private JTabbedPane tabbedPane;
+    private MirthSyntaxTextArea codeTextArea;
+
+    private static int CODE_TAB = 1;
+
     /**
      * CONSTRUCTOR
      */
@@ -139,6 +151,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         if (alertUnsupportedRuleTypes(f)) {
             return false;
         }
+
+        tabbedPane.setSelectedIndex(0);
 
         prevSelRow = -1;
         filter = f;
@@ -307,6 +321,28 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         rulePanel = new BasePanel();
         blankPanel = new BasePanel();
 
+        codeTextArea = new MirthSyntaxTextArea(true, true, -1);
+        codeTextArea.setTokenMarker(new JavaScriptTokenMarker());
+        codeTextArea.setBorder(BorderFactory.createEtchedBorder());
+        codeTextArea.setEditable(false);
+        codeTextArea.setDropTarget(null);
+        
+        JPanel codePanel = new JPanel();
+        codePanel.setBackground(Color.white);
+        codePanel.setLayout(new CardLayout());
+        codePanel.add(codeTextArea, "");
+
+        tabbedPane = new JTabbedPane();
+        tabbedPane.addTab("Rule", rulePanel);
+        tabbedPane.addTab("Code", codePanel);
+
+        tabbedPane.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent event) {
+                updateCodePanel(null);
+            }
+        });
+
         for (FilterRulePlugin filterRulePlugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
             filterRulePlugin.initialize(this);
         }
@@ -426,7 +462,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         filterTablePane.setBorder(BorderFactory.createEmptyBorder());
         rulePanel.setBorder(BorderFactory.createEmptyBorder());
 
-        hSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, filterTablePane, rulePanel);
+        hSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, filterTablePane, tabbedPane);
         hSplitPane.setContinuousLayout(true);
         hSplitPane.setOneTouchExpandable(true);
         vSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, hSplitPane, refPanel);
@@ -513,6 +549,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                         filterTableModel.setValueAt(plugin.getNewName(), row, RULE_NAME_COL);
                         rulePanel.showCard(selectedType);
                         updateTaskPane(selectedType);
+                        updateCodePanel(selectedType);
                     } catch (Exception e) {
                         parent.alertException(parent, e.getStackTrace(), e.getMessage());
                     }
@@ -652,6 +689,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         filterTable.setRowSelectionInterval(row, row);
         prevSelRow = row;
         updateTaskPane(type);
+        updateCodePanel(null);
 
         updating = false;
     }
@@ -685,7 +723,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         }
 
         updating = false;
-    }
+	}
 
     // loads the data object from the currently selected row
     // into the correct panel
@@ -769,6 +807,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
      */
     public void addNewRule() {
         addNewRule("New Rule", "");
+        updateCodePanel(null);
     }
 
     /**
@@ -866,6 +905,10 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         }
 
         updateRuleNumbers();
+
+        if (filterTable.getRowCount() == 0) {
+            codeTextArea.setText("");
+        }
     }
 
     /**
@@ -1236,5 +1279,25 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         hSplitPane.setDividerLocation((int) (PlatformUI.MIRTH_FRAME.currentContentPage.getHeight() / 2 - PlatformUI.MIRTH_FRAME.currentContentPage.getHeight() / 3.5));
         vSplitPane.setDividerLocation((int) (PlatformUI.MIRTH_FRAME.currentContentPage.getWidth() / 2 + PlatformUI.MIRTH_FRAME.currentContentPage.getWidth() / 6.7));
         tabTemplatePanel.resizePanes();
+    }
+
+    private void updateCodePanel(String ruleType) {
+        int selectedTab = tabbedPane.getSelectedIndex();
+        int row = filterTable.getSelectedRow();
+
+        if (selectedTab == CODE_TAB) {
+            if (row != -1) {
+                String type = StringUtils.isNotEmpty(ruleType) ? ruleType : (String) filterTable.getValueAt(row, RULE_TYPE_COL);
+
+                FilterRulePlugin plugin = null;
+                try {
+                    plugin = getPlugin(type);
+                    Map<Object, Object> dataMap = rulePanel.getData();
+                    codeTextArea.setText(dataMap != null ? plugin.getGeneratedScript(dataMap) : "");
+                } catch (Exception e) {
+                    codeTextArea.setText("");
+                }
+            }
+        }
     }
 }

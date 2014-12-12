@@ -59,6 +59,11 @@ public class ExternalScriptRulePlugin extends FilterRulePlugin {
     }
 
     @Override
+    public String getGeneratedScript(Map<Object, Object> data) {
+        return "";
+    }
+
+    @Override
     public void clearData() {
         panel.setData(null);
     }

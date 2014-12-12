@@ -84,9 +84,9 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
         script.append("if(");
 
         if (((String) map.get("Equals")).equals(UIConstants.EXISTS_OPTION)) {
-            script.append(field + ".length > 0)\n");
+            script.append(field + ".length > 0) ");
         } else if (((String) map.get("Equals")).equals(UIConstants.DOES_NOT_EXIST_OPTION)) {
-            script.append(field + ".length == 0)\n");
+            script.append(field + ".length == 0) ");
         } else if (((String) map.get("Equals")).equals(UIConstants.CONTAINS_OPTION) || ((String) map.get("Equals")).equals(UIConstants.DOES_NOT_CONTAIN_OPTION)) {
             if (((String) map.get("Equals")).equals(UIConstants.CONTAINS_OPTION)) {
                 equals = "!=";
@@ -100,13 +100,13 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
                 for (int i = 0; i < values.size(); i++) {
                     script.append("(" + field + ".indexOf(" + values.get(i) + ") " + equals + " -1)");
                     if (i + 1 == values.size()) {
-                        script.append(")\n");
+                        script.append(") ");
                     } else {
                         script.append(" " + equalsOperator + " ");
                     }
                 }
             } else {
-                script.append(field + ".indexOf(\"\") " + equals + " -1)\n");
+                script.append(field + ".indexOf(\"\") " + equals + " -1) ");
             }
         } else {
             if (((String) map.get("Equals")).equals(UIConstants.YES_OPTION)) {
@@ -121,22 +121,27 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
                 for (int i = 0; i < values.size(); i++) {
                     script.append(field + " " + equals + " " + values.get(i));
                     if (i + 1 == values.size()) {
-                        script.append(")\n");
+                        script.append(") ");
                     } else {
                         script.append(" " + equalsOperator + " ");
                     }
                 }
             } else {
-                script.append(field + " " + equals + " \"\")\n");
+                script.append(field + " " + equals + " \"\") ");
             }
         }
 
         script.append("{\n");
-        script.append("return " + acceptReturn + ";");
+        script.append("\treturn " + acceptReturn + ";");
         script.append("\n}\n");
         script.append("return " + finalReturn + ";");
 
         return script.toString();
+    }
+
+    @Override
+    public String getGeneratedScript(Map<Object, Object> data) {
+        return getScript(data);
     }
 
     public String doValidate(Map<Object, Object> data) {

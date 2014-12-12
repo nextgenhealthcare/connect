@@ -86,6 +86,11 @@ public class ExternalScriptStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
+    public String getGeneratedScript(Map<Object, Object> data) {
+        return "";
+    }
+
+    @Override
     public void start() {
     }
 

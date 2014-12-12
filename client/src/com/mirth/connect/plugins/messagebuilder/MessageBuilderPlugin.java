@@ -110,6 +110,11 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
         script.append("validate(" + mapping + ", " + defaultValue + ", " + regexArray + ");");
         return script.toString();
     }
+    
+    @Override
+    public String getGeneratedScript(Map<Object, Object> data) {
+        return getScript(data);
+    }
 
     private String buildRegexArray(Map<Object, Object> map) {
         ArrayList<String[]> regexes = (ArrayList<String[]>) map.get("RegularExpressions");
