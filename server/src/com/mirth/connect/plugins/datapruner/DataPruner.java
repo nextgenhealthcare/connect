@@ -667,14 +667,14 @@ public class DataPruner implements Runnable {
     }
 
     private int runDelete(String query, Map<String, Object> params) throws InterruptedException {
-        SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
         ThreadUtils.checkInterruptedStatus();
-
-        if (DatabaseUtil.statementExists("initDataPruner", session)) {
-            session.update("initDataPruner");
-        }
+        SqlSession session = SqlConfig.getSqlSessionManager().openSession(true);
 
         try {
+            if (DatabaseUtil.statementExists("initDataPruner", session)) {
+                session.update("initDataPruner");
+            }
+
             status.setPruning(true);
 
             int count = session.delete(query, params);
