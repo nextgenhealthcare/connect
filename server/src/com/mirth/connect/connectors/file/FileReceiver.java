@@ -177,7 +177,7 @@ public class FileReceiver extends PollConnector {
                 processFiles(listFiles(readDir));
             }
         } catch (Throwable t) {
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), null, t));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), null, t));
             logger.error("Error polling in channel: " + getChannelId(), t);
         } finally {
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
@@ -402,7 +402,7 @@ public class FileReceiver extends PollConnector {
                 }
             }
         } catch (Exception e) {
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "", e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), 12345L, ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "", e));
             logger.error("Error processing file in channel: " + getChannelId(), e);
         }
     }

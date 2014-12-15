@@ -40,7 +40,7 @@ public class JavaScriptPostprocessor implements PostProcessor {
                 t = e.getCause();
             }
 
-            eventController.dispatchEvent(new ErrorEvent(message.getChannelId(), null, ErrorEventType.POSTPROCESSOR_SCRIPT, null, null, "Error running postprocessor scripts", t));
+            eventController.dispatchEvent(new ErrorEvent(message.getChannelId(), null, message.getMessageId(), ErrorEventType.POSTPROCESSOR_SCRIPT, null, null, "Error running postprocessor scripts", t));
             throw new DonkeyException(t, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.POSTPROCESSOR_SCRIPT.toString(), "Error running postprocessor scripts", t));
         }
     }

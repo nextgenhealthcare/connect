@@ -1351,7 +1351,7 @@ public class Channel implements Runnable {
 
                 sourceMessage.getRaw().setContent(replacedMessage);
             } catch (AttachmentException e) {
-                eventDispatcher.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.ATTACHMENT_HANDLER, null, null, "Error processing attachments for channel " + channelId + ".", e));
+                eventDispatcher.dispatchEvent(new ErrorEvent(channelId, null, messageId, ErrorEventType.ATTACHMENT_HANDLER, null, null, "Error processing attachments for channel " + channelId + ".", e));
                 logger.error("Error processing attachments for channel " + name + " (" + channelId + ").", e);
                 throw new ChannelException(false, e);
             }
@@ -1485,7 +1485,7 @@ public class Channel implements Runnable {
                 sourceFilterTransformerExecutor.processConnectorMessage(sourceMessage);
             } catch (DonkeyException e) {
                 if (e instanceof XmlSerializerException) {
-                    eventDispatcher.dispatchEvent(new ErrorEvent(channelId, 0, ErrorEventType.SERIALIZER, sourceConnector.getSourceName(), null, e.getMessage(), e));
+                    eventDispatcher.dispatchEvent(new ErrorEvent(channelId, 0, messageId, ErrorEventType.SERIALIZER, sourceConnector.getSourceName(), null, e.getMessage(), e));
                 }
 
                 sourceMessage.setStatus(Status.ERROR);
@@ -1750,7 +1750,7 @@ public class Channel implements Runnable {
                 process(sourceMessage, true);
             } catch (RuntimeException e) {
                 logger.error("An error occurred in channel " + name + " (" + channelId + ") while processing message ID " + sourceMessage.getMessageId() + " from the source queue", e);
-                eventDispatcher.dispatchEvent(new ErrorEvent(channelId, 0, ErrorEventType.SOURCE_CONNECTOR, sourceConnector.getSourceName(), null, e.getMessage(), e));
+                eventDispatcher.dispatchEvent(new ErrorEvent(channelId, 0, sourceMessage.getMessageId(), ErrorEventType.SOURCE_CONNECTOR, sourceConnector.getSourceName(), null, e.getMessage(), e));
                 sourceQueue.invalidate(false, false);
                 Thread.sleep(Constants.SOURCE_QUEUE_ERROR_SLEEP_TIME);
             }

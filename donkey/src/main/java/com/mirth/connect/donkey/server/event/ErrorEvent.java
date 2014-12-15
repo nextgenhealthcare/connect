@@ -16,13 +16,14 @@ public class ErrorEvent extends Event {
 
     private String channelId;
     private Integer metaDataId;
+    private Long messageId;
     private ErrorEventType type;
     private String connectorName;
     private String connectorType;
     private String customMessage;
     private Throwable throwable;
 
-    public ErrorEvent(String channelId, Integer metaDataId, ErrorEventType type, String connectorName, String connectorType, String customMessage, Throwable throwable) {
+    public ErrorEvent(String channelId, Integer metaDataId, Long messageId, ErrorEventType type, String connectorName, String connectorType, String customMessage, Throwable throwable) {
         this.channelId = channelId;
         this.metaDataId = metaDataId;
         this.type = type;
@@ -38,6 +39,14 @@ public class ErrorEvent extends Event {
 
     public void setMetaDataId(Integer metaDataId) {
         this.metaDataId = metaDataId;
+    }
+
+    public Long getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(Long messageId) {
+        this.messageId = messageId;
     }
 
     public String getChannelId() {

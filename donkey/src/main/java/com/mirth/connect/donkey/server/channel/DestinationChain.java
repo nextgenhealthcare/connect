@@ -178,7 +178,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                                 filterTransformerExecutors.get(metaDataId).processConnectorMessage(message);
                             } catch (DonkeyException e) {
                                 if (e instanceof XmlSerializerException) {
-                                    Donkey.getInstance().getEventDispatcher().dispatchEvent(new ErrorEvent(channelId, metaDataId, ErrorEventType.SERIALIZER, destinationConnector.getDestinationName(), null, e.getMessage(), e));
+                                    Donkey.getInstance().getEventDispatcher().dispatchEvent(new ErrorEvent(channelId, metaDataId, message.getMessageId(), ErrorEventType.SERIALIZER, destinationConnector.getDestinationName(), null, e.getMessage(), e));
                                 }
 
                                 stopChain = true;

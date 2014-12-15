@@ -282,7 +282,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                         if (messageContent instanceof byte[]) {
                             BatchMessageException e = new BatchMessageException("Batch processing is not supported for binary data.");
                             logger.error(e.getMessage() + " (channel: " + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + ")", e);
-                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), null, e));
+                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), null, e));
                         } else {
                             try {
                                 BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader((String) messageContent), sourceMap);
@@ -401,7 +401,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
     private void sendErrorResponse(HttpServletResponse servletResponse, DispatchResult dispatchResult, Throwable t) throws IOException {
         String responseError = ExceptionUtils.getStackTrace(t);
         logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
-        eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error receiving message", t));
+        eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), dispatchResult.getMessageId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error receiving message", t));
 
         if (dispatchResult != null) {
             // TODO decide if we still want to send back the exception content or something else?
@@ -622,7 +622,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                 }
             } catch (Throwable t) {
                 logger.error("Error handling static HTTP resource request (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
-                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error handling static HTTP resource request", t));
+                eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error handling static HTTP resource request", t));
 
                 servletResponse.reset();
                 servletResponse.setContentType(ContentType.TEXT_PLAIN.toString());

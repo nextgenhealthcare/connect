@@ -1202,7 +1202,7 @@ public class DonkeyEngineController implements EngineController {
                         t = e.getCause();
                     }
 
-                    eventController.dispatchEvent(new ErrorEvent(channelModel.getId(), null, ErrorEventType.DEPLOY_SCRIPT, null, null, "Error running channel deploy script", t));
+                    eventController.dispatchEvent(new ErrorEvent(channelModel.getId(), null, null, ErrorEventType.DEPLOY_SCRIPT, null, null, "Error running channel deploy script", t));
                     throw new DeployException("Failed to deploy channel " + channelId + ".", e);
                 }
 
@@ -1328,7 +1328,7 @@ public class DonkeyEngineController implements EngineController {
                             t = e.getCause();
                         }
 
-                        eventController.dispatchEvent(new ErrorEvent(channelId, null, ErrorEventType.UNDEPLOY_SCRIPT, null, null, "Error running channel undeploy script", t));
+                        eventController.dispatchEvent(new ErrorEvent(channelId, null, null, ErrorEventType.UNDEPLOY_SCRIPT, null, null, "Error running channel undeploy script", t));
                         logger.error("Error executing undeploy script for channel " + channelId + ".", e);
                     }
 

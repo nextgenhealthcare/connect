@@ -119,6 +119,7 @@ public class JmsReceiver extends SourceConnector {
          */
         @Override
         public void onMessage(Message message) {
+            Long messageId = null;
             RawMessage rawMessage = null;
             DispatchResult dispatchResult = null;
 
@@ -127,14 +128,15 @@ public class JmsReceiver extends SourceConnector {
             try {
                 try {
                     rawMessage = jmsMessageToRawMessage(message);
+                    messageId = rawMessage.getOriginalMessageId();
                 } catch (Exception e) {
-                    reportError("Failed to read JMS message", e);
+                    reportError("Failed to read JMS message", messageId, e);
                     return;
                 }
 
                 if (isProcessBatch()) {
                     if (rawMessage.isBinary()) {
-                        reportError("Batch processing is not supported for binary data.", new BatchMessageException("Batch processing is not supported for binary data."));
+                        reportError("Batch processing is not supported for binary data.", messageId, new BatchMessageException("Batch processing is not supported for binary data."));
                         return;
                     }
 
@@ -149,10 +151,10 @@ public class JmsReceiver extends SourceConnector {
                         try {
                             message.acknowledge();
                         } catch (JMSException e) {
-                            reportError("Failed to acknowledge JMS message", e);
+                            reportError("Failed to acknowledge JMS message", messageId, e);
                         }
                     } catch (BatchMessageException e) {
-                        reportError("Failed to process batch message", e);
+                        reportError("Failed to process batch message", messageId, e);
                     }
                 } else {
                     try {
@@ -162,11 +164,11 @@ public class JmsReceiver extends SourceConnector {
                         try {
                             message.acknowledge();
                         } catch (JMSException e) {
-                            reportError("Failed to acknowledge JMS message", e);
+                            reportError("Failed to acknowledge JMS message", messageId, e);
                             dispatchResult.setResponseError("Failed to acknowledge message: " + e.getMessage());
                         }
                     } catch (ChannelException e) {
-                        reportError("Failed to process message", e);
+                        reportError("Failed to process message", messageId, e);
                     } finally {
                         finishDispatch(dispatchResult);
                     }
@@ -219,8 +221,8 @@ public class JmsReceiver extends SourceConnector {
         }
     }
 
-    private void reportError(String errorMessage, Exception e) {
+    private void reportError(String errorMessage, Long messageId, Exception e) {
         logger.error(errorMessage + " (channel: " + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + ")", e);
-        eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), null, e.getCause()));
+        eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), messageId, ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), null, e.getCause()));
     }
 }

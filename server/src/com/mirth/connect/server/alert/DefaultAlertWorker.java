@@ -140,6 +140,9 @@ public class DefaultAlertWorker extends AlertWorker {
                         context.put("error", fullErrorMessage);
                         context.put("errorMessage", (errorEvent.getThrowable() == null) ? "No exception message." : errorEvent.getThrowable().getMessage());
                         context.put("errorType", errorEvent.getType());
+						if (errorEvent.getMessageId() != null) {
+							context.put("messageId", errorEvent.getMessageId());
+						}
 
                         triggerAction(alert, context);
                     }

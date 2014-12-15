@@ -490,12 +490,12 @@ public class WebServiceDispatcher extends DestinationConnector {
                         // Leave the response status as QUEUED for ConnectException, otherwise ERROR
                         if ((e.getClass() == ConnectException.class) || ((e.getCause() != null) && (e.getCause().getClass() == ConnectException.class))) {
                             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Connection refused.", e);
-                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Connection refused.", e));
+                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), connectorMessage.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Connection refused.", e));
                         } else {
                             responseStatus = Status.ERROR;
                             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error invoking web service", e);
                             responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error invoking web service", e);
-                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error invoking web service.", e));
+                            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), connectorMessage.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error invoking web service.", e));
                         }
                     }
                 }
@@ -503,7 +503,7 @@ public class WebServiceDispatcher extends DestinationConnector {
         } catch (Exception e) {
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error creating web service dispatch", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error creating web service dispatch", e);
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error creating web service dispatch.", e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), connectorMessage.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error creating web service dispatch.", e));
         } finally {
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
         }

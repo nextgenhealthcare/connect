@@ -148,7 +148,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                         }
                     }
 
-                    eventController.dispatchEvent(new ErrorEvent(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), ErrorEventType.RESPONSE_TRANSFORMER, connectorName, null, "Error evaluating response transformer", t));
+                    eventController.dispatchEvent(new ErrorEvent(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), connectorMessage.getMessageId(), ErrorEventType.RESPONSE_TRANSFORMER, connectorName, null, "Error evaluating response transformer", t));
                     throw new ResponseTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.RESPONSE_TRANSFORMER.toString(), "Error evaluating response transformer", t));
                 } finally {
                     Context.exit();

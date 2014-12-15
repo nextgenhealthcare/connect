@@ -622,7 +622,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
             response = responseValidator.validate(response, message);
 
             if (response.getStatus() != Status.SENT) {
-                channel.getEventDispatcher().dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.RESPONSE_VALIDATION, getDestinationName(), connectorProperties.getName(), response.getStatusMessage(), null));
+                channel.getEventDispatcher().dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), message.getMessageId(), ErrorEventType.RESPONSE_VALIDATION, getDestinationName(), connectorProperties.getName(), response.getStatusMessage(), null));
             }
         }
         message.setResponseDate(Calendar.getInstance());

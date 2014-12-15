@@ -297,6 +297,6 @@ public class JmsClient implements ExceptionListener {
     private void reportError(String errorMessage, Exception e) {
         String channelId = connector.getChannelId();
         logger.error(errorMessage + " (channel: " + ChannelController.getInstance().getDeployedChannelById(channelId).getName() + ")", e);
-        eventController.dispatchEvent(new ErrorEvent(channelId, connector.getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, connectorName, connectorProperties.getName(), null, e.getCause()));
+        eventController.dispatchEvent(new ErrorEvent(channelId, connector.getMetaDataId(), null, ErrorEventType.DESTINATION_CONNECTOR, connectorName, connectorProperties.getName(), null, e.getCause()));
     }
 }

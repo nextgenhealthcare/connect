@@ -174,7 +174,7 @@ public class JmsDispatcher extends DestinationConnector {
                 logger.error(logMessage, ExceptionUtils.getRootCause(e));
             }
 
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error occurred when attempting to send JMS message.", e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), connectorMessage.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error occurred when attempting to send JMS message.", e));
             responseStatus = Status.QUEUED;
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error occurred when attempting to send JMS message.", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error occurred when attempting to send JMS message.", e);

@@ -162,7 +162,7 @@ public class FileDispatcher extends DestinationConnector {
             responseStatusMessage = "File successfully written: " + fileDispatcherProperties.toURIString();
             responseStatus = Status.SENT;
         } catch (Exception e) {
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error writing file", e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), connectorMessage.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error writing file", e));
             responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error writing file", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error writing file", e);
             // TODO: handleException

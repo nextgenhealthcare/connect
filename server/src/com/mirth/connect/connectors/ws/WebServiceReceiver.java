@@ -222,7 +222,7 @@ public class WebServiceReceiver extends SourceConnector {
                     }
                 } catch (BatchMessageException e) {
                     logger.error("Error processing batch message", e);
-                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error processing batch message", e));
+                    eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), rawMessage.getOriginalMessageId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), connectorProperties.getName(), "Error processing batch message", e));
                 }
             } else {
                 DispatchResult dispatchResult = null;

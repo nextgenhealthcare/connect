@@ -113,7 +113,7 @@ public class DatabaseDispatcher extends DestinationConnector {
                 logger.error(logMessage, ExceptionUtils.getRootCause(e));
             }
 
-            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), e.getMessage(), e));
+            eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), message.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), e.getMessage(), e));
             return new Response(Status.QUEUED, null, ErrorMessageBuilder.buildErrorResponse("Error writing to database.", e), ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), e.getMessage(), e));
         } finally {
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));

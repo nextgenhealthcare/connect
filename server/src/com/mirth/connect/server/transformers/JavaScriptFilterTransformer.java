@@ -138,10 +138,10 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
                     }
 
                     if (phase[0].equals("filter")) {
-                        eventController.dispatchEvent(new ErrorEvent(message.getChannelId(), message.getMetaDataId(), ErrorEventType.FILTER, connectorName, null, "Error evaluating filter", t));
+                        eventController.dispatchEvent(new ErrorEvent(message.getChannelId(), message.getMetaDataId(), message.getMessageId(), ErrorEventType.FILTER, connectorName, null, "Error evaluating filter", t));
                         throw new FilterTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.FILTER.toString(), "Error evaluating filter", t));
                     } else {
-                        eventController.dispatchEvent(new ErrorEvent(message.getChannelId(), message.getMetaDataId(), ErrorEventType.TRANSFORMER, connectorName, null, "Error evaluating transformer", t));
+                        eventController.dispatchEvent(new ErrorEvent(message.getChannelId(), message.getMetaDataId(), message.getMessageId(), ErrorEventType.TRANSFORMER, connectorName, null, "Error evaluating transformer", t));
                         throw new FilterTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorEventType.TRANSFORMER.toString(), "Error evaluating transformer", t));
                     }
                 } finally {

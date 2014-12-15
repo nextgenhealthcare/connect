@@ -53,6 +53,6 @@ public class AlertSender {
      *            A custom error message to include with the error event.
      */
     public void sendAlert(String errorMessage) {
-        eventController.dispatchEvent(new ErrorEvent(channelId, metaDataId, ErrorEventType.USER_DEFINED_TRANSFORMER, connectorName, null, errorMessage, null));
+        eventController.dispatchEvent(new ErrorEvent(channelId, metaDataId, null, ErrorEventType.USER_DEFINED_TRANSFORMER, connectorName, null, errorMessage, null));
     }
 }
