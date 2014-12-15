@@ -11,6 +11,7 @@ package com.mirth.connect.connectors.doc;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -27,6 +28,7 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
     private String outputPattern;
     private String documentType;
     private boolean encrypt;
+    private String output;
     private String password;
     private String template;
 
@@ -42,6 +44,7 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
         this.encrypt = false;
         this.password = "";
         this.template = "";
+        this.output = "";
     }
 
     public DocumentDispatcherProperties(DocumentDispatcherProperties props) {
@@ -54,6 +57,7 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
         encrypt = props.isEncrypt();
         password = props.getPassword();
         template = props.getTemplate();
+        output = props.getOutput();
     }
 
     public String getHost() {
@@ -104,6 +108,14 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
         this.template = template;
     }
 
+    public String getOutput() {
+        return output;
+    }
+
+    public void setOutput(String output) {
+        this.output = output;
+    }
+
     @Override
     public String getProtocol() {
         return "doc";
@@ -118,9 +130,25 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
     public String toFormattedString() {
         StringBuilder builder = new StringBuilder();
         String newLine = "\n";
-        builder.append("URI: ");
-        appendURIString(builder);
-        builder.append(newLine);
+
+        if (StringUtils.isNotBlank(output)) {
+            builder.append("OUTPUT: ");
+            if (output.equalsIgnoreCase("file")) {
+                builder.append("File");
+            } else if (output.equalsIgnoreCase("attachment")) {
+                builder.append("Attachment");
+            } else if (output.equalsIgnoreCase("both")) {
+                builder.append("File and Attachment");
+            }
+
+            builder.append(newLine);
+        }
+
+        if (StringUtils.isBlank(output) || !output.equalsIgnoreCase("attachment")) {
+            builder.append("URI: ");
+            appendURIString(builder);
+            builder.append(newLine);
+        }
 
         builder.append("DOCUMENT TYPE: ");
         builder.append(documentType);

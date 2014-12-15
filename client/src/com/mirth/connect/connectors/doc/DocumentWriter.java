@@ -11,6 +11,8 @@ package com.mirth.connect.connectors.doc;
 
 import javax.swing.SwingWorker;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -26,6 +28,14 @@ public class DocumentWriter extends ConnectorSettingsPanel {
     public DocumentWriter() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+    }
+    
+    private void updateFileEnabled(boolean enable) {
+        fileNameField.setEnabled(enable);
+        jLabel2.setEnabled(enable);
+        directoryField.setEnabled(enable);
+        jLabel1.setEnabled(enable);
+        testConnection.setEnabled(enable);
     }
 
     @Override
@@ -48,6 +58,15 @@ public class DocumentWriter extends ConnectorSettingsPanel {
 
         properties.setEncrypt(passwordYes.isSelected());
 
+        String writeToOption = "FILE";
+        if (attachmentRadioButton.isSelected()) {
+            writeToOption = "ATTACHMENT";
+        } else if(bothRadioButton.isSelected()) {
+            writeToOption = "BOTH";
+        }
+
+        properties.setOutput(writeToOption);
+
         properties.setPassword(new String(passwordField.getPassword()));
         properties.setTemplate(fileContentsTextPane.getText());
 
@@ -69,6 +88,19 @@ public class DocumentWriter extends ConnectorSettingsPanel {
             passwordNoActionPerformed(null);
         }
 
+        fileRadioButton.setSelected(true);
+
+        String writeToOptions = props.getOutput();
+        if (StringUtils.isNotBlank(writeToOptions)) {
+            if (writeToOptions.equalsIgnoreCase("BOTH")) {
+                bothRadioButton.setSelected(true);
+            } else if (writeToOptions.equalsIgnoreCase("ATTACHMENT")) {
+                attachmentRadioButton.setSelected(true);
+            }
+
+            updateFileEnabled(!writeToOptions.equalsIgnoreCase("ATTACHMENT"));
+        }
+        
         if (props.getDocumentType().equals(DocumentDispatcherProperties.DOCUMENT_TYPE_PDF)) {
             pdf.setSelected(true);
             pdfActionPerformed(null);
@@ -143,6 +175,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
+        buttonGroup3 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -158,6 +191,10 @@ public class DocumentWriter extends ConnectorSettingsPanel {
         pdf = new com.mirth.connect.client.ui.components.MirthRadioButton();
         rtf = new com.mirth.connect.client.ui.components.MirthRadioButton();
         testConnection = new javax.swing.JButton();
+        outputLabel = new javax.swing.JLabel();
+        fileRadioButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        attachmentRadioButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        bothRadioButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -237,6 +274,39 @@ public class DocumentWriter extends ConnectorSettingsPanel {
             }
         });
 
+        outputLabel.setBackground(new java.awt.Color(255, 255, 255));
+        outputLabel.setText("Output:");
+
+        fileRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        buttonGroup3.add(fileRadioButton);
+        fileRadioButton.setText("File");
+        fileRadioButton.setToolTipText("Write the contents to a file.");
+        fileRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fileRadioButtonActionPerformed(evt);
+            }
+        });
+
+        attachmentRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        buttonGroup3.add(attachmentRadioButton);
+        attachmentRadioButton.setText("Attachment");
+        attachmentRadioButton.setToolTipText("Write the contents to an attachment.");
+        attachmentRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                attachmentRadioButtonActionPerformed(evt);
+            }
+        });
+
+        bothRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        buttonGroup3.add(bothRadioButton);
+        bothRadioButton.setText("Both");
+        bothRadioButton.setToolTipText("Write the content to a file and an attachment.");
+        bothRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bothRadioButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -245,37 +315,53 @@ public class DocumentWriter extends ConnectorSettingsPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel5)
-                    .addComponent(jLabel2)
                     .addComponent(jLabel1)
                     .addComponent(encryptedLabel)
                     .addComponent(passwordLabel)
-                    .addComponent(jLabel3))
+                    .addComponent(jLabel3)
+                    .addComponent(outputLabel)
+                    .addComponent(jLabel2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(testConnection))
-                    .addComponent(fileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(passwordYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(passwordNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(pdf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(rtf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(fileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(passwordYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(passwordNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(pdf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(rtf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(testConnection))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(fileRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(attachmentRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(bothRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 92, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
+                    .addComponent(outputLabel)
+                    .addComponent(fileRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(attachmentRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bothRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(testConnection))
+                    .addComponent(testConnection)
+                    .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
@@ -287,18 +373,17 @@ public class DocumentWriter extends ConnectorSettingsPanel {
                     .addComponent(rtf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(encryptedLabel)
                     .addComponent(passwordYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(passwordNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(encryptedLabel))
+                    .addComponent(passwordNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(passwordLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel3)
-                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE))
-                .addContainerGap())
+                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
+                    .addComponent(jLabel3)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -335,6 +420,18 @@ public class DocumentWriter extends ConnectorSettingsPanel {
         worker.execute();
     }//GEN-LAST:event_testConnectionActionPerformed
 
+    private void fileRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileRadioButtonActionPerformed
+        updateFileEnabled(true);
+    }//GEN-LAST:event_fileRadioButtonActionPerformed
+
+    private void attachmentRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attachmentRadioButtonActionPerformed
+        updateFileEnabled(false);
+    }//GEN-LAST:event_attachmentRadioButtonActionPerformed
+
+    private void bothRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bothRadioButtonActionPerformed
+        updateFileEnabled(true);
+    }//GEN-LAST:event_bothRadioButtonActionPerformed
+
     private void pdfActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_pdfActionPerformed
     {// GEN-HEADEREND:event_pdfActionPerformed
         if (passwordYes.isSelected()) {
@@ -366,16 +463,21 @@ public class DocumentWriter extends ConnectorSettingsPanel {
         passwordField.setEnabled(true);
     }// GEN-LAST:event_passwordYesActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.mirth.connect.client.ui.components.MirthRadioButton attachmentRadioButton;
+    private com.mirth.connect.client.ui.components.MirthRadioButton bothRadioButton;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
+    private javax.swing.ButtonGroup buttonGroup3;
     private com.mirth.connect.client.ui.components.MirthTextField directoryField;
     private javax.swing.JLabel encryptedLabel;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea fileContentsTextPane;
     private com.mirth.connect.client.ui.components.MirthTextField fileNameField;
+    private com.mirth.connect.client.ui.components.MirthRadioButton fileRadioButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel outputLabel;
     private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton passwordNo;

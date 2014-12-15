@@ -32,11 +32,34 @@ public class Base64Util {
      * @throws IOException
      */
     public static byte[] encodeBase64(byte[] bytes) throws IOException {
+        return encodeBase64(bytes, true);
+    }
+    
+    /**
+     * Encodes binary data using the base64 algorithm and chunks the encoded output into 76
+     * character blocks.
+     * This method sets the initial output buffer to a value that is "guaranteed" to be slightly
+     * larger than necessary.
+     * Therefore the buffer should never need to be expanded, making the maximum memory requirements
+     * much lower than
+     * using Base64.encodeBase64Chunked.
+     * 
+     * @param bytes
+     * @param chunked
+     * @return
+     * @throws IOException
+     */
+    public static byte[] encodeBase64(byte[] bytes, boolean chunked) throws IOException {
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         // Set the size of the buffer to minimize peak memory usage
         // A Base64 encoded message takes roughly 1.333 times the memory of the raw binary, so use 1.4 to be safe.
         ByteArrayOutputStream baos = new ByteArrayOutputStream((int) (bytes.length * 1.4));
-        Base64OutputStream b64os = new Base64OutputStream(baos);
+        Base64OutputStream b64os = null;
+        if (chunked) {
+            b64os = new Base64OutputStream(baos);
+        } else {
+            b64os = new Base64OutputStream(baos, true, 0, null);
+        }
 
         // Perform the encoding
         IOUtils.copy(bais, b64os);

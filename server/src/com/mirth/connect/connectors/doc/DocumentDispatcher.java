@@ -10,15 +10,20 @@
 package com.mirth.connect.connectors.doc;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
 import java.io.StringReader;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
@@ -35,10 +40,13 @@ import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
@@ -98,11 +106,27 @@ public class DocumentDispatcher extends DestinationConnector {
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.WRITING, info));
 
         try {
-            File file = createFile(documentDispatcherProperties.getHost() + "/" + documentDispatcherProperties.getOutputPattern());
-            logger.info("Writing document to: " + file.getAbsolutePath());
-            writeDocument(documentDispatcherProperties.getTemplate(), file, documentDispatcherProperties, connectorMessage);
+            responseData = writeDocument(documentDispatcherProperties.getTemplate(), documentDispatcherProperties, connectorMessage);
 
-            responseStatusMessage = "Document successfully written: " + documentDispatcherProperties.toURIString();
+            StringBuilder builder = new StringBuilder();
+            builder.append("Document successfully written to ");
+
+            if (StringUtils.isNotBlank(documentDispatcherProperties.getOutput())) {
+                if (documentDispatcherProperties.getOutput().equalsIgnoreCase("file")) {
+                    builder.append("file: ");
+                    builder.append(documentDispatcherProperties.toURIString());
+                } else if (documentDispatcherProperties.getOutput().equalsIgnoreCase("attachment")) {
+                    builder.append("attachment");
+                } else if (documentDispatcherProperties.getOutput().equalsIgnoreCase("both")) {
+                    builder.append("attachment and file: ");
+                    builder.append(documentDispatcherProperties.toURIString());
+                }
+            } else {
+                builder.append("file: ");
+                builder.append(documentDispatcherProperties.toURIString());
+            }
+            responseStatusMessage = builder.toString();
+
             responseStatus = Status.SENT;
         } catch (Exception e) {
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error writing document", e));
@@ -118,7 +142,7 @@ public class DocumentDispatcher extends DestinationConnector {
         return new Response(responseStatus, responseData, responseStatusMessage, responseError);
     }
 
-    private void writeDocument(String template, File file, DocumentDispatcherProperties documentDispatcherProperties, ConnectorMessage connectorMessage) throws Exception {
+    private String writeDocument(String template, DocumentDispatcherProperties documentDispatcherProperties, ConnectorMessage connectorMessage) throws Exception {
         // add tags to the template to create a valid HTML document
         StringBuilder contents = new StringBuilder();
         if (template.lastIndexOf("<html") < 0) {
@@ -137,92 +161,109 @@ public class DocumentDispatcher extends DestinationConnector {
 
         String stringContents = getAttachmentHandler().reAttachMessage(contents.toString(), connectorMessage);
 
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         if (documentDispatcherProperties.getDocumentType().toLowerCase().equals("pdf")) {
-            FileOutputStream renderFos = null;
+            createPDF(new StringReader(stringContents), outputStream);
 
-            try {
-                DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                builder.setEntityResolver(FSEntityResolver.instance());
-                org.w3c.dom.Document document = builder.parse(new InputSource(new StringReader(stringContents)));
+            boolean encrypt = documentDispatcherProperties.isEncrypt();
+            String password = documentDispatcherProperties.getPassword();
 
-                ITextRenderer renderer = new ITextRenderer();
-                renderer.setDocument(document, null);
-                renderFos = new FileOutputStream(file);
-                renderer.layout();
-                renderer.createPDF(renderFos, true);
-            } catch (Throwable e) {
-                throw new Exception(e);
-            } finally {
-                if (renderFos != null) {
-                    renderFos.close();
-                }
-            }
+            if (encrypt && password != null) {
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
-            if (documentDispatcherProperties.isEncrypt() && (documentDispatcherProperties.getPassword() != null)) {
-                FileInputStream encryptFis = null;
-                FileOutputStream encryptFos = null;
-                PDDocument document = null;
-
-                try {
-                    encryptFis = new FileInputStream(file);
-
-                    document = PDDocument.load(encryptFis);
-
-                    AccessPermission accessPermission = new AccessPermission();
-                    accessPermission.setCanAssembleDocument(false);
-                    accessPermission.setCanExtractContent(true);
-                    accessPermission.setCanExtractForAccessibility(false);
-                    accessPermission.setCanFillInForm(false);
-                    accessPermission.setCanModify(false);
-                    accessPermission.setCanModifyAnnotations(false);
-                    accessPermission.setCanPrint(true);
-                    accessPermission.setCanPrintDegraded(true);
-
-                    /*
-                     * In 2.x when using iText for encryption, a "random" owner password was
-                     * actually being generated even when null was passed in. However that doesn't
-                     * happen by default with PDFBox, so we need to create one here instead. This
-                     * method of concatenating the current time with the current free memory bytes
-                     * is the same as was used in 2.x.
-                     */
-                    String ownerPassword = System.currentTimeMillis() + "+" + Runtime.getRuntime().freeMemory() + "+" + (ownerPasswordSeq++);
-                    StandardProtectionPolicy policy = new StandardProtectionPolicy(ownerPassword, documentDispatcherProperties.getPassword(), accessPermission);
-                    policy.setEncryptionKeyLength(128);
-
-                    encryptFos = new FileOutputStream(file);
-                    document.protect(policy);
-                    document.save(encryptFos);
-                } catch (Exception e) {
-                    throw e;
-                } finally {
-                    if (document != null) {
-                        document.close();
-                    }
-
-                    if (encryptFis != null) {
-                        encryptFis.close();
-                    }
-
-                    if (encryptFos != null) {
-                        encryptFos.close();
-                    }
-                }
+                outputStream = new ByteArrayOutputStream();
+                encryptPDF(inputStream, outputStream, password);
             }
         } else if (documentDispatcherProperties.getDocumentType().toLowerCase().equals("rtf")) {
-            com.lowagie.text.Document document = null;
+            createRTF(new ByteArrayInputStream(stringContents.getBytes()), outputStream);
+        }
 
+        if (StringUtils.isBlank(documentDispatcherProperties.getOutput()) || !documentDispatcherProperties.getOutput().equalsIgnoreCase("attachment")) {
+            FileOutputStream fileOutputStream = null;
             try {
-                document = new com.lowagie.text.Document();
-                //TODO verify the character encoding
-                ByteArrayInputStream bais = new ByteArrayInputStream(stringContents.getBytes());
-                RtfWriter2.getInstance(document, new FileOutputStream(file));
-                document.open();
-                HtmlParser parser = new HtmlParser();
-                parser.go(document, bais);
+                File file = createFile(documentDispatcherProperties.getHost() + "/" + documentDispatcherProperties.getOutputPattern());
+                logger.info("Writing document to: " + file.getAbsolutePath());
+
+                fileOutputStream = new FileOutputStream(file);
+                outputStream.writeTo(fileOutputStream);
+            } catch (Exception e) {
+                throw e;
             } finally {
-                if (document != null) {
-                    document.close();
-                }
+                IOUtils.closeQuietly(fileOutputStream);
+            }
+        }
+
+        if (StringUtils.isNotBlank(documentDispatcherProperties.getOutput()) && !documentDispatcherProperties.getOutput().equalsIgnoreCase("file")) {
+            Attachment attachment = MessageController.getInstance().createAttachment(new String(Base64Util.encodeBase64(outputStream.toByteArray(), false), "US-ASCII"), documentDispatcherProperties.getDocumentType().contains("pdf") ? "application/pdf" : "application/rtf");
+            MessageController.getInstance().insertAttachment(attachment, connectorMessage.getChannelId(), connectorMessage.getMessageId());
+
+            return attachment.getAttachmentId();
+        }
+        return null;
+    }
+
+    private void createPDF(Reader reader, OutputStream outputStream) throws Exception {
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        builder.setEntityResolver(FSEntityResolver.instance());
+        org.w3c.dom.Document doc = builder.parse(new InputSource(reader));
+
+        try {
+            ITextRenderer renderer = new ITextRenderer();
+            renderer.setDocument(doc, null);
+
+            renderer.layout();
+            renderer.createPDF(outputStream, true);
+        } catch (Throwable e) {
+            throw new Exception(e);
+        }
+    }
+
+    private void encryptPDF(InputStream inputStream, OutputStream outputStream, String password) throws Exception {
+        PDDocument document = null;
+
+        try {
+            document = PDDocument.load(inputStream);
+
+            AccessPermission accessPermission = new AccessPermission();
+            accessPermission.setCanAssembleDocument(false);
+            accessPermission.setCanExtractContent(true);
+            accessPermission.setCanExtractForAccessibility(false);
+            accessPermission.setCanFillInForm(false);
+            accessPermission.setCanModify(false);
+            accessPermission.setCanModifyAnnotations(false);
+            accessPermission.setCanPrint(true);
+            accessPermission.setCanPrintDegraded(true);
+
+            String ownerPassword = System.currentTimeMillis() + "+" + Runtime.getRuntime().freeMemory() + "+" + (ownerPasswordSeq++);
+            StandardProtectionPolicy policy = new StandardProtectionPolicy(ownerPassword, password, accessPermission);
+            policy.setEncryptionKeyLength(128);
+            document.protect(policy);
+
+            document.save(outputStream);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (document != null) {
+                document.close();
+            }
+        }
+    }
+
+    private void createRTF(InputStream inputStream, OutputStream outputStream) throws Exception {
+        com.lowagie.text.Document document = null;
+
+        try {
+            document = new com.lowagie.text.Document();
+            //TODO verify the character encoding
+
+            RtfWriter2.getInstance(document, outputStream);
+
+            document.open();
+            HtmlParser parser = new HtmlParser();
+            parser.go(document, inputStream);
+        } finally {
+            if (document != null) {
+                document.close();
             }
         }
     }
