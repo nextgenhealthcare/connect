@@ -242,6 +242,9 @@ public class Mirth extends Thread {
             return;
         }
 
+        // MIRTH-3535 disable Quartz update check
+        System.setProperty("org.terracotta.quartz.skipUpdateCheck", "true");
+
         configurationController.migrateKeystore();
         extensionController.setDefaultExtensionStatus();
         extensionController.uninstallExtensions();
