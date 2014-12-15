@@ -9,8 +9,6 @@
 
 package com.mirth.connect.server.userutil;
 
-import org.apache.log4j.Logger;
-
 /**
  * Used to store and retrieve details about message attachments such as the ID, MIME type, and
  * content.
@@ -19,7 +17,6 @@ public class Attachment {
     private String id;
     private byte[] content;
     private String type;
-    private Logger logger = Logger.getLogger(getClass());
 
     /**
      * Instantiates a new Attachment with no ID, content, or MIME type.
@@ -52,20 +49,6 @@ public class Attachment {
     }
 
     /**
-     * Sets the unique ID for the attachment.
-     * 
-     * @param attachmentId
-     *            The unique ID to use for the attachment.
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use setId(id) instead.
-     */
-    // TODO: Remove in 3.1
-    public void setAttachmentId(String attachmentId) {
-        logger.error("The Attachment.setAttachmentId(attachmentId) method is deprecated and will soon be removed. Please use setId(id) instead.");
-        setId(attachmentId);
-    }
-
-    /**
      * Returns the unique ID for the attachment.
      */
     public String getId() {
@@ -80,33 +63,6 @@ public class Attachment {
      */
     public void setId(String id) {
         this.id = id;
-    }
-
-    /**
-     * Returns the content of the attachment as a byte array.
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use getContent()
-     *             instead.
-     */
-    // TODO: Remove in 3.1
-    public byte[] getData() {
-        logger.error("The Attachment.getData() method is deprecated and will soon be removed. Please use getContent() instead.");
-        return getContent();
-    }
-
-    /**
-     * Sets the content of the attachment.
-     * 
-     * @param data
-     *            The content (byte array) to use for the attachment.
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use
-     *             setContent(content) instead.
-     */
-    // TODO: Remove in 3.1
-    public void setData(byte[] data) {
-        logger.error("The Attachment.setData(data) method is deprecated and will soon be removed. Please use setContent(content) instead.");
-        setContent(data);
     }
 
     /**
@@ -127,27 +83,6 @@ public class Attachment {
     }
 
     /**
-     * Returns the number of bytes in the attachment content.
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use
-     *             getContent().length instead.
-     */
-    // TODO: Remove in 3.1
-    public int getSize() {
-        logger.error("The Attachment.getSize() method is deprecated and will soon be removed. Please use getContent().length instead.");
-        return content != null ? content.length : 0;
-    }
-
-    /**
-     * @deprecated The Attachment.setSize(size) method is deprecated and will soon be removed. This
-     *             method no longer does anything.
-     */
-    // TODO: Remove in 3.1
-    public void setSize(int size) {
-        logger.error("The Attachment.setSize(size) method is deprecated and will soon be removed. This method no longer does anything.");
-    }
-
-    /**
      * Returns the MIME type of the attachment.
      */
     public String getType() {
@@ -162,24 +97,5 @@ public class Attachment {
      */
     public void setType(String type) {
         this.type = type;
-    }
-
-    /**
-     * @deprecated The Attachment.getMessageId() method is deprecated and will soon be removed. This
-     *             method always returns an empty string.
-     */
-    // TODO: Remove in 3.1
-    public String getMessageId() {
-        logger.error("The Attachment.getMessageId() method is deprecated and will soon be removed. This method always returns an empty string.");
-        return "";
-    }
-
-    /**
-     * @deprecated The Attachment.setMessageId(messageId) method is deprecated and will soon be
-     *             removed. This method no longer does anything.
-     */
-    // TODO: Remove in 3.1
-    public void setMessageId(String messageId) {
-        logger.error("The Attachment.setMessageId(messageId) method is deprecated and will soon be removed. This method no longer does anything.");
     }
 }

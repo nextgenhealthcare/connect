@@ -274,34 +274,6 @@ public class ImmutableConnectorMessage {
     }
 
     /**
-     * Retrieves sent content associated with this connector message.
-     * 
-     * @return The sent content, as an ImmutableMessageContent object.
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use map variables to
-     *             retrieve post-replacement data instead. This method will always return null.
-     */
-    // TODO: Remove in 3.1
-    public ImmutableMessageContent getSent() {
-        logger.error("This method is deprecated and will soon be removed. Please use map variables to retrieve post-replacement data instead. This method will always return null.");
-        return null;
-    }
-
-    /**
-     * Retrieves sent content associated with this connector message.
-     * 
-     * @return The sent content, as a string.
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use map variables to
-     *             retrieve post-replacement data instead. This method will always return null.
-     */
-    // TODO: Remove in 3.1
-    public String getSentData() {
-        logger.error("This method is deprecated and will soon be removed. Please use map variables to retrieve post-replacement data instead. This method will always return null.");
-        return null;
-    }
-
-    /**
      * Retrieves response content associated with this connector message.
      * 
      * @return The response content, as an ImmutableMessageContent object.

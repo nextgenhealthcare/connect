@@ -32,8 +32,6 @@ import com.mirth.connect.server.userutil.Attachment;
 import com.mirth.connect.server.userutil.ChannelMap;
 import com.mirth.connect.server.userutil.DestinationSet;
 import com.mirth.connect.server.userutil.ImmutableResponse;
-import com.mirth.connect.server.userutil.MessageObject;
-import com.mirth.connect.server.userutil.MuleContext;
 import com.mirth.connect.server.userutil.SourceMap;
 import com.mirth.connect.server.userutil.VMRouter;
 import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
@@ -119,9 +117,6 @@ public class JavaScriptScopeUtil {
         ImmutableMessage immutableMessage = new ImmutableMessage(message);
         add("message", scope, immutableMessage);
 
-        // TODO: Deprecated, Remove in 3.1
-        add("messageObject", scope, new MessageObject(immutableMessage.getConnectorMessages().get(0)));
-
         ConnectorMessage mergedConnectorMessage = message.getMergedConnectorMessage();
         ImmutableConnectorMessage immutableConnectorMessage = new ImmutableConnectorMessage(mergedConnectorMessage);
 
@@ -132,9 +127,6 @@ public class JavaScriptScopeUtil {
 
     // ConnectorMessage Builder
     private static void addConnectorMessage(Scriptable scope, ImmutableConnectorMessage message) {
-        // TODO: Deprecated, Remove in 3.1
-        add("messageObject", scope, new MessageObject(message));
-
         add("connectorMessage", scope, message);
         add("sourceMap", scope, new SourceMap(message.getSourceMap()));
         add("connectorMap", scope, message.getConnectorMap());
@@ -246,9 +238,6 @@ public class JavaScriptScopeUtil {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addRawMessage(scope, message);
         addConnectorMessage(scope, connectorMessage);
-
-        // TODO: Deprecated, Remove in 3.1
-        add("muleContext", scope, new MuleContext(connectorMessage));
 
         return scope;
     }

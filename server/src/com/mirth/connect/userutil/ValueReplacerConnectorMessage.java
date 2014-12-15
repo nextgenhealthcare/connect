@@ -11,16 +11,11 @@ package com.mirth.connect.userutil;
 
 import java.util.Calendar;
 
-import org.apache.log4j.Logger;
-
-import com.mirth.connect.model.util.DefaultMetaData;
-
 /**
  * This class represents a connector message and is used to retrieve details such as the message ID,
  * metadata ID, status, and various content types.
  */
 public class ValueReplacerConnectorMessage {
-    private Logger logger = Logger.getLogger(getClass());
     private ImmutableConnectorMessage connectorMessage;
 
     /**
@@ -108,60 +103,6 @@ public class ValueReplacerConnectorMessage {
      */
     public long getMessageId() {
         return connectorMessage.getMessageId();
-    }
-
-    /**
-     * Returns the sequential ID of the overall Message associated with this connector message.
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use getMessageId()
-     *             instead.
-     */
-    // TODO: Remove in 3.1
-    public long getId() {
-        logger.error("The ${message.id} reference is deprecated and will soon be removed. Please use ${message.messageId} instead.");
-        return connectorMessage.getMessageId();
-    }
-
-    /**
-     * Returns the source of the message (dependent on the inbound data type).
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use the
-     *             {@value com.mirth.connect.model.util.DefaultMetaData#SOURCE_VARIABLE_MAPPING}
-     *             variable in the connector map instead.
-     */
-    // TODO: Remove in 3.1
-    public String getSource() {
-        logger.error("The ${message.source} reference is deprecated and will soon be removed. Please use the \"" + DefaultMetaData.SOURCE_VARIABLE_MAPPING + "\" variable in the connector map instead.");
-        Object source = connectorMessage.getConnectorMap().get(DefaultMetaData.SOURCE_VARIABLE_MAPPING);
-        return source != null ? source.toString() : "";
-    }
-
-    /**
-     * Returns the type of the message (dependent on the inbound data type).
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use the
-     *             {@value com.mirth.connect.model.util.DefaultMetaData#TYPE_VARIABLE_MAPPING}
-     *             variable in the connector map instead.
-     */
-    // TODO: Remove in 3.1
-    public String getType() {
-        logger.error("The ${message.type} reference is deprecated and will soon be removed. Please use the \"" + DefaultMetaData.TYPE_VARIABLE_MAPPING + "\" variable in the connector map instead.");
-        Object type = connectorMessage.getConnectorMap().get(DefaultMetaData.TYPE_VARIABLE_MAPPING);
-        return type != null ? type.toString() : "";
-    }
-
-    /**
-     * Returns the version of the message (dependent on the inbound data type).
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use the
-     *             {@value com.mirth.connect.model.util.DefaultMetaData#VERSION_VARIABLE_MAPPING}
-     *             variable in the connector map instead.
-     */
-    // TODO: Remove in 3.1
-    public String getVersion() {
-        logger.error("The ${message.version} reference is deprecated and will soon be removed. Please use the \"" + DefaultMetaData.VERSION_VARIABLE_MAPPING + "\" variable in the connector map instead.");
-        Object version = connectorMessage.getConnectorMap().get(DefaultMetaData.VERSION_VARIABLE_MAPPING);
-        return version != null ? version.toString() : "";
     }
 
     @Override

@@ -15,7 +15,6 @@ import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
-import com.mirth.connect.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.userutil.Response;
 import com.mirth.connect.userutil.Status;
 import com.mirth.connect.util.ErrorMessageBuilder;
@@ -66,64 +65,6 @@ public class VMRouter {
         }
 
         return routeMessageByChannelId(channel.getId(), rawMessage);
-    }
-
-    /**
-     * Dispatches a message to a channel, specified by the deployed channel name.
-     * 
-     * @param channelName
-     *            The name of the deployed channel to dispatch the message to.
-     * @param message
-     *            The message to dispatch to the channel.
-     * @param useQueue
-     *            This parameter is no longer used. If you want the downstream channel to queue its
-     *            message and return immediately upon receipt, enable the source queue on the source
-     *            connector.
-     * @return The Response object returned by the channel, if its source connector is configured to
-     *         return one.
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use
-     *             routeMessage(channelName, message) instead. The useQueue parameter will not be
-     *             used. If you want the downstream channel to queue its message and return
-     *             immediately upon receipt, enable the source queue on the source connector.
-     */
-    // TODO: Remove in 3.1
-    public Response routeMessage(String channelName, String message, boolean useQueue) {
-        logger.error("The routeMessage(channelName, message, useQueue) method is deprecated and will soon be removed. Please use routeMessage(channelName, message) instead. The useQueue parameter will not be used. If you want the downstream channel to queue its message and return immediately upon receipt, enable the source queue on the source connector.");
-        return routeMessage(channelName, message);
-    }
-
-    /**
-     * Dispatches a message to a channel, specified by the deployed channel ID.
-     * 
-     * @param channelId
-     *            The ID of the deployed channel to dispatch the message to.
-     * @param message
-     *            The message to dispatch to the channel.
-     * @param useQueue
-     *            This parameter is no longer used. If you want the downstream channel to queue its
-     *            message and return immediately upon receipt, enable the source queue on the source
-     *            connector.
-     * @return The Response object returned by the channel, if its source connector is configured to
-     *         return one.
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use
-     *             routeMessageByChannelId(channelId, message) instead. The useQueue parameter will
-     *             not be used. If you want the downstream channel to queue its message and return
-     *             immediately upon receipt, enable the source queue on the source connector.
-     */
-    // TODO: Remove in 3.1
-    public Response routeMessageByChannelId(String channelId, Object message, boolean useQueue) {
-        if (message instanceof MessageObject) {
-            logger.error("The routeMessageByChannelId(channelId, messageObject, useQueue) method is deprecated and will soon be removed. Please use routeMessageByChannelId(channelId, message) instead. The useQueue parameter will not be used. If you want the downstream channel to queue its message and return immediately upon receipt, enable the source queue on the source connector.");
-            return routeMessageByChannelId(channelId, ((MessageObject) message).getRawData());
-        } else if (message instanceof ImmutableConnectorMessage) {
-            logger.error("The routeMessageByChannelId(channelId, connectorMessage, useQueue) method is deprecated and will soon be removed. Please use routeMessageByChannelId(channelId, message) instead. The useQueue parameter will not be used. If you want the downstream channel to queue its message and return immediately upon receipt, enable the source queue on the source connector.");
-            return routeMessageByChannelId(channelId, ((ImmutableConnectorMessage) message).getRawData());
-        } else {
-            logger.error("The routeMessageByChannelId(channelId, message, useQueue) method is deprecated and will soon be removed. Please use routeMessageByChannelId(channelId, message) instead. The useQueue parameter will not be used. If you want the downstream channel to queue its message and return immediately upon receipt, enable the source queue on the source connector.");
-            return routeMessageByChannelId(channelId, message.toString());
-        }
     }
 
     /**

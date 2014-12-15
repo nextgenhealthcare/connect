@@ -14,8 +14,6 @@ import java.util.List;
 
 import javax.activation.UnsupportedDataTypeException;
 
-import org.apache.log4j.Logger;
-
 import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.server.attachments.MirthAttachmentHandler;
@@ -28,7 +26,6 @@ import com.mirth.connect.userutil.ImmutableConnectorMessage;
  */
 public class AttachmentUtil {
     private static EngineController engineController = ControllerFactory.getFactory().createEngineController();
-    private static Logger logger = Logger.getLogger(AttachmentUtil.class);
 
     private AttachmentUtil() {}
 
@@ -55,25 +52,6 @@ public class AttachmentUtil {
      * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the corresponding attachment
      * content, and returns the full post-replacement message.
      * 
-     * @param messageObject
-     *            The connector message associated with the attachments. The encoded data will be
-     *            used as the raw message string to re-attach attachments to, if it exists.
-     *            Otherwise, the connector message's raw data will be used.
-     * @return The resulting message with all applicable attachment content re-inserted.
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use
-     *             reAttachMessage(connectorMessage) instead.
-     */
-    // TODO: Remove in 3.1
-    public static String reAttachMessage(MessageObject messageObject) {
-        logger.error("The reAttachMessage(messageObject) method is deprecated and will soon be removed. Please use reAttachMessage(connectorMessage) instead.");
-        return getAttachmentHandler(messageObject.getChannelId()).reAttachMessage(messageObject.getImmutableConnectorMessage());
-    }
-
-    /**
-     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the corresponding attachment
-     * content, and returns the full post-replacement message.
-     * 
      * @param connectorMessage
      *            The connector message associated with the attachments. The encoded data will be
      *            used as the raw message string to re-attach attachments to, if it exists.
@@ -82,42 +60,6 @@ public class AttachmentUtil {
      */
     public static String reAttachMessage(ImmutableConnectorMessage connectorMessage) {
         return getAttachmentHandler(connectorMessage.getChannelId()).reAttachMessage(connectorMessage);
-    }
-
-    /**
-     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the corresponding attachment
-     * content, and returns the full post-replacement message.
-     * 
-     * @param messageObject
-     *            The connector message associated with the attachments. The raw data will be used
-     *            as the raw message string to re-attach attachments to.
-     * @return The resulting message with all applicable attachment content re-inserted.
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use
-     *             reAttachMessage(raw, connectorMessage) instead.
-     */
-    // TODO: Remove in 3.1
-    public static String reAttachRawMessage(MessageObject messageObject) {
-        logger.error("The reAttachRawMessage(messageObject) method is deprecated and will soon be removed. Please use reAttachMessage(raw, connectorMessage) instead.");
-        return getAttachmentHandler(messageObject.getChannelId()).reAttachMessage(messageObject.getRawData(), messageObject.getImmutableConnectorMessage());
-    }
-
-    /**
-     * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the corresponding attachment
-     * content, and returns the full post-replacement message.
-     * 
-     * @param connectorMessage
-     *            The connector message associated with the attachments. The raw data will be used
-     *            as the raw message string to re-attach attachments to.
-     * @return The resulting message with all applicable attachment content re-inserted.
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use
-     *             reAttachMessage(raw, connectorMessage) instead.
-     */
-    // TODO: Remove in 3.1
-    public static String reAttachRawMessage(ImmutableConnectorMessage connectorMessage) {
-        logger.error("The reAttachRawMessage(connectorMessage) method is deprecated and will soon be removed. Please use reAttachMessage(raw, connectorMessage) instead.");
-        return getAttachmentHandler(connectorMessage.getChannelId()).reAttachMessage(connectorMessage.getRawData(), connectorMessage);
     }
 
     /**
@@ -133,22 +75,6 @@ public class AttachmentUtil {
      */
     public static String reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage) {
         return getAttachmentHandler(connectorMessage.getChannelId()).reAttachMessage(raw, connectorMessage);
-    }
-
-    /**
-     * Retrieves all attachments associated with a connector message.
-     * 
-     * @param messageObject
-     *            The connector message associated with the attachments.
-     * @return A list of attachments associated with the connector message.
-     * 
-     * @deprecated This method is deprecated and will soon be removed. Please use
-     *             getMessageAttachments(connectorMessage) instead.
-     */
-    // TODO: Remove in 3.1
-    public static List<Attachment> getMessageAttachments(MessageObject messageObject) throws XmlSerializerException {
-        logger.error("The getMessageAttachments(messageObject) method is deprecated and will soon be removed. Please use getMessageAttachments(connectorMessage) instead.");
-        return convertFromDonkeyAttachmentList(MirthAttachmentHandler.getMessageAttachments(messageObject.getImmutableConnectorMessage()));
     }
 
     /**
