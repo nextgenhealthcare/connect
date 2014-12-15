@@ -19,6 +19,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -78,6 +79,7 @@ import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.InvalidConnectorPluginProperties;
 import com.mirth.connect.model.MessageStorageMode;
+import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
@@ -104,6 +106,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     private static final int SCRIPTS_TAB_INDEX = 3;
 
     public Channel currentChannel;
+    public Map<Integer, Set<String>> resourceIds = new HashMap<Integer, Set<String>>();
     public int lastModelIndex = -1;
     public TransformerPane transformerPane = new TransformerPane();
     public FilterPane filterPane = new FilterPane();
@@ -119,7 +122,7 @@ public class ChannelSetup extends javax.swing.JPanel {
      * Creates the Channel Editor panel. Calls initComponents() and sets up the model, dropdowns,
      * and mouse listeners.
      */
-    public ChannelSetup() {                                                                                                                                                                                                                                                                                                                          
+    public ChannelSetup() {
         this.parent = PlatformUI.MIRTH_FRAME;
 
         initComponents();
@@ -155,8 +158,20 @@ public class ChannelSetup extends javax.swing.JPanel {
                     scriptMap.put(ScriptPanel.POSTPROCESSOR_SCRIPT, scripts.getScripts().get(ScriptPanel.POSTPROCESSOR_SCRIPT));
                     scriptMap.put(ScriptPanel.DEPLOY_SCRIPT, scripts.getScripts().get(ScriptPanel.DEPLOY_SCRIPT));
                     scriptMap.put(ScriptPanel.UNDEPLOY_SCRIPT, scripts.getScripts().get(ScriptPanel.UNDEPLOY_SCRIPT));
-                    
+
                     updateScriptsPanel(scriptMap);
+                }
+
+                /*
+                 * When connector-specific resources are changed and the connector panel has already
+                 * been loaded, returning to the connector panel will not trigger a call to
+                 * setProperties. In order to allow connector panels to take action when resources
+                 * have changed, we call setVisible when the user switches tabs.
+                 */
+                if (selectedTab == SOURCE_TAB_INDEX && sourceConnectorPanel.getConnectorSettingsPanel() != null) {
+                    sourceConnectorPanel.getConnectorSettingsPanel().setVisible(true);
+                } else if (selectedTab == DESTINATIONS_TAB_INDEX && destinationConnectorPanel.getConnectorSettingsPanel() != null) {
+                    destinationConnectorPanel.getConnectorSettingsPanel().setVisible(true);
                 }
 
                 previousTab = selectedTab;
@@ -464,7 +479,10 @@ public class ChannelSetup extends javax.swing.JPanel {
                 if (!evt.getValueIsAdjusting()) {
                     if (lastModelIndex != -1 && lastModelIndex != destinationTable.getRowCount() && !isDeleting) {
                         Connector destinationConnector = currentChannel.getDestinationConnectors().get(lastModelIndex);
-                        destinationConnector.setProperties(destinationConnectorPanel.getProperties());
+
+                        ConnectorProperties props = destinationConnectorPanel.getProperties();
+                        ((DestinationConnectorPropertiesInterface) props).getDestinationConnectorProperties().setResourceIds(resourceIds.get(destinationConnector.getMetaDataId()));
+                        destinationConnector.setProperties(props);
                     }
 
                     if (!loadConnector()) {
@@ -600,6 +618,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         channelValidationFailed = false;
         lastModelIndex = -1;
         currentChannel = channel;
+        setResourceIds();
 
 //        PropertyVerifier.checkConnectorProperties(currentChannel, parent.getConnectorMetaData());
 
@@ -617,6 +636,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         sourceConnectorPanel.updateQueueWarning(currentChannel.getProperties().getMessageStorageMode());
         destinationConnectorPanel.updateQueueWarning(currentChannel.getProperties().getMessageStorageMode());
+        updateResourceIds();
     }
 
     /**
@@ -673,6 +693,47 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         DefaultTableModel model = (DefaultTableModel) tagTable.getModel();
         model.setRowCount(0);
+
+        ((SourceConnectorPropertiesInterface) currentChannel.getSourceConnector().getProperties()).getSourceConnectorProperties().setResourceIds(Collections.singleton(ResourceProperties.DEFAULT_RESOURCE_ID));
+        for (Connector destinationConnector : currentChannel.getDestinationConnectors()) {
+            ((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().setResourceIds(Collections.singleton(ResourceProperties.DEFAULT_RESOURCE_ID));
+        }
+        setResourceIds();
+    }
+
+    /**
+     * Update the resource map with values from the current channel model.
+     */
+    private void setResourceIds() {
+        resourceIds = new HashMap<Integer, Set<String>>();
+        resourceIds.put(null, currentChannel.getProperties().getResourceIds());
+        if (currentChannel.getSourceConnector() != null && currentChannel.getSourceConnector().getProperties() != null) {
+            resourceIds.put(0, ((SourceConnectorPropertiesInterface) currentChannel.getSourceConnector().getProperties()).getSourceConnectorProperties().getResourceIds());
+        }
+        for (Connector destinationConnector : currentChannel.getDestinationConnectors()) {
+            if (destinationConnector.getProperties() != null) {
+                resourceIds.put(destinationConnector.getMetaDataId(), ((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().getResourceIds());
+            }
+        }
+    }
+
+    /**
+     * Update resources in the current channel model with values from the cached map.
+     */
+    private void updateResourceIds() {
+        Set<String> sourceResourceIds = resourceIds.get(0);
+        if (sourceResourceIds == null) {
+            sourceResourceIds = new LinkedHashSet<String>();
+        }
+        ((SourceConnectorPropertiesInterface) currentChannel.getSourceConnector().getProperties()).getSourceConnectorProperties().setResourceIds(sourceResourceIds);
+
+        for (Connector destinationConnector : currentChannel.getDestinationConnectors()) {
+            Set<String> destinationResourceIds = resourceIds.get(destinationConnector.getMetaDataId());
+            if (destinationResourceIds == null) {
+                destinationResourceIds = new LinkedHashSet<String>();
+            }
+            ((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().setResourceIds(destinationResourceIds);
+        }
     }
 
     private void setLastModified() {
@@ -1038,6 +1099,10 @@ public class ChannelSetup extends javax.swing.JPanel {
 
     public void saveSourcePanel() {
         currentChannel.getSourceConnector().setProperties(sourceConnectorPanel.getProperties());
+
+        if (!loadingChannel && resourceIds.containsKey(currentChannel.getSourceConnector().getMetaDataId())) {
+            ((SourceConnectorPropertiesInterface) currentChannel.getSourceConnector().getProperties()).getSourceConnectorProperties().setResourceIds(resourceIds.get(currentChannel.getSourceConnector().getMetaDataId()));
+        }
     }
 
     public void saveDestinationPanel() {
@@ -1045,6 +1110,10 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         temp = currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex());
         temp.setProperties(destinationConnectorPanel.getProperties());
+
+        if (!loadingChannel && resourceIds.containsKey(temp.getMetaDataId())) {
+            ((DestinationConnectorPropertiesInterface) temp.getProperties()).getDestinationConnectorProperties().setResourceIds(resourceIds.get(temp.getMetaDataId()));
+        }
     }
 
     /**
@@ -1681,6 +1750,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         attachmentWarningLabel = new javax.swing.JLabel();
         attachmentStoreCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         channelIdField = new javax.swing.JTextField();
+        librariesLabel = new javax.swing.JLabel();
+        setLibrariesButton = new javax.swing.JButton();
         messageStoragePanel = new javax.swing.JPanel();
         storageModeLabel = new javax.swing.JLabel();
         contentLabel = new javax.swing.JLabel();
@@ -1832,6 +1903,15 @@ public class ChannelSetup extends javax.swing.JPanel {
         channelIdField.setText("Id: ");
         channelIdField.setBorder(null);
 
+        librariesLabel.setText("Libraries:");
+
+        setLibrariesButton.setText("Set Libraries");
+        setLibrariesButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                setLibrariesButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout channelPropertiesPanelLayout = new javax.swing.GroupLayout(channelPropertiesPanel);
         channelPropertiesPanel.setLayout(channelPropertiesPanelLayout);
         channelPropertiesPanelLayout.setHorizontalGroup(
@@ -1841,39 +1921,40 @@ public class ChannelSetup extends javax.swing.JPanel {
                 .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(summaryNameLabel)
                     .addComponent(summaryPatternLabel1)
+                    .addComponent(librariesLabel)
                     .addComponent(initialStateLabel)
                     .addComponent(attachmentLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
-                        .addComponent(attachmentComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(attachmentPropertiesButton))
-                    .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(changeDataTypesButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(initialState, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(summaryNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
-                        .addGap(12, 12, 12)
+                        .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(changeDataTypesButton, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(summaryNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(setLibrariesButton, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
+                                .addComponent(attachmentComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(attachmentPropertiesButton)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
-                                .addComponent(clearGlobalChannelMapCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(19, 19, 19)
-                                .addComponent(summaryRevision, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(summaryEnabledCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(clearGlobalChannelMapCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(channelIdField, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(summaryRevision, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(lastModified, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addContainerGap())
                             .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
                                 .addComponent(attachmentStoreCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(attachmentWarningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
-                                .addComponent(summaryEnabledCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(channelIdField))))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, channelPropertiesPanelLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lastModified, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap())
+                                .addComponent(attachmentWarningLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(119, 119, 119))))
+                    .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
+                        .addComponent(initialState, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         channelPropertiesPanelLayout.setVerticalGroup(
             channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1891,8 +1972,8 @@ public class ChannelSetup extends javax.swing.JPanel {
                             .addComponent(changeDataTypesButton))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(initialState, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(initialStateLabel)))
+                            .addComponent(librariesLabel)
+                            .addComponent(setLibrariesButton)))
                     .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
                         .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(clearGlobalChannelMapCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1901,12 +1982,16 @@ public class ChannelSetup extends javax.swing.JPanel {
                         .addComponent(lastModified)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(initialStateLabel)
+                    .addComponent(initialState, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(attachmentLabel)
                     .addComponent(attachmentComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(attachmentStoreCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(attachmentPropertiesButton)
+                    .addComponent(attachmentStoreCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(attachmentWarningLabel))
-                .addContainerGap())
+                .addGap(10, 10, 10))
         );
 
         messageStoragePanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -2245,7 +2330,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(customMetadataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(addMetaDataButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(deleteMetaDataButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(deleteMetaDataButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(revertMetaDataButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -2257,7 +2342,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                         .addComponent(addMetaDataButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(deleteMetaDataButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
                         .addComponent(revertMetaDataButton))
                     .addComponent(metaDataTablePane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
@@ -2280,7 +2365,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(summaryDescriptionScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 21, Short.MAX_VALUE)
+                .addComponent(summaryDescriptionScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 64, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -2300,7 +2385,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(messagePruningPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(customMetadataPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 420, Short.MAX_VALUE))))
+                            .addComponent(customMetadataPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         summaryLayout.setVerticalGroup(
@@ -2352,12 +2437,12 @@ public class ChannelSetup extends javax.swing.JPanel {
             .addGroup(sourceLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(sourceLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(sourceConnectorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 743, Short.MAX_VALUE)
+                    .addComponent(sourceConnectorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 748, Short.MAX_VALUE)
                     .addGroup(sourceLayout.createSequentialGroup()
                         .addComponent(sourceSourceLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(sourceSourceDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 367, Short.MAX_VALUE)))
+                        .addGap(0, 424, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         sourceLayout.setVerticalGroup(
@@ -2368,7 +2453,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                     .addComponent(sourceSourceLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(sourceSourceDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(sourceConnectorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 543, Short.MAX_VALUE)
+                .addComponent(sourceConnectorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 612, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -2428,9 +2513,9 @@ public class ChannelSetup extends javax.swing.JPanel {
             .addGroup(destinationLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(destinationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(destinationTablePane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 743, Short.MAX_VALUE)
+                    .addComponent(destinationTablePane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 748, Short.MAX_VALUE)
                     .addGroup(destinationLayout.createSequentialGroup()
-                        .addComponent(destinationConnectorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 551, Short.MAX_VALUE)
+                        .addComponent(destinationConnectorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(destinationVariableList, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, destinationLayout.createSequentialGroup()
@@ -2439,7 +2524,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                         .addComponent(destinationSourceDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(waitForPreviousCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 157, Short.MAX_VALUE)))
+                        .addGap(0, 237, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         destinationLayout.setVerticalGroup(
@@ -2455,7 +2540,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(destinationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(destinationVariableList, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(destinationConnectorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE))
+                    .addComponent(destinationConnectorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -2472,11 +2557,11 @@ public class ChannelSetup extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(channelView, javax.swing.GroupLayout.PREFERRED_SIZE, 776, Short.MAX_VALUE)
+            .addComponent(channelView, javax.swing.GroupLayout.PREFERRED_SIZE, 777, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(channelView, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 622, Short.MAX_VALUE)
+            .addComponent(channelView, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 691, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -2600,7 +2685,9 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         int connectorIndex = destinationTable.getSelectedModelIndex();
         Connector destinationConnector = currentChannel.getDestinationConnectors().get(connectorIndex);
-        destinationConnector.setProperties(destinationConnectorPanel.getProperties());
+        ConnectorProperties props = destinationConnectorPanel.getProperties();
+        ((DestinationConnectorPropertiesInterface) props).getDestinationConnectorProperties().setResourceIds(resourceIds.get(destinationConnector.getMetaDataId()));
+        destinationConnector.setProperties(props);
         updateScripts();
 
         sourceConnectorPanel.updateResponseDropDown();
@@ -2673,13 +2760,22 @@ public class ChannelSetup extends javax.swing.JPanel {
                 String name = sourceConnector.getName();
                 changeConnectorType(sourceConnector, false);
                 sourceConnector.setName(name);
-                sourceConnectorPanel.setProperties(sourceConnectorPanel.getDefaults());
-                sourceConnector.setProperties(sourceConnectorPanel.getProperties());
+
+                ConnectorProperties props = sourceConnectorPanel.getDefaults();
+                ((SourceConnectorPropertiesInterface) props).getSourceConnectorProperties().setResourceIds(resourceIds.get(sourceConnector.getMetaDataId()));
+                sourceConnectorPanel.setProperties(props);
+
+                props = sourceConnectorPanel.getProperties();
+                ((SourceConnectorPropertiesInterface) props).getSourceConnectorProperties().setResourceIds(resourceIds.get(sourceConnector.getMetaDataId()));
+                sourceConnector.setProperties(props);
             }
 
             sourceConnector.setTransportName((String) sourceSourceDropdown.getSelectedItem());
             currentChannel.setSourceConnector(sourceConnector);
-            sourceConnectorPanel.setProperties(sourceConnector.getProperties());
+
+            ConnectorProperties props = sourceConnector.getProperties();
+            ((SourceConnectorPropertiesInterface) props).getSourceConnectorProperties().setResourceIds(resourceIds.get(sourceConnector.getMetaDataId()));
+            sourceConnectorPanel.setProperties(props);
         }
 
         // Set the source data type to XML if necessary
@@ -2952,6 +3048,19 @@ public class ChannelSetup extends javax.swing.JPanel {
         attachmentWarningLabel.setVisible(evt.getStateChange() != ItemEvent.SELECTED && attachmentComboBox.getSelectedItem() != AttachmentHandlerType.NONE);
     }//GEN-LAST:event_attachmentStoreCheckBoxItemStateChanged
 
+    private void setLibrariesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setLibrariesButtonActionPerformed
+        LibraryResourcesDialog dialog = new LibraryResourcesDialog(currentChannel);
+        if (dialog.wasSaved()) {
+            resourceIds = dialog.getSelectedResourceIds();
+            currentChannel.getProperties().setResourceIds(resourceIds.get(null));
+            ((SourceConnectorPropertiesInterface) currentChannel.getSourceConnector().getProperties()).getSourceConnectorProperties().setResourceIds(resourceIds.get(currentChannel.getSourceConnector().getMetaDataId()));
+            for (Connector destinationConnector : currentChannel.getDestinationConnectors()) {
+                ((DestinationConnectorPropertiesInterface) destinationConnector.getProperties()).getDestinationConnectorProperties().setResourceIds(resourceIds.get(destinationConnector.getMetaDataId()));
+            }
+            parent.setSaveEnabled(true);
+        }
+    }//GEN-LAST:event_setLibrariesButtonActionPerformed
+
     public void generateMultipleDestinationPage() {
         // Get the selected destination connector and set it.
         destinationConnectorPanel.setConnectorSettingsPanel(LoadedExtensions.getInstance().getDestinationConnectors().get((String) destinationSourceDropdown.getSelectedItem()));
@@ -2983,8 +3092,14 @@ public class ChannelSetup extends javax.swing.JPanel {
             String name = destinationConnector.getName();
             changeConnectorType(destinationConnector, true);
             destinationConnector.setName(name);
-            destinationConnectorPanel.setProperties(destinationConnectorPanel.getDefaults());
-            destinationConnector.setProperties(destinationConnectorPanel.getProperties());
+
+            ConnectorProperties props = destinationConnectorPanel.getDefaults();
+            ((DestinationConnectorPropertiesInterface) props).getDestinationConnectorProperties().setResourceIds(resourceIds.get(destinationConnector.getMetaDataId()));
+            destinationConnectorPanel.setProperties(props);
+
+            props = destinationConnectorPanel.getProperties();
+            ((DestinationConnectorPropertiesInterface) props).getDestinationConnectorProperties().setResourceIds(resourceIds.get(destinationConnector.getMetaDataId()));
+            destinationConnector.setProperties(props);
         }
 
         destinationVariableList.setTransferMode(destinationConnectorPanel.getTransferMode());
@@ -3247,6 +3362,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lastModified;
+    private javax.swing.JLabel librariesLabel;
     private javax.swing.JPanel messagePruningPanel;
     private javax.swing.JPanel messageStoragePanel;
     private javax.swing.JProgressBar messageStorageProgressBar;
@@ -3266,6 +3382,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     private com.mirth.connect.client.ui.components.MirthCheckBox removeContentCheckbox;
     private javax.swing.JButton revertMetaDataButton;
     private com.mirth.connect.client.ui.ScriptPanel scripts;
+    private javax.swing.JButton setLibrariesButton;
     private javax.swing.JPanel source;
     private javax.swing.JScrollPane sourceConnectorPane;
     private com.mirth.connect.client.ui.panels.connectors.ConnectorPanel sourceConnectorPanel;

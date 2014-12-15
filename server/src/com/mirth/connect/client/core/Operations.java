@@ -138,6 +138,11 @@ public class Operations {
     public static final Operation DATABASE_TASK_RUN = new Operation("runDatabaseTask", "Run database task", true);
     public static final Operation DATABASE_TASK_CANCEL = new Operation("cancelDatabaseTask", "Cancel database task", true);
 
+    // Resource Tasks
+    public static final Operation RESOURCES_GET = new Operation("getResources", "Get resources", true);
+    public static final Operation RESOURCES_SET = new Operation("setResources", "Set resources", true);
+    public static final Operation RESOURCES_RELOAD = new Operation("reloadResource", "Reload resource", true);
+
     private static Map<String, Operation> operationMap = new HashMap<String, Operation>();
 
     static {
@@ -239,6 +244,9 @@ public class Operations {
         operationMap.put(DATABASE_TASKS_GET.getName(), DATABASE_TASKS_GET);
         operationMap.put(DATABASE_TASK_RUN.getName(), DATABASE_TASK_RUN);
         operationMap.put(DATABASE_TASK_CANCEL.getName(), DATABASE_TASK_CANCEL);
+        operationMap.put(RESOURCES_GET.getName(), RESOURCES_GET);
+        operationMap.put(RESOURCES_SET.getName(), RESOURCES_SET);
+        operationMap.put(RESOURCES_RELOAD.getName(), RESOURCES_RELOAD);
     }
 
     public static void addOperation(Operation operation) {

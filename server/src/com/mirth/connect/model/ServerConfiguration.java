@@ -15,8 +15,12 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.donkey.util.migration.Migratable;
+import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.alert.AlertModel;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.plugins.libraryresource.LibraryResourceProperties;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("serverConfiguration")
@@ -30,6 +34,7 @@ public class ServerConfiguration implements Serializable, Migratable {
     private UpdateSettings updateSettings = null;
     private Map<String, String> globalScripts = null;
     private Map<String, Properties> pluginProperties = null;
+    private ResourcePropertiesList resourceProperties = null;
 
     public List<AlertModel> getAlerts() {
         return this.alerts;
@@ -103,6 +108,14 @@ public class ServerConfiguration implements Serializable, Migratable {
         this.pluginProperties = pluginProperties;
     }
 
+    public ResourcePropertiesList getResourceProperties() {
+        return resourceProperties;
+    }
+
+    public void setResourceProperties(ResourcePropertiesList resourceProperties) {
+        this.resourceProperties = resourceProperties;
+    }
+
     @Override
     public void migrate3_0_1(DonkeyElement element) {}
 
@@ -124,5 +137,21 @@ public class ServerConfiguration implements Serializable, Migratable {
     }
 
     @Override
-    public void migrate3_2_0(DonkeyElement element) {}
+    public void migrate3_2_0(DonkeyElement element) {
+        ResourcePropertiesList list = new ResourcePropertiesList();
+        LibraryResourceProperties defaultResource = new LibraryResourceProperties();
+        defaultResource.setId(ResourceProperties.DEFAULT_RESOURCE_ID);
+        defaultResource.setName(ResourceProperties.DEFAULT_RESOURCE_NAME);
+        defaultResource.setDescription("Loads libraries from the custom-lib folder in the Mirth Connect home directory.");
+        defaultResource.setIncludeWithGlobalScripts(true);
+        defaultResource.setDirectory("custom-lib");
+        list.getList().add(defaultResource);
+
+        try {
+            DonkeyElement resourcePropertiesElement = element.addChildElementFromXml(ObjectXMLSerializer.getInstance().serialize(list));
+            resourcePropertiesElement.setNodeName("resourceProperties");
+        } catch (DonkeyElementException e) {
+            throw new SerializerException("Failed to migrate server configuration.", e);
+        }
+    }
 }

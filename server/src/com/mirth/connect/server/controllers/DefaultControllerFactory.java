@@ -65,4 +65,8 @@ public class DefaultControllerFactory extends ControllerFactory {
     public DatabaseTaskController createDatabaseTaskController() {
         return DefaultDatabaseTaskController.create();
     }
+
+    public ContextFactoryController createContextFactoryController() {
+        return DefaultContextFactoryController.create();
+    }
 }

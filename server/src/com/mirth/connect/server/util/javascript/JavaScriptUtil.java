@@ -39,6 +39,7 @@ import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
+import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ScriptCompileException;
@@ -53,6 +54,8 @@ public class JavaScriptUtil {
     private static CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private static final int SOURCE_CODE_LINE_WRAPPER = 5;
     private static ExecutorService executor = Executors.newCachedThreadPool();
+    private static ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
+    private static volatile String globalScriptContextFactoryId = null;
 
     public static <T> T execute(JavaScriptTask<T> task) throws JavaScriptExecutorException, InterruptedException {
         Future<T> future = executor.submit(task);
@@ -67,8 +70,8 @@ public class JavaScriptUtil {
                 future.cancel(true);
                 Context context = task.getContext();
 
-                if (context != null && context instanceof StoppableContext) {
-                    ((StoppableContext) context).setRunning(false);
+                if (context != null && context instanceof MirthContext) {
+                    ((MirthContext) context).setRunning(false);
                 }
             }
 
@@ -78,17 +81,17 @@ public class JavaScriptUtil {
         }
     }
 
-    public static String executeAttachmentScript(final String message, final String channelId, final List<Attachment> attachments) throws InterruptedException, JavaScriptExecutorException {
+    public static String executeAttachmentScript(MirthContextFactory contextFactory, final String message, final String channelId, final List<Attachment> attachments) throws InterruptedException, JavaScriptExecutorException {
         String processedMessage = message;
         Object result = null;
 
         try {
-            result = execute(new JavaScriptTask<Object>() {
+            result = execute(new JavaScriptTask<Object>(contextFactory) {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(ScriptController.ATTACHMENT_SCRIPT_KEY.toLowerCase());
                     try {
-                        Scriptable scope = JavaScriptScopeUtil.getAttachmentScope(scriptLogger, channelId, message, attachments);
+                        Scriptable scope = JavaScriptScopeUtil.getAttachmentScope(getContextFactory(), scriptLogger, channelId, message, attachments);
                         return JavaScriptUtil.executeScript(this, ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channelId), scope, null, null);
                     } finally {
                         Context.exit();
@@ -150,11 +153,18 @@ public class JavaScriptUtil {
             Object result = null;
 
             if (compiledScriptCache.getCompiledScript(ScriptController.PREPROCESSOR_SCRIPT_KEY) != null) {
+                // Pull the channel context factory out first since we're going to overwrite it
+                MirthContextFactory contextFactory = task.getContextFactory();
+                MirthContextFactory globalScriptContextFactory = getGlobalScriptContextFactory();
+                
                 try {
-                    Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), message.getRaw().getContent(), new ImmutableConnectorMessage(message, true, destinationIdMap));
+                    Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(globalScriptContextFactory, scriptLogger, message.getChannelId(), message.getRaw().getContent(), new ImmutableConnectorMessage(message, true, destinationIdMap));
+                    task.setContextFactory(globalScriptContextFactory);
                     result = JavaScriptUtil.executeScript(task, ScriptController.PREPROCESSOR_SCRIPT_KEY, scope, null, null);
                 } finally {
                     Context.exit();
+                    // Restore the channel context factory
+                    task.setContextFactory(contextFactory);
                 }
             }
 
@@ -180,7 +190,7 @@ public class JavaScriptUtil {
             if (compiledScriptCache.getCompiledScript(scriptId) != null) {
                 try {
                     // Update the scope with the result from the global processor
-                    Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(scriptLogger, message.getChannelId(), globalResult, new ImmutableConnectorMessage(message, true, destinationIdMap));
+                    Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(task.getContextFactory(), scriptLogger, message.getChannelId(), globalResult, new ImmutableConnectorMessage(message, true, destinationIdMap));
                     result = JavaScriptUtil.executeScript(task, scriptId, scope, null, null);
                 } finally {
                     Context.exit();
@@ -239,7 +249,7 @@ public class JavaScriptUtil {
             String scriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, message.getChannelId());
             if (compiledScriptCache.getCompiledScript(scriptId) != null) {
                 try {
-                    Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message);
+                    Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(task.getContextFactory(), scriptLogger, message.getChannelId(), message);
                     channelResponse = getPostprocessorResponse(JavaScriptUtil.executeScript(task, scriptId, scope, null, null));
                 } finally {
                     Context.exit();
@@ -253,8 +263,11 @@ public class JavaScriptUtil {
         Response response = channelResponse;
         try {
             if (compiledScriptCache.getCompiledScript(ScriptController.POSTPROCESSOR_SCRIPT_KEY) != null) {
+                MirthContextFactory globalScriptContextFactory = getGlobalScriptContextFactory();
+                
                 try {
-                    Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(scriptLogger, message.getChannelId(), message, (channelResponse == null) ? null : new com.mirth.connect.userutil.Response(channelResponse));
+                    Scriptable scope = JavaScriptScopeUtil.getPostprocessorScope(globalScriptContextFactory, scriptLogger, message.getChannelId(), message, (channelResponse == null) ? null : new com.mirth.connect.userutil.Response(channelResponse));
+                    task.setContextFactory(globalScriptContextFactory);
                     Response globalResponse = getPostprocessorResponse(JavaScriptUtil.executeScript(task, ScriptController.POSTPROCESSOR_SCRIPT_KEY, scope, null, null));
 
                     if (globalResponse != null) {
@@ -333,14 +346,14 @@ public class JavaScriptUtil {
      * @throws InterruptedException
      * @throws JavaScriptExecutorException
      */
-    public static void executeChannelDeployScript(final String scriptId, final String scriptType, final String channelId) throws InterruptedException, JavaScriptExecutorException {
+    public static void executeChannelDeployScript(MirthContextFactory contextFactory, final String scriptId, final String scriptType, final String channelId) throws InterruptedException, JavaScriptExecutorException {
         try {
-            execute(new JavaScriptTask<Object>() {
+            execute(new JavaScriptTask<Object>(contextFactory) {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
                     try {
-                        Scriptable scope = JavaScriptScopeUtil.getDeployScope(scriptLogger, channelId);
+                        Scriptable scope = JavaScriptScopeUtil.getDeployScope(getContextFactory(), scriptLogger, channelId);
                         JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
                         return null;
                     } finally {
@@ -363,14 +376,14 @@ public class JavaScriptUtil {
      * @throws InterruptedException
      * @throws JavaScriptExecutorException
      */
-    public static void executeChannelUndeployScript(final String scriptId, final String scriptType, final String channelId) throws InterruptedException, JavaScriptExecutorException {
+    public static void executeChannelUndeployScript(MirthContextFactory contextFactory, final String scriptId, final String scriptType, final String channelId) throws InterruptedException, JavaScriptExecutorException {
         try {
-            execute(new JavaScriptTask<Object>() {
+            execute(new JavaScriptTask<Object>(contextFactory) {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
                     try {
-                        Scriptable scope = JavaScriptScopeUtil.getUndeployScope(scriptLogger, channelId);
+                        Scriptable scope = JavaScriptScopeUtil.getUndeployScope(getContextFactory(), scriptLogger, channelId);
                         JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
                         return null;
                     } finally {
@@ -393,12 +406,12 @@ public class JavaScriptUtil {
      */
     public static void executeGlobalDeployScript(final String scriptId) throws InterruptedException, JavaScriptExecutorException {
         try {
-            execute(new JavaScriptTask<Object>() {
+            execute(new JavaScriptTask<Object>(getGlobalScriptContextFactory()) {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptId.toLowerCase());
                     try {
-                        Scriptable scope = JavaScriptScopeUtil.getDeployScope(scriptLogger);
+                        Scriptable scope = JavaScriptScopeUtil.getDeployScope(getContextFactory(), scriptLogger);
                         JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
                         return null;
                     } finally {
@@ -406,9 +419,12 @@ public class JavaScriptUtil {
                     }
                 }
             });
-        } catch (JavaScriptExecutorException e) {
+        } catch (Exception e) {
+            if (!(e instanceof JavaScriptExecutorException)) {
+                e = new JavaScriptExecutorException(e);
+            }
             logScriptError(scriptId, null, e.getCause());
-            throw e;
+            throw (JavaScriptExecutorException) e;
         }
     }
 
@@ -421,12 +437,12 @@ public class JavaScriptUtil {
      */
     public static void executeGlobalUndeployScript(final String scriptId) throws InterruptedException, JavaScriptExecutorException {
         try {
-            execute(new JavaScriptTask<Object>() {
+            execute(new JavaScriptTask<Object>(getGlobalScriptContextFactory()) {
                 @Override
                 public Object call() throws Exception {
                     Logger scriptLogger = Logger.getLogger(scriptId.toLowerCase());
                     try {
-                        Scriptable scope = JavaScriptScopeUtil.getUndeployScope(scriptLogger);
+                        Scriptable scope = JavaScriptScopeUtil.getUndeployScope(getContextFactory(), scriptLogger);
                         JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
                         return null;
                     } finally {
@@ -434,10 +450,29 @@ public class JavaScriptUtil {
                     }
                 }
             });
-        } catch (JavaScriptExecutorException e) {
+        } catch (Exception e) {
+            if (!(e instanceof JavaScriptExecutorException)) {
+                e = new JavaScriptExecutorException(e);
+            }
             logScriptError(scriptId, null, e.getCause());
-            throw e;
+            throw (JavaScriptExecutorException) e;
         }
+    }
+    
+    private static MirthContextFactory getGlobalScriptContextFactory() throws Exception {
+        MirthContextFactory contextFactory = contextFactoryController.getGlobalScriptContextFactory();
+        
+        if (!contextFactory.getId().equals(globalScriptContextFactoryId)) {
+            synchronized (JavaScriptUtil.class) {
+                contextFactory = contextFactoryController.getGlobalScriptContextFactory();
+                
+                if (!contextFactory.getId().equals(globalScriptContextFactoryId)) {
+                    ControllerFactory.getFactory().createScriptController().compileGlobalScripts(contextFactory);
+                    globalScriptContextFactoryId = contextFactory.getId();
+                }
+            }
+        }
+        return contextFactory;
     }
 
     /**
@@ -512,7 +547,7 @@ public class JavaScriptUtil {
         return context.compileString(script, scriptId, 1, null);
     }
 
-    public static void compileChannelScripts(Channel channel) throws ScriptCompileException {
+    public static void compileChannelScripts(MirthContextFactory contextFactory, Channel channel) throws ScriptCompileException {
         try {
             String deployScriptId = ScriptController.getScriptId(ScriptController.DEPLOY_SCRIPT_KEY, channel.getId());
             String undeployScriptId = ScriptController.getScriptId(ScriptController.UNDEPLOY_SCRIPT_KEY, channel.getId());
@@ -520,17 +555,17 @@ public class JavaScriptUtil {
             String postprocessorScriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channel.getId());
 
             if (channel.isEnabled()) {
-                compileAndAddScript(deployScriptId, channel.getDeployScript(), ContextType.CHANNEL_CONTEXT);
-                compileAndAddScript(undeployScriptId, channel.getUndeployScript(), ContextType.CHANNEL_CONTEXT);
+                compileAndAddScript(contextFactory, deployScriptId, channel.getDeployScript(), ContextType.CHANNEL_CONTEXT);
+                compileAndAddScript(contextFactory, undeployScriptId, channel.getUndeployScript(), ContextType.CHANNEL_CONTEXT);
 
                 // Only compile and run preprocessor if it's not the default
-                if (!compileAndAddScript(preprocessorScriptId, channel.getPreprocessingScript(), ContextType.CHANNEL_CONTEXT)) {
+                if (!compileAndAddScript(contextFactory, preprocessorScriptId, channel.getPreprocessingScript(), ContextType.CHANNEL_CONTEXT)) {
                     logger.debug("removing " + preprocessorScriptId);
                     removeScriptFromCache(preprocessorScriptId);
                 }
 
                 // Only compile and run post processor if it's not the default
-                if (!compileAndAddScript(postprocessorScriptId, channel.getPostprocessingScript(), ContextType.CHANNEL_CONTEXT)) {
+                if (!compileAndAddScript(contextFactory, postprocessorScriptId, channel.getPostprocessingScript(), ContextType.CHANNEL_CONTEXT)) {
                     logger.debug("removing " + postprocessorScriptId);
                     removeScriptFromCache(postprocessorScriptId);
                 }
@@ -543,15 +578,23 @@ public class JavaScriptUtil {
             throw new ScriptCompileException("Failed to compile scripts for channel " + channel.getId() + ".", e);
         }
     }
+    
+    public static void recompileChannelScript(MirthContextFactory contextFactory, String channelId, String scriptKey) throws ScriptCompileException {
+        try {
+            recompileGeneratedScript(contextFactory, ScriptController.getScriptId(scriptKey, channelId));
+        } catch (Exception e) {
+            throw new ScriptCompileException("Failed to compile scripts for channel " + channelId + ".", e);
+        }
+    }
 
-    public static void compileGlobalScripts(Map<String, String> globalScripts) throws Exception {
+    public static void compileGlobalScripts(MirthContextFactory contextFactory, Map<String, String> globalScripts) throws Exception {
         for (Entry<String, String> entry : globalScripts.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
 
             try {
                 // In 2.x templates with the Channel context were allowed in the global postprocessor, so for now we're keeping that the same.
-                if (!compileAndAddScript(key, value, key.equals(ScriptController.POSTPROCESSOR_SCRIPT_KEY) ? ContextType.CHANNEL_CONTEXT : ContextType.GLOBAL_CHANNEL_CONTEXT)) {
+                if (!compileAndAddScript(contextFactory, key, value, key.equals(ScriptController.POSTPROCESSOR_SCRIPT_KEY) ? ContextType.CHANNEL_CONTEXT : ContextType.GLOBAL_CHANNEL_CONTEXT)) {
                     logger.debug("removing global " + key.toLowerCase());
                     removeScriptFromCache(key);
                 }
@@ -566,23 +609,24 @@ public class JavaScriptUtil {
      * Encapsulates a JavaScript script into the doScript() function, compiles it, and adds it to
      * the compiled script cache.
      */
-    public static boolean compileAndAddScript(String scriptId, String script, ContextType contextType) throws Exception {
-        return compileAndAddScript(scriptId, script, contextType, null);
+    public static boolean compileAndAddScript(MirthContextFactory contextFactory, String scriptId, String script, ContextType contextType) throws Exception {
+        return compileAndAddScript(contextFactory, scriptId, script, contextType, null);
     }
 
-    public static boolean compileAndAddScript(String scriptId, String script, ContextType contextType, Set<String> scriptOptions) throws Exception {
-        return compileAndAddScript(scriptId, script, contextType, scriptOptions, JavaScriptBuilder.generateDefaultKeyScript(ScriptController.getScriptKey(scriptId), ScriptController.isScriptGlobal(scriptId)));
+    public static boolean compileAndAddScript(MirthContextFactory contextFactory, String scriptId, String script, ContextType contextType, Set<String> scriptOptions) throws Exception {
+        return compileAndAddScript(contextFactory, scriptId, script, contextType, scriptOptions, JavaScriptBuilder.generateDefaultKeyScript(ScriptController.getScriptKey(scriptId), ScriptController.isScriptGlobal(scriptId)));
     }
 
-    public static boolean compileAndAddScript(String scriptId, String script, ContextType contextType, Set<String> scriptOptions, String defaultScript) throws Exception {
+    public static boolean compileAndAddScript(MirthContextFactory contextFactory, String scriptId, String script, ContextType contextType, Set<String> scriptOptions, String defaultScript) throws Exception {
         // Note: If the defaultScript is NULL, this means that the script should
         // always be inserted without being compared.
 
         boolean scriptInserted = false;
         String generatedScript = null;
 
+        Context context = JavaScriptScopeUtil.getContext(contextFactory);
+        
         try {
-            Context context = JavaScriptScopeUtil.getContext();
             logger.debug("compiling script " + scriptId);
             generatedScript = JavaScriptBuilder.generateScript(script, scriptOptions, contextType);
             Script compiledScript = compileScript(context, generatedScript, scriptId);
@@ -613,6 +657,39 @@ public class JavaScriptUtil {
             }
         } finally {
             Context.exit();
+        }
+
+        return scriptInserted;
+    }
+    
+    public static boolean recompileGeneratedScript(MirthContextFactory contextFactory, String scriptId) throws Exception {
+        boolean scriptInserted = false;
+        
+        if (scriptId != null) {
+            String generatedScript = compiledScriptCache.getSourceScript(scriptId);
+            
+            if (generatedScript != null) {
+                Context context = JavaScriptScopeUtil.getContext(contextFactory);
+                
+                try {
+                    logger.debug("compiling script " + scriptId);
+                    Script compiledScript = compileScript(context, generatedScript, scriptId);
+        
+                    logger.debug("adding script " + scriptId);
+                    compiledScriptCache.putCompiledScript(scriptId, compiledScript, generatedScript);
+                    scriptInserted = true;
+                } catch (EvaluatorException e) {
+                    if (e instanceof RhinoException) {
+                        String sourceCode = getSourceCode(generatedScript, ((RhinoException) e).lineNumber(), 0);
+                        MirthJavascriptTransformerException mjte = new MirthJavascriptTransformerException((RhinoException) e, null, null, 0, scriptId, sourceCode);
+                        throw new Exception(mjte);
+                    } else {
+                        throw new Exception(e);
+                    }
+                } finally {
+                    Context.exit();
+                }
+            }
         }
 
         return scriptInserted;

@@ -11,6 +11,7 @@ package com.mirth.connect.connectors.jdbc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.mozilla.javascript.Context;
@@ -27,6 +28,7 @@ import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.connectors.jdbc.DatabaseMetadataDialog.STATEMENT_TYPE;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.DriverInfo;
 
 public class DatabaseWriter extends ConnectorSettingsPanel {
@@ -434,7 +436,9 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
                 }
             }
 
-            new DatabaseMetadataDialog(this, type, new DatabaseConnectionInfo(properties.getDriver(), properties.getUrl(), properties.getUsername(), properties.getPassword(), "", selectLimit));
+            Connector destinationConnector = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getDestinationConnectors().get(PlatformUI.MIRTH_FRAME.channelEditPanel.lastModelIndex);
+            Set<String> resourceIds = PlatformUI.MIRTH_FRAME.channelEditPanel.resourceIds.get(destinationConnector.getMetaDataId());
+            new DatabaseMetadataDialog(this, type, new DatabaseConnectionInfo(properties.getDriver(), properties.getUrl(), properties.getUsername(), properties.getPassword(), "", selectLimit, resourceIds));
         }
     }
 

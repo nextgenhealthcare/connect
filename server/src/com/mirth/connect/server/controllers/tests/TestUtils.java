@@ -198,7 +198,7 @@ public class TestUtils {
 
         FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder()), new DataType("XML", new TestSerializer(), new TestAutoResponder()));
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
-        channel.setSourceFilterTransformer(filterTransformer);
+        sourceConnector.setFilterTransformerExecutor(filterTransformer);
 
         sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
@@ -234,10 +234,6 @@ public class TestUtils {
 
         DataType dataType = new DataType("HL7V2", new TestSerializer(), new TestAutoResponder());
 
-        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(dataType, dataType);
-        filterTransformer.setFilterTransformer(new TestFilterTransformer());
-        channel.setSourceFilterTransformer(filterTransformer);
-
         // create source connector
         TestSourceConnector sourceConnector = new TestSourceConnector();
         sourceConnector.setChannelId(channel.getChannelId());
@@ -245,6 +241,10 @@ public class TestUtils {
         sourceConnector.setRespondAfterProcessing(respondAfterProcessing);
         sourceConnector.setMetaDataReplacer(new MetaDataReplacer());
         sourceConnector.setInboundDataType(dataType);
+
+        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(dataType, dataType);
+        filterTransformer.setFilterTransformer(new TestFilterTransformer());
+        sourceConnector.setFilterTransformerExecutor(filterTransformer);
 
         channel.setSourceConnector(sourceConnector);
         channel.setResponseSelector(new ResponseSelector(sourceConnector.getInboundDataType()));

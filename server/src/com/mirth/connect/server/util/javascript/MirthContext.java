@@ -13,23 +13,29 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.ScriptableObject;
 
-public class StoppableContext extends Context {
+public class MirthContext extends Context {
     private final static int INSTRUCTION_THRESHOLD = 1;
-    
+
     private final AtomicBoolean running = new AtomicBoolean(true);
     private Logger logger = Logger.getLogger(this.getClass());
+    private ScriptableObject sealedSharedScope;
 
-    public StoppableContext(ContextFactory contextFactory) {
+    public MirthContext(MirthContextFactory contextFactory) {
         super(contextFactory);
         setInstructionObserverThreshold(INSTRUCTION_THRESHOLD);
+        sealedSharedScope = contextFactory.getSealedSharedScope();
     }
 
     public void setRunning(boolean running) {
         this.running.set(running);
     }
-    
+
+    protected ScriptableObject getSealedSharedScope() {
+        return sealedSharedScope;
+    }
+
     @Override
     protected void observeInstructionCount(int count) {
         if (!running.get()) {

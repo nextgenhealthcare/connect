@@ -97,7 +97,7 @@ public class DestinationChainTests {
         sourceConnector.setMetaDataReplacer(new MetaDataReplacer());
 
         channel.setSourceConnector(sourceConnector);
-        channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
+        channel.getSourceConnector().setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
         class TestFilterTransformer2 extends TestFilterTransformer {
             @Override
@@ -207,7 +207,7 @@ public class DestinationChainTests {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         Channel channel = TestUtils.createDefaultChannel(channelId, serverId, true, 2, 2);
 
-        channel.getSourceFilterTransformer().setFilterTransformer(new TestFilterTransformer() {
+        channel.getSourceConnector().getFilterTransformerExecutor().setFilterTransformer(new TestFilterTransformer() {
             @Override
             public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
                 // Alter the channel and response maps

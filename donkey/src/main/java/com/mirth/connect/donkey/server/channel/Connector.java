@@ -10,6 +10,7 @@
 package com.mirth.connect.donkey.server.channel;
 
 import java.util.Map;
+import java.util.Set;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DeployedState;
@@ -17,6 +18,8 @@ import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.message.DataType;
 
 public abstract class Connector {
+    protected Channel channel;
+
     private String channelId;
     private int metaDataId;
     private DataType inboundDataType;
@@ -24,6 +27,8 @@ public abstract class Connector {
     private DeployedState currentState = DeployedState.STOPPED;
     private ConnectorProperties connectorProperties;
     private Map<String, Integer> destinationIdMap;
+    private FilterTransformerExecutor filterTransformerExecutor;
+    private Set<String> resourceIds;
 
     public abstract void onDeploy() throws ConnectorTaskException;
 
@@ -40,6 +45,14 @@ public abstract class Connector {
     public abstract void stop() throws ConnectorTaskException, InterruptedException;
 
     public abstract void halt() throws ConnectorTaskException, InterruptedException;
+
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+    }
 
     public String getChannelId() {
         return channelId;
@@ -95,5 +108,21 @@ public abstract class Connector {
 
     public void setDestinationIdMap(Map<String, Integer> destinationIdMap) {
         this.destinationIdMap = destinationIdMap;
+    }
+
+    public FilterTransformerExecutor getFilterTransformerExecutor() {
+        return filterTransformerExecutor;
+    }
+
+    public void setFilterTransformerExecutor(FilterTransformerExecutor filterTransformerExecutor) {
+        this.filterTransformerExecutor = filterTransformerExecutor;
+    }
+
+    public Set<String> getResourceIds() {
+        return resourceIds;
+    }
+
+    public void setResourceIds(Set<String> resourceIds) {
+        this.resourceIds = resourceIds;
     }
 }

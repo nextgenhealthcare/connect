@@ -49,4 +49,6 @@ public abstract class ControllerFactory {
     public abstract UserController createUserController();
 
     public abstract DatabaseTaskController createDatabaseTaskController();
+
+    public abstract ContextFactoryController createContextFactoryController();
 }

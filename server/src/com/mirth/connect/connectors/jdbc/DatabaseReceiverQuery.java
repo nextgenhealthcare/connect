@@ -20,13 +20,17 @@ import java.util.Map;
 
 import javax.sql.rowset.CachedRowSet;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
+import com.mirth.connect.server.controllers.ContextFactoryController;
+import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.sun.rowset.CachedRowSetImpl;
 
 public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
@@ -40,6 +44,8 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     private DatabaseReceiverProperties connectorProperties;
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
     private Logger logger = Logger.getLogger(getClass());
+    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
+    private CustomDriver customDriver;
 
     public DatabaseReceiverQuery(DatabaseReceiver connector) {
         this.connector = connector;
@@ -56,7 +62,16 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
         try {
             Class.forName(connectorProperties.getDriver());
         } catch (ClassNotFoundException e) {
-            throw new ConnectorTaskException(e);
+            try {
+                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+                if (CollectionUtils.isNotEmpty(contextFactory.getResourceIds())) {
+                    customDriver = new CustomDriver(contextFactory.getApplicationClassLoader(), connectorProperties.getDriver());
+                } else {
+                    throw new ConnectorTaskException(e);
+                }
+            } catch (Exception e2) {
+                throw new ConnectorTaskException(e2);
+            }
         }
     }
 
@@ -117,7 +132,14 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     }
 
     @Override
-    public void undeploy() {}
+    public void undeploy() {
+        if (customDriver != null) {
+            try {
+                customDriver.dispose();
+            } catch (SQLException e) {
+            }
+        }
+    }
 
     @Override
     public Object poll() throws DatabaseReceiverException, InterruptedException {

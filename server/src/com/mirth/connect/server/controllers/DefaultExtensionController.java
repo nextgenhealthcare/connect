@@ -63,6 +63,7 @@ import com.mirth.connect.plugins.AuthorizationPlugin;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.ConnectorServicePlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
+import com.mirth.connect.plugins.ResourcePlugin;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.server.ExtensionLoader;
@@ -82,6 +83,7 @@ public class DefaultExtensionController extends ExtensionController {
     private Map<String, ChannelPlugin> channelPlugins = new LinkedHashMap<String, ChannelPlugin>();
     private Map<String, DataTypeServerPlugin> dataTypePlugins = new LinkedHashMap<String, DataTypeServerPlugin>();
     private Map<String, ConnectorServicePlugin> connectorServicePlugins = new LinkedHashMap<String, ConnectorServicePlugin>();
+    private Map<String, ResourcePlugin> resourcePlugins = new LinkedHashMap<String, ResourcePlugin>();
     private AuthorizationPlugin authorizationPlugin = null;
     private ExtensionLoader extensionLoader = ExtensionLoader.getInstance();
 
@@ -274,6 +276,13 @@ public class DefaultExtensionController extends ExtensionController {
                         logger.debug("sucessfully loaded connector service plugin: " + serverPlugin.getPluginPointName());
                     }
 
+                    if (serverPlugin instanceof ResourcePlugin) {
+                        ResourcePlugin resourcePlugin = (ResourcePlugin) serverPlugin;
+                        resourcePlugins.put(resourcePlugin.getPluginPointName(), resourcePlugin);
+                        serverPlugins.add(resourcePlugin);
+                        logger.debug("Successfully loaded resource plugin: " + resourcePlugin.getPluginPointName());
+                    }
+
                     if (serverPlugin instanceof AuthorizationPlugin) {
                         AuthorizationPlugin authorizationPlugin = (AuthorizationPlugin) serverPlugin;
 
@@ -313,6 +322,11 @@ public class DefaultExtensionController extends ExtensionController {
     @Override
     public Map<String, ConnectorServicePlugin> getConnectorServicePlugins() {
         return connectorServicePlugins;
+    }
+
+    @Override
+    public Map<String, ResourcePlugin> getResourcePlugins() {
+        return resourcePlugins;
     }
 
     @Override

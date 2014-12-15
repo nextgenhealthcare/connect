@@ -21,12 +21,16 @@ import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageSource;
 import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.server.controllers.ContextFactoryController;
+import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.mirth.connect.util.StringUtil;
 
 public class ER7BatchAdaptorFactory extends BatchAdaptorFactory {
 
+    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private HL7v2BatchProperties batchProperties;
     private Pattern lineBreakPattern;
     private String segmentDelimiter;
@@ -54,7 +58,7 @@ public class ER7BatchAdaptorFactory extends BatchAdaptorFactory {
 
     @Override
     public BatchAdaptor createBatchAdaptor(BatchMessageSource batchMessageSource) {
-        ER7BatchAdaptor batchAdaptor = new ER7BatchAdaptor(sourceConnector, batchMessageSource);
+        ER7BatchAdaptor batchAdaptor = new ER7BatchAdaptor(this, sourceConnector, batchMessageSource);
 
         batchAdaptor.setBatchProperties(batchProperties);
         batchAdaptor.setSegmentDelimiter(segmentDelimiter);
@@ -71,7 +75,9 @@ public class ER7BatchAdaptorFactory extends BatchAdaptorFactory {
             String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
 
             try {
-                JavaScriptUtil.compileAndAddScript(batchScriptId, batchScript.toString(), ContextType.CHANNEL_CONTEXT);
+                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
+                setContextFactoryId(contextFactory.getId());
+                JavaScriptUtil.compileAndAddScript(contextFactory, batchScriptId, batchScript.toString(), ContextType.CHANNEL_CONTEXT);
             } catch (Exception e) {
                 throw new DeployException("Error compiling " + sourceConnector.getConnectorProperties().getName() + " script " + batchScriptId + ".", e);
             }

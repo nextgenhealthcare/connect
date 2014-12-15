@@ -99,7 +99,7 @@ public class DestinationConnectorTests {
         sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
-        channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
+        channel.getSourceConnector().setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
         TestDispatcher destinationConnector = new TestDispatcher();
         TestDispatcherProperties connectorProperties = new TestDispatcherProperties();
@@ -170,7 +170,7 @@ public class DestinationConnectorTests {
         sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
-        channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
+        channel.getSourceConnector().setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
         TestDispatcher destinationConnector = new TestDispatcher();
         TestDispatcherProperties connectorProperties = new TestDispatcherProperties();
@@ -285,7 +285,7 @@ public class DestinationConnectorTests {
         sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
-        channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
+        channel.getSourceConnector().setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
         DestinationConnector destinationConnector = null;
         ConnectorProperties connectorProperties = null;
@@ -401,7 +401,7 @@ public class DestinationConnectorTests {
         sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
-        channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
+        channel.getSourceConnector().setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
         final ConnectorProperties connectorProperties = new TestDispatcherProperties();
         ((TestDispatcherProperties) connectorProperties).getDestinationConnectorProperties().setQueueEnabled(true);

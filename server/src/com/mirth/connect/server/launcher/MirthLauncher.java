@@ -63,9 +63,8 @@ public class MirthLauncher {
             ManifestFile mirthClientCoreJar = new ManifestFile("server-lib/mirth-client-core.jar");
             ManifestDirectory serverLibDir = new ManifestDirectory("server-lib");
             serverLibDir.setExcludes(new String[] { "mirth-client-core.jar" });
-            ManifestDirectory customLibDir = new ManifestDirectory("custom-lib");
             ManifestEntry[] manifest = new ManifestEntry[] { mirthServerJar, mirthClientCoreJar,
-                    serverLibDir, customLibDir };
+                    serverLibDir };
 
             // Get the current server version
             JarFile mirthClientCoreJarFile = new JarFile(mirthClientCoreJar.getName());

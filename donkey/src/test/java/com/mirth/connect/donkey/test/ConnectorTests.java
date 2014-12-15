@@ -86,7 +86,7 @@ public class ConnectorTests {
         sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
-        channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
+        channel.getSourceConnector().setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
         channel.getResponseSelector().setRespondFromName(TestUtils.DEFAULT_RESPOND_FROM_NAME);
 
         TestDestinationConnector destinationConnector = (TestDestinationConnector) TestUtils.createDefaultDestinationConnector();

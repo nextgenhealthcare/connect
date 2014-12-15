@@ -41,6 +41,7 @@ import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginClass;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.ResourcePropertiesList;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEvent;
@@ -81,6 +82,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         CodeTemplate.class,
         Connector.class,
         ConnectorMetaData.class,
+        ResourcePropertiesList.class,
         DashboardStatus.class,
         DashboardChannelInfo.class,
         DefaultTrigger.class,
@@ -134,6 +136,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
             getXStream().registerConverter(new MigratableConverter(normalizedVersion, getXStream().getMapper()));
             getXStream().registerConverter(new ChannelConverter(normalizedVersion, getXStream().getMapper()));
             getXStream().registerLocalConverter(ConnectorProperties.class, "pluginProperties", new PluginPropertiesConverter(normalizedVersion, getXStream().getMapper()));
+            getXStream().registerLocalConverter(ResourcePropertiesList.class, "list", new ResourcePropertiesConverter(normalizedVersion, getXStream().getMapper()));
         } else {
             throw new Exception("Serializer has already been initialized.");
         }

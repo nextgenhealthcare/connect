@@ -32,7 +32,7 @@ public class PassthruAttachmentHandler extends MirthAttachmentHandler {
     }
 
     @Override
-    public void setProperties(AttachmentHandlerProperties attachmentProperties) {}
+    public void setProperties(Channel channel, AttachmentHandlerProperties attachmentProperties) {}
 
     @Override
     public boolean canExtractAttachments() {

@@ -24,11 +24,13 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.server.controllers.ChannelController;
+import com.mirth.connect.server.controllers.ContextFactoryController;
+import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
 
 public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
@@ -39,6 +41,8 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
     private Logger scriptLogger = Logger.getLogger("db-connector");
     private Logger logger = Logger.getLogger(getClass());
+    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
+    private String contextFactoryId;
 
     public DatabaseReceiverScript(DatabaseReceiver connector) {
         this.connector = connector;
@@ -48,9 +52,12 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     public void deploy() throws ConnectorTaskException {
         connectorProperties = (DatabaseReceiverProperties) connector.getConnectorProperties();
         selectScriptId = UUID.randomUUID().toString();
+        MirthContextFactory contextFactory;
 
         try {
-            JavaScriptUtil.compileAndAddScript(selectScriptId, connectorProperties.getSelect(), ContextType.MESSAGE_CONTEXT, null, null);
+            contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+            contextFactoryId = contextFactory.getId();
+            JavaScriptUtil.compileAndAddScript(contextFactory, selectScriptId, connectorProperties.getSelect(), ContextType.MESSAGE_CONTEXT, null, null);
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling select script " + selectScriptId + ".", e);
         }
@@ -59,7 +66,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
             updateScriptId = UUID.randomUUID().toString();
 
             try {
-                JavaScriptUtil.compileAndAddScript(updateScriptId, connectorProperties.getUpdate(), ContextType.MESSAGE_CONTEXT, null, null);
+                JavaScriptUtil.compileAndAddScript(contextFactory, updateScriptId, connectorProperties.getUpdate(), ContextType.MESSAGE_CONTEXT, null, null);
             } catch (Exception e) {
                 throw new ConnectorTaskException("Error compiling update script " + updateScriptId + ".", e);
             }
@@ -92,7 +99,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
 
         while (!done && !connector.isTerminated()) {
             try {
-                Object result = JavaScriptUtil.execute(new SelectTask());
+                Object result = JavaScriptUtil.execute(new SelectTask(getContextFactory()));
 
                 if (result instanceof NativeJavaObject) {
                     Object unwrappedResult = ((NativeJavaObject) result).unwrap();
@@ -109,7 +116,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
                 } else {
                     throw new DatabaseReceiverException("Unrecognized value returned from script in channel \"" + ChannelController.getInstance().getDeployedChannelById(connector.getChannelId()).getName() + "\", expected ResultSet or List<Map<String, Object>>: " + result.toString());
                 }
-            } catch (JavaScriptExecutorException e) {
+            } catch (Exception e) {
                 if (attempts++ < maxRetryCount && !connector.isTerminated()) {
                     logger.error("An error occurred while polling for messages, retrying after " + retryInterval + " ms...", e);
 
@@ -128,8 +135,8 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     public void runPostProcess(Map<String, Object> resultMap, ConnectorMessage mergedConnectorMessage) throws DatabaseReceiverException, InterruptedException {
         if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_EACH) {
             try {
-                JavaScriptUtil.execute(new UpdateTask(resultMap, mergedConnectorMessage));
-            } catch (JavaScriptExecutorException e) {
+                JavaScriptUtil.execute(new UpdateTask(getContextFactory(), resultMap, mergedConnectorMessage));
+            } catch (Exception e) {
                 throw new DatabaseReceiverException(e);
             }
         }
@@ -139,18 +146,23 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     public void afterPoll() throws InterruptedException, DatabaseReceiverException {
         if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_ONCE) {
             try {
-                JavaScriptUtil.execute(new UpdateTask(null, null));
-            } catch (JavaScriptExecutorException e) {
+                JavaScriptUtil.execute(new UpdateTask(getContextFactory(), null, null));
+            } catch (Exception e) {
                 throw new DatabaseReceiverException(e);
             }
         }
     }
 
     private class SelectTask extends JavaScriptTask<Object> {
+
+        public SelectTask(MirthContextFactory contextFactory) {
+            super(contextFactory);
+        }
+
         @Override
         public Object call() throws Exception {
             try {
-                Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, connector.getChannelId());
+                Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), scriptLogger, connector.getChannelId());
                 return JavaScriptUtil.executeScript(this, selectScriptId, scope, connector.getChannelId(), "Source");
             } finally {
                 Context.exit();
@@ -162,7 +174,8 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
         private Map<String, Object> resultMap;
         private ConnectorMessage mergedConnectorMessage;
 
-        public UpdateTask(Map<String, Object> resultMap, ConnectorMessage mergedConnectorMessage) {
+        public UpdateTask(MirthContextFactory contextFactory, Map<String, Object> resultMap, ConnectorMessage mergedConnectorMessage) {
+            super(contextFactory);
             this.resultMap = resultMap;
             this.mergedConnectorMessage = mergedConnectorMessage;
         }
@@ -173,9 +186,9 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
                 Scriptable scope = null;
 
                 if (mergedConnectorMessage == null) {
-                    scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, connector.getChannelId());
+                    scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), scriptLogger, connector.getChannelId());
                 } else {
-                    scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, connector.getChannelId(), new ImmutableConnectorMessage(mergedConnectorMessage, true, connector.getDestinationIdMap()));
+                    scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), scriptLogger, connector.getChannelId(), new ImmutableConnectorMessage(mergedConnectorMessage, true, connector.getDestinationIdMap()));
                 }
 
                 if (resultMap != null) {
@@ -187,5 +200,19 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
                 Context.exit();
             }
         }
+    }
+
+    private MirthContextFactory getContextFactory() throws Exception {
+        MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+
+        if (!contextFactoryId.equals(contextFactory.getId())) {
+            JavaScriptUtil.recompileGeneratedScript(contextFactory, selectScriptId);
+            if (connectorProperties.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER) {
+                JavaScriptUtil.recompileGeneratedScript(contextFactory, updateScriptId);
+            }
+            contextFactoryId = contextFactory.getId();
+        }
+
+        return contextFactory;
     }
 }

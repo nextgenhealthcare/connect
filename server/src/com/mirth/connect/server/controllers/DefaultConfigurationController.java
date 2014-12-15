@@ -19,9 +19,7 @@ import java.nio.charset.Charset;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
-import java.security.PrivateKey;
 import java.security.Provider;
-import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
@@ -79,8 +77,11 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.DatabaseSettings;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
+import com.mirth.connect.model.LibraryProperties;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.ResourceProperties;
+import com.mirth.connect.model.ResourcePropertiesList;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.ServerSettings;
@@ -88,6 +89,7 @@ import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.plugins.libraryresource.LibraryResourceProperties;
 import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.mybatis.KeyValuePair;
 import com.mirth.connect.server.tools.ClassPathResource;
@@ -105,6 +107,7 @@ import com.mirth.connect.util.MirthSSLUtil;
  */
 public class DefaultConfigurationController extends ConfigurationController {
     public static final String PROPERTIES_CORE = "core";
+    public static final String PROPERTIES_RESOURCES = "resources";
     public static final String SECRET_KEY_ALIAS = "encryption";
 
     private Logger logger = Logger.getLogger(this.getClass());
@@ -496,6 +499,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
 
         serverConfiguration.setPluginProperties(pluginProperties);
+        serverConfiguration.setResourceProperties(ObjectXMLSerializer.getInstance().deserialize(getResources(), ResourcePropertiesList.class));
 
         return serverConfiguration;
     }
@@ -565,10 +569,6 @@ public class DefaultConfigurationController extends ConfigurationController {
                 setUpdateSettings(serverConfiguration.getUpdateSettings());
             }
 
-            if (serverConfiguration.getGlobalScripts() != null) {
-                scriptController.setGlobalScripts(serverConfiguration.getGlobalScripts());
-            }
-
             // Set the properties for all plugins in the server configuration,
             // whether or not the plugin is actually installed on this server.
             if (serverConfiguration.getPluginProperties() != null) {
@@ -577,6 +577,27 @@ public class DefaultConfigurationController extends ConfigurationController {
                 for (Entry<String, Properties> pluginEntry : serverConfiguration.getPluginProperties().entrySet()) {
                     extensionController.setPluginProperties(pluginEntry.getKey(), pluginEntry.getValue());
                 }
+            }
+
+            if (serverConfiguration.getResourceProperties() != null) {
+                setResources(ObjectXMLSerializer.getInstance().serialize(serverConfiguration.getResourceProperties()));
+
+                try {
+                    List<LibraryProperties> libraryResources = new ArrayList<LibraryProperties>();
+                    for (ResourceProperties resource : serverConfiguration.getResourceProperties().getList()) {
+                        if (resource instanceof LibraryProperties) {
+                            libraryResources.add((LibraryProperties) resource);
+                        }
+                    }
+
+                    ControllerFactory.getFactory().createContextFactoryController().updateResources(libraryResources);
+                } catch (Exception e) {
+                    logger.error("Unable to update libraries: " + e.getMessage(), e);
+                }
+            }
+
+            if (serverConfiguration.getGlobalScripts() != null) {
+                scriptController.setGlobalScripts(serverConfiguration.getGlobalScripts());
             }
 
             // Deploy all channels
@@ -729,6 +750,33 @@ public class DefaultConfigurationController extends ConfigurationController {
         } catch (Exception e) {
             logger.error("Could not delete property: category=" + category + ", name=" + name, e);
         }
+    }
+
+    @Override
+    public String getResources() {
+        String resources = getProperty(PROPERTIES_CORE, PROPERTIES_RESOURCES);
+
+        if (StringUtils.isBlank(resources)) {
+            ResourcePropertiesList list = new ResourcePropertiesList();
+
+            LibraryResourceProperties defaultResource = new LibraryResourceProperties();
+            defaultResource.setId(ResourceProperties.DEFAULT_RESOURCE_ID);
+            defaultResource.setName(ResourceProperties.DEFAULT_RESOURCE_NAME);
+            defaultResource.setDescription("Loads libraries from the custom-lib folder in the Mirth Connect home directory.");
+            defaultResource.setIncludeWithGlobalScripts(true);
+            defaultResource.setDirectory("custom-lib");
+
+            list.getList().add(defaultResource);
+            resources = ObjectXMLSerializer.getInstance().serialize(list);
+            saveProperty(PROPERTIES_CORE, PROPERTIES_RESOURCES, resources);
+        }
+
+        return resources;
+    }
+
+    @Override
+    public void setResources(String resources) {
+        saveProperty(PROPERTIES_CORE, PROPERTIES_RESOURCES, resources);
     }
 
     @Override

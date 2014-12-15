@@ -51,6 +51,9 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.model.LibraryProperties;
+import com.mirth.connect.model.ResourceProperties;
+import com.mirth.connect.model.ResourcePropertiesList;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -58,6 +61,7 @@ import com.mirth.connect.model.util.MigrationException;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
@@ -86,6 +90,7 @@ import com.mirth.connect.server.servlets.WebStartServlet;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.mirth.connect.util.MirthSSLUtil;
 
 /**
@@ -107,6 +112,7 @@ public class Mirth extends Thread {
     private MigrationController migrationController = ControllerFactory.getFactory().createMigrationController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
+    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private AlertController alertController = ControllerFactory.getFactory().createAlertController();
     private UsageController usageController = ControllerFactory.getFactory().createUsageController();
 
@@ -252,8 +258,7 @@ public class Mirth extends Thread {
         extensionController.initPlugins();
         migrationController.migrateSerializedData();
         userController.resetUserStatus();
-        scriptController.compileGlobalScripts();
-
+        
         // disable the velocity logging
         Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
 
@@ -267,10 +272,39 @@ public class Mirth extends Thread {
         startEngine();
 
         extensionController.startPlugins();
+        
+        contextFactoryController.initGlobalContextFactory();
+        
+        try {
+            List<LibraryProperties> libraryResources = new ArrayList<LibraryProperties>();
+            for (ResourceProperties resource : ObjectXMLSerializer.getInstance().deserialize(configurationController.getResources(), ResourcePropertiesList.class).getList()) {
+                if (resource instanceof LibraryProperties) {
+                    libraryResources.add((LibraryProperties) resource);
+                }
+            }
+            
+            contextFactoryController.updateResources(libraryResources);
+        } catch (LinkageError e) {
+            logger.error("Unable to initialize library resources.", e);
+        } catch (Exception e) {
+            logger.error("Unable to initialize library resources.", e);
+        }
+        
+        MirthContextFactory contextFactory;
+        try {
+            contextFactory = contextFactoryController.getGlobalScriptContextFactory();
+        } catch (LinkageError e) {
+            logger.error("Unable to initialize global script context factory.", e);
+            contextFactory = contextFactoryController.getGlobalContextFactory();
+        } catch (Exception e) {
+            logger.error("Unable to initialize global script context factory.", e);
+            contextFactory = contextFactoryController.getGlobalContextFactory();
+        }
+        scriptController.compileGlobalScripts(contextFactory);
 
         try {
             alertController.initAlerts();
-
+            
             configurationController.setStatus(ConfigurationController.STATUS_INITIAL_DEPLOY);
             engineController.startupDeploy();
         } catch (Exception e) {

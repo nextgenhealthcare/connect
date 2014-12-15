@@ -11,6 +11,8 @@ package com.mirth.connect.server.util.javascript;
 
 import java.util.concurrent.Callable;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
@@ -18,9 +20,24 @@ import org.mozilla.javascript.Scriptable;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
 public abstract class JavaScriptTask<T> implements Callable<T> {
+
+    private Logger logger = Logger.getLogger(JavaScriptTask.class);
+    private MirthContextFactory contextFactory;
     private Context context;
-    private boolean contextCreated = false;;
-    
+    private boolean contextCreated = false;
+
+    public JavaScriptTask(MirthContextFactory contextFactory) {
+        this.contextFactory = contextFactory;
+    }
+
+    public MirthContextFactory getContextFactory() {
+        return contextFactory;
+    }
+
+    public void setContextFactory(MirthContextFactory contextFactory) {
+        this.contextFactory = contextFactory;
+    }
+
     protected Context getContext() {
         return context;
     }
@@ -31,6 +48,8 @@ public abstract class JavaScriptTask<T> implements Callable<T> {
             synchronized (this) {
                 ThreadUtils.checkInterruptedStatus();
                 context = Context.getCurrentContext();
+                Thread.currentThread().setContextClassLoader(contextFactory.getApplicationClassLoader());
+                logger.debug(StringUtils.defaultString(StringUtils.trimToNull(getClass().getSimpleName()), getClass().getName()) + " using context factory: " + contextFactory.hashCode());
 
                 /*
                  * This should never be called but exists in case executeScript is called from a
@@ -38,11 +57,11 @@ public abstract class JavaScriptTask<T> implements Callable<T> {
                  */
                 if (context == null) {
                     contextCreated = true;
-                    context = JavaScriptScopeUtil.getContext();
+                    context = JavaScriptScopeUtil.getContext(contextFactory);
                 }
 
-                if (context instanceof StoppableContext) {
-                    ((StoppableContext) context).setRunning(true);
+                if (context instanceof MirthContext) {
+                    ((MirthContext) context).setRunning(true);
                 }
             }
 

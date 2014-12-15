@@ -33,32 +33,37 @@ import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class JavaScriptReceiver extends PollConnector {
-    private String scriptId;
-    private JavaScriptReceiverProperties connectorProperties;
-    private EventController eventController = ControllerFactory.getFactory().createEventController();
     private Logger logger = Logger.getLogger(getClass());
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
+    private JavaScriptReceiverProperties connectorProperties;
+    private String scriptId;
+    private String contextFactoryId;
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (JavaScriptReceiverProperties) getConnectorProperties();
 
-        String scriptId = UUID.randomUUID().toString();
+        scriptId = UUID.randomUUID().toString();
 
         try {
-            JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getScript(), ContextType.MESSAGE_CONTEXT, null, null);
+            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+            contextFactoryId = contextFactory.getId();
+            JavaScriptUtil.compileAndAddScript(contextFactory, scriptId, connectorProperties.getScript(), ContextType.MESSAGE_CONTEXT, null, null);
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling " + connectorProperties.getName() + " script " + scriptId + ".", e);
         }
 
-        this.scriptId = scriptId;
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.IDLE));
     }
 
@@ -87,7 +92,13 @@ public class JavaScriptReceiver extends PollConnector {
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.READING));
 
         try {
-            result = JavaScriptUtil.execute(new JavaScriptReceiverTask());
+            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+            if (!contextFactoryId.equals(contextFactory.getId())) {
+                JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
+                contextFactoryId = contextFactory.getId();
+            }
+
+            result = JavaScriptUtil.execute(new JavaScriptReceiverTask(contextFactory));
 
             for (RawMessage rawMessage : convertJavaScriptResult(result)) {
                 if (isTerminated()) {
@@ -136,10 +147,15 @@ public class JavaScriptReceiver extends PollConnector {
     }
 
     private class JavaScriptReceiverTask extends JavaScriptTask<Object> {
+
+        public JavaScriptReceiverTask(MirthContextFactory contextFactory) {
+            super(contextFactory);
+        }
+
         @Override
         public Object call() throws Exception {
             try {
-                Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(Logger.getLogger("js-connector"), getChannelId());
+                Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), Logger.getLogger("js-connector"), getChannelId());
                 return JavaScriptUtil.executeScript(this, scriptId, scope, getChannelId(), "Source");
             } finally {
                 Context.exit();

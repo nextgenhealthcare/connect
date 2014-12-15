@@ -25,12 +25,13 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
@@ -38,8 +39,10 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     private String scriptId;
     private DatabaseDispatcher connector;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private Logger scriptLogger = Logger.getLogger("db-connector");
     private Logger logger = Logger.getLogger(this.getClass());
+    private volatile String contextFactoryId;
 
     public DatabaseDispatcherScript(DatabaseDispatcher connector) {
         this.connector = connector;
@@ -51,7 +54,9 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
         scriptId = UUID.randomUUID().toString();
 
         try {
-            JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getQuery(), ContextType.MESSAGE_CONTEXT, null, null);
+            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+            contextFactoryId = contextFactory.getId();
+            JavaScriptUtil.compileAndAddScript(contextFactory, scriptId, connectorProperties.getQuery(), ContextType.MESSAGE_CONTEXT, null, null);
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling script " + scriptId + ".", e);
         }
@@ -75,8 +80,21 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     public Response send(DatabaseDispatcherProperties connectorProperties, ConnectorMessage connectorMessage) throws DatabaseDispatcherException, InterruptedException {
         // TODO Attachments will not be re-attached when using JavaScript yet.
         try {
-            return (Response) JavaScriptUtil.execute(new DatabaseDispatcherTask(connectorMessage));
-        } catch (JavaScriptExecutorException e) {
+            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+
+            if (!contextFactoryId.equals(contextFactory.getId())) {
+                synchronized (this) {
+                    contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+
+                    if (contextFactoryId.equals(contextFactory.getId())) {
+                        JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
+                        contextFactoryId = contextFactory.getId();
+                    }
+                }
+            }
+
+            return (Response) JavaScriptUtil.execute(new DatabaseDispatcherTask(contextFactory, connectorMessage));
+        } catch (Exception e) {
             throw new DatabaseDispatcherException("Error executing script " + scriptId, e);
         }
     }
@@ -84,7 +102,8 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     private class DatabaseDispatcherTask extends JavaScriptTask<Object> {
         private ConnectorMessage connectorMessage;
 
-        public DatabaseDispatcherTask(ConnectorMessage connectorMessage) {
+        public DatabaseDispatcherTask(MirthContextFactory contextFactory, ConnectorMessage connectorMessage) {
+            super(contextFactory);
             this.connectorMessage = connectorMessage;
         }
 
@@ -96,7 +115,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
             Status responseStatus = Status.SENT;
 
             try {
-                Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(scriptLogger, connector.getChannelId(), new ImmutableConnectorMessage(connectorMessage, true, connector.getDestinationIdMap()));
+                Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(getContextFactory(), scriptLogger, connector.getChannelId(), new ImmutableConnectorMessage(connectorMessage, true, connector.getDestinationIdMap()));
 
                 Object result = JavaScriptUtil.executeScript(this, scriptId, scope, connector.getChannelId(), connector.getDestinationName());
 

@@ -50,7 +50,6 @@ import com.mirth.connect.donkey.util.ThreadUtils;
 public abstract class DestinationConnector extends Connector implements Runnable {
     private final static String QUEUED_RESPONSE = "Message queued successfully";
 
-    private Channel channel;
     private Integer orderId;
     private Map<Long, Thread> queueThreads = new HashMap<Long, Thread>();
     private DestinationConnectorProperties destinationConnectorProperties;
@@ -89,10 +88,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
         }
 
         return threadId;
-    }
-
-    public void setChannel(Channel channel) {
-        this.channel = channel;
     }
 
     public String getDestinationName() {

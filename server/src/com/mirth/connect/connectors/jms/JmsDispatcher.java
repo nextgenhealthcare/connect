@@ -37,9 +37,11 @@ import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.server.controllers.ChannelController;
+import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.mirth.connect.util.BeanUtil;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
@@ -47,6 +49,7 @@ public class JmsDispatcher extends DestinationConnector {
     private JmsDispatcherProperties connectorProperties;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private Logger logger = Logger.getLogger(getClass());
 
     private Map<String, JmsConnection> jmsConnections = new ConcurrentHashMap<String, JmsConnection>();
@@ -254,20 +257,30 @@ public class JmsDispatcher extends DestinationConnector {
 
             Map<String, String> connectionProperties = jmsDispatcherProperties.getConnectionProperties();
             if (jmsDispatcherProperties.isUseJndi()) {
-                Hashtable<String, Object> env = new Hashtable<String, Object>();
-                env.put(Context.PROVIDER_URL, jmsDispatcherProperties.getJndiProviderUrl());
-                env.put(Context.INITIAL_CONTEXT_FACTORY, jmsDispatcherProperties.getJndiInitialContextFactory());
-                env.put(Context.SECURITY_PRINCIPAL, jmsDispatcherProperties.getUsername());
-                env.put(Context.SECURITY_CREDENTIALS, jmsDispatcherProperties.getPassword());
+                ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 
-                initialContext = new InitialContext(env);
+                try {
+                    MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+                    Thread.currentThread().setContextClassLoader(contextFactory.getApplicationClassLoader());
 
-                String connectionFactoryName = jmsDispatcherProperties.getJndiConnectionFactoryName();
-                connectionFactory = (ConnectionFactory) initialContext.lookup(connectionFactoryName);
+                    Hashtable<String, Object> env = new Hashtable<String, Object>();
+                    env.put(Context.PROVIDER_URL, jmsDispatcherProperties.getJndiProviderUrl());
+                    env.put(Context.INITIAL_CONTEXT_FACTORY, jmsDispatcherProperties.getJndiInitialContextFactory());
+                    env.put(Context.SECURITY_PRINCIPAL, jmsDispatcherProperties.getUsername());
+                    env.put(Context.SECURITY_CREDENTIALS, jmsDispatcherProperties.getPassword());
+
+                    initialContext = new InitialContext(env);
+
+                    String connectionFactoryName = jmsDispatcherProperties.getJndiConnectionFactoryName();
+                    connectionFactory = (ConnectionFactory) initialContext.lookup(connectionFactoryName);
+                } finally {
+                    Thread.currentThread().setContextClassLoader(contextClassLoader);
+                }
             } else {
                 String className = jmsDispatcherProperties.getConnectionFactoryClass();
 
-                connectionFactory = (ConnectionFactory) Class.forName(className).newInstance();
+                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+                connectionFactory = (ConnectionFactory) Class.forName(className, true, contextFactory.getApplicationClassLoader()).newInstance();
             }
 
             BeanUtil.setProperties(connectionFactory, connectionProperties);

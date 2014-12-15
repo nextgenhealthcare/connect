@@ -38,7 +38,7 @@ public class DatabaseConnectionFactory {
      */
     public static DatabaseConnection createDatabaseConnection(String driver, String address, String username, String password) throws SQLException {
         try {
-            Class.forName(driver);
+            initializeDriver(driver);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -62,7 +62,7 @@ public class DatabaseConnectionFactory {
      */
     public static DatabaseConnection createDatabaseConnection(String driver, String address) throws SQLException {
         try {
-            Class.forName(driver);
+            initializeDriver(driver);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -87,7 +87,7 @@ public class DatabaseConnectionFactory {
      */
     public static Connection createConnection(String driver, String address, String username, String password) throws SQLException {
         try {
-            Class.forName(driver);
+            initializeDriver(driver);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -108,6 +108,6 @@ public class DatabaseConnectionFactory {
      * @throws Exception
      */
     public static void initializeDriver(String driver) throws Exception {
-        Class.forName(driver);
+        Class.forName(driver, true, Thread.currentThread().getContextClassLoader());
     }
 }

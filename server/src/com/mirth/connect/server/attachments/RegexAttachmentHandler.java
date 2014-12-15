@@ -124,7 +124,7 @@ public class RegexAttachmentHandler extends MirthAttachmentHandler {
     }
 
     @Override
-    public void setProperties(AttachmentHandlerProperties attachmentProperties) {
+    public void setProperties(Channel channel, AttachmentHandlerProperties attachmentProperties) {
         String regex = attachmentProperties.getProperties().get("regex.pattern");
         mimeType = attachmentProperties.getProperties().get("regex.mimetype");
 

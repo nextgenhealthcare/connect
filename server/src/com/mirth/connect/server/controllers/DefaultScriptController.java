@@ -22,6 +22,7 @@ import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class DefaultScriptController extends ScriptController {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -110,7 +111,7 @@ public class DefaultScriptController extends ScriptController {
 
     // Non-database actions
     @Override
-    public void compileGlobalScripts() {
+    public void compileGlobalScripts(MirthContextFactory contextFactory) {
         Map<String, String> globalScripts = null;
 
         try {
@@ -121,15 +122,15 @@ public class DefaultScriptController extends ScriptController {
         }
 
         try {
-            JavaScriptUtil.compileGlobalScripts(globalScripts);
+            JavaScriptUtil.compileGlobalScripts(contextFactory, globalScripts);
         } catch (Exception e) {
             logger.error("Error compiling global scripts.", e);
         }
     }
 
     @Override
-    public void compileChannelScripts(Channel channel) throws ScriptCompileException {
-        JavaScriptUtil.compileChannelScripts(channel);
+    public void compileChannelScripts(MirthContextFactory contextFactory, Channel channel) throws ScriptCompileException {
+        JavaScriptUtil.compileChannelScripts(contextFactory, channel);
     }
 
     @Override
@@ -143,8 +144,8 @@ public class DefaultScriptController extends ScriptController {
     }
 
     @Override
-    public void executeChannelDeployScript(String channelId) throws Exception {
-        JavaScriptUtil.executeChannelDeployScript(getScriptId(DEPLOY_SCRIPT_KEY, channelId), DEPLOY_SCRIPT_KEY, channelId);
+    public void executeChannelDeployScript(MirthContextFactory contextFactory, String channelId) throws Exception {
+        JavaScriptUtil.executeChannelDeployScript(contextFactory, getScriptId(DEPLOY_SCRIPT_KEY, channelId), DEPLOY_SCRIPT_KEY, channelId);
     }
 
     @Override
@@ -153,8 +154,8 @@ public class DefaultScriptController extends ScriptController {
     }
 
     @Override
-    public void executeChannelUndeployScript(String channelId) throws Exception {
-        JavaScriptUtil.executeChannelUndeployScript(getScriptId(UNDEPLOY_SCRIPT_KEY, channelId), UNDEPLOY_SCRIPT_KEY, channelId);
+    public void executeChannelUndeployScript(MirthContextFactory contextFactory, String channelId) throws Exception {
+        JavaScriptUtil.executeChannelUndeployScript(contextFactory, getScriptId(UNDEPLOY_SCRIPT_KEY, channelId), UNDEPLOY_SCRIPT_KEY, channelId);
     }
 
     @Override
@@ -196,6 +197,10 @@ public class DefaultScriptController extends ScriptController {
             putScript(GLOBAL_GROUP_ID, entry.getKey().toString(), scripts.get(entry.getKey()));
         }
 
-        compileGlobalScripts();
+        try {
+            compileGlobalScripts(ControllerFactory.getFactory().createContextFactoryController().getGlobalScriptContextFactory());
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
     }
 }

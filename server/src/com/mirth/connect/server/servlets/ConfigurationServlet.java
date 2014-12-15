@@ -11,8 +11,12 @@ package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -24,16 +28,22 @@ import org.eclipse.jetty.io.RuntimeIOException;
 
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
+import com.mirth.connect.model.LibraryProperties;
+import com.mirth.connect.model.ResourceProperties;
+import com.mirth.connect.model.ResourcePropertiesList;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
 
 public class ConfigurationServlet extends MirthServlet {
     private Logger logger = Logger.getLogger(this.getClass());
+    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // MIRTH-1745
@@ -199,6 +209,48 @@ public class ConfigurationServlet extends MirthServlet {
                         serializer.serialize(configurationController.getPasswordRequirements(), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
+                } else if (operation.equals(Operations.RESOURCES_GET)) {
+                    if (!isUserAuthorized(request, null)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        out.write(configurationController.getResources());
+                    }
+                } else if (operation.equals(Operations.RESOURCES_SET)) {
+                    String resourcesXml = (String) request.getParameter("resources");
+                    ResourcePropertiesList resources = serializer.deserialize(resourcesXml, ResourcePropertiesList.class);
+                    parameterMap.put("resources", resources);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        final List<LibraryProperties> libraryResources = new ArrayList<LibraryProperties>();
+                        for (ResourceProperties resource : resources.getList()) {
+                            if (resource instanceof LibraryProperties) {
+                                libraryResources.add((LibraryProperties) resource);
+                            }
+                        }
+                        
+                        executor.submit(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    contextFactoryController.updateResources(libraryResources);
+                                } catch (Exception e) {
+                                    logger.error("Unable to update libraries: " + e.getMessage(), e);
+                                }
+                            }
+                        });
+                        configurationController.setResources(resourcesXml);
+                    }
+                } else if (operation.equals(Operations.RESOURCES_RELOAD)) {
+                    String resourceId = (String) request.getParameter("resourceId");
+                    parameterMap.put("resourceId", resourceId);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        contextFactoryController.reloadResource(resourceId);
                     }
                 }
             }

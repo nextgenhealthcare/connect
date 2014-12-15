@@ -40,6 +40,7 @@
 		<property name="plugins.datatype-raw" value="${extensions}/datatype-raw" />
 		
 		<!-- plugins -->
+		<property name="plugins.libraryresource" value="${extensions}/libraryresource" />
 		<property name="plugins.dashboardstatus" value="${extensions}/dashboardstatus" />
 		<property name="plugins.dicomviewer" value="${extensions}/dicomviewer" />
 		<property name="plugins.imageviewer" value="${extensions}/imageviewer" />
@@ -537,6 +538,24 @@
 			<include name="com/mirth/connect/plugins/datatypes/raw/RawDataTypeServerPlugin.class" />
 		</jar>
 		
+		<!-- plugins.libraryresource -->
+		<mkdir dir="${plugins.libraryresource}" />
+		<copy todir="${plugins.libraryresource}">
+			<fileset dir="${src}/com/mirth/connect/plugins/libraryresource">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.libraryresource}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/libraryresource" />
+		</copy>
+		<jar destfile="${plugins.libraryresource}/libraryresource-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/libraryresource/**" />
+			<exclude name="com/mirth/connect/plugins/libraryresource/LibraryResourcePlugin.class" />
+		</jar>
+		<jar destfile="${plugins.libraryresource}/libraryresource-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/libraryresource/LibraryResourcePlugin.class" />
+		</jar>
+		
 		<!-- plugins.dashboardstatus -->
 		<mkdir dir="${plugins.dashboardstatus}" />
 		<copy todir="${plugins.dashboardstatus}">
@@ -905,6 +924,7 @@
 		<zip destfile="${dist.extensions}/datatype-xml-${version}.zip" basedir="${extensions}" includes="datatype-xml/**/*" />
 		<zip destfile="${dist.extensions}/datatype-raw-${version}.zip" basedir="${extensions}" includes="datatype-raw/**/*" />
 
+		<zip destfile="${dist.extensions}/libraryresource-${version}.zip" basedir="${extensions}" includes="libraryresource/**/*" />
 		<zip destfile="${dist.extensions}/dashboardstatus-${version}.zip" basedir="${extensions}" includes="dashboardstatus/**/*" />
 		<zip destfile="${dist.extensions}/serverlog-${version}.zip" basedir="${extensions}" includes="serverlog/**/*" />
 		<zip destfile="${dist.extensions}/datapruner-${version}.zip" basedir="${extensions}" includes="datapruner/**/*" />

@@ -501,7 +501,7 @@ public class ChannelTests {
         TestUtils.assertMessageContentExists(sourceMessage.getProcessedRaw());
 
         // Assert that the FilterTransformer was run
-        assertTrue(((TestFilterTransformer) channel.getSourceFilterTransformer().getFilterTransformer()).isTransformed());
+        assertTrue(((TestFilterTransformer) channel.getSourceConnector().getFilterTransformerExecutor().getFilterTransformer()).isTransformed());
 
         // Assert that the transformed/encoded content was stored
         TestUtils.assertMessageContentExists(sourceMessage.getTransformed());

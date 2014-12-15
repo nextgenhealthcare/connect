@@ -90,7 +90,7 @@ public class ConnectorPanel extends JPanel {
         }
     }
 
-    private ConnectorSettingsPanel getConnectorSettingsPanel() {
+    public ConnectorSettingsPanel getConnectorSettingsPanel() {
         for (Component component : connectorSettingsContainer.getComponents()) {
             if (component.isVisible()) {
                 return (ConnectorSettingsPanel) component;

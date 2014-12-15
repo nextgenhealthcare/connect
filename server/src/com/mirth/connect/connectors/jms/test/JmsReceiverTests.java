@@ -301,8 +301,8 @@ public class JmsReceiverTests {
         sourceConnector.setChannel(testChannel);
         sourceConnector.setMetaDataReplacer(new MirthMetaDataReplacer());
         sourceConnector.setRespondAfterProcessing(true);
+        sourceConnector.setFilterTransformerExecutor(new FilterTransformerExecutor(sourceConnector.getInboundDataType(), sourceConnector.getOutboundDataType()));
 
         testChannel.setSourceConnector(sourceConnector);
-        testChannel.setSourceFilterTransformer(new FilterTransformerExecutor(sourceConnector.getInboundDataType(), sourceConnector.getOutboundDataType()));
     }
 }

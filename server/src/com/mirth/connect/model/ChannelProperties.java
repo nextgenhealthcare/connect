@@ -44,6 +44,7 @@ public class ChannelProperties implements Serializable, Migratable, Purgable {
     private Integer pruneMetaDataDays;
     private Integer pruneContentDays;
     private boolean archiveEnabled;
+    private Set<String> resourceIds;
 
     public ChannelProperties() {
         clearGlobalChannelMap = true;
@@ -54,6 +55,8 @@ public class ChannelProperties implements Serializable, Migratable, Purgable {
         metaDataColumns = new ArrayList<MetaDataColumn>();
         attachmentProperties = AttachmentHandlerType.NONE.getDefaultProperties();
         archiveEnabled = true;
+        resourceIds = new LinkedHashSet<String>();
+        resourceIds.add(ResourceProperties.DEFAULT_RESOURCE_ID);
     }
 
     public boolean isClearGlobalChannelMap() {
@@ -160,6 +163,14 @@ public class ChannelProperties implements Serializable, Migratable, Purgable {
         this.archiveEnabled = archiveEnabled;
     }
 
+    public Set<String> getResourceIds() {
+        return resourceIds;
+    }
+
+    public void setResourceIds(Set<String> resourceIds) {
+        this.resourceIds = resourceIds;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
@@ -175,7 +186,11 @@ public class ChannelProperties implements Serializable, Migratable, Purgable {
     public void migrate3_1_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_2_0(DonkeyElement element) {}
+    public void migrate3_2_0(DonkeyElement element) {
+        DonkeyElement resourceIdsElement = element.addChildElement("resourceIds");
+        resourceIdsElement.setAttribute("class", "linked-hash-set");
+        resourceIdsElement.addChildElement("string", "Default Resource");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
@@ -193,6 +208,7 @@ public class ChannelProperties implements Serializable, Migratable, Purgable {
         purgedProperties.put("pruneMetaDataDays", pruneMetaDataDays);
         purgedProperties.put("pruneContentDays", pruneContentDays);
         purgedProperties.put("archiveEnabled", archiveEnabled);
+        purgedProperties.put("resourceIdsCount", resourceIds.size());
         return purgedProperties;
     }
 }

@@ -43,17 +43,12 @@ import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
  * The base class for all source connectors.
  */
 public abstract class SourceConnector extends Connector {
-    private Channel channel;
     private boolean respondAfterProcessing = true;
     private MetaDataReplacer metaDataReplacer;
     private BatchAdaptorFactory batchAdaptorFactory;
     private String sourceName = "Source";
 
     private Logger logger = Logger.getLogger(getClass());
-
-    public void setChannel(Channel channel) {
-        this.channel = channel;
-    }
 
     public boolean isRespondAfterProcessing() {
         return respondAfterProcessing;

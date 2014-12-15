@@ -12,13 +12,15 @@ package com.mirth.connect.donkey.server.message.batch;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 
 public abstract class BatchAdaptor {
+    protected BatchAdaptorFactory factory;
     protected SourceConnector sourceConnector;
     protected BatchMessageSource batchMessageSource;
     private int batchSequenceId;
     private boolean lookAhead = true;
     private String nextMessage = null;
 
-    public BatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
+    public BatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
+        this.factory = factory;
         this.sourceConnector = sourceConnector;
         this.batchMessageSource = batchMessageSource;
     }

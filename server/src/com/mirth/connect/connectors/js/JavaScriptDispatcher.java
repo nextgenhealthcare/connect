@@ -31,13 +31,14 @@ import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
+import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.CompiledScriptCache;
-import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
@@ -45,23 +46,26 @@ public class JavaScriptDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     private Logger scriptLogger = Logger.getLogger("js-connector");
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private JavaScriptDispatcherProperties connectorProperties;
     private String scriptId;
+    private volatile String contextFactoryId;
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
         this.connectorProperties = (JavaScriptDispatcherProperties) getConnectorProperties();
 
-        String scriptId = UUID.randomUUID().toString();
+        scriptId = UUID.randomUUID().toString();
 
         try {
-            JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getScript(), ContextType.MESSAGE_CONTEXT, null, null);
+            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+            contextFactoryId = contextFactory.getId();
+            JavaScriptUtil.compileAndAddScript(contextFactory, scriptId, connectorProperties.getScript(), ContextType.MESSAGE_CONTEXT, null, null);
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling/adding script.", e);
         }
 
-        this.scriptId = scriptId;
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
     }
 
@@ -87,13 +91,26 @@ public class JavaScriptDispatcher extends DestinationConnector {
         JavaScriptDispatcherProperties javaScriptDispatcherProperties = (JavaScriptDispatcherProperties) connectorProperties;
 
         try {
+            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+
+            if (!contextFactoryId.equals(contextFactory.getId())) {
+                synchronized (this) {
+                    contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+
+                    if (!contextFactoryId.equals(contextFactory.getId())) {
+                        JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
+                        contextFactoryId = contextFactory.getId();
+                    }
+                }
+            }
+
             eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.SENDING));
 
-            Response response = JavaScriptUtil.execute(new JavaScriptDispatcherTask(message));
+            Response response = JavaScriptUtil.execute(new JavaScriptDispatcherTask(contextFactory, message));
             response.setValidate(javaScriptDispatcherProperties.getDestinationConnectorProperties().isValidateResponse());
 
             return response;
-        } catch (JavaScriptExecutorException e) {
+        } catch (Exception e) {
             logger.error("Error executing script (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
             eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), message.getMessageId(), ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Error executing script", e));
             return new Response(Status.ERROR, null, ErrorMessageBuilder.buildErrorResponse("Error executing script", e), ErrorMessageBuilder.buildErrorMessage(connectorProperties.getName(), "Error executing script", e));
@@ -105,7 +122,8 @@ public class JavaScriptDispatcher extends DestinationConnector {
     private class JavaScriptDispatcherTask extends JavaScriptTask<Response> {
         private ConnectorMessage message;
 
-        public JavaScriptDispatcherTask(ConnectorMessage message) {
+        public JavaScriptDispatcherTask(MirthContextFactory contextFactory, ConnectorMessage message) {
+            super(contextFactory);
             this.message = message;
         }
 
@@ -127,7 +145,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
                 eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), null, ErrorEventType.DESTINATION_CONNECTOR, getDestinationName(), connectorProperties.getName(), "Script not found in cache", null));
             } else {
                 try {
-                    Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(scriptLogger, getChannelId(), new ImmutableConnectorMessage(message, true, JavaScriptDispatcher.this.getDestinationIdMap()));
+                    Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(getContextFactory(), scriptLogger, getChannelId(), new ImmutableConnectorMessage(message, true, JavaScriptDispatcher.this.getDestinationIdMap()));
                     Object result = executeScript(compiledScript, scope);
 
                     if (result != null && !(result instanceof Undefined)) {

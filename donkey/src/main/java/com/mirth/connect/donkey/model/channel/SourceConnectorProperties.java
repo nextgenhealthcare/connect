@@ -11,7 +11,9 @@ package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
@@ -71,6 +73,7 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
     private boolean respondAfterProcessing;
     private boolean processBatch;
     private boolean firstResponse;
+    private Set<String> resourceIds;
 
     public SourceConnectorProperties() {
         this(RESPONSE_NONE);
@@ -81,6 +84,8 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
         this.respondAfterProcessing = true;
         this.processBatch = false;
         this.firstResponse = false;
+        this.resourceIds = new LinkedHashSet<String>();
+        this.resourceIds.add("Default Resource");
     }
 
     public String getResponseVariable() {
@@ -115,6 +120,14 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
         this.firstResponse = firstResponse;
     }
 
+    public Set<String> getResourceIds() {
+        return resourceIds;
+    }
+
+    public void setResourceIds(Set<String> resourceIds) {
+        this.resourceIds = resourceIds;
+    }
+
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
@@ -135,7 +148,11 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
     }
 
     @Override
-    public void migrate3_2_0(DonkeyElement element) {}
+    public void migrate3_2_0(DonkeyElement element) {
+        DonkeyElement resourceIdsElement = element.addChildElement("resourceIds");
+        resourceIdsElement.setAttribute("class", "linked-hash-set");
+        resourceIdsElement.addChildElement("string", "Default Resource");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
@@ -143,6 +160,7 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
         purgedProperties.put("respondAfterProcessing", respondAfterProcessing);
         purgedProperties.put("processBatch", processBatch);
         purgedProperties.put("firstResponse", firstResponse);
+        purgedProperties.put("resourceIdsCount", resourceIds.size());
         return purgedProperties;
     }
 }

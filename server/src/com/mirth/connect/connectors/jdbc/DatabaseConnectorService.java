@@ -22,22 +22,28 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.connectors.ConnectorService;
+import com.mirth.connect.server.controllers.ContextFactoryController;
+import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class DatabaseConnectorService implements ConnectorService {
 
     private final String[] TABLE_TYPES = { "TABLE", "VIEW" };
     private Logger logger = Logger.getLogger(this.getClass());
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
 
     public Object invoke(String channelId, String method, Object object, String sessionsId) throws Exception {
         if (method.equals("getInformationSchema")) {
             // method 'getInformationSchema' will return Set<Table>
 
+            CustomDriver customDriver = null;
             Connection connection = null;
             try {
                 DatabaseConnectionInfo databaseConnectionInfo = (DatabaseConnectionInfo) object;
@@ -52,7 +58,17 @@ public class DatabaseConnectorService implements ConnectorService {
 
                 String schema = null;
 
-                Class.forName(driver);
+                try {
+                    Class.forName(driver);
+                } catch (ClassNotFoundException e) {
+                    MirthContextFactory contextFactory = contextFactoryController.getContextFactory(databaseConnectionInfo.getResourceIds());
+                    if (CollectionUtils.isNotEmpty(contextFactory.getResourceIds())) {
+                        customDriver = new CustomDriver(contextFactory.getApplicationClassLoader(), driver);
+                    } else {
+                        throw e;
+                    }
+                }
+
                 int oldLoginTimeout = DriverManager.getLoginTimeout();
                 DriverManager.setLoginTimeout(30);
                 connection = DriverManager.getConnection(address, user, password);
@@ -187,6 +203,10 @@ public class DatabaseConnectorService implements ConnectorService {
                 if (connection != null) {
                     connection.close();
                 }
+
+                if (customDriver != null) {
+                    customDriver.dispose();
+                }
             }
         }
 
@@ -194,10 +214,8 @@ public class DatabaseConnectorService implements ConnectorService {
     }
 
     /**
-     * Translate the given pattern expression so that it can be used properly
-     * for
-     * searching tables in the database. Multiple table name patterns are
-     * delimited by comma (,)
+     * Translate the given pattern expression so that it can be used properly for searching tables
+     * in the database. Multiple table name patterns are delimited by comma (,)
      * <p>
      * This interpret and translate to the following:
      * <p>
@@ -212,8 +230,7 @@ public class DatabaseConnectorService implements ConnectorService {
      * 
      * @param tableNamePatternExpression
      *            pattern expression to translate, cannot be NULL.
-     * @return If table name pattern is an empty string, it'll never return
-     *         NULL.
+     * @return If table name pattern is an empty string, it'll never return NULL.
      */
     private List<String> translateTableNamePatternExpression(String tableNamePatternExpression) {
         if (tableNamePatternExpression == null) {

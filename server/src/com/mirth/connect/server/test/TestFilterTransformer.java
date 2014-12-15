@@ -30,6 +30,8 @@ import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.plugins.datatypes.xml.DefaultXMLSerializer;
 import com.mirth.connect.server.Mirth;
 import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ContextFactoryController;
+import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.transformers.JavaScriptFilterTransformer;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 
@@ -46,6 +48,7 @@ public class TestFilterTransformer {
     private static ExecutorService executor = Executors.newSingleThreadExecutor();
     private static FilterTransformer filterTransformer;
     private static FilterTransformer filterTransformerPerformance;
+    private static ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -66,7 +69,7 @@ public class TestFilterTransformer {
         script.append("if ((new Date().getTime() - start) > " + SCRIPT_SLEEP_MILLIS + ") break;");
         script.append("} return false;");
 
-        JavaScriptUtil.compileAndAddScript(TEST_SCRIPT_ID, script.toString(), ContextType.MESSAGE_CONTEXT);
+        JavaScriptUtil.compileAndAddScript(contextFactoryController.getGlobalContextFactory(), TEST_SCRIPT_ID, script.toString(), ContextType.MESSAGE_CONTEXT);
 
         script = new StringBuilder();
         script.append("var result;");
@@ -74,14 +77,14 @@ public class TestFilterTransformer {
         script.append("result = Math.sqrt(i);");
         script.append("} return false;");
 
-        JavaScriptUtil.compileAndAddScript(PERFORMANCE_SCRIPT_ID, script.toString(), ContextType.MESSAGE_CONTEXT);
+        JavaScriptUtil.compileAndAddScript(contextFactoryController.getGlobalContextFactory(), PERFORMANCE_SCRIPT_ID, script.toString(), ContextType.MESSAGE_CONTEXT);
 
         initJavaScriptFilterTransformer();
     }
 
     private static void initJavaScriptFilterTransformer() throws Exception {
-        filterTransformer = new JavaScriptFilterTransformer(CHANNEL_ID, CONNECTOR_NAME, TEST_SCRIPT_ID, null, null);
-        filterTransformerPerformance = new JavaScriptFilterTransformer(CHANNEL_ID, CONNECTOR_NAME, PERFORMANCE_SCRIPT_ID, null, null);
+        filterTransformer = new JavaScriptFilterTransformer(null, CONNECTOR_NAME, TEST_SCRIPT_ID, null);
+        filterTransformerPerformance = new JavaScriptFilterTransformer(null, CONNECTOR_NAME, PERFORMANCE_SCRIPT_ID, null);
     }
 
     @Test

@@ -36,29 +36,34 @@ import org.xml.sax.InputSource;
 
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
+import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageSource;
 import com.mirth.connect.plugins.datatypes.xml.XMLBatchProperties.SplitType;
+import com.mirth.connect.server.controllers.ContextFactoryController;
+import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class XMLBatchAdaptor extends BatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());
+    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
 
     private BufferedReader bufferedReader;
-    private XPathFactory factory = XPathFactory.newInstance();
+    private XPathFactory xPathFactory = XPathFactory.newInstance();
     private XMLBatchProperties batchProperties;
     private NodeList nodeList;
     private int currentNode = 0;
 
-    public XMLBatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
-        super(sourceConnector, batchMessageSource);
+    public XMLBatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
+        super(factory, sourceConnector, batchMessageSource);
     }
 
     public XMLBatchProperties getBatchProperties() {
@@ -124,7 +129,7 @@ public class XMLBatchAdaptor extends BatchAdaptor {
                     query.append(batchProperties.getQuery());
                 }
 
-                XPath xpath = factory.newXPath();
+                XPath xpath = xPathFactory.newXPath();
 
                 nodeList = (NodeList) xpath.evaluate(query.toString(), new InputSource(bufferedReader), XPathConstants.NODESET);
             }
@@ -138,10 +143,17 @@ public class XMLBatchAdaptor extends BatchAdaptor {
             }
         } else if (splitType == SplitType.JavaScript) {
             try {
-                String result = JavaScriptUtil.execute(new JavaScriptTask<String>() {
+                final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
+                
+                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
+                if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
+                    JavaScriptUtil.recompileGeneratedScript(contextFactory, batchScriptId);
+                    factory.setContextFactoryId(contextFactory.getId());
+                }
+                
+                String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory) {
                     @Override
                     public String call() throws Exception {
-                        String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
                         Script compiledScript = CompiledScriptCache.getInstance().getCompiledScript(batchScriptId);
 
                         if (compiledScript == null) {
@@ -151,7 +163,7 @@ public class XMLBatchAdaptor extends BatchAdaptor {
                             Logger scriptLogger = Logger.getLogger(ScriptController.BATCH_SCRIPT_KEY.toLowerCase());
 
                             try {
-                                Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(scriptLogger, batchScriptId, getScopeObjects(bufferedReader));
+                                Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(getContextFactory(), scriptLogger, batchScriptId, getScopeObjects(bufferedReader));
                                 return (String) Context.jsToJava(executeScript(compiledScript, scope), String.class);
                             } finally {
                                 Context.exit();

@@ -10,6 +10,7 @@
 package com.mirth.connect.connectors.jdbc;
 
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -59,7 +60,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         }
 
         initComponents();
-        
+
         retryCountField.setDocument(new MirthFieldConstraints(0, false, false, true));
         retryIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
 
@@ -941,7 +942,9 @@ public class DatabaseReader extends ConnectorSettingsPanel {
                 }
             }
 
-            new DatabaseMetadataDialog(this, type, new DatabaseConnectionInfo(properties.getDriver(), properties.getUrl(), properties.getUsername(), properties.getPassword(), "", selectLimit));
+            Connector sourceConnector = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getSourceConnector();
+            Set<String> resourceIds = PlatformUI.MIRTH_FRAME.channelEditPanel.resourceIds.get(sourceConnector.getMetaDataId());
+            new DatabaseMetadataDialog(this, type, new DatabaseConnectionInfo(properties.getDriver(), properties.getUrl(), properties.getUsername(), properties.getPassword(), "", selectLimit, resourceIds));
         }
     }
 

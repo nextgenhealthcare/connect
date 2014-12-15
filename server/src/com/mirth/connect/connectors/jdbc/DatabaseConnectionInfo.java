@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.jdbc;
 
+import java.util.Set;
+
 public class DatabaseConnectionInfo {
     private String driver;
     private String url;
@@ -16,14 +18,16 @@ public class DatabaseConnectionInfo {
     private String password;
     private String tableNamePatternExpression;
     private String selectLimit;
+    private Set<String> resourceIds;
 
-    public DatabaseConnectionInfo(String driver, String url, String username, String password, String tableNamePatternExpression, String selectLimit) {
+    public DatabaseConnectionInfo(String driver, String url, String username, String password, String tableNamePatternExpression, String selectLimit, Set<String> resourceIds) {
         this.driver = driver;
         this.url = url;
         this.username = username;
         this.password = password;
         this.tableNamePatternExpression = tableNamePatternExpression;
         this.selectLimit = selectLimit;
+        this.resourceIds = resourceIds;
     }
 
     public String getDriver() {
@@ -72,5 +76,13 @@ public class DatabaseConnectionInfo {
 
     public void setSelectLimit(String selectLimit) {
         this.selectLimit = selectLimit;
+    }
+
+    public Set<String> getResourceIds() {
+        return resourceIds;
+    }
+
+    public void setResourceIds(Set<String> resourceIds) {
+        this.resourceIds = resourceIds;
     }
 }

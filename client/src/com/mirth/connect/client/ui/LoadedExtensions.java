@@ -36,6 +36,8 @@ import com.mirth.connect.plugins.DashboardTabPlugin;
 import com.mirth.connect.plugins.DashboardTablePlugin;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 import com.mirth.connect.plugins.FilterRulePlugin;
+import com.mirth.connect.plugins.LibraryClientPlugin;
+import com.mirth.connect.plugins.ResourceClientPlugin;
 import com.mirth.connect.plugins.SettingsPanelPlugin;
 import com.mirth.connect.plugins.TransformerStepPlugin;
 import com.mirth.connect.plugins.TransmissionModePlugin;
@@ -57,6 +59,8 @@ public class LoadedExtensions {
     private Map<String, CodeTemplatePlugin> codeTemplatePlugins = new LinkedHashMap<String, CodeTemplatePlugin>();
     private Map<String, DataTypeClientPlugin> dataTypePlugins = new TreeMap<String, DataTypeClientPlugin>();
     private Map<String, TransmissionModePlugin> transmissionModePlugins = new TreeMap<String, TransmissionModePlugin>();
+    private Map<String, ResourceClientPlugin> resourceClientPlugins = new LinkedHashMap<String, ResourceClientPlugin>();
+    private Map<String, LibraryClientPlugin> libraryClientPlugins = new LinkedHashMap<String, LibraryClientPlugin>();
     private Map<String, ConnectorPropertiesPlugin> connectorPropertiesPlugins = new LinkedHashMap<String, ConnectorPropertiesPlugin>();
     private Map<String, ConnectorSettingsPanel> connectors = new TreeMap<String, ConnectorSettingsPanel>();
     private Map<String, ConnectorSettingsPanel> sourceConnectors = new TreeMap<String, ConnectorSettingsPanel>();
@@ -275,6 +279,14 @@ public class LoadedExtensions {
         if (plugin instanceof ConnectorPropertiesPlugin) {
             connectorPropertiesPlugins.put(plugin.getPluginPointName(), (ConnectorPropertiesPlugin) plugin);
         }
+
+        if (plugin instanceof ResourceClientPlugin) {
+            resourceClientPlugins.put(plugin.getPluginPointName(), (ResourceClientPlugin) plugin);
+        }
+
+        if (plugin instanceof LibraryClientPlugin) {
+            libraryClientPlugins.put(plugin.getPluginPointName(), (LibraryClientPlugin) plugin);
+        }
     }
 
     private void clearExtensionMaps() {
@@ -294,6 +306,8 @@ public class LoadedExtensions {
         dataTypePlugins.clear();
         transmissionModePlugins.clear();
         connectorPropertiesPlugins.clear();
+        resourceClientPlugins.clear();
+        libraryClientPlugins.clear();
 
         connectors.clear();
         sourceConnectors.clear();
@@ -358,6 +372,14 @@ public class LoadedExtensions {
 
     public Map<String, ConnectorPropertiesPlugin> getConnectorPropertiesPlugins() {
         return connectorPropertiesPlugins;
+    }
+
+    public Map<String, ResourceClientPlugin> getResourceClientPlugins() {
+        return resourceClientPlugins;
+    }
+
+    public Map<String, LibraryClientPlugin> getLibraryClientPlugins() {
+        return libraryClientPlugins;
     }
 
     public Map<String, ConnectorSettingsPanel> getConnectors() {

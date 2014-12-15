@@ -24,21 +24,26 @@ import org.mozilla.javascript.Scriptable;
 
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
+import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageSource;
 import com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties.SplitType;
+import com.mirth.connect.server.controllers.ContextFactoryController;
+import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.mirth.connect.util.StringUtil;
 
 public class DelimitedBatchAdaptor extends BatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());
+    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private DelimitedSerializationProperties serializationProperties;
     private DelimitedBatchProperties batchProperties;
     private DelimitedReader delimitedReader = null;
@@ -47,8 +52,8 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
     private Integer groupingColumnIndex;
     private String batchMessageDelimiter = null;
 
-    public DelimitedBatchAdaptor(SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
-        super(sourceConnector, batchMessageSource);
+    public DelimitedBatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchMessageSource batchMessageSource) {
+        super(factory, sourceConnector, batchMessageSource);
     }
 
     public DelimitedSerializationProperties getSerializationProperties() {
@@ -219,10 +224,17 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
 
             try {
                 final int batchSkipRecords = batchProperties.getBatchSkipRecords();
-                String result = JavaScriptUtil.execute(new JavaScriptTask<String>() {
+                final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
+                
+                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
+                if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
+                    JavaScriptUtil.recompileGeneratedScript(contextFactory, batchScriptId);
+                    factory.setContextFactoryId(contextFactory.getId());
+                }
+                
+                String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory) {
                     @Override
                     public String call() throws Exception {
-                        String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
                         Script compiledScript = CompiledScriptCache.getInstance().getCompiledScript(batchScriptId);
 
                         if (compiledScript == null) {
@@ -232,7 +244,7 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
                             Logger scriptLogger = Logger.getLogger(ScriptController.BATCH_SCRIPT_KEY.toLowerCase());
 
                             try {
-                                Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(scriptLogger, batchScriptId, getScopeObjects(in, serializationProperties, skipHeader, batchSkipRecords));
+                                Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(getContextFactory(), scriptLogger, batchScriptId, getScopeObjects(in, serializationProperties, skipHeader, batchSkipRecords));
                                 return (String) Context.jsToJava(executeScript(compiledScript, scope), String.class);
                             } finally {
                                 Context.exit();

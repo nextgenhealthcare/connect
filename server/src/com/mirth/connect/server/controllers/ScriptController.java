@@ -12,6 +12,7 @@ package com.mirth.connect.server.controllers;
 import java.util.Map;
 
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public abstract class ScriptController extends Controller {
     // Static group IDs
@@ -92,9 +93,9 @@ public abstract class ScriptController extends Controller {
 
     public abstract void setGlobalScripts(Map<String, String> scripts) throws ControllerException;
 
-    public abstract void compileGlobalScripts();
+    public abstract void compileGlobalScripts(MirthContextFactory contextFactory);
 
-    public abstract void compileChannelScripts(Channel channel) throws ScriptCompileException;
+    public abstract void compileChannelScripts(MirthContextFactory contextFactory, Channel channel) throws ScriptCompileException;
 
     public abstract void removeChannelScriptsFromCache(String channelId);
 
@@ -102,11 +103,11 @@ public abstract class ScriptController extends Controller {
 
     public abstract void executeGlobalDeployScript() throws Exception;
 
-    public abstract void executeChannelDeployScript(String channelId) throws Exception;
+    public abstract void executeChannelDeployScript(MirthContextFactory contextFactory, String channelId) throws Exception;
 
     // Undeploy Script Execution
 
     public abstract void executeGlobalUndeployScript() throws Exception;
 
-    public abstract void executeChannelUndeployScript(String channelId) throws Exception;
+    public abstract void executeChannelUndeployScript(MirthContextFactory contextFactory, String channelId) throws Exception;
 }

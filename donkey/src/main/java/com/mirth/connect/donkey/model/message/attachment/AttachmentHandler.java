@@ -23,12 +23,12 @@ public interface AttachmentHandler extends Serializable {
 
     public String shutdown() throws AttachmentException;
 
-    public void setProperties(AttachmentHandlerProperties attachmentProperties);
-    
+    public void setProperties(Channel channel, AttachmentHandlerProperties attachmentProperties);
+
     public byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary);
 
     public String reAttachMessage(ConnectorMessage message);
-    
+
     public String reAttachMessage(String raw, ConnectorMessage message);
 
     public boolean canExtractAttachments();

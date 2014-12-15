@@ -40,6 +40,8 @@ import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.ResourceProperties;
+import com.mirth.connect.model.ResourcePropertiesList;
 import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DatabaseTask;
@@ -1258,5 +1260,20 @@ public class Client {
     public void cancelDatabaseTask(DatabaseTask databaseTask) throws ClientException {
         NameValuePair[] params = { new BasicNameValuePair("op", Operations.DATABASE_TASK_CANCEL.getName()), new BasicNameValuePair("databaseTask", serializer.serialize(databaseTask)) };
         serverConnection.executePostMethodAsync(DATABASE_TASK_SERVLET, params);
+    }
+
+    public List<ResourceProperties> getResources() throws ClientException {
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.RESOURCES_GET.getName()) };
+        return serializer.deserialize(serverConnection.executePostMethodAsync(CONFIGURATION_SERVLET, params), ResourcePropertiesList.class).getList();
+    }
+
+    public void setResources(List<ResourceProperties> resources) throws ClientException {
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.RESOURCES_SET.getName()), new BasicNameValuePair("resources", serializer.serialize(new ResourcePropertiesList(resources))) };
+        serverConnection.executePostMethodAsync(CONFIGURATION_SERVLET, params);
+    }
+
+    public void reloadResource(String resourceId) throws ClientException {
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.RESOURCES_RELOAD.getName()), new BasicNameValuePair("resourceId", resourceId) };
+        serverConnection.executePostMethodAsync(CONFIGURATION_SERVLET, params);
     }
 }

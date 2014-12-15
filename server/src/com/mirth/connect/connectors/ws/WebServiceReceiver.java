@@ -40,9 +40,11 @@ import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.ResponseHandler;
 import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
 import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.sun.net.httpserver.BasicAuthenticator;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
@@ -51,6 +53,7 @@ public class WebServiceReceiver extends SourceConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private ExecutorService executor;
     private Endpoint webServiceEndpoint;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
@@ -107,7 +110,8 @@ public class WebServiceReceiver extends SourceConnector {
         AcceptMessage acceptMessageWebService = null;
 
         try {
-            Class<?> clazz = Class.forName(replacer.replaceValues(connectorProperties.getClassName(), getChannelId()));
+            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+            Class<?> clazz = Class.forName(replacer.replaceValues(connectorProperties.getClassName(), getChannelId()), true, contextFactory.getApplicationClassLoader());
 
             if (clazz.getSuperclass().equals(AcceptMessage.class)) {
                 Constructor<?>[] constructors = clazz.getDeclaredConstructors();

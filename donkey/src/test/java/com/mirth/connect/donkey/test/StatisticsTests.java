@@ -134,7 +134,7 @@ public class StatisticsTests {
                 return new FilterTransformerResult(true, null);
             }
         };
-        channel.getSourceFilterTransformer().setFilterTransformer(filterTransformer);
+        channel.getSourceConnector().getFilterTransformerExecutor().setFilterTransformer(filterTransformer);
 
         channel.deploy();
         channel.start(null);
@@ -195,7 +195,7 @@ public class StatisticsTests {
         sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
-        channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
+        channel.getSourceConnector().setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
         DestinationChain chain = new DestinationChain();
         chain.setChannelId(channel.getChannelId());
@@ -330,7 +330,7 @@ public class StatisticsTests {
         sourceConnector.setChannelId(channel.getChannelId());
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
-        channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
+        channel.getSourceConnector().setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
         DestinationChain chain = new DestinationChain();
         chain.setChannelId(channel.getChannelId());

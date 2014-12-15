@@ -287,4 +287,8 @@ public abstract class ConfigurationController extends Controller {
     public abstract void saveProperty(String group, String name, String property);
 
     public abstract void removeProperty(String group, String name);
+
+    public abstract String getResources();
+
+    public abstract void setResources(String resources);
 }

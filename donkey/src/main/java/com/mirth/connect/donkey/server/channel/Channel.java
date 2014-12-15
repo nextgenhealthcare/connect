@@ -87,6 +87,8 @@ public class Channel implements Runnable {
     private String serverId;
     private int revision;
     private Calendar deployDate;
+    private Set<String> resourceIds;
+    private String contextFactoryId;
 
     private boolean enabled = false;
     private DeployedState initialState;
@@ -102,7 +104,6 @@ public class Channel implements Runnable {
     private List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
     private SourceConnector sourceConnector;
     private SourceQueue sourceQueue;
-    private FilterTransformerExecutor sourceFilterTransformerExecutor;
     private PreProcessor preProcessor;
     private PostProcessor postProcessor;
     private List<DestinationChain> destinationChains = new ArrayList<DestinationChain>();
@@ -173,6 +174,22 @@ public class Channel implements Runnable {
 
     public void setDeployDate(Calendar deployedDate) {
         this.deployDate = deployedDate;
+    }
+
+    public Set<String> getResourceIds() {
+        return resourceIds;
+    }
+
+    public void setResourceIds(Set<String> resourceIds) {
+        this.resourceIds = resourceIds;
+    }
+
+    public String getContextFactoryId() {
+        return contextFactoryId;
+    }
+
+    public void setContextFactoryId(String contextFactoryId) {
+        this.contextFactoryId = contextFactoryId;
     }
 
     public boolean isEnabled() {
@@ -267,14 +284,6 @@ public class Channel implements Runnable {
         this.sourceQueue = sourceQueue;
     }
 
-    public FilterTransformerExecutor getSourceFilterTransformer() {
-        return sourceFilterTransformerExecutor;
-    }
-
-    public void setSourceFilterTransformer(FilterTransformerExecutor sourceFilterTransformer) {
-        this.sourceFilterTransformerExecutor = sourceFilterTransformer;
-    }
-
     public PreProcessor getPreProcessor() {
         return preProcessor;
     }
@@ -336,7 +345,7 @@ public class Channel implements Runnable {
      * Tell whether or not the channel is configured correctly and is able to be deployed
      */
     public boolean isConfigurationValid() {
-        if (channelId == null || daoFactory == null || sourceConnector == null || sourceFilterTransformerExecutor == null) {
+        if (channelId == null || daoFactory == null || sourceConnector == null || sourceConnector.getFilterTransformerExecutor() == null) {
             return false;
         }
 
@@ -1482,7 +1491,7 @@ public class Channel implements Runnable {
 
             // send the message to the source filter/transformer and then update it's status
             try {
-                sourceFilterTransformerExecutor.processConnectorMessage(sourceMessage);
+                sourceConnector.getFilterTransformerExecutor().processConnectorMessage(sourceMessage);
             } catch (DonkeyException e) {
                 if (e instanceof XmlSerializerException) {
                     eventDispatcher.dispatchEvent(new ErrorEvent(channelId, 0, messageId, ErrorEventType.SERIALIZER, sourceConnector.getSourceName(), null, e.getMessage(), e));

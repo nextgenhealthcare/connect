@@ -11,7 +11,9 @@ package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
@@ -29,6 +31,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
     private int threadCount;
     private String threadAssignmentVariable;
     private boolean validateResponse;
+    private Set<String> resourceIds;
 
     public DestinationConnectorProperties() {
         this(false);
@@ -44,6 +47,8 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         threadCount = 1;
         threadAssignmentVariable = "";
         this.validateResponse = validateResponse;
+        resourceIds = new LinkedHashSet<String>();
+        this.resourceIds.add("Default Resource");
     }
 
     public DestinationConnectorProperties(DestinationConnectorProperties props) {
@@ -56,6 +61,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         threadCount = props.getThreadCount();
         threadAssignmentVariable = props.getThreadAssignmentVariable();
         validateResponse = props.isValidateResponse();
+        resourceIds = new LinkedHashSet<String>(props.getResourceIds());
     }
 
     public boolean isQueueEnabled() {
@@ -130,6 +136,14 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         this.validateResponse = validateResponse;
     }
 
+    public Set<String> getResourceIds() {
+        return resourceIds;
+    }
+
+    public void setResourceIds(Set<String> resourceIds) {
+        this.resourceIds = resourceIds;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
@@ -147,7 +161,11 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
     }
 
     @Override
-    public void migrate3_2_0(DonkeyElement element) {}
+    public void migrate3_2_0(DonkeyElement element) {
+        DonkeyElement resourceIdsElement = element.addChildElement("resourceIds");
+        resourceIdsElement.setAttribute("class", "linked-hash-set");
+        resourceIdsElement.addChildElement("string", "Default Resource");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
@@ -160,6 +178,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         purgedProperties.put("rotate", rotate);
         purgedProperties.put("threadCount", threadCount);
         purgedProperties.put("validateResponse", validateResponse);
+        purgedProperties.put("resourceIdsCount", resourceIds.size());
         return purgedProperties;
     }
 }

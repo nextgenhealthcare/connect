@@ -41,6 +41,7 @@ import com.mirth.connect.plugins.datatypes.xml.DefaultXMLSerializer;
 import com.mirth.connect.server.Mirth;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.server.controllers.ScriptController;
@@ -54,6 +55,7 @@ public class TestPreProcessor {
     private final static String CHANNEL_ID = "testchannel";
 
     private static Mirth server = new Mirth();
+    private static ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -99,7 +101,7 @@ public class TestPreProcessor {
 
     @Test
     public final void testPreProcessor() throws Exception {
-        final JavaScriptPreprocessor preprocessor = new JavaScriptPreprocessor(null);
+        final JavaScriptPreprocessor preprocessor = new JavaScriptPreprocessor(null, null);
         final String testResult = "test result";
         final int testSize = 100000;
 
@@ -109,7 +111,7 @@ public class TestPreProcessor {
         script.append("result = Math.sqrt(i);");
         script.append("} return '" + testResult + "';");
 
-        JavaScriptUtil.compileAndAddScript(ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, CHANNEL_ID), script.toString(), ContextType.CHANNEL_CONTEXT);
+        JavaScriptUtil.compileAndAddScript(contextFactoryController.getGlobalContextFactory(), ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, CHANNEL_ID), script.toString(), ContextType.CHANNEL_CONTEXT);
 
         ScriptRunner scriptRunner = new ScriptRunner() {
             @Override
@@ -130,7 +132,7 @@ public class TestPreProcessor {
     @Test
     public final void testFilterTransformer() throws Exception {
         final String scriptId = "testScriptId";
-        final JavaScriptFilterTransformer filterTransformer = new JavaScriptFilterTransformer(CHANNEL_ID, "test connector", scriptId, null, null);
+        final JavaScriptFilterTransformer filterTransformer = new JavaScriptFilterTransformer(null, "test connector", scriptId, null);
         final int testSize = 100000;
 
         StringBuilder script = new StringBuilder();
@@ -139,7 +141,7 @@ public class TestPreProcessor {
         script.append("result = Math.sqrt(i);");
         script.append("} return false;");
 
-        JavaScriptUtil.compileAndAddScript(scriptId, script.toString(), ContextType.MESSAGE_CONTEXT);
+        JavaScriptUtil.compileAndAddScript(contextFactoryController.getGlobalContextFactory(), scriptId, script.toString(), ContextType.MESSAGE_CONTEXT);
 
         ScriptRunner scriptRunner = new ScriptRunner() {
             @Override
@@ -159,7 +161,7 @@ public class TestPreProcessor {
 
     @Test
     public final void testPostProcessor() throws Exception {
-        final JavaScriptPostprocessor postprocessor = new JavaScriptPostprocessor();
+        final JavaScriptPostprocessor postprocessor = new JavaScriptPostprocessor(null, null);
         final int testSize = 100000;
         final Response expectedResult = new Response(Status.SENT, "test");
 
@@ -169,7 +171,7 @@ public class TestPreProcessor {
         script.append("result = Math.sqrt(i);");
         script.append("} return 'test';");
 
-        JavaScriptUtil.compileAndAddScript(ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, CHANNEL_ID), script.toString(), ContextType.CHANNEL_CONTEXT);
+        JavaScriptUtil.compileAndAddScript(contextFactoryController.getGlobalContextFactory(), ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, CHANNEL_ID), script.toString(), ContextType.CHANNEL_CONTEXT);
 
         ScriptRunner scriptRunner = new ScriptRunner() {
             @Override

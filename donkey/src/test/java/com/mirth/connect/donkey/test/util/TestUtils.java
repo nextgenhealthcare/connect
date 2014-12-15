@@ -131,7 +131,7 @@ public class TestUtils {
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
         channel.setResponseSelector(new ResponseSelector(sourceConnector.getInboundDataType()));
-        channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
+        channel.getSourceConnector().setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
         TestDestinationConnector destinationConnector = (TestDestinationConnector) TestUtils.createDefaultDestinationConnector();
         destinationConnector.setChannelId(channelId);
@@ -181,7 +181,7 @@ public class TestUtils {
         sourceConnector.setChannel(channel);
 
         channel.setSourceConnector(sourceConnector);
-        channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
+        channel.getSourceConnector().setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
         for (int i = 1; i <= numChains; i++) {
             DestinationChain chain = new DestinationChain();
