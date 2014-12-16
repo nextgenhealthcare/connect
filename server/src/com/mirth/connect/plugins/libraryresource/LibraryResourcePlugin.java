@@ -54,10 +54,16 @@ public class LibraryResourcePlugin implements ServicePlugin, LibraryPlugin {
             LibraryResourceProperties props = (LibraryResourceProperties) object;
             List<URL> urls = contextFactoryController.getLibraries(props.getId());
             List<String> libraries = new ArrayList<String>();
-            File directory = new File(props.getDirectory());
-
-            for (URL url : urls) {
-                libraries.add(StringUtils.removeStartIgnoreCase(url.toString(), directory.toURI().toURL().toString()));
+            
+            if (StringUtils.isNotBlank(props.getDirectory())) {
+                File directory = new File(props.getDirectory());
+                for (URL url : urls) {
+                    libraries.add(StringUtils.removeStartIgnoreCase(url.toString(), directory.toURI().toURL().toString()));
+                }
+            } else {
+                for (URL url : urls) {
+                    libraries.add(url.toString());
+                }
             }
 
             Collections.sort(libraries);

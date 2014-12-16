@@ -168,17 +168,17 @@ public class DefaultContextFactoryController extends ContextFactoryController {
 
     @Override
     public void reloadResource(String resourceId) throws Exception {
-        reloadResources(Collections.singleton(resourceId));
+        reloadResources(new HashSet<String>(Collections.singleton(resourceId)));
     }
 
     @Override
     public List<URL> getLibraries(String resourceId) throws Exception {
-        return getLibraries(Collections.singleton(resourceId), false);
+        return getLibraries(new HashSet<String>(Collections.singleton(resourceId)), false);
     }
 
     private void reloadResources(Set<String> resourceIds) throws Exception {
         for (String resourceId : resourceIds) {
-            getLibraries(Collections.singleton(resourceId), true);
+            getLibraries(new HashSet<String>(Collections.singleton(resourceId)), true);
         }
 
         for (Set<String> libraryResourceIds : contextFactoryMap.keySet().toArray(new Set[contextFactoryMap.size()])) {
