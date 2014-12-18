@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.controllers;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -66,6 +67,7 @@ import com.mirth.connect.util.MessageImporter;
 import com.mirth.connect.util.MessageImporter.MessageImportException;
 import com.mirth.connect.util.MessageImporter.MessageImportInvalidPathException;
 import com.mirth.connect.util.PaginatedList;
+import com.mirth.connect.util.attachmentwriter.AttachmentWriter;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
 import com.mirth.connect.util.messagewriter.MessageWriterFactory;
@@ -473,6 +475,11 @@ public class DonkeyMessageController extends MessageController {
         } catch (MessageWriterException e) {
             throw new MessageExportException(e);
         }
+    }
+
+    @Override
+    public void exportAttachment(String channelId, String attachmentId, String filePath, boolean binary) throws IOException {
+        AttachmentWriter.write(filePath, getMessageAttachment(channelId, attachmentId), binary);
     }
 
     @Override

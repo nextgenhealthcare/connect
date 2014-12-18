@@ -1399,9 +1399,9 @@ public class MessageBrowser extends javax.swing.JPanel {
 
                 public void valueChanged(ListSelectionEvent evt) {
                     if (attachmentTable != null && attachmentTable.getSelectedRow() != -1) {
-                        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 9, true);
+                        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 10, true);
                     } else {
-                        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 9, false);
+                        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 10, false);
                     }
                 }
             });
@@ -1572,7 +1572,7 @@ public class MessageBrowser extends javax.swing.JPanel {
      * Deselects all rows in the table and clears the description information.
      */
     public void deselectAttachmentRows() {
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 9, false);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 10, false);
 //        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, true);
         if (attachmentTable != null) {
             attachmentTable.clearSelection();
@@ -1656,6 +1656,14 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
 
         return null;
+    }
+
+    public String getSelectedAttachmentId() {
+        return (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 2);
+    }
+
+    public String getSelectedMimeType() {
+        return (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 1);
     }
 
     public boolean canReprocessMessage(Long messageId) {
@@ -1796,7 +1804,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                         updateMessageRadioGroup();
 
                         if (attachmentTable == null || attachmentTable.getSelectedRow() == -1 || descriptionTabbedPane.indexOfTab("Attachments") == -1) {
-                            parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 9, false);
+                            parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 10, false);
                         }
                     }
                 } else {

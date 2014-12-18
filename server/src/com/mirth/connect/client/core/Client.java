@@ -964,7 +964,12 @@ public class Client {
             return 0;
         }
     }
-    
+
+    public void exportAttachmentServer(String channelId, String attachmentId, String filePath, boolean binary) throws ClientException {
+        logger.debug("exporting attachment");
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_ATTACHMENT_EXPORT.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("attachmentId", attachmentId), new BasicNameValuePair("filePath", filePath), new BasicNameValuePair("binary", String.valueOf(binary)) };
+        serverConnection.executePostMethodAsync(Client.MESSAGE_SERVLET, params);
+    }
 
     public Map<String, String> getGlobalScripts() throws ClientException {
         logger.debug("getting global scripts");

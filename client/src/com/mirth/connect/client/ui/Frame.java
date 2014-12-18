@@ -215,6 +215,7 @@ public class Frame extends JXFrame {
     private RemoveMessagesDialog removeMessagesDialog;
     private MessageExportDialog messageExportDialog;
     private MessageImportDialog messageImportDialog;
+    private AttachmentExportDialog attachmentExportDialog;
     private KeyEventDispatcher keyEventDispatcher = null;
 
     private static final int REFRESH_BLOCK_SIZE = 100;
@@ -937,7 +938,7 @@ public class Frame extends JXFrame {
         addTask(TaskConstants.MESSAGE_REPROCESS_FILTERED, "Reprocess Results", "Reprocess all messages in the current search.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_rotate_clockwise.png")), messageTasks, messagePopupMenu);
         addTask(TaskConstants.MESSAGE_REPROCESS, "Reprocess Message", "Reprocess the selected message.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), messageTasks, messagePopupMenu);
         addTask(TaskConstants.MESSAGE_VIEW_IMAGE, "View Attachment", "View Attachment", "View the attachment for the selected message.", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/attach.png")), messageTasks, messagePopupMenu);
-
+        addTask(TaskConstants.MESSAGE_EXPORT_ATTACHMENT, "Export Attachment", "Export Attachment", "Export the selected attachment to a file.", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), messageTasks, messagePopupMenu);
         setNonFocusable(messageTasks);
         taskPaneContainer.add(messageTasks);
     }
@@ -3944,6 +3945,15 @@ public class Frame extends JXFrame {
             }
         };
         worker.execute();
+    }
+
+    public void doExportAttachment() {
+        if (attachmentExportDialog == null) {
+            attachmentExportDialog = new AttachmentExportDialog();
+        }
+
+        attachmentExportDialog.setLocationRelativeTo(this);
+        attachmentExportDialog.setVisible(true);
     }
 
     public void processMessage(final String channelId, final RawMessage rawMessage) {

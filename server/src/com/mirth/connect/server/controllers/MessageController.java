@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.controllers;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -52,4 +53,6 @@ public abstract class MessageController {
     public abstract MessageImportResult importMessagesServer(String channelId, String path, boolean includeSubfolders) throws MessageImportException, InterruptedException, MessageImportInvalidPathException;
 
     public abstract int exportMessages(final String channelId, final MessageFilter messageFilter, int pageSize, boolean includeAttachments, MessageWriterOptions options) throws MessageExportException, InterruptedException;
+
+    public abstract void exportAttachment(String channelId, String attachmentId, String filePath, boolean binary) throws IOException;
 }

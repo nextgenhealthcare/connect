@@ -135,6 +135,7 @@ public class TaskConstants {
     public static final String MESSAGE_REPROCESS_FILTERED = "doReprocessFilteredMessages";
     public static final String MESSAGE_REPROCESS = "doReprocessMessage";
     public static final String MESSAGE_VIEW_IMAGE = "viewImage";
+    public static final String MESSAGE_EXPORT_ATTACHMENT = "doExportAttachment";
 
     // User Tasks
     public static final String USER_REFRESH = "doRefreshUser";

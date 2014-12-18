@@ -241,6 +241,22 @@ public class MessageObjectServlet extends MirthServlet {
                     } else {
                         out.print(messageController.exportMessages(channelId, messageFilter, pageSize, includeAttachments, writerOptions));
                     }
+                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_EXPORT)) {
+                    String channelId = request.getParameter("channelId");
+                    String attachmentId = request.getParameter("attachmentId");
+                    String filePath = request.getParameter("filePath");
+                    boolean binary = Boolean.parseBoolean(request.getParameter("binary"));
+
+                    parameterMap.put("channelId", channelId);
+                    parameterMap.put("attachmentId", attachmentId);
+                    parameterMap.put("filePath", filePath);
+                    parameterMap.put("binary", binary);
+
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        messageController.exportAttachment(channelId, attachmentId, filePath, binary);
+                    }
                 } else if (operation.equals(Operations.MESSAGE_DICOM_MESSAGE_GET)) {
                     ConnectorMessage message = serializer.deserialize(request.getParameter("message"), ConnectorMessage.class);
                     parameterMap.put("message", message);

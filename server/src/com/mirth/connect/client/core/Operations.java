@@ -103,6 +103,7 @@ public class Operations {
     public static final Operation MESSAGE_IMPORT = new Operation("importMessage", "Import message", true);
     public static final Operation MESSAGE_IMPORT_SERVER = new Operation("importMessageServer", "Import messages on the server", true);
     public static final Operation MESSAGE_EXPORT = new Operation("exportMessage", "Export message", true);
+    public static final Operation MESSAGE_ATTACHMENT_EXPORT = new Operation("exportAttachment", "Export Attachment", true);
     public static final Operation MESSAGE_ATTACHMENT_GET = new Operation("getAttachment", "Get attachment", true);
     public static final Operation MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID = new Operation("getAttachmentsByMessageId", "Get attachments by message ID", false);
     public static final Operation MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID = new Operation("getAttachmentIdsByMessageId", "Get attachment IDs by message ID", false);
@@ -219,6 +220,7 @@ public class Operations {
         operationMap.put(MESSAGE_IMPORT.getName(), MESSAGE_IMPORT);
         operationMap.put(MESSAGE_IMPORT_SERVER.getName(), MESSAGE_IMPORT_SERVER);
         operationMap.put(MESSAGE_EXPORT.getName(), MESSAGE_EXPORT);
+        operationMap.put(MESSAGE_ATTACHMENT_EXPORT.getName(), MESSAGE_ATTACHMENT_EXPORT);
         operationMap.put(MESSAGE_ATTACHMENT_GET.getName(), MESSAGE_ATTACHMENT_GET);
         operationMap.put(MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID.getName(), MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID);
         operationMap.put(MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID.getName(), MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID);
