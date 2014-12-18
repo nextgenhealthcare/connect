@@ -125,13 +125,13 @@ public class DocumentWriter extends ConnectorSettingsPanel {
 
         boolean valid = true;
 
-        if (props.getHost().length() == 0) {
+        if (!attachmentRadioButton.isSelected() && props.getHost().length() == 0) {
             valid = false;
             if (highlight) {
                 directoryField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (props.getOutputPattern().length() == 0) {
+        if (!attachmentRadioButton.isSelected() && props.getOutputPattern().length() == 0) {
             valid = false;
             if (highlight) {
                 fileNameField.setBackground(UIConstants.INVALID_COLOR);
@@ -290,7 +290,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
         attachmentRadioButton.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup3.add(attachmentRadioButton);
         attachmentRadioButton.setText("Attachment");
-        attachmentRadioButton.setToolTipText("Write the contents to an attachment.");
+        attachmentRadioButton.setToolTipText("<html>Write the contents to an attachment. The destination's response message will contain the<br>attachment Id and can be used in subsequent connectors to include the attachment.</html>");
         attachmentRadioButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 attachmentRadioButtonActionPerformed(evt);
@@ -300,7 +300,7 @@ public class DocumentWriter extends ConnectorSettingsPanel {
         bothRadioButton.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup3.add(bothRadioButton);
         bothRadioButton.setText("Both");
-        bothRadioButton.setToolTipText("Write the content to a file and an attachment.");
+        bothRadioButton.setToolTipText("<html>Write the contents to a file and an attachment. The destination's response message will contain<br>the attachment Id and can be used in subsequent connectors to include the attachment.</html>");
         bothRadioButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bothRadioButtonActionPerformed(evt);

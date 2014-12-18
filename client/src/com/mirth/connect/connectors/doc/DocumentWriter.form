@@ -318,7 +318,7 @@
           <ComponentRef name="buttonGroup3"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Attachment"/>
-        <Property name="toolTipText" type="java.lang.String" value="Write the contents to an attachment."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Write the contents to an attachment. The destination&apos;s response message will contain the&lt;br&gt;attachment Id and can be used in subsequent connectors to include the attachment.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="attachmentRadioButtonActionPerformed"/>
@@ -333,7 +333,7 @@
           <ComponentRef name="buttonGroup3"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Both"/>
-        <Property name="toolTipText" type="java.lang.String" value="Write the content to a file and an attachment."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Write the contents to a file and an attachment. The destination&apos;s response message will contain&lt;br&gt;the attachment Id and can be used in subsequent connectors to include the attachment.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bothRadioButtonActionPerformed"/>
