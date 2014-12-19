@@ -145,6 +145,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
     @Override
     public MirthContextFactory getContextFactory(Set<String> libraryResourceIds) throws Exception {
         if (CollectionUtils.isNotEmpty(libraryResourceIds)) {
+            libraryResourceIds = new LinkedHashSet<String>(libraryResourceIds);
             redactResourceIds(libraryResourceIds);
 
             MirthContextFactory contextFactory = contextFactoryMap.get(libraryResourceIds);
