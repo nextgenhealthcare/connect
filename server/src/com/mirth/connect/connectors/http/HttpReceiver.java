@@ -247,11 +247,13 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
     @Override
     public void onStop() throws ConnectorTaskException {
-        try {
-            logger.debug("stopping HTTP server");
-            server.stop();
-        } catch (Exception e) {
-            throw new ConnectorTaskException("Failed to stop HTTP Listener", e.getCause());
+        if (server != null) {
+            try {
+                logger.debug("stopping HTTP server");
+                server.stop();
+            } catch (Exception e) {
+                throw new ConnectorTaskException("Failed to stop HTTP Listener", e.getCause());
+            }
         }
     }
 
