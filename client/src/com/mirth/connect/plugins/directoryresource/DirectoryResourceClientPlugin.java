@@ -7,23 +7,23 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.plugins.libraryresource;
+package com.mirth.connect.plugins.directoryresource;
 
 import com.mirth.connect.client.ui.ResourcePropertiesPanel;
 import com.mirth.connect.plugins.ResourceClientPlugin;
 
-public class LibraryResourceClientPlugin extends ResourceClientPlugin {
+public class DirectoryResourceClientPlugin extends ResourceClientPlugin {
 
     private ResourcePropertiesPanel settingsPanel;
 
-    public LibraryResourceClientPlugin(String pluginName) {
+    public DirectoryResourceClientPlugin(String pluginName) {
         super(pluginName);
-        settingsPanel = new LibraryResourcePropertiesPanel();
+        settingsPanel = new DirectoryResourcePropertiesPanel();
     }
 
     @Override
     public String getType() {
-        return LibraryResourceProperties.TYPE;
+        return DirectoryResourceProperties.TYPE;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class LibraryResourceClientPlugin extends ResourceClientPlugin {
 
     @Override
     public String getPluginPointName() {
-        return LibraryResourceProperties.PLUGIN_POINT;
+        return DirectoryResourceProperties.PLUGIN_POINT;
     }
 
     @Override

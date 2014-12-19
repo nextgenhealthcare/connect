@@ -41,7 +41,7 @@
 		<property name="plugins.datatype-raw" value="${extensions}/datatype-raw" />
 
 		<!-- plugins -->
-		<property name="plugins.libraryresource" value="${extensions}/libraryresource" />
+		<property name="plugins.directoryresource" value="${extensions}/directoryresource" />
 		<property name="plugins.dashboardstatus" value="${extensions}/dashboardstatus" />
 		<property name="plugins.dicomviewer" value="${extensions}/dicomviewer" />
 		<property name="plugins.extensionmanager" value="${extensions}/extensionmanager" />
@@ -190,9 +190,9 @@
 			<include name="com/mirth/connect/plugins/datatypes/raw/**" />
 		</jar>
 		
-		<mkdir dir="${plugins.libraryresource}" />
-		<jar destfile="${plugins.libraryresource}/libraryresource-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/plugins/libraryresource/**" />
+		<mkdir dir="${plugins.directoryresource}" />
+		<jar destfile="${plugins.directoryresource}/directoryresource-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/directoryresource/**" />
 		</jar>
 		
 		<mkdir dir="${plugins.dashboardstatus}" />

@@ -7,18 +7,18 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.plugins.libraryresource;
+package com.mirth.connect.plugins.directoryresource;
 
 import com.mirth.connect.model.LibraryProperties;
 
-public class LibraryResourceProperties extends LibraryProperties {
+public class DirectoryResourceProperties extends LibraryProperties {
 
-    public static final String PLUGIN_POINT = "Library Resource";
-    public static final String TYPE = "Library";
+    public static final String PLUGIN_POINT = "Directory Resource";
+    public static final String TYPE = "Directory";
 
     private String directory;
 
-    public LibraryResourceProperties() {
+    public DirectoryResourceProperties() {
         super(PLUGIN_POINT, TYPE);
     }
 

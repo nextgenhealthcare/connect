@@ -7,12 +7,13 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.plugins.libraryresource;
+package com.mirth.connect.plugins.directoryresource;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -30,16 +31,14 @@ import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 
-import edu.emory.mathcs.backport.java.util.Collections;
-
-public class LibraryResourcePlugin implements ServicePlugin, LibraryPlugin {
+public class DirectoryResourcePlugin implements ServicePlugin, LibraryPlugin {
 
     private Logger logger = Logger.getLogger(getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
 
     @Override
     public String getPluginPointName() {
-        return LibraryResourceProperties.PLUGIN_POINT;
+        return DirectoryResourceProperties.PLUGIN_POINT;
     }
 
     @Override
@@ -51,10 +50,10 @@ public class LibraryResourcePlugin implements ServicePlugin, LibraryPlugin {
     @Override
     public Object invoke(String method, Object object, String sessionId) throws Exception {
         if (method.equals("getLibraries")) {
-            LibraryResourceProperties props = (LibraryResourceProperties) object;
+            DirectoryResourceProperties props = (DirectoryResourceProperties) object;
             List<URL> urls = contextFactoryController.getLibraries(props.getId());
             List<String> libraries = new ArrayList<String>();
-            
+
             if (StringUtils.isNotBlank(props.getDirectory())) {
                 File directory = new File(props.getDirectory());
                 for (URL url : urls) {
@@ -90,12 +89,11 @@ public class LibraryResourcePlugin implements ServicePlugin, LibraryPlugin {
 
     @Override
     public List<URL> getLibraries(LibraryProperties properties) throws Exception {
-        LibraryResourceProperties props = (LibraryResourceProperties) properties;
+        DirectoryResourceProperties props = (DirectoryResourceProperties) properties;
+        List<URL> libraries = new ArrayList<URL>();
         File directory = new File(props.getDirectory());
 
         if (directory.exists() && directory.isDirectory()) {
-            List<URL> libraries = new ArrayList<URL>();
-
             for (File file : FileUtils.listFiles(directory, new NotFileFilter(new WildcardFileFilter(".*")), FileFilterUtils.trueFileFilter())) {
                 if (file.isFile()) {
                     try {
@@ -105,11 +103,11 @@ public class LibraryResourcePlugin implements ServicePlugin, LibraryPlugin {
                     }
                 }
             }
-
-            return libraries;
         } else {
-            throw new Exception("Directory \"" + props.getDirectory() + "\" does not exist or is not a directory.");
+            logger.warn("Directory \"" + props.getDirectory() + "\" does not exist or is not a directory.");
         }
+
+        return libraries;
     }
 
     @Override

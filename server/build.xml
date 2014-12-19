@@ -40,7 +40,7 @@
 		<property name="plugins.datatype-raw" value="${extensions}/datatype-raw" />
 		
 		<!-- plugins -->
-		<property name="plugins.libraryresource" value="${extensions}/libraryresource" />
+		<property name="plugins.directoryresource" value="${extensions}/directoryresource" />
 		<property name="plugins.dashboardstatus" value="${extensions}/dashboardstatus" />
 		<property name="plugins.dicomviewer" value="${extensions}/dicomviewer" />
 		<property name="plugins.imageviewer" value="${extensions}/imageviewer" />
@@ -538,22 +538,22 @@
 			<include name="com/mirth/connect/plugins/datatypes/raw/RawDataTypeServerPlugin.class" />
 		</jar>
 		
-		<!-- plugins.libraryresource -->
-		<mkdir dir="${plugins.libraryresource}" />
-		<copy todir="${plugins.libraryresource}">
-			<fileset dir="${src}/com/mirth/connect/plugins/libraryresource">
+		<!-- plugins.directoryresource -->
+		<mkdir dir="${plugins.directoryresource}" />
+		<copy todir="${plugins.directoryresource}">
+			<fileset dir="${src}/com/mirth/connect/plugins/directoryresource">
 				<include name="*.xml" />
 			</fileset>
 		</copy>
-		<copy todir="${plugins.libraryresource}/lib" failonerror="false">
-			<fileset dir="${lib.extensions}/libraryresource" />
+		<copy todir="${plugins.directoryresource}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/directoryresource" />
 		</copy>
-		<jar destfile="${plugins.libraryresource}/libraryresource-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/plugins/libraryresource/**" />
-			<exclude name="com/mirth/connect/plugins/libraryresource/LibraryResourcePlugin.class" />
+		<jar destfile="${plugins.directoryresource}/directoryresource-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/directoryresource/**" />
+			<exclude name="com/mirth/connect/plugins/directoryresource/DirectoryResourcePlugin.class" />
 		</jar>
-		<jar destfile="${plugins.libraryresource}/libraryresource-server.jar" basedir="${classes}">
-			<include name="com/mirth/connect/plugins/libraryresource/LibraryResourcePlugin.class" />
+		<jar destfile="${plugins.directoryresource}/directoryresource-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/directoryresource/DirectoryResourcePlugin.class" />
 		</jar>
 		
 		<!-- plugins.dashboardstatus -->
@@ -924,7 +924,7 @@
 		<zip destfile="${dist.extensions}/datatype-xml-${version}.zip" basedir="${extensions}" includes="datatype-xml/**/*" />
 		<zip destfile="${dist.extensions}/datatype-raw-${version}.zip" basedir="${extensions}" includes="datatype-raw/**/*" />
 
-		<zip destfile="${dist.extensions}/libraryresource-${version}.zip" basedir="${extensions}" includes="libraryresource/**/*" />
+		<zip destfile="${dist.extensions}/directoryresource-${version}.zip" basedir="${extensions}" includes="directoryresource/**/*" />
 		<zip destfile="${dist.extensions}/dashboardstatus-${version}.zip" basedir="${extensions}" includes="dashboardstatus/**/*" />
 		<zip destfile="${dist.extensions}/serverlog-${version}.zip" basedir="${extensions}" includes="serverlog/**/*" />
 		<zip destfile="${dist.extensions}/datapruner-${version}.zip" basedir="${extensions}" includes="datapruner/**/*" />

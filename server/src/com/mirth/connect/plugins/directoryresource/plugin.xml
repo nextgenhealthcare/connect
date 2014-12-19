@@ -1,0 +1,17 @@
+<pluginMetaData path="directoryresource">
+	<name>Directory Resource Plugin</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.2.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin allows a directory to be used as a source for libraries to include in channels.</description>
+	<serverClasses>
+		<string>com.mirth.connect.plugins.directoryresource.DirectoryResourcePlugin</string>
+	</serverClasses>
+	<clientClasses>
+		<string weight="110">com.mirth.connect.plugins.directoryresource.DirectoryResourceClientPlugin</string>
+	</clientClasses>
+	<library type="SERVER" path="directoryresource-server.jar" />
+	<library type="CLIENT" path="directoryresource-client.jar" />
+	<library type="SHARED" path="directoryresource-shared.jar" />
+</pluginMetaData>

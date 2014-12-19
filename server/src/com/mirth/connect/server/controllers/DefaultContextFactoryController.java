@@ -91,7 +91,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
                     try {
                         plugin.update(resource);
                     } catch (Exception e) {
-                        logger.error("Unable to update libraries: " + e.getMessage(), e);
+                        logger.warn("Unable to update libraries: " + e.getMessage(), e);
                     }
                 } else {
                     logger.error("Unable to update libraries: Plugin \"" + resource.getPluginPointName() + "\" not found.");
@@ -116,7 +116,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
                     try {
                         plugin.remove(resource);
                     } catch (Exception e) {
-                        logger.error("Unable to remove library resource: " + e.getMessage(), e);
+                        logger.warn("Unable to remove library resource: " + e.getMessage(), e);
                     }
                 } else {
                     logger.error("Unable to remove library resource: Plugin \"" + resource.getPluginPointName() + "\" not found.");
@@ -251,7 +251,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
                     }
                 }
             } else {
-                logger.error("Unable to load libraries: Resource ID " + resourceId + " not found.");
+                logger.warn("Unable to load libraries: Resource ID " + resourceId + " not found.");
                 it.remove();
             }
         }

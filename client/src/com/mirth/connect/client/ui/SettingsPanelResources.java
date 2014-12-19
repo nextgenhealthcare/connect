@@ -275,43 +275,48 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
         if (selectedRow >= 0) {
             if (getFrame().isSaveEnabled()) {
                 getFrame().alertWarning(getFrame(), "You must save before reloading any resources.");
-            } else {
-                final String workingId = getFrame().startWorking("Reloading resource...");
-                final String resourceId = ((ResourceProperties) resourceTable.getModel().getValueAt(selectedRow, PROPERTIES_COLUMN)).getId();
-
-                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-                    @Override
-                    public Void doInBackground() throws ClientException {
-                        getFrame().mirthClient.reloadResource(resourceId);
-                        return null;
-                    }
-
-                    @Override
-                    public void done() {
-                        try {
-                            get();
-
-                            if (resourceTable.getSelectedRow() == selectedRow && currentPropertiesPanel != null) {
-                                ResourceProperties properties = (ResourceProperties) resourceTable.getModel().getValueAt(selectedRow, PROPERTIES_COLUMN);
-                                properties.setName((String) resourceTable.getModel().getValueAt(selectedRow, NAME_COLUMN));
-                                properties.setIncludeWithGlobalScripts((Boolean) resourceTable.getModel().getValueAt(selectedRow, GLOBAL_SCRIPTS_COLUMN));
-                                currentPropertiesPanel.fillProperties(properties);
-                                currentPropertiesPanel.setProperties(properties);
-                            }
-                        } catch (Throwable t) {
-                            if (t instanceof ExecutionException) {
-                                t = t.getCause();
-                            }
-                            getFrame().alertException(getFrame(), t.getStackTrace(), "Error reloading resource: " + t.toString());
-                        } finally {
-                            getFrame().stopWorking(workingId);
-                        }
-                    }
-                };
-
-                worker.execute();
+                return;
             }
+
+            if (!getFrame().alertOption(getFrame(), "<html>Libraries associated with this resource will be reloaded.<br/>Any channels / connectors using those libraries will be<br/>affected. Are you sure you wish to continue?</html>")) {
+                return;
+            }
+
+            final String workingId = getFrame().startWorking("Reloading resource...");
+            final String resourceId = ((ResourceProperties) resourceTable.getModel().getValueAt(selectedRow, PROPERTIES_COLUMN)).getId();
+
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+                @Override
+                public Void doInBackground() throws ClientException {
+                    getFrame().mirthClient.reloadResource(resourceId);
+                    return null;
+                }
+
+                @Override
+                public void done() {
+                    try {
+                        get();
+
+                        if (resourceTable.getSelectedRow() == selectedRow && currentPropertiesPanel != null) {
+                            ResourceProperties properties = (ResourceProperties) resourceTable.getModel().getValueAt(selectedRow, PROPERTIES_COLUMN);
+                            properties.setName((String) resourceTable.getModel().getValueAt(selectedRow, NAME_COLUMN));
+                            properties.setIncludeWithGlobalScripts((Boolean) resourceTable.getModel().getValueAt(selectedRow, GLOBAL_SCRIPTS_COLUMN));
+                            currentPropertiesPanel.fillProperties(properties);
+                            currentPropertiesPanel.setProperties(properties);
+                        }
+                    } catch (Throwable t) {
+                        if (t instanceof ExecutionException) {
+                            t = t.getCause();
+                        }
+                        getFrame().alertException(getFrame(), t.getStackTrace(), "Error reloading resource: " + t.toString());
+                    } finally {
+                        getFrame().stopWorking(workingId);
+                    }
+                }
+            };
+
+            worker.execute();
         }
     }
 

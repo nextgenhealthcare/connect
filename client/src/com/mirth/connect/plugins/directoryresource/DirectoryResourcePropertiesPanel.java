@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.plugins.libraryresource;
+package com.mirth.connect.plugins.directoryresource;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -40,7 +40,7 @@ import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.components.MirthTextPane;
 import com.mirth.connect.model.ResourceProperties;
 
-public class LibraryResourcePropertiesPanel extends ResourcePropertiesPanel {
+public class DirectoryResourcePropertiesPanel extends ResourcePropertiesPanel {
 
     private JLabel directoryLabel;
     private JTextField directoryField;
@@ -50,20 +50,20 @@ public class LibraryResourcePropertiesPanel extends ResourcePropertiesPanel {
     private JLabel libraryLabel;
     private MirthTable libraryTable;
 
-    public LibraryResourcePropertiesPanel() {
+    public DirectoryResourcePropertiesPanel() {
         initComponents();
     }
 
     @Override
     public void fillProperties(ResourceProperties properties) {
-        LibraryResourceProperties props = (LibraryResourceProperties) properties;
+        DirectoryResourceProperties props = (DirectoryResourceProperties) properties;
         props.setDirectory(directoryField.getText());
         props.setDescription(descriptionTextPane.getText());
     }
 
     @Override
     public void setProperties(ResourceProperties properties) {
-        final LibraryResourceProperties props = (LibraryResourceProperties) properties;
+        final DirectoryResourceProperties props = (DirectoryResourceProperties) properties;
         directoryField.setText(props.getDirectory());
         descriptionTextPane.setText(props.getDescription());
 
@@ -73,7 +73,7 @@ public class LibraryResourcePropertiesPanel extends ResourcePropertiesPanel {
 
             @Override
             public List<String> doInBackground() throws ClientException {
-                return (List<String>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethodAsync(LibraryResourceProperties.PLUGIN_POINT, "getLibraries", props);
+                return (List<String>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethodAsync(DirectoryResourceProperties.PLUGIN_POINT, "getLibraries", props);
             }
 
             @Override
@@ -108,7 +108,7 @@ public class LibraryResourcePropertiesPanel extends ResourcePropertiesPanel {
 
     @Override
     public ResourceProperties getDefaults() {
-        return new LibraryResourceProperties();
+        return new DirectoryResourceProperties();
     }
 
     @Override
@@ -131,7 +131,7 @@ public class LibraryResourcePropertiesPanel extends ResourcePropertiesPanel {
     private void initComponents() {
         setLayout(new MigLayout("insets 5, novisualpadding, hidemode 3, fill"));
         setBackground(UIConstants.BACKGROUND_COLOR);
-        setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Library Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+        setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Directory Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
         directoryLabel = new JLabel("Directory:");
         add(directoryLabel, "right");

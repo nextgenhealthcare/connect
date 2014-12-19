@@ -20,7 +20,7 @@ import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.plugins.libraryresource.LibraryResourceProperties;
+import com.mirth.connect.plugins.directoryresource.DirectoryResourceProperties;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("serverConfiguration")
@@ -139,7 +139,7 @@ public class ServerConfiguration implements Serializable, Migratable {
     @Override
     public void migrate3_2_0(DonkeyElement element) {
         ResourcePropertiesList list = new ResourcePropertiesList();
-        LibraryResourceProperties defaultResource = new LibraryResourceProperties();
+        DirectoryResourceProperties defaultResource = new DirectoryResourceProperties();
         defaultResource.setId(ResourceProperties.DEFAULT_RESOURCE_ID);
         defaultResource.setName(ResourceProperties.DEFAULT_RESOURCE_NAME);
         defaultResource.setDescription("Loads libraries from the custom-lib folder in the Mirth Connect home directory.");

@@ -44,7 +44,7 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jms/JmsDispatcherProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/mllpmode/MLLPModeProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/datatypes/**"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/libraryresource/LibraryResourceProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/directoryresource/DirectoryResourceProperties"/>
 			<accessrule kind="nonaccessible" pattern="*/**"/>
 		</accessrules>
 	</classpathentry>
