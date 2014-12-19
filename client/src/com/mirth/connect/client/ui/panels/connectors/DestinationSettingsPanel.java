@@ -9,43 +9,56 @@
 
 package com.mirth.connect.client.ui.panels.connectors;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
+import javax.swing.WindowConstants;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import net.miginfocom.swing.MigLayout;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.mirth.connect.client.ui.ChannelSetup;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.MirthDialog;
+import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.model.MessageStorageMode;
 
-public class DestinationSettingsPanel extends javax.swing.JPanel {
+public class DestinationSettingsPanel extends JPanel {
+
     private ChannelSetup channelSetup;
+    private boolean regenerateTemplate;
+    private boolean rotate;
+    private int retryCount;
+    private int retryIntervalMillis;
+    private int threadCount;
+    private String threadAssignmentVariable;
 
     public DestinationSettingsPanel() {
         initComponents();
-        retryIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
-        retryCountField.setDocument(new MirthFieldConstraints(0, false, false, true));
-        queueThreadsField.setDocument(new MirthFieldConstraints(0, false, false, true));
-
-        queueThreadsField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent evt) {
-                updateThreadAssignmentVariableField();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent evt) {
-                updateThreadAssignmentVariableField();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent evt) {
-                updateThreadAssignmentVariableField();
-            }
-        });
+        initLayout();
     }
 
     public void setChannelSetup(ChannelSetup channelSetup) {
@@ -55,31 +68,24 @@ public class DestinationSettingsPanel extends javax.swing.JPanel {
     public void setProperties(DestinationConnectorPropertiesInterface propertiesInterface) {
         DestinationConnectorProperties properties = propertiesInterface.getDestinationConnectorProperties();
 
-        // Set the retry count first because it may be used by the radio action event
-        retryCountField.setText(Integer.toString(properties.getRetryCount()));
+        retryCount = properties.getRetryCount();
 
         if (properties.isQueueEnabled()) {
             if (properties.isSendFirst()) {
-                queueAttemptFirstRadio.setSelected(true);
-                queueAttemptFirstRadioActionPerformed(null);
+                queueMessagesOnFailureRadio.setSelected(true);
             } else {
-                queueAlwaysRadio.setSelected(true);
-                queueAlwaysRadioActionPerformed(null);
+                queueMessagesAlwaysRadio.setSelected(true);
             }
         } else {
-            queueNeverRadio.setSelected(true);
-            queueNeverRadioActionPerformed(null);
+            queueMessagesNeverRadio.setSelected(true);
         }
+        updateQueueMessages();
 
-        regenerateTemplateCheckbox.setSelected(properties.isRegenerateTemplate());
-        rotateCheckbox.setSelected(properties.isRotate());
-
-        retryIntervalField.setText(String.valueOf(properties.getRetryIntervalMillis()));
-
-        queueThreadsField.setText(String.valueOf(properties.getThreadCount()));
-
-        threadAssignmentVariableField.setText(properties.getThreadAssignmentVariable());
-        updateThreadAssignmentVariableField();
+        regenerateTemplate = properties.isRegenerateTemplate();
+        rotate = properties.isRotate();
+        retryIntervalMillis = properties.getRetryIntervalMillis();
+        threadCount = properties.getThreadCount();
+        threadAssignmentVariable = properties.getThreadAssignmentVariable();
 
         validateResponseLabel.setEnabled(propertiesInterface.canValidateResponse());
         validateResponseYesRadio.setEnabled(propertiesInterface.canValidateResponse());
@@ -89,15 +95,17 @@ public class DestinationSettingsPanel extends javax.swing.JPanel {
         } else {
             validateResponseNoRadio.setSelected(true);
         }
+
+        updateAdvancedSettingsLabel();
     }
 
     public void fillProperties(DestinationConnectorPropertiesInterface propertiesInterface) {
         DestinationConnectorProperties properties = propertiesInterface.getDestinationConnectorProperties();
 
-        if (queueAlwaysRadio.isSelected()) {
+        if (queueMessagesAlwaysRadio.isSelected()) {
             properties.setQueueEnabled(true);
             properties.setSendFirst(false);
-        } else if (queueNeverRadio.isSelected()) {
+        } else if (queueMessagesNeverRadio.isSelected()) {
             properties.setQueueEnabled(false);
             properties.setSendFirst(false);
         } else {
@@ -105,59 +113,27 @@ public class DestinationSettingsPanel extends javax.swing.JPanel {
             properties.setSendFirst(true);
         }
 
-        properties.setRegenerateTemplate(regenerateTemplateCheckbox.isSelected());
-
-        properties.setRetryIntervalMillis(NumberUtils.toInt(retryIntervalField.getText(), -1));
-
-        properties.setRetryCount(NumberUtils.toInt(retryCountField.getText(), -1));
-
-        properties.setRotate(rotateCheckbox.isSelected());
-
-        properties.setThreadCount(NumberUtils.toInt(queueThreadsField.getText(), -1));
-
-        properties.setThreadAssignmentVariable(threadAssignmentVariableField.getText());
-
+        properties.setRegenerateTemplate(regenerateTemplate);
+        properties.setRetryIntervalMillis(retryIntervalMillis);
+        properties.setRetryCount(retryCount);
+        properties.setRotate(rotate);
+        properties.setThreadCount(threadCount);
+        properties.setThreadAssignmentVariable(threadAssignmentVariable);
         properties.setValidateResponse(validateResponseYesRadio.isSelected());
     }
 
     public boolean checkProperties(DestinationConnectorPropertiesInterface propertiesInterface, boolean highlight) {
-        DestinationConnectorProperties properties = propertiesInterface.getDestinationConnectorProperties();
-
-        boolean valid = true;
-
-        // TODO: Queue properties checks don't work properly with ints
-        if (properties.isQueueEnabled() || properties.getRetryCount() > 0) {
-            if (properties.getRetryIntervalMillis() <= 0) {
-                valid = false;
-                if (highlight) {
-                    retryIntervalField.setBackground(UIConstants.INVALID_COLOR);
-                }
-            }
-        }
-
-        if ((!properties.isQueueEnabled() || properties.isSendFirst()) && properties.getRetryCount() < 0) {
-            valid = false;
-
-            if (highlight) {
-                retryCountField.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
-
-        if (properties.isQueueEnabled() && properties.getThreadCount() < 1) {
-            valid = false;
-
-            if (highlight) {
-                queueThreadsField.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
-
-        return valid;
+        return true;
     }
 
-    public void resetInvalidProperties() {
-        retryIntervalField.setBackground(null);
-        retryCountField.setBackground(null);
-        queueThreadsField.setBackground(null);
+    public void resetInvalidProperties() {}
+
+    private void updateQueueMessages() {
+        channelSetup.saveDestinationPanel();
+        MessageStorageMode messageStorageMode = channelSetup.getMessageStorageMode();
+        channelSetup.updateQueueWarning(messageStorageMode);
+        updateQueueWarning(messageStorageMode);
+        updateAdvancedSettingsLabel();
     }
 
     public void updateQueueWarning(MessageStorageMode messageStorageMode) {
@@ -165,319 +141,404 @@ public class DestinationSettingsPanel extends javax.swing.JPanel {
             case RAW:
             case METADATA:
             case DISABLED:
-                if (queueAlwaysRadio.isSelected() || queueAttemptFirstRadio.isSelected()) {
-                    queueWarningLabel.setText("<html>Queueing is not supported by the current message storage mode</html>");
+                if (queueMessagesAlwaysRadio.isSelected() || queueMessagesOnFailureRadio.isSelected()) {
+                    queueMessagesWarningLabel.setText("<html>Queueing is not supported by the current message storage mode</html>");
                 } else {
-                    queueWarningLabel.setText("");
+                    queueMessagesWarningLabel.setText("");
                 }
                 break;
 
             default:
-                queueWarningLabel.setText("");
+                queueMessagesWarningLabel.setText("");
                 break;
         }
     }
 
-    private void updateThreadAssignmentVariableField() {
-        boolean enabled = !queueNeverRadio.isSelected() && NumberUtils.toInt(queueThreadsField.getText(), -1) > 1;
-        threadAssignmentVariableLabel.setEnabled(enabled);
-        threadAssignmentVariableField.setEnabled(enabled);
+    private void updateAdvancedSettingsLabel() {
+        List<String> list = new ArrayList<String>();
+        boolean queueEnabled = !queueMessagesNeverRadio.isSelected();
+        boolean sendFirst = queueEnabled && queueMessagesOnFailureRadio.isSelected();
+
+        if (!queueEnabled) {
+            list.add(String.valueOf(retryCount) + " Retr" + (retryCount == 1 ? "y" : "ies"));
+            if (retryCount > 0) {
+                list.add("Interval " + String.valueOf(retryIntervalMillis) + " ms");
+            }
+        } else {
+            if (regenerateTemplate) {
+                list.add("Regenerate");
+            }
+
+            if (rotate) {
+                list.add("Rotate");
+            }
+
+            if (sendFirst) {
+                list.add(String.valueOf(retryCount) + " Retr" + (retryCount == 1 ? "y" : "ies"));
+            }
+
+            list.add("Interval " + String.valueOf(retryIntervalMillis) + " ms");
+
+            if (threadCount > 1) {
+                list.add(String.valueOf(threadCount) + " Threads");
+
+                if (StringUtils.isNotBlank(threadAssignmentVariable)) {
+                    list.add("Group By " + threadAssignmentVariable);
+                }
+            }
+        }
+
+        advancedQueueSettingsValueLabel.setText(StringUtils.join(list, " / "));
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form. WARNING: Do NOT
-     * modify this code. The content of this method is always regenerated by the Form Editor.
-     */
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        setLayout(new MigLayout("insets 4 8 4 4, novisualpadding, hidemode 3, fill", "[]13[grow]"));
+        setBackground(UIConstants.BACKGROUND_COLOR);
+        setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Destination Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
-        queueButtonGroup = new javax.swing.ButtonGroup();
-        validateResponseButtonGroup = new javax.swing.ButtonGroup();
-        queueMessagesLabel = new javax.swing.JLabel();
-        queueAlwaysRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        retryIntervalLabel = new javax.swing.JLabel();
-        retryIntervalField = new com.mirth.connect.client.ui.components.MirthTextField();
-        queueNeverRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        queueAttemptFirstRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        retryCountLabel = new javax.swing.JLabel();
-        retryCountField = new com.mirth.connect.client.ui.components.MirthTextField();
-        regenerateTemplateCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        queueWarningLabel = new javax.swing.JLabel();
-        rotateCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        queueThreadsField = new com.mirth.connect.client.ui.components.MirthTextField();
-        queueThreadsLabel = new javax.swing.JLabel();
-        validateResponseLabel = new javax.swing.JLabel();
-        validateResponseYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        validateResponseNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        threadAssignmentVariableLabel = new javax.swing.JLabel();
-        threadAssignmentVariableField = new com.mirth.connect.client.ui.components.MirthTextField();
+        queueMessagesLabel = new JLabel("Queue Messages:");
 
-        setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Destination Settings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        ButtonGroup queueMessagesButtonGroup = new ButtonGroup();
+        ActionListener queueMessagesActionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                updateQueueMessages();
+            }
+        };
 
-        queueMessagesLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        queueMessagesLabel.setText("Queue Messages:");
+        queueMessagesNeverRadio = new MirthRadioButton("Never");
+        queueMessagesNeverRadio.setBackground(getBackground());
+        queueMessagesNeverRadio.setToolTipText("Disable the destination queue.");
+        queueMessagesNeverRadio.addActionListener(queueMessagesActionListener);
+        queueMessagesButtonGroup.add(queueMessagesNeverRadio);
 
-        queueAlwaysRadio.setBackground(new java.awt.Color(255, 255, 255));
-        queueAlwaysRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        queueButtonGroup.add(queueAlwaysRadio);
-        queueAlwaysRadio.setText("Always");
-        queueAlwaysRadio.setToolTipText("<html>\nImmediately queue the message. Subsequent destinations and the<br/>\nPostprocessor will always see this destination's response as QUEUED.\n</html>");
-        queueAlwaysRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        queueAlwaysRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                queueAlwaysRadioActionPerformed(evt);
+        queueMessagesOnFailureRadio = new MirthRadioButton("On Failure");
+        queueMessagesOnFailureRadio.setBackground(getBackground());
+        queueMessagesOnFailureRadio.setToolTipText("<html>Attempt to send the message first before queueing it. This will allow subsequent<br/>destinations and the Postprocessor to use the response from this destination if it<br/>successfully sends before queueing.</html>");
+        queueMessagesOnFailureRadio.addActionListener(queueMessagesActionListener);
+        queueMessagesButtonGroup.add(queueMessagesOnFailureRadio);
+
+        queueMessagesAlwaysRadio = new MirthRadioButton("Always");
+        queueMessagesAlwaysRadio.setBackground(getBackground());
+        queueMessagesAlwaysRadio.setToolTipText("<html>Immediately queue the message. Subsequent destinations and the<br/>Postprocessor will always see this destination's response as QUEUED.</html>");
+        queueMessagesAlwaysRadio.addActionListener(queueMessagesActionListener);
+        queueMessagesButtonGroup.add(queueMessagesAlwaysRadio);
+
+        queueMessagesWarningLabel = new JLabel();
+        queueMessagesWarningLabel.setForeground(Color.RED);
+
+        advancedQueueSettingsLabel = new JLabel("Advanced Queue Settings:");
+
+        advancedQueueSettingsButton = new JButton(new ImageIcon(Frame.class.getResource("images/wrench.png")));
+        advancedQueueSettingsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                new AdvancedDialog();
             }
         });
 
-        retryIntervalLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        retryIntervalLabel.setText("Retry Interval (ms):");
+        advancedQueueSettingsValueLabel = new JLabel();
 
-        retryIntervalField.setToolTipText("<html>\nThe amount of time that should elapse between retry attempts to send<br/>\nmessages. This interval applies to both the queue and initial retry attempts.\n</html>");
+        validateResponseLabel = new JLabel("Validate Response:");
 
-        queueNeverRadio.setBackground(new java.awt.Color(255, 255, 255));
-        queueNeverRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        queueButtonGroup.add(queueNeverRadio);
-        queueNeverRadio.setText("Never");
-        queueNeverRadio.setToolTipText("Disable the destination queue.");
-        queueNeverRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        queueNeverRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                queueNeverRadioActionPerformed(evt);
-            }
-        });
+        ButtonGroup validateResponseButtonGroup = new ButtonGroup();
+        String toolTipText = "<html>Select Yes to validate the response. Responses can only be validated if the<br>response transformer's inbound properties contains a <b>Response Validation</b><br>section. If validation fails, the message will be marked as queued or errored.</html>";
 
-        queueAttemptFirstRadio.setBackground(new java.awt.Color(255, 255, 255));
-        queueAttemptFirstRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        queueButtonGroup.add(queueAttemptFirstRadio);
-        queueAttemptFirstRadio.setText("Attempt First");
-        queueAttemptFirstRadio.setToolTipText("<html>\nAttempt to send the message first before queueing it. This will allow subsequent<br/>\ndestinations and the Postprocessor to use the response from this destination if it<br/>\nsuccessfully sends before queueing.\n</html>");
-        queueAttemptFirstRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        queueAttemptFirstRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                queueAttemptFirstRadioActionPerformed(evt);
-            }
-        });
-
-        retryCountLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        retryCountLabel.setText("Retry Count Before Queue/Error:");
-
-        retryCountField.setToolTipText("<html>\nThe maximum number of times the connector will attempt to send<br/>\nthe message before queueing or erroring.\n</html>");
-        retryCountField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                retryCountFieldKeyReleased(evt);
-            }
-        });
-
-        regenerateTemplateCheckbox.setBackground(new java.awt.Color(255, 255, 255));
-        regenerateTemplateCheckbox.setText("Regenerate Template");
-        regenerateTemplateCheckbox.setToolTipText("<html>\nRegenerate the template and other connector properties by replacing variables<br/>\neach time the connector attempts to send the message from the queue. If this is<br/>\ndisabled, the original variable replacements will be used for each attempt.\n</html>");
-
-        queueWarningLabel.setForeground(new java.awt.Color(255, 0, 0));
-        queueWarningLabel.setText("<html>test text</html>");
-        queueWarningLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-
-        rotateCheckbox.setBackground(new java.awt.Color(255, 255, 255));
-        rotateCheckbox.setText("Rotate");
-        rotateCheckbox.setToolTipText("<html>\nIf checked, when any message fails to be sent from the queue, the connector will<br/>\nplace the message at the end of the queue and attempt to send the next message.<br/>\nThis will prevent a single message from holding up the entire queue. If the order<br/>\nof messages processed is important, this should be unchecked.</html>");
-
-        queueThreadsField.setToolTipText("<html>The number of threads that will read from the queue and dispatch<br/>messages simultaneously. Message order is NOT guaranteed if this<br/>value is greater than one, unless an assignment variable is used below.</html>");
-
-        queueThreadsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        queueThreadsLabel.setText("Queue Threads:");
-
-        validateResponseLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        validateResponseLabel.setText("Validate Response:");
-
-        validateResponseYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        validateResponseYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        validateResponseYesRadio = new MirthRadioButton("Yes");
+        validateResponseYesRadio.setBackground(getBackground());
+        validateResponseYesRadio.setToolTipText(toolTipText);
         validateResponseButtonGroup.add(validateResponseYesRadio);
-        validateResponseYesRadio.setText("Yes");
-        validateResponseYesRadio.setToolTipText("<html>Select Yes to validate the response. Responses can only be validated if the<br>response transformer's inbound properties contains a <b>Response Validation</b><br>section. If validation fails, the message will be marked as queued or errored. </html>");
-        validateResponseYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        validateResponseNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        validateResponseNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        validateResponseNoRadio = new MirthRadioButton("No");
+        validateResponseNoRadio.setBackground(getBackground());
+        validateResponseNoRadio.setToolTipText(toolTipText);
         validateResponseButtonGroup.add(validateResponseNoRadio);
-        validateResponseNoRadio.setSelected(true);
-        validateResponseNoRadio.setText("No");
-        validateResponseNoRadio.setToolTipText("<html>Select Yes to validate the response. Responses can only be validated if the<br>response transformer's inbound properties contains a <b>Response Validation</b><br>section. If validation fails, the message will be marked as queued or errored. </html>");
-        validateResponseNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+    }
 
-        threadAssignmentVariableLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        threadAssignmentVariableLabel.setText("Thread Assignment Variable:");
+    private void initLayout() {
+        add(queueMessagesLabel, "right");
+        add(queueMessagesNeverRadio, "split");
+        add(queueMessagesOnFailureRadio);
+        add(queueMessagesAlwaysRadio);
+        add(queueMessagesWarningLabel, "gapbefore 16");
+        add(advancedQueueSettingsLabel, "newline, right");
+        add(advancedQueueSettingsButton, "h 22!, w 22!, split");
+        add(advancedQueueSettingsValueLabel);
+        add(validateResponseLabel, "newline, right");
+        add(validateResponseYesRadio, "split");
+        add(validateResponseNoRadio);
+    }
 
-        threadAssignmentVariableField.setToolTipText("<html>When using multiple queue threads, this map variable<br/>determines how to assign messages to specific threads.<br/>If rotation is disabled, messages with the same thread<br/>assignment value will always be processed in order.</html>");
+    private class AdvancedDialog extends MirthDialog {
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(12, 12, 12)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(queueThreadsLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(retryIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(retryCountLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(queueMessagesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(threadAssignmentVariableLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(validateResponseLabel, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(retryCountField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(retryIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(queueThreadsField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(queueWarningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(queueNeverRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(queueAttemptFirstRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(queueAlwaysRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(regenerateTemplateCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(rotateCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(threadAssignmentVariableField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(validateResponseYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(validateResponseNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(30, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(rotateCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(regenerateTemplateCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(queueAlwaysRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(queueAttemptFirstRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(queueNeverRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(queueMessagesLabel))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(5, 5, 5)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(retryCountLabel)
-                            .addComponent(retryCountField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(retryIntervalLabel)
-                            .addComponent(retryIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(queueWarningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(queueThreadsLabel)
-                    .addComponent(queueThreadsField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(threadAssignmentVariableLabel)
-                    .addComponent(threadAssignmentVariableField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(validateResponseLabel)
-                    .addComponent(validateResponseYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(validateResponseNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-        );
-    }// </editor-fold>//GEN-END:initComponents
-
-    private void queueAlwaysRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queueAlwaysRadioActionPerformed
-        regenerateTemplateCheckbox.setEnabled(true);
-        rotateCheckbox.setEnabled(true);
-        retryIntervalField.setEnabled(true);
-        retryIntervalLabel.setEnabled(true);
-        retryCountLabel.setEnabled(false);
-        retryCountField.setEnabled(false);
-        queueThreadsLabel.setEnabled(true);
-        queueThreadsField.setEnabled(true);
-        channelSetup.saveDestinationPanel();
-
-        MessageStorageMode messageStorageMode = channelSetup.getMessageStorageMode();
-        channelSetup.updateQueueWarning(messageStorageMode);
-        updateQueueWarning(messageStorageMode);
-        updateThreadAssignmentVariableField();
-    }//GEN-LAST:event_queueAlwaysRadioActionPerformed
-
-    private void queueNeverRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queueNeverRadioActionPerformed
-        regenerateTemplateCheckbox.setEnabled(false);
-        rotateCheckbox.setEnabled(false);
-
-        if (NumberUtils.toInt(retryCountField.getText()) == 0) {
-            retryIntervalField.setEnabled(false);
-            retryIntervalLabel.setEnabled(false);
-        } else {
-            retryIntervalField.setEnabled(true);
-            retryIntervalLabel.setEnabled(true);
+        public AdvancedDialog() {
+            super(PlatformUI.MIRTH_FRAME, true);
+            setTitle("Settings");
+            setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            initComponents();
+            initLayout();
+            setProperties();
+            pack();
+            setLocationRelativeTo(getOwner());
+            setVisible(true);
         }
 
-        retryCountLabel.setEnabled(true);
-        retryCountField.setEnabled(true);
+        private void setProperties() {
+            if (regenerateTemplate) {
+                regenerateTemplateYesRadio.setSelected(true);
+            } else {
+                regenerateTemplateNoRadio.setSelected(true);
+            }
 
-        queueThreadsLabel.setEnabled(false);
-        queueThreadsField.setEnabled(false);
+            if (rotate) {
+                rotateYesRadio.setSelected(true);
+            } else {
+                rotateNoRadio.setSelected(true);
+            }
 
-        channelSetup.saveDestinationPanel();
+            retryCountField.setText(String.valueOf(retryCount));
+            retryIntervalField.setText(String.valueOf(retryIntervalMillis));
+            queueThreadsField.setText(String.valueOf(threadCount));
+            threadAssignmentVariableField.setText(String.valueOf(threadAssignmentVariable));
 
-        MessageStorageMode messageStorageMode = channelSetup.getMessageStorageMode();
-        channelSetup.updateQueueWarning(messageStorageMode);
-        updateQueueWarning(messageStorageMode);
-        updateThreadAssignmentVariableField();
-    }//GEN-LAST:event_queueNeverRadioActionPerformed
+            boolean queueEnabled = !queueMessagesNeverRadio.isSelected();
+            boolean sendFirst = queueMessagesOnFailureRadio.isSelected();
 
-    private void queueAttemptFirstRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queueAttemptFirstRadioActionPerformed
-        regenerateTemplateCheckbox.setEnabled(true);
-        rotateCheckbox.setEnabled(true);
-        retryIntervalField.setEnabled(true);
-        retryIntervalLabel.setEnabled(true);
-        retryCountLabel.setEnabled(true);
-        retryCountField.setEnabled(true);
-        queueThreadsLabel.setEnabled(true);
-        queueThreadsField.setEnabled(true);
-        channelSetup.saveDestinationPanel();
-
-        MessageStorageMode messageStorageMode = channelSetup.getMessageStorageMode();
-        channelSetup.updateQueueWarning(messageStorageMode);
-        updateQueueWarning(messageStorageMode);
-        updateThreadAssignmentVariableField();
-    }//GEN-LAST:event_queueAttemptFirstRadioActionPerformed
-
-    private void retryCountFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_retryCountFieldKeyReleased
-        if (NumberUtils.toInt(retryCountField.getText()) > 0) {
-            retryIntervalField.setEnabled(true);
-            retryIntervalLabel.setEnabled(true);
-        } else if (queueNeverRadio.isSelected()) {
-            retryIntervalField.setEnabled(false);
-            retryIntervalLabel.setEnabled(false);
+            regenerateTemplateLabel.setEnabled(queueEnabled);
+            regenerateTemplateYesRadio.setEnabled(queueEnabled);
+            regenerateTemplateNoRadio.setEnabled(queueEnabled);
+            rotateLabel.setEnabled(queueEnabled);
+            rotateYesRadio.setEnabled(queueEnabled);
+            rotateNoRadio.setEnabled(queueEnabled);
+            retryCountLabel.setEnabled(!queueEnabled || sendFirst);
+            retryCountField.setEnabled(!queueEnabled || sendFirst);
+            retryIntervalLabel.setEnabled(queueEnabled || retryCount > 0);
+            retryIntervalField.setEnabled(queueEnabled || retryCount > 0);
+            queueThreadsLabel.setEnabled(queueEnabled);
+            queueThreadsField.setEnabled(queueEnabled);
+            threadAssignmentVariableLabel.setEnabled(queueEnabled && threadCount > 1);
+            threadAssignmentVariableField.setEnabled(queueEnabled && threadCount > 1);
         }
-    }//GEN-LAST:event_retryCountFieldKeyReleased
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.mirth.connect.client.ui.components.MirthRadioButton queueAlwaysRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton queueAttemptFirstRadio;
-    private javax.swing.ButtonGroup queueButtonGroup;
-    private javax.swing.JLabel queueMessagesLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton queueNeverRadio;
-    private com.mirth.connect.client.ui.components.MirthTextField queueThreadsField;
-    private javax.swing.JLabel queueThreadsLabel;
-    private javax.swing.JLabel queueWarningLabel;
-    private com.mirth.connect.client.ui.components.MirthCheckBox regenerateTemplateCheckbox;
-    private com.mirth.connect.client.ui.components.MirthTextField retryCountField;
-    private javax.swing.JLabel retryCountLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField retryIntervalField;
-    private javax.swing.JLabel retryIntervalLabel;
-    private com.mirth.connect.client.ui.components.MirthCheckBox rotateCheckbox;
-    private com.mirth.connect.client.ui.components.MirthTextField threadAssignmentVariableField;
-    private javax.swing.JLabel threadAssignmentVariableLabel;
-    private javax.swing.ButtonGroup validateResponseButtonGroup;
-    private javax.swing.JLabel validateResponseLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton validateResponseNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton validateResponseYesRadio;
-    // End of variables declaration//GEN-END:variables
+        private boolean saveProperties() {
+            retryCountField.setBackground(null);
+            retryIntervalField.setBackground(null);
+            queueThreadsField.setBackground(null);
+
+            String errors = "";
+
+            if (retryCountField.isEnabled() && StringUtils.isBlank(retryCountField.getText())) {
+                errors += "Retry count cannot be blank.\n";
+                retryCountField.setBackground(UIConstants.INVALID_COLOR);
+            }
+
+            if (retryIntervalField.isEnabled() && NumberUtils.toInt(retryIntervalField.getText(), 0) <= 0) {
+                errors += "Retry interval must be greater than zero.\n";
+                retryIntervalField.setBackground(UIConstants.INVALID_COLOR);
+            }
+
+            if (queueThreadsField.isEnabled() && NumberUtils.toInt(queueThreadsField.getText(), 0) <= 0) {
+                errors += "Queue threads must be greater than zero.\n";
+                queueThreadsField.setBackground(UIConstants.INVALID_COLOR);
+            }
+
+            if (StringUtils.isNotBlank(errors)) {
+                PlatformUI.MIRTH_FRAME.alertError(this, errors);
+                return false;
+            }
+
+            regenerateTemplate = regenerateTemplateYesRadio.isSelected();
+            rotate = rotateYesRadio.isSelected();
+            retryCount = NumberUtils.toInt(retryCountField.getText(), 0);
+            retryIntervalMillis = NumberUtils.toInt(retryIntervalField.getText(), 0);
+            threadCount = NumberUtils.toInt(queueThreadsField.getText(), 1);
+            threadAssignmentVariable = threadAssignmentVariableField.getText();
+
+            updateAdvancedSettingsLabel();
+            PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
+            return true;
+        }
+
+        private void initComponents() {
+            setLayout(new MigLayout("insets 8, novisualpadding, hidemode 3, fill", "", "[grow][][]"));
+            setBackground(UIConstants.BACKGROUND_COLOR);
+            getContentPane().setBackground(getBackground());
+
+            containerPanel = new JPanel(new MigLayout("insets 8, novisualpadding, hidemode 3, fill", "[]13[grow]", "[][][][][][][grow]"));
+            containerPanel.setBackground(getBackground());
+            containerPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(204, 204, 204)), "Advanced Queue Settings", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+
+            retryCountLabel = new JLabel("Retry Count Before Queue/Error:");
+
+            retryCountField = new JTextField();
+            retryCountField.setToolTipText("<html>The maximum number of times the connector will attempt to send<br/>the message before queueing or erroring.</html>");
+            retryCountField.setDocument(new MirthFieldConstraints(0, false, false, true));
+            retryCountField.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent evt) {
+                    retryCountChanged();
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent evt) {
+                    retryCountChanged();
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent evt) {
+                    retryCountChanged();
+                }
+            });
+
+            retryIntervalLabel = new JLabel("Retry Interval (ms):");
+
+            retryIntervalField = new JTextField();
+            retryIntervalField.setToolTipText("<html>The amount of time that should elapse between retry attempts to send<br/>messages. This interval applies to both the queue and initial retry attempts.</html>");
+            retryIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
+
+            regenerateTemplateLabel = new JLabel("Regenerate Template:");
+
+            ButtonGroup regenerateTemplateButtonGroup = new ButtonGroup();
+            String toolTipText = "<html>Regenerate the template and other connector properties by replacing variables<br/>each time the connector attempts to send the message from the queue. If this is<br/>disabled, the original variable replacements will be used for each attempt.</html>";
+
+            regenerateTemplateYesRadio = new JRadioButton("Yes");
+            regenerateTemplateYesRadio.setBackground(getBackground());
+            regenerateTemplateYesRadio.setToolTipText(toolTipText);
+            regenerateTemplateButtonGroup.add(regenerateTemplateYesRadio);
+
+            regenerateTemplateNoRadio = new JRadioButton("No");
+            regenerateTemplateNoRadio.setBackground(getBackground());
+            regenerateTemplateNoRadio.setToolTipText(toolTipText);
+            regenerateTemplateButtonGroup.add(regenerateTemplateNoRadio);
+
+            rotateLabel = new JLabel("Rotate Queue:");
+
+            ButtonGroup rotateButtonGroup = new ButtonGroup();
+            toolTipText = "<html>If enabled, when any message fails to be sent from the queue, the connector will<br/>place the message at the end of the queue and attempt to send the next message.<br/>This will prevent a single message from holding up the entire queue. If the order<br/>of messages processed is important, this should be disabled.</html>";
+
+            rotateYesRadio = new JRadioButton("Yes");
+            rotateYesRadio.setBackground(getBackground());
+            rotateYesRadio.setToolTipText(toolTipText);
+            rotateButtonGroup.add(rotateYesRadio);
+
+            rotateNoRadio = new JRadioButton("No");
+            rotateNoRadio.setBackground(getBackground());
+            rotateNoRadio.setToolTipText(toolTipText);
+            rotateButtonGroup.add(rotateNoRadio);
+
+            queueThreadsLabel = new JLabel("Queue Threads:");
+
+            queueThreadsField = new JTextField();
+            queueThreadsField.setToolTipText("<html>The number of threads that will read from the queue and dispatch<br/>messages simultaneously. Message order is NOT guaranteed if this<br/>value is greater than one, unless an assignment variable is used below.</html>");
+            queueThreadsField.setDocument(new MirthFieldConstraints(0, false, false, true));
+            queueThreadsField.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent evt) {
+                    queueThreadsChanged();
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent evt) {
+                    queueThreadsChanged();
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent evt) {
+                    queueThreadsChanged();
+                }
+            });
+
+            threadAssignmentVariableLabel = new JLabel("Thread Assignment Variable:");
+
+            threadAssignmentVariableField = new JTextField();
+            threadAssignmentVariableField.setToolTipText("<html>When using multiple queue threads, this map variable<br/>determines how to assign messages to specific threads.<br/>If rotation is disabled, messages with the same thread<br/>assignment value will always be processed in order.</html>");
+
+            okButton = new JButton("OK");
+            okButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent evt) {
+                    if (saveProperties()) {
+                        dispose();
+                    }
+                }
+            });
+
+            cancelButton = new JButton("Cancel");
+            cancelButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent evt) {
+                    dispose();
+                }
+            });
+        }
+
+        private void initLayout() {
+            containerPanel.add(retryCountLabel, "right");
+            containerPanel.add(retryCountField, "w 75!");
+            containerPanel.add(retryIntervalLabel, "newline, right");
+            containerPanel.add(retryIntervalField, "w 75!");
+            containerPanel.add(regenerateTemplateLabel, "newline, right");
+            containerPanel.add(regenerateTemplateYesRadio, "split");
+            containerPanel.add(regenerateTemplateNoRadio);
+            containerPanel.add(rotateLabel, "newline, right");
+            containerPanel.add(rotateYesRadio, "split");
+            containerPanel.add(rotateNoRadio);
+            containerPanel.add(queueThreadsLabel, "newline, right");
+            containerPanel.add(queueThreadsField, "w 75!");
+            containerPanel.add(threadAssignmentVariableLabel, "newline, right");
+            containerPanel.add(threadAssignmentVariableField, "w 75!");
+            add(containerPanel, "grow, push");
+
+            add(new JSeparator(), "newline, growx, sx");
+
+            add(okButton, "newline, w 50!, sx, right, split");
+            add(cancelButton, "w 50!");
+        }
+
+        private void retryCountChanged() {
+            if (NumberUtils.toInt(retryCountField.getText()) > 0) {
+                retryIntervalField.setEnabled(true);
+                retryIntervalLabel.setEnabled(true);
+            } else if (queueMessagesNeverRadio.isSelected()) {
+                retryIntervalField.setEnabled(false);
+                retryIntervalLabel.setEnabled(false);
+            }
+        }
+
+        private void queueThreadsChanged() {
+            int threadCount = NumberUtils.toInt(queueThreadsField.getText(), 0);
+            threadAssignmentVariableLabel.setEnabled(threadCount > 1);
+            threadAssignmentVariableField.setEnabled(threadCount > 1);
+        }
+
+        private JPanel containerPanel;
+        private JLabel regenerateTemplateLabel;
+        private JRadioButton regenerateTemplateYesRadio;
+        private JRadioButton regenerateTemplateNoRadio;
+        private JLabel rotateLabel;
+        private JRadioButton rotateYesRadio;
+        private JRadioButton rotateNoRadio;
+        private JLabel retryCountLabel;
+        private JTextField retryCountField;
+        private JLabel retryIntervalLabel;
+        private JTextField retryIntervalField;
+        private JLabel queueThreadsLabel;
+        private JTextField queueThreadsField;
+        private JLabel threadAssignmentVariableLabel;
+        private JTextField threadAssignmentVariableField;
+        private JButton okButton;
+        private JButton cancelButton;
+    }
+
+    private JLabel queueMessagesLabel;
+    private JRadioButton queueMessagesNeverRadio;
+    private JRadioButton queueMessagesOnFailureRadio;
+    private JRadioButton queueMessagesAlwaysRadio;
+    private JLabel queueMessagesWarningLabel;
+    private JLabel advancedQueueSettingsLabel;
+    private JButton advancedQueueSettingsButton;
+    private JLabel advancedQueueSettingsValueLabel;
+    private JLabel validateResponseLabel;
+    private JRadioButton validateResponseYesRadio;
+    private JRadioButton validateResponseNoRadio;
 }
