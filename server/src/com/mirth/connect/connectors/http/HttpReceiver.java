@@ -195,8 +195,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                             } else if (currentValue instanceof String[]) {
                                 queryParameters.put(param.getName(), ArrayUtils.add((String[]) currentValue, value));
                             } else {
-                                queryParameters.put(param.getName(), new String[] {
-                                        (String) currentValue, value });
+                                queryParameters.put(param.getName(), new String[] { (String) currentValue, value });
                             }
                         }
                     }
@@ -251,11 +250,13 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
     @Override
     public void onStop() throws ConnectorTaskException {
-        try {
-            logger.debug("stopping HTTP server");
-            server.stop();
-        } catch (Exception e) {
-            throw new ConnectorTaskException("Failed to stop HTTP Listener", e.getCause());
+        if (server != null) {
+            try {
+                logger.debug("stopping HTTP server");
+                server.stop();
+            } catch (Exception e) {
+                throw new ConnectorTaskException("Failed to stop HTTP Listener", e.getCause());
+            }
         }
     }
 
