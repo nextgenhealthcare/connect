@@ -11,6 +11,7 @@ package com.mirth.connect.donkey.server.channel;
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -25,6 +26,7 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.DeployedStateEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
@@ -33,9 +35,11 @@ import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.model.message.XmlSerializerException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.Constants;
+import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
@@ -57,6 +61,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private String destinationName;
     private boolean enabled;
     private AtomicBoolean forceQueue = new AtomicBoolean(false);
+    private FilterTransformerExecutor filterTransformerExecutor;
+    private MetaDataReplacer metaDataReplacer;
+    private List<MetaDataColumn> metaDataColumns;
     private ResponseValidator responseValidator;
     private ResponseTransformerExecutor responseTransformerExecutor;
     private StorageSettings storageSettings = new StorageSettings();
@@ -139,6 +146,22 @@ public abstract class DestinationConnector extends Connector implements Runnable
         }
     }
 
+    public FilterTransformerExecutor getFilterTransformerExecutor() {
+        return filterTransformerExecutor;
+    }
+
+    public void setFilterTransformerExecutor(FilterTransformerExecutor filterTransformerExecutor) {
+        this.filterTransformerExecutor = filterTransformerExecutor;
+    }
+
+    public void setMetaDataReplacer(MetaDataReplacer metaDataReplacer) {
+        this.metaDataReplacer = metaDataReplacer;
+    }
+
+    public void setMetaDataColumns(List<MetaDataColumn> metaDataColumns) {
+        this.metaDataColumns = metaDataColumns;
+    }
+
     public ResponseValidator getResponseValidator() {
         return responseValidator;
     }
@@ -175,6 +198,14 @@ public abstract class DestinationConnector extends Connector implements Runnable
      */
     public boolean isQueueRotate() {
         return (destinationConnectorProperties != null && destinationConnectorProperties.isRotate());
+    }
+
+    public boolean willAttemptSend() {
+        return !isQueueEnabled() || (destinationConnectorProperties.isSendFirst() && queue.size() == 0 && !isForceQueue());
+    }
+
+    public boolean includeFilterTransformerInQueue() {
+        return isQueueEnabled() && destinationConnectorProperties.isRegenerateTemplate() && destinationConnectorProperties.isIncludeFilterTransformer();
     }
 
     protected AttachmentHandler getAttachmentHandler() {
@@ -293,6 +324,76 @@ public abstract class DestinationConnector extends Connector implements Runnable
         return new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.SENT, content, null, false);
     }
 
+    public void transform(DonkeyDao dao, ConnectorMessage message, Status previousStatus, boolean initialAttempt) throws InterruptedException {
+        try {
+            filterTransformerExecutor.processConnectorMessage(message);
+        } catch (DonkeyException e) {
+            if (e instanceof XmlSerializerException) {
+                Donkey.getInstance().getEventDispatcher().dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), message.getMessageId(), ErrorEventType.SERIALIZER, destinationName, null, e.getMessage(), e));
+            }
+
+            message.setStatus(Status.ERROR);
+            message.setProcessingError(e.getFormattedError());
+        }
+
+        // Insert errors if necessary
+        if (message.getStatus() == Status.ERROR && StringUtils.isNotBlank(message.getProcessingError())) {
+            dao.updateErrors(message);
+        }
+
+        // Set the destination connector's custom column map
+        metaDataReplacer.setMetaDataMap(message, metaDataColumns);
+
+        // Store the custom columns
+        if (storageSettings.isStoreCustomMetaData() && !message.getMetaDataMap().isEmpty()) {
+            ThreadUtils.checkInterruptedStatus();
+            if (initialAttempt) {
+                dao.insertMetaData(message, metaDataColumns);
+            } else {
+                dao.storeMetaData(message, metaDataColumns);
+            }
+        }
+
+        // Always store the transformed content if it exists
+        if (storageSettings.isStoreTransformed() && message.getTransformed() != null) {
+            ThreadUtils.checkInterruptedStatus();
+            if (initialAttempt) {
+                dao.insertMessageContent(message.getTransformed());
+            } else {
+                dao.storeMessageContent(message.getTransformed());
+            }
+        }
+
+        if (message.getStatus() == Status.TRANSFORMED) {
+            message.setStatus(Status.QUEUED);
+
+            if (storageSettings.isStoreDestinationEncoded() && message.getEncoded() != null) {
+                ThreadUtils.checkInterruptedStatus();
+                if (initialAttempt) {
+                    dao.insertMessageContent(message.getEncoded());
+                } else {
+                    dao.storeMessageContent(message.getEncoded());
+                }
+            }
+
+            if (storageSettings.isStoreMaps()) {
+                dao.updateMaps(message);
+            }
+        } else {
+            if (message.getStatus() == Status.FILTERED) {
+                message.getResponseMap().put("d" + String.valueOf(getMetaDataId()), new Response(Status.FILTERED, "", "Message has been filtered"));
+            } else if (message.getStatus() == Status.ERROR) {
+                message.getResponseMap().put("d" + String.valueOf(getMetaDataId()), new Response(Status.ERROR, "", "Error converting message or evaluating filter/transformer"));
+            }
+
+            dao.updateStatus(message, previousStatus);
+
+            if (storageSettings.isStoreMaps()) {
+                dao.updateMaps(message);
+            }
+        }
+    }
+
     /**
      * Process a transformed message. Attempt to send the message unless the destination connector
      * is configured to immediately queue messages.
@@ -303,7 +404,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
      */
     public void process(DonkeyDao dao, ConnectorMessage message, Status previousStatus) throws InterruptedException {
         ConnectorProperties connectorProperties = null;
-        boolean attemptSend = !isQueueEnabled() || (destinationConnectorProperties.isSendFirst() && queue.size() == 0 && !isForceQueue());
 
         ThreadUtils.checkInterruptedStatus();
 
@@ -326,7 +426,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
         }
 
         // we need to get the connector envelope if we will be attempting to send the message     
-        if (attemptSend) {
+        if (willAttemptSend()) {
             int retryCount = (destinationConnectorProperties == null) ? 0 : destinationConnectorProperties.getRetryCount();
             int sendAttempts = 0;
             Response response = null;
@@ -356,15 +456,20 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 attemptedFirst.set(true);
             }
         } else {
-            message.getResponseMap().put("d" + String.valueOf(getMetaDataId()), new Response(Status.QUEUED, "", QUEUED_RESPONSE));
-
-            if (storageSettings.isStoreResponseMap()) {
-                dao.updateResponseMap(message);
-                ThreadUtils.checkInterruptedStatus();
-            }
-
-            dao.updateStatus(message, previousStatus);
+            updateQueuedStatus(dao, message, previousStatus);
         }
+    }
+
+    public void updateQueuedStatus(DonkeyDao dao, ConnectorMessage message, Status previousStatus) throws InterruptedException {
+        message.setStatus(Status.QUEUED);
+        message.getResponseMap().put("d" + String.valueOf(getMetaDataId()), new Response(Status.QUEUED, "", QUEUED_RESPONSE));
+
+        if (storageSettings.isStoreResponseMap()) {
+            dao.updateResponseMap(message);
+            ThreadUtils.checkInterruptedStatus();
+        }
+
+        dao.updateStatus(message, previousStatus);
     }
 
     /**
@@ -467,25 +572,13 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
                         ConnectorProperties connectorProperties = null;
 
-                        // Generate the template if necessary
-                        if (destinationConnectorProperties.isRegenerateTemplate()) {
-                            ThreadUtils.checkInterruptedStatus();
-                            connectorProperties = ((DestinationConnectorPropertiesInterface) getConnectorProperties()).clone();
-
-                            serializedPropertiesClass = serializer.getClass(connectorMessage.getSent().getContent());
-
-                            // If the serialized properties do not match, don't update the properties.
-                            if (serializedPropertiesClass == connectorPropertiesClass) {
-                                replaceConnectorProperties(connectorProperties, connectorMessage);
-                                MessageContent sentContent = getSentContent(connectorMessage, connectorProperties);
-                                connectorMessage.setSent(sentContent);
-
-                                if (sentContent != null && storageSettings.isStoreSent()) {
-                                    ThreadUtils.checkInterruptedStatus();
-                                    dao.storeMessageContent(sentContent);
-                                }
-                            }
-                        } else {
+                        /*
+                         * If we're not regenerating connector properties, use the serialized sent
+                         * content from the database. It's possible that the channel had Regenerate
+                         * Template and Include Filter/Transformer enabled at one point, and then
+                         * was disabled later, so we also have to make sure the sent content exists.
+                         */
+                        if (!destinationConnectorProperties.isRegenerateTemplate() && connectorMessage.getSent() != null) {
                             // Attempt to get the sent properties from the in-memory cache. If it doesn't exist, deserialize from the actual sent content.
                             connectorProperties = connectorMessage.getSentProperties();
                             if (connectorProperties == null) {
@@ -494,24 +587,63 @@ public abstract class DestinationConnector extends Connector implements Runnable
                             }
 
                             serializedPropertiesClass = connectorProperties.getClass();
+                        } else {
+                            connectorProperties = ((DestinationConnectorPropertiesInterface) getConnectorProperties()).clone();
                         }
 
                         /*
                          * Verify that the connector properties stored in the connector message
                          * match the properties from the current connector. Otherwise the connector
-                         * type has changed and the message will be set to errored.
+                         * type has changed and the message will be set to errored. If we're
+                         * regenerating the connector properties then it doesn't matter.
                          */
-                        if (serializedPropertiesClass == connectorPropertiesClass) {
+                        if (connectorMessage.getSent() == null || destinationConnectorProperties.isRegenerateTemplate() || serializedPropertiesClass == connectorPropertiesClass) {
                             ThreadUtils.checkInterruptedStatus();
-                            Response response = handleSend(connectorProperties, connectorMessage);
-                            connectorMessage.setSendAttempts(connectorMessage.getSendAttempts() + 1);
 
-                            if (response == null) {
-                                throw new RuntimeException("Received null response from destination " + destinationName + ".");
+                            /*
+                             * If a historical queued message has not yet been transformed and the
+                             * current queue settings do not include the filter/transformer, force
+                             * the message to ERROR.
+                             */
+                            if (connectorMessage.getSent() == null && !includeFilterTransformerInQueue()) {
+                                connectorMessage.setStatus(Status.ERROR);
+                                connectorMessage.setProcessingError("Queued message has not yet been transformed, and Include Filter/Transformer is currently disabled.");
+
+                                dao.updateStatus(connectorMessage, previousStatus);
+                                dao.updateErrors(connectorMessage);
+                            } else {
+                                if (includeFilterTransformerInQueue()) {
+                                    transform(dao, connectorMessage, previousStatus, connectorMessage.getSent() == null);
+                                }
+
+                                if (connectorMessage.getStatus() == Status.QUEUED) {
+                                    /*
+                                     * Replace the connector properties if necessary. Again for
+                                     * historical queue reasons, we need to check whether the sent
+                                     * content exists.
+                                     */
+                                    if (connectorMessage.getSent() == null || destinationConnectorProperties.isRegenerateTemplate()) {
+                                        replaceConnectorProperties(connectorProperties, connectorMessage);
+                                        MessageContent sentContent = getSentContent(connectorMessage, connectorProperties);
+                                        connectorMessage.setSent(sentContent);
+
+                                        if (sentContent != null && storageSettings.isStoreSent()) {
+                                            ThreadUtils.checkInterruptedStatus();
+                                            dao.storeMessageContent(sentContent);
+                                        }
+                                    }
+
+                                    Response response = handleSend(connectorProperties, connectorMessage);
+                                    connectorMessage.setSendAttempts(connectorMessage.getSendAttempts() + 1);
+
+                                    if (response == null) {
+                                        throw new RuntimeException("Received null response from destination " + destinationName + ".");
+                                    }
+                                    response.fixStatus(isQueueEnabled());
+
+                                    afterSend(dao, connectorMessage, response, previousStatus);
+                                }
                             }
-                            response.fixStatus(isQueueEnabled());
-
-                            afterSend(dao, connectorMessage, response, previousStatus);
                         } else {
                             connectorMessage.setStatus(Status.ERROR);
                             connectorMessage.setProcessingError("Mismatched connector properties detected in queued message. The connector type may have changed since the message was queued.\nFOUND: " + serializedPropertiesClass.getSimpleName() + "\nEXPECTED: " + connectorPropertiesClass.getSimpleName());

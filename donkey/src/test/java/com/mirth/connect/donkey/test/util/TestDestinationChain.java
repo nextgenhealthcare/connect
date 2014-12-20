@@ -24,8 +24,8 @@ public class TestDestinationChain extends DestinationChain {
     }
 
     @Override
-    public void addDestination(int metaDataId, FilterTransformerExecutor filterTransformerExecutor, DestinationConnector connector) {
-        filterTransformerExecutors.put(metaDataId, filterTransformerExecutor);
-        super.addDestination(metaDataId, filterTransformerExecutor, connector);
+    public void addDestination(int metaDataId, DestinationConnector connector) {
+        filterTransformerExecutors.put(metaDataId, connector.getFilterTransformerExecutor());
+        super.addDestination(metaDataId, connector);
     }
 }

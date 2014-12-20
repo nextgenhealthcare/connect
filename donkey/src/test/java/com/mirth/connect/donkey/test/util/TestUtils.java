@@ -140,9 +140,10 @@ public class TestUtils {
 
         DestinationChain chain = new DestinationChain();
         chain.setChannelId(channelId);
-        chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
-        chain.setMetaDataColumns(channel.getMetaDataColumns());
-        chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
+        destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
+        destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
+        destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
+        chain.addDestination(1, destinationConnector);
         channel.addDestinationChain(chain);
 
         return channel;
@@ -185,16 +186,16 @@ public class TestUtils {
 
         for (int i = 1; i <= numChains; i++) {
             DestinationChain chain = new DestinationChain();
-            chain.setMetaDataReplacer(new MetaDataReplacer());
             chain.setChannelId(channelId);
-            chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
-            chain.setMetaDataColumns(channel.getMetaDataColumns());
 
             for (int j = 1; j <= numDestinationsPerChain; j++) {
                 int metaDataId = (i - 1) * numDestinationsPerChain + j;
                 TestDestinationConnector destinationConnector = (TestDestinationConnector) TestUtils.createDestinationConnector(channel.getChannelId(), channel.getServerId(), new TestConnectorProperties(), TestUtils.DEFAULT_DESTINATION_NAME, new TestDataType(), new TestDataType(), new TestResponseTransformer(), metaDataId);
                 destinationConnector.setChannelId(channelId);
-                chain.addDestination(metaDataId, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
+                destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
+                destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
+                destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
+                chain.addDestination(metaDataId, destinationConnector);
             }
 
             channel.addDestinationChain(chain);

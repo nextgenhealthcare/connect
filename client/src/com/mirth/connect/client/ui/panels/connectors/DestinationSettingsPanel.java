@@ -51,6 +51,7 @@ public class DestinationSettingsPanel extends JPanel {
     private ChannelSetup channelSetup;
     private boolean regenerateTemplate;
     private boolean rotate;
+    private boolean includeFilterTransformer;
     private int retryCount;
     private int retryIntervalMillis;
     private int threadCount;
@@ -83,6 +84,7 @@ public class DestinationSettingsPanel extends JPanel {
 
         regenerateTemplate = properties.isRegenerateTemplate();
         rotate = properties.isRotate();
+        includeFilterTransformer = properties.isIncludeFilterTransformer();
         retryIntervalMillis = properties.getRetryIntervalMillis();
         threadCount = properties.getThreadCount();
         threadAssignmentVariable = properties.getThreadAssignmentVariable();
@@ -117,6 +119,7 @@ public class DestinationSettingsPanel extends JPanel {
         properties.setRetryIntervalMillis(retryIntervalMillis);
         properties.setRetryCount(retryCount);
         properties.setRotate(rotate);
+        properties.setIncludeFilterTransformer(includeFilterTransformer);
         properties.setThreadCount(threadCount);
         properties.setThreadAssignmentVariable(threadAssignmentVariable);
         properties.setValidateResponse(validateResponseYesRadio.isSelected());
@@ -171,6 +174,10 @@ public class DestinationSettingsPanel extends JPanel {
 
             if (rotate) {
                 list.add("Rotate");
+            }
+
+            if (includeFilterTransformer) {
+                list.add("Including Transformer");
             }
 
             if (sendFirst) {
@@ -296,6 +303,12 @@ public class DestinationSettingsPanel extends JPanel {
                 rotateNoRadio.setSelected(true);
             }
 
+            if (includeFilterTransformer) {
+                includeFilterTransformerYesRadio.setSelected(true);
+            } else {
+                includeFilterTransformerNoRadio.setSelected(true);
+            }
+
             retryCountField.setText(String.valueOf(retryCount));
             retryIntervalField.setText(String.valueOf(retryIntervalMillis));
             queueThreadsField.setText(String.valueOf(threadCount));
@@ -310,6 +323,9 @@ public class DestinationSettingsPanel extends JPanel {
             rotateLabel.setEnabled(queueEnabled);
             rotateYesRadio.setEnabled(queueEnabled);
             rotateNoRadio.setEnabled(queueEnabled);
+            includeFilterTransformerLabel.setEnabled(queueEnabled && regenerateTemplate);
+            includeFilterTransformerYesRadio.setEnabled(queueEnabled && regenerateTemplate);
+            includeFilterTransformerNoRadio.setEnabled(queueEnabled && regenerateTemplate);
             retryCountLabel.setEnabled(!queueEnabled || sendFirst);
             retryCountField.setEnabled(!queueEnabled || sendFirst);
             retryIntervalLabel.setEnabled(queueEnabled || retryCount > 0);
@@ -349,6 +365,7 @@ public class DestinationSettingsPanel extends JPanel {
 
             regenerateTemplate = regenerateTemplateYesRadio.isSelected();
             rotate = rotateYesRadio.isSelected();
+            includeFilterTransformer = includeFilterTransformerYesRadio.isSelected();
             retryCount = NumberUtils.toInt(retryCountField.getText(), 0);
             retryIntervalMillis = NumberUtils.toInt(retryIntervalField.getText(), 0);
             threadCount = NumberUtils.toInt(queueThreadsField.getText(), 1);
@@ -400,15 +417,23 @@ public class DestinationSettingsPanel extends JPanel {
 
             ButtonGroup regenerateTemplateButtonGroup = new ButtonGroup();
             String toolTipText = "<html>Regenerate the template and other connector properties by replacing variables<br/>each time the connector attempts to send the message from the queue. If this is<br/>disabled, the original variable replacements will be used for each attempt.</html>";
+            ActionListener regenerateTemplateActionListener = new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent evt) {
+                    regenerateTemplateChanged();
+                }
+            };
 
             regenerateTemplateYesRadio = new JRadioButton("Yes");
             regenerateTemplateYesRadio.setBackground(getBackground());
             regenerateTemplateYesRadio.setToolTipText(toolTipText);
+            regenerateTemplateYesRadio.addActionListener(regenerateTemplateActionListener);
             regenerateTemplateButtonGroup.add(regenerateTemplateYesRadio);
 
             regenerateTemplateNoRadio = new JRadioButton("No");
             regenerateTemplateNoRadio.setBackground(getBackground());
             regenerateTemplateNoRadio.setToolTipText(toolTipText);
+            regenerateTemplateNoRadio.addActionListener(regenerateTemplateActionListener);
             regenerateTemplateButtonGroup.add(regenerateTemplateNoRadio);
 
             rotateLabel = new JLabel("Rotate Queue:");
@@ -425,6 +450,21 @@ public class DestinationSettingsPanel extends JPanel {
             rotateNoRadio.setBackground(getBackground());
             rotateNoRadio.setToolTipText(toolTipText);
             rotateButtonGroup.add(rotateNoRadio);
+
+            includeFilterTransformerLabel = new JLabel("Include Filter/Transformer:");
+
+            ButtonGroup includeFilterTransformerButtonGroup = new ButtonGroup();
+            toolTipText = "<html>If enabled, the filter and transformer will be re-executed<br/>before every queue send attempt. This is only available<br/>when the Regenerate Template setting is enabled.</html>";
+
+            includeFilterTransformerYesRadio = new JRadioButton("Yes");
+            includeFilterTransformerYesRadio.setBackground(getBackground());
+            includeFilterTransformerYesRadio.setToolTipText(toolTipText);
+            includeFilterTransformerButtonGroup.add(includeFilterTransformerYesRadio);
+
+            includeFilterTransformerNoRadio = new JRadioButton("No");
+            includeFilterTransformerNoRadio.setBackground(getBackground());
+            includeFilterTransformerNoRadio.setToolTipText(toolTipText);
+            includeFilterTransformerButtonGroup.add(includeFilterTransformerNoRadio);
 
             queueThreadsLabel = new JLabel("Queue Threads:");
 
@@ -477,12 +517,15 @@ public class DestinationSettingsPanel extends JPanel {
             containerPanel.add(retryCountField, "w 75!");
             containerPanel.add(retryIntervalLabel, "newline, right");
             containerPanel.add(retryIntervalField, "w 75!");
-            containerPanel.add(regenerateTemplateLabel, "newline, right");
-            containerPanel.add(regenerateTemplateYesRadio, "split");
-            containerPanel.add(regenerateTemplateNoRadio);
             containerPanel.add(rotateLabel, "newline, right");
             containerPanel.add(rotateYesRadio, "split");
             containerPanel.add(rotateNoRadio);
+            containerPanel.add(regenerateTemplateLabel, "newline, right");
+            containerPanel.add(regenerateTemplateYesRadio, "split");
+            containerPanel.add(regenerateTemplateNoRadio);
+            containerPanel.add(includeFilterTransformerLabel, "newline, right");
+            containerPanel.add(includeFilterTransformerYesRadio, "split");
+            containerPanel.add(includeFilterTransformerNoRadio);
             containerPanel.add(queueThreadsLabel, "newline, right");
             containerPanel.add(queueThreadsField, "w 75!");
             containerPanel.add(threadAssignmentVariableLabel, "newline, right");
@@ -505,6 +548,13 @@ public class DestinationSettingsPanel extends JPanel {
             }
         }
 
+        private void regenerateTemplateChanged() {
+            boolean enabled = !queueMessagesNeverRadio.isSelected() && regenerateTemplateYesRadio.isSelected();
+            includeFilterTransformerLabel.setEnabled(enabled);
+            includeFilterTransformerYesRadio.setEnabled(enabled);
+            includeFilterTransformerNoRadio.setEnabled(enabled);
+        }
+
         private void queueThreadsChanged() {
             int threadCount = NumberUtils.toInt(queueThreadsField.getText(), 0);
             threadAssignmentVariableLabel.setEnabled(threadCount > 1);
@@ -518,6 +568,9 @@ public class DestinationSettingsPanel extends JPanel {
         private JLabel rotateLabel;
         private JRadioButton rotateYesRadio;
         private JRadioButton rotateNoRadio;
+        private JLabel includeFilterTransformerLabel;
+        private JRadioButton includeFilterTransformerYesRadio;
+        private JRadioButton includeFilterTransformerNoRadio;
         private JLabel retryCountLabel;
         private JTextField retryCountField;
         private JLabel retryIntervalLabel;

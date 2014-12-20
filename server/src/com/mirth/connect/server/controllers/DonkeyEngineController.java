@@ -588,8 +588,7 @@ public class DonkeyEngineController implements EngineController {
                     connectorModel.setMetaDataId(metaDataId);
                 }
 
-                DestinationConnector destinationConnector = createDestinationConnector(channel, connectorModel, storageSettings, destinationIdMap);
-                chain.addDestination(connectorModel.getMetaDataId(), destinationConnector.getFilterTransformerExecutor(), destinationConnector);
+                chain.addDestination(connectorModel.getMetaDataId(), createDestinationConnector(channel, connectorModel, storageSettings, destinationIdMap));
             }
         }
 
@@ -847,9 +846,6 @@ public class DonkeyEngineController implements EngineController {
     private DestinationChain createDestinationChain(Channel channel) {
         DestinationChain chain = new DestinationChain();
         chain.setChannelId(channel.getChannelId());
-        chain.setMetaDataReplacer(channel.getSourceConnector().getMetaDataReplacer());
-        chain.setMetaDataColumns(channel.getMetaDataColumns());
-
         return chain;
     }
 
@@ -869,6 +865,8 @@ public class DonkeyEngineController implements EngineController {
         destinationConnector.setFilterTransformerExecutor(createFilterTransformerExecutor(destinationConnector, connectorModel, destinationIdMap));
 
         destinationConnector.setDestinationName(connectorModel.getName());
+        destinationConnector.setMetaDataReplacer(channel.getSourceConnector().getMetaDataReplacer());
+        destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
 
         // Create the response validator
         DataTypeServerPlugin dataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(connectorModel.getResponseTransformer().getInboundDataType());
@@ -1291,8 +1289,8 @@ public class DonkeyEngineController implements EngineController {
 
                     for (DestinationChain chain : channel.getDestinationChains()) {
                         for (Integer metaDataId : chain.getDestinationConnectors().keySet()) {
-                            if (chain.getFilterTransformerExecutors().get(metaDataId).getFilterTransformer() != null) {
-                                chain.getFilterTransformerExecutors().get(metaDataId).getFilterTransformer().dispose();
+                            if (chain.getDestinationConnectors().get(metaDataId).getFilterTransformerExecutor().getFilterTransformer() != null) {
+                                chain.getDestinationConnectors().get(metaDataId).getFilterTransformerExecutor().getFilterTransformer().dispose();
                             }
                             if (chain.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer() != null) {
                                 chain.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer().dispose();

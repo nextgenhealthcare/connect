@@ -199,8 +199,6 @@ public class StatisticsTests {
 
         DestinationChain chain = new DestinationChain();
         chain.setChannelId(channel.getChannelId());
-        chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
-        chain.setMetaDataColumns(channel.getMetaDataColumns());
 
         for (int i = 1; i <= 4; i++) {
             DestinationConnector destinationConnector = new TestDispatcher();
@@ -241,8 +239,12 @@ public class StatisticsTests {
                     ((TestDispatcher) destinationConnector).setReturnStatus(Status.ERROR);
                     break;
             }
+            
+            destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
+            destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
+            destinationConnector.setFilterTransformerExecutor(filterTransformerExecutor);
 
-            chain.addDestination(i, filterTransformerExecutor, destinationConnector);
+            chain.addDestination(i, destinationConnector);
         }
 
         channel.addDestinationChain(chain);
@@ -334,8 +336,6 @@ public class StatisticsTests {
 
         DestinationChain chain = new DestinationChain();
         chain.setChannelId(channel.getChannelId());
-        chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
-        chain.setMetaDataColumns(channel.getMetaDataColumns());
 
         class BlockingTestDispatcher extends TestDispatcher {
             public volatile boolean waiting = true;
@@ -356,6 +356,10 @@ public class StatisticsTests {
         // Create a destination connector that stalls the processing thread a specified amount of time during the send method
         BlockingTestDispatcher destinationConnector = new BlockingTestDispatcher();
         destinationConnector.setChannelId(channel.getChannelId());
+        
+        destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
+        destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
+        destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
         TestDispatcherProperties connectorProperties = new TestDispatcherProperties();
         connectorProperties.getDestinationConnectorProperties().setQueueEnabled(true);
@@ -399,7 +403,7 @@ public class StatisticsTests {
         BlockingTestResponseTransformer responseTransformer = new BlockingTestResponseTransformer();
         destinationConnector.getResponseTransformerExecutor().setResponseTransformer(responseTransformer);
 
-        chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
+        chain.addDestination(1, destinationConnector);
 
         channel.addDestinationChain(chain);
 

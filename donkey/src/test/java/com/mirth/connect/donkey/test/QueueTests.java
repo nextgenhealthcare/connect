@@ -464,12 +464,14 @@ public class QueueTests {
 
         TestUtils.initDefaultDestinationConnector(destinationConnector, connectorProperties);
         destinationConnector.setChannelId(channelId);
+        
+        destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
+        destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
+        destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
         DestinationChain chain = new DestinationChain();
         chain.setChannelId(channelId);
-        chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
-        chain.setMetaDataColumns(channel.getMetaDataColumns());
-        chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
+        chain.addDestination(1, destinationConnector);
         channel.addDestinationChain(chain);
 
         // Start up the channel

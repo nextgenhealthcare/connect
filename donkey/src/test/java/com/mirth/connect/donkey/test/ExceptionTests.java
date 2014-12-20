@@ -107,9 +107,10 @@ public class ExceptionTests {
 
         DestinationChain chain = new DestinationChain();
         chain.setChannelId(channel.getChannelId());
-        chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
-        chain.setMetaDataColumns(channel.getMetaDataColumns());
-        chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
+        destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
+        destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
+        destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
+        chain.addDestination(1, destinationConnector);
         channel.addDestinationChain(chain);
 
         try {

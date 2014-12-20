@@ -112,20 +112,22 @@ public class DestinationChainTests {
 
         for (int i = 1; i <= numChains; i++) {
             DestinationChain chain = new DestinationChain();
-            chain.setMetaDataReplacer(new MetaDataReplacer());
             chain.setChannelId(channel.getChannelId());
-            chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
-            chain.setMetaDataColumns(channel.getMetaDataColumns());
 
             for (int j = 1; j <= numDestinationsPerChain; j++) {
                 int metaDataId = (i - 1) * numDestinationsPerChain + j;
                 TestDestinationConnector destinationConnector = (TestDestinationConnector) TestUtils.createDestinationConnector(channel.getChannelId(), channel.getServerId(), new TestConnectorProperties(), TestUtils.DEFAULT_DESTINATION_NAME, new TestDataType(), new TestDataType(), new TestResponseTransformer(), metaDataId);
                 destinationConnector.setChannelId(channel.getChannelId());
+                
+                destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
+                destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
 
                 FilterTransformerExecutor filterTransformerExecutor = new FilterTransformerExecutor(new TestDataType(), new TestDataType());
                 filterTransformerExecutor.setFilterTransformer(new TestFilterTransformer2());
+                
+                destinationConnector.setFilterTransformerExecutor(filterTransformerExecutor);
 
-                chain.addDestination(metaDataId, filterTransformerExecutor, destinationConnector);
+                chain.addDestination(metaDataId, destinationConnector);
             }
 
             channel.addDestinationChain(chain);

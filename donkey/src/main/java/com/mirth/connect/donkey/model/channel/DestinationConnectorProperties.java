@@ -28,6 +28,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
     private boolean regenerateTemplate;
     private int retryCount;
     private boolean rotate;
+    private boolean includeFilterTransformer;
     private int threadCount;
     private String threadAssignmentVariable;
     private boolean validateResponse;
@@ -44,6 +45,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         regenerateTemplate = false;
         retryCount = 0;
         rotate = false;
+        includeFilterTransformer = false;
         threadCount = 1;
         threadAssignmentVariable = "";
         this.validateResponse = validateResponse;
@@ -58,6 +60,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         regenerateTemplate = props.isRegenerateTemplate();
         retryCount = props.getRetryCount();
         rotate = props.isRotate();
+        includeFilterTransformer = props.isIncludeFilterTransformer();
         threadCount = props.getThreadCount();
         threadAssignmentVariable = props.getThreadAssignmentVariable();
         validateResponse = props.isValidateResponse();
@@ -110,6 +113,14 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
 
     public void setRotate(boolean rotate) {
         this.rotate = rotate;
+    }
+
+    public boolean isIncludeFilterTransformer() {
+        return includeFilterTransformer;
+    }
+
+    public void setIncludeFilterTransformer(boolean includeFilterTransformer) {
+        this.includeFilterTransformer = includeFilterTransformer;
     }
 
     public int getThreadCount() {
@@ -176,6 +187,7 @@ public class DestinationConnectorProperties implements Serializable, Migratable,
         purgedProperties.put("regenerateTemplate", regenerateTemplate);
         purgedProperties.put("retryCount", retryCount);
         purgedProperties.put("rotate", rotate);
+        purgedProperties.put("includeFilterTransformer", includeFilterTransformer);
         purgedProperties.put("threadCount", threadCount);
         purgedProperties.put("validateResponse", validateResponse);
         purgedProperties.put("resourceIdsCount", resourceIds.size());

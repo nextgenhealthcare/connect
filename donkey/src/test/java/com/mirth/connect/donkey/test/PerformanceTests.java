@@ -129,7 +129,8 @@ public class PerformanceTests {
             channelWriter.setDestinationName("destination");
             channelWriter.setInboundDataType(new TestDataType());
             channelWriter.setOutboundDataType(new TestDataType());
-            chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), channelWriter);
+            channelWriter.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
+            chain.addDestination(1, channelWriter);
 
             sourceChannels[i].deploy();
             sourceChannels[i].start(null);

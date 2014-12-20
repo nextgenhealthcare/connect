@@ -350,10 +350,8 @@ public class Channel implements Runnable {
         }
 
         for (DestinationChain chain : destinationChains) {
-            Map<Integer, FilterTransformerExecutor> filterTransformerExecutors = chain.getFilterTransformerExecutors();
-
             for (Integer metaDataId : chain.getMetaDataIds()) {
-                if (filterTransformerExecutors.get(metaDataId) == null) {
+                if (chain.getDestinationConnectors().get(metaDataId).getFilterTransformerExecutor() == null) {
                     return false;
                 }
             }

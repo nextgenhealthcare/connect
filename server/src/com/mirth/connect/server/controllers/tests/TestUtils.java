@@ -206,7 +206,8 @@ public class TestUtils {
         DestinationChain chain = new DestinationChain();
         filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder()), new DataType("XML", new TestSerializer(), new TestAutoResponder()));
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
-        chain.addDestination(1, filterTransformer, destinationConnector);
+        destinationConnector.setFilterTransformerExecutor(filterTransformer);
+        chain.addDestination(1, destinationConnector);
         channel.getDestinationChains().add(chain);
         destinationConnector.setChannelId(channelId);
 
@@ -256,7 +257,6 @@ public class TestUtils {
         for (int i = 0; i < numChains; i++) {
             DestinationChain chain = new DestinationChain();
             chain.setChannelId(channelId);
-            chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
 
             channel.getDestinationChains().add(chain);
 
@@ -279,7 +279,10 @@ public class TestUtils {
 
                 filterTransformer = new FilterTransformerExecutor(dataType, dataType);
                 filterTransformer.setFilterTransformer(new TestFilterTransformer());
-                chain.addDestination(metaDataId++, filterTransformer, testDestinationConnector);
+                testDestinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
+                testDestinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
+                testDestinationConnector.setFilterTransformerExecutor(filterTransformer);
+                chain.addDestination(metaDataId++, testDestinationConnector);
             }
         }
 

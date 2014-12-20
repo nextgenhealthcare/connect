@@ -109,9 +109,10 @@ public class DestinationConnectorTests {
 
         DestinationChain chain = new DestinationChain();
         chain.setChannelId(channelId);
-        chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
-        chain.setMetaDataColumns(channel.getMetaDataColumns());
-        chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
+        destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
+        destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
+        destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
+        chain.addDestination(1, destinationConnector);
         channel.addDestinationChain(chain);
 
         // Assert that the destination connector has not been deployed
@@ -177,12 +178,14 @@ public class DestinationConnectorTests {
         connectorProperties.getDestinationConnectorProperties().setQueueEnabled(true);
         TestUtils.initDefaultDestinationConnector(destinationConnector, connectorProperties);
         destinationConnector.setChannelId(channelId);
+        
+        destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
+        destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
+        destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
         DestinationChain chain = new DestinationChain();
         chain.setChannelId(channelId);
-        chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
-        chain.setMetaDataColumns(channel.getMetaDataColumns());
-        chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
+        chain.addDestination(1, destinationConnector);
         channel.addDestinationChain(chain);
 
         channel.deploy();
@@ -312,12 +315,13 @@ public class DestinationConnectorTests {
 
         TestUtils.initDefaultDestinationConnector(destinationConnector, connectorProperties);
         destinationConnector.setChannelId(channelId);
+        destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
+        destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
+        destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
 
         DestinationChain chain = new DestinationChain();
         chain.setChannelId(channelId);
-        chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
-        chain.setMetaDataColumns(channel.getMetaDataColumns());
-        chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
+        chain.addDestination(1, destinationConnector);
         channel.addDestinationChain(chain);
 
         channel.deploy();
@@ -430,14 +434,15 @@ public class DestinationConnectorTests {
         }
         final BlockingTestResponseTransformer responseTransformer = new BlockingTestResponseTransformer();
         
+        destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
+        destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
+        destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
         destinationConnector.setResponseTransformerExecutor(TestUtils.createDefaultResponseTransformerExecutor());
         destinationConnector.getResponseTransformerExecutor().setResponseTransformer(responseTransformer);
 
         DestinationChain chain = new DestinationChain();
         chain.setChannelId(channelId);
-        chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
-        chain.setMetaDataColumns(channel.getMetaDataColumns());
-        chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
+        chain.addDestination(1, destinationConnector);
         channel.addDestinationChain(chain);
 
         if (ChannelController.getInstance().channelExists(channelId)) {

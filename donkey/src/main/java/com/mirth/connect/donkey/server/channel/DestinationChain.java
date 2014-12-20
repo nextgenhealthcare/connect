@@ -20,19 +20,12 @@ import java.util.concurrent.Callable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.model.DonkeyException;
-import com.mirth.connect.donkey.model.channel.MetaDataColumn;
-import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
-import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.model.message.XmlSerializerException;
-import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
-import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
 public class DestinationChain implements Callable<List<ConnectorMessage>> {
@@ -41,10 +34,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
     private ConnectorMessage message;
     private List<Integer> metaDataIds = new ArrayList<Integer>();
     private List<Integer> enabledMetaDataIds = new ArrayList<Integer>();
-    private Map<Integer, FilterTransformerExecutor> filterTransformerExecutors = new HashMap<Integer, FilterTransformerExecutor>();
     private Map<Integer, DestinationConnector> destinationConnectors = new LinkedHashMap<Integer, DestinationConnector>();
-    private MetaDataReplacer metaDataReplacer;
-    private List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
     private DonkeyDaoFactory daoFactory;
     private StorageSettings storageSettings;
     private Logger logger = Logger.getLogger(getClass());
@@ -65,7 +55,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
         this.channelId = channelId;
     }
 
-    public void addDestination(int metaDataId, FilterTransformerExecutor filterTransformerExecutor, DestinationConnector connector) {
+    public void addDestination(int metaDataId, DestinationConnector connector) {
         if (!metaDataIds.contains(metaDataId)) {
             metaDataIds.add(metaDataId);
         }
@@ -74,14 +64,9 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
             enabledMetaDataIds.add(metaDataId);
         }
 
-        filterTransformerExecutors.put(metaDataId, filterTransformerExecutor);
         destinationConnectors.put(metaDataId, connector);
         connector.setOrderId(destinationConnectors.size());
 
-    }
-
-    public Map<Integer, FilterTransformerExecutor> getFilterTransformerExecutors() {
-        return filterTransformerExecutors;
     }
 
     public Map<Integer, DestinationConnector> getDestinationConnectors() {
@@ -102,22 +87,6 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
 
     public void setEnabledMetaDataIds(List<Integer> enabledMetaDataIds) {
         this.enabledMetaDataIds = enabledMetaDataIds;
-    }
-
-    public MetaDataReplacer getMetaDataReplacer() {
-        return metaDataReplacer;
-    }
-
-    public void setMetaDataReplacer(MetaDataReplacer metaDataReplacer) {
-        this.metaDataReplacer = metaDataReplacer;
-    }
-
-    public List<MetaDataColumn> getMetaDataColumns() {
-        return metaDataColumns;
-    }
-
-    public void setMetaDataColumns(List<MetaDataColumn> metaDataColumns) {
-        this.metaDataColumns = metaDataColumns;
     }
 
     protected void setDaoFactory(DonkeyDaoFactory daoFactory) {
@@ -172,68 +141,24 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
 
                 try {
                     switch (message.getStatus()) {
-                    // if the message status is RECEIVED, send it to the destination's filter/transformer script
                         case RECEIVED:
-                            try {
-                                filterTransformerExecutors.get(metaDataId).processConnectorMessage(message);
-                            } catch (DonkeyException e) {
-                                if (e instanceof XmlSerializerException) {
-                                    Donkey.getInstance().getEventDispatcher().dispatchEvent(new ErrorEvent(channelId, metaDataId, message.getMessageId(), ErrorEventType.SERIALIZER, destinationConnector.getDestinationName(), null, e.getMessage(), e));
+                            /*
+                             * Only transform the message if we're going to be dispatching it in the
+                             * main processing thread, or if the queue thread will not be handling
+                             * transformation
+                             */
+                            if (destinationConnector.willAttemptSend() || !destinationConnector.includeFilterTransformerInQueue()) {
+                                destinationConnector.transform(dao, message, previousStatus, true);
+
+                                // If the message status is QUEUED, send it to the destination connector
+                                if (message.getStatus() == Status.QUEUED) {
+                                    destinationConnector.process(dao, message, previousStatus);
+                                } else if (message.getStatus() == Status.ERROR && message.getSent() == null) {
+                                    // If an error occurred in the filter/transformer, don't proceed with the rest of the chain
+                                    stopChain = true;
                                 }
-
-                                stopChain = true;
-                                message.setStatus(Status.ERROR);
-                                message.setProcessingError(e.getFormattedError());
-                            }
-
-                            // Insert errors if necessary
-                            if (StringUtils.isNotBlank(message.getProcessingError())) {
-                                dao.updateErrors(message);
-                            }
-
-                            // Set the destination connector's custom column map
-                            metaDataReplacer.setMetaDataMap(message, metaDataColumns);
-
-                            // Store the custom columns
-                            if (storageSettings.isStoreCustomMetaData() && !message.getMetaDataMap().isEmpty()) {
-                                ThreadUtils.checkInterruptedStatus();
-                                dao.insertMetaData(message, metaDataColumns);
-                            }
-
-                            // Always store the transformed content if it exists
-                            if (storageSettings.isStoreTransformed() && message.getTransformed() != null) {
-                                ThreadUtils.checkInterruptedStatus();
-                                dao.insertMessageContent(message.getTransformed());
-                            }
-
-                            // if the message status is TRANSFORMED, send it to the destination connector
-                            // when DestinationConnector.process() returns, the message status should be either QUEUED or PENDING
-                            if (message.getStatus() == Status.TRANSFORMED) {
-                                // the message is queued at this point
-                                message.setStatus(Status.QUEUED);
-
-                                if (storageSettings.isStoreDestinationEncoded() && message.getEncoded() != null) {
-                                    ThreadUtils.checkInterruptedStatus();
-                                    dao.insertMessageContent(message.getEncoded());
-                                }
-
-                                if (storageSettings.isStoreMaps()) {
-                                    dao.updateMaps(message);
-                                }
-
-                                destinationConnector.process(dao, message, previousStatus);
                             } else {
-                                if (message.getStatus() == Status.FILTERED) {
-                                    message.getResponseMap().put("d" + String.valueOf(metaDataId), new Response(Status.FILTERED, "", "Message has been filtered"));
-                                } else if (message.getStatus() == Status.ERROR) {
-                                    message.getResponseMap().put("d" + String.valueOf(metaDataId), new Response(Status.ERROR, "", "Error converting message or evaluating filter/transformer"));
-                                }
-
-                                dao.updateStatus(message, previousStatus);
-
-                                if (storageSettings.isStoreMaps()) {
-                                    dao.updateMaps(message);
-                                }
+                                destinationConnector.updateQueuedStatus(dao, message, previousStatus);
                             }
                             break;
 

@@ -94,8 +94,10 @@ public class ConnectorTests {
 
         DestinationChain chain = new DestinationChain();
         chain.setChannelId(channelId);
-        chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
-        chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
+        destinationConnector.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
+        destinationConnector.setMetaDataColumns(channel.getMetaDataColumns());
+        destinationConnector.setFilterTransformerExecutor(TestUtils.createDefaultFilterTransformerExecutor());
+        chain.addDestination(1, destinationConnector);
         channel.addDestinationChain(chain);
 
         channel.deploy();
