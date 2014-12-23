@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.SortedMap;
@@ -45,6 +46,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.configuration.ConfigurationConverter;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.PropertiesConfigurationLayout;
 import org.apache.commons.dbutils.DbUtils;
@@ -263,7 +265,12 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             PropertiesConfiguration configurationMapProperties = new PropertiesConfiguration();
             configurationMapProperties.setDelimiterParsingDisabled(true);
-            configurationMapProperties.load(new File(configurationFile));
+            configurationMapProperties.setListDelimiter((char) 0);
+            try {
+                configurationMapProperties.load(new File(configurationFile));
+            } catch (ConfigurationException e) {
+                logger.warn("Failed to find configuration map file");
+            }
 
             Map<String, ConfigurationProperty> configurationMap = new HashMap<String, ConfigurationProperty>();
             Iterator<String> iterator = configurationMapProperties.getKeys();
@@ -1065,11 +1072,17 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     private void saveConfigurationProperties(Map<String, ConfigurationProperty> map) throws ControllerException {
         try {
-            PropertiesConfiguration configurationMapProperties = new PropertiesConfiguration(new File(configurationFile));
+            PropertiesConfiguration configurationMapProperties = new PropertiesConfiguration();
+            configurationMapProperties.setDelimiterParsingDisabled(true);
+            configurationMapProperties.setListDelimiter((char) 0);
+            configurationMapProperties.clear();
+
             PropertiesConfigurationLayout layout = configurationMapProperties.getLayout();
 
-            configurationMapProperties.clear();
-            for (Entry<String, ConfigurationProperty> entry : map.entrySet()) {
+            Map<String, ConfigurationProperty> sortedMap = new TreeMap<String, ConfigurationProperty>(String.CASE_INSENSITIVE_ORDER);
+            sortedMap.putAll(map);
+
+            for (Entry<String, ConfigurationProperty> entry : sortedMap.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue().getValue();
                 String comment = entry.getValue().getComment();
@@ -1080,7 +1093,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                 }
             }
 
-            configurationMapProperties.save();
+            configurationMapProperties.save(new File(configurationFile));
         } catch (Exception e) {
             throw new ControllerException(e);
         }

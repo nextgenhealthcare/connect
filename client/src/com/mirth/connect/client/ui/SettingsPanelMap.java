@@ -54,7 +54,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
 
         addTask(TaskConstants.SETTINGS_CONFIGURATION_MAP_IMPORT, "Import Map", "Import a properties file into the configuration map. This will remove and replace any existing map values.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")));
         addTask(TaskConstants.SETTINGS_CONFIGURATION_MAP_EXPORT, "Export Map", "Export the configuration map to a properties file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")));
-    
+
         setVisibleTasks(2, 3, true);
     }
 
@@ -138,7 +138,11 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
 
         if (file != null) {
             try {
-                PropertiesConfiguration properties = new PropertiesConfiguration(file);
+                PropertiesConfiguration properties = new PropertiesConfiguration();
+                properties.setDelimiterParsingDisabled(true);
+                properties.setListDelimiter((char) 0);
+                properties.load(file);
+
                 Map<String, ConfigurationProperty> configurationMap = new HashMap<String, ConfigurationProperty>();
                 Iterator<String> iterator = properties.getKeys();
 
@@ -181,7 +185,9 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
                 try {
                     File file = getFrame().createFileForExport(null, "PROPERTIES");
                     if (file != null) {
-                        PropertiesConfiguration properties = new PropertiesConfiguration(file);
+                        PropertiesConfiguration properties = new PropertiesConfiguration();
+                        properties.setDelimiterParsingDisabled(true);
+                        properties.setListDelimiter((char) 0);
                         properties.clear();
                         PropertiesConfigurationLayout layout = properties.getLayout();
 
@@ -200,7 +206,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
                             }
                         }
 
-                        properties.save();
+                        properties.save(file);
                     }
                 } catch (Exception e) {
                     getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
