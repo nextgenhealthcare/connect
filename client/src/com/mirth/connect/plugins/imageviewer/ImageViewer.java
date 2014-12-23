@@ -15,7 +15,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -45,13 +44,13 @@ public class ImageViewer extends AttachmentViewer {
         return false;
     }
 
-    public void viewAttachments(List<String> attachmentIds, String channelId) {
+    public void viewAttachments(String channelId, String attachmentId, Long messageId) {
 
         JFrame frame = new JFrame("Image Viewer");
 
         try {
 
-            Attachment attachment = parent.mirthClient.getAttachment(channelId, attachmentIds.get(0));
+            Attachment attachment = parent.mirthClient.getAttachment(channelId, attachmentId, messageId);
             byte[] rawData = attachment.getContent();
             ByteArrayInputStream bis = new ByteArrayInputStream(rawData);
 

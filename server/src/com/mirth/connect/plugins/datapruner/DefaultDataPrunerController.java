@@ -256,7 +256,6 @@ public class DefaultDataPrunerController extends DataPrunerController {
         }
 
         pruner.setArchiveEnabled(Boolean.parseBoolean(properties.getProperty("archiveEnabled", Boolean.FALSE.toString())));
-//        boolean includeAttachments = Boolean.parseBoolean(properties.getProperty("includeAttachments", Boolean.FALSE.toString()));
 
         if (pruner.isArchiveEnabled()) {
             if (properties.contains("archiverOptions")) {

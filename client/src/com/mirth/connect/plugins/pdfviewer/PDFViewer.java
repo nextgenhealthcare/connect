@@ -13,7 +13,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.List;
 
 import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.io.IOUtils;
@@ -35,10 +34,10 @@ public class PDFViewer extends AttachmentViewer {
         return false;
     }
 
-    public void viewAttachments(List<String> attachmentIds, String channelId) {
+    public void viewAttachments(String channelId, String attachmentId, Long messageId) {
 
         try {
-            Attachment attachment = parent.mirthClient.getAttachment(channelId, attachmentIds.get(0));
+            Attachment attachment = parent.mirthClient.getAttachment(channelId, attachmentId, messageId);
             byte[] rawData = attachment.getContent();
             Base64InputStream in = new Base64InputStream(new ByteArrayInputStream(rawData));
 

@@ -68,6 +68,7 @@ import com.mirth.connect.util.MessageImporter.MessageImportException;
 import com.mirth.connect.util.MessageImporter.MessageImportInvalidPathException;
 import com.mirth.connect.util.PaginatedList;
 import com.mirth.connect.util.attachmentwriter.AttachmentWriter;
+import com.mirth.connect.util.messagewriter.AttachmentSource;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
 import com.mirth.connect.util.messagewriter.MessageWriterFactory;
@@ -262,11 +263,11 @@ public class DonkeyMessageController extends MessageController {
     }
 
     @Override
-    public Attachment getMessageAttachment(String channelId, String attachmentId) {
+    public Attachment getMessageAttachment(String channelId, String attachmentId, Long messageId) {
         DonkeyDao dao = donkey.getDaoFactory().getDao();
 
         try {
-            return dao.getMessageAttachment(channelId, attachmentId);
+            return dao.getMessageAttachment(channelId, attachmentId, messageId);
         } finally {
             dao.close();
         }
@@ -469,7 +470,18 @@ public class DonkeyMessageController extends MessageController {
 
         try {
             MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(options, ConfigurationController.getInstance().getEncryptor());
-            int numExported = new MessageExporter().exportMessages(messageList, messageWriter);
+
+            AttachmentSource attachmentSource = null;
+            if (includeAttachments) {
+                attachmentSource = new AttachmentSource() {
+                    @Override
+                    public List<Attachment> getMessageAttachments(Message message) {
+                        return MessageController.getInstance().getMessageAttachment(message.getChannelId(), message.getMessageId());
+                    }
+                };
+            }
+
+            int numExported = new MessageExporter().exportMessages(messageList, messageWriter, attachmentSource);
             messageWriter.close();
             return numExported;
         } catch (MessageWriterException e) {
@@ -478,8 +490,8 @@ public class DonkeyMessageController extends MessageController {
     }
 
     @Override
-    public void exportAttachment(String channelId, String attachmentId, String filePath, boolean binary) throws IOException {
-        AttachmentWriter.write(filePath, getMessageAttachment(channelId, attachmentId), binary);
+    public void exportAttachment(String channelId, String attachmentId, Long messageId, String filePath, boolean binary) throws IOException {
+        AttachmentWriter.write(filePath, getMessageAttachment(channelId, attachmentId, messageId), binary);
     }
 
     @Override

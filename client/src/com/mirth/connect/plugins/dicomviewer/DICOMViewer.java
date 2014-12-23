@@ -14,7 +14,6 @@ import ij.plugin.DICOM;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.ByteArrayInputStream;
-import java.util.List;
 
 import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.binary.StringUtils;
@@ -36,7 +35,7 @@ public class DICOMViewer extends AttachmentViewer {
         return true;
     }
 
-    public void viewAttachments(List<String> attachmentIds, String channelId) {
+    public void viewAttachments(String channelId, String attachmentId, Long messageId) {
         // do viewing code
         try {
             ConnectorMessage message = parent.messageBrowser.getSelectedConnectorMessage();

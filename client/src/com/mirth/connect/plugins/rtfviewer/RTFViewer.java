@@ -15,7 +15,6 @@ import java.awt.Frame;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.List;
 
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
@@ -42,7 +41,7 @@ public class RTFViewer extends AttachmentViewer {
     }
 
     @Override
-    public void viewAttachments(List<String> attachmentIds, String channelId) {
+    public void viewAttachments(String channelId, String attachmentId, Long messageId) {
         // do viewing code
 
         Frame frame = new Frame("RTF Viewer");
@@ -51,7 +50,7 @@ public class RTFViewer extends AttachmentViewer {
 
         try {
 
-            Attachment attachment = parent.mirthClient.getAttachment(channelId, attachmentIds.get(0));
+            Attachment attachment = parent.mirthClient.getAttachment(channelId, attachmentId, messageId);
             byte[] rawRTF = Base64.decodeBase64(attachment.getContent());
             //TODO set character encoding
             JEditorPane jEditorPane = new JEditorPane("text/rtf", new String(rawRTF));

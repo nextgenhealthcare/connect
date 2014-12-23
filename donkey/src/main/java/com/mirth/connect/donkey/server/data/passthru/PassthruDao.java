@@ -260,7 +260,7 @@ public class PassthruDao implements DonkeyDao {
     }
 
     @Override
-    public Attachment getMessageAttachment(String channelId, String attachmentId) {
+    public Attachment getMessageAttachment(String channelId, String attachmentId, Long messageId) {
         return new Attachment();
     }
 

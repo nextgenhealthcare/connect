@@ -244,18 +244,20 @@ public class MessageObjectServlet extends MirthServlet {
                 } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_EXPORT)) {
                     String channelId = request.getParameter("channelId");
                     String attachmentId = request.getParameter("attachmentId");
+                    Long messageId = serializer.deserialize(request.getParameter("messageId"), Long.class);
                     String filePath = request.getParameter("filePath");
                     boolean binary = Boolean.parseBoolean(request.getParameter("binary"));
 
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("attachmentId", attachmentId);
+                    parameterMap.put("messageId", messageId);
                     parameterMap.put("filePath", filePath);
                     parameterMap.put("binary", binary);
 
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        messageController.exportAttachment(channelId, attachmentId, filePath, binary);
+                        messageController.exportAttachment(channelId, attachmentId, messageId, filePath, binary);
                     }
                 } else if (operation.equals(Operations.MESSAGE_DICOM_MESSAGE_GET)) {
                     ConnectorMessage message = serializer.deserialize(request.getParameter("message"), ConnectorMessage.class);
@@ -281,13 +283,15 @@ public class MessageObjectServlet extends MirthServlet {
                 } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET)) {
                     String channelId = request.getParameter("channelId");
                     String attachmentId = request.getParameter("attachmentId");
+                    Long messageId = serializer.deserialize(request.getParameter("messageId"), Long.class);
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("attachmentId", attachmentId);
+                    parameterMap.put("messageId", messageId);
 
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        serializer.serialize(messageController.getMessageAttachment(channelId, attachmentId), out);
+                        serializer.serialize(messageController.getMessageAttachment(channelId, attachmentId, messageId), out);
                     }
                 } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID)) {
                     String channelId = request.getParameter("channelId");

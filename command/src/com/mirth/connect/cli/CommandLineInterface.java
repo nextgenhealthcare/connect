@@ -58,6 +58,7 @@ import com.mirth.connect.client.core.PaginatedMessageList;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatistics;
@@ -78,6 +79,7 @@ import com.mirth.connect.util.MessageExporter;
 import com.mirth.connect.util.MessageImporter;
 import com.mirth.connect.util.MessageImporter.MessageImportException;
 import com.mirth.connect.util.MessageImporter.MessageImportInvalidPathException;
+import com.mirth.connect.util.messagewriter.AttachmentSource;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
 import com.mirth.connect.util.messagewriter.MessageWriterFactory;
@@ -467,7 +469,7 @@ public class CommandLineInterface {
         out.println("importcodetemplates \"path\"\n\tImports code templates specified by <path>\n");
         out.println("exportcodetemplates \"path\"\n\tExports code templates to <path>\n");
         out.println("importmessages \"path\" id\n\tImports messages specified by <path> into the channel specified by <id>\n");
-        out.println("exportmessages \"path/file-pattern\" id [xml|raw|processedraw|transformed|encoded|response] [pageSize]\n\tExports all messages for channel specified by <id> to <path>\n");
+        out.println("exportmessages \"path/file-pattern\" id [xml|xml-attach|raw|processedraw|transformed|encoded|response] [pageSize]\n\tExports all messages for channel specified by <id> to <path>\n");
         out.println("importmap \"path\"\n\tImports configuration map specified by <path>\n");
         out.println("exportmap \"path\"\n\tExports configuration map to <path>\n");
         out.println("channel undeploy|deploy|start|stop|halt|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
@@ -888,6 +890,7 @@ public class CommandLineInterface {
         // export mode
         ContentType contentType = null;
 
+        boolean includeAttachments = false;
         if (arguments.length >= 4) {
             String modeArg = arguments[3].getText();
 
@@ -907,6 +910,8 @@ public class CommandLineInterface {
                 contentType = ContentType.RESPONSE_TRANSFORMED;
             } else if (StringUtils.equals(modeArg, "processedresponse")) {
                 contentType = ContentType.PROCESSED_RESPONSE;
+            } else if(StringUtils.equals(modeArg, "xml-attach")){
+                includeAttachments = true;
             }
         }
 
@@ -941,10 +946,21 @@ public class CommandLineInterface {
                 writerOptions.setFilePattern(FilenameUtils.getName(fXml.getAbsolutePath()));
                 writerOptions.setArchiveFormat(null);
                 writerOptions.setCompressFormat(null);
+                writerOptions.setIncludeAttachments(includeAttachments);
 
                 MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, client.getEncryptor());
 
-                messageCount = new MessageExporter().exportMessages(messageList, messageWriter);
+                AttachmentSource attachmentSource = null;
+                if (writerOptions.includeAttachments()) {
+                    attachmentSource = new AttachmentSource() {
+                        @Override
+                        public List<Attachment> getMessageAttachments(Message message) throws ClientException {
+                            return client.getAttachmentsByMessageId(message.getChannelId(), message.getMessageId());
+                        }
+                    };
+                }
+
+                messageCount = new MessageExporter().exportMessages(messageList, messageWriter, attachmentSource);
                 messageWriter.close();
             } catch (Exception e) {
                 Throwable cause = ExceptionUtils.getRootCause(e);

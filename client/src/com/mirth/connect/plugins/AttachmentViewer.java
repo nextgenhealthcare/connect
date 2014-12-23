@@ -9,8 +9,6 @@
 
 package com.mirth.connect.plugins;
 
-import java.util.List;
-
 public abstract class AttachmentViewer extends ClientPlugin {
 
     public AttachmentViewer(String name) {
@@ -19,7 +17,7 @@ public abstract class AttachmentViewer extends ClientPlugin {
 
     public abstract String getViewerType();
 
-    public abstract void viewAttachments(List<String> attachmentIds, String channelId);
+    public abstract void viewAttachments(String channelId, String attachmentId, Long messageId);
 
     public abstract boolean handleMultiple();
 }

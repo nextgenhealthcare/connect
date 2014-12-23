@@ -26,7 +26,7 @@
 	<query id="selectMessageAttachmentSize">
 		SELECT sum(ATTACHMENT_SIZE) AS ATTACHMENT_SIZE
 		FROM D_MA${localChannelId}
-		WHERE ID = ?
+		WHERE ID = ? AND MESSAGE_ID = ? 
 	</query>
 	
 	<query id="selectMessageAttachmentSizeByMessageId">
@@ -39,7 +39,7 @@
 	<query id="selectMessageAttachment">
 		SELECT TYPE, SEGMENT_ID, ATTACHMENT_SIZE, CONTENT
 		FROM D_MA${localChannelId}
-		WHERE ID = ?
+		WHERE ID = ? AND MESSAGE_ID = ? 
 		ORDER BY SEGMENT_ID ASC
 	</query>
 	

@@ -9,10 +9,15 @@
 
 package com.mirth.connect.util;
 
+import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.ThreadUtils;
+import com.mirth.connect.util.messagewriter.AttachmentSource;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 
 public class MessageExporter {
@@ -36,7 +41,7 @@ public class MessageExporter {
      *            The message writer to write messages to
      * @return A list of the message ids that were exported.
      */
-    public synchronized int exportMessages(PaginatedList<Message> messageList, MessageWriter messageWriter) throws InterruptedException, MessageExportException {
+    public synchronized int exportMessages(PaginatedList<Message> messageList, MessageWriter messageWriter, AttachmentSource attachmentSource) throws InterruptedException, MessageExportException {
         int pageNumber = 0;
         numExported = 0;
 
@@ -53,6 +58,14 @@ public class MessageExporter {
                 ThreadUtils.checkInterruptedStatus();
 
                 try {
+                    if (attachmentSource != null) {
+                        List<Attachment> attachments = attachmentSource.getMessageAttachments(message);
+
+                        if (CollectionUtils.isNotEmpty(attachments)) {
+                            message.setAttachments(attachments);
+                        }
+                    }
+
                     if (messageWriter.write(message)) {
                         numExported++;
                     }

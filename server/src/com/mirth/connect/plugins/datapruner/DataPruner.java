@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
@@ -30,9 +31,11 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
@@ -47,11 +50,13 @@ import com.mirth.connect.model.ServerEvent.Outcome;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.MessageController;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.ListRangeIterator;
 import com.mirth.connect.server.util.ListRangeIterator.ListRangeItem;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.MessageExporter.MessageExportException;
+import com.mirth.connect.util.messagewriter.AttachmentSource;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterFactory;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
@@ -504,6 +509,16 @@ public class DataPruner implements Runnable {
             status.setArchiving(true);
             MessageWriter archiver = MessageWriterFactory.getInstance().getMessageWriter(messageWriterOptions, ConfigurationController.getInstance().getEncryptor());
 
+            AttachmentSource attachmentSource = null;
+            if (messageWriterOptions.includeAttachments()) {
+                attachmentSource = new AttachmentSource() {
+                    @Override
+                    public List<Attachment> getMessageAttachments(Message message) throws ClientException {
+                        return MessageController.getInstance().getMessageAttachment(message.getChannelId(), message.getMessageId());
+                    }
+                };
+            }
+
             numExported = 0;
             long minMessageId = 0;
             List<Message> messageList = null;
@@ -518,6 +533,14 @@ public class DataPruner implements Runnable {
                         ThreadUtils.checkInterruptedStatus();
 
                         try {
+                            if (attachmentSource != null) {
+                                List<Attachment> attachments = attachmentSource.getMessageAttachments(message);
+
+                                if (CollectionUtils.isNotEmpty(attachments)) {
+                                    message.setAttachments(attachments);
+                                }
+                            }
+
                             if (archiver.write(message)) {
                                 numExported++;
                             }

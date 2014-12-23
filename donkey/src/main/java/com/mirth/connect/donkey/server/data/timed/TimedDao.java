@@ -480,11 +480,11 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public Attachment getMessageAttachment(String channelId, String attachmentId) {
+    public Attachment getMessageAttachment(String channelId, String attachmentId, Long messageId) {
         long startTime = System.currentTimeMillis();
 
         try {
-            return dao.getMessageAttachment(channelId, attachmentId);
+            return dao.getMessageAttachment(channelId, attachmentId, messageId);
         } finally {
             timer.log("getMessageAttachment", System.currentTimeMillis() - startTime);
         }

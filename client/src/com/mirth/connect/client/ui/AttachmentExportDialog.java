@@ -196,7 +196,7 @@ public class AttachmentExportDialog extends MirthDialog {
                     if (localButton.isSelected()) {
                         AttachmentWriter.write(fileField.getText(), getSelectedAttachment(), binary);
                     } else {
-                        PlatformUI.MIRTH_FRAME.mirthClient.exportAttachmentServer(PlatformUI.MIRTH_FRAME.messageBrowser.getChannelId(), PlatformUI.MIRTH_FRAME.messageBrowser.getSelectedAttachmentId(), fileField.getText(), binary);
+                        PlatformUI.MIRTH_FRAME.mirthClient.exportAttachmentServer(PlatformUI.MIRTH_FRAME.messageBrowser.getChannelId(), PlatformUI.MIRTH_FRAME.messageBrowser.getSelectedAttachmentId(), PlatformUI.MIRTH_FRAME.messageBrowser.getSelectedMessageId(), fileField.getText(), binary);
                     }
                 } catch (Exception e) {
                     errorMessage = e.getMessage();
@@ -215,7 +215,7 @@ public class AttachmentExportDialog extends MirthDialog {
     }
 
     public Attachment getSelectedAttachment() throws ClientException {
-        return PlatformUI.MIRTH_FRAME.mirthClient.getAttachment(PlatformUI.MIRTH_FRAME.messageBrowser.getChannelId(), PlatformUI.MIRTH_FRAME.messageBrowser.getSelectedAttachmentId());
+        return PlatformUI.MIRTH_FRAME.mirthClient.getAttachment(PlatformUI.MIRTH_FRAME.messageBrowser.getChannelId(), PlatformUI.MIRTH_FRAME.messageBrowser.getSelectedAttachmentId(), PlatformUI.MIRTH_FRAME.messageBrowser.getSelectedMessageId());
     }
 
     private JPanel attachmentExportPanel;

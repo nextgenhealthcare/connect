@@ -274,7 +274,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         }
 
         archiverPanel.resetInvalidProperties();
-//        archiverPanel.setIncludeAttachments(Boolean.parseBoolean(properties.getProperty("includeAttachments", Boolean.FALSE.toString())));
+        archiverPanel.setIncludeAttachments(Boolean.parseBoolean(properties.getProperty("includeAttachments", Boolean.FALSE.toString())));
         
         String archiverOptions = properties.getProperty("archiverOptions");
 
@@ -345,7 +345,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         properties.setProperty("maxEventAge", pruneEventAgeTextField.getText());
         
         properties.setProperty("archiveEnabled", Boolean.toString(archiverPanel.isArchiveEnabled()));
-//        properties.put("includeAttachments", Boolean.toString(archiverPanel.isIncludeAttachments()));
+        properties.setProperty("includeAttachments", Boolean.toString(archiverPanel.isIncludeAttachments()));
         properties.setProperty("archiverOptions", serializer.serialize(archiverPanel.getMessageWriterOptions()));
 
         return properties;

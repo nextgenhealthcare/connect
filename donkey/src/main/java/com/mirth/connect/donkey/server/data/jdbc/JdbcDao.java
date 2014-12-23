@@ -1194,13 +1194,14 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
-    public Attachment getMessageAttachment(String channelId, String attachmentId) {
+    public Attachment getMessageAttachment(String channelId, String attachmentId, Long messageId) {
         ResultSet resultSet = null;
         Attachment attachment = new Attachment();
         try {
             // Get the total size of each attachment by summing the sizes of its segments
             PreparedStatement statement = prepareStatement("selectMessageAttachmentSize", channelId);
             statement.setString(1, attachmentId);
+            statement.setLong(2, messageId);
             resultSet = statement.executeQuery();
 
             int size = 0;
@@ -1214,6 +1215,7 @@ public class JdbcDao implements DonkeyDao {
             // Get the attachment data
             statement = prepareStatement("selectMessageAttachment", channelId);
             statement.setString(1, attachmentId);
+            statement.setLong(2, messageId);
             // Set the number of rows to be fetched into memory at a time. This limits the amount of memory required for the query.
             statement.setFetchSize(1);
             resultSet = statement.executeQuery();

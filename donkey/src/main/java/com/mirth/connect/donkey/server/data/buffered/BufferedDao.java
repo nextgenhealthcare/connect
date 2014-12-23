@@ -385,11 +385,11 @@ public class BufferedDao implements DonkeyDao {
     }
 
     @Override
-    public Attachment getMessageAttachment(String channelId, String attachmentId) {
+    public Attachment getMessageAttachment(String channelId, String attachmentId, Long messageId) {
         DonkeyDao dao = getDelegateDao();
 
         try {
-            return dao.getMessageAttachment(channelId, attachmentId);
+            return dao.getMessageAttachment(channelId, attachmentId, messageId);
         } finally {
             dao.close();
         }

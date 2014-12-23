@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -1987,6 +1988,13 @@ public class Channel implements Runnable {
 
             if (storageSettings.isStoreProcessedResponse() && connectorMessage.getProcessedResponse() != null) {
                 dao.insertMessageContent(connectorMessage.getProcessedResponse());
+            }
+        }
+
+        List<Attachment> attachments = message.getAttachments();
+        if (CollectionUtils.isNotEmpty(attachments)) {
+            for (Attachment attachment : attachments) {
+                dao.insertMessageAttachment(channelId, messageId, attachment);
             }
         }
     }

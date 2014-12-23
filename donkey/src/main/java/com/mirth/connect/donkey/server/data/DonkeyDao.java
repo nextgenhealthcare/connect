@@ -112,7 +112,7 @@ public interface DonkeyDao {
 
     public List<Attachment> getMessageAttachment(String channelId, long messageId);
 
-    public Attachment getMessageAttachment(String channelId, String attachmentId);
+    public Attachment getMessageAttachment(String channelId, String attachmentId, Long messageId);
 
     public Statistics getChannelStatistics(String serverId);
 

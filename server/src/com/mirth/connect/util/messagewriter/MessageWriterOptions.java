@@ -17,6 +17,7 @@ public class MessageWriterOptions implements Serializable {
     private ContentType contentType;
     private boolean destinationContent;
     private boolean encrypt;
+    private boolean includeAttachments;
     private String baseFolder;
     private String rootFolder;
     private String filePattern;
@@ -62,7 +63,19 @@ public class MessageWriterOptions implements Serializable {
     public void setEncrypt(boolean encrypt) {
         this.encrypt = encrypt;
     }
-    
+
+    public boolean includeAttachments() {
+        return includeAttachments;
+    }
+
+    /**
+     * @param includeAttachments
+     *            If true, the MessageWriter will include attachments before writing.
+     */
+    public void setIncludeAttachments(boolean includeAttachments) {
+        this.includeAttachments = includeAttachments;
+    }
+
     public String getBaseFolder() {
         return baseFolder;
     }

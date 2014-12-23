@@ -14,6 +14,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JSeparator;
@@ -24,10 +25,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 import com.mirth.commons.encryption.Encryptor;
+import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.PaginatedMessageList;
 import com.mirth.connect.client.ui.panels.export.MessageExportPanel;
+import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.util.MessageExporter;
+import com.mirth.connect.util.messagewriter.AttachmentSource;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterFactory;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
@@ -140,9 +145,20 @@ public class MessageExportDialog extends MirthDialog {
                 messageList.setIncludeContent(true);
 
                 writerOptions.setBaseFolder(SystemUtils.getUserHome().getAbsolutePath());
-                
+
                 MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, encryptor);
-                exportCount = new MessageExporter().exportMessages(messageList, messageWriter);
+
+                AttachmentSource attachmentSource = null;
+                if (writerOptions.includeAttachments()) {
+                    attachmentSource = new AttachmentSource() {
+                        @Override
+                        public List<Attachment> getMessageAttachments(Message message) throws ClientException {
+                            return PlatformUI.MIRTH_FRAME.mirthClient.getAttachmentsByMessageId(message.getChannelId(), message.getMessageId());
+                        }
+                    };
+                }
+
+                exportCount = new MessageExporter().exportMessages(messageList, messageWriter, attachmentSource);
                 messageWriter.close();
             } else {
                 exportCount = parent.mirthClient.exportMessagesServer(channelId, messageFilter, pageSize, false, writerOptions);

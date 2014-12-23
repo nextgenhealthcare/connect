@@ -965,9 +965,9 @@ public class Client {
         }
     }
 
-    public void exportAttachmentServer(String channelId, String attachmentId, String filePath, boolean binary) throws ClientException {
+    public void exportAttachmentServer(String channelId, String attachmentId, Long messageId, String filePath, boolean binary) throws ClientException {
         logger.debug("exporting attachment");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_ATTACHMENT_EXPORT.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("attachmentId", attachmentId), new BasicNameValuePair("filePath", filePath), new BasicNameValuePair("binary", String.valueOf(binary)) };
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_ATTACHMENT_EXPORT.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("attachmentId", attachmentId), new BasicNameValuePair("messageId", serializer.serialize(messageId)), new BasicNameValuePair("filePath", filePath), new BasicNameValuePair("binary", String.valueOf(binary)) };
         serverConnection.executePostMethodAsync(Client.MESSAGE_SERVLET, params);
     }
 
@@ -1212,9 +1212,9 @@ public class Client {
         serverConnection.executePostMethod(USER_SERVLET, params);
     }
 
-    public Attachment getAttachment(String channelId, String attachmentId) throws ClientException {
-        logger.debug("getting Attachment: " + attachmentId);
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("attachmentId", attachmentId) };
+    public Attachment getAttachment(String channelId, String attachmentId, Long messageId) throws ClientException {
+        logger.debug("getting Attachment: " + attachmentId + " for message: " + messageId);
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET.getName()), new BasicNameValuePair("channelId", channelId), new BasicNameValuePair("attachmentId", attachmentId), new BasicNameValuePair("messageId", serializer.serialize(messageId)) };
         return serializer.deserialize(serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params), Attachment.class);
     }
 

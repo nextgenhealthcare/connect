@@ -1695,16 +1695,11 @@ public class MessageBrowser extends javax.swing.JPanel {
 //    }
 
     public void viewAttachment() {
-        String attachId = (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 2);
-        final String attachType = (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 1);
-        String[] attachmentIdArray = attachId.split(", ");
-        ArrayList<String> attachmentIds = new ArrayList<String>();
-        for (int i = 0; i < attachmentIdArray.length; i++) {
-            attachmentIds.add(attachmentIdArray[i]);
-        }
         try {
+            final String attachmentId = getSelectedAttachmentId();
+            final Long messageId = getSelectedMessageId();
+            final String attachType = (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 1);
             final AttachmentViewer attachmentViewer = getAttachmentViewer(attachType);
-            final ArrayList<String> finalAttachmentIds = attachmentIds;
             if (attachmentViewer != null) {
 
                 final String workingId = parent.startWorking("Loading " + attachType + " viewer...");
@@ -1712,7 +1707,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                     public Void doInBackground() {
-                        attachmentViewer.viewAttachments(finalAttachmentIds, channelId);
+                        attachmentViewer.viewAttachments(channelId, attachmentId, messageId);
                         return null;
                     }
 

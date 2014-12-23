@@ -13,8 +13,10 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("message")
@@ -27,6 +29,7 @@ public class Message implements Serializable {
     private Long originalId;
     private Long importId;
     private String importChannelId;
+    private List<Attachment> attachments;
     private Map<Integer, ConnectorMessage> connectorMessages = new LinkedHashMap<Integer, ConnectorMessage>();
     private transient ConnectorMessage mergedConnectorMessage;
 
@@ -92,6 +95,14 @@ public class Message implements Serializable {
 
     public void setImportChannelId(String importChannelId) {
         this.importChannelId = importChannelId;
+    }
+
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
     }
 
     public Map<Integer, ConnectorMessage> getConnectorMessages() {

@@ -40,7 +40,7 @@ public abstract class MessageController {
 
     public abstract List<Attachment> getMessageAttachmentIds(String channelId, Long messageId);
 
-    public abstract Attachment getMessageAttachment(String channelId, String attachmentId);
+    public abstract Attachment getMessageAttachment(String channelId, String attachmentId, Long messageId);
 
     public abstract List<Attachment> getMessageAttachment(String channelId, Long messageId);
 
@@ -54,5 +54,5 @@ public abstract class MessageController {
 
     public abstract int exportMessages(final String channelId, final MessageFilter messageFilter, int pageSize, boolean includeAttachments, MessageWriterOptions options) throws MessageExportException, InterruptedException;
 
-    public abstract void exportAttachment(String channelId, String attachmentId, String filePath, boolean binary) throws IOException;
+    public abstract void exportAttachment(String channelId, String attachmentId, Long messageId, String filePath, boolean binary) throws IOException;
 }

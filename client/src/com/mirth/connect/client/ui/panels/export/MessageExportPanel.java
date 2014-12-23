@@ -69,8 +69,7 @@ public class MessageExportPanel extends JPanel {
     private JLabel contentLabel = new JLabel("Content:");
     private JComboBox contentComboBox = new MirthComboBox();
     private JCheckBox encryptCheckBox = new MirthCheckBox("Encrypt");
-    private JLabel attachmentsLabel = new JLabel();
-//    private JCheckBox attachmentsCheckBox = new MirthCheckBox("Include Attachments");
+    private JCheckBox attachmentsCheckBox = new MirthCheckBox("Include Attachments");
     private JLabel compressLabel = new JLabel("Compression:");
     private JComboBox compressComboBox = new MirthComboBox();
     private JLabel exportToLabel = new JLabel("Export To:");
@@ -126,12 +125,11 @@ public class MessageExportPanel extends JPanel {
     }
 
     public boolean isIncludeAttachments() {
-        return false;
-//        return attachmentsCheckBox.isSelected();
+        return attachmentsCheckBox.isSelected();
     }
 
     public void setIncludeAttachments(boolean includeAttachments) {
-//        attachmentsCheckBox.setSelected(includeAttachments);
+        attachmentsCheckBox.setSelected(includeAttachments);
     }
 
     public boolean isExportLocal() {
@@ -161,6 +159,7 @@ public class MessageExportPanel extends JPanel {
             options.setCompressFormat(archiveFormat.getCompressor());
         }
 
+        options.setIncludeAttachments(attachmentsCheckBox.isSelected());
         options.setRootFolder(rootPathTextField.getText());
         options.setFilePattern(filePatternTextPane.getText());
 
@@ -216,7 +215,7 @@ public class MessageExportPanel extends JPanel {
             archiveYes.setBackground(color);
             archiveNo.setBackground(color);
             encryptCheckBox.setBackground(color);
-//            attachmentsCheckBox.setBackground(color);
+            attachmentsCheckBox.setBackground(color);
             exportServerRadio.setBackground(color);
             exportLocalRadio.setBackground(color);
         }
@@ -264,8 +263,6 @@ public class MessageExportPanel extends JPanel {
         rootPathTextField.setToolTipText("<html>The root path to store the exported files/folders or compressed file.<br/>Relative paths will be resolved against the Mirth Connect Server home directory.</html>");
         filePatternTextPane.setToolTipText("<html>The file/folder pattern in which to write the exported message files.<br />Variables from the Variables list to the right may be used in the pattern.</html>");
         
-        attachmentsLabel.setText("<html><i>Note: attachments will not be included with " + (archiverMode ? "archived" : "exported") + " messages</i></html>");
-
         archiveYes = new MirthRadioButton("Yes");
         archiveNo = new MirthRadioButton("No");
 
@@ -281,6 +278,20 @@ public class MessageExportPanel extends JPanel {
         model.addElement(new ExportFormat(true, ContentType.RESPONSE));
         model.addElement(new ExportFormat(true, ContentType.PROCESSED_RESPONSE));
         contentComboBox.setModel(model);
+
+        contentComboBox.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!contentComboBox.getSelectedItem().toString().equalsIgnoreCase(XML_EXPORT_FORMAT)) {
+                    attachmentsCheckBox.setEnabled(false);
+                    attachmentsCheckBox.setSelected(false);
+                } else {
+                    attachmentsCheckBox.setEnabled(true);
+                }
+            }
+
+        });
 
         model = new DefaultComboBoxModel();
         model.addElement(NO_COMPRESSION);
@@ -330,9 +341,10 @@ public class MessageExportPanel extends JPanel {
 
         // this is the list of components that will be disabled when the archive radio "No" is selected, see archiveChanged()
         archiveComponents = new Component[] { contentLabel, contentComboBox, encryptCheckBox,
-                varList, varListScrollPane, varListPanel, compressLabel, compressComboBox, exportToLabel, exportServerRadio,
-                exportLocalRadio, browseButton, rootPathLabel, rootPathTextField, rootPathExtLabel,
-                filePatternLabel, filePatternScrollPane, filePatternTextPane, attachmentsLabel };
+                attachmentsCheckBox, varList, varListScrollPane, varListPanel, compressLabel,
+                compressComboBox, exportToLabel, exportServerRadio, exportLocalRadio, browseButton,
+                rootPathLabel, rootPathTextField, rootPathExtLabel, filePatternLabel,
+                filePatternScrollPane, filePatternTextPane };
 
         // @formatter:off
         archiveYes.addActionListener(new ActionListener() {
@@ -432,9 +444,9 @@ public class MessageExportPanel extends JPanel {
         }
 
         add(contentLabel);
-        add(contentComboBox, "split 2, gapbottom " + rowGap);
+        add(contentComboBox, "split 3, gapbottom " + rowGap);
         add(encryptCheckBox, "gapleft 8");
-//        add(attachmentsCheckBox, "gapleft 8");
+        add(attachmentsCheckBox, "gapleft 8");
 
         if (!archiverMode) {
             add(varListPanel, "spany 5, growy, width 170!");
@@ -457,9 +469,6 @@ public class MessageExportPanel extends JPanel {
         add(filePatternLabel, "aligny top");
         add(filePatternScrollPane, "grow, push, split 2");
         add(new JLabel(), "gapbottom " + rowGap);
-        
-        add(new JLabel());
-        add(attachmentsLabel);
     }
 
     /**
