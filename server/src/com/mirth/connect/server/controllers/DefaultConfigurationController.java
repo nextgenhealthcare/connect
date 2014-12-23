@@ -261,7 +261,9 @@ public class DefaultConfigurationController extends ConfigurationController {
                 configurationFile = getApplicationDataDir() + File.separator + "configuration.properties";
             }
 
-            PropertiesConfiguration configurationMapProperties = new PropertiesConfiguration(new File(configurationFile));
+            PropertiesConfiguration configurationMapProperties = new PropertiesConfiguration();
+            configurationMapProperties.setDelimiterParsingDisabled(true);
+            configurationMapProperties.load(new File(configurationFile));
 
             Map<String, ConfigurationProperty> configurationMap = new HashMap<String, ConfigurationProperty>();
             Iterator<String> iterator = configurationMapProperties.getKeys();
