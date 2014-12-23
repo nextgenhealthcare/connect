@@ -1055,7 +1055,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         try {
             FilterRulePlugin rulePlugin = getPlugin(type);
             int selectedRule = filterTable.getSelectedRow();
-            saveData(selectedRule);
             String validationMessage = rulePlugin.doValidate(rulePlugin.getData(selectedRule));
 
             if (validationMessage == null) {

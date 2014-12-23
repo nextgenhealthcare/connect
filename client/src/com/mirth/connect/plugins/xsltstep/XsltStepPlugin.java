@@ -116,6 +116,11 @@ public class XsltStepPlugin extends TransformerStepPlugin {
     }
 
     @Override
+    public boolean showValidateTask() {
+        return true;
+    }
+
+    @Override
     public String doValidate(Map<Object, Object> data) {
         try {
             Context context = Context.enter();

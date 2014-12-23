@@ -1026,7 +1026,6 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         try {
             TransformerStepPlugin stepPlugin = getPlugin(type);
             int selectedStep = transformerTable.getSelectedRow();
-            saveData(selectedStep);
             String validationMessage = stepPlugin.doValidate(stepPlugin.getData(selectedStep));
 
             if (validationMessage == null) {
