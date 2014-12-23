@@ -25,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.components.MirthButton;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
-import com.mirth.connect.util.attachmentwriter.AttachmentWriter;
+import com.mirth.connect.util.AttachmentUtil;
 
 public class AttachmentExportDialog extends MirthDialog {
     private Preferences userPreferences;
@@ -194,7 +194,7 @@ public class AttachmentExportDialog extends MirthDialog {
                 boolean binary = binaryButton.isSelected();
                 try {
                     if (localButton.isSelected()) {
-                        AttachmentWriter.write(fileField.getText(), getSelectedAttachment(), binary);
+                        AttachmentUtil.writeToFile(fileField.getText(), getSelectedAttachment(), binary);
                     } else {
                         PlatformUI.MIRTH_FRAME.mirthClient.exportAttachmentServer(PlatformUI.MIRTH_FRAME.messageBrowser.getChannelId(), PlatformUI.MIRTH_FRAME.messageBrowser.getSelectedAttachmentId(), PlatformUI.MIRTH_FRAME.messageBrowser.getSelectedMessageId(), fileField.getText(), binary);
                     }

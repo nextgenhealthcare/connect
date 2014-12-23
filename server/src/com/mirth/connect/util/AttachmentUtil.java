@@ -1,4 +1,4 @@
-package com.mirth.connect.util.attachmentwriter;
+package com.mirth.connect.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,15 +9,9 @@ import org.apache.commons.lang3.StringUtils;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.Base64Util;
 
-public class AttachmentWriter {
-    public static void write(String filePath, Attachment attachment, boolean binary) throws IOException {
-        if (attachment != null && StringUtils.isNotEmpty(filePath)) {
-            FileUtils.writeByteArrayToFile(createFile(filePath), binary ? Base64Util.decodeBase64(attachment.getContent()) : attachment.getContent());
-        }
-    }
-
-    private static File createFile(String filename) throws IOException {
-        File file = new File(filename);
+public class AttachmentUtil {
+    public static void writeToFile(String filePath, Attachment attachment, boolean binary) throws IOException {
+        File file = new File(filePath);
         if (!file.canWrite()) {
             String dirName = file.getPath();
             int i = dirName.lastIndexOf(File.separator);
@@ -28,6 +22,9 @@ public class AttachmentWriter {
             }
             file.createNewFile();
         }
-        return file;
+
+        if (attachment != null && StringUtils.isNotEmpty(filePath)) {
+            FileUtils.writeByteArrayToFile(file, binary ? Base64Util.decodeBase64(attachment.getContent()) : attachment.getContent());
+        }
     }
 }

@@ -60,6 +60,7 @@ import com.mirth.connect.server.util.DICOMMessageUtil;
 import com.mirth.connect.server.util.ListRangeIterator;
 import com.mirth.connect.server.util.ListRangeIterator.ListRangeItem;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.AttachmentUtil;
 import com.mirth.connect.util.MessageEncryptionUtil;
 import com.mirth.connect.util.MessageExporter;
 import com.mirth.connect.util.MessageExporter.MessageExportException;
@@ -67,7 +68,6 @@ import com.mirth.connect.util.MessageImporter;
 import com.mirth.connect.util.MessageImporter.MessageImportException;
 import com.mirth.connect.util.MessageImporter.MessageImportInvalidPathException;
 import com.mirth.connect.util.PaginatedList;
-import com.mirth.connect.util.attachmentwriter.AttachmentWriter;
 import com.mirth.connect.util.messagewriter.AttachmentSource;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
@@ -491,7 +491,7 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public void exportAttachment(String channelId, String attachmentId, Long messageId, String filePath, boolean binary) throws IOException {
-        AttachmentWriter.write(filePath, getMessageAttachment(channelId, attachmentId, messageId), binary);
+        AttachmentUtil.writeToFile(filePath, getMessageAttachment(channelId, attachmentId, messageId), binary);
     }
 
     @Override
