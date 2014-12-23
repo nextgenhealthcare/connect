@@ -30,6 +30,9 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
 
     private String smtpHost;
     private String smtpPort;
+    private boolean overrideLocalBinding;
+    private String localAddress;
+    private String localPort;
     private String timeout;
     private String encryption;
     private boolean authentication;
@@ -52,6 +55,9 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
 
         this.smtpHost = "";
         this.smtpPort = "25";
+        this.overrideLocalBinding = false;
+        this.localAddress = "0.0.0.0";
+        this.localPort = "0";
         this.timeout = "5000";
         this.encryption = "none";
         this.authentication = false;
@@ -76,6 +82,9 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
 
         smtpHost = props.getSmtpHost();
         smtpPort = props.getSmtpPort();
+        overrideLocalBinding = props.isOverrideLocalBinding();
+        localAddress = props.getLocalAddress();
+        localPort = props.getLocalPort();
         timeout = props.getTimeout();
         encryption = props.getEncryption();
         authentication = props.isAuthentication();
@@ -112,6 +121,30 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
 
     public void setSmtpPort(String smtpPort) {
         this.smtpPort = smtpPort;
+    }
+
+    public boolean isOverrideLocalBinding() {
+        return overrideLocalBinding;
+    }
+
+    public void setOverrideLocalBinding(boolean overrideLocalBinding) {
+        this.overrideLocalBinding = overrideLocalBinding;
+    }
+
+    public String getLocalAddress() {
+        return localAddress;
+    }
+
+    public void setLocalAddress(String localAddress) {
+        this.localAddress = localAddress;
+    }
+
+    public String getLocalPort() {
+        return localPort;
+    }
+
+    public void setLocalPort(String localPort) {
+        this.localPort = localPort;
     }
 
     public String getTimeout() {
@@ -341,12 +374,17 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Des
     }
 
     @Override
-    public void migrate3_2_0(DonkeyElement element) {}
+    public void migrate3_2_0(DonkeyElement element) {
+        element.addChildElementIfNotExists("overrideLocalBinding", "false");
+        element.addChildElementIfNotExists("localAddress", "0.0.0.0");
+        element.addChildElementIfNotExists("localPort", "0");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());
+        purgedProperties.put("overrideLocalBinding", overrideLocalBinding);
         purgedProperties.put("timeout", PurgeUtil.getNumericValue(timeout));
         purgedProperties.put("encryption", encryption);
         purgedProperties.put("authentication", authentication);

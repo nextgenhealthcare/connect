@@ -8,6 +8,8 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="useAuthenticationButtonGroup">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="overrideLocalBindingButtonGroup">
+    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -34,62 +36,35 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="sendTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="bodyLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="subjectLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="charsetEncodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="localPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="localAddressLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="fromLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="useAuthenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="sendTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="htmlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="smtpHostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="smtpPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="toLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="keepConnectionOpenLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="encryptionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="smtpHostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="toLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="smtpPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="bodyLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="subjectLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="sendTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="bodyTextPane" pref="317" max="32767" attributes="2"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="useAuthenticationYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="useAuthenticationNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="htmlYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="htmlNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="subjectField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
-                  <Component id="fromField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
-                  <Component id="toField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
-                  <Component id="passwordField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
-                  <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
-                  <Component id="smtpPortField" alignment="0" min="-2" pref="50" max="-2" attributes="1"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="smtpHostField" min="-2" pref="200" max="-2" attributes="1"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="sendTestEmailButton" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="encryptionNone" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="encryptionTls" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="encryptionSsl" min="-2" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="bodyTextPane" max="32767" attributes="2"/>
                   <Group type="102" alignment="1" attributes="0">
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="headersPane" alignment="0" pref="248" max="32767" attributes="0"/>
-                          <Component id="attachmentsPane" alignment="1" pref="248" max="32767" attributes="0"/>
+                          <Component id="headersPane" alignment="0" max="32767" attributes="0"/>
+                          <Component id="attachmentsPane" alignment="1" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="1"/>
                       <Group type="103" groupAlignment="0" attributes="0">
@@ -102,6 +77,48 @@
                               <Component id="deleteAttachmentButton" alignment="1" min="-2" max="-2" attributes="1"/>
                           </Group>
                       </Group>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="sendTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                          <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="useAuthenticationYes" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="useAuthenticationNo" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="htmlYes" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="htmlNo" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="subjectField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                          <Component id="fromField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
+                          <Component id="toField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
+                          <Component id="passwordField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
+                          <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
+                          <Component id="smtpPortField" alignment="0" min="-2" pref="50" max="-2" attributes="1"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="smtpHostField" min="-2" pref="200" max="-2" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="sendTestEmailButton" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="encryptionNone" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="encryptionTls" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="encryptionSsl" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="overrideLocalBindingYesRadio" min="-2" max="-2" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="overrideLocalBindingNoRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="localAddressField" alignment="0" min="-2" pref="212" max="-2" attributes="0"/>
+                          <Component id="localPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -120,6 +137,22 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="smtpPortLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="smtpPortField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="keepConnectionOpenLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="overrideLocalBindingYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="overrideLocalBindingNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="localAddressLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="localAddressField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="localPortLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="localPortField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -175,10 +208,10 @@
                   <Component id="htmlYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="htmlNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="bodyTextPane" pref="90" max="32767" attributes="0"/>
                   <Component id="bodyLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="bodyTextPane" pref="84" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -200,7 +233,7 @@
                       <Component id="deleteAttachmentButton" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -571,6 +604,77 @@
     <Component class="javax.swing.JLabel" name="charsetEncodingLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Charset Encoding:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="keepConnectionOpenLabel1">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Override Local Binding:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="overrideLocalBindingYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="overrideLocalBindingButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to override the local address and port that the client socket will be bound to.&lt;br/&gt;Select No to use the default value picked by the Socket class.&lt;br/&gt;A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.&lt;br/&gt;&lt;br/&gt;Note that if a specific (non-zero) local port is chosen, then after a socket is closed it&apos;s up to the&lt;br/&gt;underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.&lt;br/&gt;&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="overrideLocalBindingYesRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="overrideLocalBindingNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="overrideLocalBindingButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to override the local address and port that the client socket will be bound to.&lt;br/&gt;Select No to use the default value picked by the Socket class.&lt;br/&gt;A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.&lt;br/&gt;&lt;br/&gt;Note that if a specific (non-zero) local port is chosen, then after a socket is closed it&apos;s up to the&lt;br/&gt;underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.&lt;br/&gt;&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="overrideLocalBindingNoRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="localAddressField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The local address that the client socket will be bound to, if Override Local Binding is set to Yes.&lt;br/&gt;&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="localPortField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The local port that the client socket will be bound to, if Override Local Binding is set to Yes.&lt;br/&gt;&lt;br/&gt;Note that if a specific (non-zero) local port is chosen, then after a socket is closed it&apos;s up to the&lt;br/&gt;underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.&lt;br/&gt;&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="localPortLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Local Port:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="localAddressLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Local Address:"/>
       </Properties>
     </Component>
   </SubComponents>

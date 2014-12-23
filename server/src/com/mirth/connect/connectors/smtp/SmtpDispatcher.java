@@ -10,6 +10,7 @@
 package com.mirth.connect.connectors.smtp;
 
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.ByteArrayDataSource;
@@ -77,6 +78,8 @@ public class SmtpDispatcher extends DestinationConnector {
         // Replace all values in connector properties
         smtpDispatcherProperties.setSmtpHost(replacer.replaceValues(smtpDispatcherProperties.getSmtpHost(), connectorMessage));
         smtpDispatcherProperties.setSmtpPort(replacer.replaceValues(smtpDispatcherProperties.getSmtpPort(), connectorMessage));
+        smtpDispatcherProperties.setLocalAddress(replacer.replaceValues(smtpDispatcherProperties.getLocalAddress(), connectorMessage));
+        smtpDispatcherProperties.setLocalPort(replacer.replaceValues(smtpDispatcherProperties.getLocalPort(), connectorMessage));
         smtpDispatcherProperties.setTimeout(replacer.replaceValues(smtpDispatcherProperties.getTimeout(), connectorMessage));
 
         if (smtpDispatcherProperties.isAuthentication()) {
@@ -152,10 +155,15 @@ public class SmtpDispatcher extends DestinationConnector {
                 email.setAuthentication(smtpDispatcherProperties.getUsername(), smtpDispatcherProperties.getPassword());
             }
 
+            Properties mailProperties = email.getMailSession().getProperties();
             // These have to be set after the authenticator, so that a new mail session isn't created
-            email.getMailSession().getProperties().setProperty("mail.smtp.ssl.protocols", protocols);
-            email.getMailSession().getProperties().setProperty("mail.smtp.ssl.ciphersuites", cipherSuites);
+            mailProperties.setProperty("mail.smtp.ssl.protocols", protocols);
+            mailProperties.setProperty("mail.smtp.ssl.ciphersuites", cipherSuites);
 
+            if (smtpDispatcherProperties.isOverrideLocalBinding()) {
+                mailProperties.setProperty("mail.smtp.localaddress", smtpDispatcherProperties.getLocalAddress());
+                mailProperties.setProperty("mail.smtp.localport", smtpDispatcherProperties.getLocalPort());
+            }
             /*
              * NOTE: There seems to be a bug when calling setTo with a List (throws a
              * java.lang.ArrayStoreException), so we are using addTo instead.

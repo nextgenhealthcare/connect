@@ -72,6 +72,9 @@ public class SmtpSender extends ConnectorSettingsPanel {
 
         properties.setSmtpHost(smtpHostField.getText());
         properties.setSmtpPort(smtpPortField.getText());
+        properties.setOverrideLocalBinding(overrideLocalBindingYesRadio.isSelected());
+        properties.setLocalAddress(localAddressField.getText());
+        properties.setLocalPort(localPortField.getText());
         properties.setTimeout(sendTimeoutField.getText());
 
         if (encryptionTls.isSelected()) {
@@ -107,6 +110,16 @@ public class SmtpSender extends ConnectorSettingsPanel {
 
         smtpHostField.setText(props.getSmtpHost());
         smtpPortField.setText(props.getSmtpPort());
+        if (props.isOverrideLocalBinding()) {
+            overrideLocalBindingYesRadio.setSelected(true);
+            overrideLocalBindingYesRadioActionPerformed(null);
+        } else {
+            overrideLocalBindingNoRadio.setSelected(true);
+            overrideLocalBindingNoRadioActionPerformed(null);
+        }
+
+        localAddressField.setText(props.getLocalAddress());
+        localPortField.setText(props.getLocalPort());
         sendTimeoutField.setText(props.getTimeout());
 
         if (props.getEncryption().equalsIgnoreCase("TLS")) {
@@ -174,6 +187,21 @@ public class SmtpSender extends ConnectorSettingsPanel {
             }
 
             errors.append("\"SMTP Port\" is required\n");
+        }
+        
+        if (props.isOverrideLocalBinding()) {
+            if (props.getLocalAddress().length() <= 3) {
+                valid = false;
+                if (highlight) {
+                    localAddressField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
+            if (props.getLocalPort().length() == 0) {
+                valid = false;
+                if (highlight) {
+                    localPortField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
         }
 
         if (props.getTimeout().length() == 0) {
@@ -502,6 +530,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
         htmlButtonGroup = new javax.swing.ButtonGroup();
         secureButtonGroup = new javax.swing.ButtonGroup();
         useAuthenticationButtonGroup = new javax.swing.ButtonGroup();
+        overrideLocalBindingButtonGroup = new javax.swing.ButtonGroup();
         smtpHostLabel = new javax.swing.JLabel();
         smtpPortLabel = new javax.swing.JLabel();
         usernameLabel = new javax.swing.JLabel();
@@ -543,6 +572,13 @@ public class SmtpSender extends ConnectorSettingsPanel {
         headersLabel = new javax.swing.JLabel();
         charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
         charsetEncodingLabel = new javax.swing.JLabel();
+        keepConnectionOpenLabel1 = new javax.swing.JLabel();
+        overrideLocalBindingYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        overrideLocalBindingNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        localAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
+        localPortField = new com.mirth.connect.client.ui.components.MirthTextField();
+        localPortLabel = new javax.swing.JLabel();
+        localAddressLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -730,6 +766,40 @@ public class SmtpSender extends ConnectorSettingsPanel {
 
         charsetEncodingLabel.setText("Charset Encoding:");
 
+        keepConnectionOpenLabel1.setText("Override Local Binding:");
+
+        overrideLocalBindingYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        overrideLocalBindingYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        overrideLocalBindingButtonGroup.add(overrideLocalBindingYesRadio);
+        overrideLocalBindingYesRadio.setText("Yes");
+        overrideLocalBindingYesRadio.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default value picked by the Socket class.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/><br/>Note that if a specific (non-zero) local port is chosen, then after a socket is closed it's up to the<br/>underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.<br/></html>");
+        overrideLocalBindingYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        overrideLocalBindingYesRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                overrideLocalBindingYesRadioActionPerformed(evt);
+            }
+        });
+
+        overrideLocalBindingNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        overrideLocalBindingNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        overrideLocalBindingButtonGroup.add(overrideLocalBindingNoRadio);
+        overrideLocalBindingNoRadio.setText("No");
+        overrideLocalBindingNoRadio.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default value picked by the Socket class.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/><br/>Note that if a specific (non-zero) local port is chosen, then after a socket is closed it's up to the<br/>underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.<br/></html>");
+        overrideLocalBindingNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        overrideLocalBindingNoRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                overrideLocalBindingNoRadioActionPerformed(evt);
+            }
+        });
+
+        localAddressField.setToolTipText("<html>The local address that the client socket will be bound to, if Override Local Binding is set to Yes.<br/></html>");
+
+        localPortField.setToolTipText("<html>The local port that the client socket will be bound to, if Override Local Binding is set to Yes.<br/><br/>Note that if a specific (non-zero) local port is chosen, then after a socket is closed it's up to the<br/>underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.<br/></html>");
+
+        localPortLabel.setText("Local Port:");
+
+        localAddressLabel.setText("Local Address:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -737,54 +807,31 @@ public class SmtpSender extends ConnectorSettingsPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(sendTimeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(bodyLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(subjectLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(charsetEncodingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(headersLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(localPortLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(localAddressLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(fromLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(useAuthenticationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(attachmentsLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(sendTimeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(htmlLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(charsetEncodingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(headersLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(keepConnectionOpenLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(attachmentsLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(encryptionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(smtpHostLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(smtpPortLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(toLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(encryptionLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(smtpPortLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(bodyLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(subjectLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(useAuthenticationYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(useAuthenticationNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(htmlYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(htmlNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(subjectField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(fromField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(toField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(smtpPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(smtpHostField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(sendTestEmailButton))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(encryptionNone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(encryptionTls, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(encryptionSsl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(headersPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
-                            .addComponent(attachmentsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE))
+                            .addComponent(headersPane, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(attachmentsPane))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -792,7 +839,42 @@ public class SmtpSender extends ConnectorSettingsPanel {
                                 .addComponent(deleteHeaderButton))
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addComponent(newAttachmentButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(deleteAttachmentButton)))))
+                                .addComponent(deleteAttachmentButton))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(useAuthenticationYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(useAuthenticationNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(htmlYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(htmlNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(subjectField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(fromField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(toField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(smtpPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(smtpHostField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(sendTestEmailButton))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(encryptionNone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(encryptionTls, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(encryptionSsl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(overrideLocalBindingYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(overrideLocalBindingNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(localAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(localPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -806,6 +888,19 @@ public class SmtpSender extends ConnectorSettingsPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(smtpPortLabel)
                     .addComponent(smtpPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(keepConnectionOpenLabel1)
+                    .addComponent(overrideLocalBindingYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(overrideLocalBindingNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(localAddressLabel)
+                    .addComponent(localAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(localPortLabel)
+                    .addComponent(localPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -852,8 +947,8 @@ public class SmtpSender extends ConnectorSettingsPanel {
                     .addComponent(htmlNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(bodyLabel)
-                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
+                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
+                    .addComponent(bodyLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(headersPane, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -978,6 +1073,20 @@ public class SmtpSender extends ConnectorSettingsPanel {
         }
     }//GEN-LAST:event_deleteHeaderButtonActionPerformed
 
+    private void overrideLocalBindingYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overrideLocalBindingYesRadioActionPerformed
+        localAddressField.setEnabled(true);
+        localAddressLabel.setEnabled(true);
+        localPortField.setEnabled(true);
+        localPortLabel.setEnabled(true);
+    }//GEN-LAST:event_overrideLocalBindingYesRadioActionPerformed
+
+    private void overrideLocalBindingNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overrideLocalBindingNoRadioActionPerformed
+        localAddressField.setEnabled(false);
+        localAddressLabel.setEnabled(false);
+        localPortField.setEnabled(false);
+        localPortLabel.setEnabled(false);
+    }//GEN-LAST:event_overrideLocalBindingNoRadioActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel attachmentsLabel;
     private javax.swing.JScrollPane attachmentsPane;
@@ -1001,8 +1110,16 @@ public class SmtpSender extends ConnectorSettingsPanel {
     private javax.swing.JLabel htmlLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton htmlNo;
     private com.mirth.connect.client.ui.components.MirthRadioButton htmlYes;
+    private javax.swing.JLabel keepConnectionOpenLabel1;
+    private com.mirth.connect.client.ui.components.MirthTextField localAddressField;
+    private javax.swing.JLabel localAddressLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField localPortField;
+    private javax.swing.JLabel localPortLabel;
     private javax.swing.JButton newAttachmentButton;
     private javax.swing.JButton newHeaderButton;
+    private javax.swing.ButtonGroup overrideLocalBindingButtonGroup;
+    private com.mirth.connect.client.ui.components.MirthRadioButton overrideLocalBindingNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton overrideLocalBindingYesRadio;
     private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
     private javax.swing.ButtonGroup secureButtonGroup;
