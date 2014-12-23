@@ -3868,7 +3868,7 @@ public class Frame extends JXFrame {
     }
 
     public void doReprocessFilteredMessages() {
-        doReprocess(messageBrowser.getMessageFilter(), null);
+        doReprocess(messageBrowser.getMessageFilter(), null, true);
     }
 
     public void doReprocessMessage() {
@@ -3878,13 +3878,13 @@ public class Frame extends JXFrame {
             MessageFilter filter = new MessageFilter();
             filter.setMinMessageId(messageId);
             filter.setMaxMessageId(messageId);
-            doReprocess(filter, messageBrowser.getSelectedMetaDataId());
+            doReprocess(filter, messageBrowser.getSelectedMetaDataId(), false);
         } else {
             alertError(this, "Message " + messageId + " cannot be reprocessed because no source raw content was found.");
         }
     }
 
-    private void doReprocess(final MessageFilter filter, final Integer selectedMetaDataId) {
+    private void doReprocess(final MessageFilter filter, final Integer selectedMetaDataId, final boolean showWarning) {
         final String workingId = startWorking("Retrieving Channels...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -3900,7 +3900,7 @@ public class Frame extends JXFrame {
                 stopWorking(workingId);
                 Map<Integer, String> destinationConnectors = new LinkedHashMap<Integer, String>();
                 destinationConnectors.putAll(dashboardPanel.getDestinationConnectorNames(messageBrowser.getChannelId()));
-                new ReprocessMessagesDialog(messageBrowser.getChannelId(), filter, destinationConnectors, selectedMetaDataId);
+                new ReprocessMessagesDialog(messageBrowser.getChannelId(), filter, destinationConnectors, selectedMetaDataId, showWarning);
             }
         };
 
