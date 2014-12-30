@@ -15,9 +15,9 @@ public abstract class AttachmentViewer extends ClientPlugin {
         super(name);
     }
 
-    public abstract String getViewerType();
-
     public abstract void viewAttachments(String channelId, String attachmentId, Long messageId);
+
+    public abstract boolean isContentTypeViewable(String contentType);
 
     public abstract boolean handleMultiple();
 }

@@ -1513,7 +1513,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     public AttachmentViewer getAttachmentViewer(String type) {
         if (LoadedExtensions.getInstance().getAttachmentViewerPlugins().size() > 0) {
             for (AttachmentViewer plugin : LoadedExtensions.getInstance().getAttachmentViewerPlugins().values()) {
-                if (type.toUpperCase().contains(plugin.getViewerType().toUpperCase())) {
+                if(plugin.isContentTypeViewable(type)) {
                     return plugin;
                 }
             }

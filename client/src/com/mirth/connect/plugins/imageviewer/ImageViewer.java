@@ -24,6 +24,7 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 
 import org.apache.commons.codec.binary.Base64InputStream;
+import org.apache.commons.lang.StringUtils;
 
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.plugins.AttachmentViewer;
@@ -34,10 +35,6 @@ public class ImageViewer extends AttachmentViewer {
 
     public ImageViewer(String name) {
         super(name);
-    }
-
-    public String getViewerType() {
-        return "IMAGE";
     }
 
     public boolean handleMultiple() {
@@ -118,6 +115,11 @@ public class ImageViewer extends AttachmentViewer {
         } catch (Exception e) {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
+    }
+
+    @Override
+    public boolean isContentTypeViewable(String contentType) {
+        return StringUtils.containsIgnoreCase(contentType, "image");
     }
 
     @Override

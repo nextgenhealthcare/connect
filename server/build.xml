@@ -52,7 +52,7 @@
 		<property name="plugins.globalmapviewer" value="${extensions}/globalmapviewer" />
 		<property name="plugins.mllpmode" value="${extensions}/mllpmode" />
 		<property name="plugins.pdfviewer" value="${extensions}/pdfviewer" />
-		<property name="plugins.rtfviewer" value="${extensions}/rtfviewer" />
+		<property name="plugins.textviewer" value="${extensions}/textviewer" />
 		<property name="plugins.rulebuilder" value="${extensions}/rulebuilder" />
 		<property name="plugins.serverlog" value="${extensions}/serverlog" />
 		<property name="plugins.scriptfilerule" value="${extensions}/scriptfilerule" />
@@ -694,15 +694,15 @@
 			<fileset dir="${lib.extensions}/pdfviewer" />
 		</copy>
 
-		<!-- plugins.rtfviewer -->
-		<mkdir dir="${plugins.rtfviewer}" />
-		<copy todir="${plugins.rtfviewer}">
-			<fileset dir="${src}/com/mirth/connect/plugins/rtfviewer">
+		<!-- plugins.textviewer -->
+		<mkdir dir="${plugins.textviewer}" />
+		<copy todir="${plugins.textviewer}">
+			<fileset dir="${src}/com/mirth/connect/plugins/textviewer">
 				<include name="*.xml" />
 			</fileset>
 		</copy>
-		<copy todir="${plugins.rtfviewer}/lib" failonerror="false">
-			<fileset dir="${lib.extensions}/rtfviewer" />
+		<copy todir="${plugins.textviewer}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/textviewer" />
 		</copy>
 
 		<!-- plugins.rulebuilder -->
@@ -936,7 +936,7 @@
 		<zip destfile="${dist.extensions}/javascriptrule-${version}.zip" basedir="${extensions}" includes="javascriptrule/**/*" />
 		<zip destfile="${dist.extensions}/dicomviewer-${version}.zip" basedir="${extensions}" includes="dicomviewer/**/*" />
 		<zip destfile="${dist.extensions}/pdfviewer-${version}.zip" basedir="${extensions}" includes="pdfviewer/**/*" />
-		<zip destfile="${dist.extensions}/rtfviewer-${version}.zip" basedir="${extensions}" includes="rtfviewer/**/*" />
+		<zip destfile="${dist.extensions}/textviewer-${version}.zip" basedir="${extensions}" includes="textviewer/**/*" />
 		<zip destfile="${dist.extensions}/imageviewer-${version}.zip" basedir="${extensions}" includes="imageviewer/**/*" />
 		<zip destfile="${dist.extensions}/globalmapviewer-${version}.zip" basedir="${extensions}" includes="globalmapviewer/**/*" />
 	</target>

@@ -16,6 +16,7 @@ import java.io.OutputStream;
 
 import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.plugins.AttachmentViewer;
@@ -24,10 +25,6 @@ public class PDFViewer extends AttachmentViewer {
 
     public PDFViewer(String name) {
         super(name);
-    }
-
-    public String getViewerType() {
-        return "PDF";
     }
 
     public boolean handleMultiple() {
@@ -53,6 +50,11 @@ public class PDFViewer extends AttachmentViewer {
         } catch (Exception e) {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
+    }
+
+    @Override
+    public boolean isContentTypeViewable(String contentType) {
+        return StringUtils.containsIgnoreCase(contentType, "pdf");
     }
 
     @Override

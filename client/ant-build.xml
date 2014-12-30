@@ -54,7 +54,7 @@
 		<property name="plugins.globalmapviewer" value="${extensions}/globalmapviewer" />
 		<property name="plugins.mllpmode" value="${extensions}/mllpmode" />
 		<property name="plugins.pdfviewer" value="${extensions}/pdfviewer" />
-		<property name="plugins.rtfviewer" value="${extensions}/rtfviewer" />
+		<property name="plugins.textviewer" value="${extensions}/textviewer" />
 		<property name="plugins.rulebuilder" value="${extensions}/rulebuilder" />
 		<property name="plugins.serverlog" value="${extensions}/serverlog" />
 		<property name="plugins.scriptfilerule" value="${extensions}/scriptfilerule" />
@@ -255,9 +255,9 @@
 			<include name="com/mirth/connect/plugins/pdfviewer/**" />
 		</jar>
 
-		<mkdir dir="${plugins.rtfviewer}" />
-		<jar destfile="${plugins.rtfviewer}/rtfviewer-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/plugins/rtfviewer/**" />
+		<mkdir dir="${plugins.textviewer}" />
+		<jar destfile="${plugins.textviewer}/textviewer-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/textviewer/**" />
 		</jar>
 
 		<mkdir dir="${plugins.rulebuilder}" />

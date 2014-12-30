@@ -27,10 +27,6 @@ public class DICOMViewer extends AttachmentViewer {
         super(name);
     }
 
-    public String getViewerType() {
-        return "DICOM";
-    }
-
     public boolean handleMultiple() {
         return true;
     }
@@ -60,6 +56,11 @@ public class DICOMViewer extends AttachmentViewer {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
 
+    }
+
+    @Override
+    public boolean isContentTypeViewable(String contentType) {
+        return org.apache.commons.lang.StringUtils.containsIgnoreCase(contentType, "dicom");
     }
 
     @Override
