@@ -16,6 +16,7 @@ public class Attachment {
     private String id;
     private byte[] content;
     private String type;
+    private boolean encrypt;
 
     public Attachment() {
 
@@ -55,4 +56,11 @@ public class Attachment {
         this.type = type;
     }
 
+    public boolean isEncrypted() {
+        return encrypt;
+    }
+
+    public void setEncrypted(boolean encrypt) {
+        this.encrypt = encrypt;
+    }
 }

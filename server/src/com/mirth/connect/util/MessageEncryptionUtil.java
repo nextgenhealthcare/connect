@@ -9,12 +9,16 @@
 
 package com.mirth.connect.util;
 
+import org.apache.commons.codec.binary.StringUtils;
+
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ErrorContent;
 import com.mirth.connect.donkey.model.message.MapContent;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
+import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.util.MapUtil;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
@@ -23,6 +27,12 @@ public class MessageEncryptionUtil {
     public static void decryptMessage(Message message, Encryptor encryptor) {
         for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
             decryptConnectorMessage(connectorMessage, encryptor);
+        }
+
+        if (message.getAttachments() != null) {
+            for (Attachment attachment : message.getAttachments()) { //test archiving
+                decryptAttachment(attachment, encryptor);
+            }
         }
     }
 
@@ -73,9 +83,24 @@ public class MessageEncryptionUtil {
         }
     }
 
+    public static void decryptAttachment(Attachment attachment, Encryptor encryptor) {
+        if (attachment != null && attachment.getContent() != null && attachment.isEncrypted()) {
+            String decryptedByteString = encryptor.decrypt(StringUtils.newString(attachment.getContent(), Constants.ATTACHMENT_CHARSET));
+
+            attachment.setContent(com.mirth.connect.donkey.util.StringUtil.getBytesUncheckedChunked(decryptedByteString, Constants.ATTACHMENT_CHARSET));
+            attachment.setEncrypted(false);
+        }
+    }
+
     public static void encryptMessage(Message message, Encryptor encryptor) {
         for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
             encryptConnectorMessage(connectorMessage, encryptor);
+        }
+
+        if (message.getAttachments() != null) {
+            for (Attachment attachment : message.getAttachments()) {
+                encryptAttachment(attachment, encryptor);
+            }
         }
     }
 
@@ -123,6 +148,15 @@ public class MessageEncryptionUtil {
                 content.setContent(encryptor.encrypt(content.getContent()));
                 content.setEncrypted(true);
             }
+        }
+    }
+
+    public static void encryptAttachment(Attachment attachment, Encryptor encryptor) {
+        if (attachment != null && attachment.getContent() != null && !attachment.isEncrypted()) {
+            String encryptedContents = encryptor.encrypt(StringUtils.newString(attachment.getContent(), Constants.ATTACHMENT_CHARSET));
+
+            attachment.setContent(com.mirth.connect.donkey.util.StringUtil.getBytesUncheckedChunked(encryptedContents, Constants.ATTACHMENT_CHARSET));
+            attachment.setEncrypted(true);
         }
     }
 }
