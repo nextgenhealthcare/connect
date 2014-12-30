@@ -553,6 +553,21 @@ public class DashboardPanel extends javax.swing.JPanel {
             statusTable.addHighlighter(highlighter);
         }
 
+        HighlightPredicate queuedHighlighterPredicate = new HighlightPredicate() {
+            public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
+                if (adapter.column == statusTable.getColumnViewIndex(QUEUED_COLUMN_NAME)) {
+                    Long value = (Long) statusTable.getValueAt(adapter.row, adapter.column);
+
+                    if (value != null && value.longValue() > 0) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
+
+        statusTable.addHighlighter(new ColorHighlighter(queuedHighlighterPredicate, new Color(240, 230, 140), Color.BLACK, new Color(240, 230, 140), Color.BLACK));
+
         HighlightPredicate errorHighlighterPredicate = new HighlightPredicate() {
 
             public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
