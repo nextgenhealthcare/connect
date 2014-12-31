@@ -62,7 +62,6 @@ import com.mirth.connect.util.messagewriter.MessageWriterFactory;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DataPruner implements Runnable {
-    private final static int ARCHIVE_BATCH_SIZE = 1000;
     private final static int ID_RETRIEVE_LIMIT = 100000;
 
     private int numExported;
@@ -71,6 +70,7 @@ public class DataPruner implements Runnable {
     private Status[] skipStatuses;
     private Integer blockSize;
     private boolean archiveEnabled;
+    private Integer archiverBlockSize;
     private MessageWriterOptions archiverOptions;
     private boolean pruneEvents;
     private Integer maxEventAge;
@@ -138,6 +138,14 @@ public class DataPruner implements Runnable {
 
     public void setArchiveEnabled(boolean archiveEnabled) {
         this.archiveEnabled = archiveEnabled;
+    }
+
+    public int getArchiverBlockSize() {
+        return archiverBlockSize;
+    }
+
+    public void setArchiverBlockSize(int archiverBlockSize) {
+        this.archiverBlockSize = archiverBlockSize;
     }
 
     public MessageWriterOptions getArchiverOptions() {
@@ -488,7 +496,7 @@ public class DataPruner implements Runnable {
     }
 
     private void archiveAndGetIdsToPrune(Map<String, Object> params, String channelId, Calendar messageDateThreshold, String archiveFolder, PruneIds messageIds, PruneIds contentMessageIds) throws DataPrunerException, InterruptedException {
-        params.put("limit", ARCHIVE_BATCH_SIZE);
+        params.put("limit", archiverBlockSize);
         params.put("archive", true);
 
         String tempChannelFolder = archiveFolder + "/." + channelId;
@@ -559,7 +567,7 @@ public class DataPruner implements Runnable {
 
                     throw new MessageExportException(e);
                 }
-            } while (messageList != null && messageList.size() == ARCHIVE_BATCH_SIZE);
+            } while (messageList != null && messageList.size() == archiverBlockSize);
 
             archiver.close();
 

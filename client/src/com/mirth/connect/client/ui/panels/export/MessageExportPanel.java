@@ -40,6 +40,7 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthButton;
 import com.mirth.connect.client.ui.components.MirthCheckBox;
 import com.mirth.connect.client.ui.components.MirthComboBox;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.components.MirthTextPane;
@@ -66,6 +67,8 @@ public class MessageExportPanel extends JPanel {
     private JLabel archiveLabel = new JLabel("Enable Archiving:");
     private JRadioButton archiveYes = new MirthRadioButton("Yes");
     private JRadioButton archiveNo = new MirthRadioButton("No");
+    private JLabel archiverBlockSizeLabel = new JLabel("Block Size:");
+    private JTextField archiverBlockSizeField = new MirthTextField();
     private JLabel contentLabel = new JLabel("Content:");
     private JComboBox contentComboBox = new MirthComboBox();
     private JCheckBox encryptCheckBox = new MirthCheckBox("Encrypt");
@@ -122,6 +125,14 @@ public class MessageExportPanel extends JPanel {
         }
 
         archiveChanged();
+    }
+
+    public String getArchiverBlockSize() {
+        return archiverBlockSizeField.getText();
+    }
+
+    public void setArchiverBlockSize(String size) {
+        archiverBlockSizeField.setText(size);
     }
 
     public boolean isIncludeAttachments() {
@@ -221,17 +232,28 @@ public class MessageExportPanel extends JPanel {
         }
     }
 
-    public boolean validate(boolean highlight) {
+    public String validate(boolean highlight) {
         resetInvalidProperties();
+        StringBuilder builder = new StringBuilder();
         
         if (!isEnabled() || archiveNo.isSelected()) {
-            return true;
+            return null;
         }
 
-        boolean valid = true;
+        String archiverBlockSize = archiverBlockSizeField.getText();
+        if (archiverMode && archiveYes.isSelected() && (StringUtils.isBlank(archiverBlockSize) || Integer.parseInt(archiverBlockSize) <= 0 || Integer.parseInt(archiverBlockSize) > 1000)) {
+            builder.append("Block size must be greater than 0 and less than or equal to 1000.");
+            builder.append("\n");
+
+            if (highlight) {
+                archiverBlockSizeField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+
         
         if (StringUtils.isBlank(rootPathTextField.getText())) {
-            valid = false;
+            builder.append("Root path is required.");
+            builder.append("\n");
 
             if (highlight) {
                 rootPathTextField.setBackground(UIConstants.INVALID_COLOR);
@@ -239,30 +261,34 @@ public class MessageExportPanel extends JPanel {
         }
         
         if (StringUtils.isBlank(filePatternTextPane.getText())) {
-            valid = false;
+            builder.append("File pattern is required.");
+            builder.append("\n");
 
             if (highlight) {
                 filePatternTextPane.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
-        return valid;
+        return builder.toString();
     }
 
     public void resetInvalidProperties() {
         rootPathTextField.setBackground(getBackground());
         filePatternTextPane.setBackground(getBackground());
+        archiverBlockSizeField.setBackground(getBackground());
     }
 
     private void initComponents() {
         contentComboBox.setToolTipText("<html>The content that will be exported: Either the entire message serialized into XML, or a specific content type<br />from either the source connector message or the destination connector messages.</html>");
         encryptCheckBox.setToolTipText("<html>If checked, the exported message content will be encrypted.</html>");
+        attachmentsCheckBox.setToolTipText("<html>If checked and the content type is set to XML serialized message,<br/>the exported message will contain any attachments.</html>");
         compressComboBox.setToolTipText("<html>When compression is enabled, the files/folders created according to the<br />File Pattern will be put into a compressed file in the Root Path.</html>");
         exportServerRadio.setToolTipText("<html>Store exported files on the Mirth Connect Server, in the Root Path specified below.</html>");
         exportLocalRadio.setToolTipText("<html>Store exported files on this computer, in the Root Path specified below.</html>");
         rootPathTextField.setToolTipText("<html>The root path to store the exported files/folders or compressed file.<br/>Relative paths will be resolved against the Mirth Connect Server home directory.</html>");
         filePatternTextPane.setToolTipText("<html>The file/folder pattern in which to write the exported message files.<br />Variables from the Variables list to the right may be used in the pattern.</html>");
-        
+        archiverBlockSizeField.setToolTipText("<html>The number of messages that will be cached by the archiver at a given time.<br/>This value must be greater than 0 and less than or equal to 1000. Lower this<br/>value if you are running out of memory during archiving.</html>");
+
         archiveYes = new MirthRadioButton("Yes");
         archiveNo = new MirthRadioButton("No");
 
@@ -324,7 +350,9 @@ public class MessageExportPanel extends JPanel {
         archiveButtonGroup.add(archiveYes);
         archiveButtonGroup.add(archiveNo);
         archiveYes.setSelected(true);
-        
+
+        archiverBlockSizeField.setDocument(new MirthFieldConstraints(4, false, false, true));
+
         if (archiverMode) {
             rootPathExtLabel.setText("/" + ARCHIVER_MODE_PATTERN + "/");
         } else {
@@ -340,7 +368,7 @@ public class MessageExportPanel extends JPanel {
         filePatternScrollPane.setViewportView(filePatternTextPane);
 
         // this is the list of components that will be disabled when the archive radio "No" is selected, see archiveChanged()
-        archiveComponents = new Component[] { contentLabel, contentComboBox, encryptCheckBox,
+        archiveComponents = new Component[] { archiverBlockSizeLabel, archiverBlockSizeField, contentLabel, contentComboBox, encryptCheckBox,
                 attachmentsCheckBox, varList, varListScrollPane, varListPanel, compressLabel,
                 compressComboBox, exportToLabel, exportServerRadio, exportLocalRadio, browseButton,
                 rootPathLabel, rootPathTextField, rootPathExtLabel, filePatternLabel,
@@ -438,7 +466,10 @@ public class MessageExportPanel extends JPanel {
         if (archiverMode) {
             add(archiveLabel);
             add(archiveYes, "split 2");
-            add(archiveNo, "gapbottom " + rowGap);
+            add(archiveNo, "wrap");
+
+            add(archiverBlockSizeLabel);
+            add(archiverBlockSizeField, "w 71!, h 22!, gapbottom " + rowGap);
 
             add(varListPanel, "spany 5, growy, width 170!");
         }

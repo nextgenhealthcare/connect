@@ -114,16 +114,17 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
 
         worker.execute();
     }
-    
+
     private boolean validateFields() {
         archiverPanel.resetInvalidProperties();
         pruneEventAgeTextField.setBackground(null);
 
-        if (!archiverPanel.validate(true)) {
-            parent.alertError(this, "Please fill in required fields.");
+        String errorMessage = archiverPanel.validate(true);
+        if (StringUtils.isNotEmpty(errorMessage)) {
+            parent.alertError(this, errorMessage);
             return false;
         }
-        
+
         if (pruneEventsYes.isSelected() && StringUtils.isBlank(pruneEventAgeTextField.getText())) {
             pruneEventAgeTextField.setBackground(UIConstants.INVALID_COLOR);
             parent.alertError(this, "Please fill in required fields.");
@@ -132,7 +133,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         
         return true;
     }
-    
+
     @Override
     public boolean doSave() {
         if (!validateFields()) {
@@ -309,8 +310,14 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
             pruneEventAgeLabel.setEnabled(false);
             pruneEventAgeTextField.setEnabled(false);
         }
-        
+
         pruneEventAgeTextField.setText(properties.getProperty("maxEventAge"));
+
+        if (properties.getProperty("archiverBlockSize") != null && !properties.getProperty("archiverBlockSize").equals("")) {
+            archiverPanel.setArchiverBlockSize(properties.getProperty("archiverBlockSize"));
+        } else {
+            archiverPanel.setArchiverBlockSize("100");
+        }
 
         repaint();
         updateStatus();
@@ -343,8 +350,9 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
         properties.setProperty("pruningBlockSize", blockSizeTextField.getText());
         properties.setProperty("pruneEvents", Boolean.toString(pruneEventsYes.isSelected()));
         properties.setProperty("maxEventAge", pruneEventAgeTextField.getText());
-        
+
         properties.setProperty("archiveEnabled", Boolean.toString(archiverPanel.isArchiveEnabled()));
+        properties.setProperty("archiverBlockSize", archiverPanel.getArchiverBlockSize());
         properties.setProperty("includeAttachments", Boolean.toString(archiverPanel.isIncludeAttachments()));
         properties.setProperty("archiverOptions", serializer.serialize(archiverPanel.getMessageWriterOptions()));
 

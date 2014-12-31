@@ -23,6 +23,7 @@ import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 public class DataPrunerService implements ServicePlugin {
     public static final String PLUGINPOINT = "Data Pruner";
     private static final int DEFAULT_PRUNING_BLOCK_SIZE = 50000;
+    private static final int DEFAULT_ARCHIVER_BLOCK_SIZE= 100;
 
     private DataPrunerController dataPrunerController = DataPrunerController.getInstance();
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
@@ -99,6 +100,7 @@ public class DataPrunerService implements ServicePlugin {
         properties.put("time", "12:00 AM");
         properties.put("pruningBlockSize", String.valueOf(DEFAULT_PRUNING_BLOCK_SIZE));
         properties.put("archiveEnabled", serializer.serialize(false));
+        properties.put("archiverBlockSize", String.valueOf(DEFAULT_ARCHIVER_BLOCK_SIZE));
         properties.put("includeAttachments", serializer.serialize(false));
         properties.put("archiverOptions", serializer.serialize(new MessageWriterOptions()));
         properties.put("pruneEvents", Boolean.toString(false));

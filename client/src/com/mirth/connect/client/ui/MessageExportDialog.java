@@ -119,8 +119,9 @@ public class MessageExportDialog extends MirthDialog {
     }
 
     private void export() {
-        if (!messageExportPanel.validate(true)) {
-            parent.alertError(this, "Please fill in required fields.");
+        String errorMessage = messageExportPanel.validate(true);
+        if (StringUtils.isNotEmpty(errorMessage)) {
+            parent.alertError(this, errorMessage);
             return;
         }
 
