@@ -10,11 +10,13 @@
 package com.mirth.connect.server.controllers;
 
 import java.util.List;
+import java.util.Map;
 
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.server.alert.Alert;
 import com.mirth.connect.server.alert.AlertWorker;
+import com.mirth.connect.server.alert.action.Protocol;
 
 public abstract class AlertController extends Controller {
     public static AlertController getInstance() {
@@ -42,4 +44,10 @@ public abstract class AlertController extends Controller {
     public abstract void disableAlert(String alertId) throws ControllerException;
 
     public abstract Alert getEnabledAlert(String alertId);
+
+    public abstract Protocol getAlertActionProtocol(String protocolName);
+
+    public abstract void registerAlertActionProtocol(Protocol protocol);
+
+    public abstract Map<String, Map<String, String>> getAlertActionProtocolOptions();
 }

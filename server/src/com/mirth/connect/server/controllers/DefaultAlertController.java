@@ -24,6 +24,10 @@ import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.alert.Alert;
 import com.mirth.connect.server.alert.AlertWorker;
 import com.mirth.connect.server.alert.DefaultAlertWorker;
+import com.mirth.connect.server.alert.action.ChannelProtocol;
+import com.mirth.connect.server.alert.action.EmailProtocol;
+import com.mirth.connect.server.alert.action.Protocol;
+import com.mirth.connect.server.alert.action.UserProtocol;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 
@@ -33,9 +37,13 @@ public class DefaultAlertController extends AlertController {
     private static AlertController instance = null;
     private static Map<Class<?>, AlertWorker> alertWorkers = new HashMap<Class<?>, AlertWorker>();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private Map<String, Protocol> alertActionProtocols = new HashMap<String, Protocol>();
 
     private DefaultAlertController() {
         addWorker(new DefaultAlertWorker());
+        registerAlertActionProtocol(new EmailProtocol());
+        registerAlertActionProtocol(new ChannelProtocol());
+        registerAlertActionProtocol(new UserProtocol());
     }
 
     public static AlertController create() {
@@ -265,4 +273,24 @@ public class DefaultAlertController extends AlertController {
         return null;
     }
 
+    @Override
+    public Protocol getAlertActionProtocol(String protocolName) {
+        return alertActionProtocols.get(protocolName);
+    }
+
+    @Override
+    public void registerAlertActionProtocol(Protocol protocol) {
+        alertActionProtocols.put(protocol.getName(), protocol);
+    }
+
+    @Override
+    public Map<String, Map<String, String>> getAlertActionProtocolOptions() {
+        Map<String, Map<String, String>> options = new HashMap<String, Map<String, String>>();
+
+        for (String protocol : alertActionProtocols.keySet()) {
+            options.put(protocol, alertActionProtocols.get(protocol).getRecipientOptions());
+        }
+
+        return options;
+    }
 }

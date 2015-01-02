@@ -184,17 +184,4 @@ public class ChannelServlet extends MirthServlet {
 
         return authorizedChannels;
     }
-
-    private List<ChannelSummary> redactChannelSummaries(HttpServletRequest request, List<ChannelSummary> channelSummaries) throws ServletException {
-        List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
-        List<ChannelSummary> authorizedChannelSummaries = new ArrayList<ChannelSummary>();
-
-        for (ChannelSummary channelSummary : channelSummaries) {
-            if (authorizedChannelIds.contains(channelSummary.getChannelId())) {
-                authorizedChannelSummaries.add(channelSummary);
-            }
-        }
-
-        return authorizedChannelSummaries;
-    }
 }

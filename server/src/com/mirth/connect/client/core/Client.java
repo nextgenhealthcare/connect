@@ -40,8 +40,6 @@ import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.ConnectorMetaData;
-import com.mirth.connect.model.ResourceProperties;
-import com.mirth.connect.model.ResourcePropertiesList;
 import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DatabaseTask;
@@ -51,11 +49,14 @@ import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.ResourceProperties;
+import com.mirth.connect.model.ResourcePropertiesList;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
+import com.mirth.connect.model.alert.AlertInfo;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -463,6 +464,19 @@ public class Client {
         logger.debug("getting alert: " + alertId);
         NameValuePair[] params = { new BasicNameValuePair("op", Operations.ALERT_GET.getName()), new BasicNameValuePair("alertId", alertId) };
         return serializer.deserializeList(serverConnection.executePostMethod(ALERT_SERVLET, params), AlertModel.class);
+    }
+
+    public AlertInfo getAlertInfo(String alertId, Map<String, ChannelHeader> cachedChannels) throws ClientException {
+        logger.debug("getting alert info: " + alertId);
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.ALERT_GET_INFO.getName()), new BasicNameValuePair("alertId", alertId), new BasicNameValuePair("cachedChannels", serializer.serialize(cachedChannels)) };
+        return serializer.deserialize(serverConnection.executePostMethod(ALERT_SERVLET, params), AlertInfo.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, Map<String, String>> getAlertProtocolOptions() throws ClientException {
+        logger.debug("getting alert protocol options");
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.ALERT_GET_PROTOCOL_OPTIONS.getName()) };
+        return serializer.deserialize(serverConnection.executePostMethod(ALERT_SERVLET, params), Map.class);
     }
 
     /**

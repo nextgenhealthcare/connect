@@ -120,6 +120,7 @@ import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
+import com.mirth.connect.model.alert.AlertInfo;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -591,19 +592,19 @@ public class Frame extends JXFrame {
      * Changes the current content page to the Alert Editor with the new alert specified as the
      * loaded one.
      */
-    public void setupAlert() {
+    public void setupAlert(Map<String, Map<String, String>> protocolOptions) {
         setBold(viewPane, UIConstants.ERROR_CONSTANT);
         setCurrentContentPage(alertEditPanel);
         setFocus(alertEditTasks);
         setVisibleTasks(alertEditTasks, alertEditPopupMenu, 0, 0, false);
-        alertEditPanel.addAlert();
+        alertEditPanel.addAlert(protocolOptions);
     }
 
     /**
      * Edits an alert at a specified index, setting that alert as the current alert in the editor.
      */
-    public void editAlert(AlertModel alertModel) {
-        if (alertEditPanel.editAlert(alertModel)) {
+    public void editAlert(AlertModel alertModel, Map<String, Map<String, String>> protocolOptions) {
+        if (alertEditPanel.editAlert(alertModel, protocolOptions)) {
             setBold(viewPane, UIConstants.ERROR_CONSTANT);
             setCurrentContentPage(alertEditPanel);
             setFocus(alertEditTasks);
@@ -2272,53 +2273,59 @@ public class Frame extends JXFrame {
         new QueuingSwingWorker<Void, Void>(task, queue).executeDelegate();
     }
 
+    private Map<String, ChannelHeader> getChannelHeaders() {
+        Map<String, ChannelHeader> channelHeaders = new HashMap<String, ChannelHeader>();
+
+        for (ChannelStatus channelStatus : channelStatuses.values()) {
+            Channel channel = channelStatus.getChannel();
+            channelHeaders.put(channel.getId(), new ChannelHeader(channel.getRevision(), channelStatus.getDeployedDate()));
+        }
+
+        return channelHeaders;
+    }
+
     public void retrieveChannels() {
         try {
-            Map<String, ChannelHeader> channelHeaders = new HashMap<String, ChannelHeader>();
-
-            for (ChannelStatus channelStatus : channelStatuses.values()) {
-                Channel channel = channelStatus.getChannel();
-                channelHeaders.put(channel.getId(), new ChannelHeader(channel.getRevision(), channelStatus.getDeployedDate()));
-            }
-
-            List<ChannelSummary> changedChannels = mirthClient.getChannelSummary(channelHeaders);
-
-            for (ChannelSummary channelSummary : changedChannels) {
-                String channelId = channelSummary.getChannelId();
-
-                if (channelSummary.isDeleted()) {
-                    channelStatuses.remove(channelId);
-                } else {
-                    ChannelStatus channelStatus = channelStatuses.get(channelId);
-                    if (channelStatus == null) {
-                        channelStatus = new ChannelStatus();
-                        channelStatuses.put(channelId, channelStatus);
-                    }
-
-                    /*
-                     * If the status coming back from the server is for an entirely new channel, the
-                     * Channel object should never be null.
-                     */
-                    if (channelSummary.getChannelStatus().getChannel() != null) {
-                        channelStatus.setChannel(channelSummary.getChannelStatus().getChannel());
-                    }
-
-                    if (channelSummary.isUndeployed()) {
-                        channelStatus.setDeployedDate(null);
-                        channelStatus.setDeployedRevisionDelta(null);
-                    } else if (channelSummary.getChannelStatus().getDeployedDate() != null) {
-                        channelStatus.setDeployedDate(channelSummary.getChannelStatus().getDeployedDate());
-                        channelStatus.setDeployedRevisionDelta(channelSummary.getChannelStatus().getDeployedRevisionDelta());
-                    }
-
-                    channelStatus.setLocalChannelId(channelSummary.getChannelStatus().getLocalChannelId());
-                }
-            }
-
-            updateChannelTags(false);
+            updateChannelStatuses(mirthClient.getChannelSummary(getChannelHeaders()));
         } catch (ClientException e) {
             alertException(this, e.getStackTrace(), e.getMessage());
         }
+    }
+
+    public void updateChannelStatuses(List<ChannelSummary> changedChannels) {
+        for (ChannelSummary channelSummary : changedChannels) {
+            String channelId = channelSummary.getChannelId();
+
+            if (channelSummary.isDeleted()) {
+                channelStatuses.remove(channelId);
+            } else {
+                ChannelStatus channelStatus = channelStatuses.get(channelId);
+                if (channelStatus == null) {
+                    channelStatus = new ChannelStatus();
+                    channelStatuses.put(channelId, channelStatus);
+                }
+
+                /*
+                 * If the status coming back from the server is for an entirely new channel, the
+                 * Channel object should never be null.
+                 */
+                if (channelSummary.getChannelStatus().getChannel() != null) {
+                    channelStatus.setChannel(channelSummary.getChannelStatus().getChannel());
+                }
+
+                if (channelSummary.isUndeployed()) {
+                    channelStatus.setDeployedDate(null);
+                    channelStatus.setDeployedRevisionDelta(null);
+                } else if (channelSummary.getChannelStatus().getDeployedDate() != null) {
+                    channelStatus.setDeployedDate(channelSummary.getChannelStatus().getDeployedDate());
+                    channelStatus.setDeployedRevisionDelta(channelSummary.getChannelStatus().getDeployedRevisionDelta());
+                }
+
+                channelStatus.setLocalChannelId(channelSummary.getChannelStatus().getLocalChannelId());
+            }
+        }
+
+        updateChannelTags(false);
     }
 
     public void clearChannelCache() {
@@ -4153,9 +4160,10 @@ public class Frame extends JXFrame {
         worker.execute();
     }
 
-    public void doNewAlert() {
-        retrieveChannels();
-        setupAlert();
+    public void doNewAlert() throws ClientException {
+        AlertInfo alertInfo = mirthClient.getAlertInfo(null, getChannelHeaders());
+        updateChannelStatuses(alertInfo.getChangedChannels());
+        setupAlert(alertInfo.getProtocolOptions());
     }
 
     public void doEditAlert() {
@@ -4172,14 +4180,14 @@ public class Frame extends JXFrame {
             JOptionPane.showMessageDialog(Frame.this, "Alert no longer exists.");
         } else {
             try {
-                List<AlertModel> alerts = mirthClient.getAlert(selectedAlertIds.get(0));
+                AlertInfo alertInfo = mirthClient.getAlertInfo(selectedAlertIds.get(0), getChannelHeaders());
 
-                if (alerts == null || alerts.isEmpty()) {
+                if (alertInfo.getModel() == null) {
                     JOptionPane.showMessageDialog(Frame.this, "Alert no longer exists.");
                     doRefreshAlerts(true);
                 } else {
-                    retrieveChannels();
-                    editAlert(alerts.get(0));
+                    updateChannelStatuses(alertInfo.getChangedChannels());
+                    editAlert(alertInfo.getModel(), alertInfo.getProtocolOptions());
                 }
             } catch (ClientException e) {
                 alertException(this, e.getStackTrace(), e.getMessage());

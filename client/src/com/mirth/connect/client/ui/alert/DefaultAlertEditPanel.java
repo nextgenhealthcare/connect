@@ -13,6 +13,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -113,21 +114,21 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
     }
 
     @Override
-    public void addAlert() {
-        editAlert(new AlertModel(new DefaultTrigger(), new AlertActionGroup()));
+    public void addAlert(Map<String, Map<String, String>> protocolOptions) {
+        editAlert(new AlertModel(new DefaultTrigger(), new AlertActionGroup()), protocolOptions);
 
         parent.setSaveEnabled(true);
     }
 
     @Override
-    public boolean editAlert(AlertModel alertModel) {
+    public boolean editAlert(AlertModel alertModel, Map<String, Map<String, String>> protocolOptions) {
         if (alertModel.getTrigger() instanceof DefaultTrigger) {
             parent.setPanelName("Edit Alert - " + (alertModel.getName() == null ? "" : alertModel.getName()));
             nameTextField.setText(alertModel.getName());
 
             enabledCheckBox.setSelected(alertModel.isEnabled());
 
-            alertActionPane.setActionGroup(alertModel.getActionGroups().get(0));
+            alertActionPane.setActionGroup(alertModel.getActionGroups().get(0), protocolOptions);
 
             alertTriggerPane.setTrigger(alertModel.getTrigger());
             alertChannelPane.setChannels(((ChannelTrigger) alertModel.getTrigger()).getAlertChannels(), true);

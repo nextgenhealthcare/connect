@@ -20,6 +20,8 @@ public class Operations {
     public static final Operation ALERT_ENABLE = new Operation("enableAlert", "Enable alert", true);
     public static final Operation ALERT_DISABLE = new Operation("disableAlert", "Disable alert", true);
     public static final Operation ALERT_GET_STATUS = new Operation("getAlertStatusList", "Get alert status list", false);
+    public static final Operation ALERT_GET_INFO = new Operation("getAlertInfo", "Get alert info", true);
+    public static final Operation ALERT_GET_PROTOCOL_OPTIONS = new Operation("getAlertProtocolOptions", "Get alert protocol options", false);
 
     // Channels
     public static final Operation CHANNEL_GET = new Operation("getChannel", "Get channel", true);
@@ -153,6 +155,8 @@ public class Operations {
         operationMap.put(ALERT_ENABLE.getName(), ALERT_ENABLE);
         operationMap.put(ALERT_DISABLE.getName(), ALERT_DISABLE);
         operationMap.put(ALERT_GET_STATUS.getName(), ALERT_GET_STATUS);
+        operationMap.put(ALERT_GET_INFO.getName(), ALERT_GET_INFO);
+        operationMap.put(ALERT_GET_PROTOCOL_OPTIONS.getName(), ALERT_GET_PROTOCOL_OPTIONS);
         operationMap.put(CHANNEL_GET.getName(), CHANNEL_GET);
         operationMap.put(CHANNEL_UPDATE.getName(), CHANNEL_UPDATE);
         operationMap.put(CHANNEL_SET_ENABLED.getName(), CHANNEL_SET_ENABLED);

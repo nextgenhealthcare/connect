@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.servlets;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.server.controllers.AuthorizationController;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -59,6 +61,19 @@ public abstract class MirthServlet extends HttpServlet {
         } catch (ControllerException e) {
             throw new ServletException(e);
         }
+    }
+
+    public List<ChannelSummary> redactChannelSummaries(HttpServletRequest request, List<ChannelSummary> channelSummaries) throws ServletException {
+        List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
+        List<ChannelSummary> authorizedChannelSummaries = new ArrayList<ChannelSummary>();
+
+        for (ChannelSummary channelSummary : channelSummaries) {
+            if (authorizedChannelIds.contains(channelSummary.getChannelId())) {
+                authorizedChannelSummaries.add(channelSummary);
+            }
+        }
+
+        return authorizedChannelSummaries;
     }
 
     public List<String> getAuthorizedChannelIds(HttpServletRequest request) throws ServletException {

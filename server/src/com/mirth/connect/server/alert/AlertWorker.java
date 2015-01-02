@@ -10,6 +10,7 @@
 package com.mirth.connect.server.alert;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,21 +22,17 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.mail.EmailException;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.alert.AlertAction;
 import com.mirth.connect.model.alert.AlertActionGroup;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.model.alert.AlertStatus;
-import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.event.EventListener;
-import com.mirth.connect.server.util.ServerSMTPConnectionFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public abstract class AlertWorker extends EventListener {
@@ -45,7 +42,7 @@ public abstract class AlertWorker extends EventListener {
     protected Map<String, Alert> enabledAlerts = new ConcurrentHashMap<String, Alert>();
     protected EventController eventController = ControllerFactory.getFactory().createEventController();
 
-    private EngineController engineController = ControllerFactory.getFactory().createEngineController();
+    private AlertController alertController;
 
     public AlertWorker() {
         super();
@@ -122,49 +119,30 @@ public abstract class AlertWorker extends EventListener {
                     body = replacer.replaceValues(actionGroup.getTemplate(), context);
                 }
 
-                List<String> emails = new ArrayList<String>();
-                List<String> channels = new ArrayList<String>();
+                Map<String, List<String>> protocolRecipients = new HashMap<String, List<String>>();
 
                 // Split the recipients into separate lists for emails and channels
                 for (AlertAction action : actionGroup.getActions()) {
                     String recipient = replacer.replaceValues(action.getRecipient(), context);
 
                     if (StringUtils.isNotBlank(recipient)) {
-                        switch (action.getProtocol()) {
-                            case EMAIL:
-                                emails.add(recipient);
-                                break;
+                        List<String> recipients = protocolRecipients.get(action.getProtocol());
 
-                            case CHANNEL:
-                                channels.add(recipient);
-                                break;
+                        if (recipients == null) {
+                            recipients = new ArrayList<String>();
+                            protocolRecipients.put(action.getProtocol(), recipients);
                         }
+
+                        recipients.add(recipient);
                     }
                 }
-
-                // Send the alert emails
-                if (!emails.isEmpty()) {
-                    // If there is no subject, set it to the default value
-                    if (StringUtils.isEmpty(subject)) {
-                        subject = "Mirth Connect Alert";
-                    }
-
-                    try {
-                        ServerSMTPConnectionFactory.createSMTPConnection().send(StringUtils.join(emails, ","), null, subject, body);
-                    } catch (ControllerException e) {
-                        logger.error("Could not load default SMTP settings.", e);
-                    } catch (EmailException e) {
-                        logger.error("Error sending alert email.", e);
-                    }
+                
+                if (alertController == null) {
+                    alertController = ControllerFactory.getFactory().createAlertController();
                 }
 
-                // Route the alert message to the specified channels
-                for (String channelId : channels) {
-                    try {
-                        engineController.dispatchRawMessage(channelId, new RawMessage(body), false, true);
-                    } catch (Exception e) {
-                        logger.warn("Could not send alert to channel " + channelId, e);
-                    }
+                for (String protocol : protocolRecipients.keySet()) {
+                    alertController.getAlertActionProtocol(protocol).getDispatcher().dispatch(protocolRecipients.get(protocol), subject, body);
                 }
 
                 // Dispatch a server event to notify that an alert was dispatched

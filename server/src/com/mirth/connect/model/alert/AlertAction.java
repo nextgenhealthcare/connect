@@ -20,19 +20,19 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("alertAction")
 public class AlertAction implements Migratable, Purgable {
 
-    private AlertActionProtocol protocol;
+    private String protocol;
     private String recipient;
 
-    public AlertAction(AlertActionProtocol protocol, String recipient) {
+    public AlertAction(String protocol, String recipient) {
         this.protocol = protocol;
         this.recipient = recipient;
     }
 
-    public AlertActionProtocol getProtocol() {
+    public String getProtocol() {
         return protocol;
     }
 
-    public void setProtocol(AlertActionProtocol protocol) {
+    public void setProtocol(String protocol) {
         this.protocol = protocol;
     }
 
