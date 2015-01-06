@@ -118,6 +118,9 @@ public class DirectoryResourcePropertiesPanel extends ResourcePropertiesPanel {
         if (StringUtils.isBlank(directoryField.getText())) {
             directoryField.setBackground(UIConstants.INVALID_COLOR);
             errors.append("Directory cannot be blank.\n");
+        } else if (directoryField.getText().trim().equals("/") || directoryField.getText().trim().equals("server-lib")) {
+            directoryField.setBackground(UIConstants.INVALID_COLOR);
+            errors.append("Directory cannot be equal to \"" + directoryField.getText().trim() + "\".\n");
         }
 
         return errors.toString();
