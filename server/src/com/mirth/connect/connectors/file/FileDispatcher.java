@@ -145,7 +145,7 @@ public class FileDispatcher extends DestinationConnector {
             is = new ByteArrayInputStream(bytes);
 
             ThreadUtils.checkInterruptedStatus();
-            fileSystemConnection = fileConnector.getConnection(uri, connectorMessage, fileDispatcherProperties);
+            fileSystemConnection = fileConnector.getConnection(uri, connectorMessage, fileDispatcherProperties.getUsername(), fileDispatcherProperties.getPassword());
             if (fileDispatcherProperties.isErrorOnExists() && fileSystemConnection.exists(filename, path)) {
                 throw new IOException("Destination file already exists, will not overwrite.");
             } else if (fileDispatcherProperties.isTemporary()) {
@@ -172,7 +172,7 @@ public class FileDispatcher extends DestinationConnector {
 
             if (fileSystemConnection != null) {
                 try {
-                    fileConnector.releaseConnection(uri, fileSystemConnection, connectorMessage, fileDispatcherProperties);
+                    fileConnector.releaseConnection(uri, fileSystemConnection, connectorMessage, fileDispatcherProperties.getUsername(), fileDispatcherProperties.getPassword());
                 } catch (Exception e) {
                     // TODO: Ignore?
                 }

@@ -39,8 +39,6 @@ public class FileConnector {
 
     private String channelId;
     private FileScheme scheme;
-    private String username;
-    private String password;
     private String timeout;
     private boolean passive;
     private boolean secure;
@@ -52,8 +50,6 @@ public class FileConnector {
         if (connectorProperties instanceof FileReceiverProperties) {
             FileReceiverProperties fileReceiverProperties = (FileReceiverProperties) connectorProperties;
             this.scheme = fileReceiverProperties.getScheme();
-            this.username = fileReceiverProperties.getUsername();
-            this.password = fileReceiverProperties.getPassword();
             this.timeout = fileReceiverProperties.getTimeout();
             this.passive = fileReceiverProperties.isPassive();
             this.secure = fileReceiverProperties.isSecure();
@@ -61,8 +57,6 @@ public class FileConnector {
         } else if (connectorProperties instanceof FileDispatcherProperties) {
             FileDispatcherProperties fileDispatcherProperties = (FileDispatcherProperties) connectorProperties;
             this.scheme = fileDispatcherProperties.getScheme();
-            this.username = fileDispatcherProperties.getUsername();
-            this.password = fileDispatcherProperties.getPassword();
             this.timeout = fileDispatcherProperties.getTimeout();
             this.passive = fileDispatcherProperties.isPassive();
             this.secure = fileDispatcherProperties.isSecure();
@@ -85,22 +79,6 @@ public class FileConnector {
 
     public void setScheme(FileScheme scheme) {
         this.scheme = scheme;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getTimeout() {
@@ -192,11 +170,11 @@ public class FileConnector {
      *            ??
      * @return The allocated connection.
      */
-    protected FileSystemConnection getConnection(URI uri, ConnectorMessage message, ConnectorProperties connectorProperties) throws Exception {
-        ObjectPool pool = getConnectionPool(uri, message, connectorProperties);
+    protected FileSystemConnection getConnection(URI uri, ConnectorMessage message, String username, String password) throws Exception {
+        ObjectPool pool = getConnectionPool(uri, message, username, password);
         FileSystemConnection con = (FileSystemConnection) pool.borrowObject();
         if (!con.isConnected() || !con.isValid()) {
-            destroyConnection(uri, con, message, connectorProperties);
+            destroyConnection(uri, con, message, username, password);
             con = (FileSystemConnection) pool.borrowObject();
         }
         synchronized (connections) {
@@ -216,7 +194,7 @@ public class FileConnector {
      *            ??
      * @throws Exception
      */
-    protected void releaseConnection(URI uri, FileSystemConnection connection, ConnectorMessage message, ConnectorProperties connectorProperties) throws Exception {
+    protected void releaseConnection(URI uri, FileSystemConnection connection, ConnectorMessage message, String username, String password) throws Exception {
 //        if (isCreateDispatcherPerRequest()) {
 //            destroyConnection(uri, connection, message);
 //        } else {
@@ -224,7 +202,7 @@ public class FileConnector {
             connections.remove(connection);
         }
         if (connection != null && connection.isConnected()) {
-            ObjectPool pool = getConnectionPool(uri, message, connectorProperties);
+            ObjectPool pool = getConnectionPool(uri, message, username, password);
             pool.returnObject(connection);
         }
 //        }
@@ -252,9 +230,9 @@ public class FileConnector {
      *            ??
      * @throws Exception
      */
-    protected void destroyConnection(URI uri, FileSystemConnection connection, ConnectorMessage message, ConnectorProperties connectorProperties) throws Exception {
+    protected void destroyConnection(URI uri, FileSystemConnection connection, ConnectorMessage message, String username, String password) throws Exception {
         if (connection != null) {
-            ObjectPool pool = getConnectionPool(uri, message, connectorProperties);
+            ObjectPool pool = getConnectionPool(uri, message, username, password);
             pool.invalidateObject(connection);
         }
     }
@@ -269,21 +247,8 @@ public class FileConnector {
      *            ???
      * @return The pool of connections for this endpoint.
      */
-    private synchronized ObjectPool getConnectionPool(URI uri, ConnectorMessage message, ConnectorProperties connectorProperties) throws Exception {
-        String username;
-        String password;
-
-        if (connectorProperties instanceof FileReceiverProperties) {
-            FileReceiverProperties fileReceiverProperties = (FileReceiverProperties) connectorProperties;
-            username = fileReceiverProperties.getUsername();
-            password = fileReceiverProperties.getPassword();
-        } else {
-            FileDispatcherProperties fileDispatcherProperties = (FileDispatcherProperties) connectorProperties;
-            username = fileDispatcherProperties.getUsername();
-            password = fileDispatcherProperties.getPassword();
-        }
-
-        FileSystemConnectionFactory fileSystemConnectionFactory = getFileSystemConnectionFactory(uri, username, password, connectorProperties);
+    private synchronized ObjectPool getConnectionPool(URI uri, ConnectorMessage message, String username, String password) throws Exception {
+        FileSystemConnectionFactory fileSystemConnectionFactory = getFileSystemConnectionFactory(uri, username, password);
         String key = fileSystemConnectionFactory.getPoolKey();
         ObjectPool pool = pools.get(key);
 
@@ -300,7 +265,7 @@ public class FileConnector {
         return pool;
     }
 
-    protected FileSystemConnectionFactory getFileSystemConnectionFactory(URI uri, String username, String password, ConnectorProperties connectorProperties) throws Exception {
+    protected FileSystemConnectionFactory getFileSystemConnectionFactory(URI uri, String username, String password) throws Exception {
         return new FileSystemConnectionFactory(getScheme(), username, password, uri.getHost(), uri.getPort(), isPassive(), isSecure(), NumberUtils.toInt(getTimeout()));
     }
 
