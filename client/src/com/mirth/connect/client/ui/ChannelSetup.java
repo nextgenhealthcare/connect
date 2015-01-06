@@ -3093,13 +3093,21 @@ public class ChannelSetup extends javax.swing.JPanel {
             changeConnectorType(destinationConnector, true);
             destinationConnector.setName(name);
 
+            Set<String> destinationResourceIds = resourceIds.get(destinationConnector.getMetaDataId());
+
             ConnectorProperties props = destinationConnectorPanel.getDefaults();
-            ((DestinationConnectorPropertiesInterface) props).getDestinationConnectorProperties().setResourceIds(resourceIds.get(destinationConnector.getMetaDataId()));
+            if (destinationResourceIds != null) {
+                ((DestinationConnectorPropertiesInterface) props).getDestinationConnectorProperties().setResourceIds(destinationResourceIds);
+            }
             destinationConnectorPanel.setProperties(props);
 
             props = destinationConnectorPanel.getProperties();
-            ((DestinationConnectorPropertiesInterface) props).getDestinationConnectorProperties().setResourceIds(resourceIds.get(destinationConnector.getMetaDataId()));
+            if (destinationResourceIds != null) {
+                ((DestinationConnectorPropertiesInterface) props).getDestinationConnectorProperties().setResourceIds(destinationResourceIds);
+            }
             destinationConnector.setProperties(props);
+
+            setResourceIds();
         }
 
         destinationVariableList.setTransferMode(destinationConnectorPanel.getTransferMode());
