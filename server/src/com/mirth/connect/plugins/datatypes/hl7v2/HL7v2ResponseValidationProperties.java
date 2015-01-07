@@ -72,7 +72,7 @@ public class HL7v2ResponseValidationProperties extends ResponseValidationPropert
                 rejectedACKCode = (String) properties.get("rejectedACKCode");
             }
             if (properties.get("validateMessageControlId") != null) {
-                validateMessageControlId = (boolean) properties.get("validateMessageControlId");
+                validateMessageControlId = (Boolean) properties.get("validateMessageControlId");
             }
             if (properties.get("originalMessageControlId") != null) {
                 originalMessageControlId = (OriginalMessageControlId) properties.get("originalMessageControlId");
