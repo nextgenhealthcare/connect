@@ -21,6 +21,18 @@ public class HL7v2ResponseValidationProperties extends ResponseValidationPropert
     private String successfulACKCode = "AA,CA";
     private String errorACKCode = "AE,CE";
     private String rejectedACKCode = "AR,CR";
+    private boolean validateMessageControlId = true;
+    private OriginalMessageControlId originalMessageControlId = OriginalMessageControlId.values()[0];
+    private String originalIdMapVariable = "";
+
+    public enum OriginalMessageControlId {
+        Destination_Encoded, Map_Variable;
+
+        @Override
+        public String toString() {
+            return super.toString().replace('_', ' ');
+        }
+    };
 
     public HL7v2ResponseValidationProperties() {}
 
@@ -28,6 +40,9 @@ public class HL7v2ResponseValidationProperties extends ResponseValidationPropert
         this.successfulACKCode = properties.getSuccessfulACKCode();
         this.errorACKCode = properties.getErrorACKCode();
         this.rejectedACKCode = properties.getRejectedACKCode();
+        this.validateMessageControlId = properties.isValidateMessageControlId();
+        this.originalMessageControlId = properties.getOriginalMessageControlId();
+        this.originalIdMapVariable = properties.getOriginalIdMapVariable();
     }
 
     @Override
@@ -37,6 +52,9 @@ public class HL7v2ResponseValidationProperties extends ResponseValidationPropert
         properties.put("successfulACKCode", new DataTypePropertyDescriptor(successfulACKCode, "Successful ACK Codes", "The ACK code(s) to expect when the message is accepted by the downstream system. By default, the message status will be set to SENT. Specify multiple codes with a list of comma separated values.", PropertyEditorType.STRING));
         properties.put("errorACKCode", new DataTypePropertyDescriptor(errorACKCode, "Error ACK Codes", "The ACK code(s) to expect when an error occurs on the downstream system. By default, the message status will be set to ERROR. Specify multiple codes with a list of comma separated values.", PropertyEditorType.STRING));
         properties.put("rejectedACKCode", new DataTypePropertyDescriptor(rejectedACKCode, "Rejected ACK Codes", "The ACK code(s) to expect when the message is rejected by the downstream system. By default, the message status will be set to ERROR. Specify multiple codes with a list of comma separated values.", PropertyEditorType.STRING));
+        properties.put("validateMessageControlId", new DataTypePropertyDescriptor(validateMessageControlId, "Validate Message Control Id", "Select this option to validate the Message Control Id (MSA-2) returned from the response.", PropertyEditorType.BOOLEAN));
+        properties.put("originalMessageControlId", new DataTypePropertyDescriptor(originalMessageControlId, "Original Message Control Id", "Select the source of the original Message Control Id used to validate the response. If Destination Encoded is selected, the Id will be extracted from the MSH-10 field of the destination's encoded content. If Map Variable is selected, the Id will be retrieved from the destination's connector map or the channel map.", PropertyEditorType.OPTION, OriginalMessageControlId.values()));
+        properties.put("originalIdMapVariable", new DataTypePropertyDescriptor(originalIdMapVariable, "Original Id Map Variable", "This field must be populated if the Original Message Control Id is set to Map Variable. The Id will be read from this variable in the destination's connector map or the channel map. ", PropertyEditorType.STRING));
 
         return properties;
     }
@@ -52,6 +70,15 @@ public class HL7v2ResponseValidationProperties extends ResponseValidationPropert
             }
             if (properties.get("rejectedACKCode") != null) {
                 rejectedACKCode = (String) properties.get("rejectedACKCode");
+            }
+            if (properties.get("validateMessageControlId") != null) {
+                validateMessageControlId = (boolean) properties.get("validateMessageControlId");
+            }
+            if (properties.get("originalMessageControlId") != null) {
+                originalMessageControlId = (OriginalMessageControlId) properties.get("originalMessageControlId");
+            }
+            if (properties.get("originalIdMapVariable") != null) {
+                originalIdMapVariable = (String) properties.get("originalIdMapVariable");
             }
         }
     }
@@ -78,6 +105,30 @@ public class HL7v2ResponseValidationProperties extends ResponseValidationPropert
 
     public void setRejectedACKCode(String rejectedACKCode) {
         this.rejectedACKCode = rejectedACKCode;
+    }
+
+    public boolean isValidateMessageControlId() {
+        return validateMessageControlId;
+    }
+
+    public void setValidateMessageControlId(boolean validateMessageControlId) {
+        this.validateMessageControlId = validateMessageControlId;
+    }
+
+    public OriginalMessageControlId getOriginalMessageControlId() {
+        return originalMessageControlId;
+    }
+
+    public void setOriginalMessageControlId(OriginalMessageControlId originalMessageControlId) {
+        this.originalMessageControlId = originalMessageControlId;
+    }
+
+    public String getOriginalIdMapVariable() {
+        return originalIdMapVariable;
+    }
+
+    public void setOriginalIdMapVariable(String originalIdMapVariable) {
+        this.originalIdMapVariable = originalIdMapVariable;
     }
 
     @Override

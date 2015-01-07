@@ -25,6 +25,7 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.message.ResponseValidator;
 import com.mirth.connect.model.datatype.ResponseValidationProperties;
 import com.mirth.connect.model.datatype.SerializationProperties;
+import com.mirth.connect.plugins.datatypes.hl7v2.HL7v2ResponseValidationProperties.OriginalMessageControlId;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
@@ -35,6 +36,7 @@ public class HL7v2ResponseValidator implements ResponseValidator {
     private HL7v2ResponseValidationProperties responseValidationProperties;
     private String serializationSegmentDelimiter;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    private static int MESSAGE_CONTROL_ID_FIELD = 10;
 
     public HL7v2ResponseValidator(SerializationProperties serializationProperties, ResponseValidationProperties responseValidationProperties) {
         this.serializationProperties = (HL7v2SerializationProperties) serializationProperties;
@@ -48,6 +50,7 @@ public class HL7v2ResponseValidator implements ResponseValidator {
         String[] successfulACKCodes = StringUtils.split(responseValidationProperties.getSuccessfulACKCode(), ',');
         String[] errorACKCodes = StringUtils.split(responseValidationProperties.getErrorACKCode(), ',');
         String[] rejectedACKCodes = StringUtils.split(responseValidationProperties.getRejectedACKCode(), ',');
+        boolean validateMessageControlId = responseValidationProperties.isValidateMessageControlId();
 
         String responseData = response.getMessage();
 
@@ -66,7 +69,18 @@ public class HL7v2ResponseValidator implements ResponseValidator {
                         String err1 = StringUtils.trim(XPathFactory.newInstance().newXPath().compile("//ERR.1/text()").evaluate(doc));
                         handleNACK(response, rejected, msa3, err1);
                     } else if (Arrays.asList(successfulACKCodes).contains(ackCode)) {
-                        response.setStatus(Status.SENT);
+                        if (validateMessageControlId) {
+                            String msa2 = StringUtils.trim(XPathFactory.newInstance().newXPath().compile("//MSA.2/text()").evaluate(doc));
+                            String originalControlID = getOriginalControlId(connectorMessage);
+
+                            if (!StringUtils.equals(msa2, originalControlID)) {
+                                handleInvalidControlId(response, originalControlID, msa2);
+                            } else {
+                                response.setStatus(Status.SENT);
+                            }
+                        } else {
+                            response.setStatus(Status.SENT);
+                        }
                     }
                 } else {
                     // ER7 response received
@@ -86,10 +100,10 @@ public class HL7v2ResponseValidator implements ResponseValidator {
                             boolean rejected = startsWithAny(responseData, rejectedACKCodes, index);
                             boolean error = rejected || startsWithAny(responseData, errorACKCodes, index);
 
+                            char fieldSeparator = responseData.charAt(index - 1);
                             if (error || rejected) {
                                 String msa3 = null;
                                 String err1 = null;
-                                char fieldSeparator = responseData.charAt(index - 1);
 
                                 // Index of MSA.2
                                 index = responseData.indexOf(fieldSeparator, index);
@@ -125,7 +139,30 @@ public class HL7v2ResponseValidator implements ResponseValidator {
 
                                 handleNACK(response, rejected, msa3, err1);
                             } else if (startsWithAny(responseData, successfulACKCodes, index)) {
-                                response.setStatus(Status.SENT);
+                                if (validateMessageControlId) {
+                                    String msa2 = "";
+                                    index = responseData.indexOf(fieldSeparator, index);
+
+                                    if (index >= 0) {
+                                        String tempSegment = StringUtils.substring(responseData, index + 1);
+                                        index = StringUtils.indexOfAny(tempSegment, fieldSeparator + serializationSegmentDelimiter);
+
+                                        if (index >= 0) {
+                                            msa2 = StringUtils.substring(tempSegment, 0, index);
+                                        } else {
+                                            msa2 = StringUtils.substring(tempSegment, 0);
+                                        }
+                                    }
+                                    String originalControlID = getOriginalControlId(connectorMessage);
+
+                                    if (!StringUtils.equals(msa2, originalControlID)) {
+                                        handleInvalidControlId(response, originalControlID, msa2);
+                                    } else {
+                                        response.setStatus(Status.SENT);
+                                    }
+                                } else {
+                                    response.setStatus(Status.SENT);
+                                }
                             } else {
                                 valid = false;
                             }
@@ -165,6 +202,70 @@ public class HL7v2ResponseValidator implements ResponseValidator {
         return false;
     }
 
+    private String getOriginalControlId(ConnectorMessage connectorMessage) throws Exception {
+        String controlId = "";
+        String originalMessage = "";
+
+        if (responseValidationProperties.getOriginalMessageControlId().equals(OriginalMessageControlId.Destination_Encoded)) {
+            originalMessage = connectorMessage.getEncoded().getContent();
+        } else if (responseValidationProperties.getOriginalMessageControlId().equals(OriginalMessageControlId.Map_Variable)) {
+            String originalIdMapVariable = responseValidationProperties.getOriginalIdMapVariable();
+            if (StringUtils.isEmpty(originalIdMapVariable)) {
+                throw new Exception("Map variable for original control Id not set.");
+            }
+
+            Object value = null;
+            if (connectorMessage.getConnectorMap().containsKey(originalIdMapVariable)) {
+                value = connectorMessage.getConnectorMap().get(originalIdMapVariable);
+            } else {
+                value = connectorMessage.getChannelMap().get(originalIdMapVariable);
+            }
+
+            if (value == null) {
+                throw new Exception("Map variable for original control Id not set.");
+            }
+
+            controlId = value.toString();
+
+            return controlId;
+        }
+
+        if (originalMessage.startsWith("<")) {
+            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new CharArrayReader(originalMessage.toCharArray())));
+            controlId = XPathFactory.newInstance().newXPath().compile("//MSH.10.1/text()").evaluate(doc).trim();
+        } else {
+            int index;
+
+            if ((index = originalMessage.indexOf("MSH")) >= 0) {
+                index += 4;
+                char fieldSeparator = originalMessage.charAt(index - 1);
+                int iteration = 2;
+                int segmentDelimeterIndex = originalMessage.indexOf(serializationSegmentDelimiter, index);
+
+                while (iteration < MESSAGE_CONTROL_ID_FIELD) {
+                    index = originalMessage.indexOf(fieldSeparator, index + 1);
+
+                    if ((segmentDelimeterIndex >= 0 && segmentDelimeterIndex < index) || index == -1) {
+                        return "";
+                    }
+
+                    iteration++;
+                }
+
+                String tempSegment = StringUtils.substring(originalMessage, index + 1);
+                index = StringUtils.indexOfAny(tempSegment, fieldSeparator + serializationSegmentDelimiter);
+
+                if (index >= 0) {
+                    controlId = StringUtils.substring(tempSegment, 0, index);
+                } else {
+                    controlId = StringUtils.substring(tempSegment, 0);
+                }
+            }
+        }
+
+        return controlId;
+    }
+
     private HL7v2ResponseValidationProperties getReplacedResponseValidationProperties(ConnectorMessage connectorMessage) {
         HL7v2ResponseValidationProperties props = new HL7v2ResponseValidationProperties(responseValidationProperties);
 
@@ -195,5 +296,13 @@ public class HL7v2ResponseValidator implements ResponseValidator {
         nackMessage.append("\n\n");
         nackMessage.append(response.getMessage());
         response.setError(nackMessage.toString());
+    }
+
+    private void handleInvalidControlId(Response response, String originalControlID, String msa2) {
+        response.setStatus(Status.ERROR);
+
+        String statusMessage = "Message control Ids do not match.";
+        response.setStatusMessage(statusMessage);
+        response.setError(statusMessage + "\nExpected: " + originalControlID + "\nActual: " + msa2);
     }
 }
