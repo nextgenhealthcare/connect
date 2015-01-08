@@ -240,7 +240,7 @@ public abstract class ConfigurationController extends Controller {
      *             if the server configuration could not be restored
      * @throws InterruptedException
      */
-    public abstract void setServerConfiguration(ServerConfiguration serverConfiguration) throws StartException, StopException, ControllerException, InterruptedException;
+    public abstract void setServerConfiguration(ServerConfiguration serverConfiguration, boolean deploy) throws StartException, StopException, ControllerException, InterruptedException;
 
     /**
      * Returns the password requirements specified in the mirth.properties file (ex. min length).

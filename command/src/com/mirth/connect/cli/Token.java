@@ -44,6 +44,7 @@ public class Token {
 	static Token RESUME = addKeyword("resume");
 	static Token DEPLOY = addKeyword("deploy");
 	static Token UNDEPLOY = addKeyword("undeploy");
+	static Token NODEPLOY = addKeyword("nodeploy");
 	static Token EXPORTCFG = addKeyword("exportcfg");
 	static Token IMPORTCFG = addKeyword("importcfg");
 	static Token IMPORT = addKeyword("import");

@@ -198,9 +198,9 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    public synchronized void setServerConfiguration(ServerConfiguration serverConfiguration) throws ClientException {
+    public synchronized void setServerConfiguration(ServerConfiguration serverConfiguration, boolean deploy) throws ClientException {
         logger.debug("setting server configuration");
-        NameValuePair[] params = { new BasicNameValuePair("op", Operations.SERVER_CONFIGURATION_SET.getName()), new BasicNameValuePair("data", serializer.serialize(serverConfiguration)) };
+        NameValuePair[] params = { new BasicNameValuePair("op", Operations.SERVER_CONFIGURATION_SET.getName()), new BasicNameValuePair("data", serializer.serialize(serverConfiguration)), new BasicNameValuePair("deploy", serializer.serialize(deploy)) };
         serverConnection.executePostMethodAsync(CONFIGURATION_SERVLET, params);
     }
 

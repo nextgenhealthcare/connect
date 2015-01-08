@@ -22,6 +22,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.io.RuntimeIOException;
@@ -150,10 +151,11 @@ public class ConfigurationServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.SERVER_CONFIGURATION_SET)) {
                     String serverConfiguration = request.getParameter("data");
+                    Boolean deploy = serializer.deserialize(request.getParameter("deploy"), Boolean.class);
                     parameterMap.put("data", serverConfiguration);
 
                     if (isUserAuthorized(request, parameterMap)) {
-                        configurationController.setServerConfiguration(serializer.deserialize(serverConfiguration, ServerConfiguration.class));
+                        configurationController.setServerConfiguration(serializer.deserialize(serverConfiguration, ServerConfiguration.class), BooleanUtils.isNotFalse(deploy));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }

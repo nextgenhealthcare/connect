@@ -514,7 +514,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     @Override
-    public void setServerConfiguration(ServerConfiguration serverConfiguration) throws StartException, StopException, ControllerException, InterruptedException {
+    public void setServerConfiguration(ServerConfiguration serverConfiguration, boolean deploy) throws StartException, StopException, ControllerException, InterruptedException {
         ChannelController channelController = ControllerFactory.getFactory().createChannelController();
         AlertController alertController = ControllerFactory.getFactory().createAlertController();
         CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
@@ -610,7 +610,9 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
 
             // Deploy all channels
-            engineController.deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null);
+            if (deploy) {
+                engineController.deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null);
+            }
         }
     }
 

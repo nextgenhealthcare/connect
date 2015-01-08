@@ -18,6 +18,8 @@ import java.util.List;
 
 import javax.mail.internet.InternetAddress;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
@@ -395,14 +397,20 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
                 final ServerConfiguration configuration = ObjectXMLSerializer.getInstance().deserialize(content, ServerConfiguration.class);
 
-                if (getFrame().alertOption(this, "Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels,\nalerts, server properties, and plugin properties.")) {
+                final JCheckBox deployChannelsCheckBox = new JCheckBox("Deploy all channels after import");
+                deployChannelsCheckBox.setSelected(true);
+                String warningMessage = "Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels,\nalerts, server properties, and plugin properties.\n";
+                Object[] params = { warningMessage, new JLabel(" "), deployChannelsCheckBox };
+                int option = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_OPTION);
+
+                if (option == JOptionPane.YES_OPTION) {
                     final String workingId = getFrame().startWorking("Restoring server config...");
 
                     SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                         public Void doInBackground() {
                             try {
-                                getFrame().mirthClient.setServerConfiguration(configuration);
+                                getFrame().mirthClient.setServerConfiguration(configuration, deployChannelsCheckBox.isSelected());
                                 getFrame().clearChannelCache();
                                 doRefresh();
                                 getFrame().alertInformation(SettingsPanelServer.this, "Your configuration was successfully restored.");
