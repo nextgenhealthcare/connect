@@ -34,11 +34,14 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
     private static final String DATABASE_PASSWORD = "database.password";
     private static final String DATABASE_MAX_CONNECTIONS = "database.max-connections";
     private static final String DATABASE_POOL = "database.pool";
+    private static final String DATABASE_JDBC4 = "database.jdbc4";
     private static final String DATABASE_TEST_QUERY = "database.test-query";
+    private static final String DATABASE_TEST_IDLE_TIME = "database.test-idle-time";
 
     private static final String DIR_BASE = "dir.base";
 
     private static Map<String, String> databaseDriverMap = null;
+    private static Map<String, Boolean> databaseJdbc4Map = null;
     private static Map<String, String> databaseTestQueryMap = null;
 
     static {
@@ -49,7 +52,19 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
         databaseDriverMap.put("postgres", "org.postgresql.Driver");
         databaseDriverMap.put("sqlserver", "net.sourceforge.jtds.jdbc.Driver");
 
+        databaseJdbc4Map = new HashMap<String, Boolean>();
+        databaseJdbc4Map.put("derby", true);
+        databaseJdbc4Map.put("mysql", true);
+        databaseJdbc4Map.put("oracle", true);
+        databaseJdbc4Map.put("postgres", true);
+        // JTDS does not support JDBC 4.0 operations
+        databaseJdbc4Map.put("sqlserver", false);
+
         databaseTestQueryMap = new HashMap<String, String>();
+        databaseTestQueryMap.put("derby", "SELECT 1");
+        databaseTestQueryMap.put("mysql", "SELECT 1");
+        databaseTestQueryMap.put("oracle", "SELECT 1 FROM DUAL");
+        databaseTestQueryMap.put("postgres", "SELECT 1");
         databaseTestQueryMap.put("sqlserver", "SELECT 1");
     }
 
@@ -60,6 +75,7 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
     private String databasePassword;
     private Integer databaseMaxConnections;
     private String databasePool;
+    private Integer databaseTestIdleTime;
     private String dirBase;
 
     public DatabaseSettings() {
@@ -126,6 +142,14 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
         this.databasePool = databasePool;
     }
 
+    public Integer getDatabaseTestIdleTime() {
+        return databaseTestIdleTime;
+    }
+
+    public void setDatabaseTestIdleTime(Integer databaseTestIdleTime) {
+        this.databaseTestIdleTime = databaseTestIdleTime;
+    }
+
     public String getDirBase() {
         return dirBase;
     }
@@ -142,6 +166,10 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
         }
     }
 
+    private Boolean getMappedJdbc4() {
+        return MapUtils.getBoolean(databaseJdbc4Map, getDatabase());
+    }
+
     private String getMappedTestQuery() {
         return MapUtils.getString(databaseTestQueryMap, getDatabase());
     }
@@ -155,6 +183,7 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
         setDatabasePassword(properties.getProperty(DATABASE_PASSWORD));
         setDatabaseMaxConnections(Integer.parseInt(properties.getProperty(DATABASE_MAX_CONNECTIONS)));
         setDatabasePool(properties.getProperty(DATABASE_POOL));
+        setDatabaseTestIdleTime(Integer.parseInt(properties.getProperty(DATABASE_TEST_IDLE_TIME, "10000")));
         setDirBase(properties.getProperty(DIR_BASE));
     }
 
@@ -182,6 +211,10 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
             configuration.setProperty(DATABASE_POOL, getDatabasePool());
         }
 
+        if (getMappedJdbc4() != null) {
+            configuration.setProperty(DATABASE_JDBC4, getMappedJdbc4());
+        }
+
         if (getMappedTestQuery() != null) {
             configuration.setProperty(DATABASE_TEST_QUERY, getMappedTestQuery());
         }
@@ -205,6 +238,12 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
             configuration.setProperty(DATABASE_MAX_CONNECTIONS, getDatabaseMaxConnections().toString());
         } else {
             configuration.setProperty(DATABASE_MAX_CONNECTIONS, StringUtils.EMPTY);
+        }
+
+        if (getDatabaseTestIdleTime() != null) {
+            configuration.setProperty(DATABASE_TEST_IDLE_TIME, getDatabaseTestIdleTime().toString());
+        } else {
+            configuration.setProperty(DATABASE_TEST_IDLE_TIME, "10000");
         }
 
         return ConfigurationConverter.getProperties(configuration);

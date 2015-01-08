@@ -84,6 +84,7 @@ public class Donkey {
         String username = dbProperties.getProperty("database.username");
         String password = dbProperties.getProperty("database.password");
         String pool = dbProperties.getProperty("database.pool");
+        boolean jdbc4 = Boolean.parseBoolean(dbProperties.getProperty("database.jdbc4"));
         String testQuery = dbProperties.getProperty("database.test-query");
         int maxConnections;
 
@@ -106,7 +107,7 @@ public class Donkey {
 
         if (StringUtils.equalsIgnoreCase(pool, "HikariCP")) {
             logger.debug("Initializing HikariCP");
-            jdbcDaoFactory.setConnectionPool(new HikariConnectionPool(driver, url, username, password, maxConnections, testQuery));
+            jdbcDaoFactory.setConnectionPool(new HikariConnectionPool(driver, url, username, password, maxConnections, jdbc4, testQuery));
         } else {
             logger.debug("Initializing DBCP");
             jdbcDaoFactory.setConnectionPool(new DBCPConnectionPool(url, username, password, maxConnections));

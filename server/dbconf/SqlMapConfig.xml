@@ -38,6 +38,9 @@
 				<property name="password" value="${database.password}" />
 				<property name="poolMaximumActiveConnections" value="20" />
 				<property name="poolMaximumIdleConnections" value="10" />
+				<property name="poolPingEnabled" value="true" />
+				<property name="poolPingQuery" value="${database.test-query}" />
+				<property name="poolPingConnectionsNotUsedFor" value="${database.test-idle-time}" />
 			</dataSource>
 		</environment>
 	</environments>
