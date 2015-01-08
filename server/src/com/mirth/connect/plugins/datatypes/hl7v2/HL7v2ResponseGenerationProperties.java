@@ -9,9 +9,13 @@
 
 package com.mirth.connect.plugins.datatypes.hl7v2;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
@@ -28,6 +32,7 @@ public class HL7v2ResponseGenerationProperties extends ResponseGenerationPropert
     private String rejectedACKCode = "AR";
     private String rejectedACKMessage = "Message Rejected.";
     private boolean msh15ACKAccept = false;
+    private String dateFormat = "yyyyMMddHHmmss.SSS";
 
     public HL7v2ResponseGenerationProperties() {
 
@@ -56,6 +61,7 @@ public class HL7v2ResponseGenerationProperties extends ResponseGenerationPropert
         properties.put("rejectedACKCode", new DataTypePropertyDescriptor(rejectedACKCode, "Rejected ACK Code", "The ACK code to respond with when the message is filtered. This option has no effect unless an \"Auto-generate\" item has been selected in the response settings.", PropertyEditorType.STRING));
         properties.put("rejectedACKMessage", new DataTypePropertyDescriptor(rejectedACKMessage, "Rejected ACK Message", "The ACK message to respond with when the message is filtered. This option has no effect unless an \"Auto-generate\" item has been selected in the response settings.", PropertyEditorType.STRING));
         properties.put("msh15ACKAccept", new DataTypePropertyDescriptor(msh15ACKAccept, "MSH-15 ACK Accept", "This setting determines if Mirth should check the MSH-15 field of an incoming message to control the acknowledgment conditions. The MSH-15 field specifies if a message should be always acknowledged, never acknowledged, or only acknowledged on error. This option has no effect unless an \"Auto-generate\" item has been selected in the response settings.", PropertyEditorType.BOOLEAN));
+        properties.put("dateFormat", new DataTypePropertyDescriptor(dateFormat, "Date Format", "This setting determines the date format used for the timestamp in the generated ACK. The default value is \"yyyyMMddHHmmss.SSS\".", PropertyEditorType.STRING));
 
         return properties;
     }
@@ -86,6 +92,14 @@ public class HL7v2ResponseGenerationProperties extends ResponseGenerationPropert
             }
             if (properties.get("msh15ACKAccept") != null) {
                 msh15ACKAccept = (Boolean) properties.get("msh15ACKAccept");
+            }
+            if (StringUtils.isNotEmpty((String) properties.get("dateFormat"))) {
+                try {
+                    String format = (String) properties.get("dateFormat");
+                    new SimpleDateFormat(format).format(new Date());
+                    dateFormat = format;
+                } catch (Exception e) {
+                }
             }
         }
     }
@@ -154,6 +168,14 @@ public class HL7v2ResponseGenerationProperties extends ResponseGenerationPropert
         msh15ACKAccept = msh15ackAccept;
     }
 
+    public String getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+
     @Override
     public void migrate3_0_1(DonkeyElement element) {}
 
@@ -164,7 +186,9 @@ public class HL7v2ResponseGenerationProperties extends ResponseGenerationPropert
     public void migrate3_1_0(DonkeyElement element) {}
 
     @Override
-    public void migrate3_2_0(DonkeyElement element) {}
+    public void migrate3_2_0(DonkeyElement element) {
+        element.addChildElementIfNotExists("dateFormat", "yyyyMMddHHmmss");
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {

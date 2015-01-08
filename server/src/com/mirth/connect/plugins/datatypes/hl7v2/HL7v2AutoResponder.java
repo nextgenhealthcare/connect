@@ -180,7 +180,7 @@ public class HL7v2AutoResponder implements AutoResponder {
                 ackMessage = hl7v2Properties.getSuccessfulACKMessage();
             }
 
-            ACK = HL7v2ACKGenerator.generateAckResponse(hl7Message, isXML, ackCode, ackMessage, "yyyyMMddHHmmss", new String(), deserializationSegmentDelimiter);
+            ACK = HL7v2ACKGenerator.generateAckResponse(hl7Message, isXML, ackCode, ackMessage, generationProperties.getDateFormat(), new String(), deserializationSegmentDelimiter);
             statusMessage = "HL7v2 " + (nack ? "N" : "") + "ACK successfully generated.";
             logger.debug("HL7v2 " + (nack ? "N" : "") + "ACK successfully generated: " + ACK);
         } catch (Exception e) {
