@@ -65,6 +65,7 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.plugins.ChannelColumnPlugin;
 import com.mirth.connect.plugins.ChannelPanelPlugin;
+import com.mirth.connect.plugins.TaskPlugin;
 
 public class ChannelPanel extends javax.swing.JPanel {
 
@@ -603,6 +604,10 @@ public class ChannelPanel extends javax.swing.JPanel {
                 }
             }
 
+            for (TaskPlugin plugin : LoadedExtensions.getInstance().getTaskPlugins().values()) {
+                plugin.onRowSelected(channelTable);
+            }
+
             updateCurrentPluginPanel();
         }
     }
@@ -641,6 +646,10 @@ public class ChannelPanel extends javax.swing.JPanel {
 
         // The plugin panel will be updated if any rows were selected above. If not, update it now.
         if (channelIds.size() == 0) {
+            for (TaskPlugin plugin : LoadedExtensions.getInstance().getTaskPlugins().values()) {
+                plugin.onRowDeselected();
+            }
+
             updateCurrentPluginPanel();
         }
     }
@@ -649,6 +658,11 @@ public class ChannelPanel extends javax.swing.JPanel {
         channelTable.clearSelection();
         parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 2, 2, false);
         parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 8, -1, false);
+
+        for (TaskPlugin plugin : LoadedExtensions.getInstance().getTaskPlugins().values()) {
+            plugin.onRowDeselected();
+        }
+
         updateCurrentPluginPanel();
     }
 

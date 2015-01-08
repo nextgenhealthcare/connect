@@ -27,6 +27,7 @@ import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.plugins.AttachmentViewer;
 import com.mirth.connect.plugins.ChannelColumnPlugin;
 import com.mirth.connect.plugins.ChannelPanelPlugin;
+import com.mirth.connect.plugins.ChannelTabPlugin;
 import com.mirth.connect.plugins.ChannelWizardPlugin;
 import com.mirth.connect.plugins.ClientPlugin;
 import com.mirth.connect.plugins.CodeTemplatePlugin;
@@ -39,6 +40,7 @@ import com.mirth.connect.plugins.FilterRulePlugin;
 import com.mirth.connect.plugins.LibraryClientPlugin;
 import com.mirth.connect.plugins.ResourceClientPlugin;
 import com.mirth.connect.plugins.SettingsPanelPlugin;
+import com.mirth.connect.plugins.TaskPlugin;
 import com.mirth.connect.plugins.TransformerStepPlugin;
 import com.mirth.connect.plugins.TransmissionModePlugin;
 
@@ -62,6 +64,8 @@ public class LoadedExtensions {
     private Map<String, ResourceClientPlugin> resourceClientPlugins = new LinkedHashMap<String, ResourceClientPlugin>();
     private Map<String, LibraryClientPlugin> libraryClientPlugins = new LinkedHashMap<String, LibraryClientPlugin>();
     private Map<String, ConnectorPropertiesPlugin> connectorPropertiesPlugins = new LinkedHashMap<String, ConnectorPropertiesPlugin>();
+    private Map<String, ChannelTabPlugin> channelTabPlugins = new LinkedHashMap<String, ChannelTabPlugin>();
+    private Map<String, TaskPlugin> taskPlugins = new LinkedHashMap<String, TaskPlugin>();
     private Map<String, ConnectorSettingsPanel> connectors = new TreeMap<String, ConnectorSettingsPanel>();
     private Map<String, ConnectorSettingsPanel> sourceConnectors = new TreeMap<String, ConnectorSettingsPanel>();
     private Map<String, ConnectorSettingsPanel> destinationConnectors = new TreeMap<String, ConnectorSettingsPanel>();
@@ -287,6 +291,14 @@ public class LoadedExtensions {
         if (plugin instanceof LibraryClientPlugin) {
             libraryClientPlugins.put(plugin.getPluginPointName(), (LibraryClientPlugin) plugin);
         }
+
+        if (plugin instanceof ChannelTabPlugin) {
+            channelTabPlugins.put(plugin.getPluginPointName(), (ChannelTabPlugin) plugin);
+        }
+
+        if (plugin instanceof TaskPlugin) {
+            taskPlugins.put(plugin.getPluginPointName(), (TaskPlugin) plugin);
+        }
     }
 
     private void clearExtensionMaps() {
@@ -308,6 +320,8 @@ public class LoadedExtensions {
         connectorPropertiesPlugins.clear();
         resourceClientPlugins.clear();
         libraryClientPlugins.clear();
+        channelTabPlugins.clear();
+        taskPlugins.clear();
 
         connectors.clear();
         sourceConnectors.clear();
@@ -380,6 +394,14 @@ public class LoadedExtensions {
 
     public Map<String, LibraryClientPlugin> getLibraryClientPlugins() {
         return libraryClientPlugins;
+    }
+    
+    public Map<String, ChannelTabPlugin> getChannelTabPlugins() {
+        return channelTabPlugins;
+    }
+    
+    public Map<String, TaskPlugin> getTaskPlugins() {
+        return taskPlugins;
     }
 
     public Map<String, ConnectorSettingsPanel> getConnectors() {

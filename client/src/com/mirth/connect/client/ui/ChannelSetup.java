@@ -86,6 +86,7 @@ import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.util.JavaScriptConstants;
+import com.mirth.connect.plugins.ChannelTabPlugin;
 import com.mirth.connect.util.PropertyVerifier;
 
 /** The channel editor panel. Majority of the client application */
@@ -846,6 +847,12 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         attachmentStoreCheckBox.setSelected(currentChannel.getProperties().isStoreAttachments());
 
+        for (ChannelTabPlugin channelTabPlugin : LoadedExtensions.getInstance().getChannelTabPlugins().values()) {
+            AbstractChannelTabPanel channelTabPanel = channelTabPlugin.getChannelTabPanel();
+            channelView.addTab(channelTabPlugin.getPluginPointName(), channelTabPanel);
+            channelTabPanel.load(currentChannel);
+        }
+
         parent.setSaveEnabled(enabled);
     }
 
@@ -1252,6 +1259,10 @@ public class ChannelSetup extends javax.swing.JPanel {
         saveMetaDataColumns();
         saveMessageStorage(messageStorageMode);
         saveMessagePruning();
+
+        for (ChannelTabPlugin channelTabPlugin : LoadedExtensions.getInstance().getChannelTabPlugins().values()) {
+            channelTabPlugin.getChannelTabPanel().save(currentChannel);
+        }
 
         boolean updated = false;
 

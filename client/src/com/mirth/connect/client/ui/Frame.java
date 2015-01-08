@@ -128,6 +128,7 @@ import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.util.ImportConverter3_0_0;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
+import com.mirth.connect.plugins.TaskPlugin;
 import com.mirth.connect.util.MigrationUtil;
 
 /**
@@ -1059,18 +1060,22 @@ public class Frame extends JXFrame {
         ((JXHyperlink) otherPane.getContentPane().getComponent(UIConstants.VIEW_NOTIFICATIONS_TASK_NUMBER)).setText(taskName);
     }
 
+    public int addTask(String callbackMethod, String displayName, String toolTip, String shortcutKey, ImageIcon icon, JXTaskPane pane, JPopupMenu menu) {
+        return addTask(callbackMethod, displayName, toolTip, shortcutKey, icon, pane, menu, this);
+    }
+    
     /**
      * Initializes the bound method call for the task pane actions and adds them to the
      * taskpane/popupmenu.
      */
-    public void addTask(String callbackMethod, String displayName, String toolTip, String shortcutKey, ImageIcon icon, JXTaskPane pane, JPopupMenu menu) {
+    public int addTask(String callbackMethod, String displayName, String toolTip, String shortcutKey, ImageIcon icon, JXTaskPane pane, JPopupMenu menu, Object handler) {
         BoundAction boundAction = ActionFactory.createBoundAction(callbackMethod, displayName, shortcutKey);
 
         if (icon != null) {
             boundAction.putValue(Action.SMALL_ICON, icon);
         }
         boundAction.putValue(Action.SHORT_DESCRIPTION, toolTip);
-        boundAction.registerCallback(this, callbackMethod);
+        boundAction.registerCallback(handler, callbackMethod);
 
         Component component = pane.add(boundAction);
         getComponentTaskMap().put(component, callbackMethod);
@@ -1078,6 +1083,8 @@ public class Frame extends JXFrame {
         if (menu != null) {
             menu.add(boundAction);
         }
+        
+        return (pane.getContentPane().getComponentCount() - 1);
     }
 
     public Map<Component, String> getComponentTaskMap() {
@@ -1781,7 +1788,18 @@ public class Frame extends JXFrame {
         setBold(viewPane, 1);
         setPanelName("Channels");
         setCurrentContentPage(channelPanel);
-        setFocus(channelTasks);
+
+        List<JXTaskPane> taskPanes = new ArrayList<JXTaskPane>();
+        taskPanes.add(channelTasks);
+
+        for (TaskPlugin plugin : LoadedExtensions.getInstance().getTaskPlugins().values()) {
+            JXTaskPane taskPane = plugin.getTaskPane();
+            if (taskPane != null) {
+                taskPanes.add(taskPane);
+            }
+        }
+
+        setFocus(taskPanes.toArray(new JXTaskPane[taskPanes.size()]), true, true);
 
         doRefreshChannels();
     }
