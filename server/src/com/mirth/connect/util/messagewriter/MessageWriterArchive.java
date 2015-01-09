@@ -62,7 +62,7 @@ public class MessageWriterArchive implements MessageWriter {
      * Ends message writing and moves the written folders/files into the archive file.
      */
     @Override
-    public void close() throws MessageWriterException {
+    public void finishWrite() throws MessageWriterException {
         vfsWriter.close();
 
         if (messagesWritten) {
@@ -88,5 +88,13 @@ public class MessageWriterArchive implements MessageWriter {
                 FileUtils.deleteQuietly(rootFolder);
             }
         }
+    }
+
+    /**
+     * Ends message writing and moves the written folders/files into the archive file.
+     */
+    @Override
+    public void close() throws MessageWriterException {
+        vfsWriter.close();
     }
 }

@@ -70,6 +70,8 @@ public class MessageImporter {
                     importVfsFile(file, messageWriter, result);
                     break;
             }
+
+            messageWriter.finishWrite();
         } catch (Exception e) {
             throw new MessageImportException(e);
         } finally {

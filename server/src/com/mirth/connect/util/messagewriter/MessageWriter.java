@@ -21,5 +21,13 @@ public interface MessageWriter {
      */
     public boolean write(Message message) throws MessageWriterException;
 
+    /**
+     * Do any operations required to finish writing messages written by the write() method.
+     */
+    public void finishWrite() throws MessageWriterException;
+
+    /**
+     * Close all resources opened by the writer.
+     */
     public void close() throws MessageWriterException;
 }

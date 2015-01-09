@@ -864,6 +864,9 @@ public class CommandLineInterface {
             }
 
             @Override
+            public void finishWrite() throws MessageWriterException {}
+
+            @Override
             public void close() throws MessageWriterException {}
         };
 
@@ -931,6 +934,7 @@ public class CommandLineInterface {
 
         try {
             filter.setMaxMessageId(client.getMaxMessageId(channelId));
+            MessageWriter messageWriter = null;
 
             try {
                 out.println("Exporting messages to file: " + fXml.getPath());
@@ -953,7 +957,7 @@ public class CommandLineInterface {
                 writerOptions.setCompressFormat(null);
                 writerOptions.setIncludeAttachments(includeAttachments);
 
-                MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, client.getEncryptor());
+                messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, client.getEncryptor());
 
                 AttachmentSource attachmentSource = null;
                 if (writerOptions.includeAttachments()) {
@@ -966,10 +970,19 @@ public class CommandLineInterface {
                 }
 
                 messageCount = new MessageExporter().exportMessages(messageList, messageWriter, attachmentSource);
-                messageWriter.close();
+                messageWriter.finishWrite();
             } catch (Exception e) {
                 Throwable cause = ExceptionUtils.getRootCause(e);
-                error("unable to write file " + path + ": " + cause, cause);
+                error("unable to write file(s) " + path + ": " + cause, cause);
+            } finally {
+                if (messageWriter != null) {
+                    try {
+                        messageWriter.close();
+                    } catch (Exception e) {
+                        Throwable cause = ExceptionUtils.getRootCause(e);
+                        error("unable to close file(s) " + path + ": " + cause, cause);
+                    }
+                }
             }
         } catch (Exception e) {
             Throwable cause = ExceptionUtils.getRootCause(e);

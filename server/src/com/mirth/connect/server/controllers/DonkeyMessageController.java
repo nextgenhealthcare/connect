@@ -481,9 +481,13 @@ public class DonkeyMessageController extends MessageController {
                 };
             }
 
-            int numExported = new MessageExporter().exportMessages(messageList, messageWriter, attachmentSource);
-            messageWriter.close();
-            return numExported;
+            try {
+                int numExported = new MessageExporter().exportMessages(messageList, messageWriter, attachmentSource);
+                messageWriter.finishWrite();
+                return numExported;
+            } finally {
+                messageWriter.close();
+            }
         } catch (MessageWriterException e) {
             throw new MessageExportException(e);
         }
@@ -1098,6 +1102,9 @@ public class DonkeyMessageController extends MessageController {
 
             return true;
         }
+
+        @Override
+        public void finishWrite() {}
 
         @Override
         public void close() throws MessageWriterException {

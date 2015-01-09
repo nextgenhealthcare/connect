@@ -210,6 +210,9 @@ public class MessageImportDialog extends MirthDialog {
                     }
 
                     @Override
+                    public void finishWrite() {}
+
+                    @Override
                     public void close() throws MessageWriterException {}
                 };
 

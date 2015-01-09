@@ -530,46 +530,51 @@ public class DataPruner implements Runnable {
             numExported = 0;
             long minMessageId = 0;
             List<Message> messageList = null;
-            do {
-                ThreadUtils.checkInterruptedStatus();
-                try {
-                    params.put("minMessageId", minMessageId);
 
-                    messageList = getMessagesForArchive(channelId, params, messageDateThreshold, messageIds, contentMessageIds);
-
-                    for (Message message : messageList) {
-                        ThreadUtils.checkInterruptedStatus();
-
-                        try {
-                            if (attachmentSource != null) {
-                                List<Attachment> attachments = attachmentSource.getMessageAttachments(message);
-
-                                if (CollectionUtils.isNotEmpty(attachments)) {
-                                    message.setAttachments(attachments);
+            try {
+                do {
+                    ThreadUtils.checkInterruptedStatus();
+                    try {
+                        params.put("minMessageId", minMessageId);
+    
+                        messageList = getMessagesForArchive(channelId, params, messageDateThreshold, messageIds, contentMessageIds);
+    
+                        for (Message message : messageList) {
+                            ThreadUtils.checkInterruptedStatus();
+    
+                            try {
+                                if (attachmentSource != null) {
+                                    List<Attachment> attachments = attachmentSource.getMessageAttachments(message);
+    
+                                    if (CollectionUtils.isNotEmpty(attachments)) {
+                                        message.setAttachments(attachments);
+                                    }
                                 }
+    
+                                if (archiver.write(message)) {
+                                    numExported++;
+                                }
+    
+                            } catch (Exception e) {
+                                Throwable cause = ExceptionUtils.getRootCause(e);
+                                throw new MessageExportException("Failed to export message: " + cause.getMessage(), cause);
                             }
-
-                            if (archiver.write(message)) {
-                                numExported++;
-                            }
-
-                        } catch (Exception e) {
-                            Throwable cause = ExceptionUtils.getRootCause(e);
-                            throw new MessageExportException("Failed to export message: " + cause.getMessage(), cause);
+    
+                            minMessageId = message.getMessageId() + 1;
                         }
-
-                        minMessageId = message.getMessageId() + 1;
+                    } catch (Exception e) {
+                        if (e instanceof MessageExportException) {
+                            throw (MessageExportException) e;
+                        }
+    
+                        throw new MessageExportException(e);
                     }
-                } catch (Exception e) {
-                    if (e instanceof MessageExportException) {
-                        throw (MessageExportException) e;
-                    }
-
-                    throw new MessageExportException(e);
-                }
-            } while (messageList != null && messageList.size() == archiverBlockSize);
-
-            archiver.close();
+                } while (messageList != null && messageList.size() == archiverBlockSize);
+    
+                archiver.finishWrite();
+            } finally {
+                archiver.close();
+            }
 
             if (messageWriterOptions.getArchiveFormat() == null && new File(tempChannelFolder).isDirectory()) {
                 try {

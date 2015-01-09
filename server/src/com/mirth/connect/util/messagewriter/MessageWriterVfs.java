@@ -200,10 +200,16 @@ public class MessageWriterVfs implements MessageWriter {
     }
 
     @Override
+    public void finishWrite() throws MessageWriterException {}
+
+    @Override
     public void close() throws MessageWriterException {
+        currentFile = null;
+
         if (writer != null) {
             try {
                 writer.close();
+                writer = null;
             } catch (Exception e) {
                 throw new MessageWriterException(e);
             }
@@ -212,6 +218,7 @@ public class MessageWriterVfs implements MessageWriter {
         if (currentFileObject != null) {
             try {
                 currentFileObject.close();
+                currentFileObject = null;
             } catch (Exception e) {
                 throw new MessageWriterException(e);
             }

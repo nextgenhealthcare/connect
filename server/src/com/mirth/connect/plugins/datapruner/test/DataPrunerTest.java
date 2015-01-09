@@ -296,6 +296,9 @@ public class DataPrunerTest {
         }
 
         @Override
+        public void finishWrite() {}
+
+        @Override
         public void close() throws MessageWriterException {}
     }
 
@@ -311,6 +314,9 @@ public class DataPrunerTest {
             archivedMessageIds.add(message.getMessageId().longValue());
             return true;
         }
+
+        @Override
+        public void finishWrite() {}
 
         @Override
         public void close() throws MessageWriterException {}
