@@ -19,8 +19,11 @@ public enum MetaDataSearchOperator {
     GREATER_THAN(">"),
     GREATER_THAN_OR_EQUAL(">="),
     CONTAINS("CONTAINS"),
+    DOES_NOT_CONTAIN("DOES NOT CONTAIN"),
     STARTS_WITH("STARTS WITH"),
-    ENDS_WITH("ENDS WITH");
+    DOES_NOT_START_WITH("DOES NOT START WITH"),
+    ENDS_WITH("ENDS WITH"),
+    DOES_NOT_END_WITH("DOES NOT END WITH");
     
     private String operator;
 
@@ -44,7 +47,7 @@ public enum MetaDataSearchOperator {
             return new MetaDataSearchOperator[]{EQUAL, NOT_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL};
         }
         if (type == MetaDataColumnType.STRING) {
-            return new MetaDataSearchOperator[]{EQUAL, NOT_EQUAL, CONTAINS, STARTS_WITH, ENDS_WITH};
+            return new MetaDataSearchOperator[]{EQUAL, NOT_EQUAL, CONTAINS, DOES_NOT_CONTAIN, STARTS_WITH, DOES_NOT_START_WITH, ENDS_WITH, DOES_NOT_END_WITH};
         }
         if (type == MetaDataColumnType.TIMESTAMP) {
             return new MetaDataSearchOperator[]{EQUAL, NOT_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL};
@@ -68,12 +71,18 @@ public enum MetaDataSearchOperator {
             return GREATER_THAN_OR_EQUAL;
         } else if (type.equals("CONTAINS")) {
             return CONTAINS;
+        }else if (type.equals("DOES_NOT_CONTAIN")) {
+            return DOES_NOT_CONTAIN;
         } else if (type.equals("STARTS_WITH")) {
             return STARTS_WITH;
+        } else if (type.equals("DOES_NOT_START_WITH")) {
+            return DOES_NOT_START_WITH;
         } else if (type.equals("ENDS_WITH")) {
             return ENDS_WITH;
-        } 
-        
+        }  else if (type.equals("DOES_NOT_END_WITH")) {
+            return DOES_NOT_END_WITH;
+        }
+
         return null;
     }
 }

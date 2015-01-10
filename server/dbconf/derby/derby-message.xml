@@ -224,9 +224,12 @@
 						<when test="element.operator == 'CONTAINS' || element.operator == 'STARTS_WITH' || element.operator == 'ENDS_WITH'">
 							LIKE
 						</when>
+						<when test="element.operator == 'DOES_NOT_CONTAIN' || element.operator == 'DOES_NOT_START_WITH' || element.operator == 'DOES_NOT_END_WITH'">
+							NOT LIKE
+						</when>
 					</choose>
 					
-					<if test="element.operator == 'CONTAINS' || element.operator == 'ENDS_WITH'">
+					<if test="element.operator == 'CONTAINS' || element.operator == 'DOES_NOT_CONTAIN' || element.operator == 'ENDS_WITH' || element.operator == 'DOES_NOT_END_WITH'">
 						'%' ||
 					</if>
 					
@@ -239,7 +242,7 @@
 						</otherwise>
 					</choose>
 						
-					<if test="element.operator == 'CONTAINS' || element.operator == 'STARTS_WITH'">
+					<if test="element.operator == 'CONTAINS' || element.operator == 'DOES_NOT_CONTAIN' || element.operator == 'STARTS_WITH' || element.operator == 'DOES_NOT_START_WITH'">
 						|| '%'
 					</if>	
 				</foreach>
