@@ -55,7 +55,6 @@ import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.ListRangeIterator;
 import com.mirth.connect.server.util.ListRangeIterator.ListRangeItem;
 import com.mirth.connect.server.util.SqlConfig;
-import com.mirth.connect.util.MessageExporter.MessageExportException;
 import com.mirth.connect.util.messagewriter.AttachmentSource;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterFactory;
@@ -351,8 +350,12 @@ public class DataPruner implements Runnable {
 
             logger.debug("Pruner job finished executing");
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            eventController.dispatchEvent(new ServerEvent(DataPrunerService.PLUGINPOINT + " Halted", Level.INFORMATION, Outcome.SUCCESS, null));
+            // We need to clear this thread's interrupted status, or else the EventController will fail to dispatch the event
+            Thread.interrupted();
+            ServerEvent event = new ServerEvent(DataPrunerService.PLUGINPOINT + " Halted");
+            event.setLevel(Level.INFORMATION);
+            event.setOutcome(Outcome.SUCCESS);
+            eventController.dispatchEvent(event);
             logger.debug("Data Pruner halted");
         } catch (Throwable t) {
             logger.error("An error occurred while executing the data pruner", t);
@@ -453,18 +456,18 @@ public class DataPruner implements Runnable {
                 return result;
             } catch (InterruptedException e) {
                 throw e;
-            } catch (Exception e) {
+            } catch (Throwable t) {
                 if (retries > 0) {
-                    logger.error("Failed to prune messages for channel " + channelName + " (" + channelId + "). Attempts remaining: " + retries + ".", e);
+                    logger.error("Failed to prune messages for channel " + channelName + " (" + channelId + "). Attempts remaining: " + retries + ".", t);
                     retries--;
                 } else {
-                    throw new DataPrunerException("Failed to prune messages", e);
+                    throw new DataPrunerException("Failed to prune messages", t);
                 }
             }
         }
     }
 
-    private void getIdsToPrune(Map<String, Object> params, Calendar messageDateThreshold, PruneIds messageIds, PruneIds contentMessageIds) throws DataPrunerException, InterruptedException {
+    private void getIdsToPrune(Map<String, Object> params, Calendar messageDateThreshold, PruneIds messageIds, PruneIds contentMessageIds) {
         params.put("limit", ID_RETRIEVE_LIMIT);
         params.put("archive", false);
 
@@ -495,7 +498,7 @@ public class DataPruner implements Runnable {
         } while (maps != null && maps.size() == ID_RETRIEVE_LIMIT);
     }
 
-    private void archiveAndGetIdsToPrune(Map<String, Object> params, String channelId, Calendar messageDateThreshold, String archiveFolder, PruneIds messageIds, PruneIds contentMessageIds) throws DataPrunerException, InterruptedException {
+    private void archiveAndGetIdsToPrune(Map<String, Object> params, String channelId, Calendar messageDateThreshold, String archiveFolder, PruneIds messageIds, PruneIds contentMessageIds) throws Throwable {
         params.put("limit", archiverBlockSize);
         params.put("archive", true);
 
@@ -534,40 +537,26 @@ public class DataPruner implements Runnable {
             try {
                 do {
                     ThreadUtils.checkInterruptedStatus();
-                    try {
-                        params.put("minMessageId", minMessageId);
-    
-                        messageList = getMessagesForArchive(channelId, params, messageDateThreshold, messageIds, contentMessageIds);
-    
-                        for (Message message : messageList) {
-                            ThreadUtils.checkInterruptedStatus();
-    
-                            try {
-                                if (attachmentSource != null) {
-                                    List<Attachment> attachments = attachmentSource.getMessageAttachments(message);
-    
-                                    if (CollectionUtils.isNotEmpty(attachments)) {
-                                        message.setAttachments(attachments);
-                                    }
-                                }
-    
-                                if (archiver.write(message)) {
-                                    numExported++;
-                                }
-    
-                            } catch (Exception e) {
-                                Throwable cause = ExceptionUtils.getRootCause(e);
-                                throw new MessageExportException("Failed to export message: " + cause.getMessage(), cause);
+                    params.put("minMessageId", minMessageId);
+
+                    messageList = getMessagesForArchive(channelId, params, messageDateThreshold, messageIds, contentMessageIds);
+
+                    for (Message message : messageList) {
+                        ThreadUtils.checkInterruptedStatus();
+
+                        if (attachmentSource != null) {
+                            List<Attachment> attachments = attachmentSource.getMessageAttachments(message);
+
+                            if (CollectionUtils.isNotEmpty(attachments)) {
+                                message.setAttachments(attachments);
                             }
-    
-                            minMessageId = message.getMessageId() + 1;
                         }
-                    } catch (Exception e) {
-                        if (e instanceof MessageExportException) {
-                            throw (MessageExportException) e;
+
+                        if (archiver.write(message)) {
+                            numExported++;
                         }
-    
-                        throw new MessageExportException(e);
+
+                        minMessageId = message.getMessageId() + 1;
                     }
                 } while (messageList != null && messageList.size() == archiverBlockSize);
     
@@ -586,7 +575,7 @@ public class DataPruner implements Runnable {
         } catch (Throwable t) {
             FileUtils.deleteQuietly(new File(tempChannelFolder));
             FileUtils.deleteQuietly(new File(finalChannelFolder));
-            throw new DataPrunerException(t);
+            throw t;
         } finally {
             status.setArchiving(false);
         }
