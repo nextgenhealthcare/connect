@@ -38,7 +38,6 @@ public class ChannelUtil {
     private static EngineController engineController = ControllerFactory.getFactory().createEngineController();
     private static ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private static ExecutorService executor = Executors.newCachedThreadPool();
-    private static com.mirth.connect.donkey.server.controllers.ChannelController donkeyController = com.mirth.connect.donkey.server.controllers.ChannelController.getInstance();
 
     private ChannelUtil() {}
 
@@ -683,7 +682,7 @@ public class ChannelUtil {
                     }
                 }
 
-                donkeyController.resetStatistics(channelMap, statusesToReset);
+                channelController.resetStatistics(channelMap, statusesToReset);
             }
         }
     }
