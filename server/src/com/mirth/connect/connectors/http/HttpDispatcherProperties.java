@@ -424,7 +424,35 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Des
     }
 
     @Override
-    public void migrate3_2_0(DonkeyElement element) {}
+    public void migrate3_2_0(DonkeyElement element) {
+        if (element.getChildElement("headers") != null) {
+            DonkeyElement oldHeaders = element.removeChild("headers");
+            DonkeyElement newHeaders = element.addChildElement("headers");
+            newHeaders.setAttribute("class", "linked-hash-map");
+
+            for (DonkeyElement oldEntry : oldHeaders.getChildElements()) {
+                if (oldEntry.getChildElements().size() >= 2) {
+                    DonkeyElement entry = newHeaders.addChildElement("entry");
+                    entry.addChildElement("string", oldEntry.getChildElements().get(0).getTextContent());
+                    entry.addChildElement("list").addChildElement("string", oldEntry.getChildElements().get(1).getTextContent());
+                }
+            }
+        }
+
+        if (element.getChildElement("parameters") != null) {
+            DonkeyElement oldParameters = element.removeChild("parameters");
+            DonkeyElement newParameters = element.addChildElement("parameters");
+            newParameters.setAttribute("class", "linked-hash-map");
+
+            for (DonkeyElement oldEntry : oldParameters.getChildElements()) {
+                if (oldEntry.getChildElements().size() >= 2) {
+                    DonkeyElement entry = newParameters.addChildElement("entry");
+                    entry.addChildElement("string", oldEntry.getChildElements().get(0).getTextContent());
+                    entry.addChildElement("list").addChildElement("string", oldEntry.getChildElements().get(1).getTextContent());
+                }
+            }
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {

@@ -233,7 +233,21 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
     }
 
     @Override
-    public void migrate3_2_0(DonkeyElement element) {}
+    public void migrate3_2_0(DonkeyElement element) {
+        if (element.getChildElement("responseHeaders") != null) {
+            DonkeyElement oldHeaders = element.removeChild("responseHeaders");
+            DonkeyElement newHeaders = element.addChildElement("responseHeaders");
+            newHeaders.setAttribute("class", "linked-hash-map");
+
+            for (DonkeyElement oldEntry : oldHeaders.getChildElements()) {
+                if (oldEntry.getChildElements().size() >= 2) {
+                    DonkeyElement entry = newHeaders.addChildElement("entry");
+                    entry.addChildElement("string", oldEntry.getChildElements().get(0).getTextContent());
+                    entry.addChildElement("list").addChildElement("string", oldEntry.getChildElements().get(1).getTextContent());
+                }
+            }
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
